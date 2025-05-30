@@ -332,7 +332,7 @@ const Dashboard: React.FC = () => {
         return <CheckCircle className="w-5 h-5 text-green-600" />;
       case 'info':
       default:
-        return <Info className="w-5 h-5 text-dfs-700" />;
+        return <Info className="w-5 h-5 text-brand-700" />;
     }
   };
 
@@ -346,7 +346,7 @@ const Dashboard: React.FC = () => {
         return 'border-l-4 border-green-400 bg-green-50';
       case 'info':
       default:
-        return 'border-l-4 border-dfs-400 bg-dfs-50';
+        return 'border-l-4 border-brand-400 bg-brand-50';
     }
   };
 
@@ -398,7 +398,7 @@ const Dashboard: React.FC = () => {
       <VisualEditBanner />
       
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-dfs-800 to-dfs-900 rounded-lg p-6 text-white">
+      <div className="bg-gradient-to-r from-brand-800 to-brand-900 rounded-lg p-6 text-white">
         <div className="flex items-center justify-center space-x-4 mb-4">
           <div className="p-3 bg-white/20 rounded-full">
             <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -412,10 +412,10 @@ const Dashboard: React.FC = () => {
           <h1 className="text-4xl font-bold mb-2">
             DFS Manager Portal
           </h1>
-          <p className="text-dfs-100 text-lg">
+          <p className="text-brand-100 text-lg">
             Fuel Station Operations & Management System
           </p>
-          <p className="text-sm text-dfs-200 mt-2">
+          <p className="text-sm text-brand-200 mt-2">
             Monitor your business performance and manage operations efficiently.
           </p>
         </div>
@@ -437,7 +437,7 @@ const Dashboard: React.FC = () => {
                   </p>
                 }
               </div>
-              <div className="p-3 rounded-full bg-dfs-700 text-white">
+              <div className="p-3 rounded-full bg-brand-700 text-white">
                 <Package className="w-6 h-6" />
               </div>
             </div>
@@ -510,7 +510,7 @@ const Dashboard: React.FC = () => {
                   {stats.activeVendors}/{stats.totalVendors}
                 </p>
               </div>
-              <Building2 className="w-8 h-8 text-dfs-700" />
+              <Building2 className="w-8 h-8 text-brand-700" />
             </div>
           </CardContent>
         </Card>
@@ -540,7 +540,7 @@ const Dashboard: React.FC = () => {
                   </p>
                 }
               </div>
-              <FileText className="w-8 h-8 text-dfs-700" />
+              <FileText className="w-8 h-8 text-brand-700" />
             </div>
           </CardContent>
         </Card>
@@ -555,7 +555,7 @@ const Dashboard: React.FC = () => {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <Bell className="w-5 h-5 text-dfs-700" />
+                <Bell className="w-5 h-5 text-brand-700" />
                 <CardTitle>Recent Notifications</CardTitle>
                 {unreadCount > 0 &&
                 <Badge variant="destructive" className="text-xs">
@@ -568,7 +568,7 @@ const Dashboard: React.FC = () => {
                 variant="ghost"
                 size="sm"
                 onClick={markAllAsRead}
-                className="text-sm text-dfs-700 hover:text-dfs-800">
+                className="text-sm text-brand-700 hover:text-brand-800">
 
                   Mark all read
                 </Button>
@@ -608,7 +608,7 @@ const Dashboard: React.FC = () => {
                           </h4>
                           <div className="flex items-center space-x-2">
                             {!notification.isRead &&
-                        <div className="w-2 h-2 bg-dfs-700 rounded-full"></div>
+                        <div className="w-2 h-2 bg-brand-700 rounded-full"></div>
                         }
                             <div className="flex items-center text-xs text-gray-500">
                               <Clock className="w-3 h-3 mr-1" />

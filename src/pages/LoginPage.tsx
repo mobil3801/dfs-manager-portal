@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useNavigate } from 'react-router-dom';
+import Logo from '@/components/Logo';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -41,15 +42,15 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-brand-50 to-brand-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo and Company Name */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full mx-auto mb-4 flex items-center justify-center">
-            <span className="text-white font-bold text-xl">DFQ</span>
+          <div className="flex flex-col items-center">
+            <Logo size="xl" showText={false} className="mb-4" />
+            <h1 className="text-3xl font-bold text-brand-900 mb-2">DFS Manager Portal</h1>
+            <p className="text-brand-700">Gas Station Management System</p>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Dream Frame Queens</h1>
-          <p className="text-gray-600">Management Portal</p>
         </div>
 
         <Card className="shadow-xl border-0">
@@ -94,7 +95,7 @@ const LoginPage: React.FC = () => {
 
               <Button
                 type="submit"
-                className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                className="w-full h-11 bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800"
                 disabled={isLoading}>
 
                 {isLoading ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
@@ -109,7 +110,7 @@ const LoginPage: React.FC = () => {
                 </span>
                 <Button
                   variant="link"
-                  className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
+                  className="p-0 h-auto font-semibold text-brand-600 hover:text-brand-800"
                   onClick={() => {
                     setIsLogin(!isLogin);
                     setEmail('');
@@ -123,8 +124,8 @@ const LoginPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        <div className="text-center mt-6 text-sm text-gray-500">
-          <p>&copy; 2024 Dream Frame Queens Inc. All rights reserved.</p>
+        <div className="text-center mt-6 text-sm text-brand-600">
+          <p>&copy; 2024 DFS Management Systems. All rights reserved.</p>
         </div>
       </div>
     </div>);

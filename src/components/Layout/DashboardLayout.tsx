@@ -16,6 +16,7 @@ import {
   ChevronRight } from
 'lucide-react';
 import QuickAccessToolbar from '@/components/QuickAccessToolbar';
+import Logo from '@/components/Logo';
 
 interface NavigationItem {
   name: string;
@@ -59,7 +60,7 @@ const DashboardLayout: React.FC = () => {
         key={item.path}
         variant="ghost"
         className={`w-full justify-start text-left h-11 px-4 hover:bg-gray-100 transition-colors ${
-        isActive ? 'bg-dfs-50 text-dfs-800 border-r-2 border-dfs-700' : ''}`
+        isActive ? 'bg-brand-50 text-brand-800 border-r-2 border-brand-700' : ''}`
         }
         onClick={() => handleNavigation(item.path)}
         title={sidebarCollapsed ? item.name : undefined}>
@@ -97,14 +98,11 @@ const DashboardLayout: React.FC = () => {
       sidebarOpen ? 'translate-x-0' : '-translate-x-full'} ${sidebarCollapsed ? 'lg:w-16 w-16' : 'lg:w-64 w-64'}`
       }>
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 flex-shrink-0">
-          <div className={`flex items-center ${sidebarCollapsed ? 'justify-center w-full' : 'space-x-3'}`}>
-            <img 
-              src="/dfs-logo.png" 
-              alt="DFS Logo" 
-              className={`${sidebarCollapsed ? 'w-8 h-8' : 'w-10 h-10'} object-contain`}
-            />
-            {!sidebarCollapsed && <span className="text-xl font-bold text-dfs-900">DFS Manager Portal</span>}
-          </div>
+          <Logo 
+            size={sidebarCollapsed ? 'sm' : 'md'} 
+            showText={!sidebarCollapsed} 
+            className={sidebarCollapsed ? 'justify-center w-full' : ''}
+          />
           <div className="flex items-center space-x-2">
             {/* Minimize/Expand button for desktop */}
             <Button
@@ -145,7 +143,7 @@ const DashboardLayout: React.FC = () => {
           </Button>
           
           <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-semibold text-dfs-900">
+            <h1 className="text-xl font-semibold text-brand-900">
               {getPageTitle()}
             </h1>
           </div>

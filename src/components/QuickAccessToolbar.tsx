@@ -24,7 +24,7 @@ const QuickAccessToolbar: React.FC = () => {
         label: 'View All',
         icon: <Eye className="w-4 h-4" />,
         action: () => navigate('/products'),
-        color: 'bg-blue-600 hover:bg-blue-700'
+        color: 'bg-brand-600 hover:bg-brand-700'
       }];
 
     } else if (path.startsWith('/employees')) {
@@ -39,7 +39,7 @@ const QuickAccessToolbar: React.FC = () => {
         label: 'View All',
         icon: <Eye className="w-4 h-4" />,
         action: () => navigate('/employees'),
-        color: 'bg-blue-600 hover:bg-blue-700'
+        color: 'bg-brand-600 hover:bg-brand-700'
       }];
 
     } else if (path.startsWith('/sales')) {
@@ -54,7 +54,7 @@ const QuickAccessToolbar: React.FC = () => {
         label: 'View Reports',
         icon: <Eye className="w-4 h-4" />,
         action: () => navigate('/sales'),
-        color: 'bg-blue-600 hover:bg-blue-700'
+        color: 'bg-brand-600 hover:bg-brand-700'
       }];
 
     } else if (path.startsWith('/vendors')) {
@@ -69,7 +69,7 @@ const QuickAccessToolbar: React.FC = () => {
         label: 'View All',
         icon: <Eye className="w-4 h-4" />,
         action: () => navigate('/vendors'),
-        color: 'bg-blue-600 hover:bg-blue-700'
+        color: 'bg-brand-600 hover:bg-brand-700'
       }];
 
     } else if (path.startsWith('/orders')) {
@@ -84,7 +84,7 @@ const QuickAccessToolbar: React.FC = () => {
         label: 'View Orders',
         icon: <Eye className="w-4 h-4" />,
         action: () => navigate('/orders'),
-        color: 'bg-blue-600 hover:bg-blue-700'
+        color: 'bg-brand-600 hover:bg-brand-700'
       }];
 
     } else if (path.startsWith('/licenses')) {
@@ -99,7 +99,7 @@ const QuickAccessToolbar: React.FC = () => {
         label: 'View All',
         icon: <Eye className="w-4 h-4" />,
         action: () => navigate('/licenses'),
-        color: 'bg-blue-600 hover:bg-blue-700'
+        color: 'bg-brand-600 hover:bg-brand-700'
       }];
 
     }
@@ -109,7 +109,7 @@ const QuickAccessToolbar: React.FC = () => {
       label: 'Dashboard',
       icon: <Eye className="w-4 h-4" />,
       action: () => navigate('/dashboard'),
-      color: 'bg-indigo-600 hover:bg-indigo-700'
+      color: 'bg-brand-600 hover:bg-brand-700'
     }];
 
   };
@@ -117,7 +117,7 @@ const QuickAccessToolbar: React.FC = () => {
   const quickActions = getQuickActions();
 
   return (
-    <Card className="fixed bottom-6 right-6 z-50 shadow-lg border-2 border-blue-200 bg-white/95 backdrop-blur-sm">
+    <Card className="fixed bottom-6 right-6 z-50 shadow-lg border-2 border-brand-200 bg-white/95 backdrop-blur-sm">
       <CardContent className="p-3">
         <div className="flex items-center space-x-2">
           <div className="flex items-center space-x-1">
