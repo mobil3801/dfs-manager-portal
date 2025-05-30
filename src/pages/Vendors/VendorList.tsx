@@ -135,32 +135,32 @@ const VendorList: React.FC = () => {
                 placeholder="Search vendors..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+                className="pl-10" />
+
             </div>
           </div>
 
           {/* Vendors Table */}
-          {loading ? (
-            <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
-              ))}
-            </div>
-          ) : vendors.length === 0 ? (
-            <div className="text-center py-8">
+          {loading ?
+          <div className="space-y-4">
+              {[...Array(5)].map((_, i) =>
+            <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
+            )}
+            </div> :
+          vendors.length === 0 ?
+          <div className="text-center py-8">
               <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No vendors found</p>
               <Button
-                variant="outline"
-                className="mt-4"
-                onClick={() => navigate('/vendors/new')}
-              >
+              variant="outline"
+              className="mt-4"
+              onClick={() => navigate('/vendors/new')}>
+
                 Add Your First Vendor
               </Button>
-            </div>
-          ) : (
-            <div className="border rounded-lg overflow-hidden">
+            </div> :
+
+          <div className="border rounded-lg overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -174,17 +174,17 @@ const VendorList: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {vendors.map((vendor) => (
-                    <TableRow key={vendor.ID}>
+                  {vendors.map((vendor) =>
+                <TableRow key={vendor.ID}>
                       <TableCell>
                         <div>
                           <p className="font-medium">{vendor.vendor_name}</p>
-                          {vendor.address && (
-                            <div className="flex items-center space-x-1 text-sm text-gray-500 mt-1">
+                          {vendor.address &&
+                      <div className="flex items-center space-x-1 text-sm text-gray-500 mt-1">
                               <MapPin className="w-3 h-3" />
                               <span className="truncate max-w-xs">{vendor.address}</span>
                             </div>
-                          )}
+                      }
                         </div>
                       </TableCell>
                       <TableCell>
@@ -192,18 +192,18 @@ const VendorList: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1">
-                          {vendor.email && (
-                            <div className="flex items-center space-x-1 text-sm">
+                          {vendor.email &&
+                      <div className="flex items-center space-x-1 text-sm">
                               <Mail className="w-3 h-3" />
                               <span>{vendor.email}</span>
                             </div>
-                          )}
-                          {vendor.phone && (
-                            <div className="flex items-center space-x-1 text-sm">
+                      }
+                          {vendor.phone &&
+                      <div className="flex items-center space-x-1 text-sm">
                               <Phone className="w-3 h-3" />
                               <span>{vendor.phone}</span>
                             </div>
-                          )}
+                      }
                         </div>
                       </TableCell>
                       <TableCell>
@@ -222,62 +222,62 @@ const VendorList: React.FC = () => {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => navigate(`/vendors/edit/${vendor.ID}`)}
-                          >
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/vendors/edit/${vendor.ID}`)}>
+
                             <Edit className="w-4 h-4" />
                           </Button>
                           <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDelete(vendor.ID)}
-                            className="text-red-600 hover:text-red-700"
-                          >
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(vendor.ID)}
+                        className="text-red-600 hover:text-red-700">
+
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                )}
                 </TableBody>
               </Table>
             </div>
-          )}
+          }
 
           {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-6">
+          {totalPages > 1 &&
+          <div className="flex items-center justify-between mt-6">
               <p className="text-sm text-gray-700">
                 Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} vendors
               </p>
               <div className="flex items-center space-x-2">
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                >
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}>
+
                   Previous
                 </Button>
                 <span className="text-sm">
                   Page {currentPage} of {totalPages}
                 </span>
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                >
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}>
+
                   Next
                 </Button>
               </div>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default VendorList;

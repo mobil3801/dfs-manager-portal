@@ -215,32 +215,32 @@ const SalesReportList: React.FC = () => {
                 placeholder="Search by station..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+                className="pl-10" />
+
             </div>
           </div>
 
           {/* Reports Table */}
-          {loading ? (
-            <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
-              ))}
-            </div>
-          ) : reports.length === 0 ? (
-            <div className="text-center py-8">
+          {loading ?
+          <div className="space-y-4">
+              {[...Array(5)].map((_, i) =>
+            <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
+            )}
+            </div> :
+          reports.length === 0 ?
+          <div className="text-center py-8">
               <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No sales reports found</p>
               <Button
-                variant="outline"
-                className="mt-4"
-                onClick={() => navigate('/sales/new')}
-              >
+              variant="outline"
+              className="mt-4"
+              onClick={() => navigate('/sales/new')}>
+
                 Add Your First Sales Report
               </Button>
-            </div>
-          ) : (
-            <div className="border rounded-lg overflow-hidden">
+            </div> :
+
+          <div className="border rounded-lg overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -255,8 +255,8 @@ const SalesReportList: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {reports.map((report) => (
-                    <TableRow key={report.ID}>
+                  {reports.map((report) =>
+                <TableRow key={report.ID}>
                       <TableCell className="font-medium">
                         {formatDate(report.report_date)}
                       </TableCell>
@@ -284,62 +284,62 @@ const SalesReportList: React.FC = () => {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => navigate(`/sales/edit/${report.ID}`)}
-                          >
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/sales/edit/${report.ID}`)}>
+
                             <Edit className="w-4 h-4" />
                           </Button>
                           <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDelete(report.ID)}
-                            className="text-red-600 hover:text-red-700"
-                          >
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(report.ID)}
+                        className="text-red-600 hover:text-red-700">
+
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                )}
                 </TableBody>
               </Table>
             </div>
-          )}
+          }
 
           {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-6">
+          {totalPages > 1 &&
+          <div className="flex items-center justify-between mt-6">
               <p className="text-sm text-gray-700">
                 Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} reports
               </p>
               <div className="flex items-center space-x-2">
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                >
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}>
+
                   Previous
                 </Button>
                 <span className="text-sm">
                   Page {currentPage} of {totalPages}
                 </span>
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                >
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}>
+
                   Next
                 </Button>
               </div>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SalesReportList;

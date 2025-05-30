@@ -98,9 +98,9 @@ const LicenseForm: React.FC = () => {
 
       if (error) throw error;
 
-      setFormData(prev => ({ ...prev, document_file_id: data }));
+      setFormData((prev) => ({ ...prev, document_file_id: data }));
       setUploadedFile(file);
-      
+
       toast({
         title: "Success",
         description: "File uploaded successfully"
@@ -213,8 +213,8 @@ const LicenseForm: React.FC = () => {
                   value={formData.license_name}
                   onChange={(e) => handleInputChange('license_name', e.target.value)}
                   placeholder="Enter license name"
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -224,8 +224,8 @@ const LicenseForm: React.FC = () => {
                   value={formData.license_number}
                   onChange={(e) => handleInputChange('license_number', e.target.value)}
                   placeholder="Enter license number"
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -235,8 +235,8 @@ const LicenseForm: React.FC = () => {
                   value={formData.issuing_authority}
                   onChange={(e) => handleInputChange('issuing_authority', e.target.value)}
                   placeholder="Enter issuing authority"
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -246,11 +246,11 @@ const LicenseForm: React.FC = () => {
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category} value={category}>
+                    {categories.map((category) =>
+                    <SelectItem key={category} value={category}>
                         {category}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -262,11 +262,11 @@ const LicenseForm: React.FC = () => {
                     <SelectValue placeholder="Select station" />
                   </SelectTrigger>
                   <SelectContent>
-                    {stations.map((station) => (
-                      <SelectItem key={station} value={station}>
+                    {stations.map((station) =>
+                    <SelectItem key={station} value={station}>
                         {station}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -278,11 +278,11 @@ const LicenseForm: React.FC = () => {
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    {statuses.map((status) => (
-                      <SelectItem key={status} value={status}>
+                    {statuses.map((status) =>
+                    <SelectItem key={status} value={status}>
                         {status}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -293,8 +293,8 @@ const LicenseForm: React.FC = () => {
                   id="issue_date"
                   type="date"
                   value={formData.issue_date}
-                  onChange={(e) => handleInputChange('issue_date', e.target.value)}
-                />
+                  onChange={(e) => handleInputChange('issue_date', e.target.value)} />
+
               </div>
 
               <div className="space-y-2">
@@ -305,16 +305,16 @@ const LicenseForm: React.FC = () => {
                   value={formData.expiry_date}
                   onChange={(e) => handleInputChange('expiry_date', e.target.value)}
                   className={
-                    isExpired(formData.expiry_date) ? 'border-red-500' :
-                    isExpiringSoon(formData.expiry_date) ? 'border-yellow-500' : ''
-                  }
-                />
-                {isExpired(formData.expiry_date) && (
-                  <p className="text-sm text-red-600">⚠️ This license has expired</p>
-                )}
-                {isExpiringSoon(formData.expiry_date) && !isExpired(formData.expiry_date) && (
-                  <p className="text-sm text-yellow-600">⚠️ This license expires within 30 days</p>
-                )}
+                  isExpired(formData.expiry_date) ? 'border-red-500' :
+                  isExpiringSoon(formData.expiry_date) ? 'border-yellow-500' : ''
+                  } />
+
+                {isExpired(formData.expiry_date) &&
+                <p className="text-sm text-red-600">⚠️ This license has expired</p>
+                }
+                {isExpiringSoon(formData.expiry_date) && !isExpired(formData.expiry_date) &&
+                <p className="text-sm text-yellow-600">⚠️ This license expires within 30 days</p>
+                }
               </div>
             </div>
 
@@ -344,31 +344,31 @@ const LicenseForm: React.FC = () => {
                           handleFileUpload(file);
                         }
                       }}
-                      disabled={uploadLoading}
-                    />
+                      disabled={uploadLoading} />
+
                     <p className="text-sm text-gray-500">
                       PDF, DOC, DOCX, JPG, PNG files up to 10MB
                     </p>
                   </div>
                 </div>
                 
-                {uploadedFile && (
-                  <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">
+                {uploadedFile &&
+                <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">
                     <div className="flex items-center space-x-2">
                       <FileIcon className="w-4 h-4 text-green-600" />
                       <span className="text-sm text-green-800">{uploadedFile.name}</span>
                     </div>
                   </div>
-                )}
+                }
                 
-                {formData.document_file_id > 0 && !uploadedFile && (
-                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
+                {formData.document_file_id > 0 && !uploadedFile &&
+                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
                     <div className="flex items-center space-x-2">
                       <FileIcon className="w-4 h-4 text-blue-600" />
                       <span className="text-sm text-blue-800">Document uploaded (ID: {formData.document_file_id})</span>
                     </div>
                   </div>
-                )}
+                }
               </div>
             </div>
 
@@ -376,26 +376,26 @@ const LicenseForm: React.FC = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/licenses')}
-              >
+                onClick={() => navigate('/licenses')}>
+
                 Cancel
               </Button>
               <Button type="submit" disabled={loading || uploadLoading}>
-                {loading ? (
-                  'Saving...'
-                ) : (
-                  <>
+                {loading ?
+                'Saving...' :
+
+                <>
                     <Save className="w-4 h-4 mr-2" />
                     {isEditing ? 'Update License' : 'Create License'}
                   </>
-                )}
+                }
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default LicenseForm;

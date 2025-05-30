@@ -14,8 +14,8 @@ import {
   DollarSign,
   Calendar,
   CheckCircle,
-  XCircle
-} from 'lucide-react';
+  XCircle } from
+'lucide-react';
 
 interface DashboardStats {
   totalProducts: number;
@@ -60,8 +60,8 @@ const Dashboard: React.FC = () => {
 
       // Products statistics
       promises.push(
-        window.ezsite.apis.tablePage('11726', { PageNo: 1, PageSize: 1000 })
-        .then(({ data, error }) => {
+        window.ezsite.apis.tablePage('11726', { PageNo: 1, PageSize: 1000 }).
+        then(({ data, error }) => {
           if (!error && data) {
             const products = data.List || [];
             const lowStock = products.filter((p) => p.quantity_in_stock <= p.minimum_stock);
@@ -73,8 +73,8 @@ const Dashboard: React.FC = () => {
 
       // Employees statistics
       promises.push(
-        window.ezsite.apis.tablePage('11727', { PageNo: 1, PageSize: 1000 })
-        .then(({ data, error }) => {
+        window.ezsite.apis.tablePage('11727', { PageNo: 1, PageSize: 1000 }).
+        then(({ data, error }) => {
           if (!error && data) {
             const employees = data.List || [];
             const active = employees.filter((e) => e.is_active);
@@ -120,8 +120,8 @@ const Dashboard: React.FC = () => {
 
       // Vendors statistics
       promises.push(
-        window.ezsite.apis.tablePage('11729', { PageNo: 1, PageSize: 1000 })
-        .then(({ data, error }) => {
+        window.ezsite.apis.tablePage('11729', { PageNo: 1, PageSize: 1000 }).
+        then(({ data, error }) => {
           if (!error && data) {
             const vendors = data.List || [];
             const active = vendors.filter((v) => v.is_active);
@@ -180,9 +180,9 @@ const Dashboard: React.FC = () => {
           PageNo: 1,
           PageSize: 1000,
           Filters: [
-            { name: 'expiry_date', op: 'LessThanOrEqual', value: thirtyDaysFromNow.toISOString() },
-            { name: 'status', op: 'Equal', value: 'Active' }
-          ]
+          { name: 'expiry_date', op: 'LessThanOrEqual', value: thirtyDaysFromNow.toISOString() },
+          { name: 'status', op: 'Equal', value: 'Active' }]
+
         }).then(({ data, error }) => {
           if (!error && data) {
             return { expiringLicenses: (data.List || []).length };
@@ -215,64 +215,64 @@ const Dashboard: React.FC = () => {
   };
 
   const quickActions = [
-    {
-      title: 'Add New Product',
-      description: 'Add a product to inventory',
-      icon: <Package className="w-5 h-5" />,
-      color: 'bg-blue-500',
-      action: () => navigate('/products/new')
-    },
-    {
-      title: 'Add Employee',
-      description: 'Register new employee',
-      icon: <Users className="w-5 h-5" />,
-      color: 'bg-green-500',
-      action: () => navigate('/employees/new')
-    },
-    {
-      title: 'Create Sales Report',
-      description: 'Record daily sales',
-      icon: <TrendingUp className="w-5 h-5" />,
-      color: 'bg-purple-500',
-      action: () => navigate('/sales/new')
-    },
-    {
-      title: 'Add Vendor',
-      description: 'Register new vendor',
-      icon: <Building2 className="w-5 h-5" />,
-      color: 'bg-orange-500',
-      action: () => navigate('/vendors/new')
-    },
-    {
-      title: 'Create Order',
-      description: 'Place new purchase order',
-      icon: <ShoppingCart className="w-5 h-5" />,
-      color: 'bg-indigo-500',
-      action: () => navigate('/orders/new')
-    },
-    {
-      title: 'Add License',
-      description: 'Register license/certificate',
-      icon: <FileText className="w-5 h-5" />,
-      color: 'bg-pink-500',
-      action: () => navigate('/licenses/new')
-    }
-  ];
+  {
+    title: 'Add New Product',
+    description: 'Add a product to inventory',
+    icon: <Package className="w-5 h-5" />,
+    color: 'bg-blue-500',
+    action: () => navigate('/products/new')
+  },
+  {
+    title: 'Add Employee',
+    description: 'Register new employee',
+    icon: <Users className="w-5 h-5" />,
+    color: 'bg-green-500',
+    action: () => navigate('/employees/new')
+  },
+  {
+    title: 'Create Sales Report',
+    description: 'Record daily sales',
+    icon: <TrendingUp className="w-5 h-5" />,
+    color: 'bg-purple-500',
+    action: () => navigate('/sales/new')
+  },
+  {
+    title: 'Add Vendor',
+    description: 'Register new vendor',
+    icon: <Building2 className="w-5 h-5" />,
+    color: 'bg-orange-500',
+    action: () => navigate('/vendors/new')
+  },
+  {
+    title: 'Create Order',
+    description: 'Place new purchase order',
+    icon: <ShoppingCart className="w-5 h-5" />,
+    color: 'bg-indigo-500',
+    action: () => navigate('/orders/new')
+  },
+  {
+    title: 'Add License',
+    description: 'Register license/certificate',
+    icon: <FileText className="w-5 h-5" />,
+    color: 'bg-pink-500',
+    action: () => navigate('/licenses/new')
+  }];
+
 
   if (loading) {
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map((i) => (
-            <Card key={i} className="animate-pulse">
+          {[1, 2, 3, 4].map((i) =>
+          <Card key={i} className="animate-pulse">
               <CardContent className="p-6">
                 <div className="h-16 bg-gray-200 rounded"></div>
               </CardContent>
             </Card>
-          ))}
+          )}
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -299,12 +299,12 @@ const Dashboard: React.FC = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Products</p>
                 <p className="text-2xl font-bold text-gray-900 mt-1">{stats.totalProducts}</p>
-                {stats.lowStockProducts > 0 && (
-                  <p className="text-sm text-orange-600 flex items-center mt-1">
+                {stats.lowStockProducts > 0 &&
+                <p className="text-sm text-orange-600 flex items-center mt-1">
                     <AlertTriangle className="w-3 h-3 mr-1" />
                     {stats.lowStockProducts} low stock
                   </p>
-                )}
+                }
               </div>
               <div className="p-3 rounded-full bg-blue-500 text-white">
                 <Package className="w-6 h-6" />
@@ -402,12 +402,12 @@ const Dashboard: React.FC = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600">Active Licenses</p>
                 <p className="text-2xl font-bold text-gray-900 mt-1">{stats.activeLicenses}</p>
-                {stats.expiringLicenses > 0 && (
-                  <p className="text-sm text-red-600 flex items-center mt-1">
+                {stats.expiringLicenses > 0 &&
+                <p className="text-sm text-red-600 flex items-center mt-1">
                     <AlertTriangle className="w-3 h-3 mr-1" />
                     {stats.expiringLicenses} expiring soon
                   </p>
-                )}
+                }
               </div>
               <FileText className="w-8 h-8 text-blue-600" />
             </div>
@@ -426,13 +426,13 @@ const Dashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {quickActions.map((action, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  className="p-4 h-auto justify-start"
-                  onClick={action.action}
-                >
+              {quickActions.map((action, index) =>
+              <Button
+                key={index}
+                variant="outline"
+                className="p-4 h-auto justify-start"
+                onClick={action.action}>
+
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 rounded ${action.color} text-white`}>
                       {action.icon}
@@ -443,7 +443,7 @@ const Dashboard: React.FC = () => {
                     </div>
                   </div>
                 </Button>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>
@@ -499,8 +499,8 @@ const Dashboard: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Dashboard;

@@ -169,8 +169,8 @@ const EmployeeForm: React.FC = () => {
                   value={formData.employee_id}
                   onChange={(e) => handleInputChange('employee_id', e.target.value)}
                   placeholder="Enter employee ID"
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -180,8 +180,8 @@ const EmployeeForm: React.FC = () => {
                   value={formData.first_name}
                   onChange={(e) => handleInputChange('first_name', e.target.value)}
                   placeholder="Enter first name"
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -191,8 +191,8 @@ const EmployeeForm: React.FC = () => {
                   value={formData.last_name}
                   onChange={(e) => handleInputChange('last_name', e.target.value)}
                   placeholder="Enter last name"
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -202,8 +202,8 @@ const EmployeeForm: React.FC = () => {
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
-                  placeholder="Enter email address"
-                />
+                  placeholder="Enter email address" />
+
               </div>
 
               <div className="space-y-2">
@@ -212,8 +212,8 @@ const EmployeeForm: React.FC = () => {
                   id="phone"
                   value={formData.phone}
                   onChange={(e) => handleInputChange('phone', e.target.value)}
-                  placeholder="Enter phone number"
-                />
+                  placeholder="Enter phone number" />
+
               </div>
 
               <div className="space-y-2">
@@ -223,11 +223,11 @@ const EmployeeForm: React.FC = () => {
                     <SelectValue placeholder="Select position" />
                   </SelectTrigger>
                   <SelectContent>
-                    {positions.map((position) => (
-                      <SelectItem key={position} value={position}>
+                    {positions.map((position) =>
+                    <SelectItem key={position} value={position}>
                         {position}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -239,11 +239,11 @@ const EmployeeForm: React.FC = () => {
                     <SelectValue placeholder="Select station" />
                   </SelectTrigger>
                   <SelectContent>
-                    {stations.map((station) => (
-                      <SelectItem key={station} value={station}>
+                    {stations.map((station) =>
+                    <SelectItem key={station} value={station}>
                         {station}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -254,8 +254,8 @@ const EmployeeForm: React.FC = () => {
                   id="hire_date"
                   type="date"
                   value={formData.hire_date}
-                  onChange={(e) => handleInputChange('hire_date', e.target.value)}
-                />
+                  onChange={(e) => handleInputChange('hire_date', e.target.value)} />
+
               </div>
 
               <div className="space-y-2">
@@ -267,8 +267,8 @@ const EmployeeForm: React.FC = () => {
                   min="0"
                   value={formData.salary}
                   onChange={(e) => handleInputChange('salary', parseFloat(e.target.value) || 0)}
-                  placeholder="0.00"
-                />
+                  placeholder="0.00" />
+
               </div>
 
               <div className="space-y-2">
@@ -277,8 +277,8 @@ const EmployeeForm: React.FC = () => {
                   <Switch
                     id="is_active"
                     checked={formData.is_active}
-                    onCheckedChange={(checked) => handleInputChange('is_active', checked)}
-                  />
+                    onCheckedChange={(checked) => handleInputChange('is_active', checked)} />
+
                   <span className="text-sm text-gray-600">
                     {formData.is_active ? 'Active' : 'Inactive'}
                   </span>
@@ -290,26 +290,26 @@ const EmployeeForm: React.FC = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/employees')}
-              >
+                onClick={() => navigate('/employees')}>
+
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? (
-                  'Saving...'
-                ) : (
-                  <>
+                {loading ?
+                'Saving...' :
+
+                <>
                     <Save className="w-4 h-4 mr-2" />
                     {isEditing ? 'Update Employee' : 'Create Employee'}
                   </>
-                )}
+                }
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default EmployeeForm;

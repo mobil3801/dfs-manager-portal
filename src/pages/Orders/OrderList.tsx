@@ -215,32 +215,32 @@ const OrderList: React.FC = () => {
                 placeholder="Search orders..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+                className="pl-10" />
+
             </div>
           </div>
 
           {/* Orders Table */}
-          {loading ? (
-            <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
-              ))}
-            </div>
-          ) : orders.length === 0 ? (
-            <div className="text-center py-8">
+          {loading ?
+          <div className="space-y-4">
+              {[...Array(5)].map((_, i) =>
+            <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
+            )}
+            </div> :
+          orders.length === 0 ?
+          <div className="text-center py-8">
               <ShoppingCart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No orders found</p>
               <Button
-                variant="outline"
-                className="mt-4"
-                onClick={() => navigate('/orders/new')}
-              >
+              variant="outline"
+              className="mt-4"
+              onClick={() => navigate('/orders/new')}>
+
                 Create Your First Order
               </Button>
-            </div>
-          ) : (
-            <div className="border rounded-lg overflow-hidden">
+            </div> :
+
+          <div className="border rounded-lg overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -254,15 +254,15 @@ const OrderList: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {orders.map((order) => (
-                    <TableRow key={order.ID}>
+                  {orders.map((order) =>
+                <TableRow key={order.ID}>
                       <TableCell className="font-medium">
                         {order.order_number}
-                        {order.notes && (
-                          <p className="text-sm text-gray-500 truncate max-w-xs mt-1">
+                        {order.notes &&
+                    <p className="text-sm text-gray-500 truncate max-w-xs mt-1">
                             {order.notes}
                           </p>
-                        )}
+                    }
                       </TableCell>
                       <TableCell>{formatDate(order.order_date)}</TableCell>
                       <TableCell>
@@ -282,62 +282,62 @@ const OrderList: React.FC = () => {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => navigate(`/orders/edit/${order.ID}`)}
-                          >
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/orders/edit/${order.ID}`)}>
+
                             <Edit className="w-4 h-4" />
                           </Button>
                           <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDelete(order.ID)}
-                            className="text-red-600 hover:text-red-700"
-                          >
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(order.ID)}
+                        className="text-red-600 hover:text-red-700">
+
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                )}
                 </TableBody>
               </Table>
             </div>
-          )}
+          }
 
           {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-6">
+          {totalPages > 1 &&
+          <div className="flex items-center justify-between mt-6">
               <p className="text-sm text-gray-700">
                 Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} orders
               </p>
               <div className="flex items-center space-x-2">
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                >
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}>
+
                   Previous
                 </Button>
                 <span className="text-sm">
                   Page {currentPage} of {totalPages}
                 </span>
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                >
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}>
+
                   Next
                 </Button>
               </div>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default OrderList;

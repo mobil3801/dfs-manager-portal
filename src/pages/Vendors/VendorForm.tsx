@@ -39,25 +39,25 @@ const VendorForm: React.FC = () => {
   const { id } = useParams();
 
   const categories = [
-    'Fuel Supplier',
-    'Food & Beverages',
-    'Automotive',
-    'Maintenance',
-    'Office Supplies',
-    'Technology',
-    'Cleaning Services',
-    'Security Services',
-    'Other'
-  ];
+  'Fuel Supplier',
+  'Food & Beverages',
+  'Automotive',
+  'Maintenance',
+  'Office Supplies',
+  'Technology',
+  'Cleaning Services',
+  'Security Services',
+  'Other'];
+
 
   const paymentTermsOptions = [
-    'Net 30',
-    'Net 15',
-    'Payment on Delivery',
-    'Prepaid',
-    '2/10 Net 30',
-    'Custom Terms'
-  ];
+  'Net 30',
+  'Net 15',
+  'Payment on Delivery',
+  'Prepaid',
+  '2/10 Net 30',
+  'Custom Terms'];
+
 
   useEffect(() => {
     if (id) {
@@ -181,8 +181,8 @@ const VendorForm: React.FC = () => {
                   value={formData.vendor_name}
                   onChange={(e) => handleInputChange('vendor_name', e.target.value)}
                   placeholder="Enter vendor company name"
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -192,8 +192,8 @@ const VendorForm: React.FC = () => {
                   value={formData.contact_person}
                   onChange={(e) => handleInputChange('contact_person', e.target.value)}
                   placeholder="Enter primary contact name"
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -203,8 +203,8 @@ const VendorForm: React.FC = () => {
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
-                  placeholder="Enter email address"
-                />
+                  placeholder="Enter email address" />
+
               </div>
 
               <div className="space-y-2">
@@ -213,8 +213,8 @@ const VendorForm: React.FC = () => {
                   id="phone"
                   value={formData.phone}
                   onChange={(e) => handleInputChange('phone', e.target.value)}
-                  placeholder="Enter phone number"
-                />
+                  placeholder="Enter phone number" />
+
               </div>
 
               <div className="space-y-2">
@@ -224,11 +224,11 @@ const VendorForm: React.FC = () => {
                     <SelectValue placeholder="Select vendor category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category} value={category}>
+                    {categories.map((category) =>
+                    <SelectItem key={category} value={category}>
                         {category}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -240,11 +240,11 @@ const VendorForm: React.FC = () => {
                     <SelectValue placeholder="Select payment terms" />
                   </SelectTrigger>
                   <SelectContent>
-                    {paymentTermsOptions.map((terms) => (
-                      <SelectItem key={terms} value={terms}>
+                    {paymentTermsOptions.map((terms) =>
+                    <SelectItem key={terms} value={terms}>
                         {terms}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -257,8 +257,8 @@ const VendorForm: React.FC = () => {
                 value={formData.address}
                 onChange={(e) => handleInputChange('address', e.target.value)}
                 placeholder="Enter full business address"
-                rows={3}
-              />
+                rows={3} />
+
             </div>
 
             <div className="space-y-2">
@@ -267,8 +267,8 @@ const VendorForm: React.FC = () => {
                 <Switch
                   id="is_active"
                   checked={formData.is_active}
-                  onCheckedChange={(checked) => handleInputChange('is_active', checked)}
-                />
+                  onCheckedChange={(checked) => handleInputChange('is_active', checked)} />
+
                 <span className="text-sm text-gray-600">
                   {formData.is_active ? 'Active vendor' : 'Inactive vendor'}
                 </span>
@@ -279,26 +279,26 @@ const VendorForm: React.FC = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/vendors')}
-              >
+                onClick={() => navigate('/vendors')}>
+
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? (
-                  'Saving...'
-                ) : (
-                  <>
+                {loading ?
+                'Saving...' :
+
+                <>
                     <Save className="w-4 h-4 mr-2" />
                     {isEditing ? 'Update Vendor' : 'Create Vendor'}
                   </>
-                )}
+                }
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default VendorForm;

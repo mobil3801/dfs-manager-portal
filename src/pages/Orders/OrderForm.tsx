@@ -200,11 +200,11 @@ const OrderForm: React.FC = () => {
                   id="order_number"
                   value={formData.order_number}
                   onChange={(e) => handleInputChange('order_number', e.target.value)}
-                  placeholder={isEditing ? "Enter order number" : "Auto-generated if left empty"}
-                />
-                {!isEditing && (
-                  <p className="text-sm text-gray-500">Leave empty to auto-generate</p>
-                )}
+                  placeholder={isEditing ? "Enter order number" : "Auto-generated if left empty"} />
+
+                {!isEditing &&
+                <p className="text-sm text-gray-500">Leave empty to auto-generate</p>
+                }
               </div>
 
               <div className="space-y-2">
@@ -214,11 +214,13 @@ const OrderForm: React.FC = () => {
                     <SelectValue placeholder="Select vendor" />
                   </SelectTrigger>
                   <SelectContent>
-                    {vendors.map((vendor) => (
+                    {vendors && vendors.map((vendor) =>
+                    vendor.ID ? (
                       <SelectItem key={vendor.ID} value={vendor.ID.toString()}>
-                        {vendor.vendor_name}
+                        {vendor.vendor_name || 'Unknown Vendor'}
                       </SelectItem>
-                    ))}
+                    ) : null
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -230,8 +232,8 @@ const OrderForm: React.FC = () => {
                   type="date"
                   value={formData.order_date}
                   onChange={(e) => handleInputChange('order_date', e.target.value)}
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -240,8 +242,8 @@ const OrderForm: React.FC = () => {
                   id="expected_delivery"
                   type="date"
                   value={formData.expected_delivery}
-                  onChange={(e) => handleInputChange('expected_delivery', e.target.value)}
-                />
+                  onChange={(e) => handleInputChange('expected_delivery', e.target.value)} />
+
               </div>
 
               <div className="space-y-2">
@@ -251,11 +253,11 @@ const OrderForm: React.FC = () => {
                     <SelectValue placeholder="Select delivery station" />
                   </SelectTrigger>
                   <SelectContent>
-                    {stations.map((station) => (
-                      <SelectItem key={station} value={station}>
+                    {stations && stations.map((station) =>
+                    <SelectItem key={station} value={station}>
                         {station}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -270,8 +272,8 @@ const OrderForm: React.FC = () => {
                   value={formData.total_amount}
                   onChange={(e) => handleInputChange('total_amount', parseFloat(e.target.value) || 0)}
                   placeholder="0.00"
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -281,11 +283,11 @@ const OrderForm: React.FC = () => {
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    {statuses.map((status) => (
-                      <SelectItem key={status} value={status}>
+                    {statuses && statuses.map((status) =>
+                    <SelectItem key={status} value={status}>
                         {status}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -298,34 +300,34 @@ const OrderForm: React.FC = () => {
                 value={formData.notes}
                 onChange={(e) => handleInputChange('notes', e.target.value)}
                 placeholder="Enter any additional notes about this order..."
-                rows={4}
-              />
+                rows={4} />
+
             </div>
 
             <div className="flex items-center justify-end space-x-4">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/orders')}
-              >
+                onClick={() => navigate('/orders')}>
+
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? (
-                  'Saving...'
-                ) : (
-                  <>
+                {loading ?
+                'Saving...' :
+
+                <>
                     <Save className="w-4 h-4 mr-2" />
                     {isEditing ? 'Update Order' : 'Create Order'}
                   </>
-                )}
+                }
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default OrderForm;

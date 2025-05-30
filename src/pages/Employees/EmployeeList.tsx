@@ -143,32 +143,32 @@ const EmployeeList: React.FC = () => {
                 placeholder="Search employees..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+                className="pl-10" />
+
             </div>
           </div>
 
           {/* Employees Table */}
-          {loading ? (
-            <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
-              ))}
-            </div>
-          ) : employees.length === 0 ? (
-            <div className="text-center py-8">
+          {loading ?
+          <div className="space-y-4">
+              {[...Array(5)].map((_, i) =>
+            <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
+            )}
+            </div> :
+          employees.length === 0 ?
+          <div className="text-center py-8">
               <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No employees found</p>
               <Button
-                variant="outline"
-                className="mt-4"
-                onClick={() => navigate('/employees/new')}
-              >
+              variant="outline"
+              className="mt-4"
+              onClick={() => navigate('/employees/new')}>
+
                 Add Your First Employee
               </Button>
-            </div>
-          ) : (
-            <div className="border rounded-lg overflow-hidden">
+            </div> :
+
+          <div className="border rounded-lg overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -183,8 +183,8 @@ const EmployeeList: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {employees.map((employee) => (
-                    <TableRow key={employee.ID}>
+                  {employees.map((employee) =>
+                <TableRow key={employee.ID}>
                       <TableCell className="font-medium">{employee.employee_id}</TableCell>
                       <TableCell>
                         <div>
@@ -194,18 +194,18 @@ const EmployeeList: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1">
-                          {employee.email && (
-                            <div className="flex items-center space-x-1 text-sm">
+                          {employee.email &&
+                      <div className="flex items-center space-x-1 text-sm">
                               <Mail className="w-3 h-3" />
                               <span>{employee.email}</span>
                             </div>
-                          )}
-                          {employee.phone && (
-                            <div className="flex items-center space-x-1 text-sm">
+                      }
+                          {employee.phone &&
+                      <div className="flex items-center space-x-1 text-sm">
                               <Phone className="w-3 h-3" />
                               <span>{employee.phone}</span>
                             </div>
-                          )}
+                      }
                         </div>
                       </TableCell>
                       <TableCell>{employee.position}</TableCell>
@@ -223,62 +223,62 @@ const EmployeeList: React.FC = () => {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => navigate(`/employees/edit/${employee.ID}`)}
-                          >
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/employees/edit/${employee.ID}`)}>
+
                             <Edit className="w-4 h-4" />
                           </Button>
                           <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDelete(employee.ID)}
-                            className="text-red-600 hover:text-red-700"
-                          >
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(employee.ID)}
+                        className="text-red-600 hover:text-red-700">
+
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                )}
                 </TableBody>
               </Table>
             </div>
-          )}
+          }
 
           {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-6">
+          {totalPages > 1 &&
+          <div className="flex items-center justify-between mt-6">
               <p className="text-sm text-gray-700">
                 Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} employees
               </p>
               <div className="flex items-center space-x-2">
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                >
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}>
+
                   Previous
                 </Button>
                 <span className="text-sm">
                   Page {currentPage} of {totalPages}
                 </span>
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                >
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}>
+
                   Next
                 </Button>
               </div>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default EmployeeList;

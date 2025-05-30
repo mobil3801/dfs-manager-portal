@@ -52,7 +52,7 @@ const SalesReportForm: React.FC = () => {
   useEffect(() => {
     const calculatedTotal = formData.cash_sales + formData.credit_card_sales;
     if (calculatedTotal !== formData.total_sales) {
-      setFormData(prev => ({ ...prev, total_sales: calculatedTotal }));
+      setFormData((prev) => ({ ...prev, total_sales: calculatedTotal }));
     }
   }, [formData.cash_sales, formData.credit_card_sales]);
 
@@ -165,7 +165,7 @@ const SalesReportForm: React.FC = () => {
   const calculateMissingValue = () => {
     const calculatedConvenience = formData.total_sales - formData.fuel_sales;
     if (calculatedConvenience >= 0) {
-      setFormData(prev => ({ ...prev, convenience_sales: calculatedConvenience }));
+      setFormData((prev) => ({ ...prev, convenience_sales: calculatedConvenience }));
     }
   };
 
@@ -199,8 +199,8 @@ const SalesReportForm: React.FC = () => {
                   type="date"
                   value={formData.report_date}
                   onChange={(e) => handleInputChange('report_date', e.target.value)}
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -210,11 +210,11 @@ const SalesReportForm: React.FC = () => {
                     <SelectValue placeholder="Select station" />
                   </SelectTrigger>
                   <SelectContent>
-                    {stations.map((station) => (
-                      <SelectItem key={station} value={station}>
+                    {stations.map((station) =>
+                    <SelectItem key={station} value={station}>
                         {station}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -225,8 +225,8 @@ const SalesReportForm: React.FC = () => {
                   id="employee_id"
                   value={formData.employee_id}
                   onChange={(e) => handleInputChange('employee_id', e.target.value)}
-                  placeholder="Enter employee ID"
-                />
+                  placeholder="Enter employee ID" />
+
               </div>
             </div>
 
@@ -248,8 +248,8 @@ const SalesReportForm: React.FC = () => {
                         value={formData.cash_sales}
                         onChange={(e) => handleInputChange('cash_sales', parseFloat(e.target.value) || 0)}
                         placeholder="0.00"
-                        required
-                      />
+                        required />
+
                     </div>
                     
                     <div className="space-y-2">
@@ -262,8 +262,8 @@ const SalesReportForm: React.FC = () => {
                         value={formData.credit_card_sales}
                         onChange={(e) => handleInputChange('credit_card_sales', parseFloat(e.target.value) || 0)}
                         placeholder="0.00"
-                        required
-                      />
+                        required />
+
                     </div>
                     
                     <div className="pt-2 border-t border-green-200">
@@ -288,8 +288,8 @@ const SalesReportForm: React.FC = () => {
                         value={formData.fuel_sales}
                         onChange={(e) => handleInputChange('fuel_sales', parseFloat(e.target.value) || 0)}
                         placeholder="0.00"
-                        required
-                      />
+                        required />
+
                     </div>
                     
                     <div className="space-y-2">
@@ -303,15 +303,15 @@ const SalesReportForm: React.FC = () => {
                           value={formData.convenience_sales}
                           onChange={(e) => handleInputChange('convenience_sales', parseFloat(e.target.value) || 0)}
                           placeholder="0.00"
-                          required
-                        />
+                          required />
+
                         <Button
                           type="button"
                           variant="outline"
                           size="sm"
                           onClick={calculateMissingValue}
-                          title="Auto-calculate convenience sales"
-                        >
+                          title="Auto-calculate convenience sales">
+
                           <Calculator className="w-4 h-4" />
                         </Button>
                       </div>
@@ -322,9 +322,9 @@ const SalesReportForm: React.FC = () => {
                       <div className="text-lg font-bold text-blue-800">
                         ${(formData.fuel_sales + formData.convenience_sales).toFixed(2)}
                       </div>
-                      {formData.fuel_sales + formData.convenience_sales > formData.total_sales && (
-                        <p className="text-sm text-red-600">⚠️ Exceeds total sales</p>
-                      )}
+                      {formData.fuel_sales + formData.convenience_sales > formData.total_sales &&
+                      <p className="text-sm text-red-600">⚠️ Exceeds total sales</p>
+                      }
                     </div>
                   </div>
                 </Card>
@@ -338,34 +338,34 @@ const SalesReportForm: React.FC = () => {
                 value={formData.notes}
                 onChange={(e) => handleInputChange('notes', e.target.value)}
                 placeholder="Enter any additional notes about the day's sales..."
-                rows={4}
-              />
+                rows={4} />
+
             </div>
 
             <div className="flex items-center justify-end space-x-4">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/sales')}
-              >
+                onClick={() => navigate('/sales')}>
+
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? (
-                  'Saving...'
-                ) : (
-                  <>
+                {loading ?
+                'Saving...' :
+
+                <>
                     <Save className="w-4 h-4 mr-2" />
                     {isEditing ? 'Update Report' : 'Create Report'}
                   </>
-                )}
+                }
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SalesReportForm;

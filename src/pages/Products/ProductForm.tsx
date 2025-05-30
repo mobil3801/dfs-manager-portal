@@ -159,8 +159,8 @@ const ProductForm: React.FC = () => {
                   value={formData.product_name}
                   onChange={(e) => handleInputChange('product_name', e.target.value)}
                   placeholder="Enter product name"
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -170,8 +170,8 @@ const ProductForm: React.FC = () => {
                   value={formData.product_code}
                   onChange={(e) => handleInputChange('product_code', e.target.value)}
                   placeholder="Enter product code"
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -180,8 +180,8 @@ const ProductForm: React.FC = () => {
                   id="category"
                   value={formData.category}
                   onChange={(e) => handleInputChange('category', e.target.value)}
-                  placeholder="Enter product category"
-                />
+                  placeholder="Enter product category" />
+
               </div>
 
               <div className="space-y-2">
@@ -190,8 +190,8 @@ const ProductForm: React.FC = () => {
                   id="supplier"
                   value={formData.supplier}
                   onChange={(e) => handleInputChange('supplier', e.target.value)}
-                  placeholder="Enter supplier name"
-                />
+                  placeholder="Enter supplier name" />
+
               </div>
 
               <div className="space-y-2">
@@ -204,8 +204,8 @@ const ProductForm: React.FC = () => {
                   value={formData.price}
                   onChange={(e) => handleInputChange('price', parseFloat(e.target.value) || 0)}
                   placeholder="0.00"
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -217,8 +217,8 @@ const ProductForm: React.FC = () => {
                   value={formData.quantity_in_stock}
                   onChange={(e) => handleInputChange('quantity_in_stock', parseInt(e.target.value) || 0)}
                   placeholder="0"
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -229,8 +229,8 @@ const ProductForm: React.FC = () => {
                   min="0"
                   value={formData.minimum_stock}
                   onChange={(e) => handleInputChange('minimum_stock', parseInt(e.target.value) || 0)}
-                  placeholder="0"
-                />
+                  placeholder="0" />
+
               </div>
             </div>
 
@@ -241,34 +241,34 @@ const ProductForm: React.FC = () => {
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 placeholder="Enter product description"
-                rows={4}
-              />
+                rows={4} />
+
             </div>
 
             <div className="flex items-center justify-end space-x-4">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/products')}
-              >
+                onClick={() => navigate('/products')}>
+
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? (
-                  'Saving...'
-                ) : (
-                  <>
+                {loading ?
+                'Saving...' :
+
+                <>
                     <Save className="w-4 h-4 mr-2" />
                     {isEditing ? 'Update Product' : 'Create Product'}
                   </>
-                )}
+                }
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ProductForm;
