@@ -8,14 +8,20 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Save, Calendar } from 'lucide-react';
+import { ArrowLeft, Save, Calendar, Lock, AlertTriangle } from 'lucide-react';
 import BarcodeScanner from '@/components/BarcodeScanner';
 import ProductFileUpload from '@/components/ProductFileUpload';
+import { useAuth } from '@/contexts/AuthContext';
 
 const ProductForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
+  const { userProfile } = useAuth();
+
+  // Check if user is Administrator
+  const isAdministrator = userProfile?.role === 'Administrator';
+  const canEdit = isAdministrator;
 
   const [isLoading, setIsLoading] = useState(false);
   const [vendors, setVendors] = useState<any[]>([]);
@@ -269,6 +275,15 @@ const ProductForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!canEdit) {
+      toast({
+        variant: "destructive",
+        title: "Access Denied",
+        description: "Only System Administrator can edit product information."
+      });
+      return;
+    }
+
     if (!formData.product_name.trim()) {
       toast({
         variant: "destructive",
@@ -326,8 +341,24 @@ const ProductForm = () => {
             </p>
           </div>
         </div>
-        <ProductFileUpload onDataImport={handleBulkImport} />
+        <ProductFileUpload onDataImport={handleBulkImport} disabled={!canEdit} />
       </div>
+
+      {/* Role-based Access Warning */}
+      {!canEdit && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center space-x-3">
+            <AlertTriangle className="w-5 h-5 text-red-600" />
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-red-800">Access Restricted</h3>
+              <p className="text-sm text-red-700 mt-1">
+                Only System Administrator Can View and Edit Values
+              </p>
+            </div>
+            <Lock className="w-5 h-5 text-red-600" />
+          </div>
+        </div>
+      )}
 
       <Card>
         <CardHeader>
@@ -360,6 +391,8 @@ const ProductForm = () => {
                   placeholder="Enter product name"
                   value={formData.product_name}
                   onChange={(e) => handleInputChange('product_name', e.target.value)}
+                  disabled={!canEdit}
+                  className={!canEdit ? 'bg-muted' : ''}
                   required />
 
               </div>
@@ -370,7 +403,9 @@ const ProductForm = () => {
                   id="category"
                   placeholder="Enter product category"
                   value={formData.category}
-                  onChange={(e) => handleInputChange('category', e.target.value)} />
+                  onChange={(e) => handleInputChange('category', e.target.value)}
+                  disabled={!canEdit}
+                  className={!canEdit ? 'bg-muted' : ''} />
 
               </div>
             </div>
@@ -386,7 +421,9 @@ const ProductForm = () => {
                   min="0"
                   placeholder="0.00"
                   value={formData.weight}
-                  onChange={(e) => handleInputChange('weight', parseFloat(e.target.value) || 0)} />
+                  onChange={(e) => handleInputChange('weight', parseFloat(e.target.value) || 0)}
+                  disabled={!canEdit}
+                  className={!canEdit ? 'bg-muted' : ''} />
 
               </div>
 
@@ -394,7 +431,8 @@ const ProductForm = () => {
                 <Label htmlFor="weight_unit">Weight Unit</Label>
                 <Select
                   value={formData.weight_unit}
-                  onValueChange={(value) => handleInputChange('weight_unit', value)}>
+                  onValueChange={(value) => handleInputChange('weight_unit', value)}
+                  disabled={!canEdit}>
 
                   <SelectTrigger>
                     <SelectValue placeholder="Select unit" />
@@ -413,7 +451,8 @@ const ProductForm = () => {
                 <Label htmlFor="department">Department</Label>
                 <Select
                   value={formData.department}
-                  onValueChange={(value) => handleInputChange('department', value)}>
+                  onValueChange={(value) => handleInputChange('department', value)}
+                  disabled={!canEdit}>
 
                   <SelectTrigger>
                     <SelectValue placeholder="Select department" />
@@ -435,7 +474,8 @@ const ProductForm = () => {
                 <Label htmlFor="merchant_id">Merchant</Label>
                 <Select
                   value={formData.merchant_id}
-                  onValueChange={(value) => handleInputChange('merchant_id', value)}>
+                  onValueChange={(value) => handleInputChange('merchant_id', value)}
+                  disabled={!canEdit}>
 
                   <SelectTrigger>
                     <SelectValue placeholder="Select merchant" />
@@ -456,7 +496,9 @@ const ProductForm = () => {
                   id="supplier"
                   placeholder="Enter supplier name"
                   value={formData.supplier}
-                  onChange={(e) => handleInputChange('supplier', e.target.value)} />
+                  onChange={(e) => handleInputChange('supplier', e.target.value)}
+                  disabled={!canEdit}
+                  className={!canEdit ? 'bg-muted' : ''} />
 
               </div>
             </div>
@@ -471,11 +513,13 @@ const ProductForm = () => {
                     placeholder="Enter or scan barcode"
                     value={formData.bar_code_case}
                     onChange={(e) => handleInputChange('bar_code_case', e.target.value)}
-                    className="flex-1" />
+                    disabled={!canEdit}
+                    className={`flex-1 ${!canEdit ? 'bg-muted' : ''}`} />
 
                   <BarcodeScanner
                     onScan={(barcode) => handleBarcodeScanned('bar_code_case', barcode)}
-                    triggerText="Scan" />
+                    triggerText="Scan"
+                    disabled={!canEdit} />
 
                 </div>
               </div>
@@ -488,11 +532,13 @@ const ProductForm = () => {
                     placeholder="Enter or scan barcode"
                     value={formData.bar_code_unit}
                     onChange={(e) => handleInputChange('bar_code_unit', e.target.value)}
-                    className="flex-1" />
+                    disabled={!canEdit}
+                    className={`flex-1 ${!canEdit ? 'bg-muted' : ''}`} />
 
                   <BarcodeScanner
                     onScan={(barcode) => handleBarcodeScanned('bar_code_unit', barcode)}
-                    triggerText="Scan" />
+                    triggerText="Scan"
+                    disabled={!canEdit} />
 
                 </div>
               </div>
@@ -509,7 +555,9 @@ const ProductForm = () => {
                   min="0"
                   placeholder="0.00"
                   value={formData.case_price}
-                  onChange={(e) => handleInputChange('case_price', parseFloat(e.target.value) || 0)} />
+                  onChange={(e) => handleInputChange('case_price', parseFloat(e.target.value) || 0)}
+                  disabled={!canEdit}
+                  className={!canEdit ? 'bg-muted' : ''} />
 
               </div>
 
@@ -521,7 +569,9 @@ const ProductForm = () => {
                   min="1"
                   placeholder="1"
                   value={formData.unit_per_case}
-                  onChange={(e) => handleInputChange('unit_per_case', parseInt(e.target.value) || 1)} />
+                  onChange={(e) => handleInputChange('unit_per_case', parseInt(e.target.value) || 1)}
+                  disabled={!canEdit}
+                  className={!canEdit ? 'bg-muted' : ''} />
 
               </div>
 
@@ -534,7 +584,9 @@ const ProductForm = () => {
                   min="0"
                   placeholder="0.00"
                   value={formData.unit_price}
-                  onChange={(e) => handleInputChange('unit_price', parseFloat(e.target.value) || 0)} />
+                  onChange={(e) => handleInputChange('unit_price', parseFloat(e.target.value) || 0)}
+                  disabled={!canEdit}
+                  className={!canEdit ? 'bg-muted' : ''} />
 
                 <p className="text-xs text-muted-foreground">Auto-calculated from case price</p>
               </div>
@@ -551,7 +603,9 @@ const ProductForm = () => {
                   min="0"
                   placeholder="0.00"
                   value={formData.retail_price}
-                  onChange={(e) => handleInputChange('retail_price', parseFloat(e.target.value) || 0)} />
+                  onChange={(e) => handleInputChange('retail_price', parseFloat(e.target.value) || 0)}
+                  disabled={!canEdit}
+                  className={!canEdit ? 'bg-muted' : ''} />
 
               </div>
 
@@ -561,7 +615,9 @@ const ProductForm = () => {
                   id="last_shopping_date"
                   type="date"
                   value={formData.last_shopping_date}
-                  onChange={(e) => handleInputChange('last_shopping_date', e.target.value)} />
+                  onChange={(e) => handleInputChange('last_shopping_date', e.target.value)}
+                  disabled={!canEdit}
+                  className={!canEdit ? 'bg-muted' : ''} />
 
               </div>
             </div>
@@ -575,7 +631,9 @@ const ProductForm = () => {
                 placeholder="Enter product description"
                 rows={4}
                 value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)} />
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                disabled={!canEdit}
+                className={!canEdit ? 'bg-muted' : ''} />
 
             </div>
 
@@ -583,7 +641,7 @@ const ProductForm = () => {
               <Button type="button" variant="outline" onClick={() => navigate('/products')}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isLoading}>
+              <Button type="submit" disabled={isLoading || !canEdit}>
                 <Save className="w-4 h-4 mr-2" />
                 {isLoading ? 'Saving...' : id ? 'Update Product' : 'Create Product'}
               </Button>

@@ -7,9 +7,10 @@ import { useToast } from '@/hooks/use-toast';
 interface BarcodeScannerProps {
   onScan: (barcode: string) => void;
   triggerText?: string;
+  disabled?: boolean;
 }
 
-const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, triggerText = "Scan Barcode" }) => {
+const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, triggerText = "Scan Barcode", disabled = false }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -87,7 +88,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, triggerText = "
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button type="button" variant="outline" size="sm">
+        <Button type="button" variant="outline" size="sm" disabled={disabled}>
           <Camera className="w-4 h-4 mr-2" />
           {triggerText}
         </Button>

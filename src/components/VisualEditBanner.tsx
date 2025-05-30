@@ -37,8 +37,8 @@ const VisualEditBanner: React.FC = () => {
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default VisualEditBanner;

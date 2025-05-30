@@ -11,107 +11,107 @@ const QuickAccessToolbar: React.FC = () => {
 
   const getQuickActions = () => {
     const path = location.pathname;
-    
+
     if (path.startsWith('/products')) {
       return [
-        { 
-          label: 'Add Product', 
-          icon: <Plus className="w-4 h-4" />, 
-          action: () => navigate('/products/new'),
-          color: 'bg-green-600 hover:bg-green-700'
-        },
-        { 
-          label: 'View All', 
-          icon: <Eye className="w-4 h-4" />, 
-          action: () => navigate('/products'),
-          color: 'bg-blue-600 hover:bg-blue-700'
-        }
-      ];
+      {
+        label: 'Add Product',
+        icon: <Plus className="w-4 h-4" />,
+        action: () => navigate('/products/new'),
+        color: 'bg-green-600 hover:bg-green-700'
+      },
+      {
+        label: 'View All',
+        icon: <Eye className="w-4 h-4" />,
+        action: () => navigate('/products'),
+        color: 'bg-blue-600 hover:bg-blue-700'
+      }];
+
     } else if (path.startsWith('/employees')) {
       return [
-        { 
-          label: 'Add Employee', 
-          icon: <Plus className="w-4 h-4" />, 
-          action: () => navigate('/employees/new'),
-          color: 'bg-green-600 hover:bg-green-700'
-        },
-        { 
-          label: 'View All', 
-          icon: <Eye className="w-4 h-4" />, 
-          action: () => navigate('/employees'),
-          color: 'bg-blue-600 hover:bg-blue-700'
-        }
-      ];
+      {
+        label: 'Add Employee',
+        icon: <Plus className="w-4 h-4" />,
+        action: () => navigate('/employees/new'),
+        color: 'bg-green-600 hover:bg-green-700'
+      },
+      {
+        label: 'View All',
+        icon: <Eye className="w-4 h-4" />,
+        action: () => navigate('/employees'),
+        color: 'bg-blue-600 hover:bg-blue-700'
+      }];
+
     } else if (path.startsWith('/sales')) {
       return [
-        { 
-          label: 'New Report', 
-          icon: <Plus className="w-4 h-4" />, 
-          action: () => navigate('/sales/new'),
-          color: 'bg-green-600 hover:bg-green-700'
-        },
-        { 
-          label: 'View Reports', 
-          icon: <Eye className="w-4 h-4" />, 
-          action: () => navigate('/sales'),
-          color: 'bg-blue-600 hover:bg-blue-700'
-        }
-      ];
+      {
+        label: 'New Report',
+        icon: <Plus className="w-4 h-4" />,
+        action: () => navigate('/sales/new'),
+        color: 'bg-green-600 hover:bg-green-700'
+      },
+      {
+        label: 'View Reports',
+        icon: <Eye className="w-4 h-4" />,
+        action: () => navigate('/sales'),
+        color: 'bg-blue-600 hover:bg-blue-700'
+      }];
+
     } else if (path.startsWith('/vendors')) {
       return [
-        { 
-          label: 'Add Vendor', 
-          icon: <Plus className="w-4 h-4" />, 
-          action: () => navigate('/vendors/new'),
-          color: 'bg-green-600 hover:bg-green-700'
-        },
-        { 
-          label: 'View All', 
-          icon: <Eye className="w-4 h-4" />, 
-          action: () => navigate('/vendors'),
-          color: 'bg-blue-600 hover:bg-blue-700'
-        }
-      ];
+      {
+        label: 'Add Vendor',
+        icon: <Plus className="w-4 h-4" />,
+        action: () => navigate('/vendors/new'),
+        color: 'bg-green-600 hover:bg-green-700'
+      },
+      {
+        label: 'View All',
+        icon: <Eye className="w-4 h-4" />,
+        action: () => navigate('/vendors'),
+        color: 'bg-blue-600 hover:bg-blue-700'
+      }];
+
     } else if (path.startsWith('/orders')) {
       return [
-        { 
-          label: 'Create Order', 
-          icon: <Plus className="w-4 h-4" />, 
-          action: () => navigate('/orders/new'),
-          color: 'bg-green-600 hover:bg-green-700'
-        },
-        { 
-          label: 'View Orders', 
-          icon: <Eye className="w-4 h-4" />, 
-          action: () => navigate('/orders'),
-          color: 'bg-blue-600 hover:bg-blue-700'
-        }
-      ];
+      {
+        label: 'Create Order',
+        icon: <Plus className="w-4 h-4" />,
+        action: () => navigate('/orders/new'),
+        color: 'bg-green-600 hover:bg-green-700'
+      },
+      {
+        label: 'View Orders',
+        icon: <Eye className="w-4 h-4" />,
+        action: () => navigate('/orders'),
+        color: 'bg-blue-600 hover:bg-blue-700'
+      }];
+
     } else if (path.startsWith('/licenses')) {
       return [
-        { 
-          label: 'Add License', 
-          icon: <Plus className="w-4 h-4" />, 
-          action: () => navigate('/licenses/new'),
-          color: 'bg-green-600 hover:bg-green-700'
-        },
-        { 
-          label: 'View All', 
-          icon: <Eye className="w-4 h-4" />, 
-          action: () => navigate('/licenses'),
-          color: 'bg-blue-600 hover:bg-blue-700'
-        }
-      ];
+      {
+        label: 'Add License',
+        icon: <Plus className="w-4 h-4" />,
+        action: () => navigate('/licenses/new'),
+        color: 'bg-green-600 hover:bg-green-700'
+      },
+      {
+        label: 'View All',
+        icon: <Eye className="w-4 h-4" />,
+        action: () => navigate('/licenses'),
+        color: 'bg-blue-600 hover:bg-blue-700'
+      }];
+
     }
-    
+
     return [
-      { 
-        label: 'Dashboard', 
-        icon: <Eye className="w-4 h-4" />, 
-        action: () => navigate('/dashboard'),
-        color: 'bg-indigo-600 hover:bg-indigo-700'
-      }
-    ];
+    {
+      label: 'Dashboard',
+      icon: <Eye className="w-4 h-4" />,
+      action: () => navigate('/dashboard'),
+      color: 'bg-indigo-600 hover:bg-indigo-700'
+    }];
+
   };
 
   const quickActions = getQuickActions();
@@ -129,26 +129,26 @@ const QuickAccessToolbar: React.FC = () => {
             variant="ghost"
             size="sm"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-1 h-auto"
-          >
+            className="p-1 h-auto">
+
             <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
           </Button>
         </div>
         
-        {isExpanded && (
-          <div className="mt-3 pt-3 border-t border-gray-200">
+        {isExpanded &&
+        <div className="mt-3 pt-3 border-t border-gray-200">
             <div className="grid grid-cols-1 gap-2 min-w-[200px]">
               <div className="text-xs font-medium text-gray-500 mb-2">Quick Actions:</div>
-              {quickActions.map((action, index) => (
-                <Button
-                  key={index}
-                  onClick={action.action}
-                  className={`${action.color} text-white text-xs h-8 justify-start`}
-                >
+              {quickActions.map((action, index) =>
+            <Button
+              key={index}
+              onClick={action.action}
+              className={`${action.color} text-white text-xs h-8 justify-start`}>
+
                   {action.icon}
                   <span className="ml-2">{action.label}</span>
                 </Button>
-              ))}
+            )}
               
               <div className="border-t border-gray-200 mt-2 pt-2">
                 <div className="text-xs text-gray-500 flex items-center space-x-1">
@@ -158,10 +158,10 @@ const QuickAccessToolbar: React.FC = () => {
               </div>
             </div>
           </div>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default QuickAccessToolbar;

@@ -8,9 +8,10 @@ import { useToast } from '@/hooks/use-toast';
 
 interface ProductFileUploadProps {
   onDataImport: (data: any[]) => void;
+  disabled?: boolean;
 }
 
-const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport }) => {
+const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, disabled = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -134,7 +135,7 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport }) =
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" disabled={disabled}>
           <Upload className="w-4 h-4 mr-2" />
           Import Products
         </Button>
