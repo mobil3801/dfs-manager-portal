@@ -27,20 +27,20 @@ const DashboardLayout: React.FC = () => {
   const location = useLocation();
 
   const navigationItems: NavigationItem[] = [
-    { name: 'Dashboard', path: '/dashboard', icon: <Home className="w-5 h-5" /> },
-    { name: 'All Products', path: '/products', icon: <Package className="w-5 h-5" /> },
-    { name: 'Add Product', path: '/products/new', icon: <Plus className="w-5 h-5" /> },
-    { name: 'All Employees', path: '/employees', icon: <Users className="w-5 h-5" /> },
-    { name: 'Add Employee', path: '/employees/new', icon: <Plus className="w-5 h-5" /> },
-    { name: 'Sales Reports', path: '/sales', icon: <TrendingUp className="w-5 h-5" /> },
-    { name: 'Add Report', path: '/sales/new', icon: <Plus className="w-5 h-5" /> },
-    { name: 'All Vendors', path: '/vendors', icon: <Building2 className="w-5 h-5" /> },
-    { name: 'Add Vendor', path: '/vendors/new', icon: <Plus className="w-5 h-5" /> },
-    { name: 'All Orders', path: '/orders', icon: <ShoppingCart className="w-5 h-5" /> },
-    { name: 'Create Order', path: '/orders/new', icon: <Plus className="w-5 h-5" /> },
-    { name: 'All Licenses', path: '/licenses', icon: <FileText className="w-5 h-5" /> },
-    { name: 'Add License', path: '/licenses/new', icon: <Plus className="w-5 h-5" /> }
-  ];
+  { name: 'Dashboard', path: '/dashboard', icon: <Home className="w-5 h-5" /> },
+  { name: 'All Products', path: '/products', icon: <Package className="w-5 h-5" /> },
+  { name: 'Add Product', path: '/products/new', icon: <Plus className="w-5 h-5" /> },
+  { name: 'All Employees', path: '/employees', icon: <Users className="w-5 h-5" /> },
+  { name: 'Add Employee', path: '/employees/new', icon: <Plus className="w-5 h-5" /> },
+  { name: 'Sales Reports', path: '/sales', icon: <TrendingUp className="w-5 h-5" /> },
+  { name: 'Add Report', path: '/sales/new', icon: <Plus className="w-5 h-5" /> },
+  { name: 'All Vendors', path: '/vendors', icon: <Building2 className="w-5 h-5" /> },
+  { name: 'Add Vendor', path: '/vendors/new', icon: <Plus className="w-5 h-5" /> },
+  { name: 'All Orders', path: '/orders', icon: <ShoppingCart className="w-5 h-5" /> },
+  { name: 'Create Order', path: '/orders/new', icon: <Plus className="w-5 h-5" /> },
+  { name: 'All Licenses', path: '/licenses', icon: <FileText className="w-5 h-5" /> },
+  { name: 'Add License', path: '/licenses/new', icon: <Plus className="w-5 h-5" /> }];
+
 
 
   const handleNavigation = (path: string) => {
@@ -63,8 +63,8 @@ const DashboardLayout: React.FC = () => {
           {item.icon}
           <span className="font-medium">{item.name}</span>
         </div>
-      </Button>
-    );
+      </Button>);
+
   };
 
   const getPageTitle = () => {
@@ -95,9 +95,9 @@ const DashboardLayout: React.FC = () => {
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 flex-shrink-0">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">BM</span>
+              <span className="text-white font-bold text-sm">DFS</span>
             </div>
-            <span className="text-xl font-bold text-gray-900">Business Manager</span>
+            <span className="text-xl font-bold text-gray-900">DFS Manager Portal</span>
           </div>
           <Button
             variant="ghost"
