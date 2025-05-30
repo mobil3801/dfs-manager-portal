@@ -16,7 +16,7 @@ const ProductForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [vendors, setVendors] = useState<any[]>([]);
   const [formData, setFormData] = useState({
@@ -43,28 +43,28 @@ const ProductForm = () => {
   });
 
   const weightUnits = [
-    { value: 'lb', label: 'Pounds (lb)' },
-    { value: 'oz', label: 'Ounces (oz)' },
-    { value: 'ton', label: 'Tons' },
-    { value: 'fl_oz', label: 'Fluid Ounces (fl oz)' },
-    { value: 'gal', label: 'Gallons (gal)' },
-    { value: 'qt', label: 'Quarts (qt)' },
-    { value: 'pt', label: 'Pints (pt)' },
-    { value: 'cup', label: 'Cups' }
-  ];
+  { value: 'lb', label: 'Pounds (lb)' },
+  { value: 'oz', label: 'Ounces (oz)' },
+  { value: 'ton', label: 'Tons' },
+  { value: 'fl_oz', label: 'Fluid Ounces (fl oz)' },
+  { value: 'gal', label: 'Gallons (gal)' },
+  { value: 'qt', label: 'Quarts (qt)' },
+  { value: 'pt', label: 'Pints (pt)' },
+  { value: 'cup', label: 'Cups' }];
+
 
   const departments = [
-    'Convenience Store',
-    'Fuel & Oil',
-    'Automotive',
-    'Food & Beverages',
-    'Tobacco Products',
-    'Lottery & Gaming',
-    'Health & Personal Care',
-    'Electronics & Accessories',
-    'Cleaning Supplies',
-    'Office Supplies'
-  ];
+  'Convenience Store',
+  'Fuel & Oil',
+  'Automotive',
+  'Food & Beverages',
+  'Tobacco Products',
+  'Lottery & Gaming',
+  'Health & Personal Care',
+  'Electronics & Accessories',
+  'Cleaning Supplies',
+  'Office Supplies'];
+
 
   useEffect(() => {
     fetchVendors();
@@ -83,10 +83,10 @@ const ProductForm = () => {
         OrderByField: "vendor_name",
         IsAsc: true,
         Filters: [
-          { name: "is_active", op: "Equal", value: true }
-        ]
+        { name: "is_active", op: "Equal", value: true }]
+
       });
-      
+
       if (error) throw error;
       setVendors(data?.List || []);
     } catch (error) {
@@ -108,19 +108,19 @@ const ProductForm = () => {
         IsAsc: false,
         Filters: []
       });
-      
+
       if (error) throw error;
       const lastSerial = data?.List?.[0]?.serial_number || 0;
-      setFormData(prev => ({ ...prev, serial_number: lastSerial + 1 }));
+      setFormData((prev) => ({ ...prev, serial_number: lastSerial + 1 }));
     } catch (error) {
       console.error('Error generating serial number:', error);
-      setFormData(prev => ({ ...prev, serial_number: 1 }));
+      setFormData((prev) => ({ ...prev, serial_number: 1 }));
     }
   };
 
   const fetchProduct = async () => {
     if (!id) return;
-    
+
     setIsLoading(true);
     try {
       const { data, error } = await window.ezsite.apis.tablePage(11726, {
@@ -129,12 +129,12 @@ const ProductForm = () => {
         OrderByField: "id",
         IsAsc: true,
         Filters: [
-          { name: "id", op: "Equal", value: parseInt(id) }
-        ]
+        { name: "id", op: "Equal", value: parseInt(id) }]
+
       });
-      
+
       if (error) throw error;
-      
+
       if (data?.List?.[0]) {
         const product = data.List[0];
         setFormData({
@@ -173,22 +173,22 @@ const ProductForm = () => {
   };
 
   const handleInputChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    
+    setFormData((prev) => ({ ...prev, [field]: value }));
+
     // Auto-calculate unit price when case price or units per case changes
     if (field === 'case_price' || field === 'unit_per_case') {
       const casePrice = field === 'case_price' ? value : formData.case_price;
       const unitsPerCase = field === 'unit_per_case' ? value : formData.unit_per_case;
-      
+
       if (casePrice > 0 && unitsPerCase > 0) {
         const calculatedUnitPrice = casePrice / unitsPerCase;
-        setFormData(prev => ({ ...prev, unit_price: Math.round(calculatedUnitPrice * 100) / 100 }));
+        setFormData((prev) => ({ ...prev, unit_price: Math.round(calculatedUnitPrice * 100) / 100 }));
       }
     }
   };
 
   const handleBarcodeScanned = (field: string, barcode: string) => {
-    setFormData(prev => ({ ...prev, [field]: barcode }));
+    setFormData((prev) => ({ ...prev, [field]: barcode }));
   };
 
   const handleBulkImport = async (importedData: any[]) => {
@@ -207,9 +207,9 @@ const ProductForm = () => {
             IsAsc: false,
             Filters: []
           });
-          
+
           const lastSerial = serialResponse.data?.List?.[0]?.serial_number || successCount;
-          
+
           const productPayload = {
             serial_number: lastSerial + successCount + 1,
             product_name: productData.product_name || '',
@@ -233,7 +233,7 @@ const ProductForm = () => {
           };
 
           const { error } = await window.ezsite.apis.tableCreate(11726, productPayload);
-          
+
           if (error) {
             console.error('Error creating product:', error);
             errorCount++;
@@ -268,7 +268,7 @@ const ProductForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.product_name.trim()) {
       toast({
         variant: "destructive",
@@ -287,9 +287,9 @@ const ProductForm = () => {
         merchant_id: formData.merchant_id ? parseInt(formData.merchant_id) : null
       };
 
-      const { error } = id 
-        ? await window.ezsite.apis.tableUpdate(11726, { id: parseInt(id), ...payload })
-        : await window.ezsite.apis.tableCreate(11726, payload);
+      const { error } = id ?
+      await window.ezsite.apis.tableUpdate(11726, { id: parseInt(id), ...payload }) :
+      await window.ezsite.apis.tableCreate(11726, payload);
 
       if (error) throw error;
 
@@ -348,8 +348,8 @@ const ProductForm = () => {
                   value={formData.serial_number}
                   onChange={(e) => handleInputChange('serial_number', parseInt(e.target.value))}
                   disabled
-                  className="bg-muted"
-                />
+                  className="bg-muted" />
+
                 <p className="text-xs text-muted-foreground">Auto-generated</p>
               </div>
 
@@ -360,8 +360,8 @@ const ProductForm = () => {
                   placeholder="Enter product name"
                   value={formData.product_name}
                   onChange={(e) => handleInputChange('product_name', e.target.value)}
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -370,8 +370,8 @@ const ProductForm = () => {
                   id="category"
                   placeholder="Enter product category"
                   value={formData.category}
-                  onChange={(e) => handleInputChange('category', e.target.value)}
-                />
+                  onChange={(e) => handleInputChange('category', e.target.value)} />
+
               </div>
             </div>
 
@@ -386,44 +386,44 @@ const ProductForm = () => {
                   min="0"
                   placeholder="0.00"
                   value={formData.weight}
-                  onChange={(e) => handleInputChange('weight', parseFloat(e.target.value) || 0)}
-                />
+                  onChange={(e) => handleInputChange('weight', parseFloat(e.target.value) || 0)} />
+
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="weight_unit">Weight Unit</Label>
-                <Select 
-                  value={formData.weight_unit} 
-                  onValueChange={(value) => handleInputChange('weight_unit', value)}
-                >
+                <Select
+                  value={formData.weight_unit}
+                  onValueChange={(value) => handleInputChange('weight_unit', value)}>
+
                   <SelectTrigger>
                     <SelectValue placeholder="Select unit" />
                   </SelectTrigger>
                   <SelectContent>
-                    {weightUnits.map((unit) => (
-                      <SelectItem key={unit.value} value={unit.value}>
+                    {weightUnits.map((unit) =>
+                    <SelectItem key={unit.value} value={unit.value}>
                         {unit.label}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="department">Department</Label>
-                <Select 
-                  value={formData.department} 
-                  onValueChange={(value) => handleInputChange('department', value)}
-                >
+                <Select
+                  value={formData.department}
+                  onValueChange={(value) => handleInputChange('department', value)}>
+
                   <SelectTrigger>
                     <SelectValue placeholder="Select department" />
                   </SelectTrigger>
                   <SelectContent>
-                    {departments.map((dept) => (
-                      <SelectItem key={dept} value={dept}>
+                    {departments.map((dept) =>
+                    <SelectItem key={dept} value={dept}>
                         {dept}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -433,19 +433,19 @@ const ProductForm = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="merchant_id">Merchant</Label>
-                <Select 
-                  value={formData.merchant_id} 
-                  onValueChange={(value) => handleInputChange('merchant_id', value)}
-                >
+                <Select
+                  value={formData.merchant_id}
+                  onValueChange={(value) => handleInputChange('merchant_id', value)}>
+
                   <SelectTrigger>
                     <SelectValue placeholder="Select merchant" />
                   </SelectTrigger>
                   <SelectContent>
-                    {vendors.map((vendor) => (
-                      <SelectItem key={vendor.id} value={vendor.id.toString()}>
+                    {vendors.map((vendor) =>
+                    <SelectItem key={vendor.id} value={vendor.id.toString()}>
                         {vendor.vendor_name}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -456,8 +456,8 @@ const ProductForm = () => {
                   id="supplier"
                   placeholder="Enter supplier name"
                   value={formData.supplier}
-                  onChange={(e) => handleInputChange('supplier', e.target.value)}
-                />
+                  onChange={(e) => handleInputChange('supplier', e.target.value)} />
+
               </div>
             </div>
 
@@ -471,12 +471,12 @@ const ProductForm = () => {
                     placeholder="Enter or scan barcode"
                     value={formData.bar_code_case}
                     onChange={(e) => handleInputChange('bar_code_case', e.target.value)}
-                    className="flex-1"
-                  />
-                  <BarcodeScanner 
+                    className="flex-1" />
+
+                  <BarcodeScanner
                     onScan={(barcode) => handleBarcodeScanned('bar_code_case', barcode)}
-                    triggerText="Scan"
-                  />
+                    triggerText="Scan" />
+
                 </div>
               </div>
 
@@ -488,12 +488,12 @@ const ProductForm = () => {
                     placeholder="Enter or scan barcode"
                     value={formData.bar_code_unit}
                     onChange={(e) => handleInputChange('bar_code_unit', e.target.value)}
-                    className="flex-1"
-                  />
-                  <BarcodeScanner 
+                    className="flex-1" />
+
+                  <BarcodeScanner
                     onScan={(barcode) => handleBarcodeScanned('bar_code_unit', barcode)}
-                    triggerText="Scan"
-                  />
+                    triggerText="Scan" />
+
                 </div>
               </div>
             </div>
@@ -509,8 +509,8 @@ const ProductForm = () => {
                   min="0"
                   placeholder="0.00"
                   value={formData.case_price}
-                  onChange={(e) => handleInputChange('case_price', parseFloat(e.target.value) || 0)}
-                />
+                  onChange={(e) => handleInputChange('case_price', parseFloat(e.target.value) || 0)} />
+
               </div>
 
               <div className="space-y-2">
@@ -521,8 +521,8 @@ const ProductForm = () => {
                   min="1"
                   placeholder="1"
                   value={formData.unit_per_case}
-                  onChange={(e) => handleInputChange('unit_per_case', parseInt(e.target.value) || 1)}
-                />
+                  onChange={(e) => handleInputChange('unit_per_case', parseInt(e.target.value) || 1)} />
+
               </div>
 
               <div className="space-y-2">
@@ -534,8 +534,8 @@ const ProductForm = () => {
                   min="0"
                   placeholder="0.00"
                   value={formData.unit_price}
-                  onChange={(e) => handleInputChange('unit_price', parseFloat(e.target.value) || 0)}
-                />
+                  onChange={(e) => handleInputChange('unit_price', parseFloat(e.target.value) || 0)} />
+
                 <p className="text-xs text-muted-foreground">Auto-calculated from case price</p>
               </div>
             </div>
@@ -551,8 +551,8 @@ const ProductForm = () => {
                   min="0"
                   placeholder="0.00"
                   value={formData.retail_price}
-                  onChange={(e) => handleInputChange('retail_price', parseFloat(e.target.value) || 0)}
-                />
+                  onChange={(e) => handleInputChange('retail_price', parseFloat(e.target.value) || 0)} />
+
               </div>
 
               <div className="space-y-2">
@@ -561,8 +561,8 @@ const ProductForm = () => {
                   id="last_shopping_date"
                   type="date"
                   value={formData.last_shopping_date}
-                  onChange={(e) => handleInputChange('last_shopping_date', e.target.value)}
-                />
+                  onChange={(e) => handleInputChange('last_shopping_date', e.target.value)} />
+
               </div>
             </div>
 
@@ -576,8 +576,8 @@ const ProductForm = () => {
                   min="0"
                   placeholder="0"
                   value={formData.quantity_in_stock}
-                  onChange={(e) => handleInputChange('quantity_in_stock', parseInt(e.target.value) || 0)}
-                />
+                  onChange={(e) => handleInputChange('quantity_in_stock', parseInt(e.target.value) || 0)} />
+
               </div>
 
               <div className="space-y-2">
@@ -588,16 +588,16 @@ const ProductForm = () => {
                   min="0"
                   placeholder="0"
                   value={formData.minimum_stock}
-                  onChange={(e) => handleInputChange('minimum_stock', parseInt(e.target.value) || 0)}
-                />
+                  onChange={(e) => handleInputChange('minimum_stock', parseInt(e.target.value) || 0)} />
+
               </div>
 
               <div className="space-y-2 flex items-center space-x-2 pt-6">
                 <Switch
                   id="overdue"
                   checked={formData.overdue}
-                  onCheckedChange={(checked) => handleInputChange('overdue', checked)}
-                />
+                  onCheckedChange={(checked) => handleInputChange('overdue', checked)} />
+
                 <Label htmlFor="overdue">Overdue for Restocking</Label>
               </div>
             </div>
@@ -609,8 +609,8 @@ const ProductForm = () => {
                 placeholder="Enter product description"
                 rows={4}
                 value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-              />
+                onChange={(e) => handleInputChange('description', e.target.value)} />
+
             </div>
 
             <div className="flex items-center justify-end space-x-4">
@@ -625,8 +625,8 @@ const ProductForm = () => {
           </form>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ProductForm;

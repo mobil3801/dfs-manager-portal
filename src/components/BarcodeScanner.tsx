@@ -22,7 +22,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, triggerText = "
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment' }
       });
-      
+
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
         setStream(mediaStream);
@@ -40,7 +40,7 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, triggerText = "
 
   const stopCamera = () => {
     if (stream) {
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach((track) => track.stop());
       setStream(null);
       setIsScanning(false);
     }
@@ -51,19 +51,19 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, triggerText = "
       const video = videoRef.current;
       const canvas = canvasRef.current;
       const context = canvas.getContext('2d');
-      
+
       if (context) {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         context.drawImage(video, 0, 0);
-        
+
         // Simple barcode detection simulation
         // In a real implementation, you would use a library like ZXing or QuaggaJS
         const simulatedBarcode = Math.random().toString(36).substr(2, 12).toUpperCase();
         onScan(simulatedBarcode);
         setIsOpen(false);
         stopCamera();
-        
+
         toast({
           title: "Barcode Scanned",
           description: `Detected barcode: ${simulatedBarcode}`
@@ -102,20 +102,20 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, triggerText = "
               ref={videoRef}
               autoPlay
               playsInline
-              className="w-full h-full object-cover"
-            />
+              className="w-full h-full object-cover" />
+
             <canvas
               ref={canvasRef}
-              className="hidden"
-            />
-            {!isScanning && (
-              <div className="absolute inset-0 flex items-center justify-center text-white">
+              className="hidden" />
+
+            {!isScanning &&
+            <div className="absolute inset-0 flex items-center justify-center text-white">
                 <div className="text-center">
                   <Camera className="w-12 h-12 mx-auto mb-2" />
                   <p>Initializing camera...</p>
                 </div>
               </div>
-            )}
+            }
           </div>
           <div className="flex space-x-2">
             <Button onClick={captureFrame} disabled={!isScanning}>
@@ -131,8 +131,8 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, triggerText = "
           </p>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default BarcodeScanner;

@@ -18,25 +18,25 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport }) =
 
   const downloadTemplate = () => {
     const headers = [
-      'product_name',
-      'weight',
-      'weight_unit',
-      'department',
-      'bar_code_case',
-      'bar_code_unit',
-      'case_price',
-      'unit_per_case',
-      'unit_price',
-      'retail_price',
-      'category',
-      'supplier',
-      'quantity_in_stock',
-      'minimum_stock',
-      'description'
-    ];
+    'product_name',
+    'weight',
+    'weight_unit',
+    'department',
+    'bar_code_case',
+    'bar_code_unit',
+    'case_price',
+    'unit_per_case',
+    'unit_price',
+    'retail_price',
+    'category',
+    'supplier',
+    'quantity_in_stock',
+    'minimum_stock',
+    'description'];
+
 
     const csvContent = headers.join(',') + '\n' +
-      'Sample Product,1.5,lb,Convenience Store,123456789012,987654321098,24.99,12,2.99,3.49,Snacks,Sample Supplier,100,10,Sample product description';
+    'Sample Product,1.5,lb,Convenience Store,123456789012,987654321098,24.99,12,2.99,3.49,Snacks,Sample Supplier,100,10,Sample product description';
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -49,12 +49,12 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport }) =
 
   const parseCSV = (text: string): any[] => {
     const lines = text.split('\n');
-    const headers = lines[0].split(',').map(h => h.trim());
+    const headers = lines[0].split(',').map((h) => h.trim());
     const data = [];
 
     for (let i = 1; i < lines.length; i++) {
       if (lines[i].trim()) {
-        const values = lines[i].split(',').map(v => v.trim());
+        const values = lines[i].split(',').map((v) => v.trim());
         const row: any = {};
         headers.forEach((header, index) => {
           row[header] = values[index] || '';
@@ -88,8 +88,8 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport }) =
 
       // Validate required fields
       const requiredFields = ['product_name'];
-      const invalidRows = parsedData.filter(row => 
-        requiredFields.some(field => !row[field])
+      const invalidRows = parsedData.filter((row) =>
+      requiredFields.some((field) => !row[field])
       );
 
       if (invalidRows.length > 0) {
@@ -150,13 +150,13 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport }) =
               id="file"
               type="file"
               accept=".csv"
-              onChange={handleFileChange}
-            />
-            {file && (
-              <p className="text-sm text-muted-foreground">
+              onChange={handleFileChange} />
+
+            {file &&
+            <p className="text-sm text-muted-foreground">
                 Selected: {file.name}
               </p>
-            )}
+            }
           </div>
 
           <div className="space-y-2">
@@ -165,8 +165,8 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport }) =
               type="button"
               variant="outline"
               onClick={downloadTemplate}
-              className="w-full"
-            >
+              className="w-full">
+
               <Download className="w-4 h-4 mr-2" />
               Download CSV Template
             </Button>
@@ -179,34 +179,34 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport }) =
             <Button
               onClick={handleFileUpload}
               disabled={!file || isProcessing}
-              className="flex-1"
-            >
-              {isProcessing ? (
-                <>
+              className="flex-1">
+
+              {isProcessing ?
+              <>
                   <FileText className="w-4 h-4 mr-2 animate-spin" />
                   Processing...
-                </>
-              ) : (
-                <>
+                </> :
+
+              <>
                   <Upload className="w-4 h-4 mr-2" />
                   Import Data
                 </>
-              )}
+              }
             </Button>
             <Button
               variant="outline"
               onClick={() => {
                 setIsOpen(false);
                 setFile(null);
-              }}
-            >
+              }}>
+
               Cancel
             </Button>
           </div>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default ProductFileUpload;

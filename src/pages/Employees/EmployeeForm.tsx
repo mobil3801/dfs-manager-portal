@@ -3,10 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import { Users, Save, ArrowLeft } from 'lucide-react';
+import { Users, Save, ArrowLeft, Upload } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 interface EmployeeFormData {
@@ -20,6 +21,12 @@ interface EmployeeFormData {
   hire_date: string;
   salary: number;
   is_active: boolean;
+  date_of_birth: string;
+  current_address: string;
+  mailing_address: string;
+  reference_name: string;
+  id_document_type: string;
+  id_document_file_id: number | null;
 }
 
 const EmployeeForm: React.FC = () => {
@@ -33,8 +40,16 @@ const EmployeeForm: React.FC = () => {
     station: '',
     hire_date: '',
     salary: 0,
-    is_active: true
+    is_active: true,
+    date_of_birth: '',
+    current_address: '',
+    mailing_address: '',
+    reference_name: '',
+    id_document_type: '',
+    id_document_file_id: null
   });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -43,6 +58,7 @@ const EmployeeForm: React.FC = () => {
 
   const stations = ['MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN'];
   const positions = ['Manager', 'Supervisor', 'Cashier', 'Attendant', 'Mechanic', 'Cleaner'];
+  const idDocumentTypes = ['Driving License', 'Passport', 'Green Card', 'SSN', 'Work Permit'];
 
   useEffect(() => {
     if (id) {
@@ -74,7 +90,13 @@ const EmployeeForm: React.FC = () => {
           station: employee.station || '',
           hire_date: employee.hire_date ? employee.hire_date.split('T')[0] : '',
           salary: employee.salary || 0,
-          is_active: employee.is_active !== false
+          is_active: employee.is_active !== false,
+          date_of_birth: employee.date_of_birth ? employee.date_of_birth.split('T')[0] : '',
+          current_address: employee.current_address || '',
+          mailing_address: employee.mailing_address || '',
+          reference_name: employee.reference_name || '',
+          id_document_type: employee.id_document_type || '',
+          id_document_file_id: employee.id_document_file_id || null
         });
       }
     } catch (error) {
@@ -89,15 +111,51 @@ const EmployeeForm: React.FC = () => {
     }
   };
 
+  const handleFileUpload = async () => {
+    if (!selectedFile) return null;
+    
+    setIsUploading(true);
+    try {
+      const { data: fileId, error } = await window.ezsite.apis.upload({
+        filename: selectedFile.name,
+        file: selectedFile
+      });
+      if (error) throw error;
+      return fileId;
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast({ 
+        title: 'Error', 
+        description: 'Failed to upload file. Please try again.', 
+        variant: 'destructive' 
+      });
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
       setLoading(true);
 
+      let fileId = formData.id_document_file_id;
+      
+      if (selectedFile) {
+        fileId = await handleFileUpload();
+        if (fileId === null) {
+          setLoading(false);
+          return;
+        }
+      }
+
       const dataToSubmit = {
         ...formData,
         hire_date: formData.hire_date ? new Date(formData.hire_date).toISOString() : '',
+        date_of_birth: formData.date_of_birth ? new Date(formData.date_of_birth).toISOString() : '',
+        id_document_file_id: fileId,
         created_by: 1
       };
 
@@ -160,144 +218,229 @@ const EmployeeForm: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="employee_id">Employee ID *</Label>
-                <Input
-                  id="employee_id"
-                  value={formData.employee_id}
-                  onChange={(e) => handleInputChange('employee_id', e.target.value)}
-                  placeholder="Enter employee ID"
-                  required />
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Basic Information Section */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">Basic Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="employee_id">Employee ID *</Label>
+                  <Input
+                    id="employee_id"
+                    value={formData.employee_id}
+                    onChange={(e) => handleInputChange('employee_id', e.target.value)}
+                    placeholder="Enter employee ID"
+                    required />
+                </div>
 
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="station">Station *</Label>
+                  <Select value={formData.station} onValueChange={(value) => handleInputChange('station', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select station" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {stations.map((station) =>
+                      <SelectItem key={station} value={station}>
+                          {station}
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="first_name">First Name *</Label>
-                <Input
-                  id="first_name"
-                  value={formData.first_name}
-                  onChange={(e) => handleInputChange('first_name', e.target.value)}
-                  placeholder="Enter first name"
-                  required />
+                <div className="space-y-2">
+                  <Label htmlFor="first_name">First Name *</Label>
+                  <Input
+                    id="first_name"
+                    value={formData.first_name}
+                    onChange={(e) => handleInputChange('first_name', e.target.value)}
+                    placeholder="Enter first name"
+                    required />
+                </div>
 
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="last_name">Last Name *</Label>
+                  <Input
+                    id="last_name"
+                    value={formData.last_name}
+                    onChange={(e) => handleInputChange('last_name', e.target.value)}
+                    placeholder="Enter last name"
+                    required />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="last_name">Last Name *</Label>
-                <Input
-                  id="last_name"
-                  value={formData.last_name}
-                  onChange={(e) => handleInputChange('last_name', e.target.value)}
-                  placeholder="Enter last name"
-                  required />
+                <div className="space-y-2">
+                  <Label htmlFor="date_of_birth">Date of Birth</Label>
+                  <Input
+                    id="date_of_birth"
+                    type="date"
+                    value={formData.date_of_birth}
+                    onChange={(e) => handleInputChange('date_of_birth', e.target.value)} />
+                </div>
 
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    placeholder="Enter email address" />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  placeholder="Enter email address" />
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input
+                    id="phone"
+                    value={formData.phone}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    placeholder="Enter phone number" />
+                </div>
 
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  value={formData.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
-                  placeholder="Enter phone number" />
-
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="position">Position *</Label>
-                <Select value={formData.position} onValueChange={(value) => handleInputChange('position', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select position" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {positions.map((position) =>
-                    <SelectItem key={position} value={position}>
-                        {position}
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="station">Station *</Label>
-                <Select value={formData.station} onValueChange={(value) => handleInputChange('station', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select station" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {stations.map((station) =>
-                    <SelectItem key={station} value={station}>
-                        {station}
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="hire_date">Hire Date</Label>
-                <Input
-                  id="hire_date"
-                  type="date"
-                  value={formData.hire_date}
-                  onChange={(e) => handleInputChange('hire_date', e.target.value)} />
-
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="salary">Salary ($)</Label>
-                <Input
-                  id="salary"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.salary}
-                  onChange={(e) => handleInputChange('salary', parseFloat(e.target.value) || 0)}
-                  placeholder="0.00" />
-
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="is_active">Active Status</Label>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="is_active"
-                    checked={formData.is_active}
-                    onCheckedChange={(checked) => handleInputChange('is_active', checked)} />
-
-                  <span className="text-sm text-gray-600">
-                    {formData.is_active ? 'Active' : 'Inactive'}
-                  </span>
+                <div className="space-y-2">
+                  <Label htmlFor="reference_name">Reference Name</Label>
+                  <Input
+                    id="reference_name"
+                    value={formData.reference_name}
+                    onChange={(e) => handleInputChange('reference_name', e.target.value)}
+                    placeholder="Enter reference name" />
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-end space-x-4">
+            {/* Address Information Section */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">Address Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="current_address">Current Address</Label>
+                  <Textarea
+                    id="current_address"
+                    value={formData.current_address}
+                    onChange={(e) => handleInputChange('current_address', e.target.value)}
+                    placeholder="Enter current address"
+                    rows={3} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="mailing_address">Mailing Address</Label>
+                  <Textarea
+                    id="mailing_address"
+                    value={formData.mailing_address}
+                    onChange={(e) => handleInputChange('mailing_address', e.target.value)}
+                    placeholder="Enter mailing address"
+                    rows={3} />
+                </div>
+              </div>
+            </div>
+
+            {/* Employment Information Section */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">Employment Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="position">Position *</Label>
+                  <Select value={formData.position} onValueChange={(value) => handleInputChange('position', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select position" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {positions.map((position) =>
+                      <SelectItem key={position} value={position}>
+                          {position}
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="hire_date">Hire Date</Label>
+                  <Input
+                    id="hire_date"
+                    type="date"
+                    value={formData.hire_date}
+                    onChange={(e) => handleInputChange('hire_date', e.target.value)} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="salary">Salary ($)</Label>
+                  <Input
+                    id="salary"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formData.salary}
+                    onChange={(e) => handleInputChange('salary', parseFloat(e.target.value) || 0)}
+                    placeholder="0.00" />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="is_active">Active Status</Label>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="is_active"
+                      checked={formData.is_active}
+                      onCheckedChange={(checked) => handleInputChange('is_active', checked)} />
+                    <span className="text-sm text-gray-600">
+                      {formData.is_active ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ID Documentation Section */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">ID Documentation</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="id_document_type">ID Document Type</Label>
+                  <Select value={formData.id_document_type} onValueChange={(value) => handleInputChange('id_document_type', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select ID document type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {idDocumentTypes.map((type) =>
+                      <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="id_document">ID Document Upload</Label>
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      type="file"
+                      id="id_document"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                      className="flex-1" />
+                    {selectedFile && (
+                      <span className="text-sm text-green-600 flex items-center">
+                        <Upload className="w-4 h-4 mr-1" />
+                        {selectedFile.name}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500">Supported formats: PDF, JPG, PNG (Max 10MB)</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end space-x-4 pt-6 border-t">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => navigate('/employees')}>
-
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ?
+              <Button type="submit" disabled={loading || isUploading}>
+                {loading || isUploading ?
                 'Saving...' :
-
                 <>
                     <Save className="w-4 h-4 mr-2" />
                     {isEditing ? 'Update Employee' : 'Create Employee'}
