@@ -39,7 +39,11 @@ const SalesReportForm: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const stations = ['MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN'];
+  const stations = [
+    { value: 'MOBIL', label: 'MOBIL (Far Rockaway)' },
+    { value: 'AMOCO ROSEDALE', label: 'AMOCO (Rosedale)' },
+    { value: 'AMOCO BROOKLYN', label: 'AMOCO (Brooklyn)' }
+  ];
 
   useEffect(() => {
     if (id) {
@@ -211,8 +215,8 @@ const SalesReportForm: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {stations.map((station) =>
-                    <SelectItem key={station} value={station}>
-                        {station}
+                    <SelectItem key={station.value} value={station.value}>
+                        {station.label}
                       </SelectItem>
                     )}
                   </SelectContent>
