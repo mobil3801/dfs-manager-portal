@@ -11,7 +11,9 @@ import {
   Building2,
   ShoppingCart,
   FileText,
-  Plus } from
+  Plus,
+  ChevronLeft,
+  ChevronRight } from
 'lucide-react';
 import QuickAccessToolbar from '@/components/QuickAccessToolbar';
 
@@ -23,6 +25,7 @@ interface NavigationItem {
 
 const DashboardLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -58,10 +61,11 @@ const DashboardLayout: React.FC = () => {
         className={`w-full justify-start text-left h-11 px-4 hover:bg-gray-100 transition-colors ${
         isActive ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700' : ''}`
         }
-        onClick={() => handleNavigation(item.path)}>
-        <div className="flex items-center space-x-3">
+        onClick={() => handleNavigation(item.path)}
+        title={sidebarCollapsed ? item.name : undefined}>
+        <div className={`flex items-center ${sidebarCollapsed ? 'justify-center' : 'space-x-3'}`}>
           {item.icon}
-          <span className="font-medium">{item.name}</span>
+          {!sidebarCollapsed && <span className="font-medium">{item.name}</span>}
         </div>
       </Button>);
 
@@ -89,24 +93,35 @@ const DashboardLayout: React.FC = () => {
       }
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:flex lg:flex-col lg:h-screen ${
-      sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`
+      <div className={`fixed inset-y-0 left-0 z-50 bg-white shadow-lg transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:flex lg:flex-col lg:h-screen ${
+      sidebarOpen ? 'translate-x-0' : '-translate-x-full'} ${sidebarCollapsed ? 'lg:w-16 w-16' : 'lg:w-64 w-64'}`
       }>
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 flex-shrink-0">
-          <div className="flex items-center space-x-3">
+          <div className={`flex items-center ${sidebarCollapsed ? 'justify-center w-full' : 'space-x-3'}`}>
             <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">DFS</span>
             </div>
-            <span className="text-xl font-bold text-gray-900">DFS Manager Portal</span>
+            {!sidebarCollapsed && <span className="text-xl font-bold text-gray-900">DFS Manager Portal</span>}
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="lg:hidden"
-            onClick={() => setSidebarOpen(false)}>
-
-            <X className="w-5 h-5" />
-          </Button>
+          <div className="flex items-center space-x-2">
+            {/* Minimize/Expand button for desktop */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="hidden lg:flex"
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              title={sidebarCollapsed ? 'Expand sidebar' : 'Minimize sidebar'}>
+              {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            </Button>
+            {/* Close button for mobile */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="lg:hidden"
+              onClick={() => setSidebarOpen(false)}>
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
 
         <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400" style={{ height: 'calc(100vh - 4rem)', position: 'relative' }}>
@@ -115,7 +130,7 @@ const DashboardLayout: React.FC = () => {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col lg:ml-0">
+      <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out lg:ml-0 ${sidebarCollapsed ? 'lg:ml-0' : 'lg:ml-0'}`}>
         {/* Top bar */}
         <div className="sticky top-0 z-10 flex items-center justify-between h-16 px-4 bg-white border-b border-gray-200 lg:px-8 flex-shrink-0">
           <Button
