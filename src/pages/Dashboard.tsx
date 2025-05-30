@@ -36,6 +36,13 @@ interface DashboardStats {
   deliveredOrders: number;
   activeLicenses: number;
   expiringLicenses: number;
+  // New auto-calculated fields for accurate totals
+  allSalesTotal: number;
+  allFuelSales: number;
+  allConvenienceSales: number;
+  allCashSales: number;
+  allCreditSales: number;
+  totalReports: number;
 }
 
 interface Notification {
@@ -63,7 +70,13 @@ const Dashboard: React.FC = () => {
     pendingOrders: 0,
     deliveredOrders: 0,
     activeLicenses: 0,
-    expiringLicenses: 0
+    expiringLicenses: 0,
+    allSalesTotal: 0,
+    allFuelSales: 0,
+    allConvenienceSales: 0,
+    allCashSales: 0,
+    allCreditSales: 0,
+    totalReports: 0
   });
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -102,10 +115,86 @@ const Dashboard: React.FC = () => {
         })
       );
 
-      // Sales statistics
-      const today = new Date().toISOString().split('T')[0];
-      const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+      // Get ALL sales reports for accurate calculations
+      promises.push(
+        window.ezsite.apis.tablePage('11728', {
+          PageNo: 1,
+          PageSize: 1000,
+          OrderByField: 'report_date',
+          IsAsc: false
+        }).then(({ data, error }) => {
+          if (!error && data) {
+            const allReports = data.List || [];
+            console.log('All sales reports for calculations:', allReports);
+            
+            // Calculate totals with proper validation
+            let totalSales = 0;
+            let totalFuelSales = 0;
+            let totalConvenienceSales = 0;
+            let totalCashSales = 0;
+            let totalCreditSales = 0;
+            let reportCount = 0;
+            
+            allReports.forEach(report => {
+              // Ensure all calculations are accurate
+              const fuelSales = parseFloat(report.fuel_sales) || 0;
+              const convenienceSales = parseFloat(report.convenience_sales) || 0;
+              const cashSales = parseFloat(report.cash_sales) || 0;
+              const creditSales = parseFloat(report.credit_card_sales) || 0;
+              const reportTotal = parseFloat(report.total_sales) || 0;
+              
+              // Validate that cash + credit = total
+              const calculatedPaymentTotal = cashSales + creditSales;
+              if (Math.abs(calculatedPaymentTotal - reportTotal) > 0.01) {
+                console.warn(`Report ID ${report.ID}: Payment total (${calculatedPaymentTotal}) doesn't match total sales (${reportTotal})`);
+              }
+              
+              // Validate that fuel + convenience <= total
+              const calculatedCategoryTotal = fuelSales + convenienceSales;
+              if (calculatedCategoryTotal > reportTotal + 0.01) {
+                console.warn(`Report ID ${report.ID}: Category total (${calculatedCategoryTotal}) exceeds total sales (${reportTotal})`);
+              }
+              
+              // Add to running totals (use the reported total_sales as the authoritative figure)
+              totalSales += reportTotal;
+              totalFuelSales += fuelSales;
+              totalConvenienceSales += convenienceSales;
+              totalCashSales += cashSales;
+              totalCreditSales += creditSales;
+              reportCount++;
+            });
+            
+            console.log('Calculated dashboard totals:', {
+              totalSales,
+              totalFuelSales,
+              totalConvenienceSales,
+              totalCashSales,
+              totalCreditSales,
+              reportCount
+            });
+            
+            return {
+              allSalesTotal: totalSales,
+              allFuelSales: totalFuelSales,
+              allConvenienceSales: totalConvenienceSales,
+              allCashSales: totalCashSales,
+              allCreditSales: totalCreditSales,
+              totalReports: reportCount
+            };
+          }
+          return {
+            allSalesTotal: 0,
+            allFuelSales: 0,
+            allConvenienceSales: 0,
+            allCashSales: 0,
+            allCreditSales: 0,
+            totalReports: 0
+          };
+        })
+      );
 
+      // Today's sales (for comparison)
+      const today = new Date().toISOString().split('T')[0];
       promises.push(
         window.ezsite.apis.tablePage('11728', {
           PageNo: 1,
@@ -114,13 +203,18 @@ const Dashboard: React.FC = () => {
         }).then(({ data, error }) => {
           if (!error && data) {
             const todayReports = data.List || [];
-            const todayTotal = todayReports.reduce((sum, report) => sum + (report.total_sales || 0), 0);
+            const todayTotal = todayReports.reduce((sum, report) => {
+              const total = parseFloat(report.total_sales) || 0;
+              return sum + total;
+            }, 0);
             return { todaySales: todayTotal };
           }
           return { todaySales: 0 };
         })
       );
 
+      // Month's sales
+      const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
       promises.push(
         window.ezsite.apis.tablePage('11728', {
           PageNo: 1,
@@ -129,7 +223,10 @@ const Dashboard: React.FC = () => {
         }).then(({ data, error }) => {
           if (!error && data) {
             const monthReports = data.List || [];
-            const monthTotal = monthReports.reduce((sum, report) => sum + (report.total_sales || 0), 0);
+            const monthTotal = monthReports.reduce((sum, report) => {
+              const total = parseFloat(report.total_sales) || 0;
+              return sum + total;
+            }, 0);
             return { monthSales: monthTotal };
           }
           return { monthSales: 0 };

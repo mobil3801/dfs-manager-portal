@@ -120,19 +120,53 @@ const SalesReportList: React.FC = () => {
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
-  // Calculate totals for all visible reports
-  const totals = reports.reduce((acc, report) => ({
-    total_sales: acc.total_sales + (report.total_sales || 0),
-    cash_sales: acc.cash_sales + (report.cash_sales || 0),
-    credit_card_sales: acc.credit_card_sales + (report.credit_card_sales || 0),
-    fuel_sales: acc.fuel_sales + (report.fuel_sales || 0),
-    convenience_sales: acc.convenience_sales + (report.convenience_sales || 0)
-  }), {
+  // Calculate totals for all visible reports with proper validation
+  const totals = reports.reduce((acc, report) => {
+    // Ensure all values are properly parsed as numbers
+    const totalSales = parseFloat(report.total_sales) || 0;
+    const cashSales = parseFloat(report.cash_sales) || 0;
+    const creditSales = parseFloat(report.credit_card_sales) || 0;
+    const fuelSales = parseFloat(report.fuel_sales) || 0;
+    const convenienceSales = parseFloat(report.convenience_sales) || 0;
+    
+    // Validate calculations for each report
+    const paymentTotal = cashSales + creditSales;
+    const categoryTotal = fuelSales + convenienceSales;
+    
+    // Log any discrepancies for debugging
+    if (Math.abs(paymentTotal - totalSales) > 0.01) {
+      console.warn(`Report ID ${report.ID}: Payment methods (${paymentTotal}) don't match total (${totalSales})`);
+    }
+    
+    if (categoryTotal > totalSales + 0.01) {
+      console.warn(`Report ID ${report.ID}: Categories (${categoryTotal}) exceed total (${totalSales})`);
+    }
+    
+    return {
+      total_sales: acc.total_sales + totalSales,
+      cash_sales: acc.cash_sales + cashSales,
+      credit_card_sales: acc.credit_card_sales + creditSales,
+      fuel_sales: acc.fuel_sales + fuelSales,
+      convenience_sales: acc.convenience_sales + convenienceSales
+    };
+  }, {
     total_sales: 0,
     cash_sales: 0,
     credit_card_sales: 0,
     fuel_sales: 0,
     convenience_sales: 0
+  });
+  
+  // Validate the summary totals
+  const summaryPaymentTotal = totals.cash_sales + totals.credit_card_sales;
+  const summaryCategoryTotal = totals.fuel_sales + totals.convenience_sales;
+  
+  console.log('Summary calculations:', {
+    total_sales: totals.total_sales,
+    payment_total: summaryPaymentTotal,
+    category_total: summaryCategoryTotal,
+    payment_matches: Math.abs(summaryPaymentTotal - totals.total_sales) <= 0.01,
+    category_valid: summaryCategoryTotal <= totals.total_sales + 0.01
   });
 
   return (
@@ -266,18 +300,49 @@ const SalesReportList: React.FC = () => {
                         </Badge>
                       </TableCell>
                       <TableCell className="font-medium">
-                        {formatCurrency(report.total_sales)}
+                        <div className="flex items-center space-x-2">
+                          <span>{formatCurrency(report.total_sales)}</span>
+                          {(() => {
+                            const total = parseFloat(report.total_sales) || 0;
+                            const cash = parseFloat(report.cash_sales) || 0;
+                            const credit = parseFloat(report.credit_card_sales) || 0;
+                            const paymentTotal = cash + credit;
+                            const isPaymentCorrect = Math.abs(paymentTotal - total) <= 0.01;
+                            
+                            return isPaymentCorrect ? 
+                              <span className="text-green-600 text-xs">✓</span> :
+                              <span className="text-red-600 text-xs" title={`Payment total: ${formatCurrency(paymentTotal)}`}>⚠️</span>;
+                          })()} 
+                        </div>
                       </TableCell>
                       <TableCell>
-                        {formatCurrency(report.fuel_sales)}
+                        <div className="flex items-center space-x-2">
+                          <span>{formatCurrency(report.fuel_sales)}</span>
+                        </div>
                       </TableCell>
                       <TableCell>
-                        {formatCurrency(report.convenience_sales)}
+                        <div className="flex items-center space-x-2">
+                          <span>{formatCurrency(report.convenience_sales)}</span>
+                          {(() => {
+                            const total = parseFloat(report.total_sales) || 0;
+                            const fuel = parseFloat(report.fuel_sales) || 0;
+                            const convenience = parseFloat(report.convenience_sales) || 0;
+                            const categoryTotal = fuel + convenience;
+                            const isCategoryValid = categoryTotal <= total + 0.01;
+                            
+                            return isCategoryValid ? 
+                              <span className="text-green-600 text-xs">✓</span> :
+                              <span className="text-red-600 text-xs" title={`Categories total: ${formatCurrency(categoryTotal)} > Total: ${formatCurrency(total)}`}>⚠️</span>;
+                          })()} 
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1 text-sm">
                           <div>Cash: {formatCurrency(report.cash_sales)}</div>
                           <div>Card: {formatCurrency(report.credit_card_sales)}</div>
+                          <div className="text-xs text-gray-500">
+                            Total: {formatCurrency((parseFloat(report.cash_sales) || 0) + (parseFloat(report.credit_card_sales) || 0))}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>{report.employee_id}</TableCell>
@@ -301,6 +366,50 @@ const SalesReportList: React.FC = () => {
                         </div>
                       </TableCell>
                     </TableRow>
+                )}
+                
+                {/* Summary Row */}
+                {reports.length > 0 && (
+                  <TableRow className="bg-gray-50 font-semibold border-t-2">
+                    <TableCell className="font-bold">TOTALS</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-xs">
+                        {reports.length} reports
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-bold text-green-600">
+                      <div className="flex items-center space-x-2">
+                        <span>{formatCurrency(totals.total_sales)}</span>
+                        {Math.abs(summaryPaymentTotal - totals.total_sales) <= 0.01 ? 
+                          <span className="text-green-600 text-xs">✓</span> :
+                          <span className="text-red-600 text-xs">⚠️</span>
+                        }
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-bold text-blue-600">
+                      {formatCurrency(totals.fuel_sales)}
+                    </TableCell>
+                    <TableCell className="font-bold text-purple-600">
+                      <div className="flex items-center space-x-2">
+                        <span>{formatCurrency(totals.convenience_sales)}</span>
+                        {summaryCategoryTotal <= totals.total_sales + 0.01 ? 
+                          <span className="text-green-600 text-xs">✓</span> :
+                          <span className="text-red-600 text-xs">⚠️</span>
+                        }
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1 text-sm">
+                        <div className="font-medium">Cash: {formatCurrency(totals.cash_sales)}</div>
+                        <div className="font-medium">Card: {formatCurrency(totals.credit_card_sales)}</div>
+                        <div className="text-xs text-gray-600">
+                          Total: {formatCurrency(summaryPaymentTotal)}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-gray-500">-</TableCell>
+                    <TableCell className="text-gray-500">-</TableCell>
+                  </TableRow>
                 )}
                 </TableBody>
               </Table>

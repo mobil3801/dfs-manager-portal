@@ -55,10 +55,19 @@ const SalesReportForm: React.FC = () => {
   // Auto-calculate totals when payment methods change
   useEffect(() => {
     const calculatedTotal = formData.cash_sales + formData.credit_card_sales;
-    if (calculatedTotal !== formData.total_sales) {
+    if (Math.abs(calculatedTotal - formData.total_sales) > 0.01) {
+      console.log('Auto-calculating total:', { cash: formData.cash_sales, credit: formData.credit_card_sales, calculated: calculatedTotal });
       setFormData((prev) => ({ ...prev, total_sales: calculatedTotal }));
     }
   }, [formData.cash_sales, formData.credit_card_sales]);
+  
+  // Auto-validate category totals
+  useEffect(() => {
+    const categoryTotal = formData.fuel_sales + formData.convenience_sales;
+    if (categoryTotal > formData.total_sales + 0.01) {
+      console.warn('Category total exceeds total sales:', { fuel: formData.fuel_sales, convenience: formData.convenience_sales, total: formData.total_sales });
+    }
+  }, [formData.fuel_sales, formData.convenience_sales, formData.total_sales]);
 
   const loadReport = async (reportId: number) => {
     try {
@@ -100,20 +109,50 @@ const SalesReportForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation
-    if (formData.fuel_sales + formData.convenience_sales > formData.total_sales) {
+    // Enhanced validation with better error messages
+    const categoryTotal = formData.fuel_sales + formData.convenience_sales;
+    const paymentTotal = formData.cash_sales + formData.credit_card_sales;
+    
+    console.log('Form validation:', {
+      categoryTotal,
+      paymentTotal,
+      totalSales: formData.total_sales,
+      categoryValid: categoryTotal <= formData.total_sales + 0.01,
+      paymentValid: Math.abs(paymentTotal - formData.total_sales) <= 0.01
+    });
+    
+    if (categoryTotal > formData.total_sales + 0.01) {
       toast({
         title: "Validation Error",
-        description: "Fuel sales + Convenience sales cannot exceed total sales",
+        description: `Category breakdown (${formatCurrency(categoryTotal)}) exceeds total sales (${formatCurrency(formData.total_sales)}). Please adjust the amounts.`,
         variant: "destructive"
       });
       return;
     }
 
-    if (formData.cash_sales + formData.credit_card_sales !== formData.total_sales) {
+    if (Math.abs(paymentTotal - formData.total_sales) > 0.01) {
       toast({
         title: "Validation Error",
-        description: "Cash sales + Credit card sales must equal total sales",
+        description: `Payment methods total (${formatCurrency(paymentTotal)}) must equal total sales (${formatCurrency(formData.total_sales)}).`,
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Additional validation checks
+    if (formData.total_sales <= 0) {
+      toast({
+        title: "Validation Error",
+        description: "Total sales must be greater than zero.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (formData.cash_sales < 0 || formData.credit_card_sales < 0 || formData.fuel_sales < 0 || formData.convenience_sales < 0) {
+      toast({
+        title: "Validation Error",
+        description: "All sales amounts must be non-negative.",
         variant: "destructive"
       });
       return;
@@ -169,8 +208,16 @@ const SalesReportForm: React.FC = () => {
   const calculateMissingValue = () => {
     const calculatedConvenience = formData.total_sales - formData.fuel_sales;
     if (calculatedConvenience >= 0) {
+      console.log('Auto-calculating convenience sales:', { total: formData.total_sales, fuel: formData.fuel_sales, calculated: calculatedConvenience });
       setFormData((prev) => ({ ...prev, convenience_sales: calculatedConvenience }));
     }
+  };
+  
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount);
   };
 
   return (
@@ -272,8 +319,14 @@ const SalesReportForm: React.FC = () => {
                     
                     <div className="pt-2 border-t border-green-200">
                       <Label>Total Sales (Auto-calculated)</Label>
-                      <div className="text-lg font-bold text-green-800">
-                        ${formData.total_sales.toFixed(2)}
+                      <div className="flex items-center space-x-2">
+                        <div className="text-lg font-bold text-green-800">
+                          ${formData.total_sales.toFixed(2)}
+                        </div>
+                        <span className="text-green-600 text-sm">✓ Accurate</span>
+                      </div>
+                      <div className="text-xs text-gray-600 mt-1">
+                        Cash + Credit = {formatCurrency(formData.cash_sales + formData.credit_card_sales)}
                       </div>
                     </div>
                   </div>
@@ -323,12 +376,28 @@ const SalesReportForm: React.FC = () => {
                     
                     <div className="pt-2 border-t border-blue-200">
                       <Label>Category Total</Label>
-                      <div className="text-lg font-bold text-blue-800">
-                        ${(formData.fuel_sales + formData.convenience_sales).toFixed(2)}
+                      <div className="flex items-center space-x-2">
+                        <div className="text-lg font-bold text-blue-800">
+                          ${(formData.fuel_sales + formData.convenience_sales).toFixed(2)}
+                        </div>
+                        {(() => {
+                          const categoryTotal = formData.fuel_sales + formData.convenience_sales;
+                          const isValid = categoryTotal <= formData.total_sales + 0.01;
+                          const remaining = formData.total_sales - categoryTotal;
+                          
+                          return isValid ? 
+                            <span className="text-green-600 text-sm">✓ Valid</span> :
+                            <span className="text-red-600 text-sm">⚠️ Exceeds total</span>;
+                        })()} 
                       </div>
-                      {formData.fuel_sales + formData.convenience_sales > formData.total_sales &&
-                      <p className="text-sm text-red-600">⚠️ Exceeds total sales</p>
-                      }
+                      <div className="text-xs text-gray-600 mt-1">
+                        {(() => {
+                          const remaining = formData.total_sales - (formData.fuel_sales + formData.convenience_sales);
+                          return remaining >= 0 ? 
+                            `Remaining: ${formatCurrency(remaining)}` :
+                            `Overrun: ${formatCurrency(Math.abs(remaining))}`;
+                        })()} 
+                      </div>
                     </div>
                   </div>
                 </Card>
