@@ -40,10 +40,10 @@ const SalesReportForm: React.FC = () => {
   const { id } = useParams();
 
   const stations = [
-    { value: 'MOBIL', label: 'MOBIL (Far Rockaway)' },
-    { value: 'AMOCO ROSEDALE', label: 'AMOCO (Rosedale)' },
-    { value: 'AMOCO BROOKLYN', label: 'AMOCO (Brooklyn)' }
-  ];
+  { value: 'MOBIL', label: 'MOBIL (Far Rockaway)' },
+  { value: 'AMOCO ROSEDALE', label: 'AMOCO (Rosedale)' },
+  { value: 'AMOCO BROOKLYN', label: 'AMOCO (Brooklyn)' }];
+
 
   useEffect(() => {
     if (id) {

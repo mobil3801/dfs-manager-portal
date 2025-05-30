@@ -14,7 +14,11 @@ import {
   DollarSign,
   Calendar,
   CheckCircle,
-  XCircle } from
+  XCircle,
+  Bell,
+  Clock,
+  Info,
+  AlertCircle } from
 'lucide-react';
 
 interface DashboardStats {
@@ -30,6 +34,17 @@ interface DashboardStats {
   deliveredOrders: number;
   activeLicenses: number;
   expiringLicenses: number;
+}
+
+interface Notification {
+  id: string;
+  type: 'warning' | 'info' | 'success' | 'error';
+  title: string;
+  message: string;
+  timestamp: Date;
+  isRead: boolean;
+  action?: () => void;
+  actionLabel?: string;
 }
 
 const Dashboard: React.FC = () => {
@@ -49,6 +64,7 @@ const Dashboard: React.FC = () => {
     expiringLicenses: 0
   });
   const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
     loadDashboardData();
@@ -200,12 +216,153 @@ const Dashboard: React.FC = () => {
       });
 
       setStats(newStats);
+      generateNotifications(newStats);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  const generateNotifications = (currentStats: DashboardStats) => {
+    const newNotifications: Notification[] = [];
+    const now = new Date();
+
+    // Low stock notifications
+    if (currentStats.lowStockProducts > 0) {
+      newNotifications.push({
+        id: 'low-stock-' + Date.now(),
+        type: 'warning',
+        title: 'Low Stock Alert',
+        message: `${currentStats.lowStockProducts} product(s) are running low on stock. Consider reordering soon.`,
+        timestamp: new Date(now.getTime() - Math.random() * 60 * 60 * 1000), // Random time within last hour
+        isRead: false,
+        action: () => navigate('/products'),
+        actionLabel: 'View Products'
+      });
+    }
+
+    // Pending orders notifications
+    if (currentStats.pendingOrders > 0) {
+      newNotifications.push({
+        id: 'pending-orders-' + Date.now(),
+        type: 'info',
+        title: 'Pending Orders',
+        message: `You have ${currentStats.pendingOrders} pending order(s) that require attention.`,
+        timestamp: new Date(now.getTime() - Math.random() * 2 * 60 * 60 * 1000), // Random time within last 2 hours
+        isRead: false,
+        action: () => navigate('/orders'),
+        actionLabel: 'View Orders'
+      });
+    }
+
+    // Expiring licenses notifications
+    if (currentStats.expiringLicenses > 0) {
+      newNotifications.push({
+        id: 'expiring-licenses-' + Date.now(),
+        type: 'error',
+        title: 'License Expiration Alert',
+        message: `${currentStats.expiringLicenses} license(s) will expire within 30 days. Renew them to avoid compliance issues.`,
+        timestamp: new Date(now.getTime() - Math.random() * 30 * 60 * 1000), // Random time within last 30 minutes
+        isRead: false,
+        action: () => navigate('/licenses'),
+        actionLabel: 'View Licenses'
+      });
+    }
+
+    // Good sales notification
+    if (currentStats.todaySales > 1000) {
+      newNotifications.push({
+        id: 'good-sales-' + Date.now(),
+        type: 'success',
+        title: 'Great Sales Performance',
+        message: `Today's sales reached ${formatCurrency(currentStats.todaySales)}. Keep up the excellent work!`,
+        timestamp: new Date(now.getTime() - Math.random() * 4 * 60 * 60 * 1000), // Random time within last 4 hours
+        isRead: false,
+        action: () => navigate('/sales'),
+        actionLabel: 'View Reports'
+      });
+    }
+
+    // New employee notification (example)
+    if (currentStats.activeEmployees > 0) {
+      newNotifications.push({
+        id: 'system-info-' + Date.now(),
+        type: 'info',
+        title: 'System Status',
+        message: `All systems operational. ${currentStats.activeEmployees} staff members are currently active.`,
+        timestamp: new Date(now.getTime() - Math.random() * 6 * 60 * 60 * 1000), // Random time within last 6 hours
+        isRead: Math.random() > 0.3, // 70% chance to be unread
+        action: () => navigate('/employees'),
+        actionLabel: 'View Staff'
+      });
+    }
+
+    // Sort notifications by timestamp (newest first)
+    newNotifications.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    
+    setNotifications(newNotifications);
+  };
+
+  const markAsRead = (notificationId: string) => {
+    setNotifications(prev => 
+      prev.map(notif => 
+        notif.id === notificationId 
+          ? { ...notif, isRead: true }
+          : notif
+      )
+    );
+  };
+
+  const markAllAsRead = () => {
+    setNotifications(prev => 
+      prev.map(notif => ({ ...notif, isRead: true }))
+    );
+  };
+
+  const getNotificationIcon = (type: Notification['type']) => {
+    switch (type) {
+      case 'warning':
+        return <AlertTriangle className="w-5 h-5 text-orange-600" />;
+      case 'error':
+        return <AlertCircle className="w-5 h-5 text-red-600" />;
+      case 'success':
+        return <CheckCircle className="w-5 h-5 text-green-600" />;
+      case 'info':
+      default:
+        return <Info className="w-5 h-5 text-blue-600" />;
+    }
+  };
+
+  const getNotificationStyle = (type: Notification['type']) => {
+    switch (type) {
+      case 'warning':
+        return 'border-l-4 border-orange-400 bg-orange-50';
+      case 'error':
+        return 'border-l-4 border-red-400 bg-red-50';
+      case 'success':
+        return 'border-l-4 border-green-400 bg-green-50';
+      case 'info':
+      default:
+        return 'border-l-4 border-blue-400 bg-blue-50';
+    }
+  };
+
+  const formatTimeAgo = (timestamp: Date) => {
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - timestamp.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `${diffInDays}d ago`;
+  };
+
+  const unreadCount = notifications.filter(n => !n.isRead).length;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -448,54 +605,112 @@ const Dashboard: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* System Status */}
+        {/* Notifications Panel */}
         <Card>
           <CardHeader>
-            <CardTitle>System Overview</CardTitle>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Bell className="w-5 h-5 text-blue-600" />
+                <CardTitle>Recent Notifications</CardTitle>
+                {unreadCount > 0 && (
+                  <Badge variant="destructive" className="text-xs">
+                    {unreadCount}
+                  </Badge>
+                )}
+              </div>
+              {unreadCount > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={markAllAsRead}
+                  className="text-sm text-blue-600 hover:text-blue-800"
+                >
+                  Mark all read
+                </Button>
+              )}
+            </div>
             <CardDescription>
-              Current system status and key information
+              Stay updated with important alerts and system notifications
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-3 border rounded-lg">
-              <div className="flex items-center space-x-3">
-                <Package className="w-5 h-5 text-blue-600" />
-                <span>Inventory Status</span>
+          <CardContent className="space-y-3">
+            {notifications.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <Bell className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                <p>No notifications at the moment</p>
+                <p className="text-sm">All systems are running smoothly</p>
               </div>
-              <Badge variant={stats.lowStockProducts > 0 ? "destructive" : "default"}>
-                {stats.lowStockProducts > 0 ? `${stats.lowStockProducts} Low Stock` : 'Good'}
-              </Badge>
-            </div>
+            ) : (
+              <div className="space-y-3 max-h-80 overflow-y-auto">
+                {notifications.map((notification) => (
+                  <div
+                    key={notification.id}
+                    className={`p-3 rounded-lg transition-all duration-200 hover:shadow-sm cursor-pointer ${
+                      getNotificationStyle(notification.type)
+                    } ${notification.isRead ? 'opacity-70' : ''}`}
+                    onClick={() => markAsRead(notification.id)}
+                  >
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0 mt-0.5">
+                        {getNotificationIcon(notification.type)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <h4 className={`text-sm font-medium ${
+                            notification.isRead ? 'text-gray-600' : 'text-gray-900'
+                          }`}>
+                            {notification.title}
+                          </h4>
+                          <div className="flex items-center space-x-2">
+                            {!notification.isRead && (
+                              <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                            )}
+                            <div className="flex items-center text-xs text-gray-500">
+                              <Clock className="w-3 h-3 mr-1" />
+                              {formatTimeAgo(notification.timestamp)}
+                            </div>
+                          </div>
+                        </div>
+                        <p className={`text-sm ${
+                          notification.isRead ? 'text-gray-500' : 'text-gray-700'
+                        }`}>
+                          {notification.message}
+                        </p>
+                        {notification.action && notification.actionLabel && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              notification.action!();
+                            }}
+                            className="mt-2 text-xs px-2 py-1 h-auto"
+                          >
+                            {notification.actionLabel}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
             
-            <div className="flex items-center justify-between p-3 border rounded-lg">
-              <div className="flex items-center space-x-3">
-                <Users className="w-5 h-5 text-green-600" />
-                <span>Staff Status</span>
+            {notifications.length > 0 && (
+              <div className="pt-3 border-t">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full text-sm text-gray-600 hover:text-gray-800"
+                  onClick={() => {
+                    // Could navigate to a full notifications page in the future
+                    console.log('View all notifications');
+                  }}
+                >
+                  View all notifications
+                </Button>
               </div>
-              <Badge variant="default">
-                {stats.activeEmployees} Active
-              </Badge>
-            </div>
-            
-            <div className="flex items-center justify-between p-3 border rounded-lg">
-              <div className="flex items-center space-x-3">
-                <ShoppingCart className="w-5 h-5 text-orange-600" />
-                <span>Order Status</span>
-              </div>
-              <Badge variant={stats.pendingOrders > 0 ? "secondary" : "default"}>
-                {stats.pendingOrders} Pending
-              </Badge>
-            </div>
-            
-            <div className="flex items-center justify-between p-3 border rounded-lg">
-              <div className="flex items-center space-x-3">
-                <FileText className="w-5 h-5 text-blue-600" />
-                <span>License Status</span>
-              </div>
-              <Badge variant={stats.expiringLicenses > 0 ? "destructive" : "default"}>
-                {stats.expiringLicenses > 0 ? `${stats.expiringLicenses} Expiring` : 'Up to Date'}
-              </Badge>
-            </div>
+            )}
           </CardContent>
         </Card>
       </div>
