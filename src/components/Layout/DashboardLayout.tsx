@@ -92,8 +92,8 @@ const DashboardLayout: React.FC = () => {
         </div>
       }
 
-      {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 bg-white shadow-lg transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:flex lg:flex-col lg:h-screen ${
+      {/* Sidebar - Fixed on desktop */}
+      <div className={`fixed inset-y-0 left-0 z-50 bg-white shadow-lg transform transition-all duration-300 ease-in-out lg:translate-x-0 ${
       sidebarOpen ? 'translate-x-0' : '-translate-x-full'} ${sidebarCollapsed ? 'lg:w-16 w-16' : 'lg:w-64 w-64'}`
       }>
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 flex-shrink-0">
@@ -124,13 +124,13 @@ const DashboardLayout: React.FC = () => {
           </div>
         </div>
 
-        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400" style={{ height: 'calc(100vh - 4rem)', position: 'relative' }}>
+        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400" style={{ height: 'calc(100vh - 4rem)' }}>
           {navigationItems.map((item) => renderNavigationItem(item))}
         </nav>
       </div>
 
-      {/* Main content */}
-      <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out lg:ml-0 ${sidebarCollapsed ? 'lg:ml-0' : 'lg:ml-0'}`}>
+      {/* Main content - Adjusted for fixed sidebar */}
+      <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         {/* Top bar */}
         <div className="sticky top-0 z-10 flex items-center justify-between h-16 px-4 bg-white border-b border-gray-200 lg:px-8 flex-shrink-0">
           <Button
