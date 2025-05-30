@@ -5,8 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Search, Edit, Trash2, TrendingUp, DollarSign, Calendar } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, TrendingUp, DollarSign, Calendar, Printer } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import SalesReportPrintDialog from '@/components/SalesReportPrintDialog';
 
 interface SalesReport {
   ID: number;
@@ -28,7 +30,10 @@ const SalesReportList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [printDialogOpen, setPrintDialogOpen] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<SalesReport | null>(null);
   const navigate = useNavigate();
+  const { userProfile } = useAuth();
 
   const pageSize = 10;
 
@@ -92,6 +97,13 @@ const SalesReportList: React.FC = () => {
       });
     }
   };
+
+  const handlePrint = (report: SalesReport) => {
+    setSelectedReport(report);
+    setPrintDialogOpen(true);
+  };
+
+  const isAdmin = userProfile?.role === 'Administrator';
 
   const getStationBadgeColor = (station: string) => {
     switch (station.toUpperCase()) {
@@ -349,20 +361,31 @@ const SalesReportList: React.FC = () => {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigate(`/sales/edit/${report.ID}`)}>
-
-                            <Edit className="w-4 h-4" />
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePrint(report)}
+                            title="Document Print">
+                            <Printer className="w-4 h-4" />
                           </Button>
-                          <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(report.ID)}
-                        className="text-red-600 hover:text-red-700">
-
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          {isAdmin && (
+                            <>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => navigate(`/sales/edit/${report.ID}`)}
+                                title="Edit Report">
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDelete(report.ID)}
+                                className="text-red-600 hover:text-red-700"
+                                title="Delete Report">
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -447,6 +470,13 @@ const SalesReportList: React.FC = () => {
           }
         </CardContent>
       </Card>
+
+      {/* Print Dialog */}
+      <SalesReportPrintDialog
+        open={printDialogOpen}
+        onOpenChange={setPrintDialogOpen}
+        report={selectedReport}
+      />
     </div>);
 
 };
