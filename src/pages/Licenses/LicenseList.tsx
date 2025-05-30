@@ -329,32 +329,32 @@ const LicenseList: React.FC = () => {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handlePrint(license)}
-                            className="text-blue-600 hover:text-blue-700"
-                            title="Print Document">
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePrint(license)}
+                        className="text-blue-600 hover:text-blue-700"
+                        title="Print Document">
                             <Printer className="w-4 h-4" />
                           </Button>
-                          {isAdmin && (
-                            <>
+                          {isAdmin &&
+                      <>
                               <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => navigate(`/licenses/edit/${license.ID}`)}
-                                title="Edit License">
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate(`/licenses/edit/${license.ID}`)}
+                          title="Edit License">
                                 <Edit className="w-4 h-4" />
                               </Button>
                               <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleDelete(license.ID)}
-                                className="text-red-600 hover:text-red-700"
-                                title="Delete License">
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDelete(license.ID)}
+                          className="text-red-600 hover:text-red-700"
+                          title="Delete License">
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </>
-                          )}
+                      }
                         </div>
                       </TableCell>
                     </TableRow>
@@ -400,8 +400,8 @@ const LicenseList: React.FC = () => {
       <PrintDialog
         license={selectedLicenseForPrint}
         isOpen={isPrintDialogOpen}
-        onClose={closePrintDialog}
-      />
+        onClose={closePrintDialog} />
+
     </div>);
 
 };

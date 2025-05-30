@@ -200,8 +200,8 @@ const PrintDialog: React.FC<PrintDialogProps> = ({ license, isOpen, onClose }) =
           </Button>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default PrintDialog;
