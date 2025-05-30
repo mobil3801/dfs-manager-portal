@@ -98,11 +98,11 @@ const DashboardLayout: React.FC = () => {
       sidebarOpen ? 'translate-x-0' : '-translate-x-full'} ${sidebarCollapsed ? 'lg:w-16 w-16' : 'lg:w-64 w-64'}`
       }>
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 flex-shrink-0">
-          <Logo 
-            size={sidebarCollapsed ? 'sm' : 'md'} 
-            showText={!sidebarCollapsed} 
-            className={sidebarCollapsed ? 'justify-center w-full' : ''}
-          />
+          <Logo
+            size={sidebarCollapsed ? 'sm' : 'md'}
+            showText={!sidebarCollapsed}
+            className={sidebarCollapsed ? 'justify-center w-full' : ''} />
+
           <div className="flex items-center space-x-2">
             {/* Minimize/Expand button for desktop */}
             <Button
