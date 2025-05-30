@@ -72,46 +72,58 @@ const EmployeeForm: React.FC = () => {
 
   const generateEmployeeId = async () => {
     try {
-      let uniqueId = '';
-      let isUnique = false;
-      let attempts = 0;
-      const maxAttempts = 10;
+      // Get all existing employee IDs that start with 'DFS' to find the next number
+      const { data, error } = await window.ezsite.apis.tablePage('11727', {
+        PageNo: 1,
+        PageSize: 1000, // Get enough records to find the highest number
+        OrderByField: 'employee_id',
+        IsAsc: false,
+        Filters: [{ name: 'employee_id', op: 'StringStartsWith', value: 'DFS' }]
+      });
 
-      while (!isUnique && attempts < maxAttempts) {
-        // Generate ID in format: EMP-YYYYMMDD-XXXX (where XXXX is random 4-digit number)
-        const now = new Date();
-        const dateStr = now.getFullYear().toString() + 
-                       (now.getMonth() + 1).toString().padStart(2, '0') + 
-                       now.getDate().toString().padStart(2, '0');
-        const randomNum = Math.floor(1000 + Math.random() * 9000); // 4-digit random number
-        uniqueId = `EMP-${dateStr}-${randomNum}`;
-
-        // Check if this ID already exists
-        const { data, error } = await window.ezsite.apis.tablePage('11727', {
-          PageNo: 1,
-          PageSize: 1,
-          Filters: [{ name: 'employee_id', op: 'Equal', value: uniqueId }]
-        });
-
-        if (error) {
-          console.error('Error checking employee ID uniqueness:', error);
-          break;
-        }
-
-        isUnique = !data || !data.List || data.List.length === 0;
-        attempts++;
+      if (error) {
+        console.error('Error fetching existing employee IDs:', error);
+        throw error;
       }
 
-      if (isUnique) {
-        setFormData(prev => ({ ...prev, employee_id: uniqueId }));
-        console.log('Generated unique employee ID:', uniqueId);
+      let nextNumber = 1001; // Start from DFS1001
+
+      // If there are existing DFS IDs, find the highest number and increment
+      if (data && data.List && data.List.length > 0) {
+        const existingNumbers = data.List
+          .map(emp => {
+            const match = emp.employee_id.match(/^DFS(\d+)$/);
+            return match ? parseInt(match[1]) : 0;
+          })
+          .filter(num => num > 0);
+
+        if (existingNumbers.length > 0) {
+          nextNumber = Math.max(...existingNumbers) + 1;
+        }
+      }
+
+      const uniqueId = `DFS${nextNumber}`;
+
+      // Double-check that this ID doesn't exist
+      const { data: checkData, error: checkError } = await window.ezsite.apis.tablePage('11727', {
+        PageNo: 1,
+        PageSize: 1,
+        Filters: [{ name: 'employee_id', op: 'Equal', value: uniqueId }]
+      });
+
+      if (checkError) {
+        console.error('Error checking employee ID uniqueness:', checkError);
+        throw checkError;
+      }
+
+      if (checkData && checkData.List && checkData.List.length > 0) {
+        // If somehow the ID exists, try the next number
+        const fallbackId = `DFS${nextNumber + 1}`;
+        setFormData((prev) => ({ ...prev, employee_id: fallbackId }));
+        console.log('Generated unique employee ID (fallback):', fallbackId);
       } else {
-        console.error('Failed to generate unique employee ID after', maxAttempts, 'attempts');
-        toast({
-          title: "Warning",
-          description: "Could not auto-generate unique employee ID. Please enter manually.",
-          variant: "default"
-        });
+        setFormData((prev) => ({ ...prev, employee_id: uniqueId }));
+        console.log('Generated unique employee ID:', uniqueId);
       }
     } catch (error) {
       console.error('Error generating employee ID:', error);
@@ -290,23 +302,23 @@ const EmployeeForm: React.FC = () => {
                       readOnly={!isEditing}
                       className={!isEditing ? "bg-gray-50 cursor-not-allowed" : ""}
                       required />
-                    {!isEditing && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={generateEmployeeId}
-                        className="shrink-0"
-                      >
+                    {!isEditing &&
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={generateEmployeeId}
+                      className="shrink-0">
+
                         Regenerate
                       </Button>
-                    )}
+                    }
                   </div>
-                  {!isEditing && (
-                    <p className="text-xs text-gray-500">
-                      Auto-generated format: EMP-YYYYMMDD-XXXX (unique across all stations)
+                  {!isEditing &&
+                  <p className="text-xs text-gray-500">
+                      Auto-generated format: DFS#### (sequential numbering starting from DFS1001)
                     </p>
-                  )}
+                  }
                 </div>
 
                 <div className="space-y-2">
