@@ -9,6 +9,7 @@ import { Plus, Search, Edit, Trash2, TrendingUp, DollarSign, Calendar, Printer }
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import SalesReportPrintDialog from '@/components/SalesReportPrintDialog';
+import BrandLogo from '@/components/BrandLogo';
 
 interface SalesReport {
   ID: number;
@@ -291,7 +292,13 @@ const SalesReportList: React.FC = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Date</TableHead>
-                    <TableHead>Station</TableHead>
+                    <TableHead>
+                      <div className="flex items-center space-x-2">
+                        <BrandLogo station="MOBIL" size="sm" showText={false} />
+                        <BrandLogo station="AMOCO" size="sm" showText={false} />
+                        <span>Station</span>
+                      </div>
+                    </TableHead>
                     <TableHead>Total Sales</TableHead>
                     <TableHead>Fuel Sales</TableHead>
                     <TableHead>Convenience</TableHead>
@@ -307,9 +314,12 @@ const SalesReportList: React.FC = () => {
                         {formatDate(report.report_date)}
                       </TableCell>
                       <TableCell>
-                        <Badge className={`text-white ${getStationBadgeColor(report.station)}`}>
-                          {report.station}
-                        </Badge>
+                        <div className="flex items-center space-x-2">
+                          <BrandLogo station={report.station} size="sm" showText={false} />
+                          <Badge className={`text-white ${getStationBadgeColor(report.station)}`}>
+                            {report.station}
+                          </Badge>
+                        </div>
                       </TableCell>
                       <TableCell className="font-medium">
                         <div className="flex items-center space-x-2">
@@ -361,31 +371,31 @@ const SalesReportList: React.FC = () => {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handlePrint(report)}
-                            title="Document Print">
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePrint(report)}
+                        title="Document Print">
                             <Printer className="w-4 h-4" />
                           </Button>
-                          {isAdmin && (
-                            <>
+                          {isAdmin &&
+                      <>
                               <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => navigate(`/sales/edit/${report.ID}`)}
-                                title="Edit Report">
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate(`/sales/edit/${report.ID}`)}
+                          title="Edit Report">
                                 <Edit className="w-4 h-4" />
                               </Button>
                               <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleDelete(report.ID)}
-                                className="text-red-600 hover:text-red-700"
-                                title="Delete Report">
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDelete(report.ID)}
+                          className="text-red-600 hover:text-red-700"
+                          title="Delete Report">
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </>
-                          )}
+                      }
                         </div>
                       </TableCell>
                     </TableRow>
@@ -475,8 +485,8 @@ const SalesReportList: React.FC = () => {
       <SalesReportPrintDialog
         open={printDialogOpen}
         onOpenChange={setPrintDialogOpen}
-        report={selectedReport}
-      />
+        report={selectedReport} />
+
     </div>);
 
 };
