@@ -180,14 +180,14 @@ const SalesReportPrintDialog: React.FC<SalesReportPrintDialogProps> = ({
           </div>
 
           {/* Notes Section */}
-          {report.notes &&
-          <Card>
+          {report.notes && (
+            <Card>
               <CardContent className="p-4">
                 <h3 className="font-semibold text-lg mb-3 text-gray-800">Notes</h3>
                 <p className="text-gray-600 whitespace-pre-wrap">{report.notes}</p>
               </CardContent>
             </Card>
-          }
+          )}
 
           {/* Validation Summary */}
           <Card className="border-2 border-gray-300">
@@ -281,8 +281,8 @@ const SalesReportPrintDialog: React.FC<SalesReportPrintDialogProps> = ({
           }
         }
       `}</style>
-    </Dialog>);
-
+    </Dialog>
+  );
 };
 
 export default SalesReportPrintDialog;
