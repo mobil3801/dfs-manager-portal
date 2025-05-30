@@ -215,11 +215,11 @@ const OrderForm: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {vendors && vendors.map((vendor) =>
-                    vendor.ID ? (
-                      <SelectItem key={vendor.ID} value={vendor.ID.toString()}>
+                    vendor.ID ?
+                    <SelectItem key={vendor.ID} value={vendor.ID.toString()}>
                         {vendor.vendor_name || 'Unknown Vendor'}
-                      </SelectItem>
-                    ) : null
+                      </SelectItem> :
+                    null
                     )}
                   </SelectContent>
                 </Select>

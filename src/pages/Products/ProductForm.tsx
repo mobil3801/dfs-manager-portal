@@ -1,224 +1,583 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from '@/hooks/use-toast';
-import { Package, Save, ArrowLeft } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { useToast } from '@/hooks/use-toast';
+import { ArrowLeft, Save, Calendar } from 'lucide-react';
+import BarcodeScanner from '@/components/BarcodeScanner';
+import ProductFileUpload from '@/components/ProductFileUpload';
 
-interface ProductFormData {
-  product_name: string;
-  product_code: string;
-  category: string;
-  price: number;
-  quantity_in_stock: number;
-  minimum_stock: number;
-  supplier: string;
-  description: string;
-}
-
-const ProductForm: React.FC = () => {
-  const [formData, setFormData] = useState<ProductFormData>({
-    product_name: '',
-    product_code: '',
-    category: '',
-    price: 0,
-    quantity_in_stock: 0,
-    minimum_stock: 0,
-    supplier: '',
-    description: ''
-  });
-  const [loading, setLoading] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-
+const ProductForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { toast } = useToast();
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [vendors, setVendors] = useState<any[]>([]);
+  const [formData, setFormData] = useState({
+    serial_number: 0,
+    product_name: '',
+    weight: 0,
+    weight_unit: 'lb',
+    department: 'Convenience Store',
+    merchant_id: '',
+    bar_code_case: '',
+    bar_code_unit: '',
+    last_updated_date: new Date().toISOString().split('T')[0],
+    last_shopping_date: '',
+    case_price: 0,
+    unit_per_case: 1,
+    unit_price: 0,
+    retail_price: 0,
+    overdue: false,
+    category: '',
+    supplier: '',
+    quantity_in_stock: 0,
+    minimum_stock: 0,
+    description: ''
+  });
+
+  const weightUnits = [
+    { value: 'lb', label: 'Pounds (lb)' },
+    { value: 'oz', label: 'Ounces (oz)' },
+    { value: 'ton', label: 'Tons' },
+    { value: 'fl_oz', label: 'Fluid Ounces (fl oz)' },
+    { value: 'gal', label: 'Gallons (gal)' },
+    { value: 'qt', label: 'Quarts (qt)' },
+    { value: 'pt', label: 'Pints (pt)' },
+    { value: 'cup', label: 'Cups' }
+  ];
+
+  const departments = [
+    'Convenience Store',
+    'Fuel & Oil',
+    'Automotive',
+    'Food & Beverages',
+    'Tobacco Products',
+    'Lottery & Gaming',
+    'Health & Personal Care',
+    'Electronics & Accessories',
+    'Cleaning Supplies',
+    'Office Supplies'
+  ];
 
   useEffect(() => {
+    fetchVendors();
     if (id) {
-      setIsEditing(true);
-      loadProduct(parseInt(id));
+      fetchProduct();
+    } else {
+      generateSerialNumber();
     }
   }, [id]);
 
-  const loadProduct = async (productId: number) => {
+  const fetchVendors = async () => {
     try {
-      setLoading(true);
-      const { data, error } = await window.ezsite.apis.tablePage('11726', {
+      const { data, error } = await window.ezsite.apis.tablePage(11729, {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: "vendor_name",
+        IsAsc: true,
+        Filters: [
+          { name: "is_active", op: "Equal", value: true }
+        ]
+      });
+      
+      if (error) throw error;
+      setVendors(data?.List || []);
+    } catch (error) {
+      console.error('Error fetching vendors:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load vendors list."
+      });
+    }
+  };
+
+  const generateSerialNumber = async () => {
+    try {
+      const { data, error } = await window.ezsite.apis.tablePage(11726, {
         PageNo: 1,
         PageSize: 1,
-        Filters: [{ name: 'ID', op: 'Equal', value: productId }]
+        OrderByField: "serial_number",
+        IsAsc: false,
+        Filters: []
       });
-
+      
       if (error) throw error;
+      const lastSerial = data?.List?.[0]?.serial_number || 0;
+      setFormData(prev => ({ ...prev, serial_number: lastSerial + 1 }));
+    } catch (error) {
+      console.error('Error generating serial number:', error);
+      setFormData(prev => ({ ...prev, serial_number: 1 }));
+    }
+  };
 
-      if (data && data.List && data.List.length > 0) {
+  const fetchProduct = async () => {
+    if (!id) return;
+    
+    setIsLoading(true);
+    try {
+      const { data, error } = await window.ezsite.apis.tablePage(11726, {
+        PageNo: 1,
+        PageSize: 1,
+        OrderByField: "id",
+        IsAsc: true,
+        Filters: [
+          { name: "id", op: "Equal", value: parseInt(id) }
+        ]
+      });
+      
+      if (error) throw error;
+      
+      if (data?.List?.[0]) {
         const product = data.List[0];
         setFormData({
+          serial_number: product.serial_number || 0,
           product_name: product.product_name || '',
-          product_code: product.product_code || '',
+          weight: product.weight || 0,
+          weight_unit: product.weight_unit || 'lb',
+          department: product.department || 'Convenience Store',
+          merchant_id: product.merchant_id || '',
+          bar_code_case: product.bar_code_case || '',
+          bar_code_unit: product.bar_code_unit || '',
+          last_updated_date: product.last_updated_date ? product.last_updated_date.split('T')[0] : '',
+          last_shopping_date: product.last_shopping_date ? product.last_shopping_date.split('T')[0] : '',
+          case_price: product.case_price || 0,
+          unit_per_case: product.unit_per_case || 1,
+          unit_price: product.unit_price || 0,
+          retail_price: product.retail_price || 0,
+          overdue: product.overdue || false,
           category: product.category || '',
-          price: product.price || 0,
+          supplier: product.supplier || '',
           quantity_in_stock: product.quantity_in_stock || 0,
           minimum_stock: product.minimum_stock || 0,
-          supplier: product.supplier || '',
           description: product.description || ''
         });
       }
     } catch (error) {
-      console.error('Error loading product:', error);
+      console.error('Error fetching product:', error);
       toast({
+        variant: "destructive",
         title: "Error",
-        description: "Failed to load product details",
-        variant: "destructive"
+        description: "Failed to load product data."
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
+    }
+  };
+
+  const handleInputChange = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Auto-calculate unit price when case price or units per case changes
+    if (field === 'case_price' || field === 'unit_per_case') {
+      const casePrice = field === 'case_price' ? value : formData.case_price;
+      const unitsPerCase = field === 'unit_per_case' ? value : formData.unit_per_case;
+      
+      if (casePrice > 0 && unitsPerCase > 0) {
+        const calculatedUnitPrice = casePrice / unitsPerCase;
+        setFormData(prev => ({ ...prev, unit_price: Math.round(calculatedUnitPrice * 100) / 100 }));
+      }
+    }
+  };
+
+  const handleBarcodeScanned = (field: string, barcode: string) => {
+    setFormData(prev => ({ ...prev, [field]: barcode }));
+  };
+
+  const handleBulkImport = async (importedData: any[]) => {
+    setIsLoading(true);
+    try {
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (const productData of importedData) {
+        try {
+          // Generate serial number for each product
+          const serialResponse = await window.ezsite.apis.tablePage(11726, {
+            PageNo: 1,
+            PageSize: 1,
+            OrderByField: "serial_number",
+            IsAsc: false,
+            Filters: []
+          });
+          
+          const lastSerial = serialResponse.data?.List?.[0]?.serial_number || successCount;
+          
+          const productPayload = {
+            serial_number: lastSerial + successCount + 1,
+            product_name: productData.product_name || '',
+            weight: parseFloat(productData.weight) || 0,
+            weight_unit: productData.weight_unit || 'lb',
+            department: productData.department || 'Convenience Store',
+            bar_code_case: productData.bar_code_case || '',
+            bar_code_unit: productData.bar_code_unit || '',
+            last_updated_date: new Date().toISOString(),
+            last_shopping_date: productData.last_shopping_date || null,
+            case_price: parseFloat(productData.case_price) || 0,
+            unit_per_case: parseInt(productData.unit_per_case) || 1,
+            unit_price: parseFloat(productData.unit_price) || 0,
+            retail_price: parseFloat(productData.retail_price) || 0,
+            overdue: false,
+            category: productData.category || '',
+            supplier: productData.supplier || '',
+            quantity_in_stock: parseInt(productData.quantity_in_stock) || 0,
+            minimum_stock: parseInt(productData.minimum_stock) || 0,
+            description: productData.description || ''
+          };
+
+          const { error } = await window.ezsite.apis.tableCreate(11726, productPayload);
+          
+          if (error) {
+            console.error('Error creating product:', error);
+            errorCount++;
+          } else {
+            successCount++;
+          }
+        } catch (error) {
+          console.error('Error processing product:', error);
+          errorCount++;
+        }
+      }
+
+      toast({
+        title: "Bulk Import Complete",
+        description: `Successfully imported ${successCount} products. ${errorCount} errors.`
+      });
+
+      if (successCount > 0) {
+        navigate('/products');
+      }
+    } catch (error) {
+      console.error('Bulk import error:', error);
+      toast({
+        variant: "destructive",
+        title: "Import Failed",
+        description: "Failed to import product data."
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.product_name.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Validation Error",
+        description: "Product name is required."
+      });
+      return;
+    }
 
+    setIsLoading(true);
     try {
-      setLoading(true);
-
-      const dataToSubmit = {
+      const payload = {
         ...formData,
-        created_by: 1, // Default user ID since we removed auth
-        updated_at: new Date().toISOString()
+        last_updated_date: new Date().toISOString(),
+        last_shopping_date: formData.last_shopping_date ? new Date(formData.last_shopping_date).toISOString() : null,
+        merchant_id: formData.merchant_id ? parseInt(formData.merchant_id) : null
       };
 
-      if (isEditing && id) {
-        const { error } = await window.ezsite.apis.tableUpdate('11726', {
-          ID: parseInt(id),
-          ...dataToSubmit
-        });
-        if (error) throw error;
+      const { error } = id 
+        ? await window.ezsite.apis.tableUpdate(11726, { id: parseInt(id), ...payload })
+        : await window.ezsite.apis.tableCreate(11726, payload);
 
-        toast({
-          title: "Success",
-          description: "Product updated successfully"
-        });
-      } else {
-        const { error } = await window.ezsite.apis.tableCreate('11726', dataToSubmit);
-        if (error) throw error;
+      if (error) throw error;
 
-        toast({
-          title: "Success",
-          description: "Product created successfully"
-        });
-      }
+      toast({
+        title: "Success",
+        description: `Product ${id ? 'updated' : 'created'} successfully.`
+      });
 
       navigate('/products');
     } catch (error) {
       console.error('Error saving product:', error);
       toast({
+        variant: "destructive",
         title: "Error",
-        description: `Failed to ${isEditing ? 'update' : 'create'} product`,
-        variant: "destructive"
+        description: `Failed to ${id ? 'update' : 'create'} product.`
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const handleInputChange = (field: keyof ProductFormData, value: string | number) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto p-6">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-4">
+          <Button variant="outline" size="sm" onClick={() => navigate('/products')}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Products
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">{id ? 'Edit Product' : 'Create New Product'}</h1>
+            <p className="text-muted-foreground">
+              {id ? 'Update product information' : 'Add a new product to your inventory'}
+            </p>
+          </div>
+        </div>
+        <ProductFileUpload onDataImport={handleBulkImport} />
+      </div>
+
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center space-x-2">
-                <Package className="w-6 h-6" />
-                <span>{isEditing ? 'Edit Product' : 'Add New Product'}</span>
-              </CardTitle>
-              <CardDescription>
-                {isEditing ? 'Update product information' : 'Add a new product to your inventory'}
-              </CardDescription>
-            </div>
-            <Button variant="outline" onClick={() => navigate('/products')}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Products
-            </Button>
-          </div>
+          <CardTitle>{id ? 'Edit Product' : 'New Product'}</CardTitle>
+          <CardDescription>
+            {id ? 'Update the product information below' : 'Enter the product details below'}
+          </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6 pt-0">
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Basic Information */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="serial_number">Serial Number</Label>
+                <Input
+                  id="serial_number"
+                  type="number"
+                  value={formData.serial_number}
+                  onChange={(e) => handleInputChange('serial_number', parseInt(e.target.value))}
+                  disabled
+                  className="bg-muted"
+                />
+                <p className="text-xs text-muted-foreground">Auto-generated</p>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="product_name">Product Name *</Label>
                 <Input
                   id="product_name"
+                  placeholder="Enter product name"
                   value={formData.product_name}
                   onChange={(e) => handleInputChange('product_name', e.target.value)}
-                  placeholder="Enter product name"
-                  required />
-
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="product_code">Product Code *</Label>
-                <Input
-                  id="product_code"
-                  value={formData.product_code}
-                  onChange={(e) => handleInputChange('product_code', e.target.value)}
-                  placeholder="Enter product code"
-                  required />
-
+                  required
+                />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
                 <Input
                   id="category"
+                  placeholder="Enter product category"
                   value={formData.category}
                   onChange={(e) => handleInputChange('category', e.target.value)}
-                  placeholder="Enter product category" />
+                />
+              </div>
+            </div>
 
+            {/* Weight and Department */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="weight">Weight</Label>
+                <Input
+                  id="weight"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  value={formData.weight}
+                  onChange={(e) => handleInputChange('weight', parseFloat(e.target.value) || 0)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="weight_unit">Weight Unit</Label>
+                <Select 
+                  value={formData.weight_unit} 
+                  onValueChange={(value) => handleInputChange('weight_unit', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select unit" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {weightUnits.map((unit) => (
+                      <SelectItem key={unit.value} value={unit.value}>
+                        {unit.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="department">Department</Label>
+                <Select 
+                  value={formData.department} 
+                  onValueChange={(value) => handleInputChange('department', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departments.map((dept) => (
+                      <SelectItem key={dept} value={dept}>
+                        {dept}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Merchant and Supplier */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="merchant_id">Merchant</Label>
+                <Select 
+                  value={formData.merchant_id} 
+                  onValueChange={(value) => handleInputChange('merchant_id', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select merchant" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {vendors.map((vendor) => (
+                      <SelectItem key={vendor.id} value={vendor.id.toString()}>
+                        {vendor.vendor_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="supplier">Supplier</Label>
                 <Input
                   id="supplier"
+                  placeholder="Enter supplier name"
                   value={formData.supplier}
                   onChange={(e) => handleInputChange('supplier', e.target.value)}
-                  placeholder="Enter supplier name" />
+                />
+              </div>
+            </div>
 
+            {/* Barcode Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="bar_code_case">Bar Code Case</Label>
+                <div className="flex space-x-2">
+                  <Input
+                    id="bar_code_case"
+                    placeholder="Enter or scan barcode"
+                    value={formData.bar_code_case}
+                    onChange={(e) => handleInputChange('bar_code_case', e.target.value)}
+                    className="flex-1"
+                  />
+                  <BarcodeScanner 
+                    onScan={(barcode) => handleBarcodeScanned('bar_code_case', barcode)}
+                    triggerText="Scan"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="price">Price ($) *</Label>
+                <Label htmlFor="bar_code_unit">Bar Code Unit</Label>
+                <div className="flex space-x-2">
+                  <Input
+                    id="bar_code_unit"
+                    placeholder="Enter or scan barcode"
+                    value={formData.bar_code_unit}
+                    onChange={(e) => handleInputChange('bar_code_unit', e.target.value)}
+                    className="flex-1"
+                  />
+                  <BarcodeScanner 
+                    onScan={(barcode) => handleBarcodeScanned('bar_code_unit', barcode)}
+                    triggerText="Scan"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Pricing Information */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="case_price">Case Price ($)</Label>
                 <Input
-                  id="price"
+                  id="case_price"
                   type="number"
                   step="0.01"
                   min="0"
-                  value={formData.price}
-                  onChange={(e) => handleInputChange('price', parseFloat(e.target.value) || 0)}
                   placeholder="0.00"
-                  required />
-
+                  value={formData.case_price}
+                  onChange={(e) => handleInputChange('case_price', parseFloat(e.target.value) || 0)}
+                />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="quantity_in_stock">Quantity in Stock *</Label>
+                <Label htmlFor="unit_per_case">Units Per Case</Label>
+                <Input
+                  id="unit_per_case"
+                  type="number"
+                  min="1"
+                  placeholder="1"
+                  value={formData.unit_per_case}
+                  onChange={(e) => handleInputChange('unit_per_case', parseInt(e.target.value) || 1)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="unit_price">Unit Price ($)</Label>
+                <Input
+                  id="unit_price"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  value={formData.unit_price}
+                  onChange={(e) => handleInputChange('unit_price', parseFloat(e.target.value) || 0)}
+                />
+                <p className="text-xs text-muted-foreground">Auto-calculated from case price</p>
+              </div>
+            </div>
+
+            {/* Additional Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="retail_price">Retail Price ($)</Label>
+                <Input
+                  id="retail_price"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  value={formData.retail_price}
+                  onChange={(e) => handleInputChange('retail_price', parseFloat(e.target.value) || 0)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="last_shopping_date">Last Shopping Date</Label>
+                <Input
+                  id="last_shopping_date"
+                  type="date"
+                  value={formData.last_shopping_date}
+                  onChange={(e) => handleInputChange('last_shopping_date', e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Stock Information */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="quantity_in_stock">Quantity in Stock</Label>
                 <Input
                   id="quantity_in_stock"
                   type="number"
                   min="0"
+                  placeholder="0"
                   value={formData.quantity_in_stock}
                   onChange={(e) => handleInputChange('quantity_in_stock', parseInt(e.target.value) || 0)}
-                  placeholder="0"
-                  required />
-
+                />
               </div>
 
               <div className="space-y-2">
@@ -227,10 +586,19 @@ const ProductForm: React.FC = () => {
                   id="minimum_stock"
                   type="number"
                   min="0"
+                  placeholder="0"
                   value={formData.minimum_stock}
                   onChange={(e) => handleInputChange('minimum_stock', parseInt(e.target.value) || 0)}
-                  placeholder="0" />
+                />
+              </div>
 
+              <div className="space-y-2 flex items-center space-x-2 pt-6">
+                <Switch
+                  id="overdue"
+                  checked={formData.overdue}
+                  onCheckedChange={(checked) => handleInputChange('overdue', checked)}
+                />
+                <Label htmlFor="overdue">Overdue for Restocking</Label>
               </div>
             </div>
 
@@ -238,37 +606,27 @@ const ProductForm: React.FC = () => {
               <Label htmlFor="description">Description</Label>
               <Textarea
                 id="description"
+                placeholder="Enter product description"
+                rows={4}
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder="Enter product description"
-                rows={4} />
-
+              />
             </div>
 
             <div className="flex items-center justify-end space-x-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate('/products')}>
-
+              <Button type="button" variant="outline" onClick={() => navigate('/products')}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ?
-                'Saving...' :
-
-                <>
-                    <Save className="w-4 h-4 mr-2" />
-                    {isEditing ? 'Update Product' : 'Create Product'}
-                  </>
-                }
+              <Button type="submit" disabled={isLoading}>
+                <Save className="w-4 h-4 mr-2" />
+                {isLoading ? 'Saving...' : id ? 'Update Product' : 'Create Product'}
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
-    </div>);
-
+    </div>
+  );
 };
 
 export default ProductForm;

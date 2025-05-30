@@ -40,8 +40,8 @@ const DashboardLayout: React.FC = () => {
     icon: <Package className="w-5 h-5" />,
     children: [
     { name: 'All Products', path: '/products', icon: <Package className="w-4 h-4" /> },
-    { name: 'Add/Edit Products', path: '/products/new', icon: <Package className="w-4 h-4" /> }
-    ]
+    { name: 'Add/Edit Products', path: '/products/new', icon: <Package className="w-4 h-4" /> }]
+
   },
   {
     name: 'Employees',
