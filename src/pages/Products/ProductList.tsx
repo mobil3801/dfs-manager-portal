@@ -189,7 +189,7 @@ const ProductList: React.FC = () => {
                       return '-';
                     }
                   };
-                  
+
                   return (
                     <TableRow key={product.ID}>
                         <TableCell className="font-medium">{product.serial_number || '-'}</TableCell>
@@ -204,9 +204,9 @@ const ProductList: React.FC = () => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          {product.weight && product.weight > 0 ? 
-                            `${product.weight} ${product.weight_unit || 'lb'}` : '-'
-                          }
+                          {product.weight && product.weight > 0 ?
+                        `${product.weight} ${product.weight_unit || 'lb'}` : '-'
+                        }
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline">{product.department || 'Convenience Store'}</Badge>
