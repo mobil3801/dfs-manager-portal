@@ -5,21 +5,32 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Search, Edit, Trash2, Package, AlertTriangle } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Package } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface Product {
   ID: number;
   product_name: string;
-  product_code: string;
   category: string;
-  price: number;
   quantity_in_stock: number;
   minimum_stock: number;
   supplier: string;
   description: string;
   created_by: number;
-  updated_at: string;
+  serial_number: number;
+  weight: number;
+  weight_unit: string;
+  department: string;
+  merchant_id: number;
+  bar_code_case: string;
+  bar_code_unit: string;
+  last_updated_date: string;
+  last_shopping_date: string;
+  case_price: number;
+  unit_per_case: number;
+  unit_price: number;
+  retail_price: number;
+  overdue: boolean;
 }
 
 const ProductList: React.FC = () => {
@@ -93,15 +104,7 @@ const ProductList: React.FC = () => {
     }
   };
 
-  const getStockStatus = (current: number, minimum: number) => {
-    if (current <= 0) {
-      return { status: 'Out of Stock', color: 'bg-red-500' };
-    } else if (current <= minimum) {
-      return { status: 'Low Stock', color: 'bg-orange-500' };
-    } else {
-      return { status: 'In Stock', color: 'bg-green-500' };
-    }
-  };
+
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
@@ -163,22 +166,33 @@ const ProductList: React.FC = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Product Code</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>Stock</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Supplier</TableHead>
+                    <TableHead>Serial</TableHead>
+                    <TableHead>Product Name</TableHead>
+                    <TableHead>Weight</TableHead>
+                    <TableHead>Department</TableHead>
+                    <TableHead>Merchant</TableHead>
+                    <TableHead>Last Updated Date</TableHead>
+                    <TableHead>Last Shopping Date</TableHead>
+                    <TableHead>Case Price</TableHead>
+                    <TableHead>Unit Per Case</TableHead>
+                    <TableHead>Unit Price</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {products.map((product) => {
-                  const stockStatus = getStockStatus(product.quantity_in_stock, product.minimum_stock);
+                  const formatDate = (dateString: string) => {
+                    if (!dateString) return '-';
+                    try {
+                      return new Date(dateString).toLocaleDateString();
+                    } catch {
+                      return '-';
+                    }
+                  };
+                  
                   return (
                     <TableRow key={product.ID}>
-                        <TableCell className="font-medium">{product.product_code}</TableCell>
+                        <TableCell className="font-medium">{product.serial_number || '-'}</TableCell>
                         <TableCell>
                           <div>
                             <p className="font-medium">{product.product_name}</p>
@@ -190,26 +204,23 @@ const ProductList: React.FC = () => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline">{product.category}</Badge>
-                        </TableCell>
-                        <TableCell>${product.price.toFixed(2)}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <span>{product.quantity_in_stock}</span>
-                            {product.quantity_in_stock <= product.minimum_stock &&
-                          <AlertTriangle className="w-4 h-4 text-orange-500" />
+                          {product.weight && product.weight > 0 ? 
+                            `${product.weight} ${product.weight_unit || 'lb'}` : '-'
                           }
-                          </div>
-                          <p className="text-xs text-gray-500">
-                            Min: {product.minimum_stock}
-                          </p>
                         </TableCell>
                         <TableCell>
-                          <Badge className={`text-white ${stockStatus.color}`}>
-                            {stockStatus.status}
-                          </Badge>
+                          <Badge variant="outline">{product.department || 'Convenience Store'}</Badge>
                         </TableCell>
-                        <TableCell>{product.supplier}</TableCell>
+                        <TableCell>{product.supplier || '-'}</TableCell>
+                        <TableCell>{formatDate(product.last_updated_date)}</TableCell>
+                        <TableCell>{formatDate(product.last_shopping_date)}</TableCell>
+                        <TableCell>
+                          {product.case_price ? `$${product.case_price.toFixed(2)}` : '-'}
+                        </TableCell>
+                        <TableCell>{product.unit_per_case || '-'}</TableCell>
+                        <TableCell>
+                          {product.unit_price ? `$${product.unit_price.toFixed(2)}` : '-'}
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Button
