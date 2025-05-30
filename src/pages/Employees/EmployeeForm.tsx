@@ -90,12 +90,12 @@ const EmployeeForm: React.FC = () => {
 
       // If there are existing DFS IDs, find the highest number and increment
       if (data && data.List && data.List.length > 0) {
-        const existingNumbers = data.List
-          .map(emp => {
-            const match = emp.employee_id.match(/^DFS(\d+)$/);
-            return match ? parseInt(match[1]) : 0;
-          })
-          .filter(num => num > 0);
+        const existingNumbers = data.List.
+        map((emp) => {
+          const match = emp.employee_id.match(/^DFS(\d+)$/);
+          return match ? parseInt(match[1]) : 0;
+        }).
+        filter((num) => num > 0);
 
         if (existingNumbers.length > 0) {
           nextNumber = Math.max(...existingNumbers) + 1;

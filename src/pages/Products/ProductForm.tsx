@@ -566,41 +566,7 @@ const ProductForm = () => {
               </div>
             </div>
 
-            {/* Stock Information */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="quantity_in_stock">Quantity in Stock</Label>
-                <Input
-                  id="quantity_in_stock"
-                  type="number"
-                  min="0"
-                  placeholder="0"
-                  value={formData.quantity_in_stock}
-                  onChange={(e) => handleInputChange('quantity_in_stock', parseInt(e.target.value) || 0)} />
 
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="minimum_stock">Minimum Stock Level</Label>
-                <Input
-                  id="minimum_stock"
-                  type="number"
-                  min="0"
-                  placeholder="0"
-                  value={formData.minimum_stock}
-                  onChange={(e) => handleInputChange('minimum_stock', parseInt(e.target.value) || 0)} />
-
-              </div>
-
-              <div className="space-y-2 flex items-center space-x-2 pt-6">
-                <Switch
-                  id="overdue"
-                  checked={formData.overdue}
-                  onCheckedChange={(checked) => handleInputChange('overdue', checked)} />
-
-                <Label htmlFor="overdue">Overdue for Restocking</Label>
-              </div>
-            </div>
 
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
