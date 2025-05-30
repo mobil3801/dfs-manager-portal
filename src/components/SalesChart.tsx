@@ -52,8 +52,8 @@ const SalesChart: React.FC = () => {
         PageNo: 1,
         PageSize: 1000,
         Filters: [
-          { name: 'report_date', op: 'GreaterThanOrEqual', value: startDate.toISOString() }
-        ],
+        { name: 'report_date', op: 'GreaterThanOrEqual', value: startDate.toISOString() }],
+
         OrderByField: 'report_date',
         IsAsc: true
       });
@@ -71,8 +71,8 @@ const SalesChart: React.FC = () => {
       console.log('Raw sales reports:', reports);
 
       // Group data by date and station
-      const dailyData: { [key: string]: any } = {};
-      const stationSummary: { [key: string]: { fuel: number; convenience: number; total: number } } = {
+      const dailyData: {[key: string]: any;} = {};
+      const stationSummary: {[key: string]: {fuel: number;convenience: number;total: number;};} = {
         'MOBIL': { fuel: 0, convenience: 0, total: 0 },
         'AMOCO ROSEDALE': { fuel: 0, convenience: 0, total: 0 },
         'AMOCO BROOKLYN': { fuel: 0, convenience: 0, total: 0 }
@@ -135,8 +135,8 @@ const SalesChart: React.FC = () => {
       });
 
       // Convert to array and sort by date
-      const chartData = Object.values(dailyData).sort((a: any, b: any) => 
-        new Date(a.date).getTime() - new Date(b.date).getTime()
+      const chartData = Object.values(dailyData).sort((a: any, b: any) =>
+      new Date(a.date).getTime() - new Date(b.date).getTime()
       );
 
       // Convert station summary to array
@@ -164,7 +164,7 @@ const SalesChart: React.FC = () => {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
+      maximumFractionDigits: 0
     }).format(value);
   };
 
@@ -178,13 +178,13 @@ const SalesChart: React.FC = () => {
       return (
         <div className="bg-white p-3 border rounded-lg shadow-lg">
           <p className="font-semibold">{formatDate(label)}</p>
-          {payload.map((entry: any, index: number) => (
-            <p key={index} style={{ color: entry.color }}>
+          {payload.map((entry: any, index: number) =>
+          <p key={index} style={{ color: entry.color }}>
               {entry.name}: {formatCurrency(entry.value)}
             </p>
-          ))}
-        </div>
-      );
+          )}
+        </div>);
+
     }
     return null;
   };
@@ -210,8 +210,8 @@ const SalesChart: React.FC = () => {
             </div>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   if (error) {
@@ -231,8 +231,8 @@ const SalesChart: React.FC = () => {
             </div>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -248,16 +248,16 @@ const SalesChart: React.FC = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {salesData.length === 0 ? (
-          <div className="h-80 flex items-center justify-center text-gray-500">
+        {salesData.length === 0 ?
+        <div className="h-80 flex items-center justify-center text-gray-500">
             <div className="text-center">
               <Building2 className="w-12 h-12 mx-auto mb-4 text-gray-300" />
               <p className="font-medium">No sales data available</p>
               <p className="text-sm">Sales data for the last 30 days will appear here</p>
             </div>
-          </div>
-        ) : (
-          <div className="space-y-6">
+          </div> :
+
+        <div className="space-y-6">
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
@@ -296,59 +296,59 @@ const SalesChart: React.FC = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={salesData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                  <XAxis 
-                    dataKey="date" 
-                    tickFormatter={formatDate}
-                    tick={{ fontSize: 12 }}
-                  />
-                  <YAxis 
-                    tickFormatter={(value) => formatCurrency(value)}
-                    tick={{ fontSize: 12 }}
-                  />
+                  <XAxis
+                  dataKey="date"
+                  tickFormatter={formatDate}
+                  tick={{ fontSize: 12 }} />
+
+                  <YAxis
+                  tickFormatter={(value) => formatCurrency(value)}
+                  tick={{ fontSize: 12 }} />
+
                   <Tooltip content={<CustomTooltip />} />
                   <Legend />
                   
                   {/* MOBIL Station Bars */}
-                  <Bar 
-                    dataKey="MOBIL_fuel" 
-                    stackId="MOBIL" 
-                    fill="#3B82F6" 
-                    name="MOBIL - Fuel"
-                  />
-                  <Bar 
-                    dataKey="MOBIL_convenience" 
-                    stackId="MOBIL" 
-                    fill="#60A5FA" 
-                    name="MOBIL - Convenience"
-                  />
+                  <Bar
+                  dataKey="MOBIL_fuel"
+                  stackId="MOBIL"
+                  fill="#3B82F6"
+                  name="MOBIL - Fuel" />
+
+                  <Bar
+                  dataKey="MOBIL_convenience"
+                  stackId="MOBIL"
+                  fill="#60A5FA"
+                  name="MOBIL - Convenience" />
+
                   
                   {/* AMOCO ROSEDALE Station Bars */}
-                  <Bar 
-                    dataKey="AMOCO_ROSEDALE_fuel" 
-                    stackId="AMOCO_ROSEDALE" 
-                    fill="#10B981" 
-                    name="AMOCO ROSEDALE - Fuel"
-                  />
-                  <Bar 
-                    dataKey="AMOCO_ROSEDALE_convenience" 
-                    stackId="AMOCO_ROSEDALE" 
-                    fill="#34D399" 
-                    name="AMOCO ROSEDALE - Convenience"
-                  />
+                  <Bar
+                  dataKey="AMOCO_ROSEDALE_fuel"
+                  stackId="AMOCO_ROSEDALE"
+                  fill="#10B981"
+                  name="AMOCO ROSEDALE - Fuel" />
+
+                  <Bar
+                  dataKey="AMOCO_ROSEDALE_convenience"
+                  stackId="AMOCO_ROSEDALE"
+                  fill="#34D399"
+                  name="AMOCO ROSEDALE - Convenience" />
+
                   
                   {/* AMOCO BROOKLYN Station Bars */}
-                  <Bar 
-                    dataKey="AMOCO_BROOKLYN_fuel" 
-                    stackId="AMOCO_BROOKLYN" 
-                    fill="#8B5CF6" 
-                    name="AMOCO BROOKLYN - Fuel"
-                  />
-                  <Bar 
-                    dataKey="AMOCO_BROOKLYN_convenience" 
-                    stackId="AMOCO_BROOKLYN" 
-                    fill="#A78BFA" 
-                    name="AMOCO BROOKLYN - Convenience"
-                  />
+                  <Bar
+                  dataKey="AMOCO_BROOKLYN_fuel"
+                  stackId="AMOCO_BROOKLYN"
+                  fill="#8B5CF6"
+                  name="AMOCO BROOKLYN - Fuel" />
+
+                  <Bar
+                  dataKey="AMOCO_BROOKLYN_convenience"
+                  stackId="AMOCO_BROOKLYN"
+                  fill="#A78BFA"
+                  name="AMOCO BROOKLYN - Convenience" />
+
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -357,8 +357,8 @@ const SalesChart: React.FC = () => {
             <div className="border-t pt-4">
               <h4 className="font-semibold mb-3 text-gray-900">Station Performance Summary</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {stationTotals.map((station) => (
-                  <div key={station.station} className="bg-gray-50 p-3 rounded-lg">
+                {stationTotals.map((station) =>
+              <div key={station.station} className="bg-gray-50 p-3 rounded-lg">
                     <h5 className="font-medium text-gray-900 mb-2">{station.station}</h5>
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between">
@@ -375,14 +375,14 @@ const SalesChart: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                ))}
+              )}
               </div>
             </div>
           </div>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default SalesChart;
