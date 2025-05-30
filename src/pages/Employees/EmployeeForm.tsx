@@ -64,8 +64,64 @@ const EmployeeForm: React.FC = () => {
     if (id) {
       setIsEditing(true);
       loadEmployee(parseInt(id));
+    } else {
+      // Auto-generate employee ID for new employees
+      generateEmployeeId();
     }
   }, [id]);
+
+  const generateEmployeeId = async () => {
+    try {
+      let uniqueId = '';
+      let isUnique = false;
+      let attempts = 0;
+      const maxAttempts = 10;
+
+      while (!isUnique && attempts < maxAttempts) {
+        // Generate ID in format: EMP-YYYYMMDD-XXXX (where XXXX is random 4-digit number)
+        const now = new Date();
+        const dateStr = now.getFullYear().toString() + 
+                       (now.getMonth() + 1).toString().padStart(2, '0') + 
+                       now.getDate().toString().padStart(2, '0');
+        const randomNum = Math.floor(1000 + Math.random() * 9000); // 4-digit random number
+        uniqueId = `EMP-${dateStr}-${randomNum}`;
+
+        // Check if this ID already exists
+        const { data, error } = await window.ezsite.apis.tablePage('11727', {
+          PageNo: 1,
+          PageSize: 1,
+          Filters: [{ name: 'employee_id', op: 'Equal', value: uniqueId }]
+        });
+
+        if (error) {
+          console.error('Error checking employee ID uniqueness:', error);
+          break;
+        }
+
+        isUnique = !data || !data.List || data.List.length === 0;
+        attempts++;
+      }
+
+      if (isUnique) {
+        setFormData(prev => ({ ...prev, employee_id: uniqueId }));
+        console.log('Generated unique employee ID:', uniqueId);
+      } else {
+        console.error('Failed to generate unique employee ID after', maxAttempts, 'attempts');
+        toast({
+          title: "Warning",
+          description: "Could not auto-generate unique employee ID. Please enter manually.",
+          variant: "default"
+        });
+      }
+    } catch (error) {
+      console.error('Error generating employee ID:', error);
+      toast({
+        title: "Warning",
+        description: "Could not auto-generate employee ID. Please enter manually.",
+        variant: "default"
+      });
+    }
+  };
 
   const loadEmployee = async (employeeId: number) => {
     try {
@@ -113,7 +169,7 @@ const EmployeeForm: React.FC = () => {
 
   const handleFileUpload = async () => {
     if (!selectedFile) return null;
-    
+
     setIsUploading(true);
     try {
       const { data: fileId, error } = await window.ezsite.apis.upload({
@@ -124,10 +180,10 @@ const EmployeeForm: React.FC = () => {
       return fileId;
     } catch (error) {
       console.error('Error uploading file:', error);
-      toast({ 
-        title: 'Error', 
-        description: 'Failed to upload file. Please try again.', 
-        variant: 'destructive' 
+      toast({
+        title: 'Error',
+        description: 'Failed to upload file. Please try again.',
+        variant: 'destructive'
       });
       return null;
     } finally {
@@ -142,7 +198,7 @@ const EmployeeForm: React.FC = () => {
       setLoading(true);
 
       let fileId = formData.id_document_file_id;
-      
+
       if (selectedFile) {
         fileId = await handleFileUpload();
         if (fileId === null) {
@@ -225,12 +281,32 @@ const EmployeeForm: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="employee_id">Employee ID *</Label>
-                  <Input
-                    id="employee_id"
-                    value={formData.employee_id}
-                    onChange={(e) => handleInputChange('employee_id', e.target.value)}
-                    placeholder="Enter employee ID"
-                    required />
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      id="employee_id"
+                      value={formData.employee_id}
+                      onChange={(e) => handleInputChange('employee_id', e.target.value)}
+                      placeholder={isEditing ? "Enter employee ID" : "Auto-generated"}
+                      readOnly={!isEditing}
+                      className={!isEditing ? "bg-gray-50 cursor-not-allowed" : ""}
+                      required />
+                    {!isEditing && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={generateEmployeeId}
+                        className="shrink-0"
+                      >
+                        Regenerate
+                      </Button>
+                    )}
+                  </div>
+                  {!isEditing && (
+                    <p className="text-xs text-gray-500">
+                      Auto-generated format: EMP-YYYYMMDD-XXXX (unique across all stations)
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -419,12 +495,12 @@ const EmployeeForm: React.FC = () => {
                       accept=".pdf,.jpg,.jpeg,.png"
                       onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
                       className="flex-1" />
-                    {selectedFile && (
-                      <span className="text-sm text-green-600 flex items-center">
+                    {selectedFile &&
+                    <span className="text-sm text-green-600 flex items-center">
                         <Upload className="w-4 h-4 mr-1" />
                         {selectedFile.name}
                       </span>
-                    )}
+                    }
                   </div>
                   <p className="text-xs text-gray-500">Supported formats: PDF, JPG, PNG (Max 10MB)</p>
                 </div>
