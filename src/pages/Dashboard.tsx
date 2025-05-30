@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import SalesChart from '@/components/SalesChart';
 import {
   Package,
   Users,
@@ -300,23 +301,23 @@ const Dashboard: React.FC = () => {
 
     // Sort notifications by timestamp (newest first)
     newNotifications.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-    
+
     setNotifications(newNotifications);
   };
 
   const markAsRead = (notificationId: string) => {
-    setNotifications(prev => 
-      prev.map(notif => 
-        notif.id === notificationId 
-          ? { ...notif, isRead: true }
-          : notif
-      )
+    setNotifications((prev) =>
+    prev.map((notif) =>
+    notif.id === notificationId ?
+    { ...notif, isRead: true } :
+    notif
+    )
     );
   };
 
   const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notif => ({ ...notif, isRead: true }))
+    setNotifications((prev) =>
+    prev.map((notif) => ({ ...notif, isRead: true }))
     );
   };
 
@@ -351,18 +352,18 @@ const Dashboard: React.FC = () => {
   const formatTimeAgo = (timestamp: Date) => {
     const now = new Date();
     const diffInMinutes = Math.floor((now.getTime() - timestamp.getTime()) / (1000 * 60));
-    
+
     if (diffInMinutes < 1) return 'Just now';
     if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    
+
     const diffInHours = Math.floor(diffInMinutes / 60);
     if (diffInHours < 24) return `${diffInHours}h ago`;
-    
+
     const diffInDays = Math.floor(diffInHours / 24);
     return `${diffInDays}d ago`;
   };
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -371,49 +372,7 @@ const Dashboard: React.FC = () => {
     }).format(amount);
   };
 
-  const quickActions = [
-  {
-    title: 'Add New Product',
-    description: 'Add a product to inventory',
-    icon: <Package className="w-5 h-5" />,
-    color: 'bg-blue-500',
-    action: () => navigate('/products/new')
-  },
-  {
-    title: 'Add Employee',
-    description: 'Register new employee',
-    icon: <Users className="w-5 h-5" />,
-    color: 'bg-green-500',
-    action: () => navigate('/employees/new')
-  },
-  {
-    title: 'Create Sales Report',
-    description: 'Record daily sales',
-    icon: <TrendingUp className="w-5 h-5" />,
-    color: 'bg-purple-500',
-    action: () => navigate('/sales/new')
-  },
-  {
-    title: 'Add Vendor',
-    description: 'Register new vendor',
-    icon: <Building2 className="w-5 h-5" />,
-    color: 'bg-orange-500',
-    action: () => navigate('/vendors/new')
-  },
-  {
-    title: 'Create Order',
-    description: 'Place new purchase order',
-    icon: <ShoppingCart className="w-5 h-5" />,
-    color: 'bg-indigo-500',
-    action: () => navigate('/orders/new')
-  },
-  {
-    title: 'Add License',
-    description: 'Register license/certificate',
-    icon: <FileText className="w-5 h-5" />,
-    color: 'bg-pink-500',
-    action: () => navigate('/licenses/new')
-  }];
+
 
 
   if (loading) {
@@ -572,38 +531,9 @@ const Dashboard: React.FC = () => {
         </Card>
       </div>
 
-      {/* Quick Actions */}
+      {/* Sales Analytics Chart */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>
-              Commonly used operations for efficient management
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {quickActions.map((action, index) =>
-              <Button
-                key={index}
-                variant="outline"
-                className="p-4 h-auto justify-start"
-                onClick={action.action}>
-
-                  <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded ${action.color} text-white`}>
-                      {action.icon}
-                    </div>
-                    <div className="text-left">
-                      <p className="font-medium">{action.title}</p>
-                      <p className="text-sm text-gray-500">{action.description}</p>
-                    </div>
-                  </div>
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        <SalesChart />
 
         {/* Notifications Panel */}
         <Card>
@@ -612,44 +542,44 @@ const Dashboard: React.FC = () => {
               <div className="flex items-center space-x-2">
                 <Bell className="w-5 h-5 text-blue-600" />
                 <CardTitle>Recent Notifications</CardTitle>
-                {unreadCount > 0 && (
-                  <Badge variant="destructive" className="text-xs">
+                {unreadCount > 0 &&
+                <Badge variant="destructive" className="text-xs">
                     {unreadCount}
                   </Badge>
-                )}
+                }
               </div>
-              {unreadCount > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={markAllAsRead}
-                  className="text-sm text-blue-600 hover:text-blue-800"
-                >
+              {unreadCount > 0 &&
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={markAllAsRead}
+                className="text-sm text-blue-600 hover:text-blue-800">
+
                   Mark all read
                 </Button>
-              )}
+              }
             </div>
             <CardDescription>
               Stay updated with important alerts and system notifications
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {notifications.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+            {notifications.length === 0 ?
+            <div className="text-center py-8 text-gray-500">
                 <Bell className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                 <p>No notifications at the moment</p>
                 <p className="text-sm">All systems are running smoothly</p>
-              </div>
-            ) : (
-              <div className="space-y-3 max-h-80 overflow-y-auto">
-                {notifications.map((notification) => (
-                  <div
-                    key={notification.id}
-                    className={`p-3 rounded-lg transition-all duration-200 hover:shadow-sm cursor-pointer ${
-                      getNotificationStyle(notification.type)
-                    } ${notification.isRead ? 'opacity-70' : ''}`}
-                    onClick={() => markAsRead(notification.id)}
-                  >
+              </div> :
+
+            <div className="space-y-3 max-h-80 overflow-y-auto">
+                {notifications.map((notification) =>
+              <div
+                key={notification.id}
+                className={`p-3 rounded-lg transition-all duration-200 hover:shadow-sm cursor-pointer ${
+                getNotificationStyle(notification.type)} ${
+                notification.isRead ? 'opacity-70' : ''}`}
+                onClick={() => markAsRead(notification.id)}>
+
                     <div className="flex items-start space-x-3">
                       <div className="flex-shrink-0 mt-0.5">
                         {getNotificationIcon(notification.type)}
@@ -657,14 +587,14 @@ const Dashboard: React.FC = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
                           <h4 className={`text-sm font-medium ${
-                            notification.isRead ? 'text-gray-600' : 'text-gray-900'
-                          }`}>
+                      notification.isRead ? 'text-gray-600' : 'text-gray-900'}`
+                      }>
                             {notification.title}
                           </h4>
                           <div className="flex items-center space-x-2">
-                            {!notification.isRead && (
-                              <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                            )}
+                            {!notification.isRead &&
+                        <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                        }
                             <div className="flex items-center text-xs text-gray-500">
                               <Clock className="w-3 h-3 mr-1" />
                               {formatTimeAgo(notification.timestamp)}
@@ -672,45 +602,45 @@ const Dashboard: React.FC = () => {
                           </div>
                         </div>
                         <p className={`text-sm ${
-                          notification.isRead ? 'text-gray-500' : 'text-gray-700'
-                        }`}>
+                    notification.isRead ? 'text-gray-500' : 'text-gray-700'}`
+                    }>
                           {notification.message}
                         </p>
-                        {notification.action && notification.actionLabel && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              notification.action!();
-                            }}
-                            className="mt-2 text-xs px-2 py-1 h-auto"
-                          >
+                        {notification.action && notification.actionLabel &&
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        notification.action!();
+                      }}
+                      className="mt-2 text-xs px-2 py-1 h-auto">
+
                             {notification.actionLabel}
                           </Button>
-                        )}
+                    }
                       </div>
                     </div>
                   </div>
-                ))}
+              )}
               </div>
-            )}
+            }
             
-            {notifications.length > 0 && (
-              <div className="pt-3 border-t">
+            {notifications.length > 0 &&
+            <div className="pt-3 border-t">
                 <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full text-sm text-gray-600 hover:text-gray-800"
-                  onClick={() => {
-                    // Could navigate to a full notifications page in the future
-                    console.log('View all notifications');
-                  }}
-                >
+                variant="ghost"
+                size="sm"
+                className="w-full text-sm text-gray-600 hover:text-gray-800"
+                onClick={() => {
+                  // Could navigate to a full notifications page in the future
+                  console.log('View all notifications');
+                }}>
+
                   View all notifications
                 </Button>
               </div>
-            )}
+            }
           </CardContent>
         </Card>
       </div>
