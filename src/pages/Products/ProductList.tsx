@@ -5,8 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Search, Edit, Trash2, Package } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Package, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import ProductLogs from '@/components/ProductLogs';
 
 interface Product {
   ID: number;
@@ -39,7 +41,10 @@ const ProductList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [logsModalOpen, setLogsModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<{ id: number; name: string } | null>(null);
   const navigate = useNavigate();
+  const { userProfile } = useAuth();
 
   const pageSize = 10;
 
@@ -103,6 +108,13 @@ const ProductList: React.FC = () => {
       });
     }
   };
+
+  const handleViewLogs = (productId: number, productName: string) => {
+    setSelectedProduct({ id: productId, name: productName });
+    setLogsModalOpen(true);
+  };
+
+  const isAdministrator = userProfile?.role === 'Administrator';
 
 
 
@@ -176,6 +188,8 @@ const ProductList: React.FC = () => {
                     <TableHead>Case Price</TableHead>
                     <TableHead>Unit Per Case</TableHead>
                     <TableHead>Unit Price</TableHead>
+                    <TableHead>Retail Price</TableHead>
+                    <TableHead>Profit Margin</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -222,22 +236,52 @@ const ProductList: React.FC = () => {
                           {product.unit_price ? `$${product.unit_price.toFixed(2)}` : '-'}
                         </TableCell>
                         <TableCell>
+                          {product.retail_price ? `$${product.retail_price.toFixed(2)}` : '-'}
+                        </TableCell>
+                        <TableCell>
+                          {(() => {
+                            if (product.unit_price && product.retail_price && product.retail_price > 0) {
+                              const margin = ((product.retail_price - product.unit_price) / product.retail_price * 100);
+                              return (
+                                <Badge 
+                                  variant={margin > 20 ? 'default' : margin > 10 ? 'secondary' : 'destructive'}
+                                  className="text-xs"
+                                >
+                                  {margin.toFixed(1)}%
+                                </Badge>
+                              );
+                            }
+                            return '-';
+                          })()} 
+                        </TableCell>
+                        <TableCell>
                           <div className="flex items-center space-x-2">
                             <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => navigate(`/products/edit/${product.ID}`)}>
-
-                              <Edit className="w-4 h-4" />
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleViewLogs(product.ID, product.product_name)}
+                              title="View change logs">
+                              <FileText className="w-4 h-4" />
                             </Button>
-                            <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDelete(product.ID)}
-                            className="text-red-600 hover:text-red-700">
-
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            {isAdministrator && (
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => navigate(`/products/edit/${product.ID}`)}
+                                  title="Edit product">
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleDelete(product.ID)}
+                                  className="text-red-600 hover:text-red-700"
+                                  title="Delete product">
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>);
@@ -279,6 +323,19 @@ const ProductList: React.FC = () => {
           }
         </CardContent>
       </Card>
+
+      {/* Product Logs Modal */}
+      {selectedProduct && (
+        <ProductLogs
+          isOpen={logsModalOpen}
+          onClose={() => {
+            setLogsModalOpen(false);
+            setSelectedProduct(null);
+          }}
+          productId={selectedProduct.id}
+          productName={selectedProduct.name}
+        />
+      )}
     </div>);
 
 };

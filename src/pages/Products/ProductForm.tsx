@@ -143,7 +143,7 @@ const ProductForm = () => {
 
       if (data?.List?.[0]) {
         const product = data.List[0];
-        setFormData({
+        const productData = {
           serial_number: product.serial_number || 0,
           product_name: product.product_name || '',
           weight: product.weight || 0,
@@ -164,7 +164,9 @@ const ProductForm = () => {
           quantity_in_stock: product.quantity_in_stock || 0,
           minimum_stock: product.minimum_stock || 0,
           description: product.description || ''
-        });
+        };
+        setFormData(productData);
+        setOriginalData(productData); // Store original data for comparison
       }
     } catch (error) {
       console.error('Error fetching product:', error);
@@ -272,6 +274,31 @@ const ProductForm = () => {
     }
   };
 
+  const [originalData, setOriginalData] = useState<any>(null);
+
+  const logFieldChange = async (productId: number, fieldName: string, oldValue: any, newValue: any, userId: number) => {
+    try {
+      const { error } = await window.ezsite.apis.tableCreate('11756', {
+        product_id: productId,
+        field_name: fieldName,
+        old_value: oldValue?.toString() || '',
+        new_value: newValue?.toString() || '',
+        change_date: new Date().toISOString(),
+        changed_by: userId
+      });
+      if (error) {
+        console.error('Error logging field change:', error);
+      }
+    } catch (error) {
+      console.error('Error logging field change:', error);
+    }
+  };
+
+  const calculateProfitMargin = (unitPrice: number, retailPrice: number) => {
+    if (unitPrice === 0 || retailPrice === 0) return 0;
+    return ((retailPrice - unitPrice) / retailPrice * 100);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -307,6 +334,34 @@ const ProductForm = () => {
       await window.ezsite.apis.tableCreate(11726, payload);
 
       if (error) throw error;
+
+      // Log changes for existing products
+      if (id && originalData && userProfile) {
+        const fieldsToTrack = [
+          'last_shopping_date',
+          'case_price',
+          'unit_per_case',
+          'unit_price',
+          'retail_price'
+        ];
+
+        for (const field of fieldsToTrack) {
+          const oldValue = originalData[field];
+          const newValue = formData[field];
+          
+          if (oldValue !== newValue) {
+            await logFieldChange(parseInt(id), field, oldValue, newValue, userProfile.user_id);
+          }
+        }
+
+        // Calculate and log profit margin changes
+        const oldProfitMargin = calculateProfitMargin(originalData.unit_price, originalData.retail_price);
+        const newProfitMargin = calculateProfitMargin(formData.unit_price, formData.retail_price);
+        
+        if (Math.abs(oldProfitMargin - newProfitMargin) > 0.01) {
+          await logFieldChange(parseInt(id), 'profit_margin', oldProfitMargin.toFixed(2), newProfitMargin.toFixed(2), userProfile.user_id);
+        }
+      }
 
       toast({
         title: "Success",
