@@ -5,8 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Search, Edit, Trash2, FileText, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, FileText, AlertTriangle, CheckCircle, Printer } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import PrintDialog from '@/components/PrintDialog';
 
 interface License {
   ID: number;
@@ -28,7 +30,10 @@ const LicenseList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [selectedLicenseForPrint, setSelectedLicenseForPrint] = useState<License | null>(null);
+  const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
   const navigate = useNavigate();
+  const { userProfile } = useAuth();
 
   const pageSize = 10;
 
@@ -92,6 +97,19 @@ const LicenseList: React.FC = () => {
       });
     }
   };
+
+  const handlePrint = (license: License) => {
+    setSelectedLicenseForPrint(license);
+    setIsPrintDialogOpen(true);
+  };
+
+  const closePrintDialog = () => {
+    setIsPrintDialogOpen(false);
+    setSelectedLicenseForPrint(null);
+  };
+
+  // Check if user is Administrator
+  const isAdmin = userProfile?.role === 'Administrator';
 
   const getStatusBadgeColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -311,20 +329,32 @@ const LicenseList: React.FC = () => {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigate(`/licenses/edit/${license.ID}`)}>
-
-                            <Edit className="w-4 h-4" />
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePrint(license)}
+                            className="text-blue-600 hover:text-blue-700"
+                            title="Print Document">
+                            <Printer className="w-4 h-4" />
                           </Button>
-                          <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(license.ID)}
-                        className="text-red-600 hover:text-red-700">
-
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          {isAdmin && (
+                            <>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => navigate(`/licenses/edit/${license.ID}`)}
+                                title="Edit License">
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDelete(license.ID)}
+                                className="text-red-600 hover:text-red-700"
+                                title="Delete License">
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -365,6 +395,13 @@ const LicenseList: React.FC = () => {
           }
         </CardContent>
       </Card>
+
+      {/* Print Dialog */}
+      <PrintDialog
+        license={selectedLicenseForPrint}
+        isOpen={isPrintDialogOpen}
+        onClose={closePrintDialog}
+      />
     </div>);
 
 };

@@ -60,7 +60,7 @@ const SalesReportForm: React.FC = () => {
       setFormData((prev) => ({ ...prev, total_sales: calculatedTotal }));
     }
   }, [formData.cash_sales, formData.credit_card_sales]);
-  
+
   // Auto-validate category totals
   useEffect(() => {
     const categoryTotal = formData.fuel_sales + formData.convenience_sales;
@@ -112,7 +112,7 @@ const SalesReportForm: React.FC = () => {
     // Enhanced validation with better error messages
     const categoryTotal = formData.fuel_sales + formData.convenience_sales;
     const paymentTotal = formData.cash_sales + formData.credit_card_sales;
-    
+
     console.log('Form validation:', {
       categoryTotal,
       paymentTotal,
@@ -120,7 +120,7 @@ const SalesReportForm: React.FC = () => {
       categoryValid: categoryTotal <= formData.total_sales + 0.01,
       paymentValid: Math.abs(paymentTotal - formData.total_sales) <= 0.01
     });
-    
+
     if (categoryTotal > formData.total_sales + 0.01) {
       toast({
         title: "Validation Error",
@@ -138,7 +138,7 @@ const SalesReportForm: React.FC = () => {
       });
       return;
     }
-    
+
     // Additional validation checks
     if (formData.total_sales <= 0) {
       toast({
@@ -148,7 +148,7 @@ const SalesReportForm: React.FC = () => {
       });
       return;
     }
-    
+
     if (formData.cash_sales < 0 || formData.credit_card_sales < 0 || formData.fuel_sales < 0 || formData.convenience_sales < 0) {
       toast({
         title: "Validation Error",
@@ -212,7 +212,7 @@ const SalesReportForm: React.FC = () => {
       setFormData((prev) => ({ ...prev, convenience_sales: calculatedConvenience }));
     }
   };
-  
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -384,18 +384,18 @@ const SalesReportForm: React.FC = () => {
                           const categoryTotal = formData.fuel_sales + formData.convenience_sales;
                           const isValid = categoryTotal <= formData.total_sales + 0.01;
                           const remaining = formData.total_sales - categoryTotal;
-                          
-                          return isValid ? 
-                            <span className="text-green-600 text-sm">✓ Valid</span> :
-                            <span className="text-red-600 text-sm">⚠️ Exceeds total</span>;
+
+                          return isValid ?
+                          <span className="text-green-600 text-sm">✓ Valid</span> :
+                          <span className="text-red-600 text-sm">⚠️ Exceeds total</span>;
                         })()} 
                       </div>
                       <div className="text-xs text-gray-600 mt-1">
                         {(() => {
                           const remaining = formData.total_sales - (formData.fuel_sales + formData.convenience_sales);
-                          return remaining >= 0 ? 
-                            `Remaining: ${formatCurrency(remaining)}` :
-                            `Overrun: ${formatCurrency(Math.abs(remaining))}`;
+                          return remaining >= 0 ?
+                          `Remaining: ${formatCurrency(remaining)}` :
+                          `Overrun: ${formatCurrency(Math.abs(remaining))}`;
                         })()} 
                       </div>
                     </div>

@@ -126,7 +126,7 @@ const Dashboard: React.FC = () => {
           if (!error && data) {
             const allReports = data.List || [];
             console.log('All sales reports for calculations:', allReports);
-            
+
             // Calculate totals with proper validation
             let totalSales = 0;
             let totalFuelSales = 0;
@@ -134,27 +134,27 @@ const Dashboard: React.FC = () => {
             let totalCashSales = 0;
             let totalCreditSales = 0;
             let reportCount = 0;
-            
-            allReports.forEach(report => {
+
+            allReports.forEach((report) => {
               // Ensure all calculations are accurate
               const fuelSales = parseFloat(report.fuel_sales) || 0;
               const convenienceSales = parseFloat(report.convenience_sales) || 0;
               const cashSales = parseFloat(report.cash_sales) || 0;
               const creditSales = parseFloat(report.credit_card_sales) || 0;
               const reportTotal = parseFloat(report.total_sales) || 0;
-              
+
               // Validate that cash + credit = total
               const calculatedPaymentTotal = cashSales + creditSales;
               if (Math.abs(calculatedPaymentTotal - reportTotal) > 0.01) {
                 console.warn(`Report ID ${report.ID}: Payment total (${calculatedPaymentTotal}) doesn't match total sales (${reportTotal})`);
               }
-              
+
               // Validate that fuel + convenience <= total
               const calculatedCategoryTotal = fuelSales + convenienceSales;
               if (calculatedCategoryTotal > reportTotal + 0.01) {
                 console.warn(`Report ID ${report.ID}: Category total (${calculatedCategoryTotal}) exceeds total sales (${reportTotal})`);
               }
-              
+
               // Add to running totals (use the reported total_sales as the authoritative figure)
               totalSales += reportTotal;
               totalFuelSales += fuelSales;
@@ -163,7 +163,7 @@ const Dashboard: React.FC = () => {
               totalCreditSales += creditSales;
               reportCount++;
             });
-            
+
             console.log('Calculated dashboard totals:', {
               totalSales,
               totalFuelSales,
@@ -172,7 +172,7 @@ const Dashboard: React.FC = () => {
               totalCreditSales,
               reportCount
             });
-            
+
             return {
               allSalesTotal: totalSales,
               allFuelSales: totalFuelSales,
