@@ -58,9 +58,9 @@ const LoginPage: React.FC = () => {
               {isLogin ? 'Sign In' : 'Create Account'}
             </CardTitle>
             <CardDescription className="text-center">
-              {isLogin 
-                ? 'Enter your credentials to access the portal' 
-                : 'Create a new account to get started'
+              {isLogin ?
+              'Enter your credentials to access the portal' :
+              'Create a new account to get started'
               }
             </CardDescription>
           </CardHeader>
@@ -75,8 +75,8 @@ const LoginPage: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="h-11"
-                />
+                  className="h-11" />
+
               </div>
               
               <div className="space-y-2">
@@ -88,16 +88,16 @@ const LoginPage: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="h-11"
-                />
+                  className="h-11" />
+
               </div>
 
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
+                disabled={isLoading}>
+
+                {isLoading ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
               </Button>
             </form>
 
@@ -114,8 +114,8 @@ const LoginPage: React.FC = () => {
                     setIsLogin(!isLogin);
                     setEmail('');
                     setPassword('');
-                  }}
-                >
+                  }}>
+
                   {isLogin ? 'Create one' : 'Sign in'}
                 </Button>
               </div>
@@ -127,8 +127,8 @@ const LoginPage: React.FC = () => {
           <p>&copy; 2024 Dream Frame Queens Inc. All rights reserved.</p>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default LoginPage;

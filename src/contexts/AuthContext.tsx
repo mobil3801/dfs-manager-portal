@@ -61,7 +61,7 @@ const ACCESS_MATRIX = {
   }
 };
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -78,7 +78,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setLoading(false);
         return;
       }
-      
+
       if (data) {
         setUser(data);
         await fetchUserProfile(data.ID);
@@ -96,8 +96,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         PageNo: 1,
         PageSize: 1,
         Filters: [
-          { name: 'user_id', op: 'Equal', value: userId }
-        ]
+        { name: 'user_id', op: 'Equal', value: userId }]
+
       });
 
       if (error) throw error;
@@ -136,7 +136,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       setLoading(true);
       const { error } = await window.ezsite.apis.login({ email, password });
-      
+
       if (error) {
         toast({
           title: "Login Failed",
@@ -159,12 +159,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       setUser(userData);
       await fetchUserProfile(userData.ID);
-      
+
       toast({
         title: "Success",
         description: "Login successful!"
       });
-      
+
       return true;
     } catch (error) {
       console.error('Login error:', error);
@@ -183,7 +183,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       setLoading(true);
       const { error } = await window.ezsite.apis.register({ email, password });
-      
+
       if (error) {
         toast({
           title: "Registration Failed",
@@ -197,7 +197,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         title: "Registration Successful",
         description: "Please check your email to verify your account."
       });
-      
+
       return true;
     } catch (error) {
       console.error('Registration error:', error);
@@ -228,10 +228,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const hasPermission = (feature: string, action: 'read' | 'write'): boolean => {
     if (!userProfile) return false;
-    
+
     const rolePermissions = ACCESS_MATRIX[userProfile.role];
     if (!rolePermissions || !rolePermissions[feature]) return false;
-    
+
     return rolePermissions[feature].includes(action);
   };
 
@@ -248,8 +248,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   return (
     <AuthContext.Provider value={value}>
       {children}
-    </AuthContext.Provider>
-  );
+    </AuthContext.Provider>);
+
 };
 
 export const useAuth = () => {

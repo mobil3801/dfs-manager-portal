@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,7 +28,6 @@ const ProductList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const { hasPermission } = useAuth();
   const navigate = useNavigate();
 
   const pageSize = 10;
@@ -42,7 +40,7 @@ const ProductList: React.FC = () => {
     try {
       setLoading(true);
       const filters = [];
-      
+
       if (searchTerm) {
         filters.push({ name: 'product_name', op: 'StringContains', value: searchTerm });
       }
@@ -72,15 +70,6 @@ const ProductList: React.FC = () => {
   };
 
   const handleDelete = async (productId: number) => {
-    if (!hasPermission('products', 'write')) {
-      toast({
-        title: "Access Denied",
-        description: "You don't have permission to delete products",
-        variant: "destructive"
-      });
-      return;
-    }
-
     if (!confirm('Are you sure you want to delete this product?')) {
       return;
     }
@@ -116,16 +105,6 @@ const ProductList: React.FC = () => {
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
-  if (!hasPermission('products', 'read')) {
-    return (
-      <Card>
-        <CardContent className="p-6">
-          <p className="text-center text-gray-500">You don't have permission to view products.</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <Card>
@@ -140,12 +119,10 @@ const ProductList: React.FC = () => {
                 Manage your product inventory
               </CardDescription>
             </div>
-            {hasPermission('products', 'write') && (
-              <Button onClick={() => navigate('/products/edit')} className="flex items-center space-x-2">
-                <Plus className="w-4 h-4" />
-                <span>Add Product</span>
-              </Button>
-            )}
+            <Button onClick={() => navigate('/products/new')} className="flex items-center space-x-2">
+              <Plus className="w-4 h-4" />
+              <span>Add Product</span>
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -173,15 +150,13 @@ const ProductList: React.FC = () => {
             <div className="text-center py-8">
               <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No products found</p>
-              {hasPermission('products', 'write') && (
-                <Button 
-                  variant="outline" 
-                  className="mt-4"
-                  onClick={() => navigate('/products/edit')}
-                >
-                  Add Your First Product
-                </Button>
-              )}
+              <Button
+                variant="outline"
+                className="mt-4"
+                onClick={() => navigate('/products/new')}
+              >
+                Add Your First Product
+              </Button>
             </div>
           ) : (
             <div className="border rounded-lg overflow-hidden">
@@ -195,9 +170,7 @@ const ProductList: React.FC = () => {
                     <TableHead>Stock</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Supplier</TableHead>
-                    {hasPermission('products', 'write') && (
-                      <TableHead>Actions</TableHead>
-                    )}
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -232,34 +205,30 @@ const ProductList: React.FC = () => {
                           </p>
                         </TableCell>
                         <TableCell>
-                          <Badge 
-                            className={`text-white ${stockStatus.color}`}
-                          >
+                          <Badge className={`text-white ${stockStatus.color}`}>
                             {stockStatus.status}
                           </Badge>
                         </TableCell>
                         <TableCell>{product.supplier}</TableCell>
-                        {hasPermission('products', 'write') && (
-                          <TableCell>
-                            <div className="flex items-center space-x-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => navigate(`/products/edit?id=${product.ID}`)}
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleDelete(product.ID)}
-                                className="text-red-600 hover:text-red-700"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        )}
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => navigate(`/products/edit/${product.ID}`)}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDelete(product.ID)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
                       </TableRow>
                     );
                   })}
@@ -272,13 +241,13 @@ const ProductList: React.FC = () => {
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-6">
               <p className="text-sm text-gray-700">
-                Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} products
+                Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} products
               </p>
               <div className="flex items-center space-x-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
                 >
                   Previous
@@ -289,7 +258,7 @@ const ProductList: React.FC = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
                 >
                   Next

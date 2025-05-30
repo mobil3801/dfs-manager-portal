@@ -42,16 +42,16 @@ const OnAuthSuccessPage: React.FC = () => {
               You will be redirected to the login page in {countdown} seconds...
             </p>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
+              <div
                 className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-1000"
-                style={{ width: `${((5 - countdown) / 5) * 100}%` }}
-              ></div>
+                style={{ width: `${(5 - countdown) / 5 * 100}%` }}>
+              </div>
             </div>
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default OnAuthSuccessPage;

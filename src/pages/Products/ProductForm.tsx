@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { Package, Save, ArrowLeft } from 'lucide-react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 interface ProductFormData {
   product_name: string;
@@ -33,28 +32,24 @@ const ProductForm: React.FC = () => {
   });
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [productId, setProductId] = useState<number | null>(null);
-  
-  const { user, hasPermission } = useAuth();
+
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const { id } = useParams();
 
   useEffect(() => {
-    const id = searchParams.get('id');
     if (id) {
-      setProductId(parseInt(id));
       setIsEditing(true);
       loadProduct(parseInt(id));
     }
-  }, [searchParams]);
+  }, [id]);
 
-  const loadProduct = async (id: number) => {
+  const loadProduct = async (productId: number) => {
     try {
       setLoading(true);
       const { data, error } = await window.ezsite.apis.tablePage('11726', {
         PageNo: 1,
         PageSize: 1,
-        Filters: [{ name: 'ID', op: 'Equal', value: id }]
+        Filters: [{ name: 'ID', op: 'Equal', value: productId }]
       });
 
       if (error) throw error;
@@ -86,32 +81,23 @@ const ProductForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!hasPermission('products', 'write')) {
-      toast({
-        title: "Access Denied",
-        description: "You don't have permission to manage products",
-        variant: "destructive"
-      });
-      return;
-    }
 
     try {
       setLoading(true);
 
       const dataToSubmit = {
         ...formData,
-        created_by: user?.ID,
+        created_by: 1, // Default user ID since we removed auth
         updated_at: new Date().toISOString()
       };
 
-      if (isEditing && productId) {
+      if (isEditing && id) {
         const { error } = await window.ezsite.apis.tableUpdate('11726', {
-          ID: productId,
+          ID: parseInt(id),
           ...dataToSubmit
         });
         if (error) throw error;
-        
+
         toast({
           title: "Success",
           description: "Product updated successfully"
@@ -119,7 +105,7 @@ const ProductForm: React.FC = () => {
       } else {
         const { error } = await window.ezsite.apis.tableCreate('11726', dataToSubmit);
         if (error) throw error;
-        
+
         toast({
           title: "Success",
           description: "Product created successfully"
@@ -140,18 +126,8 @@ const ProductForm: React.FC = () => {
   };
 
   const handleInputChange = (field: keyof ProductFormData, value: string | number) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
-
-  if (!hasPermission('products', 'write')) {
-    return (
-      <Card>
-        <CardContent className="p-6">
-          <p className="text-center text-gray-500">You don't have permission to manage products.</p>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <div className="space-y-6">

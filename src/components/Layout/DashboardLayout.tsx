@@ -1,25 +1,23 @@
 import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { 
-  Menu, 
-  X, 
-  Home, 
-  Package, 
-  Users, 
-  TrendingUp, 
-  Building2, 
-  ShoppingCart, 
+import {
+  Menu,
+  X,
+  Home,
+  Package,
+  Users,
+  TrendingUp,
+  Building2,
+  ShoppingCart,
   FileText,
-  LogOut,
   ChevronDown,
   ChevronRight
 } from 'lucide-react';
-import { 
+import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger,
+  CollapsibleTrigger
 } from '@/components/ui/collapsible';
 
 interface NavigationItem {
@@ -27,46 +25,64 @@ interface NavigationItem {
   path?: string;
   icon: React.ReactNode;
   children?: NavigationItem[];
-  permission?: string;
 }
 
 const DashboardLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [expandedItems, setExpandedItems] = useState<string[]>(['employees']);
-  const { user, userProfile, logout, hasPermission } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const navigationItems: NavigationItem[] = [
-    { name: 'Dashboard', path: '/dashboard', icon: <Home className="w-5 h-5" />, permission: 'dashboard' },
-    { name: 'Add/Edit Products', path: '/products/edit', icon: <Package className="w-5 h-5" />, permission: 'products' },
-    { name: 'Products List', path: '/products', icon: <Package className="w-5 h-5" />, permission: 'products' },
-    { name: 'Add/Edit Employee', path: '/employees/edit', icon: <Users className="w-5 h-5" />, permission: 'employees' },
+    { name: 'Dashboard', path: '/dashboard', icon: <Home className="w-5 h-5" /> },
+    { name: 'Products', path: '/products', icon: <Package className="w-5 h-5" /> },
     {
-      name: 'Employee List',
+      name: 'Employees',
       icon: <Users className="w-5 h-5" />,
-      permission: 'employees',
       children: [
-        { name: 'MOBIL', path: '/employees/MOBIL', icon: <Building2 className="w-4 h-4" /> },
-        { name: 'AMOCO ROSEDALE', path: '/employees/AMOCO ROSEDALE', icon: <Building2 className="w-4 h-4" /> },
-        { name: 'AMOCO BROOKLYN', path: '/employees/AMOCO BROOKLYN', icon: <Building2 className="w-4 h-4" /> },
-        { name: 'All Employees', path: '/employees', icon: <Users className="w-4 h-4" /> }
+        { name: 'All Employees', path: '/employees', icon: <Users className="w-4 h-4" /> },
+        { name: 'Add Employee', path: '/employees/new', icon: <Users className="w-4 h-4" /> }
       ]
     },
-    { name: 'Add/Edit Daily Sales Report', path: '/sales/edit', icon: <TrendingUp className="w-5 h-5" />, permission: 'sales' },
-    { name: 'Daily Sales Report', path: '/sales', icon: <TrendingUp className="w-5 h-5" />, permission: 'sales' },
-    { name: 'Add/Edit Vendor Contact & Information', path: '/vendors/edit', icon: <Building2 className="w-5 h-5" />, permission: 'vendors' },
-    { name: 'Vendor Contact & Information', path: '/vendors', icon: <Building2 className="w-5 h-5" />, permission: 'vendors' },
-    { name: 'Create Order List', path: '/orders/edit', icon: <ShoppingCart className="w-5 h-5" />, permission: 'orders' },
-    { name: 'Orders', path: '/orders', icon: <ShoppingCart className="w-5 h-5" />, permission: 'orders' },
-    { name: 'License & Certificate', path: '/licenses', icon: <FileText className="w-5 h-5" />, permission: 'licenses' }
+    {
+      name: 'Sales Reports',
+      icon: <TrendingUp className="w-5 h-5" />,
+      children: [
+        { name: 'All Reports', path: '/sales', icon: <TrendingUp className="w-4 h-4" /> },
+        { name: 'Add Report', path: '/sales/new', icon: <TrendingUp className="w-4 h-4" /> }
+      ]
+    },
+    {
+      name: 'Vendors',
+      icon: <Building2 className="w-5 h-5" />,
+      children: [
+        { name: 'All Vendors', path: '/vendors', icon: <Building2 className="w-4 h-4" /> },
+        { name: 'Add Vendor', path: '/vendors/new', icon: <Building2 className="w-4 h-4" /> }
+      ]
+    },
+    {
+      name: 'Orders',
+      icon: <ShoppingCart className="w-5 h-5" />,
+      children: [
+        { name: 'All Orders', path: '/orders', icon: <ShoppingCart className="w-4 h-4" /> },
+        { name: 'Create Order', path: '/orders/new', icon: <ShoppingCart className="w-4 h-4" /> }
+      ]
+    },
+    {
+      name: 'Licenses',
+      icon: <FileText className="w-5 h-5" />,
+      children: [
+        { name: 'All Licenses', path: '/licenses', icon: <FileText className="w-4 h-4" /> },
+        { name: 'Add License', path: '/licenses/new', icon: <FileText className="w-4 h-4" /> }
+      ]
+    }
   ];
 
   const toggleExpanded = (itemName: string) => {
-    setExpandedItems(prev => 
-      prev.includes(itemName) 
-        ? prev.filter(name => name !== itemName)
-        : [...prev, itemName]
+    setExpandedItems((prev) =>
+      prev.includes(itemName) ?
+        prev.filter((name) => name !== itemName) :
+        [...prev, itemName]
     );
   };
 
@@ -75,16 +91,7 @@ const DashboardLayout: React.FC = () => {
     setSidebarOpen(false);
   };
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
-  };
-
   const renderNavigationItem = (item: NavigationItem, depth = 0) => {
-    if (item.permission && !hasPermission(item.permission, 'read')) {
-      return null;
-    }
-
     const isActive = location.pathname === item.path;
     const isExpanded = expandedItems.includes(item.name);
     const hasChildren = item.children && item.children.length > 0;
@@ -104,16 +111,15 @@ const DashboardLayout: React.FC = () => {
                   {item.icon}
                   <span className="font-medium">{item.name}</span>
                 </div>
-                {isExpanded ? (
-                  <ChevronDown className="w-4 h-4" />
-                ) : (
+                {isExpanded ?
+                  <ChevronDown className="w-4 h-4" /> :
                   <ChevronRight className="w-4 h-4" />
-                )}
+                }
               </div>
             </Button>
           </CollapsibleTrigger>
           <CollapsibleContent className="space-y-1">
-            {item.children?.map(child => renderNavigationItem(child, depth + 1))}
+            {item.children?.map((child) => renderNavigationItem(child, depth + 1))}
           </CollapsibleContent>
         </Collapsible>
       );
@@ -138,14 +144,26 @@ const DashboardLayout: React.FC = () => {
     );
   };
 
+  const getPageTitle = () => {
+    const path = location.pathname;
+    if (path === '/dashboard') return 'Dashboard';
+    if (path.startsWith('/products')) return 'Products';
+    if (path.startsWith('/employees')) return 'Employees';
+    if (path.startsWith('/sales')) return 'Sales Reports';
+    if (path.startsWith('/vendors')) return 'Vendors';
+    if (path.startsWith('/orders')) return 'Orders';
+    if (path.startsWith('/licenses')) return 'Licenses & Certificates';
+    return 'Business Management';
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
+      {sidebarOpen &&
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-gray-600 opacity-75" onClick={() => setSidebarOpen(false)} />
         </div>
-      )}
+      }
 
       {/* Sidebar */}
       <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
@@ -154,9 +172,9 @@ const DashboardLayout: React.FC = () => {
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">DFQ</span>
+              <span className="text-white font-bold text-sm">BM</span>
             </div>
-            <span className="text-xl font-bold text-gray-900">Dream Frame Queens</span>
+            <span className="text-xl font-bold text-gray-900">Business Manager</span>
           </div>
           <Button
             variant="ghost"
@@ -169,27 +187,8 @@ const DashboardLayout: React.FC = () => {
         </div>
 
         <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-          {navigationItems.map(item => renderNavigationItem(item))}
+          {navigationItems.map((item) => renderNavigationItem(item))}
         </nav>
-
-        {/* User info and logout */}
-        <div className="border-t border-gray-200 p-4">
-          <div className="mb-3">
-            <p className="text-sm font-medium text-gray-900">{user?.Name || 'User'}</p>
-            <p className="text-xs text-gray-500">{userProfile?.role}</p>
-            {userProfile?.station && (
-              <p className="text-xs text-gray-500">{userProfile.station}</p>
-            )}
-          </div>
-          <Button
-            variant="outline"
-            className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-            onClick={handleLogout}
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
-          </Button>
-        </div>
       </div>
 
       {/* Main content */}
@@ -207,13 +206,13 @@ const DashboardLayout: React.FC = () => {
           
           <div className="flex items-center space-x-4">
             <h1 className="text-xl font-semibold text-gray-900">
-              {location.pathname === '/dashboard' ? 'Dashboard' : ''}
+              {getPageTitle()}
             </h1>
           </div>
 
           <div className="flex items-center space-x-4">
             <span className="text-sm text-gray-600 hidden sm:inline">
-              Welcome, {user?.Name}
+              Gas Station Management
             </span>
           </div>
         </div>

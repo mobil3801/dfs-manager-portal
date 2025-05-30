@@ -1,0 +1,345 @@
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { toast } from '@/hooks/use-toast';
+import { Plus, Search, Edit, Trash2, TrendingUp, DollarSign, Calendar } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+interface SalesReport {
+  ID: number;
+  report_date: string;
+  station: string;
+  total_sales: number;
+  cash_sales: number;
+  credit_card_sales: number;
+  fuel_sales: number;
+  convenience_sales: number;
+  employee_id: string;
+  notes: string;
+  created_by: number;
+}
+
+const SalesReportList: React.FC = () => {
+  const [reports, setReports] = useState<SalesReport[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const navigate = useNavigate();
+
+  const pageSize = 10;
+
+  useEffect(() => {
+    loadReports();
+  }, [currentPage, searchTerm]);
+
+  const loadReports = async () => {
+    try {
+      setLoading(true);
+      const filters = [];
+
+      if (searchTerm) {
+        filters.push({ name: 'station', op: 'StringContains', value: searchTerm });
+      }
+
+      const { data, error } = await window.ezsite.apis.tablePage('11728', {
+        PageNo: currentPage,
+        PageSize: pageSize,
+        OrderByField: 'report_date',
+        IsAsc: false,
+        Filters: filters
+      });
+
+      if (error) throw error;
+
+      setReports(data?.List || []);
+      setTotalCount(data?.VirtualCount || 0);
+    } catch (error) {
+      console.error('Error loading sales reports:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load sales reports",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (reportId: number) => {
+    if (!confirm('Are you sure you want to delete this sales report?')) {
+      return;
+    }
+
+    try {
+      const { error } = await window.ezsite.apis.tableDelete('11728', { ID: reportId });
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Sales report deleted successfully"
+      });
+      loadReports();
+    } catch (error) {
+      console.error('Error deleting sales report:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete sales report",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const getStationBadgeColor = (station: string) => {
+    switch (station.toUpperCase()) {
+      case 'MOBIL':
+        return 'bg-blue-500';
+      case 'AMOCO ROSEDALE':
+        return 'bg-green-500';
+      case 'AMOCO BROOKLYN':
+        return 'bg-purple-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount);
+  };
+
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  // Calculate totals for all visible reports
+  const totals = reports.reduce((acc, report) => ({
+    total_sales: acc.total_sales + (report.total_sales || 0),
+    cash_sales: acc.cash_sales + (report.cash_sales || 0),
+    credit_card_sales: acc.credit_card_sales + (report.credit_card_sales || 0),
+    fuel_sales: acc.fuel_sales + (report.fuel_sales || 0),
+    convenience_sales: acc.convenience_sales + (report.convenience_sales || 0)
+  }), {
+    total_sales: 0,
+    cash_sales: 0,
+    credit_card_sales: 0,
+    fuel_sales: 0,
+    convenience_sales: 0
+  });
+
+  return (
+    <div className="space-y-6">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-2">
+              <DollarSign className="w-8 h-8 text-green-600" />
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Sales</p>
+                <p className="text-2xl font-bold">{formatCurrency(totals.total_sales)}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-2">
+              <TrendingUp className="w-8 h-8 text-blue-600" />
+              <div>
+                <p className="text-sm font-medium text-gray-600">Fuel Sales</p>
+                <p className="text-2xl font-bold">{formatCurrency(totals.fuel_sales)}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-2">
+              <DollarSign className="w-8 h-8 text-purple-600" />
+              <div>
+                <p className="text-sm font-medium text-gray-600">Convenience Sales</p>
+                <p className="text-2xl font-bold">{formatCurrency(totals.convenience_sales)}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-2">
+              <Calendar className="w-8 h-8 text-orange-600" />
+              <div>
+                <p className="text-sm font-medium text-gray-600">Reports</p>
+                <p className="text-2xl font-bold">{totalCount}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center space-x-2">
+                <TrendingUp className="w-6 h-6" />
+                <span>Daily Sales Reports</span>
+              </CardTitle>
+              <CardDescription>
+                Track daily sales performance across all stations
+              </CardDescription>
+            </div>
+            <Button onClick={() => navigate('/sales/new')} className="flex items-center space-x-2">
+              <Plus className="w-4 h-4" />
+              <span>Add Report</span>
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {/* Search */}
+          <div className="flex items-center space-x-2 mb-6">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                placeholder="Search by station..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          {/* Reports Table */}
+          {loading ? (
+            <div className="space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
+              ))}
+            </div>
+          ) : reports.length === 0 ? (
+            <div className="text-center py-8">
+              <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">No sales reports found</p>
+              <Button
+                variant="outline"
+                className="mt-4"
+                onClick={() => navigate('/sales/new')}
+              >
+                Add Your First Sales Report
+              </Button>
+            </div>
+          ) : (
+            <div className="border rounded-lg overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Station</TableHead>
+                    <TableHead>Total Sales</TableHead>
+                    <TableHead>Fuel Sales</TableHead>
+                    <TableHead>Convenience</TableHead>
+                    <TableHead>Payment Method</TableHead>
+                    <TableHead>Employee</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {reports.map((report) => (
+                    <TableRow key={report.ID}>
+                      <TableCell className="font-medium">
+                        {formatDate(report.report_date)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={`text-white ${getStationBadgeColor(report.station)}`}>
+                          {report.station}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {formatCurrency(report.total_sales)}
+                      </TableCell>
+                      <TableCell>
+                        {formatCurrency(report.fuel_sales)}
+                      </TableCell>
+                      <TableCell>
+                        {formatCurrency(report.convenience_sales)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1 text-sm">
+                          <div>Cash: {formatCurrency(report.cash_sales)}</div>
+                          <div>Card: {formatCurrency(report.credit_card_sales)}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell>{report.employee_id}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => navigate(`/sales/edit/${report.ID}`)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(report.ID)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-6">
+              <p className="text-sm text-gray-700">
+                Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} reports
+              </p>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </Button>
+                <span className="text-sm">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default SalesReportList;
