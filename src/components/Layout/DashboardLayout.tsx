@@ -19,6 +19,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger } from
 '@/components/ui/collapsible';
+import QuickAccessToolbar from '@/components/QuickAccessToolbar';
 
 interface NavigationItem {
   name: string;
@@ -229,6 +230,9 @@ const DashboardLayout: React.FC = () => {
           <Outlet />
         </main>
       </div>
+      
+      {/* Quick Access Toolbar */}
+      <QuickAccessToolbar />
     </div>);
 
 };

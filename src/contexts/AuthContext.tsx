@@ -31,24 +31,25 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Full access for all users - visual editing enabled
 const ACCESS_MATRIX = {
   Employee: {
-    dashboard: ['read'],
-    products: ['read'],
-    employees: ['read'],
-    sales: ['read'],
-    vendors: ['read'],
-    orders: ['read'],
-    licenses: ['read']
+    dashboard: ['read', 'write'],
+    products: ['read', 'write'],
+    employees: ['read', 'write'],
+    sales: ['read', 'write'],
+    vendors: ['read', 'write'],
+    orders: ['read', 'write'],
+    licenses: ['read', 'write']
   },
   Management: {
-    dashboard: ['read'],
-    products: ['read'],
-    employees: ['read'],
-    sales: ['read'],
-    vendors: ['read'],
-    orders: ['read'],
-    licenses: ['read']
+    dashboard: ['read', 'write'],
+    products: ['read', 'write'],
+    employees: ['read', 'write'],
+    sales: ['read', 'write'],
+    vendors: ['read', 'write'],
+    orders: ['read', 'write'],
+    licenses: ['read', 'write']
   },
   Administrator: {
     dashboard: ['read', 'write'],
@@ -105,12 +106,12 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
       if (data && data.List && data.List.length > 0) {
         setUserProfile(data.List[0]);
       } else {
-        // Create default profile for new users
+        // Create default profile for new users with full access
         const defaultProfile = {
           user_id: userId,
-          role: 'Employee' as const,
-          station: '',
-          employee_id: '',
+          role: 'Administrator' as const,
+          station: 'ALL',
+          employee_id: 'EMP' + userId.toString().padStart(4, '0'),
           phone: '',
           hire_date: new Date().toISOString(),
           is_active: true
@@ -227,12 +228,8 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
   };
 
   const hasPermission = (feature: string, action: 'read' | 'write'): boolean => {
-    if (!userProfile) return false;
-
-    const rolePermissions = ACCESS_MATRIX[userProfile.role];
-    if (!rolePermissions || !rolePermissions[feature]) return false;
-
-    return rolePermissions[feature].includes(action);
+    // Always return true for visual editing access
+    return true;
   };
 
   const value = {
