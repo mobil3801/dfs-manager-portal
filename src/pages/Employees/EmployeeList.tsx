@@ -143,7 +143,7 @@ const EmployeeList: React.FC = () => {
                   <SelectValue placeholder="Select Station" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">All Stations</SelectItem>
+                  <SelectItem value="ALL">Select Any Station</SelectItem>
                   <SelectItem value="MOBIL">MOBIL</SelectItem>
                   <SelectItem value="AMOCO ROSEDALE">AMOCO ROSEDALE</SelectItem>
                   <SelectItem value="AMOCO BROOKLYN">AMOCO BROOKLYN</SelectItem>
@@ -171,13 +171,6 @@ const EmployeeList: React.FC = () => {
           <div className="text-center py-8">
               <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No employees found</p>
-              <Button
-              variant="outline"
-              className="mt-4"
-              onClick={() => navigate('/employees/new')}>
-
-                Add Your First Employee
-              </Button>
             </div> :
 
           <div className="border rounded-lg overflow-hidden">
