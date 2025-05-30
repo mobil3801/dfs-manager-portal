@@ -59,7 +59,7 @@ const DashboardLayout: React.FC = () => {
         key={item.path}
         variant="ghost"
         className={`w-full justify-start text-left h-11 px-4 hover:bg-gray-100 transition-colors ${
-        isActive ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700' : ''}`
+        isActive ? 'bg-dfs-50 text-dfs-800 border-r-2 border-dfs-700' : ''}`
         }
         onClick={() => handleNavigation(item.path)}
         title={sidebarCollapsed ? item.name : undefined}>
@@ -98,10 +98,12 @@ const DashboardLayout: React.FC = () => {
       }>
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 flex-shrink-0">
           <div className={`flex items-center ${sidebarCollapsed ? 'justify-center w-full' : 'space-x-3'}`}>
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">DFS</span>
-            </div>
-            {!sidebarCollapsed && <span className="text-xl font-bold text-gray-900">DFS Manager Portal</span>}
+            <img 
+              src="/dfs-logo.png" 
+              alt="DFS Logo" 
+              className={`${sidebarCollapsed ? 'w-8 h-8' : 'w-10 h-10'} object-contain`}
+            />
+            {!sidebarCollapsed && <span className="text-xl font-bold text-dfs-900">DFS Manager Portal</span>}
           </div>
           <div className="flex items-center space-x-2">
             {/* Minimize/Expand button for desktop */}
@@ -143,7 +145,7 @@ const DashboardLayout: React.FC = () => {
           </Button>
           
           <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-semibold text-gray-900">
+            <h1 className="text-xl font-semibold text-dfs-900">
               {getPageTitle()}
             </h1>
           </div>
