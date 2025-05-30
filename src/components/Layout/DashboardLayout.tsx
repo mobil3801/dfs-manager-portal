@@ -89,7 +89,7 @@ const DashboardLayout: React.FC = () => {
       }
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:flex lg:flex-col ${
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:flex lg:flex-col lg:h-screen ${
       sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`
       }>
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 flex-shrink-0">
@@ -109,7 +109,7 @@ const DashboardLayout: React.FC = () => {
           </Button>
         </div>
 
-        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
+        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400" style={{ height: 'calc(100vh - 4rem)', position: 'relative' }}>
           {navigationItems.map((item) => renderNavigationItem(item))}
         </nav>
       </div>
