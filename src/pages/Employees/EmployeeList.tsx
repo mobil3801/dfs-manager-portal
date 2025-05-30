@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
 import { Plus, Search, Edit, Trash2, Users, Mail, Phone } from 'lucide-react';
@@ -27,6 +28,7 @@ const EmployeeList: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedStation, setSelectedStation] = useState<string>('ALL');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const navigate = useNavigate();
@@ -35,7 +37,7 @@ const EmployeeList: React.FC = () => {
 
   useEffect(() => {
     loadEmployees();
-  }, [currentPage, searchTerm]);
+  }, [currentPage, searchTerm, selectedStation]);
 
   const loadEmployees = async () => {
     try {
@@ -44,6 +46,10 @@ const EmployeeList: React.FC = () => {
 
       if (searchTerm) {
         filters.push({ name: 'first_name', op: 'StringContains', value: searchTerm });
+      }
+
+      if (selectedStation && selectedStation !== 'ALL') {
+        filters.push({ name: 'station', op: 'Equal', value: selectedStation });
       }
 
       const { data, error } = await window.ezsite.apis.tablePage('11727', {
@@ -135,8 +141,21 @@ const EmployeeList: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {/* Search */}
-          <div className="flex items-center space-x-2 mb-6">
+          {/* Station Filter */}
+          <div className="flex items-center space-x-4 mb-6">
+            <div className="w-64">
+              <Select value={selectedStation} onValueChange={setSelectedStation}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Station" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Stations</SelectItem>
+                  <SelectItem value="MOBIL">MOBIL</SelectItem>
+                  <SelectItem value="AMOCO ROSEDALE">AMOCO ROSEDALE</SelectItem>
+                  <SelectItem value="AMOCO BROOKLYN">AMOCO BROOKLYN</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
@@ -144,7 +163,6 @@ const EmployeeList: React.FC = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10" />
-
             </div>
           </div>
 

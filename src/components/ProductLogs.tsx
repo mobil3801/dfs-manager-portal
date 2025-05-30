@@ -4,8 +4,8 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  DialogTitle } from
+'@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
@@ -47,8 +47,8 @@ const ProductLogs: React.FC<ProductLogsProps> = ({ isOpen, onClose, productId, p
         OrderByField: 'change_date',
         IsAsc: false,
         Filters: [
-          { name: 'product_id', op: 'Equal', value: productId }
-        ]
+        { name: 'product_id', op: 'Equal', value: productId }]
+
       });
 
       if (error) throw error;
@@ -77,7 +77,7 @@ const ProductLogs: React.FC<ProductLogsProps> = ({ isOpen, onClose, productId, p
 
   const formatValue = (fieldName: string, value: string) => {
     if (!value || value === '') return '-';
-    
+
     // Format price fields with currency
     if (fieldName.includes('price') || fieldName === 'profit_margin') {
       const numValue = parseFloat(value);
@@ -85,7 +85,7 @@ const ProductLogs: React.FC<ProductLogsProps> = ({ isOpen, onClose, productId, p
         return `$${numValue.toFixed(2)}`;
       }
     }
-    
+
     // Format date fields
     if (fieldName.includes('date')) {
       try {
@@ -94,7 +94,7 @@ const ProductLogs: React.FC<ProductLogsProps> = ({ isOpen, onClose, productId, p
         return value;
       }
     }
-    
+
     return value;
   };
 
@@ -130,7 +130,7 @@ const ProductLogs: React.FC<ProductLogsProps> = ({ isOpen, onClose, productId, p
       case 'profit_margin':
         return 'Profit Margin';
       default:
-        return fieldName.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+        return fieldName.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase());
     }
   };
 
@@ -167,22 +167,22 @@ const ProductLogs: React.FC<ProductLogsProps> = ({ isOpen, onClose, productId, p
         </DialogHeader>
 
         <div className="mt-4">
-          {loading ? (
-            <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
-              ))}
-            </div>
-          ) : logs.length === 0 ? (
-            <div className="text-center py-8">
+          {loading ?
+          <div className="space-y-4">
+              {[...Array(5)].map((_, i) =>
+            <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
+            )}
+            </div> :
+          logs.length === 0 ?
+          <div className="text-center py-8">
               <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No change logs found for this product</p>
               <p className="text-sm text-gray-400 mt-2">
                 Changes will appear here when product information is updated
               </p>
-            </div>
-          ) : (
-            <div className="border rounded-lg overflow-hidden">
+            </div> :
+
+          <div className="border rounded-lg overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -194,8 +194,8 @@ const ProductLogs: React.FC<ProductLogsProps> = ({ isOpen, onClose, productId, p
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {logs.map((log) => (
-                    <TableRow key={log.ID}>
+                  {logs.map((log) =>
+                <TableRow key={log.ID}>
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           {getFieldIcon(log.field_name)}
@@ -221,15 +221,15 @@ const ProductLogs: React.FC<ProductLogsProps> = ({ isOpen, onClose, productId, p
                         </span>
                       </TableCell>
                     </TableRow>
-                  ))}
+                )}
                 </TableBody>
               </Table>
             </div>
-          )}
+          }
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default ProductLogs;

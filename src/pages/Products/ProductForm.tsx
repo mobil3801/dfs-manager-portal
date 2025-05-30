@@ -296,7 +296,7 @@ const ProductForm = () => {
 
   const calculateProfitMargin = (unitPrice: number, retailPrice: number) => {
     if (unitPrice === 0 || retailPrice === 0) return 0;
-    return ((retailPrice - unitPrice) / retailPrice * 100);
+    return (retailPrice - unitPrice) / retailPrice * 100;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -338,17 +338,17 @@ const ProductForm = () => {
       // Log changes for existing products
       if (id && originalData && userProfile) {
         const fieldsToTrack = [
-          'last_shopping_date',
-          'case_price',
-          'unit_per_case',
-          'unit_price',
-          'retail_price'
-        ];
+        'last_shopping_date',
+        'case_price',
+        'unit_per_case',
+        'unit_price',
+        'retail_price'];
+
 
         for (const field of fieldsToTrack) {
           const oldValue = originalData[field];
           const newValue = formData[field];
-          
+
           if (oldValue !== newValue) {
             await logFieldChange(parseInt(id), field, oldValue, newValue, userProfile.user_id);
           }
@@ -357,7 +357,7 @@ const ProductForm = () => {
         // Calculate and log profit margin changes
         const oldProfitMargin = calculateProfitMargin(originalData.unit_price, originalData.retail_price);
         const newProfitMargin = calculateProfitMargin(formData.unit_price, formData.retail_price);
-        
+
         if (Math.abs(oldProfitMargin - newProfitMargin) > 0.01) {
           await logFieldChange(parseInt(id), 'profit_margin', oldProfitMargin.toFixed(2), newProfitMargin.toFixed(2), userProfile.user_id);
         }
