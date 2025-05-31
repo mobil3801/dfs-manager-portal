@@ -225,7 +225,13 @@ const ProductList: React.FC = () => {
                 Manage your product inventory - Search across all product fields for similar items
               </CardDescription>
             </div>
-
+            <Button 
+              onClick={() => navigate('/products/new')}
+              className="bg-brand-600 hover:bg-brand-700 text-white"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Product
+            </Button>
           </div>
         </CardHeader>
         <CardContent>

@@ -38,7 +38,6 @@ const DashboardLayout: React.FC = () => {
   const navigationItems: NavigationItem[] = [
   { name: 'Dashboard', path: '/dashboard', icon: <Home className="w-5 h-5" /> },
   { name: 'All Products', path: '/products', icon: <Package className="w-5 h-5" /> },
-  { name: 'Add Product', path: '/products/new', icon: <Plus className="w-5 h-5" /> },
   { name: 'All Employees', path: '/employees', icon: <Users className="w-5 h-5" /> },
   { name: 'Sales Reports', path: '/sales', icon: <TrendingUp className="w-5 h-5" /> },
   { name: 'Add Report', path: '/sales/new', icon: <Plus className="w-5 h-5" /> },
