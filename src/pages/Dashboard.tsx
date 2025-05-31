@@ -509,16 +509,6 @@ const Dashboard: React.FC = () => {
               <Package className="w-6 h-6 text-brand-700" />
               <span className="font-semibold">Products</span>
             </div>
-            <Button
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate('/products/new');
-              }}
-              className="h-8 px-3 bg-brand-700 hover:bg-brand-800 text-white">
-              <Plus className="w-4 h-4 mr-1" />
-              <span className="text-xs">Add</span>
-            </Button>
           </CardHeader>
           <CardDescription className="px-6 pb-2">
             Manage your product inventory - Search across all product fields for similar items
@@ -534,16 +524,6 @@ const Dashboard: React.FC = () => {
                     {stats.lowStockProducts} low stock
                   </p>
                 }
-              </div>
-              <div className="ml-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate('/products/new')}
-                  className="border-brand-700 text-brand-700 hover:bg-brand-700 hover:text-white">
-                  <Plus className="w-4 h-4 mr-1" />
-                  Add Product
-                </Button>
               </div>
             </div>
           </CardContent>
