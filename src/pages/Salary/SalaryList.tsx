@@ -61,7 +61,7 @@ const SalaryList: React.FC = () => {
         OrderByField: 'first_name',
         IsAsc: true
       });
-      
+
       if (error) throw error;
       setEmployees(data?.List || []);
     } catch (error) {
@@ -78,15 +78,15 @@ const SalaryList: React.FC = () => {
     setLoading(true);
     try {
       const filters = [];
-      
+
       if (statusFilter !== 'all') {
         filters.push({ name: 'status', op: 'Equal', value: statusFilter });
       }
-      
+
       if (stationFilter !== 'all') {
         filters.push({ name: 'station', op: 'Equal', value: stationFilter });
       }
-      
+
       if (searchTerm) {
         filters.push({ name: 'employee_id', op: 'StringContains', value: searchTerm });
       }
@@ -100,7 +100,7 @@ const SalaryList: React.FC = () => {
       });
 
       if (error) throw error;
-      
+
       setSalaryRecords(data?.List || []);
       setTotalRecords(data?.VirtualCount || 0);
     } catch (error) {
@@ -117,16 +117,16 @@ const SalaryList: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this salary record?')) return;
-    
+
     try {
       const { error } = await window.ezsite.apis.tableDelete(SALARY_TABLE_ID, { ID: id });
       if (error) throw error;
-      
+
       toast({
         title: 'Success',
         description: 'Salary record deleted successfully'
       });
-      
+
       fetchSalaryRecords();
     } catch (error) {
       console.error('Error deleting salary record:', error);
@@ -139,25 +139,25 @@ const SalaryList: React.FC = () => {
   };
 
   const getEmployeeName = (employeeId: string) => {
-    const employee = employees.find(emp => emp.employee_id === employeeId);
+    const employee = employees.find((emp) => emp.employee_id === employeeId);
     return employee ? `${employee.first_name} ${employee.last_name}` : employeeId;
   };
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'paid': return 'default';
-      case 'processed': return 'secondary';
-      case 'pending': return 'outline';
-      case 'cancelled': return 'destructive';
-      default: return 'outline';
+      case 'paid':return 'default';
+      case 'processed':return 'secondary';
+      case 'pending':return 'outline';
+      case 'cancelled':return 'destructive';
+      default:return 'outline';
     }
   };
 
   const calculateSummaryStats = () => {
     const totalGrossPay = salaryRecords.reduce((sum, record) => sum + (record.gross_pay || 0), 0);
     const totalNetPay = salaryRecords.reduce((sum, record) => sum + (record.net_pay || 0), 0);
-    const uniqueEmployees = new Set(salaryRecords.map(record => record.employee_id)).size;
-    
+    const uniqueEmployees = new Set(salaryRecords.map((record) => record.employee_id)).size;
+
     return {
       totalGrossPay,
       totalNetPay,
@@ -238,8 +238,8 @@ const SalaryList: React.FC = () => {
                   placeholder="Search by employee ID..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8"
-                />
+                  className="pl-8" />
+
               </div>
             </div>
             
@@ -280,12 +280,12 @@ const SalaryList: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {loading ? (
-            <div className="flex justify-center py-8">
+          {loading ?
+          <div className="flex justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
+            </div> :
+
+          <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -301,8 +301,8 @@ const SalaryList: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {salaryRecords.map((record) => (
-                    <TableRow key={record.id}>
+                  {salaryRecords.map((record) =>
+                <TableRow key={record.id}>
                       <TableCell className="font-medium">
                         {getEmployeeName(record.employee_id)}
                         <div className="text-xs text-muted-foreground">ID: {record.employee_id}</div>
@@ -334,55 +334,55 @@ const SalaryList: React.FC = () => {
                               <Edit className="h-4 w-4" />
                             </Button>
                           </Link>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => handleDelete(record.id)}
-                            className="text-destructive"
-                          >
+                          <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(record.id)}
+                        className="text-destructive">
+
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                )}
                 </TableBody>
               </Table>
               
-              {salaryRecords.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
+              {salaryRecords.length === 0 &&
+            <div className="text-center py-8 text-muted-foreground">
                   No salary records found. <Link to="/salary/new" className="text-primary hover:underline">Create your first salary record</Link>
                 </div>
-              )}
+            }
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center gap-2">
+      {totalPages > 1 &&
+      <div className="flex justify-center gap-2">
           <Button
-            variant="outline"
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
+          variant="outline"
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}>
+
             Previous
           </Button>
           <span className="flex items-center px-4">
             Page {currentPage} of {totalPages}
           </span>
           <Button
-            variant="outline"
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
+          variant="outline"
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}>
+
             Next
           </Button>
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default SalaryList;

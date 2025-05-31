@@ -102,16 +102,16 @@ const SalaryForm: React.FC = () => {
   useEffect(() => {
     calculatePayroll();
   }, [
-    formData.base_salary,
-    formData.hourly_rate,
-    formData.regular_hours,
-    formData.overtime_hours,
-    formData.bonus_amount,
-    formData.commission,
-    formData.health_insurance,
-    formData.retirement_401k,
-    formData.other_deductions
-  ]);
+  formData.base_salary,
+  formData.hourly_rate,
+  formData.regular_hours,
+  formData.overtime_hours,
+  formData.bonus_amount,
+  formData.commission,
+  formData.health_insurance,
+  formData.retirement_401k,
+  formData.other_deductions]
+  );
 
   const fetchEmployees = async () => {
     try {
@@ -122,7 +122,7 @@ const SalaryForm: React.FC = () => {
         IsAsc: true,
         Filters: [{ name: 'is_active', op: 'Equal', value: true }]
       });
-      
+
       if (error) throw error;
       setEmployees(data?.List || []);
     } catch (error) {
@@ -137,7 +137,7 @@ const SalaryForm: React.FC = () => {
 
   const fetchSalaryRecord = async () => {
     if (!id || id === 'new') return;
-    
+
     setLoading(true);
     try {
       const { data, error } = await window.ezsite.apis.tablePage(SALARY_TABLE_ID, {
@@ -145,9 +145,9 @@ const SalaryForm: React.FC = () => {
         PageSize: 1,
         Filters: [{ name: 'id', op: 'Equal', value: parseInt(id) }]
       });
-      
+
       if (error) throw error;
-      
+
       if (data?.List && data.List.length > 0) {
         const record = data.List[0];
         setFormData({
@@ -173,25 +173,25 @@ const SalaryForm: React.FC = () => {
     // Calculate overtime pay
     const overtimeRate = formData.hourly_rate * 1.5;
     const overtimePay = formData.overtime_hours * overtimeRate;
-    
+
     // Calculate gross pay
     const regularPay = formData.hourly_rate * formData.regular_hours;
     const grossPay = formData.base_salary + regularPay + overtimePay + formData.bonus_amount + formData.commission;
-    
+
     // Calculate taxes (simplified calculation)
     const federalTax = grossPay * 0.22; // 22% federal tax rate
     const stateTax = grossPay * 0.05; // 5% state tax rate
     const socialSecurity = grossPay * 0.062; // 6.2% Social Security
     const medicare = grossPay * 0.0145; // 1.45% Medicare
-    
+
     // Calculate total deductions
-    const totalDeductions = federalTax + stateTax + socialSecurity + medicare + 
-                           formData.health_insurance + formData.retirement_401k + formData.other_deductions;
-    
+    const totalDeductions = federalTax + stateTax + socialSecurity + medicare +
+    formData.health_insurance + formData.retirement_401k + formData.other_deductions;
+
     // Calculate net pay
     const netPay = grossPay - totalDeductions;
-    
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
       overtime_rate: overtimeRate,
       overtime_pay: overtimePay,
@@ -206,9 +206,9 @@ const SalaryForm: React.FC = () => {
   };
 
   const handleEmployeeChange = (employeeId: string) => {
-    const employee = employees.find(emp => emp.employee_id === employeeId);
+    const employee = employees.find((emp) => emp.employee_id === employeeId);
     if (employee) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         employee_id: employeeId,
         station: employee.station,
@@ -218,7 +218,7 @@ const SalaryForm: React.FC = () => {
   };
 
   const handleInputChange = (field: keyof SalaryRecord, value: string | number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [field]: value
     }));
@@ -298,11 +298,11 @@ const SalaryForm: React.FC = () => {
                     <SelectValue placeholder="Select employee" />
                   </SelectTrigger>
                   <SelectContent>
-                    {employees.map((employee) => (
-                      <SelectItem key={employee.employee_id} value={employee.employee_id}>
+                    {employees.map((employee) =>
+                    <SelectItem key={employee.employee_id} value={employee.employee_id}>
                         {employee.first_name} {employee.last_name} ({employee.employee_id})
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -329,8 +329,8 @@ const SalaryForm: React.FC = () => {
                   type="date"
                   value={formData.pay_period_start}
                   onChange={(e) => handleInputChange('pay_period_start', e.target.value)}
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -340,8 +340,8 @@ const SalaryForm: React.FC = () => {
                   type="date"
                   value={formData.pay_period_end}
                   onChange={(e) => handleInputChange('pay_period_end', e.target.value)}
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -351,8 +351,8 @@ const SalaryForm: React.FC = () => {
                   type="date"
                   value={formData.pay_date}
                   onChange={(e) => handleInputChange('pay_date', e.target.value)}
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -390,8 +390,8 @@ const SalaryForm: React.FC = () => {
                   type="number"
                   step="0.01"
                   value={formData.base_salary}
-                  onChange={(e) => handleInputChange('base_salary', parseFloat(e.target.value) || 0)}
-                />
+                  onChange={(e) => handleInputChange('base_salary', parseFloat(e.target.value) || 0)} />
+
               </div>
 
               <div className="space-y-2">
@@ -401,8 +401,8 @@ const SalaryForm: React.FC = () => {
                   type="number"
                   step="0.01"
                   value={formData.hourly_rate}
-                  onChange={(e) => handleInputChange('hourly_rate', parseFloat(e.target.value) || 0)}
-                />
+                  onChange={(e) => handleInputChange('hourly_rate', parseFloat(e.target.value) || 0)} />
+
               </div>
 
               <div className="space-y-2">
@@ -412,8 +412,8 @@ const SalaryForm: React.FC = () => {
                   type="number"
                   step="0.01"
                   value={formData.regular_hours}
-                  onChange={(e) => handleInputChange('regular_hours', parseFloat(e.target.value) || 0)}
-                />
+                  onChange={(e) => handleInputChange('regular_hours', parseFloat(e.target.value) || 0)} />
+
               </div>
 
               <div className="space-y-2">
@@ -423,8 +423,8 @@ const SalaryForm: React.FC = () => {
                   type="number"
                   step="0.01"
                   value={formData.overtime_hours}
-                  onChange={(e) => handleInputChange('overtime_hours', parseFloat(e.target.value) || 0)}
-                />
+                  onChange={(e) => handleInputChange('overtime_hours', parseFloat(e.target.value) || 0)} />
+
               </div>
 
               <div className="space-y-2">
@@ -435,8 +435,8 @@ const SalaryForm: React.FC = () => {
                   step="0.01"
                   value={formData.overtime_rate.toFixed(2)}
                   disabled
-                  className="bg-muted"
-                />
+                  className="bg-muted" />
+
               </div>
 
               <div className="space-y-2">
@@ -447,8 +447,8 @@ const SalaryForm: React.FC = () => {
                   step="0.01"
                   value={formData.overtime_pay.toFixed(2)}
                   disabled
-                  className="bg-muted"
-                />
+                  className="bg-muted" />
+
               </div>
 
               <div className="space-y-2">
@@ -458,8 +458,8 @@ const SalaryForm: React.FC = () => {
                   type="number"
                   step="0.01"
                   value={formData.bonus_amount}
-                  onChange={(e) => handleInputChange('bonus_amount', parseFloat(e.target.value) || 0)}
-                />
+                  onChange={(e) => handleInputChange('bonus_amount', parseFloat(e.target.value) || 0)} />
+
               </div>
 
               <div className="space-y-2">
@@ -469,8 +469,8 @@ const SalaryForm: React.FC = () => {
                   type="number"
                   step="0.01"
                   value={formData.commission}
-                  onChange={(e) => handleInputChange('commission', parseFloat(e.target.value) || 0)}
-                />
+                  onChange={(e) => handleInputChange('commission', parseFloat(e.target.value) || 0)} />
+
               </div>
 
               <div className="space-y-2">
@@ -481,8 +481,8 @@ const SalaryForm: React.FC = () => {
                   step="0.01"
                   value={formData.gross_pay.toFixed(2)}
                   disabled
-                  className="bg-muted font-bold"
-                />
+                  className="bg-muted font-bold" />
+
               </div>
             </div>
           </CardContent>
@@ -504,8 +504,8 @@ const SalaryForm: React.FC = () => {
                   step="0.01"
                   value={formData.federal_tax.toFixed(2)}
                   disabled
-                  className="bg-muted"
-                />
+                  className="bg-muted" />
+
               </div>
 
               <div className="space-y-2">
@@ -516,8 +516,8 @@ const SalaryForm: React.FC = () => {
                   step="0.01"
                   value={formData.state_tax.toFixed(2)}
                   disabled
-                  className="bg-muted"
-                />
+                  className="bg-muted" />
+
               </div>
 
               <div className="space-y-2">
@@ -528,8 +528,8 @@ const SalaryForm: React.FC = () => {
                   step="0.01"
                   value={formData.social_security.toFixed(2)}
                   disabled
-                  className="bg-muted"
-                />
+                  className="bg-muted" />
+
               </div>
 
               <div className="space-y-2">
@@ -540,8 +540,8 @@ const SalaryForm: React.FC = () => {
                   step="0.01"
                   value={formData.medicare.toFixed(2)}
                   disabled
-                  className="bg-muted"
-                />
+                  className="bg-muted" />
+
               </div>
 
               <div className="space-y-2">
@@ -551,8 +551,8 @@ const SalaryForm: React.FC = () => {
                   type="number"
                   step="0.01"
                   value={formData.health_insurance}
-                  onChange={(e) => handleInputChange('health_insurance', parseFloat(e.target.value) || 0)}
-                />
+                  onChange={(e) => handleInputChange('health_insurance', parseFloat(e.target.value) || 0)} />
+
               </div>
 
               <div className="space-y-2">
@@ -562,8 +562,8 @@ const SalaryForm: React.FC = () => {
                   type="number"
                   step="0.01"
                   value={formData.retirement_401k}
-                  onChange={(e) => handleInputChange('retirement_401k', parseFloat(e.target.value) || 0)}
-                />
+                  onChange={(e) => handleInputChange('retirement_401k', parseFloat(e.target.value) || 0)} />
+
               </div>
 
               <div className="space-y-2">
@@ -573,8 +573,8 @@ const SalaryForm: React.FC = () => {
                   type="number"
                   step="0.01"
                   value={formData.other_deductions}
-                  onChange={(e) => handleInputChange('other_deductions', parseFloat(e.target.value) || 0)}
-                />
+                  onChange={(e) => handleInputChange('other_deductions', parseFloat(e.target.value) || 0)} />
+
               </div>
 
               <div className="space-y-2">
@@ -585,8 +585,8 @@ const SalaryForm: React.FC = () => {
                   step="0.01"
                   value={formData.total_deductions.toFixed(2)}
                   disabled
-                  className="bg-muted font-bold"
-                />
+                  className="bg-muted font-bold" />
+
               </div>
 
               <div className="space-y-2">
@@ -597,8 +597,8 @@ const SalaryForm: React.FC = () => {
                   step="0.01"
                   value={formData.net_pay.toFixed(2)}
                   disabled
-                  className="bg-green-50 font-bold text-green-700"
-                />
+                  className="bg-green-50 font-bold text-green-700" />
+
               </div>
             </div>
           </CardContent>
@@ -634,8 +634,8 @@ const SalaryForm: React.FC = () => {
                 value={formData.notes}
                 onChange={(e) => handleInputChange('notes', e.target.value)}
                 placeholder="Additional notes about this salary record..."
-                rows={3}
-              />
+                rows={3} />
+
             </div>
           </CardContent>
         </Card>
@@ -646,22 +646,22 @@ const SalaryForm: React.FC = () => {
             Cancel
           </Button>
           <Button type="submit" disabled={loading}>
-            {loading ? (
-              <>
+            {loading ?
+            <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                 {isEditing ? 'Updating...' : 'Creating...'}
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 <Save className="h-4 w-4 mr-2" />
                 {isEditing ? 'Update Record' : 'Create Record'}
               </>
-            )}
+            }
           </Button>
         </div>
       </form>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SalaryForm;

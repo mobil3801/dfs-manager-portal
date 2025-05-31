@@ -12,16 +12,18 @@ import { ArrowLeft, Save, Calendar, Lock, AlertTriangle } from 'lucide-react';
 import BarcodeScanner from '@/components/BarcodeScanner';
 import ProductFileUpload from '@/components/ProductFileUpload';
 import { useAuth } from '@/contexts/AuthContext';
+import { useEditGuard } from '@/hooks/use-edit-guard';
 
 const ProductForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
   const { userProfile } = useAuth();
+  const { isEditModeEnabled, guardedSubmit, guardedAction, showRestrictedMessage } = useEditGuard();
 
-  // Check if user is Administrator
+  // Check if user is Administrator and visual edit mode is enabled
   const isAdministrator = userProfile?.role === 'Administrator';
-  const canEdit = isAdministrator;
+  const canEdit = isAdministrator && isEditModeEnabled;
 
   const [isLoading, setIsLoading] = useState(false);
   const [vendors, setVendors] = useState<any[]>([]);
@@ -181,6 +183,10 @@ const ProductForm = () => {
   };
 
   const handleInputChange = (field: string, value: any) => {
+    if (!canEdit) {
+      showRestrictedMessage();
+      return;
+    }
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     // Auto-calculate unit price when case price or units per case changes
@@ -302,14 +308,23 @@ const ProductForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!canEdit) {
-      toast({
-        variant: "destructive",
-        title: "Access Denied",
-        description: "Only System Administrator can edit product information."
-      });
-      return;
-    }
+    // Use the guarded submit function
+    const success = guardedSubmit('product', () => {
+      if (!isAdministrator) {
+        toast({
+          variant: "destructive",
+          title: "Access Denied",
+          description: "Only System Administrator can edit product information."
+        });
+        return;
+      }
+      processSubmit();
+    });
+
+    if (!success) return;
+  };
+
+  const processSubmit = async () => {
 
     if (!formData.product_name.trim()) {
       toast({
@@ -399,7 +414,7 @@ const ProductForm = () => {
         <ProductFileUpload onDataImport={handleBulkImport} disabled={!canEdit} />
       </div>
 
-      {/* Role-based Access Warning */}
+      {/* Access Warning */}
       {!canEdit &&
       <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
           <div className="flex items-center space-x-3">
@@ -407,7 +422,12 @@ const ProductForm = () => {
             <div className="flex-1">
               <h3 className="text-sm font-medium text-red-800">Access Restricted</h3>
               <p className="text-sm text-red-700 mt-1">
-                Only System Administrator Can View and Edit Values
+                {!isAdministrator 
+                  ? "Only System Administrator can edit product information."
+                  : !isEditModeEnabled 
+                  ? "Visual edit mode is disabled. Enable it to make manual changes or use AI assistance."
+                  : "Access denied for product editing."
+                }
               </p>
             </div>
             <Lock className="w-5 h-5 text-red-600" />

@@ -75,11 +75,11 @@ const InventoryAlerts: React.FC = () => {
     setLoading(true);
     try {
       const filters = [];
-      
+
       if (categoryFilter !== 'all') {
         filters.push({ name: 'category', op: 'Equal', value: categoryFilter });
       }
-      
+
       if (searchTerm) {
         filters.push({ name: 'product_name', op: 'StringContains', value: searchTerm });
       }
@@ -93,31 +93,31 @@ const InventoryAlerts: React.FC = () => {
       });
 
       if (error) throw error;
-      
+
       const allProducts = data?.List || [];
       setProducts(allProducts);
       setTotalRecords(data?.VirtualCount || 0);
-      
+
       // Filter products that need attention
-      const alertProducts = allProducts.filter(product => {
+      const alertProducts = allProducts.filter((product) => {
         const stockRatio = product.quantity_in_stock / (product.minimum_stock || 1);
-        
+
         if (severityFilter === 'critical') {
           return product.quantity_in_stock <= alertSettings.criticalStockThreshold;
         } else if (severityFilter === 'low') {
-          return product.quantity_in_stock <= alertSettings.lowStockThreshold && 
-                 product.quantity_in_stock > alertSettings.criticalStockThreshold;
+          return product.quantity_in_stock <= alertSettings.lowStockThreshold &&
+          product.quantity_in_stock > alertSettings.criticalStockThreshold;
         } else if (severityFilter === 'reorder') {
           return product.quantity_in_stock <= product.minimum_stock;
         } else if (severityFilter === 'overdue') {
           return product.overdue;
         }
-        
-        return product.quantity_in_stock <= alertSettings.lowStockThreshold || 
-               product.quantity_in_stock <= product.minimum_stock ||
-               product.overdue;
+
+        return product.quantity_in_stock <= alertSettings.lowStockThreshold ||
+        product.quantity_in_stock <= product.minimum_stock ||
+        product.overdue;
       });
-      
+
       setLowStockProducts(alertProducts);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -151,10 +151,10 @@ const InventoryAlerts: React.FC = () => {
     }
 
     try {
-      const criticalItems = lowStockProducts.filter(p => p.quantity_in_stock <= alertSettings.criticalStockThreshold);
-      const lowItems = lowStockProducts.filter(p => 
-        p.quantity_in_stock <= alertSettings.lowStockThreshold && 
-        p.quantity_in_stock > alertSettings.criticalStockThreshold
+      const criticalItems = lowStockProducts.filter((p) => p.quantity_in_stock <= alertSettings.criticalStockThreshold);
+      const lowItems = lowStockProducts.filter((p) =>
+      p.quantity_in_stock <= alertSettings.lowStockThreshold &&
+      p.quantity_in_stock > alertSettings.criticalStockThreshold
       );
 
       const emailContent = `
@@ -164,7 +164,7 @@ const InventoryAlerts: React.FC = () => {
         ${criticalItems.length > 0 ? `
         <h3 style="color: #dc2626;">⚠️ Critical Stock Levels (${criticalItems.length} items)</h3>
         <ul>
-          ${criticalItems.map(item => `
+          ${criticalItems.map((item) => `
             <li><strong>${item.product_name}</strong> - Only ${item.quantity_in_stock} units remaining (Supplier: ${item.supplier})</li>
           `).join('')}
         </ul>
@@ -173,7 +173,7 @@ const InventoryAlerts: React.FC = () => {
         ${lowItems.length > 0 ? `
         <h3 style="color: #ea580c;">📉 Low Stock Levels (${lowItems.length} items)</h3>
         <ul>
-          ${lowItems.map(item => `
+          ${lowItems.map((item) => `
             <li><strong>${item.product_name}</strong> - ${item.quantity_in_stock} units remaining (Min: ${item.minimum_stock})</li>
           `).join('')}
         </ul>
@@ -230,17 +230,17 @@ const InventoryAlerts: React.FC = () => {
   };
 
   const calculateSummaryStats = () => {
-    const critical = products.filter(p => getStockSeverity(p) === 'critical').length;
-    const low = products.filter(p => getStockSeverity(p) === 'low').length;
-    const reorder = products.filter(p => getStockSeverity(p) === 'reorder').length;
-    const overdue = products.filter(p => getStockSeverity(p) === 'overdue').length;
-    
+    const critical = products.filter((p) => getStockSeverity(p) === 'critical').length;
+    const low = products.filter((p) => getStockSeverity(p) === 'low').length;
+    const reorder = products.filter((p) => getStockSeverity(p) === 'reorder').length;
+    const overdue = products.filter((p) => getStockSeverity(p) === 'overdue').length;
+
     return { critical, low, reorder, overdue, total: products.length };
   };
 
   const stats = calculateSummaryStats();
   const totalPages = Math.ceil(totalRecords / pageSize);
-  const categories = [...new Set(products.map(p => p.category))];
+  const categories = [...new Set(products.map((p) => p.category))];
 
   return (
     <div className="space-y-6">
@@ -329,8 +329,8 @@ const InventoryAlerts: React.FC = () => {
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full"
-              />
+                className="w-full" />
+
             </div>
             
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
@@ -339,9 +339,9 @@ const InventoryAlerts: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                {categories.map(category => (
-                  <SelectItem key={category} value={category}>{category}</SelectItem>
-                ))}
+                {categories.map((category) =>
+                <SelectItem key={category} value={category}>{category}</SelectItem>
+                )}
               </SelectContent>
             </Select>
             
@@ -370,12 +370,12 @@ const InventoryAlerts: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {loading ? (
-            <div className="flex justify-center py-8">
+          {loading ?
+          <div className="flex justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
+            </div> :
+
+          <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -391,11 +391,11 @@ const InventoryAlerts: React.FC = () => {
                 </TableHeader>
                 <TableBody>
                   {products.map((product) => {
-                    const severity = getStockSeverity(product);
-                    const stockPercentage = (product.quantity_in_stock / product.minimum_stock) * 100;
-                    
-                    return (
-                      <TableRow key={product.id} className={severity === 'critical' ? 'bg-red-50' : severity === 'low' ? 'bg-orange-50' : ''}>
+                  const severity = getStockSeverity(product);
+                  const stockPercentage = product.quantity_in_stock / product.minimum_stock * 100;
+
+                  return (
+                    <TableRow key={product.id} className={severity === 'critical' ? 'bg-red-50' : severity === 'low' ? 'bg-orange-50' : ''}>
                         <TableCell className="font-medium">
                           <div>
                             <div className="font-semibold">{product.product_name}</div>
@@ -408,14 +408,14 @@ const InventoryAlerts: React.FC = () => {
                             <span className={`font-medium ${severity === 'critical' ? 'text-red-600' : severity === 'low' ? 'text-orange-600' : ''}`}>
                               {product.quantity_in_stock}
                             </span>
-                            {severity !== 'normal' && (
-                              <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                <div 
-                                  className={`h-full ${severity === 'critical' ? 'bg-red-500' : 'bg-orange-500'}`}
-                                  style={{ width: `${Math.min(stockPercentage, 100)}%` }}
-                                />
+                            {severity !== 'normal' &&
+                          <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div
+                              className={`h-full ${severity === 'critical' ? 'bg-red-500' : 'bg-orange-500'}`}
+                              style={{ width: `${Math.min(stockPercentage, 100)}%` }} />
+
                               </div>
-                            )}
+                          }
                           </div>
                         </TableCell>
                         <TableCell>{product.minimum_stock}</TableCell>
@@ -438,46 +438,46 @@ const InventoryAlerts: React.FC = () => {
                             </Link>
                           </div>
                         </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                      </TableRow>);
+
+                })}
                 </TableBody>
               </Table>
               
-              {products.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
+              {products.length === 0 &&
+            <div className="text-center py-8 text-muted-foreground">
                   No products found matching your criteria.
                 </div>
-              )}
+            }
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center gap-2">
+      {totalPages > 1 &&
+      <div className="flex justify-center gap-2">
           <Button
-            variant="outline"
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
+          variant="outline"
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}>
+
             Previous
           </Button>
           <span className="flex items-center px-4">
             Page {currentPage} of {totalPages}
           </span>
           <Button
-            variant="outline"
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
+          variant="outline"
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}>
+
             Next
           </Button>
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default InventoryAlerts;

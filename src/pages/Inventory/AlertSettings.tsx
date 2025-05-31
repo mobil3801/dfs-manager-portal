@@ -51,14 +51,14 @@ const AlertSettingsPage: React.FC = () => {
   };
 
   const handleInputChange = (field: keyof AlertSettings, value: string | number | boolean | string[]) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
       [field]: value
     }));
   };
 
   const handleEmailListChange = (emails: string) => {
-    const emailArray = emails.split(',').map(email => email.trim()).filter(email => email);
+    const emailArray = emails.split(',').map((email) => email.trim()).filter((email) => email);
     handleInputChange('notificationEmails', emailArray);
   };
 
@@ -99,7 +99,7 @@ const AlertSettingsPage: React.FC = () => {
     setLoading(true);
     try {
       localStorage.setItem('inventoryAlertSettings', JSON.stringify(settings));
-      
+
       toast({
         title: 'Settings Saved',
         description: 'Alert settings have been updated successfully'
@@ -235,8 +235,8 @@ const AlertSettingsPage: React.FC = () => {
                   type="number"
                   min="1"
                   value={settings.lowStockThreshold}
-                  onChange={(e) => handleInputChange('lowStockThreshold', parseInt(e.target.value) || 0)}
-                />
+                  onChange={(e) => handleInputChange('lowStockThreshold', parseInt(e.target.value) || 0)} />
+
                 <p className="text-sm text-muted-foreground">
                   Alert when stock falls below this level
                 </p>
@@ -249,8 +249,8 @@ const AlertSettingsPage: React.FC = () => {
                   type="number"
                   min="1"
                   value={settings.criticalStockThreshold}
-                  onChange={(e) => handleInputChange('criticalStockThreshold', parseInt(e.target.value) || 0)}
-                />
+                  onChange={(e) => handleInputChange('criticalStockThreshold', parseInt(e.target.value) || 0)} />
+
                 <p className="text-sm text-muted-foreground">
                   Urgent alert when stock falls below this level
                 </p>
@@ -323,21 +323,21 @@ const AlertSettingsPage: React.FC = () => {
               </div>
               <Switch
                 checked={settings.emailNotifications}
-                onCheckedChange={(checked) => handleInputChange('emailNotifications', checked)}
-              />
+                onCheckedChange={(checked) => handleInputChange('emailNotifications', checked)} />
+
             </div>
 
-            {settings.emailNotifications && (
-              <>
+            {settings.emailNotifications &&
+            <>
                 <div className="space-y-2">
                   <Label htmlFor="notificationEmails">Notification Email Addresses</Label>
                   <Input
-                    id="notificationEmails"
-                    type="email"
-                    value={settings.notificationEmails.join(', ')}
-                    onChange={(e) => handleEmailListChange(e.target.value)}
-                    placeholder="manager@example.com, assistant@example.com"
-                  />
+                  id="notificationEmails"
+                  type="email"
+                  value={settings.notificationEmails.join(', ')}
+                  onChange={(e) => handleEmailListChange(e.target.value)}
+                  placeholder="manager@example.com, assistant@example.com" />
+
                   <p className="text-sm text-muted-foreground">
                     Enter multiple email addresses separated by commas
                   </p>
@@ -351,9 +351,9 @@ const AlertSettingsPage: React.FC = () => {
                     </p>
                   </div>
                   <Switch
-                    checked={settings.businessHoursOnly}
-                    onCheckedChange={(checked) => handleInputChange('businessHoursOnly', checked)}
-                  />
+                  checked={settings.businessHoursOnly}
+                  onCheckedChange={(checked) => handleInputChange('businessHoursOnly', checked)} />
+
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -364,9 +364,9 @@ const AlertSettingsPage: React.FC = () => {
                     </p>
                   </div>
                   <Switch
-                    checked={settings.weekendsIncluded}
-                    onCheckedChange={(checked) => handleInputChange('weekendsIncluded', checked)}
-                  />
+                  checked={settings.weekendsIncluded}
+                  onCheckedChange={(checked) => handleInputChange('weekendsIncluded', checked)} />
+
                 </div>
 
                 <Button variant="outline" onClick={sendTestAlert} className="w-full">
@@ -374,7 +374,7 @@ const AlertSettingsPage: React.FC = () => {
                   Send Test Alert Email
                 </Button>
               </>
-            )}
+            }
           </CardContent>
         </Card>
 
@@ -397,8 +397,8 @@ const AlertSettingsPage: React.FC = () => {
               </div>
               <Switch
                 checked={settings.autoReorderSuggestions}
-                onCheckedChange={(checked) => handleInputChange('autoReorderSuggestions', checked)}
-              />
+                onCheckedChange={(checked) => handleInputChange('autoReorderSuggestions', checked)} />
+
             </div>
 
             <div className="space-y-2">
@@ -407,8 +407,8 @@ const AlertSettingsPage: React.FC = () => {
                 id="alertFrequency"
                 value={settings.alertFrequency}
                 onChange={(e) => handleInputChange('alertFrequency', e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+
                 <option value="realtime">Real-time</option>
                 <option value="hourly">Hourly</option>
                 <option value="daily">Daily</option>
@@ -428,21 +428,21 @@ const AlertSettingsPage: React.FC = () => {
           Cancel
         </Button>
         <Button onClick={handleSave} disabled={loading}>
-          {loading ? (
-            <>
+          {loading ?
+          <>
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
               Saving...
-            </>
-          ) : (
-            <>
+            </> :
+
+          <>
               <Save className="h-4 w-4 mr-2" />
               Save Settings
             </>
-          )}
+          }
         </Button>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AlertSettingsPage;
