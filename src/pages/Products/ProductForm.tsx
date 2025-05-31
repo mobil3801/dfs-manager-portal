@@ -12,18 +12,18 @@ import { ArrowLeft, Save, Calendar, Lock, AlertTriangle } from 'lucide-react';
 import BarcodeScanner from '@/components/BarcodeScanner';
 import ProductFileUpload from '@/components/ProductFileUpload';
 import { useAuth } from '@/contexts/AuthContext';
-import { useEditGuard } from '@/hooks/use-edit-guard';
+
 
 const ProductForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
   const { userProfile } = useAuth();
-  const { isEditModeEnabled, guardedSubmit, guardedAction, showRestrictedMessage } = useEditGuard();
 
-  // Check if user is Administrator and visual edit mode is enabled
+
+  // Check if user is Administrator
   const isAdministrator = userProfile?.role === 'Administrator';
-  const canEdit = isAdministrator && isEditModeEnabled;
+  const canEdit = isAdministrator;
 
   const [isLoading, setIsLoading] = useState(false);
   const [vendors, setVendors] = useState<any[]>([]);
@@ -184,7 +184,11 @@ const ProductForm = () => {
 
   const handleInputChange = (field: string, value: any) => {
     if (!canEdit) {
-      showRestrictedMessage();
+      toast({
+        variant: "destructive",
+        title: "Access Denied",
+        description: "Only System Administrator can edit product information."
+      });
       return;
     }
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -308,20 +312,16 @@ const ProductForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Use the guarded submit function
-    const success = guardedSubmit('product', () => {
-      if (!isAdministrator) {
-        toast({
-          variant: "destructive",
-          title: "Access Denied",
-          description: "Only System Administrator can edit product information."
-        });
-        return;
-      }
-      processSubmit();
-    });
-
-    if (!success) return;
+    if (!isAdministrator) {
+      toast({
+        variant: "destructive",
+        title: "Access Denied",
+        description: "Only System Administrator can edit product information."
+      });
+      return;
+    }
+    
+    processSubmit();
   };
 
   const processSubmit = async () => {
@@ -422,12 +422,7 @@ const ProductForm = () => {
             <div className="flex-1">
               <h3 className="text-sm font-medium text-red-800">Access Restricted</h3>
               <p className="text-sm text-red-700 mt-1">
-                {!isAdministrator ?
-              "Only System Administrator can edit product information." :
-              !isEditModeEnabled ?
-              "Visual edit mode is disabled. Enable it to make manual changes or use AI assistance." :
-              "Access denied for product editing."
-              }
+                Only System Administrator can edit product information.
               </p>
             </div>
             <Lock className="w-5 h-5 text-red-600" />
