@@ -4,38 +4,27 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Edit, Eye, Settings, Unlock, Lock, X, RotateCcw, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useVisualEdit } from '@/contexts/VisualEditContext';
 
 interface VisualEditBannerProps {
   onEditModeChange?: (isEnabled: boolean) => void;
 }
 
 const VisualEditBanner: React.FC<VisualEditBannerProps> = ({ onEditModeChange }) => {
-  const [editMode, setEditMode] = useState(() => {
-    const savedMode = localStorage.getItem('visualEditMode');
-    return savedMode === null ? true : savedMode === 'true';
-  });
+  const { isEditModeEnabled, setEditModeEnabled } = useVisualEdit();
   const [showBanner, setShowBanner] = useState(() => {
     return localStorage.getItem('showVisualEditBanner') !== 'false';
   });
   const { toast } = useToast();
 
   useEffect(() => {
-    localStorage.setItem('visualEditMode', editMode.toString());
     localStorage.setItem('showVisualEditBanner', showBanner.toString());
-    onEditModeChange?.(editMode);
-  }, [editMode, showBanner, onEditModeChange]);
-
-  // Initialize edit mode if not set
-  useEffect(() => {
-    if (localStorage.getItem('visualEditMode') === null) {
-      localStorage.setItem('visualEditMode', 'true');
-      setEditMode(true);
-    }
-  }, []);
+    onEditModeChange?.(isEditModeEnabled);
+  }, [showBanner, onEditModeChange, isEditModeEnabled]);
 
   const toggleEditMode = () => {
-    const newMode = !editMode;
-    setEditMode(newMode);
+    const newMode = !isEditModeEnabled;
+    setEditModeEnabled(newMode);
 
     toast({
       title: newMode ? "Visual Edit Mode Enabled" : "Visual Edit Mode Disabled",
@@ -47,7 +36,7 @@ const VisualEditBanner: React.FC<VisualEditBannerProps> = ({ onEditModeChange })
   };
 
   const resetToDefaults = () => {
-    setEditMode(true);
+    setEditModeEnabled(true);
     setShowBanner(true);
     toast({
       title: "Settings Reset",
@@ -71,7 +60,7 @@ const VisualEditBanner: React.FC<VisualEditBannerProps> = ({ onEditModeChange })
 
   return (
     <Card className={`transition-all duration-300 ${
-    editMode ?
+    isEditModeEnabled ?
     'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' :
     'bg-gradient-to-r from-orange-50 to-red-50 border-orange-200'}`
     }>
@@ -79,11 +68,11 @@ const VisualEditBanner: React.FC<VisualEditBannerProps> = ({ onEditModeChange })
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-            editMode ?
+            isEditModeEnabled ?
             'bg-green-100' :
             'bg-orange-100'}`
             }>
-              {editMode ?
+              {isEditModeEnabled ?
               <Unlock className="w-5 h-5 text-green-600" /> :
 
               <Lock className="w-5 h-5 text-orange-600" />
@@ -91,14 +80,14 @@ const VisualEditBanner: React.FC<VisualEditBannerProps> = ({ onEditModeChange })
             </div>
             <div>
               <h3 className={`text-lg font-semibold ${
-              editMode ? 'text-green-900' : 'text-orange-900'}`
+              isEditModeEnabled ? 'text-green-900' : 'text-orange-900'}`
               }>
-                {editMode ? 'Visual Editing Mode Enabled' : 'Manual Editing Restricted'}
+                {isEditModeEnabled ? 'Visual Editing Mode Enabled' : 'Manual Editing Restricted'}
               </h3>
               <p className={`text-sm ${
-              editMode ? 'text-green-700' : 'text-orange-700'}`
+              isEditModeEnabled ? 'text-green-700' : 'text-orange-700'}`
               }>
-                {editMode ?
+                {isEditModeEnabled ?
                 'All features are unlocked for full editing access' :
                 'Manual modifications blocked - use AI assistance for changes'
                 }
@@ -107,7 +96,7 @@ const VisualEditBanner: React.FC<VisualEditBannerProps> = ({ onEditModeChange })
           </div>
           
           <div className="flex items-center space-x-2">
-            {editMode ?
+            {isEditModeEnabled ?
             <>
                 <Badge variant="secondary" className="bg-green-100 text-green-800">
                   <Edit className="w-3 h-3 mr-1" />
@@ -141,13 +130,13 @@ const VisualEditBanner: React.FC<VisualEditBannerProps> = ({ onEditModeChange })
                 size="sm"
                 onClick={toggleEditMode}
                 className={`h-8 px-3 ${
-                editMode ?
+                isEditModeEnabled ?
                 'text-green-700 hover:bg-green-100' :
                 'text-orange-700 hover:bg-orange-100'}`
                 }
-                title={editMode ? 'Disable editing' : 'Enable editing'}>
+                title={isEditModeEnabled ? 'Disable editing' : 'Enable editing'}>
 
-                {editMode ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+                {isEditModeEnabled ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
               </Button>
               
               <Button

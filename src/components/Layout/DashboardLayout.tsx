@@ -33,7 +33,7 @@ const DashboardLayout: React.FC = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { setEditModeEnabled } = useVisualEdit();
+  const { isEditModeEnabled, setEditModeEnabled } = useVisualEdit();
 
   const navigationItems: NavigationItem[] = [
   { name: 'Dashboard', path: '/dashboard', icon: <Home className="w-5 h-5" /> },
@@ -164,7 +164,7 @@ const DashboardLayout: React.FC = () => {
         {/* Page content */}
         <main className="flex-1 p-4 lg:p-8 overflow-y-auto">
           <div className="space-y-6">
-            <VisualEditBanner onEditModeChange={setEditModeEnabled} />
+            <VisualEditBanner />
             <Outlet />
           </div>
         </main>
