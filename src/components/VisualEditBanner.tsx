@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,15 +12,11 @@ interface VisualEditBannerProps {
 
 const VisualEditBanner: React.FC<VisualEditBannerProps> = ({ onEditModeChange }) => {
   const { isEditModeEnabled, setEditModeEnabled } = useVisualEdit();
-  const [showBanner, setShowBanner] = useState(() => {
-    return localStorage.getItem('showVisualEditBanner') !== 'false';
-  });
   const { toast } = useToast();
 
   useEffect(() => {
-    localStorage.setItem('showVisualEditBanner', showBanner.toString());
     onEditModeChange?.(isEditModeEnabled);
-  }, [showBanner, onEditModeChange, isEditModeEnabled]);
+  }, [onEditModeChange, isEditModeEnabled]);
 
   const toggleEditMode = () => {
     const newMode = !isEditModeEnabled;
@@ -37,26 +33,12 @@ const VisualEditBanner: React.FC<VisualEditBannerProps> = ({ onEditModeChange })
 
   const resetToDefaults = () => {
     setEditModeEnabled(true);
-    setShowBanner(true);
     toast({
       title: "Settings Reset",
       description: "Visual editing preferences have been reset to defaults.",
       duration: 2000
     });
   };
-
-  const hideBanner = () => {
-    setShowBanner(false);
-    toast({
-      title: "Banner Hidden",
-      description: "You can re-enable the banner from the settings menu.",
-      duration: 2000
-    });
-  };
-
-  if (!showBanner) {
-    return null;
-  }
 
   return (
     <Card className={`transition-all duration-300 ${
@@ -147,16 +129,6 @@ const VisualEditBanner: React.FC<VisualEditBannerProps> = ({ onEditModeChange })
                 title="Reset settings">
 
                 <RotateCcw className="w-4 h-4" />
-              </Button>
-              
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={hideBanner}
-                className="h-8 px-3 text-gray-600 hover:bg-gray-100"
-                title="Hide banner">
-
-                <X className="w-4 h-4" />
               </Button>
             </div>
           </div>
