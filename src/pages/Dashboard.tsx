@@ -515,17 +515,17 @@ const Dashboard: React.FC = () => {
                 e.stopPropagation();
                 navigate('/products/new');
               }}
-              className="h-8 w-8 p-0"
-            >
-              <Plus className="w-4 h-4" />
+              className="h-8 px-3 bg-brand-700 hover:bg-brand-800 text-white">
+              <Plus className="w-4 h-4 mr-1" />
+              <span className="text-xs">Add</span>
             </Button>
           </CardHeader>
           <CardDescription className="px-6 pb-2">
             Manage your product inventory - Search across all product fields for similar items
           </CardDescription>
-          <CardContent className="p-6 pt-0 cursor-pointer" onClick={() => navigate('/products')}>
+          <CardContent className="p-6 pt-0">
             <div className="flex items-center justify-between">
-              <div>
+              <div className="cursor-pointer flex-1" onClick={() => navigate('/products')}>
                 <p className="text-sm font-medium text-gray-600">Total Products</p>
                 <p className="text-2xl font-bold text-gray-900 mt-1">{stats.totalProducts}</p>
                 {stats.lowStockProducts > 0 &&
@@ -534,6 +534,16 @@ const Dashboard: React.FC = () => {
                     {stats.lowStockProducts} low stock
                   </p>
                 }
+              </div>
+              <div className="ml-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/products/new')}
+                  className="border-brand-700 text-brand-700 hover:bg-brand-700 hover:text-white">
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add Product
+                </Button>
               </div>
             </div>
           </CardContent>
