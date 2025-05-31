@@ -106,22 +106,22 @@ const ProductList: React.FC = () => {
 
     // Client-side filtering for keyword matching
     if (debouncedSearchTerm) {
-      const searchKeywords = debouncedSearchTerm.toLowerCase().trim().split(/\s+/).filter(keyword => keyword.length > 0);
-      
+      const searchKeywords = debouncedSearchTerm.toLowerCase().trim().split(/\s+/).filter((keyword) => keyword.length > 0);
+
       filteredProducts = allProducts.filter((product) => {
         const searchableText = [
-          product.product_name,
-          product.description,
-          product.category,
-          product.supplier,
-          product.department,
-          product.bar_code_case,
-          product.bar_code_unit,
-          product.serial_number?.toString()
-        ].join(' ').toLowerCase();
+        product.product_name,
+        product.description,
+        product.category,
+        product.supplier,
+        product.department,
+        product.bar_code_case,
+        product.bar_code_unit,
+        product.serial_number?.toString()].
+        join(' ').toLowerCase();
 
         // Check if all keywords are present in the searchable text
-        return searchKeywords.every(keyword => searchableText.includes(keyword));
+        return searchKeywords.every((keyword) => searchableText.includes(keyword));
       });
     }
 
@@ -186,22 +186,22 @@ const ProductList: React.FC = () => {
       };
     }
 
-    const searchKeywords = debouncedSearchTerm.toLowerCase().trim().split(/\s+/).filter(keyword => keyword.length > 0);
+    const searchKeywords = debouncedSearchTerm.toLowerCase().trim().split(/\s+/).filter((keyword) => keyword.length > 0);
     const textLower = text.toLowerCase();
-    
+
     // Check if all keywords are present in this specific text
-    const allMatch = searchKeywords.every(keyword => textLower.includes(keyword));
-    
+    const allMatch = searchKeywords.every((keyword) => textLower.includes(keyword));
+
     return {
       keywords: searchKeywords,
       allMatch,
-      highlightComponent: (
-        <HighlightText 
-          text={text} 
-          searchTerms={searchKeywords} 
-          allMatch={allMatch} 
-        />
-      )
+      highlightComponent:
+      <HighlightText
+        text={text}
+        searchTerms={searchKeywords}
+        allMatch={allMatch} />
+
+
     };
   };
 
@@ -225,10 +225,7 @@ const ProductList: React.FC = () => {
                 Manage your product inventory - Search across all product fields for similar items
               </CardDescription>
             </div>
-            <Button onClick={() => navigate('/products/new')} className="flex items-center space-x-2">
-              <Plus className="w-4 h-4" />
-              <span>Add Product</span>
-            </Button>
+
           </div>
         </CardHeader>
         <CardContent>
@@ -236,15 +233,15 @@ const ProductList: React.FC = () => {
           <div className="flex items-center space-x-2 mb-6">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              {searchTerm && (
-                <button
-                  onClick={handleClearSearch}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 w-4 h-4 flex items-center justify-center"
-                  title="Clear search"
-                >
+              {searchTerm &&
+              <button
+                onClick={handleClearSearch}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 w-4 h-4 flex items-center justify-center"
+                title="Clear search">
+
                   <X className="w-4 h-4" />
                 </button>
-              )}
+              }
               <Input
                 placeholder="Search products by name, description, category, supplier, barcode..."
                 value={searchTerm}
@@ -324,18 +321,18 @@ const ProductList: React.FC = () => {
                           <div>
                             <p className="font-medium">
                               {debouncedSearchTerm ?
-                                getSearchData(product.product_name).highlightComponent :
-                                product.product_name
-                              }
+                            getSearchData(product.product_name).highlightComponent :
+                            product.product_name
+                            }
                             </p>
                             {product.description &&
-                              <p className="text-sm text-gray-500 truncate max-w-xs">
+                          <p className="text-sm text-gray-500 truncate max-w-xs">
                                 {debouncedSearchTerm ?
-                                  getSearchData(product.description).highlightComponent :
-                                  product.description
-                                }
-                              </p>
+                            getSearchData(product.description).highlightComponent :
+                            product.description
                             }
+                              </p>
+                          }
                           </div>
                         </TableCell>
                         <TableCell>
@@ -346,16 +343,16 @@ const ProductList: React.FC = () => {
                         <TableCell>
                           <Badge variant="outline">
                             {debouncedSearchTerm ?
-                              getSearchData(product.department || 'Convenience Store').highlightComponent :
-                              product.department || 'Convenience Store'
-                            }
+                          getSearchData(product.department || 'Convenience Store').highlightComponent :
+                          product.department || 'Convenience Store'
+                          }
                           </Badge>
                         </TableCell>
                         <TableCell>
                           {debouncedSearchTerm ?
-                            getSearchData(product.supplier || '-').highlightComponent :
-                            product.supplier || '-'
-                          }
+                        getSearchData(product.supplier || '-').highlightComponent :
+                        product.supplier || '-'
+                        }
                         </TableCell>
                         <TableCell>{formatDate(product.last_updated_date)}</TableCell>
                         <TableCell>{formatDate(product.last_shopping_date)}</TableCell>
