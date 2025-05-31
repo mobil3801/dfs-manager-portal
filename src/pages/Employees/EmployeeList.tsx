@@ -134,10 +134,10 @@ const EmployeeList: React.FC = () => {
                 Manage your employees across all stations
               </CardDescription>
             </div>
-            <Button 
+            <Button
               onClick={() => navigate('/employees/new')}
-              className="flex items-center space-x-2"
-            >
+              className="flex items-center space-x-2">
+
               <Plus className="w-4 h-4" />
               <span>Add Employee</span>
             </Button>
