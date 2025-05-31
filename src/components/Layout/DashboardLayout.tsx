@@ -15,7 +15,7 @@ import {
   ChevronLeft,
   ChevronRight } from
 'lucide-react';
-import QuickAccessToolbar from '@/components/QuickAccessToolbar';
+
 import Logo from '@/components/Logo';
 
 interface NavigationItem {
@@ -161,8 +161,7 @@ const DashboardLayout: React.FC = () => {
         </main>
       </div>
       
-      {/* Quick Access Toolbar */}
-      <QuickAccessToolbar />
+
     </div>);
 
 };
