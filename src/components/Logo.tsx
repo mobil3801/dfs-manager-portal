@@ -40,39 +40,37 @@ const Logo: React.FC<LogoProps> = ({
   return (
     <div className={`flex items-center space-x-3 ${className}`}>
       <div className="relative flex-shrink-0">
-        {!imageError ? (
-          <img
-            src="/dfs-logo.png"
-            alt="DFS Manager Portal Logo"
-            className={`${sizeClasses[size]} object-contain drop-shadow-sm`}
-            onError={() => {
-              console.log('DFS logo not found, using fallback design');
-              setImageError(true);
-            }}
-          />
-        ) : (
-          <div className={`${sizeClasses[size]} bg-gradient-to-br from-blue-800 to-blue-900 rounded-lg flex items-center justify-center text-white font-bold ${iconSize[size]} shadow-lg border border-blue-700`}>
+        {!imageError ?
+        <img
+          src="/dfs-manager-logo.png"
+          alt="DFS Manager Portal Logo"
+          className={`${sizeClasses[size]} object-contain drop-shadow-sm`}
+          onError={() => {
+            console.log('DFS logo not found, using fallback design');
+            setImageError(true);
+          }} /> :
+        <div className={`${sizeClasses[size]} bg-gradient-to-br from-blue-800 to-blue-900 rounded-lg flex items-center justify-center text-white font-bold ${iconSize[size]} shadow-lg border border-blue-700`}>
             <div className="text-center">
               <div className="font-extrabold tracking-wide">DFS</div>
               {size !== 'sm' && <div className="text-xs opacity-90">MGR</div>}
             </div>
           </div>
-        )}
+        }
       </div>
-      {showText && (
-        <div className="flex flex-col justify-center">
+      {showText &&
+      <div className="flex flex-col justify-center">
           <span className={`font-bold text-gray-800 leading-tight ${textSizeClasses[size]}`}>
             DFS Manager Portal
           </span>
-          {size !== 'sm' && (
-            <span className="text-xs text-gray-600 font-medium uppercase tracking-wide">
+          {size !== 'sm' &&
+        <span className="text-xs text-gray-600 font-medium uppercase tracking-wide">
               Business Management
             </span>
-          )}
+        }
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 
 };
 
