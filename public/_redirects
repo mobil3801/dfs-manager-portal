@@ -1,0 +1,8 @@
+# Redirects for React Router
+/*    /index.html   200
+
+# API redirects (if needed for future API endpoints)
+/api/*  /.netlify/functions/:splat  200
+
+# Optional: Redirect from old paths
+# /old-path  /new-path  301
