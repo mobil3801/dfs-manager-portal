@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 interface VisualEditContextType {
   isEditModeEnabled: boolean;
@@ -22,18 +22,11 @@ interface VisualEditProviderProps {
 }
 
 export const VisualEditProvider: React.FC<VisualEditProviderProps> = ({ children }) => {
-  const [isEditModeEnabled, setIsEditModeEnabled] = useState(() => {
-    const savedMode = localStorage.getItem('visualEditMode');
-    return savedMode === null ? true : savedMode === 'true';
-  });
-
-  useEffect(() => {
-    localStorage.setItem('visualEditMode', isEditModeEnabled.toString());
-  }, [isEditModeEnabled]);
+  // Always start with visual edit enabled by default
+  const [isEditModeEnabled, setIsEditModeEnabled] = useState(true);
 
   const setEditModeEnabled = (enabled: boolean) => {
     setIsEditModeEnabled(enabled);
-    localStorage.setItem('visualEditMode', enabled.toString());
   };
 
   const canEdit = () => {
@@ -43,16 +36,6 @@ export const VisualEditProvider: React.FC<VisualEditProviderProps> = ({ children
   const checkEditPermission = (action: string) => {
     return true; // Always allow editing - remove blocking
   };
-
-  // Auto-enable edit mode if it's not set
-  React.useEffect(() => {
-    const savedMode = localStorage.getItem('visualEditMode');
-
-    if (savedMode === null) {
-      localStorage.setItem('visualEditMode', 'true');
-      setIsEditModeEnabled(true);
-    }
-  }, []);
 
   const value = {
     isEditModeEnabled,
@@ -64,7 +47,8 @@ export const VisualEditProvider: React.FC<VisualEditProviderProps> = ({ children
   return (
     <VisualEditContext.Provider value={value}>
       {children}
-    </VisualEditContext.Provider>);
+    </VisualEditContext.Provider>
+  );
 
 };
 
