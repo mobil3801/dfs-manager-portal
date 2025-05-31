@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Search, Edit, Trash2, Users, Mail, Phone } from 'lucide-react';
+import { Search, Edit, Trash2, Users, Mail, Phone, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface Employee {
@@ -124,14 +124,23 @@ const EmployeeList: React.FC = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <div className="flex flex-col items-center justify-center text-center">
-            <CardTitle className="flex items-center space-x-2">
-              <Users className="w-6 h-6" />
-              <span>Employee List</span>
-            </CardTitle>
-            <CardDescription>
-              Manage your employees across all stations
-            </CardDescription>
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col">
+              <CardTitle className="flex items-center space-x-2">
+                <Users className="w-6 h-6" />
+                <span>Employee List</span>
+              </CardTitle>
+              <CardDescription>
+                Manage your employees across all stations
+              </CardDescription>
+            </div>
+            <Button 
+              onClick={() => navigate('/employees/new')}
+              className="flex items-center space-x-2"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Employee</span>
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
