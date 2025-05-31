@@ -62,10 +62,10 @@ const VendorForm: React.FC = () => {
   'Custom Terms'];
 
   const stations = [
-    'MOBIL',
-    'AMOCO ROSEDALE', 
-    'AMOCO BROOKLYN'
-  ];
+  'MOBIL',
+  'AMOCO ROSEDALE',
+  'AMOCO BROOKLYN'];
+
 
 
   useEffect(() => {
@@ -189,8 +189,8 @@ const VendorForm: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {!selectedStation && !isEditing ? (
-            <div className="space-y-6">
+          {!selectedStation && !isEditing ?
+          <div className="space-y-6">
               <div className="text-center space-y-4">
                 <h3 className="text-lg font-semibold">Select Station First</h3>
                 <p className="text-gray-600">Please select a station before creating a vendor.</p>
@@ -203,37 +203,37 @@ const VendorForm: React.FC = () => {
                     <SelectValue placeholder="Select a station" />
                   </SelectTrigger>
                   <SelectContent>
-                    {stations.map((station) => (
-                      <SelectItem key={station} value={station}>
+                    {stations.map((station) =>
+                  <SelectItem key={station} value={station}>
                         {station}
                       </SelectItem>
-                    ))}
+                  )}
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {selectedStation && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            </div> :
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+              {selectedStation &&
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-medium text-blue-900">Selected Station</h4>
                       <p className="text-blue-700">{selectedStation}</p>
                     </div>
-                    {!isEditing && (
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => setSelectedStation('')}
-                      >
+                    {!isEditing &&
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedStation('')}>
+
                         Change Station
                       </Button>
-                    )}
+                }
                   </div>
                 </div>
-              )}
+            }
               
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -357,7 +357,7 @@ const VendorForm: React.FC = () => {
               </Button>
             </div>
           </form>
-          )}
+          }
         </CardContent>
       </Card>
     </div>);
