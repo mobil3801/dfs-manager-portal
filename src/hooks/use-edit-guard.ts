@@ -12,7 +12,7 @@ export const useEditGuard = () => {
         title: "Cannot modify manually",
         description: "Please modify through AI assistance. Manual editing is currently disabled.",
         variant: "destructive",
-        duration: 4000,
+        duration: 4000
       });
       return false;
     }
@@ -41,7 +41,7 @@ export const useEditGuard = () => {
       title: "Cannot modify manually",
       description: "Please modify through AI assistance. Manual editing is currently disabled for this field.",
       variant: "destructive",
-      duration: 3000,
+      duration: 3000
     });
   }, [toast]);
 
@@ -53,7 +53,7 @@ export const useEditGuard = () => {
     guardedUpdate,
     guardedCreate,
     showRestrictedMessage,
-    canEdit: () => isEditModeEnabled,
+    canEdit: () => isEditModeEnabled
   };
 };
 

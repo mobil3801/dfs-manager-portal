@@ -422,12 +422,12 @@ const ProductForm = () => {
             <div className="flex-1">
               <h3 className="text-sm font-medium text-red-800">Access Restricted</h3>
               <p className="text-sm text-red-700 mt-1">
-                {!isAdministrator 
-                  ? "Only System Administrator can edit product information."
-                  : !isEditModeEnabled 
-                  ? "Visual edit mode is disabled. Enable it to make manual changes or use AI assistance."
-                  : "Access denied for product editing."
-                }
+                {!isAdministrator ?
+              "Only System Administrator can edit product information." :
+              !isEditModeEnabled ?
+              "Visual edit mode is disabled. Enable it to make manual changes or use AI assistance." :
+              "Access denied for product editing."
+              }
               </p>
             </div>
             <Lock className="w-5 h-5 text-red-600" />

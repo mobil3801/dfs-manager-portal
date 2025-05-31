@@ -50,14 +50,14 @@ export const VisualEditProvider: React.FC<VisualEditProviderProps> = ({ children
     isEditModeEnabled,
     setEditModeEnabled,
     canEdit,
-    checkEditPermission,
+    checkEditPermission
   };
 
   return (
     <VisualEditContext.Provider value={value}>
       {children}
-    </VisualEditContext.Provider>
-  );
+    </VisualEditContext.Provider>);
+
 };
 
 export default VisualEditContext;
