@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Search, Edit, Trash2, Package, FileText } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Package, FileText, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import ProductLogs from '@/components/ProductLogs';
@@ -37,42 +37,55 @@ interface Product {
 
 const ProductList: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [logsModalOpen, setLogsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<{id: number;name: string;} | null>(null);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
   const navigate = useNavigate();
   const { userProfile } = useAuth();
 
   const pageSize = 10;
 
+  // Debounce search term
   useEffect(() => {
-    loadProducts();
-  }, [currentPage, searchTerm]);
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1); // Reset to first page when searching
+    }, 300);
 
-  const loadProducts = async () => {
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Load all products initially
+  useEffect(() => {
+    loadAllProducts();
+  }, []);
+
+  // Filter and paginate when search term or page changes
+  useEffect(() => {
+    filterAndPaginateProducts();
+  }, [debouncedSearchTerm, currentPage, allProducts]);
+
+  const loadAllProducts = async () => {
     try {
       setLoading(true);
-      const filters = [];
-
-      if (searchTerm) {
-        filters.push({ name: 'product_name', op: 'StringContains', value: searchTerm });
-      }
-
+      
       const { data, error } = await window.ezsite.apis.tablePage('11726', {
-        PageNo: currentPage,
-        PageSize: pageSize,
+        PageNo: 1,
+        PageSize: 1000, // Load a large number to get all products
         OrderByField: 'ID',
         IsAsc: false,
-        Filters: filters
+        Filters: []
       });
 
       if (error) throw error;
 
-      setProducts(data?.List || []);
-      setTotalCount(data?.VirtualCount || 0);
+      setAllProducts(data?.List || []);
     } catch (error) {
       console.error('Error loading products:', error);
       toast({
@@ -83,6 +96,37 @@ const ProductList: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const filterAndPaginateProducts = () => {
+    setIsSearching(!!debouncedSearchTerm);
+    
+    let filteredProducts = allProducts;
+
+    // Client-side filtering for similar products
+    if (debouncedSearchTerm) {
+      const searchLower = debouncedSearchTerm.toLowerCase();
+      filteredProducts = allProducts.filter(product => {
+        return (
+          product.product_name?.toLowerCase().includes(searchLower) ||
+          product.description?.toLowerCase().includes(searchLower) ||
+          product.category?.toLowerCase().includes(searchLower) ||
+          product.supplier?.toLowerCase().includes(searchLower) ||
+          product.department?.toLowerCase().includes(searchLower) ||
+          product.bar_code_case?.includes(debouncedSearchTerm) ||
+          product.bar_code_unit?.includes(debouncedSearchTerm) ||
+          product.serial_number?.toString().includes(debouncedSearchTerm)
+        );
+      });
+    }
+
+    // Apply pagination to filtered results
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+
+    setProducts(paginatedProducts);
+    setTotalCount(filteredProducts.length);
   };
 
   const handleDelete = async (productId: number) => {
@@ -98,7 +142,7 @@ const ProductList: React.FC = () => {
         title: "Success",
         description: "Product deleted successfully"
       });
-      loadProducts();
+      loadAllProducts(); // Reload all products
     } catch (error) {
       console.error('Error deleting product:', error);
       toast({
@@ -116,9 +160,23 @@ const ProductList: React.FC = () => {
 
   const isAdministrator = userProfile?.role === 'Administrator';
 
-
-
   const totalPages = Math.ceil(totalCount / pageSize);
+
+  // Highlight search terms in product names
+  const highlightSearchTerm = (text: string, searchTerm: string) => {
+    if (!searchTerm || !text) return text;
+    
+    const regex = new RegExp(`(${searchTerm})`, 'gi');
+    const parts = text.split(regex);
+    
+    return parts.map((part, index) => 
+      regex.test(part) ? (
+        <span key={index} className="bg-yellow-200 font-semibold">
+          {part}
+        </span>
+      ) : part
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -131,7 +189,7 @@ const ProductList: React.FC = () => {
                 <span>Products</span>
               </CardTitle>
               <CardDescription>
-                Manage your product inventory
+                Manage your product inventory - Search across all product fields for similar items
               </CardDescription>
             </div>
             <Button onClick={() => navigate('/products/new')} className="flex items-center space-x-2">
@@ -145,13 +203,29 @@ const ProductList: React.FC = () => {
           <div className="flex items-center space-x-2 mb-6">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              {isSearching && (
+                <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 animate-spin" />
+              )}
               <Input
-                placeholder="Search products..."
+                placeholder="Search products by name, description, category, supplier, barcode..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10" />
-
+                className="pl-10 pr-10" />
             </div>
+            {debouncedSearchTerm && (
+              <div className="flex items-center space-x-2">
+                <Badge variant="secondary">
+                  {totalCount} result{totalCount !== 1 ? 's' : ''} found
+                </Badge>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setSearchTerm('')}
+                >
+                  Clear
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Products Table */}
@@ -164,13 +238,14 @@ const ProductList: React.FC = () => {
           products.length === 0 ?
           <div className="text-center py-8">
               <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">No products found</p>
+              <p className="text-gray-500">
+                {debouncedSearchTerm ? `No products found matching "${debouncedSearchTerm}"` : 'No products found'}
+              </p>
               <Button
               variant="outline"
               className="mt-4"
-              onClick={() => navigate('/products/new')}>
-
-                Add Your First Product
+              onClick={() => debouncedSearchTerm ? setSearchTerm('') : navigate('/products/new')}>
+                {debouncedSearchTerm ? 'Clear Search' : 'Add Your First Product'}
               </Button>
             </div> :
 
@@ -209,10 +284,18 @@ const ProductList: React.FC = () => {
                         <TableCell className="font-medium">{product.serial_number || '-'}</TableCell>
                         <TableCell>
                           <div>
-                            <p className="font-medium">{product.product_name}</p>
+                            <p className="font-medium">
+                              {debouncedSearchTerm ? 
+                                highlightSearchTerm(product.product_name, debouncedSearchTerm) : 
+                                product.product_name
+                              }
+                            </p>
                             {product.description &&
                           <p className="text-sm text-gray-500 truncate max-w-xs">
-                                {product.description}
+                                {debouncedSearchTerm ? 
+                                  highlightSearchTerm(product.description, debouncedSearchTerm) : 
+                                  product.description
+                                }
                               </p>
                           }
                           </div>
@@ -223,9 +306,19 @@ const ProductList: React.FC = () => {
                         }
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline">{product.department || 'Convenience Store'}</Badge>
+                          <Badge variant="outline">
+                            {debouncedSearchTerm ? 
+                              highlightSearchTerm(product.department || 'Convenience Store', debouncedSearchTerm) : 
+                              (product.department || 'Convenience Store')
+                            }
+                          </Badge>
                         </TableCell>
-                        <TableCell>{product.supplier || '-'}</TableCell>
+                        <TableCell>
+                          {debouncedSearchTerm ? 
+                            highlightSearchTerm(product.supplier || '-', debouncedSearchTerm) : 
+                            (product.supplier || '-')
+                          }
+                        </TableCell>
                         <TableCell>{formatDate(product.last_updated_date)}</TableCell>
                         <TableCell>{formatDate(product.last_shopping_date)}</TableCell>
                         <TableCell>
@@ -246,10 +339,8 @@ const ProductList: React.FC = () => {
                               <Badge
                                 variant={margin > 20 ? 'default' : margin > 10 ? 'secondary' : 'destructive'}
                                 className="text-xs">
-
                                   {margin.toFixed(1)}%
                                 </Badge>);
-
                           }
                           return '-';
                         })()} 
@@ -297,6 +388,7 @@ const ProductList: React.FC = () => {
           <div className="flex items-center justify-between mt-6">
               <p className="text-sm text-gray-700">
                 Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} products
+                {debouncedSearchTerm && ` matching "${debouncedSearchTerm}"`}
               </p>
               <div className="flex items-center space-x-2">
                 <Button
@@ -304,7 +396,6 @@ const ProductList: React.FC = () => {
                 size="sm"
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}>
-
                   Previous
                 </Button>
                 <span className="text-sm">
@@ -315,7 +406,6 @@ const ProductList: React.FC = () => {
                 size="sm"
                 onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}>
-
                   Next
                 </Button>
               </div>
@@ -334,10 +424,8 @@ const ProductList: React.FC = () => {
         }}
         productId={selectedProduct.id}
         productName={selectedProduct.name} />
-
       }
     </div>);
-
 };
 
 export default ProductList;
