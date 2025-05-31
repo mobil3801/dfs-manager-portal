@@ -19,6 +19,7 @@ interface VendorFormData {
   category: string;
   payment_terms: string;
   is_active: boolean;
+  station: string;
 }
 
 const VendorForm: React.FC = () => {
@@ -30,10 +31,12 @@ const VendorForm: React.FC = () => {
     address: '',
     category: '',
     payment_terms: '',
-    is_active: true
+    is_active: true,
+    station: ''
   });
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedStation, setSelectedStation] = useState<string>('');
 
   const navigate = useNavigate();
   const { id } = useParams();
@@ -57,6 +60,12 @@ const VendorForm: React.FC = () => {
   'Prepaid',
   '2/10 Net 30',
   'Custom Terms'];
+
+  const stations = [
+    'MOBIL',
+    'AMOCO ROSEDALE', 
+    'AMOCO BROOKLYN'
+  ];
 
 
   useEffect(() => {
@@ -87,8 +96,10 @@ const VendorForm: React.FC = () => {
           address: vendor.address || '',
           category: vendor.category || '',
           payment_terms: vendor.payment_terms || '',
-          is_active: vendor.is_active !== false
+          is_active: vendor.is_active !== false,
+          station: vendor.station || ''
         });
+        setSelectedStation(vendor.station || '');
       }
     } catch (error) {
       console.error('Error loading vendor:', error);
@@ -110,6 +121,7 @@ const VendorForm: React.FC = () => {
 
       const dataToSubmit = {
         ...formData,
+        station: selectedStation,
         created_by: 1
       };
 
@@ -151,6 +163,11 @@ const VendorForm: React.FC = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleStationSelect = (station: string) => {
+    setSelectedStation(station);
+    setFormData((prev) => ({ ...prev, station }));
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -172,7 +189,52 @@ const VendorForm: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          {!selectedStation && !isEditing ? (
+            <div className="space-y-6">
+              <div className="text-center space-y-4">
+                <h3 className="text-lg font-semibold">Select Station First</h3>
+                <p className="text-gray-600">Please select a station before creating a vendor.</p>
+              </div>
+              
+              <div className="max-w-md mx-auto space-y-4">
+                <Label htmlFor="station">Station *</Label>
+                <Select value={selectedStation} onValueChange={handleStationSelect}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a station" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {stations.map((station) => (
+                      <SelectItem key={station} value={station}>
+                        {station}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {selectedStation && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-medium text-blue-900">Selected Station</h4>
+                      <p className="text-blue-700">{selectedStation}</p>
+                    </div>
+                    {!isEditing && (
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setSelectedStation('')}
+                      >
+                        Change Station
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
+              
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="vendor_name">Vendor Name *</Label>
@@ -295,6 +357,7 @@ const VendorForm: React.FC = () => {
               </Button>
             </div>
           </form>
+          )}
         </CardContent>
       </Card>
     </div>);
