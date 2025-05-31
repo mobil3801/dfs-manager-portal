@@ -13,7 +13,9 @@ import {
   FileText,
   Plus,
   ChevronLeft,
-  ChevronRight } from
+  ChevronRight,
+  DollarSign,
+  AlertTriangle } from
 'lucide-react';
 
 import Logo from '@/components/Logo';
@@ -38,6 +40,9 @@ const DashboardLayout: React.FC = () => {
   { name: 'Add Employee', path: '/employees/new', icon: <Plus className="w-5 h-5" /> },
   { name: 'Sales Reports', path: '/sales', icon: <TrendingUp className="w-5 h-5" /> },
   { name: 'Add Report', path: '/sales/new', icon: <Plus className="w-5 h-5" /> },
+  { name: 'Salary Records', path: '/salary', icon: <DollarSign className="w-5 h-5" /> },
+  { name: 'Add Salary', path: '/salary/new', icon: <Plus className="w-5 h-5" /> },
+  { name: 'Inventory Alerts', path: '/inventory/alerts', icon: <AlertTriangle className="w-5 h-5" /> },
   { name: 'All Vendors', path: '/vendors', icon: <Building2 className="w-5 h-5" /> },
   { name: 'Add Vendor', path: '/vendors/new', icon: <Plus className="w-5 h-5" /> },
   { name: 'All Orders', path: '/orders', icon: <ShoppingCart className="w-5 h-5" /> },
@@ -78,6 +83,8 @@ const DashboardLayout: React.FC = () => {
     if (path.startsWith('/products')) return 'Products';
     if (path.startsWith('/employees')) return 'Employees';
     if (path.startsWith('/sales')) return 'Sales Reports';
+    if (path.startsWith('/salary')) return 'Salary Management';
+    if (path.startsWith('/inventory')) return 'Inventory Management';
     if (path.startsWith('/vendors')) return 'Vendors';
     if (path.startsWith('/orders')) return 'Orders';
     if (path.startsWith('/licenses')) return 'Licenses & Certificates';

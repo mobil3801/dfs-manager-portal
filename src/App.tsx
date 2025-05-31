@@ -17,6 +17,10 @@ import OrderList from './pages/Orders/OrderList';
 import OrderForm from './pages/Orders/OrderForm';
 import LicenseList from './pages/Licenses/LicenseList';
 import LicenseForm from './pages/Licenses/LicenseForm';
+import SalaryList from './pages/Salary/SalaryList';
+import SalaryForm from './pages/Salary/SalaryForm';
+import InventoryAlerts from './pages/Inventory/InventoryAlerts';
+import AlertSettings from './pages/Inventory/AlertSettings';
 import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient();
@@ -61,6 +65,16 @@ function App() {
               <Route path="licenses" element={<LicenseList />} />
               <Route path="licenses/new" element={<LicenseForm />} />
               <Route path="licenses/edit/:id" element={<LicenseForm />} />
+              
+              {/* Salary routes */}
+              <Route path="salary" element={<SalaryList />} />
+              <Route path="salary/new" element={<SalaryForm />} />
+              <Route path="salary/:id" element={<SalaryForm />} />
+              <Route path="salary/:id/edit" element={<SalaryForm />} />
+              
+              {/* Inventory routes */}
+              <Route path="inventory/alerts" element={<InventoryAlerts />} />
+              <Route path="inventory/settings" element={<AlertSettings />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />
