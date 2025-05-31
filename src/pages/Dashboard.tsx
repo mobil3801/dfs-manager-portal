@@ -4,7 +4,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import SalesChart from '@/components/SalesChart';
-import VisualEditBanner from '@/components/VisualEditBanner';
 import {
   Package,
   Users,
@@ -491,9 +490,6 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Visual Edit Banner */}
-      <VisualEditBanner />
-      
       {/* Welcome Section */}
       <div className="bg-gradient-to-r from-brand-800 to-brand-900 rounded-lg p-6 text-white">
         <div className="flex items-center justify-center space-x-4 mb-4">

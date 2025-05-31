@@ -361,31 +361,31 @@ const SalesReportList: React.FC = () => {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handlePrint(report)}
-                            title="Document Print">
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePrint(report)}
+                        title="Document Print">
                             <Printer className="w-4 h-4" />
                           </Button>
-                          {isAdmin && (
-                            <>
+                          {isAdmin &&
+                      <>
                               <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => navigate(`/sales/edit/${report.ID}`)}
-                                title="Edit Report">
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate(`/sales/edit/${report.ID}`)}
+                          title="Edit Report">
                                 <Edit className="w-4 h-4" />
                               </Button>
                               <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleDelete(report.ID)}
-                                className="text-red-600 hover:text-red-700"
-                                title="Delete Report">
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDelete(report.ID)}
+                          className="text-red-600 hover:text-red-700"
+                          title="Delete Report">
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </>
-                          )}
+                      }
                         </div>
                       </TableCell>
                     </TableRow>
@@ -475,8 +475,8 @@ const SalesReportList: React.FC = () => {
       <SalesReportPrintDialog
         open={printDialogOpen}
         onOpenChange={setPrintDialogOpen}
-        report={selectedReport}
-      />
+        report={selectedReport} />
+
     </div>);
 
 };
