@@ -492,25 +492,10 @@ const Dashboard: React.FC = () => {
     <div className="space-y-6">
       {/* Welcome Section */}
       <div className="bg-gradient-to-r from-brand-800 to-brand-900 rounded-lg p-6 text-white">
-        <div className="flex items-center justify-center space-x-4 mb-4">
-          <div className="p-3 bg-white/20 rounded-full">
-            <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M19.616 6.48c.014-.107.029-.214.039-.321.041-.438.064-.88.064-1.325C19.72 2.227 17.493 0 14.896 0c-1.378 0-2.613.597-3.466 1.547C10.577.597 9.342 0 7.964 0 5.367 0 3.14 2.227 3.14 4.824c0 .445.023.887.064 1.325.01.107.025.214.039.321-1.313.928-2.083 2.445-2.083 4.017 0 2.778 2.252 5.03 5.03 5.03h8.66c2.778 0 5.03-2.252 5.03-5.03 0-1.572-.77-3.089-2.083-4.017zM12 13.5c-.828 0-1.5-.672-1.5-1.5s.672-1.5 1.5-1.5 1.5.672 1.5 1.5-.672 1.5-1.5 1.5zm-5-1c-.552 0-1-.448-1-1s.448-1 1-1 1 .448 1 1-.448 1-1 1zm10 0c-.552 0-1-.448-1-1s.448-1 1-1 1 .448 1 1-.448 1-1 1z" />
-              <path d="M19 16.5H5v1.5h14v-1.5zm-7 3c-1.657 0-3 1.343-3 3v1.5h6V22.5c0-1.657-1.343-3-3-3z" />
-              <circle cx="12" cy="21" r="1" />
-            </svg>
-          </div>
-        </div>
         <div className="text-center">
           <h1 className="text-4xl font-bold mb-2">
             DFS Manager Portal
           </h1>
-          <p className="text-brand-100 text-lg">
-            Fuel Station Operations & Management System
-          </p>
-          <p className="text-sm text-brand-200 mt-2">
-            Monitor your business performance and manage operations efficiently.
-          </p>
         </div>
       </div>
 
