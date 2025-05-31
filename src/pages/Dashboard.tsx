@@ -19,7 +19,8 @@ import {
   Bell,
   Clock,
   Info,
-  AlertCircle } from
+  AlertCircle,
+  Plus } from
 'lucide-react';
 
 interface DashboardStats {
@@ -502,8 +503,27 @@ const Dashboard: React.FC = () => {
       {/* Key Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Products */}
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/products')}>
-          <CardContent className="p-6">
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/products')}>
+              <Package className="w-6 h-6 text-brand-700" />
+              <span className="font-semibold">Products</span>
+            </div>
+            <Button
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate('/products/new');
+              }}
+              className="h-8 w-8 p-0"
+            >
+              <Plus className="w-4 h-4" />
+            </Button>
+          </CardHeader>
+          <CardDescription className="px-6 pb-2">
+            Manage your product inventory - Search across all product fields for similar items
+          </CardDescription>
+          <CardContent className="p-6 pt-0 cursor-pointer" onClick={() => navigate('/products')}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Products</p>
@@ -514,9 +534,6 @@ const Dashboard: React.FC = () => {
                     {stats.lowStockProducts} low stock
                   </p>
                 }
-              </div>
-              <div className="p-3 rounded-full bg-brand-700 text-white">
-                <Package className="w-6 h-6" />
               </div>
             </div>
           </CardContent>
