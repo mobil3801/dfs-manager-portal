@@ -9,15 +9,26 @@ export const useEditGuard = () => {
   const guardedAction = useCallback((action: string, callback: () => void) => {
     if (!checkEditPermission(action)) {
       toast({
-        title: "Cannot modify manually",
-        description: "Please modify through AI assistance. Manual editing is currently disabled.",
+        title: "Manual editing is disabled",
+        description: "Please enable visual edit mode from the banner above to make manual changes.",
         variant: "destructive",
         duration: 4000
       });
       return false;
     }
-    callback();
-    return true;
+    try {
+      callback();
+      return true;
+    } catch (error) {
+      console.error(`Error executing ${action}:`, error);
+      toast({
+        title: "Action failed",
+        description: `Failed to ${action}. Please try again.`,
+        variant: "destructive",
+        duration: 3000
+      });
+      return false;
+    }
   }, [checkEditPermission, toast]);
 
   const guardedSubmit = useCallback((formName: string, submitCallback: () => void) => {
@@ -38,10 +49,19 @@ export const useEditGuard = () => {
 
   const showRestrictedMessage = useCallback(() => {
     toast({
-      title: "Cannot modify manually",
-      description: "Please modify through AI assistance. Manual editing is currently disabled for this field.",
+      title: "Manual editing is disabled",
+      description: "Please enable visual edit mode from the banner to make changes to this field.",
       variant: "destructive",
       duration: 3000
+    });
+  }, [toast]);
+
+  const enableEditMode = useCallback(() => {
+    toast({
+      title: "Edit mode enabled",
+      description: "You can now make manual changes to the application.",
+      variant: "default",
+      duration: 2000
     });
   }, [toast]);
 
@@ -53,6 +73,7 @@ export const useEditGuard = () => {
     guardedUpdate,
     guardedCreate,
     showRestrictedMessage,
+    enableEditMode,
     canEdit: () => isEditModeEnabled
   };
 };

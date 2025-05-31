@@ -23,7 +23,8 @@ interface VisualEditProviderProps {
 
 export const VisualEditProvider: React.FC<VisualEditProviderProps> = ({ children }) => {
   const [isEditModeEnabled, setIsEditModeEnabled] = useState(() => {
-    return localStorage.getItem('visualEditMode') !== 'false';
+    const savedMode = localStorage.getItem('visualEditMode');
+    return savedMode === null ? true : savedMode === 'true';
   });
 
   useEffect(() => {
@@ -45,6 +46,14 @@ export const VisualEditProvider: React.FC<VisualEditProviderProps> = ({ children
     }
     return true;
   };
+
+  // Auto-enable edit mode if it's not set
+  React.useEffect(() => {
+    if (localStorage.getItem('visualEditMode') === null) {
+      localStorage.setItem('visualEditMode', 'true');
+      setIsEditModeEnabled(true);
+    }
+  }, []);
 
   const value = {
     isEditModeEnabled,

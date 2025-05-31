@@ -11,7 +11,8 @@ interface VisualEditBannerProps {
 
 const VisualEditBanner: React.FC<VisualEditBannerProps> = ({ onEditModeChange }) => {
   const [editMode, setEditMode] = useState(() => {
-    return localStorage.getItem('visualEditMode') === 'true';
+    const savedMode = localStorage.getItem('visualEditMode');
+    return savedMode === null ? true : savedMode === 'true';
   });
   const [showBanner, setShowBanner] = useState(() => {
     return localStorage.getItem('showVisualEditBanner') !== 'false';
@@ -23,6 +24,14 @@ const VisualEditBanner: React.FC<VisualEditBannerProps> = ({ onEditModeChange })
     localStorage.setItem('showVisualEditBanner', showBanner.toString());
     onEditModeChange?.(editMode);
   }, [editMode, showBanner, onEditModeChange]);
+
+  // Initialize edit mode if not set
+  useEffect(() => {
+    if (localStorage.getItem('visualEditMode') === null) {
+      localStorage.setItem('visualEditMode', 'true');
+      setEditMode(true);
+    }
+  }, []);
 
   const toggleEditMode = () => {
     const newMode = !editMode;
