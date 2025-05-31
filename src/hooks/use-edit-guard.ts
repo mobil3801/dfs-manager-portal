@@ -7,15 +7,7 @@ export const useEditGuard = () => {
   const { toast } = useToast();
 
   const guardedAction = useCallback((action: string, callback: () => void) => {
-    if (!checkEditPermission(action)) {
-      toast({
-        title: "Manual editing is disabled",
-        description: "Please enable visual edit mode from the banner above to make manual changes.",
-        variant: "destructive",
-        duration: 4000
-      });
-      return false;
-    }
+    // Always allow actions - remove blocking behavior
     try {
       callback();
       return true;
@@ -29,7 +21,7 @@ export const useEditGuard = () => {
       });
       return false;
     }
-  }, [checkEditPermission, toast]);
+  }, [toast]);
 
   const guardedSubmit = useCallback((formName: string, submitCallback: () => void) => {
     return guardedAction(`submit ${formName} form`, submitCallback);
@@ -48,13 +40,9 @@ export const useEditGuard = () => {
   }, [guardedAction]);
 
   const showRestrictedMessage = useCallback(() => {
-    toast({
-      title: "Manual editing is disabled",
-      description: "Please enable visual edit mode from the banner to make changes to this field.",
-      variant: "destructive",
-      duration: 3000
-    });
-  }, [toast]);
+    // No longer show restriction messages
+    console.log('Edit action allowed');
+  }, []);
 
   const enableEditMode = useCallback(() => {
     toast({
@@ -74,7 +62,7 @@ export const useEditGuard = () => {
     guardedCreate,
     showRestrictedMessage,
     enableEditMode,
-    canEdit: () => isEditModeEnabled
+    canEdit: () => true // Always allow editing
   };
 };
 

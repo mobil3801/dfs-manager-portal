@@ -29,8 +29,8 @@ const VisualEditBanner: React.FC<VisualEditBannerProps> = ({ onEditModeChange })
     toast({
       title: newMode ? "Visual Edit Mode Enabled" : "Visual Edit Mode Disabled",
       description: newMode ?
-      "You can now make changes through AI assistance and visual editing tools." :
-      "Manual editing has been restricted. Use AI assistance to modify content.",
+      "Visual editing tools and AI assistance are available." :
+      "Visual editing tools are hidden, but manual editing is still enabled.",
       duration: 3000
     });
   };
@@ -62,7 +62,7 @@ const VisualEditBanner: React.FC<VisualEditBannerProps> = ({ onEditModeChange })
     <Card className={`transition-all duration-300 ${
     isEditModeEnabled ?
     'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' :
-    'bg-gradient-to-r from-orange-50 to-red-50 border-orange-200'}`
+    'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200'}`
     }>
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
@@ -70,26 +70,26 @@ const VisualEditBanner: React.FC<VisualEditBannerProps> = ({ onEditModeChange })
             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
             isEditModeEnabled ?
             'bg-green-100' :
-            'bg-orange-100'}`
+            'bg-blue-100'}`
             }>
               {isEditModeEnabled ?
-              <Unlock className="w-5 h-5 text-green-600" /> :
+              <Edit className="w-5 h-5 text-green-600" /> :
 
-              <Lock className="w-5 h-5 text-orange-600" />
+              <Settings className="w-5 h-5 text-blue-600" />
               }
             </div>
             <div>
               <h3 className={`text-lg font-semibold ${
-              isEditModeEnabled ? 'text-green-900' : 'text-orange-900'}`
+              isEditModeEnabled ? 'text-green-900' : 'text-blue-900'}`
               }>
-                {isEditModeEnabled ? 'Visual Editing Mode Enabled' : 'Manual Editing Restricted'}
+                {isEditModeEnabled ? 'Visual Editing Mode Enabled' : 'Standard Editing Mode'}
               </h3>
               <p className={`text-sm ${
-              isEditModeEnabled ? 'text-green-700' : 'text-orange-700'}`
+              isEditModeEnabled ? 'text-green-700' : 'text-blue-700'}`
               }>
                 {isEditModeEnabled ?
-                'All features are unlocked for full editing access' :
-                'Manual modifications blocked - use AI assistance for changes'
+                'Visual editing tools and AI assistance are available' :
+                'Standard manual editing is active'
                 }
               </p>
             </div>
@@ -113,13 +113,13 @@ const VisualEditBanner: React.FC<VisualEditBannerProps> = ({ onEditModeChange })
               </> :
 
             <>
-                <Badge variant="destructive" className="bg-orange-100 text-orange-800">
-                  <Lock className="w-3 h-3 mr-1" />
-                  Restricted
-                </Badge>
-                <Badge variant="outline" className="border-orange-300 text-orange-700">
+                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
                   <Settings className="w-3 h-3 mr-1" />
-                  AI Only
+                  Standard
+                </Badge>
+                <Badge variant="outline" className="border-blue-300 text-blue-700">
+                  <Edit className="w-3 h-3 mr-1" />
+                  Manual Edit
                 </Badge>
               </>
             }
@@ -132,11 +132,11 @@ const VisualEditBanner: React.FC<VisualEditBannerProps> = ({ onEditModeChange })
                 className={`h-8 px-3 ${
                 isEditModeEnabled ?
                 'text-green-700 hover:bg-green-100' :
-                'text-orange-700 hover:bg-orange-100'}`
+                'text-blue-700 hover:bg-blue-100'}`
                 }
-                title={isEditModeEnabled ? 'Disable editing' : 'Enable editing'}>
+                title={isEditModeEnabled ? 'Switch to standard mode' : 'Enable visual editing'}>
 
-                {isEditModeEnabled ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+                {isEditModeEnabled ? <Settings className="w-4 h-4" /> : <Edit className="w-4 h-4" />}
               </Button>
               
               <Button

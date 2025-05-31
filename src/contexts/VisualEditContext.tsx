@@ -37,21 +37,17 @@ export const VisualEditProvider: React.FC<VisualEditProviderProps> = ({ children
   };
 
   const canEdit = () => {
-    return isEditModeEnabled;
+    return true; // Always allow editing - remove blocking
   };
 
   const checkEditPermission = (action: string) => {
-    if (!isEditModeEnabled) {
-      console.warn(`Action "${action}" blocked: Manual editing is disabled. Please use AI assistance.`);
-      return false;
-    }
-    return true;
+    return true; // Always allow editing - remove blocking
   };
 
   // Auto-enable edit mode if it's not set
   React.useEffect(() => {
     const savedMode = localStorage.getItem('visualEditMode');
-    
+
     if (savedMode === null) {
       localStorage.setItem('visualEditMode', 'true');
       setIsEditModeEnabled(true);
