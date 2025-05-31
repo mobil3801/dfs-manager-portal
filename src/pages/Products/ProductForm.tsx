@@ -320,7 +320,7 @@ const ProductForm = () => {
       });
       return;
     }
-    
+
     processSubmit();
   };
 

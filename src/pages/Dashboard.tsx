@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import SalesChart from '@/components/SalesChart';
+import VisualEditIndicator from '@/components/VisualEditIndicator';
 import {
   Package,
   Users,
@@ -20,7 +21,8 @@ import {
   Clock,
   Info,
   AlertCircle,
-  Plus } from
+  Plus,
+  X } from
 'lucide-react';
 
 interface DashboardStats {
@@ -80,6 +82,7 @@ const Dashboard: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [showGuide, setShowGuide] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -497,6 +500,17 @@ const Dashboard: React.FC = () => {
           <h1 className="text-4xl font-bold mb-2">
             DFS Manager Portal
           </h1>
+          <div className="mt-4 flex justify-center">
+            <VisualEditIndicator className="mb-2" />
+            <Button 
+              variant="outline" 
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20 ml-4"
+              onClick={() => setShowGuide(true)}
+            >
+              <Info className="w-4 h-4 mr-2" />
+              View Editing Guide
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -783,6 +797,47 @@ const Dashboard: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Visual Edit Status Note */}
+      {showGuide && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Visual Editing Guide</h3>
+              <Button variant="ghost" size="sm" onClick={() => setShowGuide(false)}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2 p-3 bg-green-50 rounded-lg">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <span className="font-medium text-green-800">Visual Editing Fully Enabled</span>
+              </div>
+              <p className="text-gray-600">
+                All users have complete access to create, edit, and delete records across all modules including:
+              </p>
+              <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
+                <li>Products management with barcode scanning</li>
+                <li>Employee records and scheduling</li>
+                <li>Sales reports and analytics</li>
+                <li>Vendor and supplier management</li>
+                <li>Order tracking and fulfillment</li>
+                <li>License and certificate tracking</li>
+                <li>Salary and payroll management</li>
+                <li>Inventory alerts and monitoring</li>
+              </ul>
+              <div className="bg-blue-50 p-3 rounded-lg">
+                <p className="text-sm text-blue-700">
+                  <strong>Pro Tip:</strong> Look for edit buttons in table rows and use the search functionality to quickly find and modify records.
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end">
+              <Button onClick={() => setShowGuide(false)}>Got it!</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>);
 
 };

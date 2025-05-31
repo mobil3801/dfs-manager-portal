@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { toast } from '@/hooks/use-toast';
 import { Search, Edit, Trash2, Users, Mail, Phone, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import VisualEditToolbar from '@/components/VisualEditToolbar';
 
 interface Employee {
   ID: number;
@@ -122,6 +123,7 @@ const EmployeeList: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <VisualEditToolbar className="mb-4" />
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">

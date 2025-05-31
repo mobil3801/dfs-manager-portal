@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import ProductLogs from '@/components/ProductLogs';
 import HighlightText from '@/components/HighlightText';
+import VisualEditToolbar from '@/components/VisualEditToolbar';
 
 interface Product {
   ID: number;
@@ -172,7 +173,8 @@ const ProductList: React.FC = () => {
     setLogsModalOpen(true);
   };
 
-  const isAdministrator = userProfile?.role === 'Administrator';
+  // Visual editing enabled for all users
+  const hasEditPermission = true;
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
@@ -213,6 +215,7 @@ const ProductList: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <VisualEditToolbar className="mb-4" />
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -395,25 +398,21 @@ const ProductList: React.FC = () => {
                             title="View change logs">
                               <FileText className="w-4 h-4" />
                             </Button>
-                            {isAdministrator &&
-                          <>
-                                <Button
+                            <Button
                               variant="outline"
                               size="sm"
                               onClick={() => navigate(`/products/edit/${product.ID}`)}
                               title="Edit product">
-                                  <Edit className="w-4 h-4" />
-                                </Button>
-                                <Button
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
                               variant="outline"
                               size="sm"
                               onClick={() => handleDelete(product.ID)}
                               className="text-red-600 hover:text-red-700"
                               title="Delete product">
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </>
-                          }
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>);

@@ -27,6 +27,11 @@ interface AuthContextType {
   register: (email: string, password: string) => Promise<boolean>;
   loading: boolean;
   hasPermission: (feature: string, action: 'read' | 'write') => boolean;
+  canEdit: (feature?: string) => boolean;
+  canDelete: (feature?: string) => boolean;
+  canCreate: (feature?: string) => boolean;
+  canViewLogs: (feature?: string) => boolean;
+  isVisualEditingEnabled: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -232,6 +237,28 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
     return true;
   };
 
+  const canEdit = (feature?: string): boolean => {
+    // Full visual editing access for all users and features
+    return true;
+  };
+
+  const canDelete = (feature?: string): boolean => {
+    // Full delete access for all users and features
+    return true;
+  };
+
+  const canCreate = (feature?: string): boolean => {
+    // Full create access for all users and features
+    return true;
+  };
+
+  const canViewLogs = (feature?: string): boolean => {
+    // Full log viewing access for all users and features
+    return true;
+  };
+
+  const isVisualEditingEnabled = true;
+
   const value = {
     user,
     userProfile,
@@ -239,7 +266,12 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
     logout,
     register,
     loading,
-    hasPermission
+    hasPermission,
+    canEdit,
+    canDelete,
+    canCreate,
+    canViewLogs,
+    isVisualEditingEnabled
   };
 
   return (

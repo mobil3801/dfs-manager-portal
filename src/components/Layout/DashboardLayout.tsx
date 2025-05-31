@@ -15,7 +15,9 @@ import {
   ChevronLeft,
   ChevronRight,
   DollarSign,
-  AlertTriangle } from
+  AlertTriangle,
+  CheckCircle,
+  Edit3 } from
 'lucide-react';
 
 import Logo from '@/components/Logo';
@@ -154,7 +156,12 @@ const DashboardLayout: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-600 hidden sm:inline">
+            <div className="flex items-center space-x-2 bg-green-50 px-3 py-1 rounded-full border border-green-200 hidden sm:flex">
+              <CheckCircle className="w-4 h-4 text-green-600" />
+              <span className="text-sm font-medium text-green-700">Visual Edit Active</span>
+              <Edit3 className="w-3 h-3 text-green-600" />
+            </div>
+            <span className="text-sm text-gray-600 hidden lg:inline">
               Gas Station Management
             </span>
           </div>
