@@ -6,9 +6,10 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Search, Edit, Trash2, Truck, Filter, Download } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Truck, Filter, Download, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import VisualEditToolbar from '@/components/VisualEditToolbar';
+import DeliveryReportDialog from '@/components/DeliveryReportDialog';
 
 interface DeliveryRecord {
   id: number;
@@ -34,6 +35,8 @@ const DeliveryList: React.FC = () => {
   const [stationFilter, setStationFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [selectedDelivery, setSelectedDelivery] = useState<DeliveryRecord | null>(null);
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
   const pageSize = 10;
 
   const stations = ['MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN'];
@@ -140,6 +143,11 @@ const DeliveryList: React.FC = () => {
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const handleViewReport = (delivery: DeliveryRecord) => {
+    setSelectedDelivery(delivery);
+    setReportDialogOpen(true);
   };
 
   const totalPages = Math.ceil(totalCount / pageSize);
@@ -277,6 +285,7 @@ const DeliveryList: React.FC = () => {
                       <TableHead>Regular (Delivered)</TableHead>
                       <TableHead>Plus Delivered</TableHead>
                       <TableHead>Super Delivered</TableHead>
+                      <TableHead>Full Report</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -304,6 +313,16 @@ const DeliveryList: React.FC = () => {
                         </TableCell>
                         <TableCell className="font-medium text-purple-600">
                           {formatNumber(delivery.super_delivered)} gal
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleViewReport(delivery)}
+                            className="h-8 w-8 p-0 hover:bg-blue-50"
+                          >
+                            <Eye className="h-4 w-4 text-blue-600" />
+                          </Button>
                         </TableCell>
                       </TableRow>
                   )}
@@ -341,6 +360,13 @@ const DeliveryList: React.FC = () => {
           }
         </CardContent>
       </Card>
+
+      {/* Delivery Report Dialog */}
+      <DeliveryReportDialog
+        open={reportDialogOpen}
+        onOpenChange={setReportDialogOpen}
+        delivery={selectedDelivery}
+      />
     </div>);
 
 };
