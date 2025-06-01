@@ -7,13 +7,13 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Settings, 
-  Database, 
-  Shield, 
-  Mail, 
-  Bell, 
-  Globe, 
+import {
+  Settings,
+  Database,
+  Shield,
+  Mail,
+  Bell,
+  Globe,
   Lock,
   Eye,
   EyeOff,
@@ -25,8 +25,8 @@ import {
   Building2,
   MapPin,
   Phone,
-  Calendar
-} from 'lucide-react';
+  Calendar } from
+'lucide-react';
 
 interface SiteSettings {
   siteName: string;
@@ -77,31 +77,31 @@ const SiteManagement: React.FC = () => {
   });
 
   const [stations] = useState<StationInfo[]>([
-    {
-      name: 'MOBIL',
-      address: '123 Main Street, Brooklyn, NY 11201',
-      phone: '(718) 555-0101',
-      manager: 'John Smith',
-      operatingHours: '24/7',
-      lastUpdated: new Date().toLocaleDateString()
-    },
-    {
-      name: 'AMOCO ROSEDALE',
-      address: '456 Rosedale Ave, Queens, NY 11422',
-      phone: '(718) 555-0102',
-      manager: 'Maria Garcia',
-      operatingHours: '6:00 AM - 12:00 AM',
-      lastUpdated: new Date().toLocaleDateString()
-    },
-    {
-      name: 'AMOCO BROOKLYN',
-      address: '789 Brooklyn Ave, Brooklyn, NY 11235',
-      phone: '(718) 555-0103',
-      manager: 'David Wilson',
-      operatingHours: '5:00 AM - 11:00 PM',
-      lastUpdated: new Date().toLocaleDateString()
-    }
-  ]);
+  {
+    name: 'MOBIL',
+    address: '123 Main Street, Brooklyn, NY 11201',
+    phone: '(718) 555-0101',
+    manager: 'John Smith',
+    operatingHours: '24/7',
+    lastUpdated: new Date().toLocaleDateString()
+  },
+  {
+    name: 'AMOCO ROSEDALE',
+    address: '456 Rosedale Ave, Queens, NY 11422',
+    phone: '(718) 555-0102',
+    manager: 'Maria Garcia',
+    operatingHours: '6:00 AM - 12:00 AM',
+    lastUpdated: new Date().toLocaleDateString()
+  },
+  {
+    name: 'AMOCO BROOKLYN',
+    address: '789 Brooklyn Ave, Brooklyn, NY 11235',
+    phone: '(718) 555-0103',
+    manager: 'David Wilson',
+    operatingHours: '5:00 AM - 11:00 PM',
+    lastUpdated: new Date().toLocaleDateString()
+  }]
+  );
 
   const [showApiKeys, setShowApiKeys] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -111,8 +111,8 @@ const SiteManagement: React.FC = () => {
     setIsSaving(true);
     try {
       // Simulate API call to save settings
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       toast({
         title: "Success",
         description: "Site settings saved successfully"
@@ -174,22 +174,22 @@ const SiteManagement: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">Site Management</h1>
         </div>
         
-        <Button 
-          onClick={handleSaveSettings} 
+        <Button
+          onClick={handleSaveSettings}
           disabled={isSaving}
-          className="bg-blue-600 hover:bg-blue-700"
-        >
-          {isSaving ? (
-            <>
+          className="bg-blue-600 hover:bg-blue-700">
+
+          {isSaving ?
+          <>
               <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
               Saving...
-            </>
-          ) : (
-            <>
+            </> :
+
+          <>
               <Save className="w-4 h-4 mr-2" />
               Save Settings
             </>
-          )}
+          }
         </Button>
       </div>
 
@@ -254,8 +254,8 @@ const SiteManagement: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {stations.map((station, index) => (
-              <Card key={index} className="border">
+            {stations.map((station, index) =>
+            <Card key={index} className="border">
                 <CardContent className="p-4">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
@@ -287,7 +287,7 @@ const SiteManagement: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            )}
           </div>
         </CardContent>
       </Card>
@@ -307,8 +307,8 @@ const SiteManagement: React.FC = () => {
               <Input
                 id="siteName"
                 value={settings.siteName}
-                onChange={(e) => setSettings({...settings, siteName: e.target.value})}
-              />
+                onChange={(e) => setSettings({ ...settings, siteName: e.target.value })} />
+
             </div>
             
             <div>
@@ -316,8 +316,8 @@ const SiteManagement: React.FC = () => {
               <Input
                 id="siteDescription"
                 value={settings.siteDescription}
-                onChange={(e) => setSettings({...settings, siteDescription: e.target.value})}
-              />
+                onChange={(e) => setSettings({ ...settings, siteDescription: e.target.value })} />
+
             </div>
           </div>
           
@@ -326,9 +326,9 @@ const SiteManagement: React.FC = () => {
             <Textarea
               id="maintenanceMessage"
               value={settings.maintenanceMessage}
-              onChange={(e) => setSettings({...settings, maintenanceMessage: e.target.value})}
-              rows={3}
-            />
+              onChange={(e) => setSettings({ ...settings, maintenanceMessage: e.target.value })}
+              rows={3} />
+
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -339,8 +339,8 @@ const SiteManagement: React.FC = () => {
               </div>
               <Switch
                 checked={settings.enableRegistration}
-                onCheckedChange={(checked) => setSettings({...settings, enableRegistration: checked})}
-              />
+                onCheckedChange={(checked) => setSettings({ ...settings, enableRegistration: checked })} />
+
             </div>
             
             <div className="flex items-center justify-between p-3 border rounded-lg">
@@ -350,8 +350,8 @@ const SiteManagement: React.FC = () => {
               </div>
               <Switch
                 checked={settings.enableNotifications}
-                onCheckedChange={(checked) => setSettings({...settings, enableNotifications: checked})}
-              />
+                onCheckedChange={(checked) => setSettings({ ...settings, enableNotifications: checked })} />
+
             </div>
             
             <div className="flex items-center justify-between p-3 border rounded-lg">
@@ -361,8 +361,8 @@ const SiteManagement: React.FC = () => {
               </div>
               <Switch
                 checked={settings.enableMaintenance}
-                onCheckedChange={(checked) => setSettings({...settings, enableMaintenance: checked})}
-              />
+                onCheckedChange={(checked) => setSettings({ ...settings, enableMaintenance: checked })} />
+
             </div>
           </div>
         </CardContent>
@@ -383,8 +383,8 @@ const SiteManagement: React.FC = () => {
               <Input
                 id="emailFromName"
                 value={settings.emailFromName}
-                onChange={(e) => setSettings({...settings, emailFromName: e.target.value})}
-              />
+                onChange={(e) => setSettings({ ...settings, emailFromName: e.target.value })} />
+
             </div>
             
             <div>
@@ -393,8 +393,8 @@ const SiteManagement: React.FC = () => {
                 id="emailFromAddress"
                 type="email"
                 value={settings.emailFromAddress}
-                onChange={(e) => setSettings({...settings, emailFromAddress: e.target.value})}
-              />
+                onChange={(e) => setSettings({ ...settings, emailFromAddress: e.target.value })} />
+
             </div>
           </div>
           
@@ -421,8 +421,8 @@ const SiteManagement: React.FC = () => {
                 id="sessionTimeout"
                 type="number"
                 value={settings.sessionTimeout}
-                onChange={(e) => setSettings({...settings, sessionTimeout: parseInt(e.target.value) || 30})}
-              />
+                onChange={(e) => setSettings({ ...settings, sessionTimeout: parseInt(e.target.value) || 30 })} />
+
             </div>
             
             <div>
@@ -431,8 +431,8 @@ const SiteManagement: React.FC = () => {
                 id="passwordMinLength"
                 type="number"
                 value={settings.passwordMinLength}
-                onChange={(e) => setSettings({...settings, passwordMinLength: parseInt(e.target.value) || 8})}
-              />
+                onChange={(e) => setSettings({ ...settings, passwordMinLength: parseInt(e.target.value) || 8 })} />
+
             </div>
             
             <div>
@@ -441,8 +441,8 @@ const SiteManagement: React.FC = () => {
                 id="logRetentionDays"
                 type="number"
                 value={settings.logRetentionDays}
-                onChange={(e) => setSettings({...settings, logRetentionDays: parseInt(e.target.value) || 30})}
-              />
+                onChange={(e) => setSettings({ ...settings, logRetentionDays: parseInt(e.target.value) || 30 })} />
+
             </div>
           </div>
           
@@ -454,8 +454,8 @@ const SiteManagement: React.FC = () => {
               </div>
               <Switch
                 checked={settings.requirePasswordComplexity}
-                onCheckedChange={(checked) => setSettings({...settings, requirePasswordComplexity: checked})}
-              />
+                onCheckedChange={(checked) => setSettings({ ...settings, requirePasswordComplexity: checked })} />
+
             </div>
             
             <div className="flex items-center justify-between p-3 border rounded-lg">
@@ -465,8 +465,8 @@ const SiteManagement: React.FC = () => {
               </div>
               <Switch
                 checked={settings.enableTwoFactor}
-                onCheckedChange={(checked) => setSettings({...settings, enableTwoFactor: checked})}
-              />
+                onCheckedChange={(checked) => setSettings({ ...settings, enableTwoFactor: checked })} />
+
             </div>
           </div>
         </CardContent>
@@ -488,8 +488,8 @@ const SiteManagement: React.FC = () => {
                 id="maxFileSize"
                 type="number"
                 value={settings.maxFileSize}
-                onChange={(e) => setSettings({...settings, maxFileSize: parseInt(e.target.value) || 10})}
-              />
+                onChange={(e) => setSettings({ ...settings, maxFileSize: parseInt(e.target.value) || 10 })} />
+
             </div>
             
             <div>
@@ -497,9 +497,9 @@ const SiteManagement: React.FC = () => {
               <Input
                 id="allowedFileTypes"
                 value={settings.allowedFileTypes}
-                onChange={(e) => setSettings({...settings, allowedFileTypes: e.target.value})}
-                placeholder="jpg,png,pdf,doc"
-              />
+                onChange={(e) => setSettings({ ...settings, allowedFileTypes: e.target.value })}
+                placeholder="jpg,png,pdf,doc" />
+
             </div>
           </div>
         </CardContent>
@@ -545,8 +545,8 @@ const SiteManagement: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SiteManagement;

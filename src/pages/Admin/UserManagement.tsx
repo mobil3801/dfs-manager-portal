@@ -8,20 +8,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Users, 
-  Plus, 
-  Edit3, 
-  Trash2, 
-  Search, 
-  UserCheck, 
+import {
+  Users,
+  Plus,
+  Edit3,
+  Trash2,
+  Search,
+  UserCheck,
   UserX,
   Shield,
   Mail,
   Phone,
   Calendar,
-  Building2
-} from 'lucide-react';
+  Building2 } from
+'lucide-react';
 
 interface User {
   ID: number;
@@ -76,7 +76,7 @@ const UserManagement: React.FC = () => {
       // Get user info to see if current user has admin access
       const { data: currentUser, error: userError } = await window.ezsite.apis.getUserInfo();
       if (userError) throw userError;
-      
+
       // This would typically fetch all users - for now we'll show current user
       setUsers([currentUser]);
     } catch (error) {
@@ -209,31 +209,31 @@ const UserManagement: React.FC = () => {
     setIsEditDialogOpen(true);
   };
 
-  const filteredProfiles = userProfiles.filter(profile => {
-    const matchesSearch = 
-      profile.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      profile.phone.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredProfiles = userProfiles.filter((profile) => {
+    const matchesSearch =
+    profile.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    profile.phone.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = selectedRole === 'All' || profile.role === selectedRole;
     const matchesStation = selectedStation === 'All' || profile.station === selectedStation;
-    
+
     return matchesSearch && matchesRole && matchesStation;
   });
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case 'Administrator': return 'bg-red-100 text-red-800';
-      case 'Management': return 'bg-blue-100 text-blue-800';
-      case 'Employee': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'Administrator':return 'bg-red-100 text-red-800';
+      case 'Management':return 'bg-blue-100 text-blue-800';
+      case 'Employee':return 'bg-green-100 text-green-800';
+      default:return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStationBadgeColor = (station: string) => {
     switch (station) {
-      case 'MOBIL': return 'bg-purple-100 text-purple-800';
-      case 'AMOCO ROSEDALE': return 'bg-orange-100 text-orange-800';
-      case 'AMOCO BROOKLYN': return 'bg-teal-100 text-teal-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'MOBIL':return 'bg-purple-100 text-purple-800';
+      case 'AMOCO ROSEDALE':return 'bg-orange-100 text-orange-800';
+      case 'AMOCO BROOKLYN':return 'bg-teal-100 text-teal-800';
+      default:return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -241,8 +241,8 @@ const UserManagement: React.FC = () => {
     return (
       <div className="flex items-center justify-center min-h-64">
         <div className="text-lg">Loading user management...</div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -272,33 +272,33 @@ const UserManagement: React.FC = () => {
                   id="user_id"
                   type="number"
                   value={formData.user_id}
-                  onChange={(e) => setFormData({...formData, user_id: parseInt(e.target.value) || 0})}
-                  placeholder="Enter user ID"
-                />
+                  onChange={(e) => setFormData({ ...formData, user_id: parseInt(e.target.value) || 0 })}
+                  placeholder="Enter user ID" />
+
               </div>
               <div>
                 <Label htmlFor="role">Role</Label>
-                <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value})}>
+                <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {roles.map(role => (
-                      <SelectItem key={role} value={role}>{role}</SelectItem>
-                    ))}
+                    {roles.map((role) =>
+                    <SelectItem key={role} value={role}>{role}</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label htmlFor="station">Station</Label>
-                <Select value={formData.station} onValueChange={(value) => setFormData({...formData, station: value})}>
+                <Select value={formData.station} onValueChange={(value) => setFormData({ ...formData, station: value })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {stations.map(station => (
-                      <SelectItem key={station} value={station}>{station}</SelectItem>
-                    ))}
+                    {stations.map((station) =>
+                    <SelectItem key={station} value={station}>{station}</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -307,18 +307,18 @@ const UserManagement: React.FC = () => {
                 <Input
                   id="employee_id"
                   value={formData.employee_id}
-                  onChange={(e) => setFormData({...formData, employee_id: e.target.value})}
-                  placeholder="Enter employee ID"
-                />
+                  onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })}
+                  placeholder="Enter employee ID" />
+
               </div>
               <div>
                 <Label htmlFor="phone">Phone</Label>
                 <Input
                   id="phone"
                   value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                  placeholder="Enter phone number"
-                />
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  placeholder="Enter phone number" />
+
               </div>
               <div>
                 <Label htmlFor="hire_date">Hire Date</Label>
@@ -326,8 +326,8 @@ const UserManagement: React.FC = () => {
                   id="hire_date"
                   type="date"
                   value={formData.hire_date}
-                  onChange={(e) => setFormData({...formData, hire_date: e.target.value})}
-                />
+                  onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })} />
+
               </div>
               <Button onClick={handleCreateProfile} className="w-full">
                 Create Profile
@@ -358,7 +358,7 @@ const UserManagement: React.FC = () => {
               <div>
                 <p className="text-sm text-gray-600">Administrators</p>
                 <p className="text-2xl font-bold">
-                  {userProfiles.filter(p => p.role === 'Administrator').length}
+                  {userProfiles.filter((p) => p.role === 'Administrator').length}
                 </p>
               </div>
             </div>
@@ -372,7 +372,7 @@ const UserManagement: React.FC = () => {
               <div>
                 <p className="text-sm text-gray-600">Active Users</p>
                 <p className="text-2xl font-bold">
-                  {userProfiles.filter(p => p.is_active).length}
+                  {userProfiles.filter((p) => p.is_active).length}
                 </p>
               </div>
             </div>
@@ -386,7 +386,7 @@ const UserManagement: React.FC = () => {
               <div>
                 <p className="text-sm text-gray-600">Inactive Users</p>
                 <p className="text-2xl font-bold">
-                  {userProfiles.filter(p => !p.is_active).length}
+                  {userProfiles.filter((p) => !p.is_active).length}
                 </p>
               </div>
             </div>
@@ -404,8 +404,8 @@ const UserManagement: React.FC = () => {
                 placeholder="Search by employee ID or phone..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+                className="pl-10" />
+
             </div>
             
             <Select value={selectedRole} onValueChange={setSelectedRole}>
@@ -414,9 +414,9 @@ const UserManagement: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="All">All Roles</SelectItem>
-                {roles.map(role => (
-                  <SelectItem key={role} value={role}>{role}</SelectItem>
-                ))}
+                {roles.map((role) =>
+                <SelectItem key={role} value={role}>{role}</SelectItem>
+                )}
               </SelectContent>
             </Select>
             
@@ -426,20 +426,20 @@ const UserManagement: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="All">All Stations</SelectItem>
-                {stations.map(station => (
-                  <SelectItem key={station} value={station}>{station}</SelectItem>
-                ))}
+                {stations.map((station) =>
+                <SelectItem key={station} value={station}>{station}</SelectItem>
+                )}
               </SelectContent>
             </Select>
             
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => {
                 setSearchTerm('');
                 setSelectedRole('All');
                 setSelectedStation('All');
-              }}
-            >
+              }}>
+
               Clear Filters
             </Button>
           </div>
@@ -466,8 +466,8 @@ const UserManagement: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredProfiles.map((profile) => (
-                  <TableRow key={profile.id}>
+                {filteredProfiles.map((profile) =>
+                <TableRow key={profile.id}>
                     <TableCell className="font-medium">{profile.employee_id}</TableCell>
                     <TableCell>
                       <Badge className={getRoleBadgeColor(profile.role)}>
@@ -489,24 +489,24 @@ const UserManagement: React.FC = () => {
                     <TableCell>
                       <div className="flex space-x-2">
                         <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEditProfile(profile)}
-                        >
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditProfile(profile)}>
+
                           <Edit3 className="w-4 h-4" />
                         </Button>
                         <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDeleteProfile(profile.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDeleteProfile(profile.id)}
+                        className="text-red-600 hover:text-red-700">
+
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </div>
@@ -522,27 +522,27 @@ const UserManagement: React.FC = () => {
           <div className="space-y-4">
             <div>
               <Label htmlFor="edit_role">Role</Label>
-              <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value})}>
+              <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {roles.map(role => (
-                    <SelectItem key={role} value={role}>{role}</SelectItem>
-                  ))}
+                  {roles.map((role) =>
+                  <SelectItem key={role} value={role}>{role}</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
             <div>
               <Label htmlFor="edit_station">Station</Label>
-              <Select value={formData.station} onValueChange={(value) => setFormData({...formData, station: value})}>
+              <Select value={formData.station} onValueChange={(value) => setFormData({ ...formData, station: value })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {stations.map(station => (
-                    <SelectItem key={station} value={station}>{station}</SelectItem>
-                  ))}
+                  {stations.map((station) =>
+                  <SelectItem key={station} value={station}>{station}</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -551,16 +551,16 @@ const UserManagement: React.FC = () => {
               <Input
                 id="edit_employee_id"
                 value={formData.employee_id}
-                onChange={(e) => setFormData({...formData, employee_id: e.target.value})}
-              />
+                onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })} />
+
             </div>
             <div>
               <Label htmlFor="edit_phone">Phone</Label>
               <Input
                 id="edit_phone"
                 value={formData.phone}
-                onChange={(e) => setFormData({...formData, phone: e.target.value})}
-              />
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+
             </div>
             <div>
               <Label htmlFor="edit_hire_date">Hire Date</Label>
@@ -568,16 +568,16 @@ const UserManagement: React.FC = () => {
                 id="edit_hire_date"
                 type="date"
                 value={formData.hire_date}
-                onChange={(e) => setFormData({...formData, hire_date: e.target.value})}
-              />
+                onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })} />
+
             </div>
             <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
                 id="edit_is_active"
                 checked={formData.is_active}
-                onChange={(e) => setFormData({...formData, is_active: e.target.checked})}
-              />
+                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })} />
+
               <Label htmlFor="edit_is_active">Active User</Label>
             </div>
             <Button onClick={handleUpdateProfile} className="w-full">
@@ -586,8 +586,8 @@ const UserManagement: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 };
 
 export default UserManagement;

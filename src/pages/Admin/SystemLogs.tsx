@@ -6,11 +6,11 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  FileText, 
-  Download, 
-  Search, 
-  Filter, 
+import {
+  FileText,
+  Download,
+  Search,
+  Filter,
   RefreshCw,
   AlertTriangle,
   Info,
@@ -21,8 +21,8 @@ import {
   Database,
   Shield,
   Mail,
-  Calendar
-} from 'lucide-react';
+  Calendar } from
+'lucide-react';
 
 interface LogEntry {
   id: string;
@@ -47,11 +47,11 @@ const SystemLogs: React.FC = () => {
   const logLevels = ['INFO', 'WARNING', 'ERROR', 'DEBUG'];
   const categories = ['Authentication', 'Database', 'File Upload', 'Email', 'API', 'Security', 'System'];
   const dateRanges = [
-    { value: 'today', label: 'Today' },
-    { value: 'week', label: 'Last 7 days' },
-    { value: 'month', label: 'Last 30 days' },
-    { value: 'all', label: 'All time' }
-  ];
+  { value: 'today', label: 'Today' },
+  { value: 'week', label: 'Last 7 days' },
+  { value: 'month', label: 'Last 30 days' },
+  { value: 'all', label: 'All time' }];
+
 
   useEffect(() => {
     generateSampleLogs();
@@ -59,92 +59,92 @@ const SystemLogs: React.FC = () => {
 
   const generateSampleLogs = () => {
     const sampleLogs: LogEntry[] = [
-      {
-        id: '1',
-        timestamp: new Date().toISOString(),
-        level: 'INFO',
-        category: 'Authentication',
-        message: 'User login successful',
-        user: 'admin@dfsmanager.com',
-        ip_address: '192.168.1.100'
-      },
-      {
-        id: '2',
-        timestamp: new Date(Date.now() - 300000).toISOString(),
-        level: 'WARNING',
-        category: 'Database',
-        message: 'High database connection count detected',
-        details: { connections: 85, max: 100 }
-      },
-      {
-        id: '3',
-        timestamp: new Date(Date.now() - 600000).toISOString(),
-        level: 'ERROR',
-        category: 'File Upload',
-        message: 'File upload failed: size exceeds limit',
-        user: 'employee@dfsmanager.com',
-        details: { fileName: 'large_document.pdf', size: '15MB', limit: '10MB' }
-      },
-      {
-        id: '4',
-        timestamp: new Date(Date.now() - 900000).toISOString(),
-        level: 'INFO',
-        category: 'API',
-        message: 'Sales report created successfully',
-        user: 'manager@dfsmanager.com',
-        details: { reportId: 'SR-2024-001', station: 'MOBIL' }
-      },
-      {
-        id: '5',
-        timestamp: new Date(Date.now() - 1200000).toISOString(),
-        level: 'WARNING',
-        category: 'Security',
-        message: 'Multiple failed login attempts detected',
-        ip_address: '203.0.113.10',
-        details: { attempts: 5, timeframe: '5 minutes' }
-      },
-      {
-        id: '6',
-        timestamp: new Date(Date.now() - 1800000).toISOString(),
-        level: 'INFO',
-        category: 'Email',
-        message: 'Email notification sent successfully',
-        details: { recipient: 'manager@station.com', type: 'inventory_alert' }
-      },
-      {
-        id: '7',
-        timestamp: new Date(Date.now() - 2400000).toISOString(),
-        level: 'ERROR',
-        category: 'Database',
-        message: 'Database connection timeout',
-        details: { timeout: '30s', query: 'SELECT * FROM products' }
-      },
-      {
-        id: '8',
-        timestamp: new Date(Date.now() - 3000000).toISOString(),
-        level: 'DEBUG',
-        category: 'System',
-        message: 'Scheduled backup completed',
-        details: { backupSize: '2.3GB', duration: '45 minutes' }
-      },
-      {
-        id: '9',
-        timestamp: new Date(Date.now() - 3600000).toISOString(),
-        level: 'INFO',
-        category: 'Authentication',
-        message: 'Password reset requested',
-        user: 'employee@dfsmanager.com',
-        ip_address: '192.168.1.150'
-      },
-      {
-        id: '10',
-        timestamp: new Date(Date.now() - 4200000).toISOString(),
-        level: 'WARNING',
-        category: 'System',
-        message: 'Low disk space warning',
-        details: { available: '2.1GB', threshold: '5GB' }
-      }
-    ];
+    {
+      id: '1',
+      timestamp: new Date().toISOString(),
+      level: 'INFO',
+      category: 'Authentication',
+      message: 'User login successful',
+      user: 'admin@dfsmanager.com',
+      ip_address: '192.168.1.100'
+    },
+    {
+      id: '2',
+      timestamp: new Date(Date.now() - 300000).toISOString(),
+      level: 'WARNING',
+      category: 'Database',
+      message: 'High database connection count detected',
+      details: { connections: 85, max: 100 }
+    },
+    {
+      id: '3',
+      timestamp: new Date(Date.now() - 600000).toISOString(),
+      level: 'ERROR',
+      category: 'File Upload',
+      message: 'File upload failed: size exceeds limit',
+      user: 'employee@dfsmanager.com',
+      details: { fileName: 'large_document.pdf', size: '15MB', limit: '10MB' }
+    },
+    {
+      id: '4',
+      timestamp: new Date(Date.now() - 900000).toISOString(),
+      level: 'INFO',
+      category: 'API',
+      message: 'Sales report created successfully',
+      user: 'manager@dfsmanager.com',
+      details: { reportId: 'SR-2024-001', station: 'MOBIL' }
+    },
+    {
+      id: '5',
+      timestamp: new Date(Date.now() - 1200000).toISOString(),
+      level: 'WARNING',
+      category: 'Security',
+      message: 'Multiple failed login attempts detected',
+      ip_address: '203.0.113.10',
+      details: { attempts: 5, timeframe: '5 minutes' }
+    },
+    {
+      id: '6',
+      timestamp: new Date(Date.now() - 1800000).toISOString(),
+      level: 'INFO',
+      category: 'Email',
+      message: 'Email notification sent successfully',
+      details: { recipient: 'manager@station.com', type: 'inventory_alert' }
+    },
+    {
+      id: '7',
+      timestamp: new Date(Date.now() - 2400000).toISOString(),
+      level: 'ERROR',
+      category: 'Database',
+      message: 'Database connection timeout',
+      details: { timeout: '30s', query: 'SELECT * FROM products' }
+    },
+    {
+      id: '8',
+      timestamp: new Date(Date.now() - 3000000).toISOString(),
+      level: 'DEBUG',
+      category: 'System',
+      message: 'Scheduled backup completed',
+      details: { backupSize: '2.3GB', duration: '45 minutes' }
+    },
+    {
+      id: '9',
+      timestamp: new Date(Date.now() - 3600000).toISOString(),
+      level: 'INFO',
+      category: 'Authentication',
+      message: 'Password reset requested',
+      user: 'employee@dfsmanager.com',
+      ip_address: '192.168.1.150'
+    },
+    {
+      id: '10',
+      timestamp: new Date(Date.now() - 4200000).toISOString(),
+      level: 'WARNING',
+      category: 'System',
+      message: 'Low disk space warning',
+      details: { available: '2.1GB', threshold: '5GB' }
+    }];
+
 
     setLogs(sampleLogs);
   };
@@ -153,7 +153,7 @@ const SystemLogs: React.FC = () => {
     setLoading(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       generateSampleLogs();
       toast({
         title: "Logs Refreshed",
@@ -173,16 +173,16 @@ const SystemLogs: React.FC = () => {
   const exportLogs = () => {
     const filteredLogs = getFilteredLogs();
     const csvContent = [
-      ['Timestamp', 'Level', 'Category', 'Message', 'User', 'IP Address'],
-      ...filteredLogs.map(log => [
-        log.timestamp,
-        log.level,
-        log.category,
-        log.message,
-        log.user || '',
-        log.ip_address || ''
-      ])
-    ].map(row => row.join(',')).join('\n');
+    ['Timestamp', 'Level', 'Category', 'Message', 'User', 'IP Address'],
+    ...filteredLogs.map((log) => [
+    log.timestamp,
+    log.level,
+    log.category,
+    log.message,
+    log.user || '',
+    log.ip_address || '']
+    )].
+    map((row) => row.join(',')).join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -201,55 +201,55 @@ const SystemLogs: React.FC = () => {
   };
 
   const getFilteredLogs = () => {
-    return logs.filter(log => {
-      const matchesSearch = 
-        log.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (log.user && log.user.toLowerCase().includes(searchTerm.toLowerCase()));
-      
+    return logs.filter((log) => {
+      const matchesSearch =
+      log.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.user && log.user.toLowerCase().includes(searchTerm.toLowerCase());
+
       const matchesLevel = selectedLevel === 'All' || log.level === selectedLevel;
       const matchesCategory = selectedCategory === 'All' || log.category === selectedCategory;
-      
+
       // Date filtering logic would go here based on dateRange
-      
+
       return matchesSearch && matchesLevel && matchesCategory;
     });
   };
 
   const getLevelIcon = (level: string) => {
     switch (level) {
-      case 'ERROR': return <XCircle className="w-4 h-4 text-red-500" />;
-      case 'WARNING': return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
-      case 'INFO': return <Info className="w-4 h-4 text-blue-500" />;
-      case 'DEBUG': return <CheckCircle className="w-4 h-4 text-gray-500" />;
-      default: return <Info className="w-4 h-4 text-gray-500" />;
+      case 'ERROR':return <XCircle className="w-4 h-4 text-red-500" />;
+      case 'WARNING':return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
+      case 'INFO':return <Info className="w-4 h-4 text-blue-500" />;
+      case 'DEBUG':return <CheckCircle className="w-4 h-4 text-gray-500" />;
+      default:return <Info className="w-4 h-4 text-gray-500" />;
     }
   };
 
   const getLevelBadgeColor = (level: string) => {
     switch (level) {
-      case 'ERROR': return 'bg-red-100 text-red-800';
-      case 'WARNING': return 'bg-yellow-100 text-yellow-800';
-      case 'INFO': return 'bg-blue-100 text-blue-800';
-      case 'DEBUG': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'ERROR':return 'bg-red-100 text-red-800';
+      case 'WARNING':return 'bg-yellow-100 text-yellow-800';
+      case 'INFO':return 'bg-blue-100 text-blue-800';
+      case 'DEBUG':return 'bg-gray-100 text-gray-800';
+      default:return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'Authentication': return <User className="w-4 h-4" />;
-      case 'Database': return <Database className="w-4 h-4" />;
-      case 'Security': return <Shield className="w-4 h-4" />;
-      case 'Email': return <Mail className="w-4 h-4" />;
-      default: return <FileText className="w-4 h-4" />;
+      case 'Authentication':return <User className="w-4 h-4" />;
+      case 'Database':return <Database className="w-4 h-4" />;
+      case 'Security':return <Shield className="w-4 h-4" />;
+      case 'Email':return <Mail className="w-4 h-4" />;
+      default:return <FileText className="w-4 h-4" />;
     }
   };
 
   const filteredLogs = getFilteredLogs();
-  const errorCount = logs.filter(log => log.level === 'ERROR').length;
-  const warningCount = logs.filter(log => log.level === 'WARNING').length;
-  const infoCount = logs.filter(log => log.level === 'INFO').length;
+  const errorCount = logs.filter((log) => log.level === 'ERROR').length;
+  const warningCount = logs.filter((log) => log.level === 'WARNING').length;
+  const infoCount = logs.filter((log) => log.level === 'INFO').length;
 
   return (
     <div className="space-y-6">
@@ -333,8 +333,8 @@ const SystemLogs: React.FC = () => {
                 placeholder="Search logs..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+                className="pl-10" />
+
             </div>
             
             <Select value={selectedLevel} onValueChange={setSelectedLevel}>
@@ -343,9 +343,9 @@ const SystemLogs: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="All">All Levels</SelectItem>
-                {logLevels.map(level => (
-                  <SelectItem key={level} value={level}>{level}</SelectItem>
-                ))}
+                {logLevels.map((level) =>
+                <SelectItem key={level} value={level}>{level}</SelectItem>
+                )}
               </SelectContent>
             </Select>
             
@@ -355,9 +355,9 @@ const SystemLogs: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="All">All Categories</SelectItem>
-                {categories.map(category => (
-                  <SelectItem key={category} value={category}>{category}</SelectItem>
-                ))}
+                {categories.map((category) =>
+                <SelectItem key={category} value={category}>{category}</SelectItem>
+                )}
               </SelectContent>
             </Select>
             
@@ -366,21 +366,21 @@ const SystemLogs: React.FC = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {dateRanges.map(range => (
-                  <SelectItem key={range.value} value={range.value}>{range.label}</SelectItem>
-                ))}
+                {dateRanges.map((range) =>
+                <SelectItem key={range.value} value={range.value}>{range.label}</SelectItem>
+                )}
               </SelectContent>
             </Select>
             
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => {
                 setSearchTerm('');
                 setSelectedLevel('All');
                 setSelectedCategory('All');
                 setDateRange('today');
-              }}
-            >
+              }}>
+
               Clear Filters
             </Button>
           </div>
@@ -406,8 +406,8 @@ const SystemLogs: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredLogs.map((log) => (
-                  <TableRow key={log.id}>
+                {filteredLogs.map((log) =>
+                <TableRow key={log.id}>
                     <TableCell className="font-mono text-sm">
                       <div className="flex items-center space-x-2">
                         <Clock className="w-3 h-3 text-gray-400" />
@@ -432,8 +432,8 @@ const SystemLogs: React.FC = () => {
                       <div className="truncate" title={log.message}>
                         {log.message}
                       </div>
-                      {log.details && (
-                        <details className="mt-1">
+                      {log.details &&
+                    <details className="mt-1">
                           <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700">
                             View details
                           </summary>
@@ -441,34 +441,34 @@ const SystemLogs: React.FC = () => {
                             {JSON.stringify(log.details, null, 2)}
                           </pre>
                         </details>
-                      )}
+                    }
                     </TableCell>
                     <TableCell>
-                      {log.user && (
-                        <div className="flex items-center space-x-1">
+                      {log.user &&
+                    <div className="flex items-center space-x-1">
                           <User className="w-3 h-3 text-gray-400" />
                           <span className="text-sm">{log.user}</span>
                         </div>
-                      )}
+                    }
                     </TableCell>
                     <TableCell className="font-mono text-sm">
                       {log.ip_address}
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </div>
           
-          {filteredLogs.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
+          {filteredLogs.length === 0 &&
+          <div className="text-center py-8 text-gray-500">
               No logs found matching the current filters.
             </div>
-          )}
+          }
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SystemLogs;

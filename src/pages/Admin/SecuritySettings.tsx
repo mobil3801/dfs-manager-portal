@@ -8,11 +8,11 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Shield, 
-  Key, 
-  Lock, 
-  Eye, 
+import {
+  Shield,
+  Key,
+  Lock,
+  Eye,
   EyeOff,
   AlertTriangle,
   CheckCircle,
@@ -27,8 +27,8 @@ import {
   Monitor,
   Smartphone,
   Save,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw } from
+'lucide-react';
 
 interface SecuritySettings {
   passwordPolicy: {
@@ -125,44 +125,44 @@ const SecuritySettings: React.FC = () => {
 
   const generateSampleSecurityEvents = () => {
     const events: SecurityEvent[] = [
-      {
-        id: '1',
-        timestamp: new Date().toISOString(),
-        type: 'login_failure',
-        severity: 'medium',
-        user: 'unknown',
-        ip_address: '203.0.113.10',
-        description: '5 consecutive failed login attempts',
-        action_taken: 'IP temporarily blocked'
-      },
-      {
-        id: '2',
-        timestamp: new Date(Date.now() - 300000).toISOString(),
-        type: 'suspicious_activity',
-        severity: 'high',
-        user: 'admin@dfsmanager.com',
-        ip_address: '198.51.100.15',
-        description: 'Login from unusual geographic location',
-        action_taken: 'Email alert sent to user'
-      },
-      {
-        id: '3',
-        timestamp: new Date(Date.now() - 600000).toISOString(),
-        type: 'policy_violation',
-        severity: 'low',
-        user: 'employee@dfsmanager.com',
-        description: 'Password does not meet complexity requirements',
-        action_taken: 'User prompted to update password'
-      },
-      {
-        id: '4',
-        timestamp: new Date(Date.now() - 1800000).toISOString(),
-        type: 'security_breach',
-        severity: 'critical',
-        description: 'Unauthorized API access attempt detected',
-        action_taken: 'System locked, admin notified'
-      }
-    ];
+    {
+      id: '1',
+      timestamp: new Date().toISOString(),
+      type: 'login_failure',
+      severity: 'medium',
+      user: 'unknown',
+      ip_address: '203.0.113.10',
+      description: '5 consecutive failed login attempts',
+      action_taken: 'IP temporarily blocked'
+    },
+    {
+      id: '2',
+      timestamp: new Date(Date.now() - 300000).toISOString(),
+      type: 'suspicious_activity',
+      severity: 'high',
+      user: 'admin@dfsmanager.com',
+      ip_address: '198.51.100.15',
+      description: 'Login from unusual geographic location',
+      action_taken: 'Email alert sent to user'
+    },
+    {
+      id: '3',
+      timestamp: new Date(Date.now() - 600000).toISOString(),
+      type: 'policy_violation',
+      severity: 'low',
+      user: 'employee@dfsmanager.com',
+      description: 'Password does not meet complexity requirements',
+      action_taken: 'User prompted to update password'
+    },
+    {
+      id: '4',
+      timestamp: new Date(Date.now() - 1800000).toISOString(),
+      type: 'security_breach',
+      severity: 'critical',
+      description: 'Unauthorized API access attempt detected',
+      action_taken: 'System locked, admin notified'
+    }];
+
 
     setSecurityEvents(events);
   };
@@ -171,8 +171,8 @@ const SecuritySettings: React.FC = () => {
     setIsSaving(true);
     try {
       // Simulate API call to save settings
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       toast({
         title: "Success",
         description: "Security settings saved successfully"
@@ -191,7 +191,7 @@ const SecuritySettings: React.FC = () => {
 
   const addIPToWhitelist = () => {
     if (newIPAddress && !settings.systemSecurity.ipWhitelist.includes(newIPAddress)) {
-      setSettings(prev => ({
+      setSettings((prev) => ({
         ...prev,
         systemSecurity: {
           ...prev.systemSecurity,
@@ -207,11 +207,11 @@ const SecuritySettings: React.FC = () => {
   };
 
   const removeIPFromWhitelist = (ip: string) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
       systemSecurity: {
         ...prev.systemSecurity,
-        ipWhitelist: prev.systemSecurity.ipWhitelist.filter(item => item !== ip)
+        ipWhitelist: prev.systemSecurity.ipWhitelist.filter((item) => item !== ip)
       }
     }));
     toast({
@@ -222,11 +222,11 @@ const SecuritySettings: React.FC = () => {
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return 'bg-red-100 text-red-800';
-      case 'high': return 'bg-orange-100 text-orange-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'low': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'critical':return 'bg-red-100 text-red-800';
+      case 'high':return 'bg-orange-100 text-orange-800';
+      case 'medium':return 'bg-yellow-100 text-yellow-800';
+      case 'low':return 'bg-blue-100 text-blue-800';
+      default:return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -258,7 +258,7 @@ const SecuritySettings: React.FC = () => {
     if (settings.accessControl.enableRoleBasedAccess) score++;
     if (settings.accessControl.requireApprovalForNewUsers) score++;
 
-    return Math.round((score / maxScore) * 100);
+    return Math.round(score / maxScore * 100);
   };
 
   const securityScore = getSecurityScore();
@@ -272,22 +272,22 @@ const SecuritySettings: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">Security Settings</h1>
         </div>
         
-        <Button 
-          onClick={handleSaveSettings} 
+        <Button
+          onClick={handleSaveSettings}
           disabled={isSaving}
-          className="bg-blue-600 hover:bg-blue-700"
-        >
-          {isSaving ? (
-            <>
+          className="bg-blue-600 hover:bg-blue-700">
+
+          {isSaving ?
+          <>
               <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
               Saving...
-            </>
-          ) : (
-            <>
+            </> :
+
+          <>
               <Save className="w-4 h-4 mr-2" />
               Save Settings
             </>
-          )}
+          }
         </Button>
       </div>
 
@@ -302,13 +302,13 @@ const SecuritySettings: React.FC = () => {
             <div className="text-right">
               <div className="text-3xl font-bold text-blue-600">{securityScore}%</div>
               <div className="flex items-center space-x-1">
-                {securityScore >= 80 ? (
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                ) : securityScore >= 60 ? (
-                  <AlertTriangle className="w-4 h-4 text-yellow-500" />
-                ) : (
-                  <XCircle className="w-4 h-4 text-red-500" />
-                )}
+                {securityScore >= 80 ?
+                <CheckCircle className="w-4 h-4 text-green-500" /> :
+                securityScore >= 60 ?
+                <AlertTriangle className="w-4 h-4 text-yellow-500" /> :
+
+                <XCircle className="w-4 h-4 text-red-500" />
+                }
                 <span className="text-sm text-gray-600">
                   {securityScore >= 80 ? 'Excellent' : securityScore >= 60 ? 'Good' : 'Needs Improvement'}
                 </span>
@@ -385,14 +385,14 @@ const SecuritySettings: React.FC = () => {
                 id="minLength"
                 type="number"
                 value={settings.passwordPolicy.minLength}
-                onChange={(e) => setSettings(prev => ({
+                onChange={(e) => setSettings((prev) => ({
                   ...prev,
                   passwordPolicy: {
                     ...prev.passwordPolicy,
                     minLength: parseInt(e.target.value) || 8
                   }
-                }))}
-              />
+                }))} />
+
             </div>
             
             <div>
@@ -401,14 +401,14 @@ const SecuritySettings: React.FC = () => {
                 id="passwordExpiry"
                 type="number"
                 value={settings.passwordPolicy.passwordExpiry}
-                onChange={(e) => setSettings(prev => ({
+                onChange={(e) => setSettings((prev) => ({
                   ...prev,
                   passwordPolicy: {
                     ...prev.passwordPolicy,
                     passwordExpiry: parseInt(e.target.value) || 90
                   }
-                }))}
-              />
+                }))} />
+
             </div>
           </div>
           
@@ -420,14 +420,14 @@ const SecuritySettings: React.FC = () => {
               </div>
               <Switch
                 checked={settings.passwordPolicy.requireUppercase}
-                onCheckedChange={(checked) => setSettings(prev => ({
+                onCheckedChange={(checked) => setSettings((prev) => ({
                   ...prev,
                   passwordPolicy: {
                     ...prev.passwordPolicy,
                     requireUppercase: checked
                   }
-                }))}
-              />
+                }))} />
+
             </div>
             
             <div className="flex items-center justify-between p-3 border rounded-lg">
@@ -437,14 +437,14 @@ const SecuritySettings: React.FC = () => {
               </div>
               <Switch
                 checked={settings.passwordPolicy.requireNumbers}
-                onCheckedChange={(checked) => setSettings(prev => ({
+                onCheckedChange={(checked) => setSettings((prev) => ({
                   ...prev,
                   passwordPolicy: {
                     ...prev.passwordPolicy,
                     requireNumbers: checked
                   }
-                }))}
-              />
+                }))} />
+
             </div>
             
             <div className="flex items-center justify-between p-3 border rounded-lg">
@@ -454,14 +454,14 @@ const SecuritySettings: React.FC = () => {
               </div>
               <Switch
                 checked={settings.passwordPolicy.requireSpecialChars}
-                onCheckedChange={(checked) => setSettings(prev => ({
+                onCheckedChange={(checked) => setSettings((prev) => ({
                   ...prev,
                   passwordPolicy: {
                     ...prev.passwordPolicy,
                     requireSpecialChars: checked
                   }
-                }))}
-              />
+                }))} />
+
             </div>
             
             <div className="flex items-center justify-between p-3 border rounded-lg">
@@ -471,14 +471,14 @@ const SecuritySettings: React.FC = () => {
               </div>
               <Switch
                 checked={settings.passwordPolicy.requireLowercase}
-                onCheckedChange={(checked) => setSettings(prev => ({
+                onCheckedChange={(checked) => setSettings((prev) => ({
                   ...prev,
                   passwordPolicy: {
                     ...prev.passwordPolicy,
                     requireLowercase: checked
                   }
-                }))}
-              />
+                }))} />
+
             </div>
           </div>
         </CardContent>
@@ -500,14 +500,14 @@ const SecuritySettings: React.FC = () => {
                 id="maxFailedAttempts"
                 type="number"
                 value={settings.accountSecurity.maxFailedAttempts}
-                onChange={(e) => setSettings(prev => ({
+                onChange={(e) => setSettings((prev) => ({
                   ...prev,
                   accountSecurity: {
                     ...prev.accountSecurity,
                     maxFailedAttempts: parseInt(e.target.value) || 5
                   }
-                }))}
-              />
+                }))} />
+
             </div>
             
             <div>
@@ -516,14 +516,14 @@ const SecuritySettings: React.FC = () => {
                 id="lockoutDuration"
                 type="number"
                 value={settings.accountSecurity.lockoutDuration}
-                onChange={(e) => setSettings(prev => ({
+                onChange={(e) => setSettings((prev) => ({
                   ...prev,
                   accountSecurity: {
                     ...prev.accountSecurity,
                     lockoutDuration: parseInt(e.target.value) || 30
                   }
-                }))}
-              />
+                }))} />
+
             </div>
             
             <div>
@@ -532,14 +532,14 @@ const SecuritySettings: React.FC = () => {
                 id="sessionTimeout"
                 type="number"
                 value={settings.accountSecurity.sessionTimeout}
-                onChange={(e) => setSettings(prev => ({
+                onChange={(e) => setSettings((prev) => ({
                   ...prev,
                   accountSecurity: {
                     ...prev.accountSecurity,
                     sessionTimeout: parseInt(e.target.value) || 60
                   }
-                }))}
-              />
+                }))} />
+
             </div>
           </div>
           
@@ -551,14 +551,14 @@ const SecuritySettings: React.FC = () => {
               </div>
               <Switch
                 checked={settings.accountSecurity.requireEmailVerification}
-                onCheckedChange={(checked) => setSettings(prev => ({
+                onCheckedChange={(checked) => setSettings((prev) => ({
                   ...prev,
                   accountSecurity: {
                     ...prev.accountSecurity,
                     requireEmailVerification: checked
                   }
-                }))}
-              />
+                }))} />
+
             </div>
             
             <div className="flex items-center justify-between p-3 border rounded-lg">
@@ -568,14 +568,14 @@ const SecuritySettings: React.FC = () => {
               </div>
               <Switch
                 checked={settings.accountSecurity.requireTwoFactor}
-                onCheckedChange={(checked) => setSettings(prev => ({
+                onCheckedChange={(checked) => setSettings((prev) => ({
                   ...prev,
                   accountSecurity: {
                     ...prev.accountSecurity,
                     requireTwoFactor: checked
                   }
-                }))}
-              />
+                }))} />
+
             </div>
           </div>
         </CardContent>
@@ -598,14 +598,14 @@ const SecuritySettings: React.FC = () => {
               </div>
               <Switch
                 checked={settings.systemSecurity.enableSSL}
-                onCheckedChange={(checked) => setSettings(prev => ({
+                onCheckedChange={(checked) => setSettings((prev) => ({
                   ...prev,
                   systemSecurity: {
                     ...prev.systemSecurity,
                     enableSSL: checked
                   }
-                }))}
-              />
+                }))} />
+
             </div>
             
             <div className="flex items-center justify-between p-3 border rounded-lg">
@@ -615,14 +615,14 @@ const SecuritySettings: React.FC = () => {
               </div>
               <Switch
                 checked={settings.systemSecurity.enableFirewall}
-                onCheckedChange={(checked) => setSettings(prev => ({
+                onCheckedChange={(checked) => setSettings((prev) => ({
                   ...prev,
                   systemSecurity: {
                     ...prev.systemSecurity,
                     enableFirewall: checked
                   }
-                }))}
-              />
+                }))} />
+
             </div>
             
             <div className="flex items-center justify-between p-3 border rounded-lg">
@@ -632,14 +632,14 @@ const SecuritySettings: React.FC = () => {
               </div>
               <Switch
                 checked={settings.systemSecurity.enableAuditLogging}
-                onCheckedChange={(checked) => setSettings(prev => ({
+                onCheckedChange={(checked) => setSettings((prev) => ({
                   ...prev,
                   systemSecurity: {
                     ...prev.systemSecurity,
                     enableAuditLogging: checked
                   }
-                }))}
-              />
+                }))} />
+
             </div>
           </div>
           
@@ -651,14 +651,14 @@ const SecuritySettings: React.FC = () => {
               </div>
               <Switch
                 checked={settings.systemSecurity.enableDataEncryption}
-                onCheckedChange={(checked) => setSettings(prev => ({
+                onCheckedChange={(checked) => setSettings((prev) => ({
                   ...prev,
                   systemSecurity: {
                     ...prev.systemSecurity,
                     enableDataEncryption: checked
                   }
-                }))}
-              />
+                }))} />
+
             </div>
             
             <div className="flex items-center justify-between p-3 border rounded-lg">
@@ -668,14 +668,14 @@ const SecuritySettings: React.FC = () => {
               </div>
               <Switch
                 checked={settings.systemSecurity.enableBackupEncryption}
-                onCheckedChange={(checked) => setSettings(prev => ({
+                onCheckedChange={(checked) => setSettings((prev) => ({
                   ...prev,
                   systemSecurity: {
                     ...prev.systemSecurity,
                     enableBackupEncryption: checked
                   }
-                }))}
-              />
+                }))} />
+
             </div>
           </div>
         </CardContent>
@@ -697,44 +697,44 @@ const SecuritySettings: React.FC = () => {
             </div>
             <Switch
               checked={settings.systemSecurity.enableIPWhitelist}
-              onCheckedChange={(checked) => setSettings(prev => ({
+              onCheckedChange={(checked) => setSettings((prev) => ({
                 ...prev,
                 systemSecurity: {
                   ...prev.systemSecurity,
                   enableIPWhitelist: checked
                 }
-              }))}
-            />
+              }))} />
+
           </div>
           
-          {settings.systemSecurity.enableIPWhitelist && (
-            <div className="space-y-3">
+          {settings.systemSecurity.enableIPWhitelist &&
+          <div className="space-y-3">
               <div className="flex space-x-2">
                 <Input
-                  placeholder="Enter IP address or CIDR (e.g., 192.168.1.0/24)"
-                  value={newIPAddress}
-                  onChange={(e) => setNewIPAddress(e.target.value)}
-                />
+                placeholder="Enter IP address or CIDR (e.g., 192.168.1.0/24)"
+                value={newIPAddress}
+                onChange={(e) => setNewIPAddress(e.target.value)} />
+
                 <Button onClick={addIPToWhitelist}>Add</Button>
               </div>
               
               <div className="space-y-2">
-                {settings.systemSecurity.ipWhitelist.map((ip, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 border rounded">
+                {settings.systemSecurity.ipWhitelist.map((ip, index) =>
+              <div key={index} className="flex items-center justify-between p-2 border rounded">
                     <span className="font-mono text-sm">{ip}</span>
                     <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => removeIPFromWhitelist(ip)}
-                      className="text-red-600"
-                    >
+                  size="sm"
+                  variant="outline"
+                  onClick={() => removeIPFromWhitelist(ip)}
+                  className="text-red-600">
+
                       Remove
                     </Button>
                   </div>
-                ))}
+              )}
               </div>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
@@ -760,8 +760,8 @@ const SecuritySettings: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {securityEvents.map((event) => (
-                  <TableRow key={event.id}>
+                {securityEvents.map((event) =>
+                <TableRow key={event.id}>
                     <TableCell className="font-mono text-sm">
                       <div className="flex items-center space-x-2">
                         <Clock className="w-3 h-3 text-gray-400" />
@@ -783,14 +783,14 @@ const SecuritySettings: React.FC = () => {
                     </TableCell>
                     <TableCell>{event.action_taken || 'No action taken'}</TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SecuritySettings;
