@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import StationEditDialog from '@/components/StationEditDialog';
 import {
   Settings,
   Database,
@@ -25,7 +26,8 @@ import {
   Building2,
   MapPin,
   Phone,
-  Calendar } from
+  Calendar,
+  Edit } from
 'lucide-react';
 
 interface SiteSettings {
@@ -47,13 +49,16 @@ interface SiteSettings {
   logRetentionDays: number;
 }
 
-interface StationInfo {
-  name: string;
+interface Station {
+  id: number;
+  station_name: string;
   address: string;
   phone: string;
-  manager: string;
-  operatingHours: string;
-  lastUpdated: string;
+  operating_hours: string;
+  manager_name: string;
+  status: string;
+  last_updated: string;
+  created_by: number;
 }
 
 const SiteManagement: React.FC = () => {
@@ -76,36 +81,56 @@ const SiteManagement: React.FC = () => {
     logRetentionDays: 30
   });
 
-  const [stations] = useState<StationInfo[]>([
-  {
-    name: 'MOBIL',
-    address: '123 Main Street, Brooklyn, NY 11201',
-    phone: '(718) 555-0101',
-    manager: 'John Smith',
-    operatingHours: '24/7',
-    lastUpdated: new Date().toLocaleDateString()
-  },
-  {
-    name: 'AMOCO ROSEDALE',
-    address: '456 Rosedale Ave, Queens, NY 11422',
-    phone: '(718) 555-0102',
-    manager: 'Maria Garcia',
-    operatingHours: '6:00 AM - 12:00 AM',
-    lastUpdated: new Date().toLocaleDateString()
-  },
-  {
-    name: 'AMOCO BROOKLYN',
-    address: '789 Brooklyn Ave, Brooklyn, NY 11235',
-    phone: '(718) 555-0103',
-    manager: 'David Wilson',
-    operatingHours: '5:00 AM - 11:00 PM',
-    lastUpdated: new Date().toLocaleDateString()
-  }]
-  );
+  const [stations, setStations] = useState<Station[]>([]);
+  const [loadingStations, setLoadingStations] = useState(true);
+  const [editingStation, setEditingStation] = useState<Station | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const [showApiKeys, setShowApiKeys] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
+
+  // Load stations from database
+  const loadStations = async () => {
+    try {
+      console.log('Loading stations from database...');
+      const { data, error } = await window.ezsite.apis.tablePage(12599, {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: 'station_name',
+        IsAsc: true,
+        Filters: []
+      });
+
+      if (error) throw error;
+
+      console.log('Loaded stations:', data);
+      setStations(data?.List || []);
+    } catch (error) {
+      console.error('Error loading stations:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load station information",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingStations(false);
+    }
+  };
+
+  useEffect(() => {
+    loadStations();
+  }, []);
+
+  const handleEditStation = (station: Station) => {
+    console.log('Editing station:', station);
+    setEditingStation(station);
+    setEditDialogOpen(true);
+  };
+
+  const handleStationSaved = () => {
+    loadStations();
+  };
 
   const handleSaveSettings = async () => {
     setIsSaving(true);
@@ -253,42 +278,81 @@ const SiteManagement: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {stations.map((station, index) =>
-            <Card key={index} className="border">
-                <CardContent className="p-4">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-lg">{station.name}</h3>
-                      <Badge className="bg-green-100 text-green-800">Active</Badge>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <div className="flex items-start space-x-2">
-                        <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
-                        <span className="text-sm text-gray-600">{station.address}</span>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <Phone className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm text-gray-600">{station.phone}</span>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm text-gray-600">{station.operatingHours}</span>
-                      </div>
-                      
-                      <div className="pt-2 border-t">
-                        <p className="text-sm font-medium">Manager: {station.manager}</p>
-                        <p className="text-xs text-gray-500">Updated: {station.lastUpdated}</p>
+          {loadingStations ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[1, 2, 3].map((i) => (
+                <Card key={i} className="border animate-pulse">
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+                      <div className="space-y-2">
+                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                        <div className="h-4 bg-gray-200 rounded w-2/3"></div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {stations.map((station, index) => (
+                <Card key={station.id || index} className="border">
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-semibold text-lg">{station.station_name}</h3>
+                        <div className="flex items-center space-x-2">
+                          <Badge className={`${
+                            station.status === 'Active' 
+                              ? 'bg-green-100 text-green-800' 
+                              : station.status === 'Inactive'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {station.status}
+                          </Badge>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEditStation(station)}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-start space-x-2">
+                          <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
+                          <span className="text-sm text-gray-600">{station.address}</span>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <Phone className="w-4 h-4 text-gray-500" />
+                          <span className="text-sm text-gray-600">{station.phone}</span>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <Calendar className="w-4 h-4 text-gray-500" />
+                          <span className="text-sm text-gray-600">{station.operating_hours}</span>
+                        </div>
+                        
+                        <div className="pt-2 border-t">
+                          <p className="text-sm font-medium">Manager: {station.manager_name}</p>
+                          <p className="text-xs text-gray-500">
+                            Updated: {new Date(station.last_updated).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -545,6 +609,14 @@ const SiteManagement: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Station Edit Dialog */}
+      <StationEditDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        station={editingStation}
+        onSave={handleStationSaved}
+      />
     </div>);
 
 };

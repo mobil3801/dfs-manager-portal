@@ -358,16 +358,16 @@ const OrderForm: React.FC = () => {
                   <SelectValue placeholder="Choose a station to begin creating your order" />
                 </SelectTrigger>
                 <SelectContent>
-                  {stations.map((station) => (
-                    <SelectItem key={station} value={station} className="text-lg p-3">
+                  {stations.map((station) =>
+                  <SelectItem key={station} value={station} className="text-lg p-3">
                       {station}
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
             </div>
-            {selectedStation && (
-              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+            {selectedStation &&
+            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-green-800 font-medium">
                   📍 Selected Station: <span className="font-bold">{selectedStation}</span>
                 </p>
@@ -375,14 +375,14 @@ const OrderForm: React.FC = () => {
                   You can now add products to your order for this station.
                 </p>
               </div>
-            )}
+            }
           </div>
         </CardContent>
       </Card>
 
       {/* Content Section - Only show when station is selected */}
-      {selectedStation && (
-        <Card>
+      {selectedStation &&
+      <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -637,7 +637,7 @@ const OrderForm: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-      )}
+      }
 
       {/* Product Selection Dialog */}
       <ProductSelectionDialog
