@@ -41,20 +41,20 @@ const ProductSelectionDialog: React.FC<ProductSelectionDialogProps> = ({
 
   // Unit type options
   const unitTypes = [
-    { value: 'pieces', label: 'Pieces (Individual Units)' },
-    { value: 'cases', label: 'Cases (Bulk Units)' },
-    { value: 'boxes', label: 'Boxes' },
-    { value: 'packs', label: 'Packs' },
-    { value: 'bottles', label: 'Bottles' },
-    { value: 'cans', label: 'Cans' },
-    { value: 'bags', label: 'Bags' },
-    { value: 'cartons', label: 'Cartons' },
-    { value: 'dozen', label: 'Dozen' },
-    { value: 'gallons', label: 'Gallons' },
-    { value: 'liters', label: 'Liters' },
-    { value: 'pounds', label: 'Pounds' },
-    { value: 'kilograms', label: 'Kilograms' }
-  ];
+  { value: 'pieces', label: 'Pieces (Individual Units)' },
+  { value: 'cases', label: 'Cases (Bulk Units)' },
+  { value: 'boxes', label: 'Boxes' },
+  { value: 'packs', label: 'Packs' },
+  { value: 'bottles', label: 'Bottles' },
+  { value: 'cans', label: 'Cans' },
+  { value: 'bags', label: 'Bags' },
+  { value: 'cartons', label: 'Cartons' },
+  { value: 'dozen', label: 'Dozen' },
+  { value: 'gallons', label: 'Gallons' },
+  { value: 'liters', label: 'Liters' },
+  { value: 'pounds', label: 'Pounds' },
+  { value: 'kilograms', label: 'Kilograms' }];
+
 
   const handleConfirm = () => {
     if (!product) return;
@@ -89,24 +89,24 @@ const ProductSelectionDialog: React.FC<ProductSelectionDialogProps> = ({
 
   const calculatePrice = () => {
     if (!product) return 0;
-    
+
     // Calculate price based on unit type
     let pricePerUnit = product.price;
-    
+
     if (unitType === 'cases' && product.unit_per_case > 0) {
       pricePerUnit = product.price * product.unit_per_case;
     }
-    
+
     return pricePerUnit * quantity;
   };
 
   const getUnitInfo = () => {
     if (!product) return '';
-    
+
     if (unitType === 'cases' && product.unit_per_case > 0) {
       return `(${product.unit_per_case} pieces per case)`;
     }
-    
+
     return '';
   };
 
@@ -160,8 +160,8 @@ const ProductSelectionDialog: React.FC<ProductSelectionDialogProps> = ({
               min={1}
               max={product.quantity_in_stock}
               className="w-full"
-              placeholder="Enter quantity"
-            />
+              placeholder="Enter quantity" />
+
             <p className="text-xs text-muted-foreground">
               Maximum available: {product.quantity_in_stock} units
             </p>
@@ -175,16 +175,16 @@ const ProductSelectionDialog: React.FC<ProductSelectionDialogProps> = ({
                 <SelectValue placeholder="Select unit type" />
               </SelectTrigger>
               <SelectContent>
-                {unitTypes.map((unit) => (
-                  <SelectItem key={unit.value} value={unit.value}>
+                {unitTypes.map((unit) =>
+                <SelectItem key={unit.value} value={unit.value}>
                     {unit.label}
                   </SelectItem>
-                ))}
+                )}
               </SelectContent>
             </Select>
-            {getUnitInfo() && (
-              <p className="text-xs text-muted-foreground">{getUnitInfo()}</p>
-            )}
+            {getUnitInfo() &&
+            <p className="text-xs text-muted-foreground">{getUnitInfo()}</p>
+            }
           </div>
 
           {/* Price Calculation */}
@@ -213,8 +213,8 @@ const ProductSelectionDialog: React.FC<ProductSelectionDialogProps> = ({
           </div>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default ProductSelectionDialog;

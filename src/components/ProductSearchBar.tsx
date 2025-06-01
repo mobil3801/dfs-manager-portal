@@ -24,9 +24,9 @@ interface ProductSearchBarProps {
   placeholder?: string;
 }
 
-const ProductSearchBar: React.FC<ProductSearchBarProps> = ({ 
-  onProductSelect, 
-  placeholder = "Search products by name..." 
+const ProductSearchBar: React.FC<ProductSearchBarProps> = ({
+  onProductSelect,
+  placeholder = "Search products by name..."
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<Product[]>([]);
@@ -63,10 +63,10 @@ const ProductSearchBar: React.FC<ProductSearchBarProps> = ({
   const searchProducts = async (query: string) => {
     try {
       setIsSearching(true);
-      
+
       // Split search terms by spaces and create filters for each word
-      const words = query.toLowerCase().split(' ').filter(word => word.length > 0);
-      const filters = words.map(word => ({
+      const words = query.toLowerCase().split(' ').filter((word) => word.length > 0);
+      const filters = words.map((word) => ({
         name: 'product_name',
         op: 'StringContains' as const,
         value: word
@@ -129,36 +129,36 @@ const ProductSearchBar: React.FC<ProductSearchBarProps> = ({
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder={placeholder}
                 className="pr-20"
-                onFocus={() => setShowResults(searchResults.length > 0)}
-              />
+                onFocus={() => setShowResults(searchResults.length > 0)} />
+
               
               <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
-                {isSearching && (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                )}
-                {searchTerm && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={clearSearch}
-                    className="h-6 w-6 p-0"
-                  >
+                {isSearching &&
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                }
+                {searchTerm &&
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearSearch}
+                  className="h-6 w-6 p-0">
+
                     <X className="h-3 w-3" />
                   </Button>
-                )}
+                }
               </div>
             </div>
 
             {/* Search Results Dropdown */}
-            {showResults && searchResults.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-80 overflow-y-auto">
-                {searchResults.map((product) => (
-                  <div
-                    key={product.ID}
-                    className="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                    onClick={() => handleProductClick(product)}
-                  >
+            {showResults && searchResults.length > 0 &&
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-80 overflow-y-auto">
+                {searchResults.map((product) =>
+              <div
+                key={product.ID}
+                className="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                onClick={() => handleProductClick(product)}>
+
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2">
@@ -181,23 +181,23 @@ const ProductSearchBar: React.FC<ProductSearchBarProps> = ({
                       </div>
                     </div>
                   </div>
-                ))}
+              )}
               </div>
-            )}
+            }
 
             {/* No Results Message */}
-            {showResults && searchResults.length === 0 && searchTerm.length >= 2 && !isSearching && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 p-4 text-center">
+            {showResults && searchResults.length === 0 && searchTerm.length >= 2 && !isSearching &&
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 p-4 text-center">
                 <p className="text-sm text-muted-foreground">
                   No products found matching "{searchTerm}"
                 </p>
               </div>
-            )}
+            }
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default ProductSearchBar;

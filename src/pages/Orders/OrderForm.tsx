@@ -43,6 +43,7 @@ interface OrderFormData {
 }
 
 const OrderForm: React.FC = () => {
+  const [selectedStation, setSelectedStation] = useState<string>('');
   const [formData, setFormData] = useState<OrderFormData>({
     order_number: '',
     station: 'MOBIL',
@@ -147,12 +148,12 @@ const OrderForm: React.FC = () => {
 
   const addProductToOrder = (product: Product, quantity: number = 1, unitType: string = 'pieces') => {
     let pricePerUnit = product.price;
-    
+
     // Adjust price based on unit type
     if (unitType === 'cases' && product.unit_per_case > 0) {
       pricePerUnit = product.price * product.unit_per_case;
     }
-    
+
     const subtotal = pricePerUnit * quantity;
 
     const newItem: OrderItem = {
@@ -173,11 +174,11 @@ const OrderForm: React.FC = () => {
       updatedItems = [...formData.items];
       const newQuantity = updatedItems[existingItemIndex].quantity + quantity;
       let newPricePerUnit = updatedItems[existingItemIndex].product.price;
-      
+
       if (unitType === 'cases' && product.unit_per_case > 0) {
         newPricePerUnit = product.price * product.unit_per_case;
       }
-      
+
       updatedItems[existingItemIndex] = {
         ...updatedItems[existingItemIndex],
         quantity: newQuantity,
@@ -214,11 +215,11 @@ const OrderForm: React.FC = () => {
     const updatedItems = [...formData.items];
     const item = updatedItems[itemIndex];
     let pricePerUnit = item.product.price;
-    
+
     if (item.unitType === 'cases' && item.product.unit_per_case > 0) {
       pricePerUnit = item.product.price * item.product.unit_per_case;
     }
-    
+
     updatedItems[itemIndex] = {
       ...updatedItems[itemIndex],
       quantity: newQuantity,
@@ -324,16 +325,17 @@ const OrderForm: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <Card>
+      {/* Station Selection Card - Primary Selection */}
+      <Card className="border-2 border-primary/20">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center space-x-2">
                 <ShoppingCart className="w-6 h-6" />
-                <span>Create Order</span>
+                <span>Create Order - Station Selection</span>
               </CardTitle>
               <CardDescription>
-                Scan product barcodes or search manually to add items to your order
+                First, select the station for this order, then add products
               </CardDescription>
             </div>
             <Button variant="outline" onClick={() => navigate('/orders')}>
@@ -342,6 +344,58 @@ const OrderForm: React.FC = () => {
             </Button>
           </div>
         </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="station-selector" className="text-lg font-semibold">Select Delivery Station *</Label>
+              <Select
+                value={selectedStation}
+                onValueChange={(value) => {
+                  setSelectedStation(value);
+                  setFormData((prev) => ({ ...prev, station: value }));
+                }}>
+                <SelectTrigger className="text-lg p-4 h-12">
+                  <SelectValue placeholder="Choose a station to begin creating your order" />
+                </SelectTrigger>
+                <SelectContent>
+                  {stations.map((station) => (
+                    <SelectItem key={station} value={station} className="text-lg p-3">
+                      {station}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {selectedStation && (
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-green-800 font-medium">
+                  📍 Selected Station: <span className="font-bold">{selectedStation}</span>
+                </p>
+                <p className="text-green-600 text-sm mt-1">
+                  You can now add products to your order for this station.
+                </p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Content Section - Only show when station is selected */}
+      {selectedStation && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center space-x-2">
+                  <ShoppingCart className="w-6 h-6" />
+                  <span>Order for {selectedStation}</span>
+                </CardTitle>
+                <CardDescription>
+                  Scan product barcodes or search manually to add items to your order
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
         <CardContent>
           {/* Barcode Scanner Section */}
           <div className="space-y-6">
@@ -542,22 +596,11 @@ const OrderForm: React.FC = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="station">Delivery Station *</Label>
-                      <Select
-                        value={formData.station}
-                        onValueChange={(value) => setFormData((prev) => ({ ...prev, station: value }))}>
-
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select delivery station" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {stations.map((station) =>
-                          <SelectItem key={station} value={station}>
-                              {station}
-                            </SelectItem>
-                          )}
-                        </SelectContent>
-                      </Select>
+                      <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <Label className="text-blue-800 font-medium">Delivery Station</Label>
+                        <p className="text-blue-600 font-semibold text-lg">{selectedStation}</p>
+                        <p className="text-blue-500 text-sm">Selected at the top of the page</p>
+                      </div>
                     </div>
                   </div>
 
@@ -594,6 +637,7 @@ const OrderForm: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+      )}
 
       {/* Product Selection Dialog */}
       <ProductSelectionDialog
@@ -603,8 +647,8 @@ const OrderForm: React.FC = () => {
           setSelectedProduct(null);
         }}
         product={selectedProduct}
-        onConfirm={handleProductConfirm}
-      />
+        onConfirm={handleProductConfirm} />
+
     </div>);
 
 };
