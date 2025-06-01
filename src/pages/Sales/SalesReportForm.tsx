@@ -1,498 +1,429 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { NumberInput } from '@/components/ui/number-input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from '@/hooks/use-toast';
-import { TrendingUp, Save, ArrowLeft, Calculator, User } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+import { ArrowLeft, Save, TrendingUp } from 'lucide-react';
+import StationSelector from '@/components/StationSelector';
+import GasGrocerySalesSection from '@/components/SalesReportSections/GasGrocerySalesSection';
+import LotterySalesSection from '@/components/SalesReportSections/LotterySalesSection';
+import GasTankReportSection from '@/components/SalesReportSections/GasTankReportSection';
+import ExpensesSection from '@/components/SalesReportSections/ExpensesSection';
+import DocumentsUploadSection from '@/components/SalesReportSections/DocumentsUploadSection';
+import CashCollectionSection from '@/components/SalesReportSections/CashCollectionSection';
 
-interface SalesReportFormData {
-  report_date: string;
-  station: string;
-  total_sales: number;
-  cash_sales: number;
-  credit_card_sales: number;
-  fuel_sales: number;
-  convenience_sales: number;
-  employee_id: string;
+interface Expense {
+  id: string;
+  vendorId: string;
+  vendorName: string;
+  amount: number;
+  paymentType: 'Cash' | 'Credit Card' | 'Cheque';
+  chequeNo?: string;
+  invoiceFileId?: number;
   notes: string;
 }
 
-interface Employee {
-  id: number;
-  employee_id: string;
-  first_name: string;
-  last_name: string;
-  position: string;
-  station: string;
-  is_active: boolean;
-}
-
-const SalesReportForm: React.FC = () => {
-  const [formData, setFormData] = useState<SalesReportFormData>({
-    report_date: new Date().toISOString().split('T')[0],
-    station: '',
-    total_sales: 0,
-    cash_sales: 0,
-    credit_card_sales: 0,
-    fuel_sales: 0,
-    convenience_sales: 0,
-    employee_id: '',
-    notes: ''
-  });
-  const [loading, setLoading] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [employeesLoading, setEmployeesLoading] = useState(false);
-
+export default function SalesReportForm() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { toast } = useToast();
+  const isEditing = !!id;
 
-  const stations = [
-  { value: 'MOBIL', label: 'MOBIL (Far Rockaway)' },
-  { value: 'AMOCO ROSEDALE', label: 'AMOCO (Rosedale)' },
-  { value: 'AMOCO BROOKLYN', label: 'AMOCO (Brooklyn)' }];
+  const [selectedStation, setSelectedStation] = useState('');
+  const [employees, setEmployees] = useState<Array<{ id: number; first_name: string; last_name: string; employee_id: string }>>([]);
+  const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
 
+  const [formData, setFormData] = useState({
+    report_date: new Date().toISOString().split('T')[0],
+    station: '',
+    employee_name: '',
+    // Cash Collection
+    cashCollectionOnHand: 0,
+    // Gas & Grocery Sales
+    creditCardAmount: 0,
+    debitCardAmount: 0,
+    mobileAmount: 0,
+    cashAmount: 0,
+    grocerySales: 0,
+    ebtSales: 0, // MOBIL only
+    // Lottery
+    lotteryNetSales: 0,
+    scratchOffSales: 0,
+    // Gas Tank Report
+    regularGallons: 0,
+    superGallons: 0,
+    dieselGallons: 0,
+    // Documents
+    dayReportFileId: undefined as number | undefined,
+    veederRootFileId: undefined as number | undefined,
+    lottoReportFileId: undefined as number | undefined,
+    scratchOffReportFileId: undefined as number | undefined,
+    // Notes
+    notes: ''
+  });
+
+  const [expenses, setExpenses] = useState<Expense[]>([]);
 
   useEffect(() => {
-    loadEmployees();
-    if (id) {
-      setIsEditing(true);
-      loadReport(parseInt(id));
+    if (selectedStation) {
+      setFormData(prev => ({ ...prev, station: selectedStation }));
+      loadEmployees(selectedStation);
     }
-  }, [id]);
+  }, [selectedStation]);
 
-  const loadEmployees = async () => {
+  const loadEmployees = async (station: string) => {
+    setIsLoadingEmployees(true);
     try {
-      setEmployeesLoading(true);
-      const { data, error } = await window.ezsite.apis.tablePage('11727', {
+      const { data, error } = await window.ezsite.apis.tablePage(11727, {
         PageNo: 1,
-        PageSize: 1000,
+        PageSize: 100,
         OrderByField: 'first_name',
         IsAsc: true,
-        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+        Filters: [
+          { name: 'station', op: 'Equal', value: station },
+          { name: 'is_active', op: 'Equal', value: true }
+        ]
       });
 
       if (error) throw error;
       setEmployees(data?.List || []);
     } catch (error) {
-      console.error('Error fetching employees:', error);
+      console.error('Error loading employees:', error);
       toast({
         title: 'Error',
-        description: 'Failed to load employee data',
+        description: 'Failed to load employees',
         variant: 'destructive'
       });
     } finally {
-      setEmployeesLoading(false);
+      setIsLoadingEmployees(false);
     }
   };
 
-  // Auto-calculate totals when payment methods change
-  useEffect(() => {
-    const calculatedTotal = formData.cash_sales + formData.credit_card_sales;
-    if (Math.abs(calculatedTotal - formData.total_sales) > 0.01) {
-      console.log('Auto-calculating total:', { cash: formData.cash_sales, credit: formData.credit_card_sales, calculated: calculatedTotal });
-      setFormData((prev) => ({ ...prev, total_sales: calculatedTotal }));
-    }
-  }, [formData.cash_sales, formData.credit_card_sales]);
-
-  // Auto-validate category totals
-  useEffect(() => {
-    const categoryTotal = formData.fuel_sales + formData.convenience_sales;
-    if (categoryTotal > formData.total_sales + 0.01) {
-      console.warn('Category total exceeds total sales:', { fuel: formData.fuel_sales, convenience: formData.convenience_sales, total: formData.total_sales });
-    }
-  }, [formData.fuel_sales, formData.convenience_sales, formData.total_sales]);
-
-  const loadReport = async (reportId: number) => {
-    try {
-      setLoading(true);
-      const { data, error } = await window.ezsite.apis.tablePage('11728', {
-        PageNo: 1,
-        PageSize: 1,
-        Filters: [{ name: 'ID', op: 'Equal', value: reportId }]
-      });
-
-      if (error) throw error;
-
-      if (data && data.List && data.List.length > 0) {
-        const report = data.List[0];
-        setFormData({
-          report_date: report.report_date ? report.report_date.split('T')[0] : '',
-          station: report.station || '',
-          total_sales: report.total_sales || 0,
-          cash_sales: report.cash_sales || 0,
-          credit_card_sales: report.credit_card_sales || 0,
-          fuel_sales: report.fuel_sales || 0,
-          convenience_sales: report.convenience_sales || 0,
-          employee_id: report.employee_id || '',
-          notes: report.notes || ''
-        });
-      }
-    } catch (error) {
-      console.error('Error loading sales report:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load sales report details",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Auto-calculations
+  const totalSales = formData.creditCardAmount + formData.debitCardAmount + formData.mobileAmount + formData.cashAmount + formData.grocerySales;
+  const totalGallons = formData.regularGallons + formData.superGallons + formData.dieselGallons;
+  const totalLotteryCash = formData.lotteryNetSales + formData.scratchOffSales;
+  const totalCashFromSales = formData.cashAmount;
+  const totalCashFromExpenses = expenses.filter(e => e.paymentType === 'Cash').reduce((sum, expense) => sum + expense.amount, 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Enhanced validation with better error messages
-    const categoryTotal = formData.fuel_sales + formData.convenience_sales;
-    const paymentTotal = formData.cash_sales + formData.credit_card_sales;
-
-    console.log('Form validation:', {
-      categoryTotal,
-      paymentTotal,
-      totalSales: formData.total_sales,
-      categoryValid: categoryTotal <= formData.total_sales + 0.01,
-      paymentValid: Math.abs(paymentTotal - formData.total_sales) <= 0.01
-    });
-
-    if (categoryTotal > formData.total_sales + 0.01) {
+    
+    // Validate required documents
+    const requiredDocs = ['dayReportFileId', 'veederRootFileId', 'lottoReportFileId', 'scratchOffReportFileId'];
+    const missingDocs = requiredDocs.filter(doc => !formData[doc as keyof typeof formData]);
+    
+    if (missingDocs.length > 0) {
       toast({
-        title: "Validation Error",
-        description: `Category breakdown (${formatCurrency(categoryTotal)}) exceeds total sales (${formatCurrency(formData.total_sales)}). Please adjust the amounts.`,
-        variant: "destructive"
+        title: 'Missing Documents',
+        description: 'Please upload all required documents before submitting.',
+        variant: 'destructive'
       });
       return;
     }
 
-    if (Math.abs(paymentTotal - formData.total_sales) > 0.01) {
+    // Validate expenses have invoices
+    const expensesWithoutInvoices = expenses.filter(expense => !expense.invoiceFileId);
+    if (expensesWithoutInvoices.length > 0) {
       toast({
-        title: "Validation Error",
-        description: `Payment methods total (${formatCurrency(paymentTotal)}) must equal total sales (${formatCurrency(formData.total_sales)}).`,
-        variant: "destructive"
+        title: 'Missing Invoices',
+        description: 'Please upload invoices for all expenses.',
+        variant: 'destructive'
       });
       return;
     }
-
-    // Additional validation checks
-    if (formData.total_sales <= 0) {
-      toast({
-        title: "Validation Error",
-        description: "Total sales must be greater than zero.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (formData.cash_sales < 0 || formData.credit_card_sales < 0 || formData.fuel_sales < 0 || formData.convenience_sales < 0) {
-      toast({
-        title: "Validation Error",
-        description: "All sales amounts must be non-negative.",
-        variant: "destructive"
-      });
-      return;
-    }
+    
+    const submitData = {
+      report_date: formData.report_date,
+      station: formData.station,
+      employee_name: formData.employee_name,
+      cash_collection_on_hand: formData.cashCollectionOnHand,
+      total_short_over: formData.cashCollectionOnHand - (totalCashFromSales - totalCashFromExpenses),
+      credit_card_amount: formData.creditCardAmount,
+      debit_card_amount: formData.debitCardAmount,
+      mobile_amount: formData.mobileAmount,
+      cash_amount: formData.cashAmount,
+      grocery_sales: formData.grocerySales,
+      ebt_sales: formData.ebtSales,
+      lottery_net_sales: formData.lotteryNetSales,
+      scratch_off_sales: formData.scratchOffSales,
+      lottery_total_cash: totalLotteryCash,
+      regular_gallons: formData.regularGallons,
+      super_gallons: formData.superGallons,
+      diesel_gallons: formData.dieselGallons,
+      total_gallons: totalGallons,
+      expenses_data: JSON.stringify(expenses),
+      day_report_file_id: formData.dayReportFileId,
+      veeder_root_file_id: formData.veederRootFileId,
+      lotto_report_file_id: formData.lottoReportFileId,
+      scratch_off_report_file_id: formData.scratchOffReportFileId,
+      total_sales: totalSales,
+      notes: formData.notes,
+      created_by: 1 // Replace with actual user ID
+    };
 
     try {
-      setLoading(true);
-
-      const dataToSubmit = {
-        ...formData,
-        report_date: formData.report_date ? new Date(formData.report_date).toISOString() : '',
-        created_by: 1
-      };
-
-      if (isEditing && id) {
-        const { error } = await window.ezsite.apis.tableUpdate('11728', {
-          ID: parseInt(id),
-          ...dataToSubmit
-        });
-        if (error) throw error;
-
-        toast({
-          title: "Success",
-          description: "Sales report updated successfully"
-        });
+      let result;
+      if (isEditing) {
+        result = await window.ezsite.apis.tableUpdate(12356, { ...submitData, id: parseInt(id) });
       } else {
-        const { error } = await window.ezsite.apis.tableCreate('11728', dataToSubmit);
-        if (error) throw error;
-
-        toast({
-          title: "Success",
-          description: "Sales report created successfully"
-        });
+        result = await window.ezsite.apis.tableCreate(12356, submitData);
       }
 
-      navigate('/sales');
-    } catch (error) {
-      console.error('Error saving sales report:', error);
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
       toast({
-        title: "Error",
-        description: `Failed to ${isEditing ? 'update' : 'create'} sales report`,
-        variant: "destructive"
+        title: isEditing ? 'Report Updated' : 'Report Created',
+        description: `Sales report has been ${isEditing ? 'updated' : 'created'} successfully.`
       });
-    } finally {
-      setLoading(false);
+
+      navigate('/sales-reports');
+    } catch (error) {
+      console.error('Error saving report:', error);
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to save report',
+        variant: 'destructive'
+      });
     }
   };
 
-  const handleInputChange = (field: keyof SalesReportFormData, value: string | number) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  const updateFormData = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const calculateMissingValue = () => {
-    const calculatedConvenience = formData.total_sales - formData.fuel_sales;
-    if (calculatedConvenience >= 0) {
-      console.log('Auto-calculating convenience sales:', { total: formData.total_sales, fuel: formData.fuel_sales, calculated: calculatedConvenience });
-      setFormData((prev) => ({ ...prev, convenience_sales: calculatedConvenience }));
-    }
+  const handleExpensesChange = (newExpenses: Expense[]) => {
+    setExpenses(newExpenses);
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
+  const handleDocumentUpload = (field: string, fileId: number) => {
+    setFormData(prev => ({ ...prev, [field]: fileId }));
   };
+
+  // If no station selected, show station selector
+  if (!selectedStation) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-6">
+            <Button
+              variant="outline"
+              onClick={() => navigate('/sales-reports')}
+              className="mb-4"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Reports
+            </Button>
+            <h1 className="text-3xl font-bold text-gray-900">Create Daily Sales Report</h1>
+            <p className="text-gray-600 mt-2">Step 1: Select your station to begin</p>
+          </div>
+          <StationSelector onStationSelect={setSelectedStation} />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-6">
+          <Button
+            variant="outline"
+            onClick={() => setSelectedStation('')}
+            className="mb-4"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Change Station
+          </Button>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="flex items-center space-x-2">
-                <TrendingUp className="w-6 h-6" />
-                <span>{isEditing ? 'Edit Sales Report' : 'Add Daily Sales Report'}</span>
-              </CardTitle>
-              <CardDescription>
-                {isEditing ? 'Update daily sales information' : 'Record daily sales performance'}
-              </CardDescription>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {isEditing ? 'Edit' : 'Create'} Daily Sales Report
+              </h1>
+              <p className="text-gray-600 mt-2">
+                Station: <span className="font-semibold">{selectedStation}</span>
+              </p>
             </div>
-            <Button variant="outline" onClick={() => navigate('/sales')}>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/sales-reports')}
+            >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Reports
             </Button>
           </div>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="report_date">Report Date *</Label>
-                <Input
-                  id="report_date"
-                  type="date"
-                  value={formData.report_date}
-                  onChange={(e) => handleInputChange('report_date', e.target.value)}
-                  required />
+        </div>
 
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="station">Station *</Label>
-                <Select value={formData.station} onValueChange={(value) => handleInputChange('station', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select station" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {stations.map((station) =>
-                    <SelectItem key={station.value} value={station.value}>
-                        {station.label}
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="employee_id">
-                  <div className="flex items-center gap-2">
-                    <User className="w-4 h-4" />
-                    Employee
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Basic Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Basic Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="report_date">Report Date *</Label>
+                  <Input
+                    type="date"
+                    id="report_date"
+                    value={formData.report_date}
+                    onChange={(e) => updateFormData('report_date', e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Station</Label>
+                  <div className="h-9 px-3 py-2 border border-gray-200 rounded-md bg-gray-100 flex items-center">
+                    <span className="text-gray-700 font-medium">{selectedStation}</span>
                   </div>
-                </Label>
-                {employeesLoading ?
-                <div className="flex items-center justify-center p-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                    <span className="ml-2 text-sm text-gray-600">Loading employees...</span>
-                  </div> :
-
-                <Select value={formData.employee_id} onValueChange={(value) => handleInputChange('employee_id', value)}>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="employee">Employee *</Label>
+                  <Select
+                    value={formData.employee_name}
+                    onValueChange={(value) => updateFormData('employee_name', value)}
+                  >
                     <SelectTrigger>
-                      <SelectValue placeholder="Search and select employee" />
+                      <SelectValue placeholder="Select employee" />
                     </SelectTrigger>
                     <SelectContent>
-                      {employees.map((employee) =>
-                    <SelectItem key={employee.employee_id} value={employee.employee_id}>
-                          <div className="flex flex-col">
-                            <span className="font-medium">{employee.first_name} {employee.last_name}</span>
-                            <span className="text-xs text-gray-500">
-                              ID: {employee.employee_id} • {employee.position} • {employee.station}
-                            </span>
-                          </div>
+                      {employees.map((employee) => (
+                        <SelectItem key={employee.id} value={`${employee.first_name} ${employee.last_name}`}>
+                          {employee.first_name} {employee.last_name} ({employee.employee_id})
                         </SelectItem>
-                    )}
+                      ))}
                     </SelectContent>
                   </Select>
-                }
+                </div>
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            {/* Sales Breakdown */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Sales Breakdown</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="p-4 bg-green-50 border-green-200">
-                  <h4 className="font-medium text-green-800 mb-3">Payment Methods</h4>
-                  <div className="space-y-3">
-                    <div className="space-y-2">
-                      <Label htmlFor="cash_sales">Cash Sales ($) *</Label>
-                      <NumberInput
-                        id="cash_sales"
-                        step="0.01"
-                        min="0"
-                        value={formData.cash_sales}
-                        onChange={(value) => handleInputChange('cash_sales', value)}
-                        required />
+          {/* Cash Collection */}
+          <CashCollectionSection
+            values={{
+              cashCollectionOnHand: formData.cashCollectionOnHand,
+              totalCashFromSales: totalCashFromSales,
+              totalCashFromExpenses: totalCashFromExpenses
+            }}
+            onChange={updateFormData}
+          />
 
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="credit_card_sales">Credit Card Sales ($) *</Label>
-                      <NumberInput
-                        id="credit_card_sales"
-                        step="0.01"
-                        min="0"
-                        value={formData.credit_card_sales}
-                        onChange={(value) => handleInputChange('credit_card_sales', value)}
-                        required />
+          {/* Gas & Grocery Sales */}
+          <GasGrocerySalesSection
+            station={selectedStation}
+            values={{
+              creditCardAmount: formData.creditCardAmount,
+              debitCardAmount: formData.debitCardAmount,
+              mobileAmount: formData.mobileAmount,
+              cashAmount: formData.cashAmount,
+              grocerySales: formData.grocerySales,
+              ebtSales: formData.ebtSales
+            }}
+            onChange={updateFormData}
+          />
 
-                    </div>
-                    
-                    <div className="pt-2 border-t border-green-200">
-                      <Label>Total Sales (Auto-calculated)</Label>
-                      <div className="flex items-center space-x-2">
-                        <div className="text-lg font-bold text-green-800">
-                          ${formData.total_sales.toFixed(2)}
-                        </div>
-                        <span className="text-green-600 text-sm">✓ Accurate</span>
-                      </div>
-                      <div className="text-xs text-gray-600 mt-1">
-                        Cash + Credit = {formatCurrency(formData.cash_sales + formData.credit_card_sales)}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
+          {/* NY Lottery Sales */}
+          <LotterySalesSection
+            values={{
+              lotteryNetSales: formData.lotteryNetSales,
+              scratchOffSales: formData.scratchOffSales
+            }}
+            onChange={updateFormData}
+          />
 
-                <Card className="p-4 bg-blue-50 border-blue-200">
-                  <h4 className="font-medium text-blue-800 mb-3">Sales Categories</h4>
-                  <div className="space-y-3">
-                    <div className="space-y-2">
-                      <Label htmlFor="fuel_sales">Fuel Sales ($) *</Label>
-                      <NumberInput
-                        id="fuel_sales"
-                        step="0.01"
-                        min="0"
-                        value={formData.fuel_sales}
-                        onChange={(value) => handleInputChange('fuel_sales', value)}
-                        required />
+          {/* Gas Tank Report */}
+          <GasTankReportSection
+            values={{
+              regularGallons: formData.regularGallons,
+              superGallons: formData.superGallons,
+              dieselGallons: formData.dieselGallons
+            }}
+            onChange={updateFormData}
+          />
 
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="convenience_sales">Convenience Sales ($) *</Label>
-                      <div className="flex space-x-2">
-                        <NumberInput
-                          id="convenience_sales"
-                          step="0.01"
-                          min="0"
-                          value={formData.convenience_sales}
-                          onChange={(value) => handleInputChange('convenience_sales', value)}
-                          required />
+          {/* Expenses */}
+          <ExpensesSection
+            expenses={expenses}
+            onChange={handleExpensesChange}
+          />
 
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={calculateMissingValue}
-                          title="Auto-calculate convenience sales">
+          {/* Documents Upload */}
+          <DocumentsUploadSection
+            documents={{
+              dayReportFileId: formData.dayReportFileId,
+              veederRootFileId: formData.veederRootFileId,
+              lottoReportFileId: formData.lottoReportFileId,
+              scratchOffReportFileId: formData.scratchOffReportFileId
+            }}
+            onChange={handleDocumentUpload}
+          />
 
-                          <Calculator className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    <div className="pt-2 border-t border-blue-200">
-                      <Label>Category Total</Label>
-                      <div className="flex items-center space-x-2">
-                        <div className="text-lg font-bold text-blue-800">
-                          ${(formData.fuel_sales + formData.convenience_sales).toFixed(2)}
-                        </div>
-                        {(() => {
-                          const categoryTotal = formData.fuel_sales + formData.convenience_sales;
-                          const isValid = categoryTotal <= formData.total_sales + 0.01;
-                          const remaining = formData.total_sales - categoryTotal;
-
-                          return isValid ?
-                          <span className="text-green-600 text-sm">✓ Valid</span> :
-                          <span className="text-red-600 text-sm">⚠️ Exceeds total</span>;
-                        })()} 
-                      </div>
-                      <div className="text-xs text-gray-600 mt-1">
-                        {(() => {
-                          const remaining = formData.total_sales - (formData.fuel_sales + formData.convenience_sales);
-                          return remaining >= 0 ?
-                          `Remaining: ${formatCurrency(remaining)}` :
-                          `Overrun: ${formatCurrency(Math.abs(remaining))}`;
-                        })()} 
-                      </div>
-                    </div>
-                  </div>
-                </Card>
+          {/* Notes */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Additional Notes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <Label htmlFor="notes">Notes</Label>
+                <Textarea
+                  id="notes"
+                  value={formData.notes}
+                  onChange={(e) => updateFormData('notes', e.target.value)}
+                  placeholder="Enter any additional notes about the day's operations..."
+                  rows={4}
+                />
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notes</Label>
-              <Textarea
-                id="notes"
-                value={formData.notes}
-                onChange={(e) => handleInputChange('notes', e.target.value)}
-                placeholder="Enter any additional notes about the day's sales..."
-                rows={4} />
+          {/* Summary */}
+          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+            <CardHeader>
+              <CardTitle className="text-blue-800">Report Summary</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-800">${totalSales.toFixed(2)}</div>
+                  <div className="text-sm text-gray-600">Total Sales</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-800">{totalGallons.toFixed(2)}</div>
+                  <div className="text-sm text-gray-600">Total Gallons</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-800">${totalLotteryCash.toFixed(2)}</div>
+                  <div className="text-sm text-gray-600">Lottery Sales</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-            </div>
-
-            <div className="flex items-center justify-end space-x-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate('/sales')}>
-
-                Cancel
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ?
-                'Saving...' :
-
-                <>
-                    <Save className="w-4 h-4 mr-2" />
-                    {isEditing ? 'Update Report' : 'Create Report'}
-                  </>
-                }
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>);
-
-};
-
-export default SalesReportForm;
+          {/* Submit Buttons */}
+          <div className="flex items-center justify-end space-x-4 pt-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate('/sales-reports')}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+              <Save className="w-4 h-4 mr-2" />
+              {isEditing ? 'Update' : 'Create'} Report
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
