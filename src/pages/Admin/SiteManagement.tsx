@@ -278,10 +278,10 @@ const SiteManagement: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {loadingStations ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
-                <Card key={i} className="border animate-pulse">
+          {loadingStations ?
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[1, 2, 3].map((i) =>
+            <Card key={i} className="border animate-pulse">
                   <CardContent className="p-4">
                     <div className="space-y-3">
                       <div className="h-6 bg-gray-200 rounded w-1/2"></div>
@@ -293,32 +293,32 @@ const SiteManagement: React.FC = () => {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {stations.map((station, index) => (
-                <Card key={station.id || index} className="border">
+            )}
+            </div> :
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {stations.map((station, index) =>
+            <Card key={station.id || index} className="border">
                   <CardContent className="p-4">
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <h3 className="font-semibold text-lg">{station.station_name}</h3>
                         <div className="flex items-center space-x-2">
                           <Badge className={`${
-                            station.status === 'Active' 
-                              ? 'bg-green-100 text-green-800' 
-                              : station.status === 'Inactive'
-                              ? 'bg-red-100 text-red-800'
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}>
+                      station.status === 'Active' ?
+                      'bg-green-100 text-green-800' :
+                      station.status === 'Inactive' ?
+                      'bg-red-100 text-red-800' :
+                      'bg-yellow-100 text-yellow-800'}`
+                      }>
                             {station.status}
                           </Badge>
                           <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEditStation(station)}
-                            className="h-8 w-8 p-0"
-                          >
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditStation(station)}
+                        className="h-8 w-8 p-0">
+
                             <Edit className="w-4 h-4" />
                           </Button>
                         </div>
@@ -350,9 +350,9 @@ const SiteManagement: React.FC = () => {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+            )}
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
@@ -615,8 +615,8 @@ const SiteManagement: React.FC = () => {
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
         station={editingStation}
-        onSave={handleStationSaved}
-      />
+        onSave={handleStationSaved} />
+
     </div>);
 
 };

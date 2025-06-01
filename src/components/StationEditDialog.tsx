@@ -4,8 +4,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
+  DialogFooter } from
+'@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -32,11 +32,11 @@ interface StationEditDialogProps {
   onSave: () => void;
 }
 
-export default function StationEditDialog({ 
-  open, 
-  onOpenChange, 
-  station, 
-  onSave 
+export default function StationEditDialog({
+  open,
+  onOpenChange,
+  station,
+  onSave
 }: StationEditDialogProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -46,7 +46,7 @@ export default function StationEditDialog({
     phone: '',
     operating_hours: '',
     manager_name: '',
-    status: 'Active',
+    status: 'Active'
   });
 
   useEffect(() => {
@@ -57,13 +57,13 @@ export default function StationEditDialog({
         phone: station.phone,
         operating_hours: station.operating_hours,
         manager_name: station.manager_name,
-        status: station.status,
+        status: station.status
       });
     }
   }, [station]);
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [field]: value
     }));
@@ -76,21 +76,21 @@ export default function StationEditDialog({
     setLoading(true);
     try {
       console.log('Updating station:', station.id, formData);
-      
+
       const updateData = {
         id: station.id,
         ...formData,
         last_updated: new Date().toISOString(),
-        created_by: station.created_by,
+        created_by: station.created_by
       };
 
       const { error } = await window.ezsite.apis.tableUpdate(12599, updateData);
-      
+
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Station information updated successfully",
+        description: "Station information updated successfully"
       });
 
       onSave();
@@ -100,15 +100,15 @@ export default function StationEditDialog({
       toast({
         title: "Error",
         description: error?.toString() || "Failed to update station information",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const isFormValid = formData.station_name && formData.address && formData.phone && 
-                     formData.operating_hours && formData.manager_name;
+  const isFormValid = formData.station_name && formData.address && formData.phone &&
+  formData.operating_hours && formData.manager_name;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -126,8 +126,8 @@ export default function StationEditDialog({
                 value={formData.station_name}
                 onChange={(e) => handleInputChange('station_name', e.target.value)}
                 placeholder="Enter station name"
-                required
-              />
+                required />
+
             </div>
 
             <div className="space-y-2">
@@ -137,8 +137,8 @@ export default function StationEditDialog({
                 value={formData.address}
                 onChange={(e) => handleInputChange('address', e.target.value)}
                 placeholder="Enter station address"
-                required
-              />
+                required />
+
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -149,8 +149,8 @@ export default function StationEditDialog({
                   value={formData.phone}
                   onChange={(e) => handleInputChange('phone', e.target.value)}
                   placeholder="(718) 555-0100"
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -175,8 +175,8 @@ export default function StationEditDialog({
                 value={formData.operating_hours}
                 onChange={(e) => handleInputChange('operating_hours', e.target.value)}
                 placeholder="24/7 or 6:00 AM - 12:00 AM"
-                required
-              />
+                required />
+
             </div>
 
             <div className="space-y-2">
@@ -186,8 +186,8 @@ export default function StationEditDialog({
                 value={formData.manager_name}
                 onChange={(e) => handleInputChange('manager_name', e.target.value)}
                 placeholder="Enter manager name"
-                required
-              />
+                required />
+
             </div>
           </div>
 
@@ -195,23 +195,23 @@ export default function StationEditDialog({
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={loading || !isFormValid}
-              className="min-w-[100px]"
-            >
-              {loading ? (
-                <>
+              className="min-w-[100px]">
+
+              {loading ?
+              <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Saving...
-                </>
-              ) : (
-                'Save Changes'
-              )}
+                </> :
+
+              'Save Changes'
+              }
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 }
