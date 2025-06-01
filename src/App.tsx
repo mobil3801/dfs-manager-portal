@@ -5,6 +5,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
 
 import DashboardLayout from './components/Layout/DashboardLayout';
+import HomePage from './pages/HomePage';
+import LoginPage from './pages/LoginPage';
+import OnAuthSuccessPage from './pages/OnAuthSuccessPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import Dashboard from './pages/Dashboard';
 import ProductList from './pages/Products/ProductList';
 import ProductForm from './pages/Products/ProductForm';
@@ -36,8 +40,15 @@ function App() {
         <TooltipProvider>
           <Router>
           <Routes>
-            <Route path="/" element={<DashboardLayout />}>
-              <Route index element={<Navigate to="/dashboard" replace />} />
+            {/* Public routes */}
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
+            <Route path="/resetpassword" element={<ResetPasswordPage />} />
+            
+            {/* Protected routes with layout */}
+            <Route path="/app" element={<DashboardLayout />}>
+              <Route index element={<Navigate to="/app/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
               
               {/* Products routes */}

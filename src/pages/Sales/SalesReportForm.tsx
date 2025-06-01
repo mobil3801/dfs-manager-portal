@@ -34,7 +34,7 @@ export default function SalesReportForm() {
   const isEditing = !!id;
 
   const [selectedStation, setSelectedStation] = useState('');
-  const [employees, setEmployees] = useState<Array<{ id: number; first_name: string; last_name: string; employee_id: string }>>([]);
+  const [employees, setEmployees] = useState<Array<{id: number;first_name: string;last_name: string;employee_id: string;}>>([]);
   const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -70,7 +70,7 @@ export default function SalesReportForm() {
 
   useEffect(() => {
     if (selectedStation) {
-      setFormData(prev => ({ ...prev, station: selectedStation }));
+      setFormData((prev) => ({ ...prev, station: selectedStation }));
       loadEmployees(selectedStation);
     }
   }, [selectedStation]);
@@ -84,9 +84,9 @@ export default function SalesReportForm() {
         OrderByField: 'first_name',
         IsAsc: true,
         Filters: [
-          { name: 'station', op: 'Equal', value: station },
-          { name: 'is_active', op: 'Equal', value: true }
-        ]
+        { name: 'station', op: 'Equal', value: station },
+        { name: 'is_active', op: 'Equal', value: true }]
+
       });
 
       if (error) throw error;
@@ -108,15 +108,15 @@ export default function SalesReportForm() {
   const totalGallons = formData.regularGallons + formData.superGallons + formData.dieselGallons;
   const totalLotteryCash = formData.lotteryNetSales + formData.scratchOffSales;
   const totalCashFromSales = formData.cashAmount;
-  const totalCashFromExpenses = expenses.filter(e => e.paymentType === 'Cash').reduce((sum, expense) => sum + expense.amount, 0);
+  const totalCashFromExpenses = expenses.filter((e) => e.paymentType === 'Cash').reduce((sum, expense) => sum + expense.amount, 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate required documents
     const requiredDocs = ['dayReportFileId', 'veederRootFileId', 'lottoReportFileId', 'scratchOffReportFileId'];
-    const missingDocs = requiredDocs.filter(doc => !formData[doc as keyof typeof formData]);
-    
+    const missingDocs = requiredDocs.filter((doc) => !formData[doc as keyof typeof formData]);
+
     if (missingDocs.length > 0) {
       toast({
         title: 'Missing Documents',
@@ -127,7 +127,7 @@ export default function SalesReportForm() {
     }
 
     // Validate expenses have invoices
-    const expensesWithoutInvoices = expenses.filter(expense => !expense.invoiceFileId);
+    const expensesWithoutInvoices = expenses.filter((expense) => !expense.invoiceFileId);
     if (expensesWithoutInvoices.length > 0) {
       toast({
         title: 'Missing Invoices',
@@ -136,7 +136,7 @@ export default function SalesReportForm() {
       });
       return;
     }
-    
+
     const submitData = {
       report_date: formData.report_date,
       station: formData.station,
@@ -195,7 +195,7 @@ export default function SalesReportForm() {
   };
 
   const updateFormData = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleExpensesChange = (newExpenses: Expense[]) => {
@@ -203,7 +203,7 @@ export default function SalesReportForm() {
   };
 
   const handleDocumentUpload = (field: string, fileId: number) => {
-    setFormData(prev => ({ ...prev, [field]: fileId }));
+    setFormData((prev) => ({ ...prev, [field]: fileId }));
   };
 
   // If no station selected, show station selector
@@ -215,8 +215,8 @@ export default function SalesReportForm() {
             <Button
               variant="outline"
               onClick={() => navigate('/sales-reports')}
-              className="mb-4"
-            >
+              className="mb-4">
+
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Reports
             </Button>
@@ -225,8 +225,8 @@ export default function SalesReportForm() {
           </div>
           <StationSelector onStationSelect={setSelectedStation} />
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -236,8 +236,8 @@ export default function SalesReportForm() {
           <Button
             variant="outline"
             onClick={() => setSelectedStation('')}
-            className="mb-4"
-          >
+            className="mb-4">
+
             <ArrowLeft className="w-4 h-4 mr-2" />
             Change Station
           </Button>
@@ -252,8 +252,8 @@ export default function SalesReportForm() {
             </div>
             <Button
               variant="outline"
-              onClick={() => navigate('/sales-reports')}
-            >
+              onClick={() => navigate('/sales-reports')}>
+
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Reports
             </Button>
@@ -275,8 +275,8 @@ export default function SalesReportForm() {
                     id="report_date"
                     value={formData.report_date}
                     onChange={(e) => updateFormData('report_date', e.target.value)}
-                    required
-                  />
+                    required />
+
                 </div>
                 <div className="space-y-2">
                   <Label>Station</Label>
@@ -288,17 +288,17 @@ export default function SalesReportForm() {
                   <Label htmlFor="employee">Employee *</Label>
                   <Select
                     value={formData.employee_name}
-                    onValueChange={(value) => updateFormData('employee_name', value)}
-                  >
+                    onValueChange={(value) => updateFormData('employee_name', value)}>
+
                     <SelectTrigger>
                       <SelectValue placeholder="Select employee" />
                     </SelectTrigger>
                     <SelectContent>
-                      {employees.map((employee) => (
-                        <SelectItem key={employee.id} value={`${employee.first_name} ${employee.last_name}`}>
+                      {employees.map((employee) =>
+                      <SelectItem key={employee.id} value={`${employee.first_name} ${employee.last_name}`}>
                           {employee.first_name} {employee.last_name} ({employee.employee_id})
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -313,8 +313,8 @@ export default function SalesReportForm() {
               totalCashFromSales: totalCashFromSales,
               totalCashFromExpenses: totalCashFromExpenses
             }}
-            onChange={updateFormData}
-          />
+            onChange={updateFormData} />
+
 
           {/* Gas & Grocery Sales */}
           <GasGrocerySalesSection
@@ -327,8 +327,8 @@ export default function SalesReportForm() {
               grocerySales: formData.grocerySales,
               ebtSales: formData.ebtSales
             }}
-            onChange={updateFormData}
-          />
+            onChange={updateFormData} />
+
 
           {/* NY Lottery Sales */}
           <LotterySalesSection
@@ -336,8 +336,8 @@ export default function SalesReportForm() {
               lotteryNetSales: formData.lotteryNetSales,
               scratchOffSales: formData.scratchOffSales
             }}
-            onChange={updateFormData}
-          />
+            onChange={updateFormData} />
+
 
           {/* Gas Tank Report */}
           <GasTankReportSection
@@ -346,14 +346,14 @@ export default function SalesReportForm() {
               superGallons: formData.superGallons,
               dieselGallons: formData.dieselGallons
             }}
-            onChange={updateFormData}
-          />
+            onChange={updateFormData} />
+
 
           {/* Expenses */}
           <ExpensesSection
             expenses={expenses}
-            onChange={handleExpensesChange}
-          />
+            onChange={handleExpensesChange} />
+
 
           {/* Documents Upload */}
           <DocumentsUploadSection
@@ -363,8 +363,8 @@ export default function SalesReportForm() {
               lottoReportFileId: formData.lottoReportFileId,
               scratchOffReportFileId: formData.scratchOffReportFileId
             }}
-            onChange={handleDocumentUpload}
-          />
+            onChange={handleDocumentUpload} />
+
 
           {/* Notes */}
           <Card>
@@ -379,8 +379,8 @@ export default function SalesReportForm() {
                   value={formData.notes}
                   onChange={(e) => updateFormData('notes', e.target.value)}
                   placeholder="Enter any additional notes about the day's operations..."
-                  rows={4}
-                />
+                  rows={4} />
+
               </div>
             </CardContent>
           </Card>
@@ -413,8 +413,8 @@ export default function SalesReportForm() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate('/sales-reports')}
-            >
+              onClick={() => navigate('/sales-reports')}>
+
               Cancel
             </Button>
             <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
@@ -424,6 +424,6 @@ export default function SalesReportForm() {
           </div>
         </form>
       </div>
-    </div>
-  );
+    </div>);
+
 }

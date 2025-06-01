@@ -30,7 +30,7 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
   expenses,
   onChange
 }) => {
-  const [vendors, setVendors] = useState<Array<{ id: number; vendor_name: string }>>([]);
+  const [vendors, setVendors] = useState<Array<{id: number;vendor_name: string;}>>([]);
   const [isLoadingVendors, setIsLoadingVendors] = useState(true);
   const { toast } = useToast();
 
@@ -77,12 +77,12 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
   const updateExpense = (index: number, field: keyof Expense, value: any) => {
     const updatedExpenses = [...expenses];
     updatedExpenses[index] = { ...updatedExpenses[index], [field]: value };
-    
+
     if (field === 'vendorId') {
-      const vendor = vendors.find(v => v.id.toString() === value);
+      const vendor = vendors.find((v) => v.id.toString() === value);
       updatedExpenses[index].vendorName = vendor?.vendor_name || '';
     }
-    
+
     onChange(updatedExpenses);
   };
 
@@ -100,7 +100,7 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
 
       if (error) throw error;
       updateExpense(index, 'invoiceFileId', fileId);
-      
+
       toast({
         title: 'Success',
         description: 'Invoice uploaded successfully'
@@ -116,7 +116,7 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
   };
 
   const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-  const cashExpenses = expenses.filter(e => e.paymentType === 'Cash').reduce((sum, expense) => sum + expense.amount, 0);
+  const cashExpenses = expenses.filter((e) => e.paymentType === 'Cash').reduce((sum, expense) => sum + expense.amount, 0);
 
   return (
     <Card className="bg-orange-50 border-orange-200">
@@ -131,33 +131,33 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
             variant="outline"
             size="sm"
             onClick={addExpense}
-            className="bg-white hover:bg-orange-100"
-          >
+            className="bg-white hover:bg-orange-100">
+
             <Plus className="w-4 h-4 mr-2" />
             Add Expense
           </Button>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {expenses.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+        {expenses.length === 0 ?
+        <div className="text-center py-8 text-gray-500">
             No expenses recorded. Click "Add Expense" to get started.
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {expenses.map((expense, index) => (
-              <div key={expense.id} className="border border-orange-200 rounded-lg p-4 bg-white">
+          </div> :
+
+        <div className="space-y-4">
+            {expenses.map((expense, index) =>
+          <div key={expense.id} className="border border-orange-200 rounded-lg p-4 bg-white">
                 <div className="flex items-center justify-between mb-4">
                   <Badge variant="outline" className="text-orange-700">
                     Expense #{index + 1}
                   </Badge>
                   <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeExpense(index)}
-                    className="text-red-600 hover:text-red-800 hover:bg-red-50"
-                  >
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => removeExpense(index)}
+                className="text-red-600 hover:text-red-800 hover:bg-red-50">
+
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
@@ -166,18 +166,18 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
                   <div className="space-y-2">
                     <Label>Vendor *</Label>
                     <Select
-                      value={expense.vendorId}
-                      onValueChange={(value) => updateExpense(index, 'vendorId', value)}
-                    >
+                  value={expense.vendorId}
+                  onValueChange={(value) => updateExpense(index, 'vendorId', value)}>
+
                       <SelectTrigger>
                         <SelectValue placeholder="Select vendor" />
                       </SelectTrigger>
                       <SelectContent>
-                        {vendors.map((vendor) => (
-                          <SelectItem key={vendor.id} value={vendor.id.toString()}>
+                        {vendors.map((vendor) =>
+                    <SelectItem key={vendor.id} value={vendor.id.toString()}>
                             {vendor.vendor_name}
                           </SelectItem>
-                        ))}
+                    )}
                       </SelectContent>
                     </Select>
                   </div>
@@ -185,20 +185,20 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
                   <div className="space-y-2">
                     <Label>Amount ($) *</Label>
                     <NumberInput
-                      value={expense.amount}
-                      onChange={(value) => updateExpense(index, 'amount', value || 0)}
-                      min={0}
-                      step={0.01}
-                      required
-                    />
+                  value={expense.amount}
+                  onChange={(value) => updateExpense(index, 'amount', value || 0)}
+                  min={0}
+                  step={0.01}
+                  required />
+
                   </div>
                   
                   <div className="space-y-2">
                     <Label>Payment Type *</Label>
                     <Select
-                      value={expense.paymentType}
-                      onValueChange={(value) => updateExpense(index, 'paymentType', value)}
-                    >
+                  value={expense.paymentType}
+                  onValueChange={(value) => updateExpense(index, 'paymentType', value)}>
+
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -210,55 +210,55 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
                     </Select>
                   </div>
                   
-                  {expense.paymentType === 'Cheque' && (
-                    <div className="space-y-2">
+                  {expense.paymentType === 'Cheque' &&
+              <div className="space-y-2">
                       <Label>Cheque Number *</Label>
                       <Input
-                        value={expense.chequeNo || ''}
-                        onChange={(e) => updateExpense(index, 'chequeNo', e.target.value)}
-                        placeholder="Enter cheque number"
-                        required
-                      />
+                  value={expense.chequeNo || ''}
+                  onChange={(e) => updateExpense(index, 'chequeNo', e.target.value)}
+                  placeholder="Enter cheque number"
+                  required />
+
                     </div>
-                  )}
+              }
                   
                   <div className="md:col-span-2 space-y-2">
                     <Label>Upload Invoice * (Mandatory)</Label>
                     <div className="flex items-center space-x-2">
                       <Input
-                        type="file"
-                        accept=".pdf,.jpg,.jpeg,.png"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) uploadInvoice(index, file);
-                        }}
-                        className="flex-1"
-                      />
-                      {expense.invoiceFileId && (
-                        <Badge variant="default" className="bg-green-100 text-green-800">
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) uploadInvoice(index, file);
+                    }}
+                    className="flex-1" />
+
+                      {expense.invoiceFileId &&
+                  <Badge variant="default" className="bg-green-100 text-green-800">
                           ✓ Uploaded
                         </Badge>
-                      )}
+                  }
                     </div>
                   </div>
                   
                   <div className="md:col-span-2 space-y-2">
                     <Label>Notes</Label>
                     <Textarea
-                      value={expense.notes}
-                      onChange={(e) => updateExpense(index, 'notes', e.target.value)}
-                      placeholder="Additional notes about this expense..."
-                      rows={2}
-                    />
+                  value={expense.notes}
+                  onChange={(e) => updateExpense(index, 'notes', e.target.value)}
+                  placeholder="Additional notes about this expense..."
+                  rows={2} />
+
                   </div>
                 </div>
               </div>
-            ))}
+          )}
           </div>
-        )}
+        }
         
-        {expenses.length > 0 && (
-          <div className="pt-4 border-t border-orange-200 bg-orange-100 rounded-lg p-4">
+        {expenses.length > 0 &&
+        <div className="pt-4 border-t border-orange-200 bg-orange-100 rounded-lg p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center justify-between">
                 <Label className="font-semibold">Total Expenses:</Label>
@@ -270,10 +270,10 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
               </div>
             </div>
           </div>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default ExpensesSection;

@@ -12,93 +12,93 @@ const QuickAccessToolbar: React.FC = () => {
   const getQuickActions = () => {
     const path = location.pathname;
 
-    if (path.startsWith('/products')) {
+    if (path.startsWith('/app/products')) {
       return [
       {
         label: 'Add Product',
         icon: <Plus className="w-4 h-4" />,
-        action: () => navigate('/products/new'),
+        action: () => navigate('/app/products/new'),
         color: 'bg-green-600 hover:bg-green-700'
       },
       {
         label: 'View All',
         icon: <Eye className="w-4 h-4" />,
-        action: () => navigate('/products'),
+        action: () => navigate('/app/products'),
         color: 'bg-brand-600 hover:bg-brand-700'
       }];
 
-    } else if (path.startsWith('/employees')) {
+    } else if (path.startsWith('/app/employees')) {
       return [
       {
         label: 'Add Employee',
         icon: <Plus className="w-4 h-4" />,
-        action: () => navigate('/employees/new'),
+        action: () => navigate('/app/employees/new'),
         color: 'bg-green-600 hover:bg-green-700'
       },
       {
         label: 'View All',
         icon: <Eye className="w-4 h-4" />,
-        action: () => navigate('/employees'),
+        action: () => navigate('/app/employees'),
         color: 'bg-brand-600 hover:bg-brand-700'
       }];
 
-    } else if (path.startsWith('/sales')) {
+    } else if (path.startsWith('/app/sales')) {
       return [
       {
         label: 'New Report',
         icon: <Plus className="w-4 h-4" />,
-        action: () => navigate('/sales/new'),
+        action: () => navigate('/app/sales/new'),
         color: 'bg-green-600 hover:bg-green-700'
       },
       {
         label: 'View Reports',
         icon: <Eye className="w-4 h-4" />,
-        action: () => navigate('/sales'),
+        action: () => navigate('/app/sales'),
         color: 'bg-brand-600 hover:bg-brand-700'
       }];
 
-    } else if (path.startsWith('/vendors')) {
+    } else if (path.startsWith('/app/vendors')) {
       return [
       {
         label: 'Add Vendor',
         icon: <Plus className="w-4 h-4" />,
-        action: () => navigate('/vendors/new'),
+        action: () => navigate('/app/vendors/new'),
         color: 'bg-green-600 hover:bg-green-700'
       },
       {
         label: 'View All',
         icon: <Eye className="w-4 h-4" />,
-        action: () => navigate('/vendors'),
+        action: () => navigate('/app/vendors'),
         color: 'bg-brand-600 hover:bg-brand-700'
       }];
 
-    } else if (path.startsWith('/orders')) {
+    } else if (path.startsWith('/app/orders')) {
       return [
       {
         label: 'Create Order',
         icon: <Plus className="w-4 h-4" />,
-        action: () => navigate('/orders/new'),
+        action: () => navigate('/app/orders/new'),
         color: 'bg-green-600 hover:bg-green-700'
       },
       {
         label: 'View Orders',
         icon: <Eye className="w-4 h-4" />,
-        action: () => navigate('/orders'),
+        action: () => navigate('/app/orders'),
         color: 'bg-brand-600 hover:bg-brand-700'
       }];
 
-    } else if (path.startsWith('/licenses')) {
+    } else if (path.startsWith('/app/licenses')) {
       return [
       {
         label: 'Add License',
         icon: <Plus className="w-4 h-4" />,
-        action: () => navigate('/licenses/new'),
+        action: () => navigate('/app/licenses/new'),
         color: 'bg-green-600 hover:bg-green-700'
       },
       {
         label: 'View All',
         icon: <Eye className="w-4 h-4" />,
-        action: () => navigate('/licenses'),
+        action: () => navigate('/app/licenses'),
         color: 'bg-brand-600 hover:bg-brand-700'
       }];
 
@@ -108,7 +108,7 @@ const QuickAccessToolbar: React.FC = () => {
     {
       label: 'Dashboard',
       icon: <Eye className="w-4 h-4" />,
-      action: () => navigate('/dashboard'),
+      action: () => navigate('/app/dashboard'),
       color: 'bg-brand-600 hover:bg-brand-700'
     }];
 
