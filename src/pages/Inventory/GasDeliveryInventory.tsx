@@ -198,14 +198,14 @@ const GasDeliveryInventory: React.FC = () => {
               </Select>
             </div>
           </div>
-          {stationFilter && stationFilter !== 'all' && (
-            <div className="mt-4 p-3 bg-blue-100 rounded-lg">
+          {stationFilter && stationFilter !== 'all' &&
+          <div className="mt-4 p-3 bg-blue-100 rounded-lg">
               <p className="text-blue-800 font-medium flex items-center">
                 <Fuel className="w-4 h-4 mr-2" />
                 Showing data for: <span className="ml-1 font-bold">{stationFilter}</span>
               </p>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
@@ -217,9 +217,9 @@ const GasDeliveryInventory: React.FC = () => {
             {stationFilter === 'all' ? 'All Stations Summary' : `${stationFilter} Summary`}
           </CardTitle>
           <CardDescription>
-            {stationFilter === 'all' 
-              ? 'Overall statistics for all gas delivery operations'
-              : `Statistics for ${stationFilter} station deliveries`
+            {stationFilter === 'all' ?
+            'Overall statistics for all gas delivery operations' :
+            `Statistics for ${stationFilter} station deliveries`
             }
           </CardDescription>
         </CardHeader>

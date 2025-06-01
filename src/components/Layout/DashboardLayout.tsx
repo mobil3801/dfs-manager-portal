@@ -90,7 +90,7 @@ const DashboardLayout: React.FC = () => {
     if (path.startsWith('/vendors')) return 'Vendors';
     if (path.startsWith('/orders')) return 'Orders';
     if (path.startsWith('/licenses')) return 'Licenses & Certificates';
-    return 'Business Management';
+    return 'DFS Manager';
   };
 
   return (
