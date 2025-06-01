@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
-import { TrendingUp, Save, ArrowLeft, Calculator } from 'lucide-react';
+import { TrendingUp, Save, ArrowLeft, Calculator, User } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 interface SalesReportFormData {
@@ -20,6 +20,16 @@ interface SalesReportFormData {
   convenience_sales: number;
   employee_id: string;
   notes: string;
+}
+
+interface Employee {
+  id: number;
+  employee_id: string;
+  first_name: string;
+  last_name: string;
+  position: string;
+  station: string;
+  is_active: boolean;
 }
 
 const SalesReportForm: React.FC = () => {
@@ -36,6 +46,8 @@ const SalesReportForm: React.FC = () => {
   });
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [employeesLoading, setEmployeesLoading] = useState(false);
 
   const navigate = useNavigate();
   const { id } = useParams();
@@ -47,11 +59,37 @@ const SalesReportForm: React.FC = () => {
 
 
   useEffect(() => {
+    loadEmployees();
     if (id) {
       setIsEditing(true);
       loadReport(parseInt(id));
     }
   }, [id]);
+
+  const loadEmployees = async () => {
+    try {
+      setEmployeesLoading(true);
+      const { data, error } = await window.ezsite.apis.tablePage('11727', {
+        PageNo: 1,
+        PageSize: 1000,
+        OrderByField: 'first_name',
+        IsAsc: true,
+        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+      });
+
+      if (error) throw error;
+      setEmployees(data?.List || []);
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load employee data',
+        variant: 'destructive'
+      });
+    } finally {
+      setEmployeesLoading(false);
+    }
+  };
 
   // Auto-calculate totals when payment methods change
   useEffect(() => {
@@ -272,13 +310,36 @@ const SalesReportForm: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="employee_id">Employee ID</Label>
-                <Input
-                  id="employee_id"
-                  value={formData.employee_id}
-                  onChange={(e) => handleInputChange('employee_id', e.target.value)}
-                  placeholder="Enter employee ID" />
-
+                <Label htmlFor="employee_id">
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    Employee
+                  </div>
+                </Label>
+                {employeesLoading ? (
+                  <div className="flex items-center justify-center p-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                    <span className="ml-2 text-sm text-gray-600">Loading employees...</span>
+                  </div>
+                ) : (
+                  <Select value={formData.employee_id} onValueChange={(value) => handleInputChange('employee_id', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Search and select employee" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {employees.map((employee) => (
+                        <SelectItem key={employee.employee_id} value={employee.employee_id}>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{employee.first_name} {employee.last_name}</span>
+                            <span className="text-xs text-gray-500">
+                              ID: {employee.employee_id} • {employee.position} • {employee.station}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
             </div>
 
