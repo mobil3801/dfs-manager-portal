@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import UserPermissionManager from '@/components/UserPermissionManager';
+import EnhancedUserPermissionManager from '@/components/EnhancedUserPermissionManager';
 import {
   Users,
   Plus,
@@ -31,8 +32,8 @@ import {
   Eye,
   FileText,
   AlertCircle,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw } from
+'lucide-react';
 
 interface User {
   ID: number;
@@ -259,8 +260,8 @@ const UserManagement: React.FC = () => {
 
   const filteredProfiles = userProfiles.filter((profile) => {
     const matchesSearch =
-      profile.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      profile.phone.toLowerCase().includes(searchTerm.toLowerCase());
+    profile.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    profile.phone.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = selectedRole === 'All' || profile.role === selectedRole;
     const matchesStation = selectedStation === 'All' || profile.station === selectedStation;
 
@@ -269,19 +270,19 @@ const UserManagement: React.FC = () => {
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case 'Administrator': return 'bg-red-100 text-red-800';
-      case 'Management': return 'bg-blue-100 text-blue-800';
-      case 'Employee': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'Administrator':return 'bg-red-100 text-red-800';
+      case 'Management':return 'bg-blue-100 text-blue-800';
+      case 'Employee':return 'bg-green-100 text-green-800';
+      default:return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStationBadgeColor = (station: string) => {
     switch (station) {
-      case 'MOBIL': return 'bg-purple-100 text-purple-800';
-      case 'AMOCO ROSEDALE': return 'bg-orange-100 text-orange-800';
-      case 'AMOCO BROOKLYN': return 'bg-teal-100 text-teal-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'MOBIL':return 'bg-purple-100 text-purple-800';
+      case 'AMOCO ROSEDALE':return 'bg-orange-100 text-orange-800';
+      case 'AMOCO BROOKLYN':return 'bg-teal-100 text-teal-800';
+      default:return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -290,13 +291,13 @@ const UserManagement: React.FC = () => {
       if (!profile.detailed_permissions) return 'Basic access';
       const permissions = JSON.parse(profile.detailed_permissions);
       const contentAreas = [
-        'dashboard', 'products', 'employees', 'sales_reports', 'vendors',
-        'orders', 'licenses', 'salary', 'inventory', 'delivery', 'settings',
-        'user_management', 'site_management', 'system_logs', 'security_settings'
-      ];
+      'dashboard', 'products', 'employees', 'sales_reports', 'vendors',
+      'orders', 'licenses', 'salary', 'inventory', 'delivery', 'settings',
+      'user_management', 'site_management', 'system_logs', 'security_settings'];
+
 
       const areasWithAccess = contentAreas.filter((area) =>
-        permissions[area]?.view
+      permissions[area]?.view
       ).length;
 
       return `${areasWithAccess}/${contentAreas.length} areas`;
@@ -309,8 +310,8 @@ const UserManagement: React.FC = () => {
     return (
       <div className="flex items-center justify-center min-h-64">
         <div className="text-lg">Loading user management...</div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -325,8 +326,8 @@ const UserManagement: React.FC = () => {
           onClick={refreshData}
           disabled={refreshing}
           variant="outline"
-          className="flex items-center space-x-2"
-        >
+          className="flex items-center space-x-2">
+
           <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
           <span>Refresh</span>
         </Button>
@@ -567,15 +568,15 @@ const UserManagement: React.FC = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredProfiles.length === 0 ? (
-                      <TableRow>
+                    {filteredProfiles.length === 0 ?
+                    <TableRow>
                         <TableCell colSpan={8} className="text-center py-8 text-gray-500">
                           {userProfiles.length === 0 ? "No user profiles found. Create your first user profile to get started." : "No profiles match your current filters."}
                         </TableCell>
-                      </TableRow>
-                    ) : (
-                      filteredProfiles.map((profile) => (
-                        <TableRow key={profile.id}>
+                      </TableRow> :
+
+                    filteredProfiles.map((profile) =>
+                    <TableRow key={profile.id}>
                           <TableCell className="font-medium">{profile.employee_id}</TableCell>
                           <TableCell>
                             <Badge className={getRoleBadgeColor(profile.role)}>
@@ -602,23 +603,23 @@ const UserManagement: React.FC = () => {
                           <TableCell>
                             <div className="flex space-x-2">
                               <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleEditProfile(profile)}>
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEditProfile(profile)}>
                                 <Edit3 className="w-4 h-4" />
                               </Button>
                               <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleDeleteProfile(profile.id)}
-                                className="text-red-600 hover:text-red-700">
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDeleteProfile(profile.id)}
+                            className="text-red-600 hover:text-red-700">
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
                           </TableCell>
                         </TableRow>
-                      ))
-                    )}
+                    )
+                    }
                   </TableBody>
                 </Table>
               </div>
@@ -714,8 +715,8 @@ const UserManagement: React.FC = () => {
                               permissionsTab.click();
                             }
                           }}
-                          className="w-full"
-                        >
+                          className="w-full">
+
                           Manage Detailed Permissions
                         </Button>
                       </div>
@@ -872,11 +873,11 @@ const UserManagement: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="permissions">
-          <UserPermissionManager />
+          <EnhancedUserPermissionManager />
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default UserManagement;
