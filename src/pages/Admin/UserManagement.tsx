@@ -7,7 +7,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import UserPermissionManager from '@/components/UserPermissionManager';
 import {
   Users,
   Plus,
@@ -20,7 +22,8 @@ import {
   Mail,
   Phone,
   Calendar,
-  Building2 } from
+  Building2,
+  Settings } from
 'lucide-react';
 
 interface User {
@@ -39,6 +42,7 @@ interface UserProfile {
   phone: string;
   hire_date: string;
   is_active: boolean;
+  detailed_permissions: string;
 }
 
 const UserManagement: React.FC = () => {
@@ -245,6 +249,26 @@ const UserManagement: React.FC = () => {
     }
   };
 
+  const getPermissionSummary = (profile: UserProfile) => {
+    try {
+      if (!profile.detailed_permissions) return 'Basic access';
+      const permissions = JSON.parse(profile.detailed_permissions);
+      const contentAreas = [
+        'dashboard', 'products', 'employees', 'sales_reports', 'vendors',
+        'orders', 'licenses', 'salary', 'inventory', 'delivery', 'settings',
+        'user_management', 'site_management', 'system_logs', 'security_settings'
+      ];
+      
+      const areasWithAccess = contentAreas.filter(area => 
+        permissions[area]?.view
+      ).length;
+
+      return `${areasWithAccess}/${contentAreas.length} areas`;
+    } catch {
+      return 'Basic access';
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-64">
@@ -261,347 +285,375 @@ const UserManagement: React.FC = () => {
           <Users className="w-8 h-8 text-blue-600" />
           <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
         </div>
-        
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-blue-600 hover:bg-blue-700">
-              <Plus className="w-4 h-4 mr-2" />
-              Add User Profile
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>Create User Profile</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="user_id">User ID</Label>
-                <Input
-                  id="user_id"
-                  type="number"
-                  value={formData.user_id}
-                  onChange={(e) => setFormData({ ...formData, user_id: parseInt(e.target.value) || 0 })}
-                  placeholder="Enter user ID" />
+      </div>
 
-              </div>
-              <div>
-                <Label htmlFor="role">Role</Label>
-                <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+      {/* Main Content with Tabs */}
+      <Tabs defaultValue="profiles" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="profiles" className="flex items-center space-x-2">
+            <Users className="w-4 h-4" />
+            <span>User Profiles</span>
+          </TabsTrigger>
+          <TabsTrigger value="permissions" className="flex items-center space-x-2">
+            <Shield className="w-4 h-4" />
+            <span>Permission Management</span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="profiles" className="space-y-6">
+          <div className="flex items-center justify-end">
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-blue-600 hover:bg-blue-700">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add User Profile
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Create User Profile</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="user_id">User ID</Label>
+                    <Input
+                      id="user_id"
+                      type="number"
+                      value={formData.user_id}
+                      onChange={(e) => setFormData({ ...formData, user_id: parseInt(e.target.value) || 0 })}
+                      placeholder="Enter user ID" />
+
+                  </div>
+                  <div>
+                    <Label htmlFor="role">Role</Label>
+                    <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {roles.map((role) =>
+                        <SelectItem key={role} value={role}>{role}</SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="station">Station</Label>
+                    <Select value={formData.station} onValueChange={(value) => setFormData({ ...formData, station: value })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {stations.map((station) =>
+                        <SelectItem key={station} value={station}>{station}</SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="employee_id">Employee ID</Label>
+                    <Input
+                      id="employee_id"
+                      value={formData.employee_id}
+                      onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })}
+                      placeholder="Enter employee ID" />
+
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input
+                      id="phone"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      placeholder="Enter phone number" />
+
+                  </div>
+                  <div>
+                    <Label htmlFor="hire_date">Hire Date</Label>
+                    <Input
+                      id="hire_date"
+                      type="date"
+                      value={formData.hire_date}
+                      onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })} />
+
+                  </div>
+                  <Button onClick={handleCreateProfile} className="w-full">
+                    Create Profile
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-3">
+                  <Users className="w-8 h-8 text-blue-600" />
+                  <div>
+                    <p className="text-sm text-gray-600">Total Users</p>
+                    <p className="text-2xl font-bold">{userProfiles.length}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-3">
+                  <Shield className="w-8 h-8 text-green-600" />
+                  <div>
+                    <p className="text-sm text-gray-600">Administrators</p>
+                    <p className="text-2xl font-bold">
+                      {userProfiles.filter((p) => p.role === 'Administrator').length}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-3">
+                  <UserCheck className="w-8 h-8 text-green-600" />
+                  <div>
+                    <p className="text-sm text-gray-600">Active Users</p>
+                    <p className="text-2xl font-bold">
+                      {userProfiles.filter((p) => p.is_active).length}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-3">
+                  <UserX className="w-8 h-8 text-red-600" />
+                  <div>
+                    <p className="text-sm text-gray-600">Inactive Users</p>
+                    <p className="text-2xl font-bold">
+                      {userProfiles.filter((p) => !p.is_active).length}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Filters */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Search by employee ID or phone..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10" />
+
+                </div>
+                
+                <Select value={selectedRole} onValueChange={setSelectedRole}>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Filter by role" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="All">All Roles</SelectItem>
                     {roles.map((role) =>
                     <SelectItem key={role} value={role}>{role}</SelectItem>
                     )}
                   </SelectContent>
                 </Select>
-              </div>
-              <div>
-                <Label htmlFor="station">Station</Label>
-                <Select value={formData.station} onValueChange={(value) => setFormData({ ...formData, station: value })}>
+                
+                <Select value={selectedStation} onValueChange={setSelectedStation}>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Filter by station" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="All">All Stations</SelectItem>
                     {stations.map((station) =>
                     <SelectItem key={station} value={station}>{station}</SelectItem>
                     )}
                   </SelectContent>
                 </Select>
+                
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setSelectedRole('All');
+                    setSelectedStation('All');
+                  }}>
+
+                  Clear Filters
+                </Button>
               </div>
-              <div>
-                <Label htmlFor="employee_id">Employee ID</Label>
-                <Input
-                  id="employee_id"
-                  value={formData.employee_id}
-                  onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })}
-                  placeholder="Enter employee ID" />
+            </CardContent>
+          </Card>
 
-              </div>
-              <div>
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="Enter phone number" />
-
-              </div>
-              <div>
-                <Label htmlFor="hire_date">Hire Date</Label>
-                <Input
-                  id="hire_date"
-                  type="date"
-                  value={formData.hire_date}
-                  onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })} />
-
-              </div>
-              <Button onClick={handleCreateProfile} className="w-full">
-                Create Profile
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-3">
-              <Users className="w-8 h-8 text-blue-600" />
-              <div>
-                <p className="text-sm text-gray-600">Total Users</p>
-                <p className="text-2xl font-bold">{userProfiles.length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-3">
-              <Shield className="w-8 h-8 text-green-600" />
-              <div>
-                <p className="text-sm text-gray-600">Administrators</p>
-                <p className="text-2xl font-bold">
-                  {userProfiles.filter((p) => p.role === 'Administrator').length}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-3">
-              <UserCheck className="w-8 h-8 text-green-600" />
-              <div>
-                <p className="text-sm text-gray-600">Active Users</p>
-                <p className="text-2xl font-bold">
-                  {userProfiles.filter((p) => p.is_active).length}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-3">
-              <UserX className="w-8 h-8 text-red-600" />
-              <div>
-                <p className="text-sm text-gray-600">Inactive Users</p>
-                <p className="text-2xl font-bold">
-                  {userProfiles.filter((p) => !p.is_active).length}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Search by employee ID or phone..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10" />
-
-            </div>
-            
-            <Select value={selectedRole} onValueChange={setSelectedRole}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All">All Roles</SelectItem>
-                {roles.map((role) =>
-                <SelectItem key={role} value={role}>{role}</SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-            
-            <Select value={selectedStation} onValueChange={setSelectedStation}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by station" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All">All Stations</SelectItem>
-                {stations.map((station) =>
-                <SelectItem key={station} value={station}>{station}</SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-            
-            <Button
-              variant="outline"
-              onClick={() => {
-                setSearchTerm('');
-                setSelectedRole('All');
-                setSelectedStation('All');
-              }}>
-
-              Clear Filters
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* User Profiles Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>User Profiles ({filteredProfiles.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Employee ID</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Station</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Hire Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredProfiles.length === 0 ?
-                <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-gray-500">
-                      {userProfiles.length === 0 ? "No user profiles found. Create your first user profile to get started." : "No profiles match your current filters."}
-                    </TableCell>
-                  </TableRow> :
-
-                filteredProfiles.map((profile) =>
-                <TableRow key={profile.id}>
-                      <TableCell className="font-medium">{profile.employee_id}</TableCell>
-                      <TableCell>
-                        <Badge className={getRoleBadgeColor(profile.role)}>
-                          {profile.role}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={getStationBadgeColor(profile.station)}>
-                          {profile.station}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{profile.phone}</TableCell>
-                      <TableCell>{profile.hire_date ? new Date(profile.hire_date).toLocaleDateString() : 'N/A'}</TableCell>
-                      <TableCell>
-                        <Badge className={profile.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
-                          {profile.is_active ? 'Active' : 'Inactive'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleEditProfile(profile)}>
-
-                            <Edit3 className="w-4 h-4" />
-                          </Button>
-                          <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDeleteProfile(profile.id)}
-                        className="text-red-600 hover:text-red-700">
-
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+          {/* User Profiles Table */}
+          <Card>
+            <CardHeader>
+              <CardTitle>User Profiles ({filteredProfiles.length})</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Employee ID</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Station</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Hire Date</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Permissions</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
-                )
-                }
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredProfiles.length === 0 ?
+                    <TableRow>
+                        <TableCell colSpan={8} className="text-center py-8 text-gray-500">
+                          {userProfiles.length === 0 ? "No user profiles found. Create your first user profile to get started." : "No profiles match your current filters."}
+                        </TableCell>
+                      </TableRow> :
 
-      {/* Edit Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Edit User Profile</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="edit_role">Role</Label>
-              <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {roles.map((role) =>
-                  <SelectItem key={role} value={role}>{role}</SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="edit_station">Station</Label>
-              <Select value={formData.station} onValueChange={(value) => setFormData({ ...formData, station: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {stations.map((station) =>
-                  <SelectItem key={station} value={station}>{station}</SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="edit_employee_id">Employee ID</Label>
-              <Input
-                id="edit_employee_id"
-                value={formData.employee_id}
-                onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })} />
+                    filteredProfiles.map((profile) =>
+                    <TableRow key={profile.id}>
+                          <TableCell className="font-medium">{profile.employee_id}</TableCell>
+                          <TableCell>
+                            <Badge className={getRoleBadgeColor(profile.role)}>
+                              {profile.role}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={getStationBadgeColor(profile.station)}>
+                              {profile.station}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{profile.phone}</TableCell>
+                          <TableCell>{profile.hire_date ? new Date(profile.hire_date).toLocaleDateString() : 'N/A'}</TableCell>
+                          <TableCell>
+                            <Badge className={profile.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                              {profile.is_active ? 'Active' : 'Inactive'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline">
+                              {getPermissionSummary(profile)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex space-x-2">
+                              <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEditProfile(profile)}>
 
-            </div>
-            <div>
-              <Label htmlFor="edit_phone">Phone</Label>
-              <Input
-                id="edit_phone"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+                                <Edit3 className="w-4 h-4" />
+                              </Button>
+                              <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDeleteProfile(profile.id)}
+                            className="text-red-600 hover:text-red-700">
 
-            </div>
-            <div>
-              <Label htmlFor="edit_hire_date">Hire Date</Label>
-              <Input
-                id="edit_hire_date"
-                type="date"
-                value={formData.hire_date}
-                onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })} />
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                    )
+                    }
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
 
-            </div>
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="edit_is_active"
-                checked={formData.is_active}
-                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })} />
+          {/* Edit Dialog */}
+          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Edit User Profile</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="edit_role">Role</Label>
+                  <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {roles.map((role) =>
+                      <SelectItem key={role} value={role}>{role}</SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="edit_station">Station</Label>
+                  <Select value={formData.station} onValueChange={(value) => setFormData({ ...formData, station: value })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {stations.map((station) =>
+                      <SelectItem key={station} value={station}>{station}</SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="edit_employee_id">Employee ID</Label>
+                  <Input
+                    id="edit_employee_id"
+                    value={formData.employee_id}
+                    onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })} />
 
-              <Label htmlFor="edit_is_active">Active User</Label>
-            </div>
-            <Button onClick={handleUpdateProfile} className="w-full">
-              Update Profile
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+                </div>
+                <div>
+                  <Label htmlFor="edit_phone">Phone</Label>
+                  <Input
+                    id="edit_phone"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+
+                </div>
+                <div>
+                  <Label htmlFor="edit_hire_date">Hire Date</Label>
+                  <Input
+                    id="edit_hire_date"
+                    type="date"
+                    value={formData.hire_date}
+                    onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })} />
+
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="edit_is_active"
+                    checked={formData.is_active}
+                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })} />
+
+                  <Label htmlFor="edit_is_active">Active User</Label>
+                </div>
+                <Button onClick={handleUpdateProfile} className="w-full">
+                  Update Profile
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </TabsContent>
+
+        <TabsContent value="permissions">
+          <UserPermissionManager />
+        </TabsContent>
+      </Tabs>
     </div>);
 
 };
