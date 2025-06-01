@@ -23,7 +23,7 @@ import {
   Eye } from
 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import VisualEditToolbar from '@/components/VisualEditToolbar';
+
 
 interface GasDelivery {
   id: number;
@@ -157,7 +157,6 @@ const GasDeliveryInventory: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <VisualEditToolbar />
       
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">

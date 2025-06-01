@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import ProductLogs from '@/components/ProductLogs';
 import HighlightText from '@/components/HighlightText';
-import VisualEditToolbar from '@/components/VisualEditToolbar';
+
 
 interface Product {
   ID: number;
@@ -215,7 +215,6 @@ const ProductList: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <VisualEditToolbar className="mb-4" />
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">

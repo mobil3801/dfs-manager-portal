@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Search, Edit, Trash2, Truck, Filter, Download, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import VisualEditToolbar from '@/components/VisualEditToolbar';
+
 import EnhancedDeliveryPrintDialog from '@/components/EnhancedDeliveryPrintDialog';
 
 interface DeliveryRecord {
@@ -165,7 +165,6 @@ const DeliveryList: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <VisualEditToolbar className="mb-6" />
       
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
