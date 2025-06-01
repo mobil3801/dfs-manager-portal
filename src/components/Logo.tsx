@@ -62,11 +62,6 @@ const Logo: React.FC<LogoProps> = ({
           <span className={`font-bold text-gray-800 leading-tight ${textSizeClasses[size]}`}>
             DFS Manager Portal
           </span>
-          {size !== 'sm' &&
-        <span className="text-xs text-gray-600 font-medium uppercase tracking-wide">
-              Business Management
-            </span>
-        }
         </div>
       }
     </div>);
