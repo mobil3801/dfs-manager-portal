@@ -23,6 +23,8 @@ import SalaryForm from './pages/Salary/SalaryForm';
 import InventoryAlerts from './pages/Inventory/InventoryAlerts';
 import AlertSettings from './pages/Inventory/AlertSettings';
 import GasDeliveryInventory from './pages/Inventory/GasDeliveryInventory';
+import DeliveryList from './pages/Delivery/DeliveryList';
+import DeliveryForm from './pages/Delivery/DeliveryForm';
 import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient();
@@ -80,6 +82,11 @@ function App() {
               
               {/* Gas Delivery routes */}
               <Route path="gas-delivery" element={<GasDeliveryInventory />} />
+              
+              {/* Delivery routes */}
+              <Route path="delivery" element={<DeliveryList />} />
+              <Route path="delivery/new" element={<DeliveryForm />} />
+              <Route path="delivery/edit/:id" element={<DeliveryForm />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />
