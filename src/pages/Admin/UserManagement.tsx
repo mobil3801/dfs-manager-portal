@@ -30,8 +30,9 @@ import {
   Activity,
   Eye,
   FileText,
-  AlertCircle } from
-'lucide-react';
+  AlertCircle,
+  RefreshCw
+} from 'lucide-react';
 
 interface User {
   ID: number;
@@ -56,6 +57,7 @@ const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [userProfiles, setUserProfiles] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState('All');
   const [selectedStation, setSelectedStation] = useState('All');
@@ -78,24 +80,36 @@ const UserManagement: React.FC = () => {
   });
 
   useEffect(() => {
-    fetchUserProfiles();
-    fetchUsers(); // Fetch current user info for context, but don't block on errors
+    fetchData();
   }, []);
+
+  const fetchData = async () => {
+    setLoading(true);
+    await Promise.all([fetchUserProfiles(), fetchUsers()]);
+    setLoading(false);
+  };
+
+  const refreshData = async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+    toast({
+      title: "Success",
+      description: "Data refreshed successfully"
+    });
+  };
 
   const fetchUsers = async () => {
     try {
-      // Get current user info for display purposes
       const { data: currentUser, error: userError } = await window.ezsite.apis.getUserInfo();
       if (userError) {
         console.log('User info not available:', userError);
-        // Don't show error toast for this, as it's not critical
         setUsers([]);
         return;
       }
       setUsers([currentUser]);
     } catch (error) {
       console.error('Error fetching current user info:', error);
-      // Don't show error toast for this, as user profiles are the main data
       setUsers([]);
     }
   };
@@ -125,14 +139,20 @@ const UserManagement: React.FC = () => {
         description: `Failed to fetch user profiles: ${error}`,
         variant: "destructive"
       });
-      // Set empty array on error so the UI still works
       setUserProfiles([]);
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleCreateProfile = async () => {
+    if (!formData.employee_id || !formData.phone) {
+      toast({
+        title: "Validation Error",
+        description: "Employee ID and Phone are required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       const { error } = await window.ezsite.apis.tableCreate(11725, formData);
       if (error) throw error;
@@ -157,7 +177,7 @@ const UserManagement: React.FC = () => {
       console.error('Error creating profile:', error);
       toast({
         title: "Error",
-        description: "Failed to create user profile",
+        description: `Failed to create user profile: ${error}`,
         variant: "destructive"
       });
     }
@@ -165,6 +185,15 @@ const UserManagement: React.FC = () => {
 
   const handleUpdateProfile = async () => {
     if (!selectedUserProfile) return;
+
+    if (!formData.employee_id || !formData.phone) {
+      toast({
+        title: "Validation Error",
+        description: "Employee ID and Phone are required fields",
+        variant: "destructive"
+      });
+      return;
+    }
 
     try {
       const { error } = await window.ezsite.apis.tableUpdate(11725, {
@@ -185,14 +214,14 @@ const UserManagement: React.FC = () => {
       console.error('Error updating profile:', error);
       toast({
         title: "Error",
-        description: "Failed to update user profile",
+        description: `Failed to update user profile: ${error}`,
         variant: "destructive"
       });
     }
   };
 
   const handleDeleteProfile = async (profileId: number) => {
-    if (!confirm('Are you sure you want to delete this user profile?')) return;
+    if (!confirm('Are you sure you want to delete this user profile? This action cannot be undone.')) return;
 
     try {
       const { error } = await window.ezsite.apis.tableDelete(11725, { id: profileId });
@@ -208,7 +237,7 @@ const UserManagement: React.FC = () => {
       console.error('Error deleting profile:', error);
       toast({
         title: "Error",
-        description: "Failed to delete user profile",
+        description: `Failed to delete user profile: ${error}`,
         variant: "destructive"
       });
     }
@@ -222,7 +251,7 @@ const UserManagement: React.FC = () => {
       station: profile.station,
       employee_id: profile.employee_id,
       phone: profile.phone,
-      hire_date: profile.hire_date,
+      hire_date: profile.hire_date || '',
       is_active: profile.is_active
     });
     setIsEditDialogOpen(true);
@@ -230,8 +259,8 @@ const UserManagement: React.FC = () => {
 
   const filteredProfiles = userProfiles.filter((profile) => {
     const matchesSearch =
-    profile.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    profile.phone.toLowerCase().includes(searchTerm.toLowerCase());
+      profile.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      profile.phone.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = selectedRole === 'All' || profile.role === selectedRole;
     const matchesStation = selectedStation === 'All' || profile.station === selectedStation;
 
@@ -240,19 +269,19 @@ const UserManagement: React.FC = () => {
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case 'Administrator':return 'bg-red-100 text-red-800';
-      case 'Management':return 'bg-blue-100 text-blue-800';
-      case 'Employee':return 'bg-green-100 text-green-800';
-      default:return 'bg-gray-100 text-gray-800';
+      case 'Administrator': return 'bg-red-100 text-red-800';
+      case 'Management': return 'bg-blue-100 text-blue-800';
+      case 'Employee': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStationBadgeColor = (station: string) => {
     switch (station) {
-      case 'MOBIL':return 'bg-purple-100 text-purple-800';
-      case 'AMOCO ROSEDALE':return 'bg-orange-100 text-orange-800';
-      case 'AMOCO BROOKLYN':return 'bg-teal-100 text-teal-800';
-      default:return 'bg-gray-100 text-gray-800';
+      case 'MOBIL': return 'bg-purple-100 text-purple-800';
+      case 'AMOCO ROSEDALE': return 'bg-orange-100 text-orange-800';
+      case 'AMOCO BROOKLYN': return 'bg-teal-100 text-teal-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -261,13 +290,13 @@ const UserManagement: React.FC = () => {
       if (!profile.detailed_permissions) return 'Basic access';
       const permissions = JSON.parse(profile.detailed_permissions);
       const contentAreas = [
-      'dashboard', 'products', 'employees', 'sales_reports', 'vendors',
-      'orders', 'licenses', 'salary', 'inventory', 'delivery', 'settings',
-      'user_management', 'site_management', 'system_logs', 'security_settings'];
-
+        'dashboard', 'products', 'employees', 'sales_reports', 'vendors',
+        'orders', 'licenses', 'salary', 'inventory', 'delivery', 'settings',
+        'user_management', 'site_management', 'system_logs', 'security_settings'
+      ];
 
       const areasWithAccess = contentAreas.filter((area) =>
-      permissions[area]?.view
+        permissions[area]?.view
       ).length;
 
       return `${areasWithAccess}/${contentAreas.length} areas`;
@@ -280,8 +309,8 @@ const UserManagement: React.FC = () => {
     return (
       <div className="flex items-center justify-center min-h-64">
         <div className="text-lg">Loading user management...</div>
-      </div>);
-
+      </div>
+    );
   }
 
   return (
@@ -292,6 +321,15 @@ const UserManagement: React.FC = () => {
           <Users className="w-8 h-8 text-blue-600" />
           <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
         </div>
+        <Button
+          onClick={refreshData}
+          disabled={refreshing}
+          variant="outline"
+          className="flex items-center space-x-2"
+        >
+          <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+          <span>Refresh</span>
+        </Button>
       </div>
 
       {/* Main Content with Tabs */}
@@ -308,6 +346,7 @@ const UserManagement: React.FC = () => {
         </TabsList>
 
         <TabsContent value="profiles" className="space-y-6">
+          {/* Add User Profile Button */}
           <div className="flex items-center justify-end">
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
@@ -316,78 +355,86 @@ const UserManagement: React.FC = () => {
                   Add User Profile
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-md">
+              <DialogContent className="max-w-lg max-h-[85vh]">
                 <DialogHeader>
                   <DialogTitle>Create User Profile</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="user_id">User ID</Label>
-                    <Input
-                      id="user_id"
-                      type="number"
-                      value={formData.user_id}
-                      onChange={(e) => setFormData({ ...formData, user_id: parseInt(e.target.value) || 0 })}
-                      placeholder="Enter user ID" />
-
+                <ScrollArea className="max-h-[calc(85vh-120px)] pr-4">
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="user_id">User ID</Label>
+                      <Input
+                        id="user_id"
+                        type="number"
+                        value={formData.user_id}
+                        onChange={(e) => setFormData({ ...formData, user_id: parseInt(e.target.value) || 0 })}
+                        placeholder="Enter user ID" />
+                    </div>
+                    <div>
+                      <Label htmlFor="role">Role</Label>
+                      <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {roles.map((role) =>
+                          <SelectItem key={role} value={role}>{role}</SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="station">Station</Label>
+                      <Select value={formData.station} onValueChange={(value) => setFormData({ ...formData, station: value })}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {stations.map((station) =>
+                          <SelectItem key={station} value={station}>{station}</SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="employee_id">Employee ID *</Label>
+                      <Input
+                        id="employee_id"
+                        value={formData.employee_id}
+                        onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })}
+                        placeholder="Enter employee ID"
+                        required />
+                    </div>
+                    <div>
+                      <Label htmlFor="phone">Phone *</Label>
+                      <Input
+                        id="phone"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        placeholder="Enter phone number"
+                        required />
+                    </div>
+                    <div>
+                      <Label htmlFor="hire_date">Hire Date</Label>
+                      <Input
+                        id="hire_date"
+                        type="date"
+                        value={formData.hire_date}
+                        onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })} />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="is_active"
+                        checked={formData.is_active}
+                        onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })} />
+                      <Label htmlFor="is_active">Active User</Label>
+                    </div>
+                    <Button onClick={handleCreateProfile} className="w-full">
+                      Create Profile
+                    </Button>
                   </div>
-                  <div>
-                    <Label htmlFor="role">Role</Label>
-                    <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {roles.map((role) =>
-                        <SelectItem key={role} value={role}>{role}</SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="station">Station</Label>
-                    <Select value={formData.station} onValueChange={(value) => setFormData({ ...formData, station: value })}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {stations.map((station) =>
-                        <SelectItem key={station} value={station}>{station}</SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="employee_id">Employee ID</Label>
-                    <Input
-                      id="employee_id"
-                      value={formData.employee_id}
-                      onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })}
-                      placeholder="Enter employee ID" />
-
-                  </div>
-                  <div>
-                    <Label htmlFor="phone">Phone</Label>
-                    <Input
-                      id="phone"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      placeholder="Enter phone number" />
-
-                  </div>
-                  <div>
-                    <Label htmlFor="hire_date">Hire Date</Label>
-                    <Input
-                      id="hire_date"
-                      type="date"
-                      value={formData.hire_date}
-                      onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })} />
-
-                  </div>
-                  <Button onClick={handleCreateProfile} className="w-full">
-                    Create Profile
-                  </Button>
-                </div>
+                </ScrollArea>
               </DialogContent>
             </Dialog>
           </div>
@@ -460,7 +507,6 @@ const UserManagement: React.FC = () => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10" />
-
                 </div>
                 
                 <Select value={selectedRole} onValueChange={setSelectedRole}>
@@ -494,7 +540,6 @@ const UserManagement: React.FC = () => {
                     setSelectedRole('All');
                     setSelectedStation('All');
                   }}>
-
                   Clear Filters
                 </Button>
               </div>
@@ -522,15 +567,15 @@ const UserManagement: React.FC = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredProfiles.length === 0 ?
-                    <TableRow>
+                    {filteredProfiles.length === 0 ? (
+                      <TableRow>
                         <TableCell colSpan={8} className="text-center py-8 text-gray-500">
                           {userProfiles.length === 0 ? "No user profiles found. Create your first user profile to get started." : "No profiles match your current filters."}
                         </TableCell>
-                      </TableRow> :
-
-                    filteredProfiles.map((profile) =>
-                    <TableRow key={profile.id}>
+                      </TableRow>
+                    ) : (
+                      filteredProfiles.map((profile) => (
+                        <TableRow key={profile.id}>
                           <TableCell className="font-medium">{profile.employee_id}</TableCell>
                           <TableCell>
                             <Badge className={getRoleBadgeColor(profile.role)}>
@@ -557,25 +602,23 @@ const UserManagement: React.FC = () => {
                           <TableCell>
                             <div className="flex space-x-2">
                               <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEditProfile(profile)}>
-
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleEditProfile(profile)}>
                                 <Edit3 className="w-4 h-4" />
                               </Button>
                               <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDeleteProfile(profile.id)}
-                            className="text-red-600 hover:text-red-700">
-
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleDeleteProfile(profile.id)}
+                                className="text-red-600 hover:text-red-700">
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
                           </TableCell>
                         </TableRow>
-                    )
-                    }
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </div>
@@ -584,85 +627,113 @@ const UserManagement: React.FC = () => {
 
           {/* Edit Dialog */}
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-            <DialogContent className="max-w-4xl max-h-[90vh]">
+            <DialogContent className="max-w-6xl max-h-[90vh]">
               <DialogHeader>
-                <DialogTitle>Edit User Profile</DialogTitle>
+                <DialogTitle>Edit User Profile & Permissions</DialogTitle>
               </DialogHeader>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[600px]">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(90vh-120px)]">
                 {/* Left Side - Edit Form */}
-                <div className="lg:col-span-2 space-y-4">
-                  <div>
-                    <Label htmlFor="edit_role">Role</Label>
-                    <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {roles.map((role) =>
-                        <SelectItem key={role} value={role}>{role}</SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="edit_station">Station</Label>
-                    <Select value={formData.station} onValueChange={(value) => setFormData({ ...formData, station: value })}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {stations.map((station) =>
-                        <SelectItem key={station} value={station}>{station}</SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="edit_employee_id">Employee ID</Label>
-                    <Input
-                      id="edit_employee_id"
-                      value={formData.employee_id}
-                      onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })} />
-                  </div>
-                  <div>
-                    <Label htmlFor="edit_phone">Phone</Label>
-                    <Input
-                      id="edit_phone"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
-                  </div>
-                  <div>
-                    <Label htmlFor="edit_hire_date">Hire Date</Label>
-                    <Input
-                      id="edit_hire_date"
-                      type="date"
-                      value={formData.hire_date}
-                      onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })} />
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="edit_is_active"
-                      checked={formData.is_active}
-                      onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })} />
-                    <Label htmlFor="edit_is_active">Active User</Label>
-                  </div>
-                  <Button onClick={handleUpdateProfile} className="w-full">
-                    Update Profile
-                  </Button>
+                <div className="lg:col-span-1">
+                  <ScrollArea className="h-full pr-4">
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="edit_role">Role</Label>
+                        <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {roles.map((role) =>
+                            <SelectItem key={role} value={role}>{role}</SelectItem>
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="edit_station">Station</Label>
+                        <Select value={formData.station} onValueChange={(value) => setFormData({ ...formData, station: value })}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {stations.map((station) =>
+                            <SelectItem key={station} value={station}>{station}</SelectItem>
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="edit_employee_id">Employee ID *</Label>
+                        <Input
+                          id="edit_employee_id"
+                          value={formData.employee_id}
+                          onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })}
+                          required />
+                      </div>
+                      <div>
+                        <Label htmlFor="edit_phone">Phone *</Label>
+                        <Input
+                          id="edit_phone"
+                          value={formData.phone}
+                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                          required />
+                      </div>
+                      <div>
+                        <Label htmlFor="edit_hire_date">Hire Date</Label>
+                        <Input
+                          id="edit_hire_date"
+                          type="date"
+                          value={formData.hire_date}
+                          onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })} />
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="edit_is_active"
+                          checked={formData.is_active}
+                          onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })} />
+                        <Label htmlFor="edit_is_active">Active User</Label>
+                      </div>
+                      <Button onClick={handleUpdateProfile} className="w-full">
+                        Update Profile
+                      </Button>
+                      
+                      {/* Quick Permission Management */}
+                      <Separator />
+                      <div className="space-y-3">
+                        <h4 className="font-semibold text-sm flex items-center">
+                          <Shield className="w-4 h-4 mr-2" />
+                          Quick Actions
+                        </h4>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const permissionsTab = document.querySelector('[value="permissions"]') as HTMLElement;
+                            if (permissionsTab) {
+                              permissionsTab.click();
+                            }
+                          }}
+                          className="w-full"
+                        >
+                          Manage Detailed Permissions
+                        </Button>
+                      </div>
+                    </div>
+                  </ScrollArea>
                 </div>
 
-                {/* Right Side - Scrollable Sidebar */}
-                <div className="hidden lg:block border-l pl-6">
-                  <ScrollArea className="h-full">
-                    <div className="space-y-6">
-                      {/* User Summary */}
-                      <div>
+                {/* Middle & Right Side - User Summary & Activity */}
+                <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* User Summary */}
+                  <div>
+                    <ScrollArea className="h-full">
+                      <div className="space-y-4">
                         <h3 className="font-semibold text-lg mb-3 flex items-center">
                           <Eye className="w-5 h-5 mr-2 text-blue-600" />
                           User Summary
                         </h3>
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                           <div className="p-3 bg-gray-50 rounded-lg">
                             <p className="text-sm text-gray-600">Employee ID</p>
                             <p className="font-medium">{selectedUserProfile?.employee_id || 'N/A'}</p>
@@ -686,23 +757,20 @@ const UserManagement: React.FC = () => {
                             </Badge>
                           </div>
                         </div>
-                      </div>
-
-                      <Separator />
-
-                      {/* Permissions Overview */}
-                      <div>
-                        <h3 className="font-semibold text-lg mb-3 flex items-center">
-                          <Shield className="w-5 h-5 mr-2 text-green-600" />
+                        
+                        {/* Permissions Overview */}
+                        <Separator />
+                        <h4 className="font-semibold text-md flex items-center">
+                          <Shield className="w-4 h-4 mr-2 text-green-600" />
                           Permissions Overview
-                        </h3>
+                        </h4>
                         <div className="space-y-2">
                           {(() => {
                             try {
-                              const permissions = selectedUserProfile?.detailed_permissions ? 
-                                JSON.parse(selectedUserProfile.detailed_permissions) : {};
+                              const permissions = selectedUserProfile?.detailed_permissions ?
+                              JSON.parse(selectedUserProfile.detailed_permissions) : {};
                               const areas = ['dashboard', 'products', 'employees', 'sales_reports', 'vendors', 'orders', 'licenses', 'salary'];
-                              
+
                               return areas.map((area) => {
                                 const hasAccess = permissions[area]?.view;
                                 return (
@@ -711,24 +779,25 @@ const UserManagement: React.FC = () => {
                                     <Badge variant={hasAccess ? 'default' : 'secondary'}>
                                       {hasAccess ? 'Access' : 'No Access'}
                                     </Badge>
-                                  </div>
-                                );
+                                  </div>);
                               });
                             } catch {
                               return (
                                 <div className="p-2 bg-gray-50 rounded text-sm text-gray-600">
                                   Basic permissions configured
-                                </div>
-                              );
+                                </div>);
                             }
-                          })()}
+                          })()
+                          }
                         </div>
                       </div>
+                    </ScrollArea>
+                  </div>
 
-                      <Separator />
-
-                      {/* Recent Activity */}
-                      <div>
+                  {/* Recent Activity & Tips */}
+                  <div>
+                    <ScrollArea className="h-full">
+                      <div className="space-y-4">
                         <h3 className="font-semibold text-lg mb-3 flex items-center">
                           <Activity className="w-5 h-5 mr-2 text-orange-600" />
                           Recent Activity
@@ -756,16 +825,14 @@ const UserManagement: React.FC = () => {
                             </div>
                           </div>
                         </div>
-                      </div>
 
-                      <Separator />
-
-                      {/* Tips & Help */}
-                      <div>
-                        <h3 className="font-semibold text-lg mb-3 flex items-center">
-                          <FileText className="w-5 h-5 mr-2 text-indigo-600" />
+                        <Separator />
+                        
+                        {/* Tips & Help */}
+                        <h4 className="font-semibold text-md mb-3 flex items-center">
+                          <FileText className="w-4 h-4 mr-2 text-indigo-600" />
                           Tips & Help
-                        </h3>
+                        </h4>
                         <div className="space-y-3">
                           <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                             <div className="flex items-start space-x-2">
@@ -796,8 +863,8 @@ const UserManagement: React.FC = () => {
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </ScrollArea>
+                    </ScrollArea>
+                  </div>
                 </div>
               </div>
             </DialogContent>
@@ -808,8 +875,8 @@ const UserManagement: React.FC = () => {
           <UserPermissionManager />
         </TabsContent>
       </Tabs>
-    </div>);
-
+    </div>
+  );
 };
 
 export default UserManagement;

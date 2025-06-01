@@ -320,7 +320,7 @@ const UserPermissionManager: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label>User to Manage</Label>
-              <Select onValueChange={handleUserSelect}>
+              <Select onValueChange={handleUserSelect} value={selectedUser?.id.toString() || ''}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a user to manage permissions" />
                 </SelectTrigger>
@@ -342,29 +342,28 @@ const UserPermissionManager: React.FC = () => {
             {selectedUser &&
             <div>
                 <Label>Apply Role Template</Label>
-                <div className="flex space-x-2">
-                  <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => applyRoleTemplate('Administrator')}
-                  className="flex-1">
-
-                    Admin Template
-                  </Button>
-                  <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => applyRoleTemplate('Management')}
-                  className="flex-1">
-
-                    Manager Template
-                  </Button>
+                <div className="flex flex-col space-y-2">
+                  <div className="flex space-x-2">
+                    <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => applyRoleTemplate('Administrator')}
+                    className="flex-1">
+                      Admin Template
+                    </Button>
+                    <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => applyRoleTemplate('Management')}
+                    className="flex-1">
+                      Manager Template
+                    </Button>
+                  </div>
                   <Button
                   variant="outline"
                   size="sm"
                   onClick={() => applyRoleTemplate('Employee')}
-                  className="flex-1">
-
+                  className="w-full">
                     Employee Template
                   </Button>
                 </div>
@@ -373,12 +372,15 @@ const UserPermissionManager: React.FC = () => {
           </div>
 
           {selectedUser &&
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+          <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-semibold">{selectedUser.employee_id}</h3>
+                  <h3 className="font-semibold text-lg">{selectedUser.employee_id}</h3>
                   <p className="text-sm text-gray-600">
                     Role: {selectedUser.role} | Station: {selectedUser.station}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    User ID: {selectedUser.user_id} | Phone: {selectedUser.phone}
                   </p>
                 </div>
                 <div className="text-right">
@@ -412,69 +414,69 @@ const UserPermissionManager: React.FC = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left p-3 font-semibold">Content Area</th>
-                    {permissionTypes.map((type) =>
-                  <th key={type.key} className="text-center p-3 font-semibold min-w-20">
-                        <div className="flex flex-col items-center space-y-1">
-                          <type.icon className="w-4 h-4" />
-                          <span className="text-xs">{type.label}</span>
-                        </div>
-                      </th>
-                  )}
-                    <th className="text-center p-3 font-semibold">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {contentAreas.map((area) => {
-                  const areaPermissions = permissions[area.key as keyof DetailedPermissions];
-                  return (
-                    <tr key={area.key} className="border-b hover:bg-gray-50">
-                        <td className="p-3">
-                          <div className="flex items-center space-x-3">
-                            <area.icon className={`w-5 h-5 ${area.color}`} />
-                            <span className="font-medium">{area.label}</span>
+            <ScrollArea className="h-[600px]">
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead className="sticky top-0 bg-white z-10">
+                    <tr className="border-b">
+                      <th className="text-left p-3 font-semibold bg-white">Content Area</th>
+                      {permissionTypes.map((type) =>
+                    <th key={type.key} className="text-center p-3 font-semibold min-w-20 bg-white">
+                          <div className="flex flex-col items-center space-y-1">
+                            <type.icon className="w-4 h-4" />
+                            <span className="text-xs">{type.label}</span>
                           </div>
-                        </td>
-                        {permissionTypes.map((type) =>
-                      <td key={type.key} className="text-center p-3">
-                            <Switch
-                          checked={areaPermissions[type.key as keyof Permission]}
-                          onCheckedChange={(checked) =>
-                          handlePermissionChange(area.key, type.key, checked)
-                          } />
-
+                        </th>
+                    )}
+                      <th className="text-center p-3 font-semibold bg-white">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {contentAreas.map((area) => {
+                    const areaPermissions = permissions[area.key as keyof DetailedPermissions];
+                    return (
+                      <tr key={area.key} className="border-b hover:bg-gray-50">
+                          <td className="p-3">
+                            <div className="flex items-center space-x-3">
+                              <area.icon className={`w-5 h-5 ${area.color}`} />
+                              <span className="font-medium">{area.label}</span>
+                            </div>
                           </td>
-                      )}
-                        <td className="text-center p-3">
-                          <div className="flex space-x-1">
-                            <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleBulkPermissionChange(area.key, 'grant_all')}
-                            className="text-green-600 hover:text-green-700">
-
-                              <CheckCircle2 className="w-3 h-3" />
-                            </Button>
-                            <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleBulkPermissionChange(area.key, 'revoke_all')}
-                            className="text-red-600 hover:text-red-700">
-
-                              <XCircle className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>);
-
-                })}
-                </tbody>
-              </table>
-            </div>
+                          {permissionTypes.map((type) =>
+                        <td key={type.key} className="text-center p-3">
+                              <Switch
+                            checked={areaPermissions[type.key as keyof Permission]}
+                            onCheckedChange={(checked) =>
+                            handlePermissionChange(area.key, type.key, checked)
+                            } />
+                            </td>
+                        )}
+                          <td className="text-center p-3">
+                            <div className="flex space-x-1 justify-center">
+                              <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleBulkPermissionChange(area.key, 'grant_all')}
+                              className="text-green-600 hover:text-green-700"
+                              title="Grant all permissions">
+                                <CheckCircle2 className="w-3 h-3" />
+                              </Button>
+                              <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleBulkPermissionChange(area.key, 'revoke_all')}
+                              className="text-red-600 hover:text-red-700"
+                              title="Revoke all permissions">
+                                <XCircle className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>);
+                  })}
+                  </tbody>
+                </table>
+              </div>
+            </ScrollArea>
 
             {/* Permission Types Legend */}
             <div className="mt-6 p-4 bg-blue-50 rounded-lg">
