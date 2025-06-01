@@ -246,28 +246,69 @@ const ProductForm = () => {
             continue;
           }
 
-          const productPayload = {
+          // Start with required fields and defaults
+          const productPayload: any = {
             serial_number: lastSerial + successCount + 1,
             product_name: productData.product_name.trim(),
-            weight: productData.weight || 0,
-            weight_unit: productData.weight_unit || 'lb',
-            department: productData.department || 'Convenience Store',
-            bar_code_case: productData.bar_code_case || '',
-            bar_code_unit: productData.bar_code_unit || '',
             last_updated_date: new Date().toISOString(),
-            last_shopping_date: productData.last_shopping_date ? new Date(productData.last_shopping_date).toISOString() : null,
-            case_price: productData.case_price || 0,
-            unit_per_case: productData.unit_per_case || 1,
-            unit_price: productData.unit_price || 0,
-            retail_price: productData.retail_price || 0,
-            overdue: false,
-            category: productData.category || '',
-            supplier: productData.supplier || '',
-            quantity_in_stock: productData.quantity_in_stock || 0,
-            minimum_stock: productData.minimum_stock || 0,
-            description: productData.description || '',
-            merchant_id: productData.merchant_id ? parseInt(productData.merchant_id) : null
+            overdue: false
           };
+
+          // Only add fields that have actual values from the import file
+          if (productData.weight !== undefined) {
+            productPayload.weight = productData.weight;
+          }
+          if (productData.weight_unit !== undefined) {
+            productPayload.weight_unit = productData.weight_unit;
+          } else {
+            productPayload.weight_unit = 'lb'; // Default if not provided
+          }
+          if (productData.department !== undefined) {
+            productPayload.department = productData.department;
+          } else {
+            productPayload.department = 'Convenience Store'; // Default if not provided
+          }
+          if (productData.bar_code_case !== undefined) {
+            productPayload.bar_code_case = productData.bar_code_case;
+          }
+          if (productData.bar_code_unit !== undefined) {
+            productPayload.bar_code_unit = productData.bar_code_unit;
+          }
+          if (productData.last_shopping_date) {
+            productPayload.last_shopping_date = new Date(productData.last_shopping_date).toISOString();
+          }
+          if (productData.case_price !== undefined) {
+            productPayload.case_price = productData.case_price;
+          }
+          if (productData.unit_per_case !== undefined) {
+            productPayload.unit_per_case = productData.unit_per_case;
+          } else {
+            productPayload.unit_per_case = 1; // Default if not provided
+          }
+          if (productData.unit_price !== undefined) {
+            productPayload.unit_price = productData.unit_price;
+          }
+          if (productData.retail_price !== undefined) {
+            productPayload.retail_price = productData.retail_price;
+          }
+          if (productData.category !== undefined) {
+            productPayload.category = productData.category;
+          }
+          if (productData.supplier !== undefined) {
+            productPayload.supplier = productData.supplier;
+          }
+          if (productData.quantity_in_stock !== undefined) {
+            productPayload.quantity_in_stock = productData.quantity_in_stock;
+          }
+          if (productData.minimum_stock !== undefined) {
+            productPayload.minimum_stock = productData.minimum_stock;
+          }
+          if (productData.description !== undefined) {
+            productPayload.description = productData.description;
+          }
+          if (productData.merchant_id !== undefined) {
+            productPayload.merchant_id = parseInt(productData.merchant_id);
+          }
 
           console.log('Creating product:', productPayload);
 

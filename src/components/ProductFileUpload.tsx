@@ -65,63 +65,163 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
     window.URL.revokeObjectURL(url);
   };
 
-  // Field mapping for header names
+  // Field mapping for header names - now includes exact matches and variations
   const fieldMapping: {[key: string]: string;} = {
+    // Exact field name matches (priority)
+    'product_name': 'product_name',
+    'weight': 'weight',
+    'weight_unit': 'weight_unit',
+    'department': 'department',
+    'bar_code_case': 'bar_code_case',
+    'bar_code_unit': 'bar_code_unit',
+    'case_price': 'case_price',
+    'unit_per_case': 'unit_per_case',
+    'unit_price': 'unit_price',
+    'retail_price': 'retail_price',
+    'category': 'category',
+    'supplier': 'supplier',
+    'quantity_in_stock': 'quantity_in_stock',
+    'minimum_stock': 'minimum_stock',
+    'description': 'description',
+    
+    // Product name variations
     'product name': 'product_name',
     'productname': 'product_name',
     'name': 'product_name',
     'item': 'product_name',
     'title': 'product_name',
-    'weight': 'weight',
+    'product': 'product_name',
+    
+    // Weight variations
     'weight unit': 'weight_unit',
     'weightunit': 'weight_unit',
     'unit': 'weight_unit',
-    'department': 'department',
+    'wt unit': 'weight_unit',
+    'wt_unit': 'weight_unit',
+    
+    // Department variations
     'dept': 'department',
-    'category': 'category',
+    'dep': 'department',
+    
+    // Category variations
     'cat': 'category',
     'type': 'category',
+    'group': 'category',
+    
+    // Barcode case variations
     'barcode case': 'bar_code_case',
     'barcode_case': 'bar_code_case',
     'case barcode': 'bar_code_case',
     'casebarcode': 'bar_code_case',
+    'case_barcode': 'bar_code_case',
+    'upc case': 'bar_code_case',
+    'upc_case': 'bar_code_case',
+    
+    // Barcode unit variations
     'barcode unit': 'bar_code_unit',
     'barcode_unit': 'bar_code_unit',
     'unit barcode': 'bar_code_unit',
     'unitbarcode': 'bar_code_unit',
+    'unit_barcode': 'bar_code_unit',
+    'upc unit': 'bar_code_unit',
+    'upc_unit': 'bar_code_unit',
+    'upc': 'bar_code_unit',
+    
+    // Case price variations
     'case price': 'case_price',
     'caseprice': 'case_price',
     'price case': 'case_price',
+    'case_cost': 'case_price',
+    'case cost': 'case_price',
+    'wholesale price': 'case_price',
+    'wholesale_price': 'case_price',
+    
+    // Unit per case variations
     'unit per case': 'unit_per_case',
     'unitpercase': 'unit_per_case',
     'units per case': 'unit_per_case',
     'unitspercase': 'unit_per_case',
+    'units_per_case': 'unit_per_case',
+    'pack size': 'unit_per_case',
+    'pack_size': 'unit_per_case',
+    'case size': 'unit_per_case',
+    'case_size': 'unit_per_case',
+    
+    // Unit price variations
     'unit price': 'unit_price',
     'unitprice': 'unit_price',
     'price unit': 'unit_price',
+    'unit_cost': 'unit_price',
+    'unit cost': 'unit_price',
+    'cost': 'unit_price',
+    'price': 'unit_price',
+    
+    // Retail price variations
     'retail price': 'retail_price',
     'retailprice': 'retail_price',
     'selling price': 'retail_price',
     'sale price': 'retail_price',
-    'supplier': 'supplier',
+    'sell price': 'retail_price',
+    'sellprice': 'retail_price',
+    'selling_price': 'retail_price',
+    'sale_price': 'retail_price',
+    'msrp': 'retail_price',
+    
+    // Supplier variations
     'vendor': 'supplier',
     'manufacturer': 'supplier',
+    'brand': 'supplier',
+    'company': 'supplier',
+    'mfg': 'supplier',
+    'distributor': 'supplier',
+    
+    // Quantity variations
     'quantity': 'quantity_in_stock',
     'stock': 'quantity_in_stock',
     'quantity in stock': 'quantity_in_stock',
     'current stock': 'quantity_in_stock',
+    'qty': 'quantity_in_stock',
+    'qty_in_stock': 'quantity_in_stock',
+    'on hand': 'quantity_in_stock',
+    'on_hand': 'quantity_in_stock',
+    'inventory': 'quantity_in_stock',
+    
+    // Minimum stock variations
     'minimum stock': 'minimum_stock',
     'min stock': 'minimum_stock',
     'reorder level': 'minimum_stock',
-    'description': 'description',
+    'reorder_level': 'minimum_stock',
+    'min_stock': 'minimum_stock',
+    'minimum_stock_level': 'minimum_stock',
+    'min_qty': 'minimum_stock',
+    'min quantity': 'minimum_stock',
+    
+    // Description variations
     'desc': 'description',
     'notes': 'description',
-    'details': 'description'
+    'details': 'description',
+    'comments': 'description',
+    'remarks': 'description',
+    'note': 'description'
   };
 
   const mapHeaderToField = (header: string): string => {
-    const cleanHeader = header.toLowerCase().trim().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ');
-    return fieldMapping[cleanHeader] || header;
+    const originalHeader = header.trim();
+    
+    // First try exact match (case-sensitive)
+    if (fieldMapping[originalHeader]) {
+      return fieldMapping[originalHeader];
+    }
+    
+    // Then try exact match (case-insensitive)
+    const lowerHeader = originalHeader.toLowerCase();
+    if (fieldMapping[lowerHeader]) {
+      return fieldMapping[lowerHeader];
+    }
+    
+    // Finally try cleaned version
+    const cleanHeader = lowerHeader.replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+    return fieldMapping[cleanHeader] || originalHeader;
   };
 
   const parseCSV = (text: string): any[] => {
@@ -170,40 +270,85 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
 
   const validateAndCheckDuplicates = (importedData: any[], existingProducts: any[]): ParsedProduct[] => {
     const existingNames = new Set(existingProducts.map((p) => p.product_name?.toLowerCase().trim()));
+    const importingNames = new Set(); // Track names within the current import to prevent duplicates
 
     return importedData.map((row, index) => {
       const errors: string[] = [];
       const productName = row.product_name || row.name || row.productname || row.item || row.title || '';
+      const cleanProductName = productName.trim();
 
       // Validate required field (only product name)
-      if (!productName.trim()) {
+      if (!cleanProductName) {
         errors.push('Product name is required');
       }
 
-      // Check for duplicates
-      const isDuplicate = productName.trim() && existingNames.has(productName.toLowerCase().trim());
-      if (isDuplicate) {
+      // Check for duplicates against existing products
+      const isDuplicateInDB = cleanProductName && existingNames.has(cleanProductName.toLowerCase());
+      if (isDuplicateInDB) {
         errors.push('Product name already exists in database');
       }
 
-      // Map the data to proper format
-      const mapped = {
-        product_name: productName.trim(),
-        weight: parseFloat(row.weight) || 0,
-        weight_unit: row.weight_unit || 'lb',
-        department: row.department || 'Convenience Store',
-        bar_code_case: row.bar_code_case || '',
-        bar_code_unit: row.bar_code_unit || '',
-        case_price: parseFloat(row.case_price) || 0,
-        unit_per_case: parseInt(row.unit_per_case) || 1,
-        unit_price: parseFloat(row.unit_price) || 0,
-        retail_price: parseFloat(row.retail_price) || 0,
-        category: row.category || '',
-        supplier: row.supplier || '',
-        quantity_in_stock: parseInt(row.quantity_in_stock) || 0,
-        minimum_stock: parseInt(row.minimum_stock) || 0,
-        description: row.description || ''
+      // Check for duplicates within the import file
+      const isDuplicateInImport = cleanProductName && importingNames.has(cleanProductName.toLowerCase());
+      if (isDuplicateInImport) {
+        errors.push('Duplicate product name found in import file');
+      }
+
+      // Add to importing names set if not empty
+      if (cleanProductName) {
+        importingNames.add(cleanProductName.toLowerCase());
+      }
+
+      // Map the data to proper format - only populate fields that have actual values
+      const mapped: any = {
+        product_name: cleanProductName
       };
+
+      // Only add fields if they have meaningful values from the file
+      if (row.weight !== undefined && row.weight !== '' && !isNaN(parseFloat(row.weight))) {
+        mapped.weight = parseFloat(row.weight);
+      }
+      if (row.weight_unit && row.weight_unit.trim()) {
+        mapped.weight_unit = row.weight_unit.trim();
+      }
+      if (row.department && row.department.trim()) {
+        mapped.department = row.department.trim();
+      }
+      if (row.bar_code_case && row.bar_code_case.trim()) {
+        mapped.bar_code_case = row.bar_code_case.trim();
+      }
+      if (row.bar_code_unit && row.bar_code_unit.trim()) {
+        mapped.bar_code_unit = row.bar_code_unit.trim();
+      }
+      if (row.case_price !== undefined && row.case_price !== '' && !isNaN(parseFloat(row.case_price))) {
+        mapped.case_price = parseFloat(row.case_price);
+      }
+      if (row.unit_per_case !== undefined && row.unit_per_case !== '' && !isNaN(parseInt(row.unit_per_case))) {
+        mapped.unit_per_case = parseInt(row.unit_per_case);
+      }
+      if (row.unit_price !== undefined && row.unit_price !== '' && !isNaN(parseFloat(row.unit_price))) {
+        mapped.unit_price = parseFloat(row.unit_price);
+      }
+      if (row.retail_price !== undefined && row.retail_price !== '' && !isNaN(parseFloat(row.retail_price))) {
+        mapped.retail_price = parseFloat(row.retail_price);
+      }
+      if (row.category && row.category.trim()) {
+        mapped.category = row.category.trim();
+      }
+      if (row.supplier && row.supplier.trim()) {
+        mapped.supplier = row.supplier.trim();
+      }
+      if (row.quantity_in_stock !== undefined && row.quantity_in_stock !== '' && !isNaN(parseInt(row.quantity_in_stock))) {
+        mapped.quantity_in_stock = parseInt(row.quantity_in_stock);
+      }
+      if (row.minimum_stock !== undefined && row.minimum_stock !== '' && !isNaN(parseInt(row.minimum_stock))) {
+        mapped.minimum_stock = parseInt(row.minimum_stock);
+      }
+      if (row.description && row.description.trim()) {
+        mapped.description = row.description.trim();
+      }
+
+      const isDuplicate = isDuplicateInDB || isDuplicateInImport;
 
       return {
         original: row,
@@ -211,7 +356,7 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
         isValid: errors.length === 0,
         isDuplicate,
         errors,
-        productName: productName.trim()
+        productName: cleanProductName
       };
     });
   };
@@ -410,10 +555,10 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
             <div className="p-3 bg-green-50 rounded-lg border border-green-200">
               <div className="flex items-center gap-2 text-green-700">
                 <CheckCircle className="h-4 w-4" />
-                <span className="text-sm font-medium">Automatic Header Mapping</span>
+                <span className="text-sm font-medium">Smart Header Mapping</span>
               </div>
               <p className="text-xs text-green-600 mt-1">
-                Headers will be automatically mapped to product fields. Only Product Name is required.
+                Headers are automatically mapped to database fields. Exact matches take priority. Only Product Name is required - other fields will be left blank if not found in file.
               </p>
             </div>
 
@@ -501,14 +646,20 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
                   <TableRow>
                     <TableHead>Status</TableHead>
                     <TableHead>Product Name</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Price</TableHead>
+                    <TableHead>Mapped Fields</TableHead>
+                    <TableHead>Price Info</TableHead>
                     <TableHead>Stock</TableHead>
                     <TableHead>Issues</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {parsedProducts.map((product, index) =>
+                  {parsedProducts.map((product, index) => {
+                    // Count non-empty mapped fields (excluding product_name)
+                    const mappedFieldsCount = Object.entries(product.mapped)
+                      .filter(([key, value]) => key !== 'product_name' && value !== undefined && value !== '' && value !== 0)
+                      .length;
+                    
+                    return (
                 <TableRow key={index}>
                       <TableCell>
                         {product.isValid && !product.isDuplicate ?
@@ -529,11 +680,41 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
                     }
                       </TableCell>
                       <TableCell className="font-medium">{product.productName || 'N/A'}</TableCell>
-                      <TableCell>{product.mapped.category || 'N/A'}</TableCell>
                       <TableCell>
-                        {product.mapped.retail_price > 0 ? `$${product.mapped.retail_price.toFixed(2)}` : 'N/A'}
+                        <div className="flex items-center gap-1">
+                          <span className="text-sm">{mappedFieldsCount} fields</span>
+                          {mappedFieldsCount > 0 && (
+                            <Badge variant="outline" className="text-xs">
+                              {mappedFieldsCount > 5 ? 'Complete' : 'Partial'}
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
-                      <TableCell>{product.mapped.quantity_in_stock || 0}</TableCell>
+                      <TableCell>
+                        <div className="text-xs">
+                          {product.mapped.retail_price > 0 && (
+                            <div>Retail: ${product.mapped.retail_price.toFixed(2)}</div>
+                          )}
+                          {product.mapped.unit_price > 0 && (
+                            <div>Unit: ${product.mapped.unit_price.toFixed(2)}</div>
+                          )}
+                          {product.mapped.case_price > 0 && (
+                            <div>Case: ${product.mapped.case_price.toFixed(2)}</div>
+                          )}
+                          {!product.mapped.retail_price && !product.mapped.unit_price && !product.mapped.case_price && 'N/A'}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-xs">
+                          {product.mapped.quantity_in_stock !== undefined ? (
+                            <div>Current: {product.mapped.quantity_in_stock}</div>
+                          ) : null}
+                          {product.mapped.minimum_stock !== undefined ? (
+                            <div>Min: {product.mapped.minimum_stock}</div>
+                          ) : null}
+                          {product.mapped.quantity_in_stock === undefined && product.mapped.minimum_stock === undefined && 'N/A'}
+                        </div>
+                      </TableCell>
                       <TableCell>
                         {product.errors.length > 0 &&
                     <div className="text-xs text-red-600">
@@ -542,7 +723,8 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
                     }
                       </TableCell>
                     </TableRow>
-                )}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
