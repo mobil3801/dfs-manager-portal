@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import UserPermissionManager from '@/components/UserPermissionManager';
 import EnhancedUserPermissionManager from '@/components/EnhancedUserPermissionManager';
+import ComprehensivePermissionDialog from '@/components/ComprehensivePermissionDialog';
 import {
   Users,
   Plus,
@@ -608,6 +609,19 @@ const UserManagement: React.FC = () => {
                             onClick={() => handleEditProfile(profile)}>
                                 <Edit3 className="w-4 h-4" />
                               </Button>
+                              <ComprehensivePermissionDialog 
+                                selectedUserId={profile.id}
+                                trigger={
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-blue-600 hover:text-blue-700"
+                                    title="Comprehensive Permission Management"
+                                  >
+                                    <Shield className="w-4 h-4" />
+                                  </Button>
+                                }
+                              />
                               <Button
                             size="sm"
                             variant="outline"
