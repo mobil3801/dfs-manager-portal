@@ -108,10 +108,7 @@ const SalaryForm: React.FC = () => {
   formData.regular_hours,
   formData.overtime_hours,
   formData.bonus_amount,
-  formData.commission,
-  formData.health_insurance,
-  formData.retirement_401k,
-  formData.other_deductions]
+  formData.commission]
   );
 
   const fetchEmployees = async () => {
@@ -179,30 +176,12 @@ const SalaryForm: React.FC = () => {
     const regularPay = formData.hourly_rate * formData.regular_hours;
     const grossPay = formData.base_salary + regularPay + overtimePay + formData.bonus_amount + formData.commission;
 
-    // Calculate taxes (simplified calculation)
-    const federalTax = grossPay * 0.22; // 22% federal tax rate
-    const stateTax = grossPay * 0.05; // 5% state tax rate
-    const socialSecurity = grossPay * 0.062; // 6.2% Social Security
-    const medicare = grossPay * 0.0145; // 1.45% Medicare
-
-    // Calculate total deductions
-    const totalDeductions = federalTax + stateTax + socialSecurity + medicare +
-    formData.health_insurance + formData.retirement_401k + formData.other_deductions;
-
-    // Calculate net pay
-    const netPay = grossPay - totalDeductions;
-
     setFormData((prev) => ({
       ...prev,
       overtime_rate: overtimeRate,
       overtime_pay: overtimePay,
       gross_pay: grossPay,
-      federal_tax: federalTax,
-      state_tax: stateTax,
-      social_security: socialSecurity,
-      medicare: medicare,
-      total_deductions: totalDeductions,
-      net_pay: netPay
+      net_pay: grossPay
     }));
   };
 
@@ -483,118 +462,7 @@ const SalaryForm: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Deductions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Deductions</CardTitle>
-            <CardDescription>Tax deductions and employee benefits</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="federal_tax">Federal Tax (Auto-calculated)</Label>
-                <Input
-                  id="federal_tax"
-                  type="number"
-                  step="0.01"
-                  value={formData.federal_tax.toFixed(2)}
-                  disabled
-                  className="bg-muted" />
 
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="state_tax">State Tax (Auto-calculated)</Label>
-                <Input
-                  id="state_tax"
-                  type="number"
-                  step="0.01"
-                  value={formData.state_tax.toFixed(2)}
-                  disabled
-                  className="bg-muted" />
-
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="social_security">Social Security (Auto-calculated)</Label>
-                <Input
-                  id="social_security"
-                  type="number"
-                  step="0.01"
-                  value={formData.social_security.toFixed(2)}
-                  disabled
-                  className="bg-muted" />
-
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="medicare">Medicare (Auto-calculated)</Label>
-                <Input
-                  id="medicare"
-                  type="number"
-                  step="0.01"
-                  value={formData.medicare.toFixed(2)}
-                  disabled
-                  className="bg-muted" />
-
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="health_insurance">Health Insurance</Label>
-                <NumberInput
-                  id="health_insurance"
-                  step="0.01"
-                  value={formData.health_insurance}
-                  onChange={(value) => handleInputChange('health_insurance', value)} />
-
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="retirement_401k">401(k) Contribution</Label>
-                <NumberInput
-                  id="retirement_401k"
-                  step="0.01"
-                  value={formData.retirement_401k}
-                  onChange={(value) => handleInputChange('retirement_401k', value)} />
-
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="other_deductions">Other Deductions</Label>
-                <NumberInput
-                  id="other_deductions"
-                  step="0.01"
-                  value={formData.other_deductions}
-                  onChange={(value) => handleInputChange('other_deductions', value)} />
-
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="total_deductions">Total Deductions (Auto-calculated)</Label>
-                <Input
-                  id="total_deductions"
-                  type="number"
-                  step="0.01"
-                  value={formData.total_deductions.toFixed(2)}
-                  disabled
-                  className="bg-muted font-bold" />
-
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="net_pay">Net Pay (Auto-calculated)</Label>
-                <Input
-                  id="net_pay"
-                  type="number"
-                  step="0.01"
-                  value={formData.net_pay.toFixed(2)}
-                  disabled
-                  className="bg-green-50 font-bold text-green-700" />
-
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Additional Information */}
         <Card>
