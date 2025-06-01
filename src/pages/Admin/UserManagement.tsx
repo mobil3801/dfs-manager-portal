@@ -81,6 +81,12 @@ const UserManagement: React.FC = () => {
     is_active: true
   });
 
+  // Generate random user ID
+  const generateRandomUserId = () => {
+    const randomId = Math.floor(Math.random() * 1000000) + 100000; // 6-digit random number
+    return randomId;
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -166,7 +172,7 @@ const UserManagement: React.FC = () => {
 
       setIsAddDialogOpen(false);
       setFormData({
-        user_id: 0,
+        user_id: generateRandomUserId(),
         role: 'Employee',
         station: 'MOBIL',
         employee_id: '',
@@ -350,7 +356,14 @@ const UserManagement: React.FC = () => {
         <TabsContent value="profiles" className="space-y-6">
           {/* Add User Profile Button */}
           <div className="flex items-center justify-end">
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
+              if (open) {
+                // Generate new random user ID when opening dialog
+                const newUserId = generateRandomUserId();
+                setFormData(prev => ({ ...prev, user_id: newUserId }));
+              }
+              setIsAddDialogOpen(open);
+            }}>
               <DialogTrigger asChild>
                 <Button className="bg-blue-600 hover:bg-blue-700">
                   <Plus className="w-4 h-4 mr-2" />
@@ -364,13 +377,37 @@ const UserManagement: React.FC = () => {
                 <ScrollArea className="max-h-[calc(85vh-120px)] pr-4">
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="user_id">User ID</Label>
-                      <Input
-                        id="user_id"
-                        type="number"
-                        value={formData.user_id}
-                        onChange={(e) => setFormData({ ...formData, user_id: parseInt(e.target.value) || 0 })}
-                        placeholder="Enter user ID" />
+                      <Label htmlFor="user_id">User ID (Auto-generated)</Label>
+                      <div className="relative">
+                        <Input
+                          id="user_id"
+                          type="number"
+                          value={formData.user_id}
+                          readOnly
+                          disabled
+                          className="bg-gray-50 text-gray-700 cursor-not-allowed"
+                          placeholder="Auto-generated ID" />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-gray-200"
+                          onClick={() => {
+                            const newUserId = generateRandomUserId();
+                            setFormData(prev => ({ ...prev, user_id: newUserId }));
+                            toast({
+                              title: "Success",
+                              description: `New User ID generated: ${newUserId}`
+                            });
+                          }}
+                          title="Generate new random User ID"
+                        >
+                          <RefreshCw className="w-3 h-3" />
+                        </Button>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        User ID is automatically generated. Click the refresh icon to generate a new one.
+                      </p>
                     </div>
                     <div>
                       <Label htmlFor="role">Role</Label>
@@ -609,19 +646,19 @@ const UserManagement: React.FC = () => {
                             onClick={() => handleEditProfile(profile)}>
                                 <Edit3 className="w-4 h-4" />
                               </Button>
-                              <ComprehensivePermissionDialog 
-                                selectedUserId={profile.id}
-                                trigger={
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="text-blue-600 hover:text-blue-700"
-                                    title="Comprehensive Permission Management"
-                                  >
+                              <ComprehensivePermissionDialog
+                            selectedUserId={profile.id}
+                            trigger={
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-blue-600 hover:text-blue-700"
+                              title="Comprehensive Permission Management">
+
                                     <Shield className="w-4 h-4" />
                                   </Button>
-                                }
-                              />
+                            } />
+
                               <Button
                             size="sm"
                             variant="outline"

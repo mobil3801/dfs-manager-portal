@@ -44,8 +44,8 @@ import {
   CheckSquare,
   Home,
   Map,
-  MoreHorizontal
-} from 'lucide-react';
+  MoreHorizontal } from
+'lucide-react';
 
 interface UserProfile {
   id: number;
@@ -90,239 +90,239 @@ const defaultPagePermission: PagePermission = {
 // Comprehensive page definitions with all system pages
 const pageGroups = {
   'Core Operations': [
-    { 
-      key: 'dashboard', 
-      label: 'Dashboard', 
-      icon: BarChart3, 
-      color: 'text-blue-600', 
-      description: 'Main overview, analytics, quick access toolbar',
-      features: ['View reports', 'Quick actions', 'Analytics widgets']
-    },
-    { 
-      key: 'products', 
-      label: 'Products Management', 
-      icon: Package, 
-      color: 'text-green-600', 
-      description: 'Product inventory, pricing, barcode scanning',
-      features: ['Add/Edit products', 'Barcode scanning', 'Price management', 'Stock tracking']
-    },
-    { 
-      key: 'product_form', 
-      label: 'Product Form', 
-      icon: Edit, 
-      color: 'text-green-500', 
-      description: 'Add and edit individual product records',
-      features: ['Product creation', 'Information editing', 'File uploads']
-    }
-  ],
+  {
+    key: 'dashboard',
+    label: 'Dashboard',
+    icon: BarChart3,
+    color: 'text-blue-600',
+    description: 'Main overview, analytics, quick access toolbar',
+    features: ['View reports', 'Quick actions', 'Analytics widgets']
+  },
+  {
+    key: 'products',
+    label: 'Products Management',
+    icon: Package,
+    color: 'text-green-600',
+    description: 'Product inventory, pricing, barcode scanning',
+    features: ['Add/Edit products', 'Barcode scanning', 'Price management', 'Stock tracking']
+  },
+  {
+    key: 'product_form',
+    label: 'Product Form',
+    icon: Edit,
+    color: 'text-green-500',
+    description: 'Add and edit individual product records',
+    features: ['Product creation', 'Information editing', 'File uploads']
+  }],
+
 
   'Sales & Reporting': [
-    { 
-      key: 'sales_reports', 
-      label: 'Sales Reports List', 
-      icon: FileText, 
-      color: 'text-orange-600', 
-      description: 'Daily sales reporting, enhanced print dialogs',
-      features: ['View sales reports', 'Print enhanced reports', 'Export data']
-    },
-    { 
-      key: 'sales_report_form', 
-      label: 'Sales Report Form', 
-      icon: Edit, 
-      color: 'text-orange-500', 
-      description: 'Create and edit daily sales reports',
-      features: ['Gas/grocery sales', 'Lottery sales', 'Expenses', 'Document uploads', 'Cash collection']
-    }
-  ],
+  {
+    key: 'sales_reports',
+    label: 'Sales Reports List',
+    icon: FileText,
+    color: 'text-orange-600',
+    description: 'Daily sales reporting, enhanced print dialogs',
+    features: ['View sales reports', 'Print enhanced reports', 'Export data']
+  },
+  {
+    key: 'sales_report_form',
+    label: 'Sales Report Form',
+    icon: Edit,
+    color: 'text-orange-500',
+    description: 'Create and edit daily sales reports',
+    features: ['Gas/grocery sales', 'Lottery sales', 'Expenses', 'Document uploads', 'Cash collection']
+  }],
+
 
   'Human Resources': [
-    { 
-      key: 'employees', 
-      label: 'Employee List', 
-      icon: Users, 
-      color: 'text-purple-600', 
-      description: 'Employee records and information management',
-      features: ['View employees', 'Add/Edit employees', 'Search/Filter']
-    },
-    { 
-      key: 'employee_form', 
-      label: 'Employee Form', 
-      icon: UserCheck, 
-      color: 'text-purple-500', 
-      description: 'Add and edit employee records with file uploads',
-      features: ['Employee creation', 'Document uploads', 'Contact management']
-    },
-    { 
-      key: 'salary', 
-      label: 'Salary List', 
-      icon: DollarSign, 
-      color: 'text-yellow-600', 
-      description: 'Payroll processing and salary records',
-      features: ['View salary records', 'Pay period management', 'Export reports']
-    },
-    { 
-      key: 'salary_form', 
-      label: 'Salary Form', 
-      icon: Calendar, 
-      color: 'text-yellow-500', 
-      description: 'Create and edit salary records',
-      features: ['Payroll processing', 'Deduction calculations', 'Pay period setup']
-    }
-  ],
+  {
+    key: 'employees',
+    label: 'Employee List',
+    icon: Users,
+    color: 'text-purple-600',
+    description: 'Employee records and information management',
+    features: ['View employees', 'Add/Edit employees', 'Search/Filter']
+  },
+  {
+    key: 'employee_form',
+    label: 'Employee Form',
+    icon: UserCheck,
+    color: 'text-purple-500',
+    description: 'Add and edit employee records with file uploads',
+    features: ['Employee creation', 'Document uploads', 'Contact management']
+  },
+  {
+    key: 'salary',
+    label: 'Salary List',
+    icon: DollarSign,
+    color: 'text-yellow-600',
+    description: 'Payroll processing and salary records',
+    features: ['View salary records', 'Pay period management', 'Export reports']
+  },
+  {
+    key: 'salary_form',
+    label: 'Salary Form',
+    icon: Calendar,
+    color: 'text-yellow-500',
+    description: 'Create and edit salary records',
+    features: ['Payroll processing', 'Deduction calculations', 'Pay period setup']
+  }],
+
 
   'Business Operations': [
-    { 
-      key: 'vendors', 
-      label: 'Vendor List', 
-      icon: Building2, 
-      color: 'text-teal-600', 
-      description: 'Supplier relationships and vendor contacts',
-      features: ['View vendors', 'Add/Edit vendors', 'Contact management']
-    },
-    { 
-      key: 'vendor_form', 
-      label: 'Vendor Form', 
-      icon: Building2, 
-      color: 'text-teal-500', 
-      description: 'Add and edit vendor information',
-      features: ['Vendor creation', 'Contact details', 'Payment terms']
-    },
-    { 
-      key: 'orders', 
-      label: 'Order List', 
-      icon: Truck, 
-      color: 'text-indigo-600', 
-      description: 'Purchase orders and inventory ordering',
-      features: ['View orders', 'Order tracking', 'Status management']
-    },
-    { 
-      key: 'order_form', 
-      label: 'Order Form', 
-      icon: Archive, 
-      color: 'text-indigo-500', 
-      description: 'Create and edit purchase orders',
-      features: ['Order creation', 'Item selection', 'Vendor management']
-    }
-  ],
+  {
+    key: 'vendors',
+    label: 'Vendor List',
+    icon: Building2,
+    color: 'text-teal-600',
+    description: 'Supplier relationships and vendor contacts',
+    features: ['View vendors', 'Add/Edit vendors', 'Contact management']
+  },
+  {
+    key: 'vendor_form',
+    label: 'Vendor Form',
+    icon: Building2,
+    color: 'text-teal-500',
+    description: 'Add and edit vendor information',
+    features: ['Vendor creation', 'Contact details', 'Payment terms']
+  },
+  {
+    key: 'orders',
+    label: 'Order List',
+    icon: Truck,
+    color: 'text-indigo-600',
+    description: 'Purchase orders and inventory ordering',
+    features: ['View orders', 'Order tracking', 'Status management']
+  },
+  {
+    key: 'order_form',
+    label: 'Order Form',
+    icon: Archive,
+    color: 'text-indigo-500',
+    description: 'Create and edit purchase orders',
+    features: ['Order creation', 'Item selection', 'Vendor management']
+  }],
+
 
   'Delivery & Inventory': [
-    { 
-      key: 'delivery', 
-      label: 'Delivery List', 
-      icon: Truck, 
-      color: 'text-pink-600', 
-      description: 'Fuel delivery tracking with enhanced print dialogs',
-      features: ['View deliveries', 'Enhanced print reports', 'BOL tracking']
-    },
-    { 
-      key: 'delivery_form', 
-      label: 'Delivery Form', 
-      icon: Map, 
-      color: 'text-pink-500', 
-      description: 'Create and edit delivery records',
-      features: ['Delivery creation', 'Tank volume tracking', 'BOL management']
-    },
-    { 
-      key: 'inventory_alerts', 
-      label: 'Inventory Alerts', 
-      icon: Bell, 
-      color: 'text-red-600', 
-      description: 'Stock level alerts and notifications',
-      features: ['View alerts', 'Stock monitoring', 'Alert management']
-    },
-    { 
-      key: 'alert_settings', 
-      label: 'Alert Settings', 
-      icon: Settings, 
-      color: 'text-red-500', 
-      description: 'Configure inventory alert thresholds',
-      features: ['Alert configuration', 'Threshold settings', 'Notification preferences']
-    },
-    { 
-      key: 'gas_delivery_inventory', 
-      label: 'Gas Delivery Inventory', 
-      icon: Database, 
-      color: 'text-cyan-600', 
-      description: 'Gas tank monitoring and delivery tracking',
-      features: ['Tank levels', 'Delivery tracking', 'Volume calculations']
-    }
-  ],
+  {
+    key: 'delivery',
+    label: 'Delivery List',
+    icon: Truck,
+    color: 'text-pink-600',
+    description: 'Fuel delivery tracking with enhanced print dialogs',
+    features: ['View deliveries', 'Enhanced print reports', 'BOL tracking']
+  },
+  {
+    key: 'delivery_form',
+    label: 'Delivery Form',
+    icon: Map,
+    color: 'text-pink-500',
+    description: 'Create and edit delivery records',
+    features: ['Delivery creation', 'Tank volume tracking', 'BOL management']
+  },
+  {
+    key: 'inventory_alerts',
+    label: 'Inventory Alerts',
+    icon: Bell,
+    color: 'text-red-600',
+    description: 'Stock level alerts and notifications',
+    features: ['View alerts', 'Stock monitoring', 'Alert management']
+  },
+  {
+    key: 'alert_settings',
+    label: 'Alert Settings',
+    icon: Settings,
+    color: 'text-red-500',
+    description: 'Configure inventory alert thresholds',
+    features: ['Alert configuration', 'Threshold settings', 'Notification preferences']
+  },
+  {
+    key: 'gas_delivery_inventory',
+    label: 'Gas Delivery Inventory',
+    icon: Database,
+    color: 'text-cyan-600',
+    description: 'Gas tank monitoring and delivery tracking',
+    features: ['Tank levels', 'Delivery tracking', 'Volume calculations']
+  }],
+
 
   'Compliance & Licensing': [
-    { 
-      key: 'licenses', 
-      label: 'License List', 
-      icon: Shield, 
-      color: 'text-red-600', 
-      description: 'Business licenses and regulatory compliance with enhanced print',
-      features: ['View licenses', 'Enhanced print dialogs', 'Expiry tracking']
-    },
-    { 
-      key: 'license_form', 
-      label: 'License Form', 
-      icon: CheckSquare, 
-      color: 'text-red-500', 
-      description: 'Add and edit license records with file uploads',
-      features: ['License creation', 'Document uploads', 'Expiry management']
-    }
-  ],
+  {
+    key: 'licenses',
+    label: 'License List',
+    icon: Shield,
+    color: 'text-red-600',
+    description: 'Business licenses and regulatory compliance with enhanced print',
+    features: ['View licenses', 'Enhanced print dialogs', 'Expiry tracking']
+  },
+  {
+    key: 'license_form',
+    label: 'License Form',
+    icon: CheckSquare,
+    color: 'text-red-500',
+    description: 'Add and edit license records with file uploads',
+    features: ['License creation', 'Document uploads', 'Expiry management']
+  }],
+
 
   'System Administration': [
-    { 
-      key: 'settings', 
-      label: 'App Settings', 
-      icon: Settings, 
-      color: 'text-gray-600', 
-      description: 'Application configuration, image compression, demo features',
-      features: ['App configuration', 'Image compression settings', 'System preferences']
-    },
-    { 
-      key: 'user_management', 
-      label: 'User Management', 
-      icon: UserCheck, 
-      color: 'text-red-600', 
-      description: 'User accounts, permission management, enhanced controls',
-      features: ['User accounts', 'Permission management', 'Enhanced controls']
-    },
-    { 
-      key: 'site_management', 
-      label: 'Site Management', 
-      icon: Building2, 
-      color: 'text-blue-600', 
-      description: 'Multi-station configuration and management',
-      features: ['Station configuration', 'Site settings', 'Multi-location management']
-    },
-    { 
-      key: 'system_logs', 
-      label: 'System Logs', 
-      icon: FileText, 
-      color: 'text-gray-600', 
-      description: 'System activity and audit trails',
-      features: ['Activity logs', 'Audit trails', 'System monitoring']
-    },
-    { 
-      key: 'security_settings', 
-      label: 'Security Settings', 
-      icon: Shield, 
-      color: 'text-red-600', 
-      description: 'Security policies and authentication settings',
-      features: ['Security policies', 'Authentication settings', 'Access controls']
-    }
-  ]
+  {
+    key: 'settings',
+    label: 'App Settings',
+    icon: Settings,
+    color: 'text-gray-600',
+    description: 'Application configuration, image compression, demo features',
+    features: ['App configuration', 'Image compression settings', 'System preferences']
+  },
+  {
+    key: 'user_management',
+    label: 'User Management',
+    icon: UserCheck,
+    color: 'text-red-600',
+    description: 'User accounts, permission management, enhanced controls',
+    features: ['User accounts', 'Permission management', 'Enhanced controls']
+  },
+  {
+    key: 'site_management',
+    label: 'Site Management',
+    icon: Building2,
+    color: 'text-blue-600',
+    description: 'Multi-station configuration and management',
+    features: ['Station configuration', 'Site settings', 'Multi-location management']
+  },
+  {
+    key: 'system_logs',
+    label: 'System Logs',
+    icon: FileText,
+    color: 'text-gray-600',
+    description: 'System activity and audit trails',
+    features: ['Activity logs', 'Audit trails', 'System monitoring']
+  },
+  {
+    key: 'security_settings',
+    label: 'Security Settings',
+    icon: Shield,
+    color: 'text-red-600',
+    description: 'Security policies and authentication settings',
+    features: ['Security policies', 'Authentication settings', 'Access controls']
+  }]
+
 };
 
 // Enhanced permission types with descriptions
 const permissionTypes = [
-  { key: 'view', label: 'View', icon: Eye, description: 'Can view and access the page/content', color: 'text-blue-600' },
-  { key: 'create', label: 'Add/Create', icon: Plus, description: 'Can use Add buttons and create new records', color: 'text-green-600' },
-  { key: 'edit', label: 'Edit/Modify', icon: Edit, description: 'Can use Edit buttons and modify existing records', color: 'text-yellow-600' },
-  { key: 'delete', label: 'Delete', icon: Trash2, description: 'Can delete records and use delete buttons', color: 'text-red-600' },
-  { key: 'export', label: 'Export', icon: Download, description: 'Can export data to files (CSV, Excel, etc.)', color: 'text-purple-600' },
-  { key: 'print', label: 'Print', icon: Printer, description: 'Can print reports and use enhanced print dialogs', color: 'text-indigo-600' },
-  { key: 'approve', label: 'Approve', icon: CheckCircle2, description: 'Can approve transactions and records', color: 'text-green-700' },
-  { key: 'bulk_operations', label: 'Bulk Ops', icon: MoreHorizontal, description: 'Can perform bulk operations on multiple records', color: 'text-orange-600' },
-  { key: 'advanced_features', label: 'Advanced', icon: Settings, description: 'Can access advanced features and configurations', color: 'text-gray-700' }
-];
+{ key: 'view', label: 'View', icon: Eye, description: 'Can view and access the page/content', color: 'text-blue-600' },
+{ key: 'create', label: 'Add/Create', icon: Plus, description: 'Can use Add buttons and create new records', color: 'text-green-600' },
+{ key: 'edit', label: 'Edit/Modify', icon: Edit, description: 'Can use Edit buttons and modify existing records', color: 'text-yellow-600' },
+{ key: 'delete', label: 'Delete', icon: Trash2, description: 'Can delete records and use delete buttons', color: 'text-red-600' },
+{ key: 'export', label: 'Export', icon: Download, description: 'Can export data to files (CSV, Excel, etc.)', color: 'text-purple-600' },
+{ key: 'print', label: 'Print', icon: Printer, description: 'Can print reports and use enhanced print dialogs', color: 'text-indigo-600' },
+{ key: 'approve', label: 'Approve', icon: CheckCircle2, description: 'Can approve transactions and records', color: 'text-green-700' },
+{ key: 'bulk_operations', label: 'Bulk Ops', icon: MoreHorizontal, description: 'Can perform bulk operations on multiple records', color: 'text-orange-600' },
+{ key: 'advanced_features', label: 'Advanced', icon: Settings, description: 'Can access advanced features and configurations', color: 'text-gray-700' }];
+
 
 // Enhanced role templates with detailed descriptions
 const roleTemplates = {
@@ -339,9 +339,9 @@ interface ComprehensivePermissionDialogProps {
   selectedUserId?: number;
 }
 
-const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps> = ({ 
+const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps> = ({
   trigger,
-  selectedUserId 
+  selectedUserId
 }) => {
   const [userProfiles, setUserProfiles] = useState<UserProfile[]>([]);
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
@@ -368,7 +368,7 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
 
   useEffect(() => {
     if (selectedUserId && userProfiles.length > 0) {
-      const user = userProfiles.find(u => u.id === selectedUserId);
+      const user = userProfiles.find((u) => u.id === selectedUserId);
       if (user) {
         setSelectedUser(user);
       }
@@ -522,12 +522,12 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
       case 'Management':
         // Full access to operations, limited admin access
         const managementPages = [
-          'dashboard', 'products', 'product_form', 'employees', 'employee_form', 
-          'sales_reports', 'sales_report_form', 'vendors', 'vendor_form', 
-          'orders', 'order_form', 'delivery', 'delivery_form', 'licenses', 
-          'license_form', 'inventory_alerts', 'alert_settings', 'gas_delivery_inventory', 
-          'salary', 'salary_form'
-        ];
+        'dashboard', 'products', 'product_form', 'employees', 'employee_form',
+        'sales_reports', 'sales_report_form', 'vendors', 'vendor_form',
+        'orders', 'order_form', 'delivery', 'delivery_form', 'licenses',
+        'license_form', 'inventory_alerts', 'alert_settings', 'gas_delivery_inventory',
+        'salary', 'salary_form'];
+
         managementPages.forEach((pageKey) => {
           if (newPermissions[pageKey]) {
             permissionTypes.forEach((type) => {
@@ -549,12 +549,12 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
       case 'Station Manager':
         // Full operational access for station management
         const stationManagerPages = [
-          'dashboard', 'products', 'product_form', 'sales_reports', 'sales_report_form',
-          'delivery', 'delivery_form', 'inventory_alerts', 'alert_settings', 'gas_delivery_inventory'
-        ];
+        'dashboard', 'products', 'product_form', 'sales_reports', 'sales_report_form',
+        'delivery', 'delivery_form', 'inventory_alerts', 'alert_settings', 'gas_delivery_inventory'];
+
         stationManagerPages.forEach((pageKey) => {
           if (newPermissions[pageKey]) {
-            permissionTypes.slice(0, 6).forEach((type) => { // Exclude advanced permissions
+            permissionTypes.slice(0, 6).forEach((type) => {// Exclude advanced permissions
               newPermissions[pageKey][type.key as keyof PagePermission] = true;
             });
           }
@@ -640,9 +640,9 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
 
       // Update local state
       setUserProfiles((prev) => prev.map((user) =>
-        user.id === selectedUser.id ?
-          { ...user, detailed_permissions: JSON.stringify(permissions) } :
-          user
+      user.id === selectedUser.id ?
+      { ...user, detailed_permissions: JSON.stringify(permissions) } :
+      user
       ));
     } catch (error) {
       console.error('Error saving permissions:', error);
@@ -659,12 +659,12 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
   const getPermissionSummary = (user: UserProfile) => {
     try {
       const userPermissions = user.detailed_permissions ?
-        JSON.parse(user.detailed_permissions) :
-        {};
+      JSON.parse(user.detailed_permissions) :
+      {};
 
       const totalPages = Object.values(pageGroups).flat().length;
       const pagesWithAccess = Object.values(pageGroups).flat().filter((page) =>
-        userPermissions[page.key]?.view
+      userPermissions[page.key]?.view
       ).length;
 
       return `${pagesWithAccess}/${totalPages}`;
@@ -675,9 +675,9 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
 
   const filteredUsers = userProfiles.filter((user) => {
     const matchesSearch =
-      user.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.role.toLowerCase().includes(searchTerm.toLowerCase());
+    user.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.role.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = selectedRole === 'All' || user.role === selectedRole;
     return matchesSearch && matchesRole;
   });
@@ -707,20 +707,20 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {loading ? (
-                    <div className="text-center py-4">Loading users...</div>
-                  ) : (
-                    <>
+                  {loading ?
+                  <div className="text-center py-4">Loading users...</div> :
+
+                  <>
                       {/* Search and Filter */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="relative">
                           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                           <Input
-                            placeholder="Search users..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10"
-                          />
+                          placeholder="Search users..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="pl-10" />
+
                         </div>
                         <Select value={selectedRole} onValueChange={setSelectedRole}>
                           <SelectTrigger>
@@ -740,8 +740,8 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
                             <SelectValue placeholder="Select user to manage" />
                           </SelectTrigger>
                           <SelectContent>
-                            {filteredUsers.map((user) => (
-                              <SelectItem key={user.id} value={user.id.toString()}>
+                            {filteredUsers.map((user) =>
+                          <SelectItem key={user.id} value={user.id.toString()}>
                                 <div className="flex items-center justify-between w-full">
                                   <span>{user.employee_id} - {user.role}</span>
                                   <Badge variant="outline" className="ml-2">
@@ -749,14 +749,14 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
                                   </Badge>
                                 </div>
                               </SelectItem>
-                            ))}
+                          )}
                           </SelectContent>
                         </Select>
                       </div>
 
                       {/* Selected User Info */}
-                      {selectedUser && (
-                        <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border">
+                      {selectedUser &&
+                    <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border">
                           <div className="flex items-center justify-between">
                             <div>
                               <h3 className="font-semibold text-lg">{selectedUser.employee_id}</h3>
@@ -774,36 +774,36 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
                             </div>
                           </div>
                         </div>
-                      )}
+                    }
 
                       {/* Role Templates */}
-                      {selectedUser && (
-                        <div className="space-y-3">
+                      {selectedUser &&
+                    <div className="space-y-3">
                           <Label className="text-sm font-medium">Quick Permission Templates</Label>
                           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
-                            {Object.entries(roleTemplates).map(([role, description]) => (
-                              <Button
-                                key={role}
-                                variant={activeTemplate === role ? "default" : "outline"}
-                                size="sm"
-                                onClick={() => applyRoleTemplate(role)}
-                                className="text-xs h-auto py-2 px-3 flex flex-col items-center space-y-1"
-                                title={description}
-                              >
+                            {Object.entries(roleTemplates).map(([role, description]) =>
+                        <Button
+                          key={role}
+                          variant={activeTemplate === role ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => applyRoleTemplate(role)}
+                          className="text-xs h-auto py-2 px-3 flex flex-col items-center space-y-1"
+                          title={description}>
+
                                 <span className="font-medium">{role}</span>
                               </Button>
-                            ))}
+                        )}
                           </div>
                         </div>
-                      )}
+                    }
                     </>
-                  )}
+                  }
                 </CardContent>
               </Card>
 
               {/* Permission Management */}
-              {selectedUser && (
-                <Card>
+              {selectedUser &&
+              <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center space-x-2">
@@ -811,10 +811,10 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
                         <span>Detailed Permissions for {selectedUser.employee_id}</span>
                       </CardTitle>
                       <Button
-                        onClick={savePermissions}
-                        disabled={saving}
-                        className="bg-blue-600 hover:bg-blue-700"
-                      >
+                      onClick={savePermissions}
+                      disabled={saving}
+                      className="bg-blue-600 hover:bg-blue-700">
+
                         <Save className="w-4 h-4 mr-2" />
                         {saving ? 'Saving...' : 'Save Permissions'}
                       </Button>
@@ -828,45 +828,45 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
                       </TabsList>
 
                       <TabsContent value="by-groups" className="space-y-6">
-                        {Object.entries(pageGroups).map(([groupName, pages]) => (
-                          <Card key={groupName} className="border-l-4 border-l-blue-500">
+                        {Object.entries(pageGroups).map(([groupName, pages]) =>
+                      <Card key={groupName} className="border-l-4 border-l-blue-500">
                             <CardHeader className="pb-3">
                               <div className="flex items-center justify-between">
                                 <CardTitle className="text-lg">{groupName}</CardTitle>
                                 <div className="flex space-x-2">
                                   <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleGroupPermissionChange(groupName, 'view_only')}
-                                    className="text-blue-600"
-                                  >
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleGroupPermissionChange(groupName, 'view_only')}
+                                className="text-blue-600">
+
                                     <Eye className="w-3 h-3 mr-1" />
                                     View Only
                                   </Button>
                                   <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleGroupPermissionChange(groupName, 'operational')}
-                                    className="text-orange-600"
-                                  >
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleGroupPermissionChange(groupName, 'operational')}
+                                className="text-orange-600">
+
                                     <Settings className="w-3 h-3 mr-1" />
                                     Operational
                                   </Button>
                                   <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleGroupPermissionChange(groupName, 'grant_all')}
-                                    className="text-green-600"
-                                  >
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleGroupPermissionChange(groupName, 'grant_all')}
+                                className="text-green-600">
+
                                     <CheckCircle2 className="w-3 h-3 mr-1" />
                                     Full Access
                                   </Button>
                                   <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleGroupPermissionChange(groupName, 'revoke_all')}
-                                    className="text-red-600"
-                                  >
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleGroupPermissionChange(groupName, 'revoke_all')}
+                                className="text-red-600">
+
                                     <XCircle className="w-3 h-3 mr-1" />
                                     No Access
                                   </Button>
@@ -876,89 +876,89 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
                             <CardContent>
                               <div className="space-y-4">
                                 {pages.map((page) => {
-                                  const pagePermissions = permissions[page.key] || defaultPagePermission;
-                                  return (
-                                    <div key={page.key} className="border rounded-lg p-4">
+                              const pagePermissions = permissions[page.key] || defaultPagePermission;
+                              return (
+                                <div key={page.key} className="border rounded-lg p-4">
                                       <div className="flex items-start justify-between mb-3">
                                         <div className="flex items-center space-x-3">
                                           <page.icon className={`w-5 h-5 ${page.color}`} />
                                           <div>
                                             <h4 className="font-medium">{page.label}</h4>
                                             <p className="text-xs text-gray-500">{page.description}</p>
-                                            {page.features && (
-                                              <div className="mt-1">
-                                                {page.features.map((feature, idx) => (
-                                                  <Badge key={idx} variant="outline" className="text-xs mr-1 mb-1">
+                                            {page.features &&
+                                        <div className="mt-1">
+                                                {page.features.map((feature, idx) =>
+                                          <Badge key={idx} variant="outline" className="text-xs mr-1 mb-1">
                                                     {feature}
                                                   </Badge>
-                                                ))}
+                                          )}
                                               </div>
-                                            )}
+                                        }
                                           </div>
                                         </div>
                                         <div className="flex space-x-1">
                                           <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={() => handleBulkPermissionChange(page.key, 'view_only')}
-                                            className="text-blue-600 text-xs px-2 py-1"
-                                          >
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => handleBulkPermissionChange(page.key, 'view_only')}
+                                        className="text-blue-600 text-xs px-2 py-1">
+
                                             View
                                           </Button>
                                           <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={() => handleBulkPermissionChange(page.key, 'operational')}
-                                            className="text-orange-600 text-xs px-2 py-1"
-                                          >
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => handleBulkPermissionChange(page.key, 'operational')}
+                                        className="text-orange-600 text-xs px-2 py-1">
+
                                             Ops
                                           </Button>
                                           <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={() => handleBulkPermissionChange(page.key, 'grant_all')}
-                                            className="text-green-600 text-xs px-2 py-1"
-                                          >
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => handleBulkPermissionChange(page.key, 'grant_all')}
+                                        className="text-green-600 text-xs px-2 py-1">
+
                                             <CheckCircle2 className="w-3 h-3" />
                                           </Button>
                                           <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={() => handleBulkPermissionChange(page.key, 'revoke_all')}
-                                            className="text-red-600 text-xs px-2 py-1"
-                                          >
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => handleBulkPermissionChange(page.key, 'revoke_all')}
+                                        className="text-red-600 text-xs px-2 py-1">
+
                                             <XCircle className="w-3 h-3" />
                                           </Button>
                                         </div>
                                       </div>
                                       
                                       <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-9 gap-3">
-                                        {permissionTypes.map((type) => (
-                                          <div key={type.key} className="flex items-center space-x-2 p-2 border rounded">
+                                        {permissionTypes.map((type) =>
+                                    <div key={type.key} className="flex items-center space-x-2 p-2 border rounded">
                                             <Switch
-                                              checked={pagePermissions[type.key as keyof PagePermission] || false}
-                                              onCheckedChange={(checked) =>
-                                                handlePermissionChange(page.key, type.key, checked)
-                                              }
-                                              id={`${page.key}-${type.key}`}
-                                            />
+                                        checked={pagePermissions[type.key as keyof PagePermission] || false}
+                                        onCheckedChange={(checked) =>
+                                        handlePermissionChange(page.key, type.key, checked)
+                                        }
+                                        id={`${page.key}-${type.key}`} />
+
                                             <Label
-                                              htmlFor={`${page.key}-${type.key}`}
-                                              className="text-xs cursor-pointer flex items-center space-x-1"
-                                            >
+                                        htmlFor={`${page.key}-${type.key}`}
+                                        className="text-xs cursor-pointer flex items-center space-x-1">
+
                                               <type.icon className={`w-3 h-3 ${type.color}`} />
                                               <span>{type.label}</span>
                                             </Label>
                                           </div>
-                                        ))}
+                                    )}
                                       </div>
-                                    </div>
-                                  );
-                                })}
+                                    </div>);
+
+                            })}
                               </div>
                             </CardContent>
                           </Card>
-                        ))}
+                      )}
                       </TabsContent>
 
                       <TabsContent value="matrix-view">
@@ -967,29 +967,29 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
                             <thead className="sticky top-0 bg-white z-10">
                               <tr className="border-b">
                                 <th className="text-left p-3 font-semibold bg-white border min-w-48">Page</th>
-                                {permissionTypes.map((type) => (
-                                  <th key={type.key} className="text-center p-3 font-semibold min-w-20 bg-white border">
+                                {permissionTypes.map((type) =>
+                              <th key={type.key} className="text-center p-3 font-semibold min-w-20 bg-white border">
                                     <div className="flex flex-col items-center space-y-1">
                                       <type.icon className={`w-4 h-4 ${type.color}`} />
                                       <span className="text-xs">{type.label}</span>
                                     </div>
                                   </th>
-                                ))}
+                              )}
                                 <th className="text-center p-3 font-semibold bg-white border">Quick Actions</th>
                               </tr>
                             </thead>
                             <tbody>
-                              {Object.entries(pageGroups).map(([groupName, pages]) => (
-                                <React.Fragment key={groupName}>
+                              {Object.entries(pageGroups).map(([groupName, pages]) =>
+                            <React.Fragment key={groupName}>
                                   <tr className="bg-gray-100">
                                     <td colSpan={permissionTypes.length + 2} className="p-2 font-semibold text-sm border">
                                       {groupName}
                                     </td>
                                   </tr>
                                   {pages.map((page) => {
-                                    const pagePermissions = permissions[page.key] || defaultPagePermission;
-                                    return (
-                                      <tr key={page.key} className="border-b hover:bg-gray-50">
+                                const pagePermissions = permissions[page.key] || defaultPagePermission;
+                                return (
+                                  <tr key={page.key} className="border-b hover:bg-gray-50">
                                         <td className="p-3 border">
                                           <div className="flex items-center space-x-3">
                                             <page.icon className={`w-4 h-4 ${page.color}`} />
@@ -999,43 +999,43 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
                                             </div>
                                           </div>
                                         </td>
-                                        {permissionTypes.map((type) => (
-                                          <td key={type.key} className="text-center p-3 border">
+                                        {permissionTypes.map((type) =>
+                                    <td key={type.key} className="text-center p-3 border">
                                             <Switch
-                                              checked={pagePermissions[type.key as keyof PagePermission] || false}
-                                              onCheckedChange={(checked) =>
-                                                handlePermissionChange(page.key, type.key, checked)
-                                              }
-                                            />
+                                        checked={pagePermissions[type.key as keyof PagePermission] || false}
+                                        onCheckedChange={(checked) =>
+                                        handlePermissionChange(page.key, type.key, checked)
+                                        } />
+
                                           </td>
-                                        ))}
+                                    )}
                                         <td className="text-center p-3 border">
                                           <div className="flex space-x-1 justify-center">
                                             <Button
-                                              size="sm"
-                                              variant="outline"
-                                              onClick={() => handleBulkPermissionChange(page.key, 'grant_all')}
-                                              className="text-green-600 hover:text-green-700"
-                                              title="Grant all permissions"
-                                            >
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => handleBulkPermissionChange(page.key, 'grant_all')}
+                                          className="text-green-600 hover:text-green-700"
+                                          title="Grant all permissions">
+
                                               <CheckCircle2 className="w-3 h-3" />
                                             </Button>
                                             <Button
-                                              size="sm"
-                                              variant="outline"
-                                              onClick={() => handleBulkPermissionChange(page.key, 'revoke_all')}
-                                              className="text-red-600 hover:text-red-700"
-                                              title="Revoke all permissions"
-                                            >
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => handleBulkPermissionChange(page.key, 'revoke_all')}
+                                          className="text-red-600 hover:text-red-700"
+                                          title="Revoke all permissions">
+
                                               <XCircle className="w-3 h-3" />
                                             </Button>
                                           </div>
                                         </td>
-                                      </tr>
-                                    );
-                                  })}
+                                      </tr>);
+
+                              })}
                                 </React.Fragment>
-                              ))}
+                            )}
                             </tbody>
                           </table>
                         </div>
@@ -1069,13 +1069,13 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
                     </div>
                   </CardContent>
                 </Card>
-              )}
+              }
             </div>
           </ScrollArea>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default ComprehensivePermissionDialog;
