@@ -283,7 +283,6 @@ export default function SalesReportForm() {
               variant="outline"
               onClick={() => navigate('/sales-reports')}
               className="mb-4">
-
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Reports
             </Button>
@@ -320,7 +319,6 @@ export default function SalesReportForm() {
             <Button
               variant="outline"
               onClick={() => navigate('/sales-reports')}>
-
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Reports
             </Button>
@@ -487,7 +485,6 @@ export default function SalesReportForm() {
               type="button"
               variant="outline"
               onClick={() => navigate('/sales-reports')}>
-
               Cancel
             </Button>
             <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
