@@ -6,17 +6,17 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Search, 
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Search,
   Filter,
   CheckCircle,
   AlertTriangle,
   Clock,
-  Thermometer
-} from 'lucide-react';
+  Thermometer } from
+'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface AfterDeliveryTankReport {
@@ -56,7 +56,7 @@ const AfterDeliveryTankReportList = () => {
   const loadReports = async () => {
     try {
       setLoading(true);
-      
+
       const filters = [];
       if (searchTerm) {
         filters.push({ name: 'bol_number', op: 'StringContains', value: searchTerm });
@@ -85,7 +85,7 @@ const AfterDeliveryTankReportList = () => {
       toast({
         title: 'Error',
         description: 'Failed to load tank reports. Please try again.',
-        variant: 'destructive',
+        variant: 'destructive'
       });
     } finally {
       setLoading(false);
@@ -101,16 +101,16 @@ const AfterDeliveryTankReportList = () => {
 
       toast({
         title: 'Success',
-        description: 'Tank report deleted successfully.',
+        description: 'Tank report deleted successfully.'
       });
-      
+
       loadReports();
     } catch (error) {
       console.error('Error deleting report:', error);
       toast({
         title: 'Error',
         description: 'Failed to delete tank report. Please try again.',
-        variant: 'destructive',
+        variant: 'destructive'
       });
     }
   };
@@ -139,8 +139,8 @@ const AfterDeliveryTankReportList = () => {
         {icon}
         {status}
         {supervisorApproval && status === 'Verified' && ' ✓'}
-      </Badge>
-    );
+      </Badge>);
+
   };
 
   const formatDate = (dateString: string) => {
@@ -156,8 +156,8 @@ const AfterDeliveryTankReportList = () => {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-2 text-gray-600">Loading tank reports...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -190,8 +190,8 @@ const AfterDeliveryTankReportList = () => {
                 placeholder="Search by BOL number..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full"
-              />
+                className="w-full" />
+
             </div>
             <div>
               <Select value={stationFilter} onValueChange={setStationFilter}>
@@ -249,15 +249,15 @@ const AfterDeliveryTankReportList = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {reports.length === 0 ? (
-                <TableRow>
+              {reports.length === 0 ?
+              <TableRow>
                   <TableCell colSpan={8} className="text-center py-8 text-gray-500">
                     No tank reports found. Create your first report to get started.
                   </TableCell>
-                </TableRow>
-              ) : (
-                reports.map((report) => (
-                  <TableRow key={report.id}>
+                </TableRow> :
+
+              reports.map((report) =>
+              <TableRow key={report.id}>
                     <TableCell>{formatDate(report.report_date)}</TableCell>
                     <TableCell>
                       <Badge variant="outline">{report.station}</Badge>
@@ -278,60 +278,60 @@ const AfterDeliveryTankReportList = () => {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => navigate(`/delivery/after-tank-reports/${report.id}`)}
-                        >
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate(`/delivery/after-tank-reports/${report.id}`)}>
+
                           <Edit className="w-4 h-4" />
                         </Button>
                         <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => deleteReport(report.id)}
-                          className="text-red-600 hover:text-red-800"
-                        >
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteReport(report.id)}
+                      className="text-red-600 hover:text-red-800">
+
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
+              )
+              }
             </TableBody>
           </Table>
         </CardContent>
       </Card>
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between">
+      {totalPages > 1 &&
+      <div className="flex items-center justify-between">
           <p className="text-sm text-gray-600">
-            Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} results
+            Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} results
           </p>
           <div className="flex items-center gap-2">
             <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
-            >
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}>
+
               Previous
             </Button>
             <span className="text-sm">
               Page {currentPage} of {totalPages}
             </span>
             <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages}
-            >
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}>
+
               Next
             </Button>
           </div>
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default AfterDeliveryTankReportList;

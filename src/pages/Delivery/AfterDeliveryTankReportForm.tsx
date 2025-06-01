@@ -69,12 +69,12 @@ const AfterDeliveryTankReportForm = () => {
       });
 
       if (error) throw error;
-      
+
       if (data?.List?.[0]) {
         const report = data.List[0];
         setFormData({
           ...report,
-          report_date: report.report_date ? new Date(report.report_date).toISOString().split('T')[0] : '',
+          report_date: report.report_date ? new Date(report.report_date).toISOString().split('T')[0] : ''
         });
       }
     } catch (error) {
@@ -82,7 +82,7 @@ const AfterDeliveryTankReportForm = () => {
       toast({
         title: 'Error',
         description: 'Failed to load tank report. Please try again.',
-        variant: 'destructive',
+        variant: 'destructive'
       });
     } finally {
       setLoading(false);
@@ -91,23 +91,23 @@ const AfterDeliveryTankReportForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.station || !formData.bol_number || !formData.reported_by) {
       toast({
         title: 'Validation Error',
         description: 'Please fill in all required fields.',
-        variant: 'destructive',
+        variant: 'destructive'
       });
       return;
     }
 
     try {
       setSaving(true);
-      
+
       const submitData = {
         ...formData,
         report_date: new Date(formData.report_date).toISOString(),
-        created_by: 1, // This should be the current user ID
+        created_by: 1 // This should be the current user ID
       };
 
       let error;
@@ -121,7 +121,7 @@ const AfterDeliveryTankReportForm = () => {
 
       toast({
         title: 'Success',
-        description: `Tank report ${id ? 'updated' : 'created'} successfully.`,
+        description: `Tank report ${id ? 'updated' : 'created'} successfully.`
       });
 
       navigate('/delivery/after-tank-reports');
@@ -130,7 +130,7 @@ const AfterDeliveryTankReportForm = () => {
       toast({
         title: 'Error',
         description: 'Failed to save tank report. Please try again.',
-        variant: 'destructive',
+        variant: 'destructive'
       });
     } finally {
       setSaving(false);
@@ -138,7 +138,7 @@ const AfterDeliveryTankReportForm = () => {
   };
 
   const updateField = (field: keyof AfterDeliveryTankReport, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   if (loading) {
@@ -148,8 +148,8 @@ const AfterDeliveryTankReportForm = () => {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-2 text-gray-600">Loading tank report...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -157,8 +157,8 @@ const AfterDeliveryTankReportForm = () => {
       <div className="flex items-center gap-4 mb-6">
         <Button
           variant="outline"
-          onClick={() => navigate('/delivery/after-tank-reports')}
-        >
+          onClick={() => navigate('/delivery/after-tank-reports')}>
+
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Reports
         </Button>
@@ -183,8 +183,8 @@ const AfterDeliveryTankReportForm = () => {
                 type="date"
                 value={formData.report_date}
                 onChange={(e) => updateField('report_date', e.target.value)}
-                required
-              />
+                required />
+
             </div>
 
             <div className="space-y-2">
@@ -208,8 +208,8 @@ const AfterDeliveryTankReportForm = () => {
                 value={formData.bol_number}
                 onChange={(e) => updateField('bol_number', e.target.value)}
                 placeholder="Enter BOL number"
-                required
-              />
+                required />
+
             </div>
 
             <div className="space-y-2">
@@ -218,8 +218,8 @@ const AfterDeliveryTankReportForm = () => {
                 id="delivery_record_id"
                 value={formData.delivery_record_id}
                 onChange={(value) => updateField('delivery_record_id', value)}
-                placeholder="Enter delivery record ID"
-              />
+                placeholder="Enter delivery record ID" />
+
             </div>
 
             <div className="space-y-2">
@@ -229,8 +229,8 @@ const AfterDeliveryTankReportForm = () => {
                 value={formData.reported_by}
                 onChange={(e) => updateField('reported_by', e.target.value)}
                 placeholder="Enter reporter name/ID"
-                required
-              />
+                required />
+
             </div>
 
             <div className="space-y-2">
@@ -264,8 +264,8 @@ const AfterDeliveryTankReportForm = () => {
                 value={formData.regular_tank_final}
                 onChange={(value) => updateField('regular_tank_final', value)}
                 placeholder="0.00"
-                step="0.01"
-              />
+                step="0.01" />
+
             </div>
 
             <div className="space-y-2">
@@ -275,8 +275,8 @@ const AfterDeliveryTankReportForm = () => {
                 value={formData.plus_tank_final}
                 onChange={(value) => updateField('plus_tank_final', value)}
                 placeholder="0.00"
-                step="0.01"
-              />
+                step="0.01" />
+
             </div>
 
             <div className="space-y-2">
@@ -286,8 +286,8 @@ const AfterDeliveryTankReportForm = () => {
                 value={formData.super_tank_final}
                 onChange={(value) => updateField('super_tank_final', value)}
                 placeholder="0.00"
-                step="0.01"
-              />
+                step="0.01" />
+
             </div>
 
             <div className="space-y-2">
@@ -297,8 +297,8 @@ const AfterDeliveryTankReportForm = () => {
                 value={formData.tank_temperature}
                 onChange={(value) => updateField('tank_temperature', value)}
                 placeholder="70"
-                step="0.1"
-              />
+                step="0.1" />
+
             </div>
           </CardContent>
         </Card>
@@ -315,8 +315,8 @@ const AfterDeliveryTankReportForm = () => {
                 value={formData.discrepancy_notes}
                 onChange={(e) => updateField('discrepancy_notes', e.target.value)}
                 placeholder="Note any discrepancies found..."
-                rows={3}
-              />
+                rows={3} />
+
             </div>
 
             <div className="space-y-2">
@@ -326,16 +326,16 @@ const AfterDeliveryTankReportForm = () => {
                 value={formData.additional_notes}
                 onChange={(e) => updateField('additional_notes', e.target.value)}
                 placeholder="Any additional observations..."
-                rows={3}
-              />
+                rows={3} />
+
             </div>
 
             <div className="flex items-center space-x-2">
               <Switch
                 id="supervisor_approval"
                 checked={formData.supervisor_approval}
-                onCheckedChange={(checked) => updateField('supervisor_approval', checked)}
-              />
+                onCheckedChange={(checked) => updateField('supervisor_approval', checked)} />
+
               <Label htmlFor="supervisor_approval">Supervisor Approval</Label>
             </div>
           </CardContent>
@@ -345,8 +345,8 @@ const AfterDeliveryTankReportForm = () => {
           <Button
             type="button"
             variant="outline"
-            onClick={() => navigate('/delivery/after-tank-reports')}
-          >
+            onClick={() => navigate('/delivery/after-tank-reports')}>
+
             Cancel
           </Button>
           <Button type="submit" disabled={saving}>
@@ -355,8 +355,8 @@ const AfterDeliveryTankReportForm = () => {
           </Button>
         </div>
       </form>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AfterDeliveryTankReportForm;

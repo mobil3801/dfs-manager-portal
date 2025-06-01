@@ -5,11 +5,13 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Search, Edit, Trash2, Truck, Filter, Download, Eye } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Truck, Filter, Download, Eye, ChevronDown, ClipboardCheck, BarChart3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import VisualEditToolbar from '@/components/VisualEditToolbar';
 import DeliveryReportDialog from '@/components/DeliveryReportDialog';
+import DiscrepancyAnalysisDialog from '@/components/DiscrepancyAnalysisDialog';
 
 interface DeliveryRecord {
   id: number;
@@ -37,6 +39,7 @@ const DeliveryList: React.FC = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [selectedDelivery, setSelectedDelivery] = useState<DeliveryRecord | null>(null);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [discrepancyDialogOpen, setDiscrepancyDialogOpen] = useState(false);
   const pageSize = 10;
 
   const stations = ['MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN'];
@@ -173,10 +176,31 @@ const DeliveryList: React.FC = () => {
             <Truck className="h-6 w-6 text-blue-600" />
             <h1 className="text-2xl font-bold text-gray-900">Delivery Records</h1>
           </div>
-          <Button onClick={() => navigate('/delivery/new')}>
-            <Plus className="mr-2 h-4 w-4" />
-            New Delivery
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                New Delivery
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-60">
+              <DropdownMenuItem onClick={() => navigate('/delivery/new')}>
+                <Truck className="mr-2 h-4 w-4" />
+                New Delivery Record
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate('/delivery/after-tank-reports/new')}>
+                <ClipboardCheck className="mr-2 h-4 w-4" />
+                After Delivery Tank Report
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setDiscrepancyDialogOpen(true)}>
+                <BarChart3 className="mr-2 h-4 w-4" />
+                Discrepancy Analysis Report
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Search and Filter */}
@@ -366,6 +390,11 @@ const DeliveryList: React.FC = () => {
         open={reportDialogOpen}
         onOpenChange={setReportDialogOpen}
         delivery={selectedDelivery} />
+
+      {/* Discrepancy Analysis Dialog */}
+      <DiscrepancyAnalysisDialog
+        open={discrepancyDialogOpen}
+        onOpenChange={setDiscrepancyDialogOpen} />
 
     </div>);
 
