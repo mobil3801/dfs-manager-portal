@@ -13,6 +13,7 @@ import { ArrowLeft, Truck, Save } from 'lucide-react';
 interface DeliveryRecord {
   id?: number;
   delivery_date: string;
+  bol_number: string;
   station: string;
   regular_tank_volume: number;
   plus_tank_volume: number;
@@ -31,6 +32,7 @@ const DeliveryForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<DeliveryRecord>({
     delivery_date: new Date().toISOString().split('T')[0],
+    bol_number: '',
     station: '',
     regular_tank_volume: 0,
     plus_tank_volume: 0,
@@ -83,10 +85,10 @@ const DeliveryForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.station || !formData.delivery_date) {
+    if (!formData.station || !formData.delivery_date || !formData.bol_number) {
       toast({
         title: "Validation Error",
-        description: "Please fill in all required fields",
+        description: "Please fill in all required fields (Date, BOL Number, and Station)",
         variant: "destructive"
       });
       return;
@@ -179,7 +181,7 @@ const DeliveryForm: React.FC = () => {
             <CardTitle>Delivery Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="delivery_date">Delivery Date *</Label>
                 <Input
@@ -189,6 +191,17 @@ const DeliveryForm: React.FC = () => {
                   onChange={(e) => handleInputChange('delivery_date', e.target.value)}
                   required />
 
+              </div>
+              
+              <div>
+                <Label htmlFor="bol_number">BOL Number *</Label>
+                <Input
+                  id="bol_number"
+                  type="text"
+                  placeholder="Enter BOL Number"
+                  value={formData.bol_number}
+                  onChange={(e) => handleInputChange('bol_number', e.target.value)}
+                  required />
               </div>
               
               <div>

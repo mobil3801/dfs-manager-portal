@@ -13,6 +13,7 @@ import VisualEditToolbar from '@/components/VisualEditToolbar';
 interface DeliveryRecord {
   id: number;
   delivery_date: string;
+  bol_number: string;
   station: string;
   regular_tank_volume: number;
   plus_tank_volume: number;
@@ -57,7 +58,7 @@ const DeliveryList: React.FC = () => {
 
       if (searchTerm) {
         filters.push({
-          name: 'delivery_notes',
+          name: 'bol_number',
           op: 'StringContains',
           value: searchTerm
         });
@@ -177,7 +178,7 @@ const DeliveryList: React.FC = () => {
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
-                  placeholder="Search by notes..."
+                  placeholder="Search by BOL number..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10" />
@@ -270,6 +271,8 @@ const DeliveryList: React.FC = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Serial</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>BOL Number</TableHead>
                       <TableHead>Station Name</TableHead>
                       <TableHead>Regular (Delivered)</TableHead>
                       <TableHead>Plus Delivered</TableHead>
@@ -278,9 +281,15 @@ const DeliveryList: React.FC = () => {
                   </TableHeader>
                   <TableBody>
                     {deliveries.map((delivery, index) =>
-                      <TableRow key={delivery.id}>
+                  <TableRow key={delivery.id}>
                         <TableCell className="font-medium">
                           {(currentPage - 1) * pageSize + index + 1}
+                        </TableCell>
+                        <TableCell className="font-medium text-gray-900">
+                          {formatDate(delivery.delivery_date)}
+                        </TableCell>
+                        <TableCell className="font-medium text-indigo-600">
+                          {delivery.bol_number || 'N/A'}
                         </TableCell>
                         <TableCell>
                           <Badge className={getStationBadgeColor(delivery.station)}>
@@ -297,7 +306,7 @@ const DeliveryList: React.FC = () => {
                           {formatNumber(delivery.super_delivered)} gal
                         </TableCell>
                       </TableRow>
-                    )}
+                  )}
                   </TableBody>
                 </Table>
               </div>
