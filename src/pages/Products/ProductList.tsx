@@ -54,7 +54,7 @@ const ProductList: React.FC = () => {
 
   const pageSize = 50; // Load more products per batch
   const [loadedProductsCount, setLoadedProductsCount] = useState(pageSize);
-  
+
   // Ref for the loading trigger element
   const loadingTriggerRef = useRef<HTMLDivElement>(null);
 
@@ -142,31 +142,46 @@ const ProductList: React.FC = () => {
 
     // Slice products based on loaded count for infinite scroll
     const slicedProducts = filteredProducts.slice(0, loadedProductsCount);
-    
+
     setProducts(slicedProducts);
     setTotalCount(filteredProducts.length);
     setHasMoreProducts(loadedProductsCount < filteredProducts.length);
   };
 
   const handleDelete = async (productId: number) => {
-    if (!confirm('Are you sure you want to delete this product?')) {
+    console.log('handleDelete called for product ID:', productId);
+    
+    // Show confirmation dialog
+    const confirmed = confirm('Are you sure you want to delete this product? This action cannot be undone.');
+    console.log('User confirmed deletion:', confirmed);
+    
+    if (!confirmed) {
+      console.log('Deletion cancelled by user');
       return;
     }
 
     try {
+      console.log('Attempting to delete product with ID:', productId);
       const { error } = await window.ezsite.apis.tableDelete('11726', { ID: productId });
-      if (error) throw error;
+      
+      if (error) {
+        console.error('API returned error:', error);
+        throw error;
+      }
 
+      console.log('Product deleted successfully');
       toast({
         title: "Success",
         description: "Product deleted successfully"
       });
-      loadAllProducts(); // Reload all products
+      
+      // Reload all products
+      loadAllProducts();
     } catch (error) {
       console.error('Error deleting product:', error);
       toast({
         title: "Error",
-        description: "Failed to delete product",
+        description: `Failed to delete product: ${error}`,
         variant: "destructive"
       });
     }
@@ -175,12 +190,12 @@ const ProductList: React.FC = () => {
   // Load more products function
   const loadMoreProducts = useCallback(() => {
     if (isLoadingMore || !hasMoreProducts) return;
-    
+
     setIsLoadingMore(true);
-    
+
     // Simulate loading delay for smooth UX
     setTimeout(() => {
-      setLoadedProductsCount(prev => prev + pageSize);
+      setLoadedProductsCount((prev) => prev + pageSize);
       setIsLoadingMore(false);
     }, 300);
   }, [isLoadingMore, hasMoreProducts, pageSize]);
@@ -213,8 +228,10 @@ const ProductList: React.FC = () => {
   }, [loadMoreProducts, hasMoreProducts, isLoadingMore]);
 
   const handleViewLogs = (productId: number, productName: string) => {
+    console.log('handleViewLogs called for:', { productId, productName });
     setSelectedProduct({ id: productId, name: productName });
     setLogsModalOpen(true);
+    console.log('Logs modal should now be open');
   };
 
   // Visual editing enabled for all users
@@ -223,17 +240,17 @@ const ProductList: React.FC = () => {
   // Calculate display text for showing results
   const getDisplayText = () => {
     if (totalCount === 0) return '';
-    
+
     const currentlyShowing = Math.min(products.length, totalCount);
-    
+
     if (debouncedSearchTerm) {
       return `Showing ${currentlyShowing} of ${totalCount} products matching "${debouncedSearchTerm}"`;
     }
-    
+
     if (hasMoreProducts) {
       return `Showing ${currentlyShowing} of ${totalCount} products - Scroll down to load more`;
     }
-    
+
     return `Showing all ${totalCount} products`;
   };
 
@@ -452,21 +469,30 @@ const ProductList: React.FC = () => {
                             <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleViewLogs(product.ID, product.product_name)}
+                            onClick={() => {
+                              console.log('Viewing logs for product:', product.ID, product.product_name);
+                              handleViewLogs(product.ID, product.product_name);
+                            }}
                             title="View change logs">
                               <FileText className="w-4 h-4" />
                             </Button>
                             <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => navigate(`/products/edit/${product.ID}`)}
+                            onClick={() => {
+                              console.log('Editing product:', product.ID);
+                              navigate(`/products/edit/${product.ID}`);
+                            }}
                             title="Edit product">
                               <Edit className="w-4 h-4" />
                             </Button>
                             <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleDelete(product.ID)}
+                            onClick={() => {
+                              console.log('Deleting product:', product.ID);
+                              handleDelete(product.ID);
+                            }}
                             className="text-red-600 hover:text-red-700"
                             title="Delete product">
                               <Trash2 className="w-4 h-4" />
@@ -482,38 +508,38 @@ const ProductList: React.FC = () => {
           }
 
           {/* Loading Status and Infinite Scroll */}
-          {products.length > 0 && (
-            <div className="mt-6">
+          {products.length > 0 &&
+          <div className="mt-6">
               <p className="text-sm text-gray-700 text-center mb-4">
                 {getDisplayText()}
               </p>
               
               {/* Loading trigger for infinite scroll */}
-              {hasMoreProducts && (
-                <div 
-                  ref={loadingTriggerRef}
-                  className="flex items-center justify-center py-8"
-                >
-                  {isLoadingMore ? (
-                    <div className="flex items-center space-x-2 text-gray-500">
+              {hasMoreProducts &&
+            <div
+              ref={loadingTriggerRef}
+              className="flex items-center justify-center py-8">
+
+                  {isLoadingMore ?
+              <div className="flex items-center space-x-2 text-gray-500">
                       <Loader2 className="w-5 h-5 animate-spin" />
                       <span>Loading more products...</span>
-                    </div>
-                  ) : (
-                    <div className="text-gray-400 text-sm">
+                    </div> :
+
+              <div className="text-gray-400 text-sm">
                       Scroll down to load more products
                     </div>
-                  )}
+              }
                 </div>
-              )}
+            }
               
-              {!hasMoreProducts && totalCount > pageSize && (
-                <div className="text-center py-4 text-sm text-gray-500">
+              {!hasMoreProducts && totalCount > pageSize &&
+            <div className="text-center py-4 text-sm text-gray-500">
                   You've reached the end - all {totalCount} products loaded
                 </div>
-              )}
+            }
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 

@@ -41,6 +41,8 @@ const ProductLogs: React.FC<ProductLogsProps> = ({ isOpen, onClose, productId, p
   const loadProductLogs = async () => {
     try {
       setLoading(true);
+      console.log('Loading product logs for product ID:', productId);
+      
       const { data, error } = await window.ezsite.apis.tablePage('11756', {
         PageNo: 1,
         PageSize: 100,
@@ -51,14 +53,18 @@ const ProductLogs: React.FC<ProductLogsProps> = ({ isOpen, onClose, productId, p
 
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('API error loading logs:', error);
+        throw error;
+      }
 
+      console.log('Loaded logs:', data?.List || []);
       setLogs(data?.List || []);
     } catch (error) {
       console.error('Error loading product logs:', error);
       toast({
         title: "Error",
-        description: "Failed to load product change logs",
+        description: `Failed to load product change logs: ${error}`,
         variant: "destructive"
       });
     } finally {
