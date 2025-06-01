@@ -22,9 +22,9 @@ const ProductForm = () => {
   const { userProfile } = useAuth();
 
 
-  // Check if user is Administrator
-  const isAdministrator = userProfile?.role === 'Administrator';
-  const canEdit = isAdministrator;
+  // Use AuthContext permission methods
+  const { canEdit: canEditProduct, canCreate: canCreateProduct } = useAuth();
+  const canEdit = canEditProduct('products');
 
   const [isLoading, setIsLoading] = useState(false);
   const [vendors, setVendors] = useState<any[]>([]);
@@ -211,11 +211,11 @@ const ProductForm = () => {
   };
 
   const handleBulkImport = async (importedData: any[]) => {
-    if (!isAdministrator) {
+    if (!canCreateProduct('products')) {
       toast({
         variant: "destructive",
         title: "Access Denied",
-        description: "Only System Administrator can import products."
+        description: "You don't have permission to import products."
       });
       return;
     }
@@ -351,11 +351,11 @@ const ProductForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!isAdministrator) {
+    if (!canEdit) {
       toast({
         variant: "destructive",
         title: "Access Denied",
-        description: "Only System Administrator can edit product information."
+        description: "You don't have permission to edit product information."
       });
       return;
     }
@@ -461,7 +461,7 @@ const ProductForm = () => {
             <div className="flex-1">
               <h3 className="text-sm font-medium text-red-800">Access Restricted</h3>
               <p className="text-sm text-red-700 mt-1">
-                Only System Administrator can edit product information.
+                You don't have permission to edit product information.
               </p>
             </div>
             <Lock className="w-5 h-5 text-red-600" />
