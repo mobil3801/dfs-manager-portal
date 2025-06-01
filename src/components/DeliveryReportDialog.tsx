@@ -189,14 +189,14 @@ const DeliveryReportDialog: React.FC<DeliveryReportDialogProps> = ({
           ` : ''}
 
           <div class="footer">
-            <div>Report generated on ${new Date().toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            })}</div>
+            <div>Report generated on ${new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })}</div>
             <div>Created by User #${delivery.created_by} | DFS Manager Portal</div>
           </div>
         </body>
@@ -227,8 +227,8 @@ const DeliveryReportDialog: React.FC<DeliveryReportDialogProps> = ({
               onClick={handlePrint}
               variant="outline"
               size="sm"
-              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-            >
+              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+
               <Printer className="h-4 w-4" />
               Print Report
             </Button>

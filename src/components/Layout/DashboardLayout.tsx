@@ -19,7 +19,8 @@ import {
   CheckCircle,
   Edit3,
   Fuel,
-  Truck } from
+  Truck,
+  Thermometer } from
 'lucide-react';
 
 import Logo from '@/components/Logo';
@@ -47,6 +48,7 @@ const DashboardLayout: React.FC = () => {
   { name: 'Salary Records', path: '/salary', icon: <DollarSign className="w-5 h-5" /> },
   { name: 'Inventory Alerts', path: '/inventory/alerts', icon: <AlertTriangle className="w-5 h-5" /> },
   { name: 'New Delivery', path: '/delivery', icon: <Truck className="w-5 h-5" /> },
+  { name: 'After Delivery Tank Report', path: '/delivery/after-tank-reports', icon: <Thermometer className="w-5 h-5" /> },
   { name: 'All Vendors', path: '/vendors', icon: <Building2 className="w-5 h-5" /> },
   { name: 'All Orders', path: '/orders', icon: <ShoppingCart className="w-5 h-5" /> },
   { name: 'Create Order', path: '/orders/new', icon: <Plus className="w-5 h-5" /> },
