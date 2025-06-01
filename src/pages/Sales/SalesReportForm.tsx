@@ -307,21 +307,13 @@ export default function SalesReportForm() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Change Station
           </Button>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                {isEditing ? 'Edit' : 'Create'} Daily Sales Report
-              </h1>
-              <p className="text-gray-600 mt-2">
-                Station: <span className="font-semibold">{selectedStation}</span>
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => navigate('/sales-reports')}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Reports
-            </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {isEditing ? 'Edit' : 'Create'} Daily Sales Report
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Station: <span className="font-semibold">{selectedStation}</span>
+            </p>
           </div>
         </div>
 
