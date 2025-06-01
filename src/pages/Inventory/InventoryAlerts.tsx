@@ -339,7 +339,7 @@ const InventoryAlerts: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((category) =>
+                {categories.filter(category => category && category.trim() !== '').map((category) =>
                 <SelectItem key={category} value={category}>{category}</SelectItem>
                 )}
               </SelectContent>

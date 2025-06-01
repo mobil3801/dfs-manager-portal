@@ -288,7 +288,7 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
     if (!unitPrice || !retailPrice || unitPrice <= 0 || retailPrice <= 0) {
       return 0;
     }
-    return ((retailPrice - unitPrice) / retailPrice) * 100;
+    return (retailPrice - unitPrice) / retailPrice * 100;
   };
 
   // Check if product is overdue for restocking (if no last_shopping_date or older than 90 days)
@@ -297,12 +297,12 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
     if (quantityInStock !== undefined && minimumStock !== undefined && quantityInStock < minimumStock) {
       return true;
     }
-    
+
     // If no last shopping date provided, consider as not overdue (new products)
     if (!lastShoppingDate) {
       return false;
     }
-    
+
     try {
       const lastDate = new Date(lastShoppingDate);
       const now = new Date();
@@ -422,10 +422,10 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
         try {
           mapped.last_shopping_date = new Date(row.last_shopping_date).toISOString();
         } catch {
-          // Invalid date format, ignore
-        }
-      }
 
+
+          // Invalid date format, ignore
+        }}
       // Calculate profit margin
       const unitPrice = mapped.unit_price || 0;
       const retailPrice = mapped.retail_price || 0;
@@ -784,11 +784,11 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
                       </TableCell>
                       <TableCell className="font-medium">{product.productName || 'N/A'}</TableCell>
                       <TableCell>
-                        {product.weight > 0 ? (
-                          <span className="text-sm">{product.weight} {product.mapped.weight_unit || 'lb'}</span>
-                        ) : (
-                          <span className="text-sm text-gray-400">N/A</span>
-                        )}
+                        {product.weight > 0 ?
+                        <span className="text-sm">{product.weight} {product.mapped.weight_unit || 'lb'}</span> :
+
+                        <span className="text-sm text-gray-400">N/A</span>
+                        }
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
@@ -827,14 +827,14 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
                       </TableCell>
                       <TableCell>
                         <div className="text-xs space-y-1">
-                          {product.profitMargin > 0 && (
-                            <div className="flex items-center gap-1">
+                          {product.profitMargin > 0 &&
+                          <div className="flex items-center gap-1">
                               <span>Profit:</span>
                               <Badge variant={product.profitMargin > 20 ? "default" : "secondary"} className="text-xs">
                                 {product.profitMargin.toFixed(1)}%
                               </Badge>
                             </div>
-                          )}
+                          }
                           <div className="flex items-center gap-1">
                             <span>Status:</span>
                             <Badge variant={product.isOverdue ? "destructive" : "default"} className="text-xs">

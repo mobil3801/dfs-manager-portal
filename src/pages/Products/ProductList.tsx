@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,36 +42,41 @@ const ProductList: React.FC = () => {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [logsModalOpen, setLogsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<{id: number;name: string;} | null>(null);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+  const [hasMoreProducts, setHasMoreProducts] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const navigate = useNavigate();
   const { userProfile } = useAuth();
 
-  const pageSize = 10;
+  const pageSize = 50; // Load more products per batch
+  const [loadedProductsCount, setLoadedProductsCount] = useState(pageSize);
+  
+  // Ref for the loading trigger element
+  const loadingTriggerRef = useRef<HTMLDivElement>(null);
 
   // Debounce search term
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-      setCurrentPage(1); // Reset to first page when searching
+      setLoadedProductsCount(pageSize); // Reset loaded count when searching
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchTerm]);
+  }, [searchTerm, pageSize]);
 
   // Load all products initially
   useEffect(() => {
     loadAllProducts();
   }, []);
 
-  // Filter and paginate when search term or page changes
+  // Filter and slice products when search term or loaded count changes
   useEffect(() => {
-    filterAndPaginateProducts();
-  }, [debouncedSearchTerm, currentPage, allProducts]);
+    filterAndSliceProducts();
+  }, [debouncedSearchTerm, loadedProductsCount, allProducts]);
 
   const loadAllProducts = async () => {
     try {
@@ -100,7 +105,7 @@ const ProductList: React.FC = () => {
     }
   };
 
-  const filterAndPaginateProducts = () => {
+  const filterAndSliceProducts = () => {
     setIsSearching(!!debouncedSearchTerm);
 
     let filteredProducts = allProducts;
@@ -135,13 +140,12 @@ const ProductList: React.FC = () => {
       });
     }
 
-    // Apply pagination to filtered results
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
-
-    setProducts(paginatedProducts);
+    // Slice products based on loaded count for infinite scroll
+    const slicedProducts = filteredProducts.slice(0, loadedProductsCount);
+    
+    setProducts(slicedProducts);
     setTotalCount(filteredProducts.length);
+    setHasMoreProducts(loadedProductsCount < filteredProducts.length);
   };
 
   const handleDelete = async (productId: number) => {
@@ -168,6 +172,46 @@ const ProductList: React.FC = () => {
     }
   };
 
+  // Load more products function
+  const loadMoreProducts = useCallback(() => {
+    if (isLoadingMore || !hasMoreProducts) return;
+    
+    setIsLoadingMore(true);
+    
+    // Simulate loading delay for smooth UX
+    setTimeout(() => {
+      setLoadedProductsCount(prev => prev + pageSize);
+      setIsLoadingMore(false);
+    }, 300);
+  }, [isLoadingMore, hasMoreProducts, pageSize]);
+
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const target = entries[0];
+        if (target.isIntersecting && hasMoreProducts && !isLoadingMore) {
+          loadMoreProducts();
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '100px'
+      }
+    );
+
+    const currentTrigger = loadingTriggerRef.current;
+    if (currentTrigger) {
+      observer.observe(currentTrigger);
+    }
+
+    return () => {
+      if (currentTrigger) {
+        observer.unobserve(currentTrigger);
+      }
+    };
+  }, [loadMoreProducts, hasMoreProducts, isLoadingMore]);
+
   const handleViewLogs = (productId: number, productName: string) => {
     setSelectedProduct({ id: productId, name: productName });
     setLogsModalOpen(true);
@@ -176,7 +220,22 @@ const ProductList: React.FC = () => {
   // Visual editing enabled for all users
   const hasEditPermission = true;
 
-  const totalPages = Math.ceil(totalCount / pageSize);
+  // Calculate display text for showing results
+  const getDisplayText = () => {
+    if (totalCount === 0) return '';
+    
+    const currentlyShowing = Math.min(products.length, totalCount);
+    
+    if (debouncedSearchTerm) {
+      return `Showing ${currentlyShowing} of ${totalCount} products matching "${debouncedSearchTerm}"`;
+    }
+    
+    if (hasMoreProducts) {
+      return `Showing ${currentlyShowing} of ${totalCount} products - Scroll down to load more`;
+    }
+    
+    return `Showing all ${totalCount} products`;
+  };
 
   // Get search keywords and check if all match
   const getSearchData = (text: string) => {
@@ -210,7 +269,7 @@ const ProductList: React.FC = () => {
   // Clear search and reset to show all products from serial 01
   const handleClearSearch = () => {
     setSearchTerm('');
-    setCurrentPage(1);
+    setLoadedProductsCount(pageSize);
   };
 
   return (
@@ -422,34 +481,39 @@ const ProductList: React.FC = () => {
             </div>
           }
 
-          {/* Pagination */}
-          {totalPages > 1 &&
-          <div className="flex items-center justify-between mt-6">
-              <p className="text-sm text-gray-700">
-                Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} products
-                {debouncedSearchTerm && ` matching "${debouncedSearchTerm}"`}
+          {/* Loading Status and Infinite Scroll */}
+          {products.length > 0 && (
+            <div className="mt-6">
+              <p className="text-sm text-gray-700 text-center mb-4">
+                {getDisplayText()}
               </p>
-              <div className="flex items-center space-x-2">
-                <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}>
-                  Previous
-                </Button>
-                <span className="text-sm">
-                  Page {currentPage} of {totalPages}
-                </span>
-                <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}>
-                  Next
-                </Button>
-              </div>
+              
+              {/* Loading trigger for infinite scroll */}
+              {hasMoreProducts && (
+                <div 
+                  ref={loadingTriggerRef}
+                  className="flex items-center justify-center py-8"
+                >
+                  {isLoadingMore ? (
+                    <div className="flex items-center space-x-2 text-gray-500">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Loading more products...</span>
+                    </div>
+                  ) : (
+                    <div className="text-gray-400 text-sm">
+                      Scroll down to load more products
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {!hasMoreProducts && totalCount > pageSize && (
+                <div className="text-center py-4 text-sm text-gray-500">
+                  You've reached the end - all {totalCount} products loaded
+                </div>
+              )}
             </div>
-          }
+          )}
         </CardContent>
       </Card>
 
