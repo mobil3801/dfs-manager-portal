@@ -112,9 +112,9 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
   const expectedTotalAfter = totalTankVolumeBefore + totalDelivered;
 
   // After delivery calculations (if available)
-  const totalAfterDelivery = afterDeliveryReport ? 
-    afterDeliveryReport.regular_tank_final + afterDeliveryReport.plus_tank_final + afterDeliveryReport.super_tank_final : 0;
-  
+  const totalAfterDelivery = afterDeliveryReport ?
+  afterDeliveryReport.regular_tank_final + afterDeliveryReport.plus_tank_final + afterDeliveryReport.super_tank_final : 0;
+
   const volumeDiscrepancy = afterDeliveryReport ? Math.abs(expectedTotalAfter - totalAfterDelivery) : 0;
   const hasVolumeDiscrepancy = volumeDiscrepancy > 5; // 5 gallon tolerance
 
@@ -656,17 +656,17 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
           </div>
 
           {/* Verification Status */}
-          {afterDeliveryReport && (
-            <Card className={`border-2 ${hasVolumeDiscrepancy ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50'}`}>
+          {afterDeliveryReport &&
+          <Card className={`border-2 ${hasVolumeDiscrepancy ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50'}`}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  {hasVolumeDiscrepancy ? 
-                    <div className="text-red-600 flex items-center gap-2">
+                  {hasVolumeDiscrepancy ?
+                <div className="text-red-600 flex items-center gap-2">
                       <AlertTriangle className="h-5 w-5" />
                       Volume Discrepancy Detected
-                    </div> : 
-                    <div className="text-green-600">✓ Delivery Verified</div>
-                  }
+                    </div> :
+                <div className="text-green-600">✓ Delivery Verified</div>
+                }
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -696,7 +696,7 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
                 </div>
               </CardContent>
             </Card>
-          )}
+          }
 
           {/* Tank Volumes Preview */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -752,27 +752,27 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
           </div>
 
           {/* Notes Preview */}
-          {(delivery.delivery_notes || (afterDeliveryReport && afterDeliveryReport.additional_notes)) && (
-            <Card>
+          {(delivery.delivery_notes || afterDeliveryReport && afterDeliveryReport.additional_notes) &&
+          <Card>
               <CardHeader>
                 <CardTitle className="text-sm">Notes</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {delivery.delivery_notes && (
-                  <div>
+                {delivery.delivery_notes &&
+              <div>
                     <div className="text-xs font-medium text-gray-600 mb-1">Delivery Notes:</div>
                     <p className="text-sm text-gray-700 whitespace-pre-wrap">{delivery.delivery_notes}</p>
                   </div>
-                )}
-                {afterDeliveryReport && afterDeliveryReport.additional_notes && (
-                  <div>
+              }
+                {afterDeliveryReport && afterDeliveryReport.additional_notes &&
+              <div>
                     <div className="text-xs font-medium text-gray-600 mb-1">Verification Notes:</div>
                     <p className="text-sm text-gray-700 whitespace-pre-wrap">{afterDeliveryReport.additional_notes}</p>
                   </div>
-                )}
+              }
               </CardContent>
             </Card>
-          )}
+          }
         </div>
 
         <DialogFooter className="flex justify-end space-x-2">
@@ -786,8 +786,8 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
           </Button>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default EnhancedDeliveryPrintDialog;

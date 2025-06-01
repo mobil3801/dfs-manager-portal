@@ -170,7 +170,8 @@ export default function SalesReportForm() {
   const totalSales = formData.creditCardAmount + formData.debitCardAmount + formData.mobileAmount + formData.cashAmount + formData.grocerySales;
   const totalGallons = formData.regularGallons + formData.superGallons + formData.dieselGallons;
   const totalLotteryCash = formData.lotteryNetSales + formData.scratchOffSales;
-  const totalCashFromSales = formData.cashAmount;
+  // Expected Cash calculation: Cash Amount + Grocery Sales (cash portion) + NY Lottery Net Sales + Scratch Off Sales
+  const totalCashFromSales = formData.cashAmount + formData.grocerySales + formData.lotteryNetSales + formData.scratchOffSales;
   const totalCashFromExpenses = expenses.filter((e) => e.paymentType === 'Cash').reduce((sum, expense) => sum + expense.amount, 0);
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -97,9 +97,9 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
   // Parse expenses data
   const expenses: Expense[] = report.expenses_data ? JSON.parse(report.expenses_data) : [];
   const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-  const cashExpenses = expenses.filter(e => e.paymentType === 'Cash').reduce((sum, expense) => sum + expense.amount, 0);
-  const cardExpenses = expenses.filter(e => e.paymentType === 'Credit Card').reduce((sum, expense) => sum + expense.amount, 0);
-  const chequeExpenses = expenses.filter(e => e.paymentType === 'Cheque').reduce((sum, expense) => sum + expense.amount, 0);
+  const cashExpenses = expenses.filter((e) => e.paymentType === 'Cash').reduce((sum, expense) => sum + expense.amount, 0);
+  const cardExpenses = expenses.filter((e) => e.paymentType === 'Credit Card').reduce((sum, expense) => sum + expense.amount, 0);
+  const chequeExpenses = expenses.filter((e) => e.paymentType === 'Cheque').reduce((sum, expense) => sum + expense.amount, 0);
 
   // Calculate payment method totals
   const totalPaymentMethods = report.credit_card_amount + report.debit_card_amount + report.mobile_amount + report.cash_amount;
@@ -108,7 +108,7 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
   // Verification checks
   const isPaymentBalanced = Math.abs(totalPaymentMethods - report.total_sales) <= 0.01;
   const isCashBalanced = Math.abs(report.total_short_over) <= 1.00; // Allow $1 tolerance
-  
+
   const handlePrint = () => {
     const printContent = `
       <!DOCTYPE html>
@@ -466,7 +466,7 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
                 </tr>
               </thead>
               <tbody>
-                ${expenses.map(expense => `
+                ${expenses.map((expense) => `
                 <tr>
                   <td>${expense.vendorName}</td>
                   <td>${formatCurrency(expense.amount)}</td>
@@ -624,9 +624,9 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
           <Card className={`border-2 ${isPaymentBalanced && isCashBalanced ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                {isPaymentBalanced && isCashBalanced ? 
-                  <div className="text-green-600">✓ Report Verified</div> : 
-                  <div className="text-red-600 flex items-center gap-2">
+                {isPaymentBalanced && isCashBalanced ?
+                <div className="text-green-600">✓ Report Verified</div> :
+                <div className="text-red-600 flex items-center gap-2">
                     <AlertCircle className="h-5 w-5" />
                     Discrepancies Found
                   </div>
@@ -706,8 +706,8 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
           </div>
 
           {/* Expenses Preview */}
-          {expenses.length > 0 && (
-            <Card>
+          {expenses.length > 0 &&
+          <Card>
               <CardHeader>
                 <CardTitle className="text-sm">Expenses ({expenses.length} items) - Total: {formatCurrency(totalExpenses)}</CardTitle>
               </CardHeader>
@@ -717,11 +717,11 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
                 </div>
               </CardContent>
             </Card>
-          )}
+          }
 
           {/* Notes Preview */}
-          {report.notes && (
-            <Card>
+          {report.notes &&
+          <Card>
               <CardHeader>
                 <CardTitle className="text-sm">Notes</CardTitle>
               </CardHeader>
@@ -729,7 +729,7 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
                 <p className="text-sm text-gray-700 whitespace-pre-wrap">{report.notes}</p>
               </CardContent>
             </Card>
-          )}
+          }
         </div>
 
         <DialogFooter className="flex justify-end space-x-2">
@@ -743,8 +743,8 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
           </Button>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default EnhancedSalesReportPrintDialog;

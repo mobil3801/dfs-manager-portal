@@ -409,13 +409,13 @@ const EnhancedLicensePrintDialog: React.FC<EnhancedLicensePrintDialogProps> = ({
             </div>
             <div>
               Generated on ${new Date().toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })}
             </div>
             <div style="margin-top: 15px; font-style: italic;">
               DFS Manager Portal - License Management System v2.0
@@ -590,8 +590,8 @@ const EnhancedLicensePrintDialog: React.FC<EnhancedLicensePrintDialogProps> = ({
           </Button>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default EnhancedLicensePrintDialog;
