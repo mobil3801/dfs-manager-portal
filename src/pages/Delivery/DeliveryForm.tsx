@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NumberInput } from '@/components/ui/number-input';
@@ -8,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Truck, Save } from 'lucide-react';
+import { ArrowLeft, Truck, Save, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 
 interface DeliveryRecord {
   id?: number;
@@ -23,6 +24,28 @@ interface DeliveryRecord {
   super_delivered: number;
   delivery_notes: string;
   created_by: number;
+}
+
+interface AfterDeliveryReport {
+  regular_tank_final: number;
+  plus_tank_final: number;
+  super_tank_final: number;
+  tank_temperature: number;
+  verification_status: string;
+  discrepancy_notes: string;
+  reported_by: string;
+  supervisor_approval: boolean;
+  additional_notes: string;
+}
+
+interface DiscrepancyData {
+  regular_expected: number;
+  plus_expected: number;
+  super_expected: number;
+  regular_discrepancy: number;
+  plus_discrepancy: number;
+  super_discrepancy: number;
+  has_discrepancy: boolean;
 }
 
 const DeliveryForm: React.FC = () => {
@@ -44,13 +67,105 @@ const DeliveryForm: React.FC = () => {
     created_by: 1 // This should be set from auth context
   });
 
+  const [afterDeliveryData, setAfterDeliveryData] = useState<AfterDeliveryReport>({
+    regular_tank_final: 0,
+    plus_tank_final: 0,
+    super_tank_final: 0,
+    tank_temperature: 70,
+    verification_status: 'Pending Review',
+    discrepancy_notes: '',
+    reported_by: '',
+    supervisor_approval: false,
+    additional_notes: ''
+  });
+
+  const [discrepancyData, setDiscrepancyData] = useState<DiscrepancyData>({
+    regular_expected: 0,
+    plus_expected: 0,
+    super_expected: 0,
+    regular_discrepancy: 0,
+    plus_discrepancy: 0,
+    super_discrepancy: 0,
+    has_discrepancy: false
+  });
+
   const stations = ['MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN'];
+  const verificationStatuses = ['Verified', 'Discrepancy Found', 'Pending Review'];
+
+  // Calculate expected tank levels and discrepancies
+  useEffect(() => {
+    const regular_expected = formData.regular_tank_volume + formData.regular_delivered;
+    const plus_expected = formData.plus_tank_volume + formData.plus_delivered;
+    const super_expected = formData.super_tank_volume + formData.super_delivered;
+
+    const regular_discrepancy = afterDeliveryData.regular_tank_final - regular_expected;
+    const plus_discrepancy = afterDeliveryData.plus_tank_final - plus_expected;
+    const super_discrepancy = afterDeliveryData.super_tank_final - super_expected;
+
+    const tolerance = 5; // 5 gallon tolerance
+    const has_discrepancy = 
+      Math.abs(regular_discrepancy) > tolerance ||
+      Math.abs(plus_discrepancy) > tolerance ||
+      Math.abs(super_discrepancy) > tolerance;
+
+    setDiscrepancyData({
+      regular_expected,
+      plus_expected,
+      super_expected,
+      regular_discrepancy,
+      plus_discrepancy,
+      super_discrepancy,
+      has_discrepancy
+    });
+
+    // Auto-update verification status based on discrepancies
+    if (has_discrepancy) {
+      setAfterDeliveryData(prev => ({
+        ...prev,
+        verification_status: 'Discrepancy Found'
+      }));
+    } else if (afterDeliveryData.regular_tank_final > 0 || afterDeliveryData.plus_tank_final > 0 || afterDeliveryData.super_tank_final > 0) {
+      setAfterDeliveryData(prev => ({
+        ...prev,
+        verification_status: 'Verified'
+      }));
+    }
+  }, [formData, afterDeliveryData.regular_tank_final, afterDeliveryData.plus_tank_final, afterDeliveryData.super_tank_final]);
 
   useEffect(() => {
     if (id) {
       loadDeliveryRecord();
     }
   }, [id]);
+
+  const loadAfterDeliveryReport = async (deliveryId: number) => {
+    try {
+      const { data, error } = await window.ezsite.apis.tablePage(12331, {
+        PageNo: 1,
+        PageSize: 1,
+        Filters: [{ name: 'delivery_record_id', op: 'Equal', value: deliveryId }]
+      });
+
+      if (error) throw error;
+
+      if (data?.List?.length > 0) {
+        const report = data.List[0];
+        setAfterDeliveryData({
+          regular_tank_final: report.regular_tank_final || 0,
+          plus_tank_final: report.plus_tank_final || 0,
+          super_tank_final: report.super_tank_final || 0,
+          tank_temperature: report.tank_temperature || 70,
+          verification_status: report.verification_status || 'Pending Review',
+          discrepancy_notes: report.discrepancy_notes || '',
+          reported_by: report.reported_by || '',
+          supervisor_approval: report.supervisor_approval || false,
+          additional_notes: report.additional_notes || ''
+        });
+      }
+    } catch (error) {
+      console.error('Error loading after delivery report:', error);
+    }
+  };
 
   const loadDeliveryRecord = async () => {
     try {
@@ -69,6 +184,9 @@ const DeliveryForm: React.FC = () => {
           ...record,
           delivery_date: record.delivery_date ? new Date(record.delivery_date).toISOString().split('T')[0] : ''
         });
+        
+        // Load associated after-delivery tank report if exists
+        loadAfterDeliveryReport(parseInt(id!));
       }
     } catch (error) {
       console.error('Error loading delivery record:', error);
@@ -102,25 +220,61 @@ const DeliveryForm: React.FC = () => {
         delivery_date: new Date(formData.delivery_date).toISOString()
       };
 
+      let deliveryRecordId;
+      
       if (id) {
         const { error } = await window.ezsite.apis.tableUpdate(12196, {
           ID: parseInt(id),
           ...submitData
         });
         if (error) throw error;
+        deliveryRecordId = parseInt(id);
 
         toast({
           title: "Success",
           description: "Delivery record updated successfully"
         });
       } else {
-        const { error } = await window.ezsite.apis.tableCreate(12196, submitData);
+        const { data, error } = await window.ezsite.apis.tableCreate(12196, submitData);
         if (error) throw error;
+        deliveryRecordId = data.ID;
 
         toast({
           title: "Success",
           description: "Delivery record created successfully"
         });
+      }
+
+      // Save after-delivery tank report if any final tank values are provided
+      if (afterDeliveryData.regular_tank_final > 0 || afterDeliveryData.plus_tank_final > 0 || afterDeliveryData.super_tank_final > 0) {
+        const afterDeliverySubmitData = {
+          report_date: new Date().toISOString(),
+          station: formData.station,
+          delivery_record_id: deliveryRecordId,
+          bol_number: formData.bol_number,
+          ...afterDeliveryData,
+          created_by: formData.created_by
+        };
+
+        // Check if after-delivery report already exists for this delivery
+        const { data: existingReport } = await window.ezsite.apis.tablePage(12331, {
+          PageNo: 1,
+          PageSize: 1,
+          Filters: [{ name: 'delivery_record_id', op: 'Equal', value: deliveryRecordId }]
+        });
+
+        if (existingReport?.List?.length > 0) {
+          // Update existing report
+          const { error: afterError } = await window.ezsite.apis.tableUpdate(12331, {
+            ID: existingReport.List[0].ID,
+            ...afterDeliverySubmitData
+          });
+          if (afterError) throw afterError;
+        } else {
+          // Create new report
+          const { error: afterError } = await window.ezsite.apis.tableCreate(12331, afterDeliverySubmitData);
+          if (afterError) throw afterError;
+        }
       }
 
       navigate('/delivery');
@@ -138,6 +292,13 @@ const DeliveryForm: React.FC = () => {
 
   const handleInputChange = (field: keyof DeliveryRecord, value: any) => {
     setFormData((prev) => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleAfterDeliveryChange = (field: keyof AfterDeliveryReport, value: any) => {
+    setAfterDeliveryData((prev) => ({
       ...prev,
       [field]: value
     }));
@@ -302,6 +463,229 @@ const DeliveryForm: React.FC = () => {
                   onChange={(value) => handleInputChange('super_delivered', value)} />
 
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* After Delivery Tank Report */}
+        <Card>
+          <CardHeader>
+            <CardTitle>After Delivery Tank Report</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="regular_tank_final">Regular Tank Final (Gallons)</Label>
+                <NumberInput
+                  id="regular_tank_final"
+                  step="0.01"
+                  value={afterDeliveryData.regular_tank_final}
+                  onChange={(value) => handleAfterDeliveryChange('regular_tank_final', value)}
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="plus_tank_final">Plus Tank Final (Gallons)</Label>
+                <NumberInput
+                  id="plus_tank_final"
+                  step="0.01"
+                  value={afterDeliveryData.plus_tank_final}
+                  onChange={(value) => handleAfterDeliveryChange('plus_tank_final', value)}
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="super_tank_final">Super Tank Final (Gallons)</Label>
+                <NumberInput
+                  id="super_tank_final"
+                  step="0.01"
+                  value={afterDeliveryData.super_tank_final}
+                  onChange={(value) => handleAfterDeliveryChange('super_tank_final', value)}
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="tank_temperature">Tank Temperature (°F)</Label>
+                <NumberInput
+                  id="tank_temperature"
+                  step="1"
+                  value={afterDeliveryData.tank_temperature}
+                  onChange={(value) => handleAfterDeliveryChange('tank_temperature', value)}
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="verification_status">Verification Status</Label>
+                <Select
+                  value={afterDeliveryData.verification_status}
+                  onValueChange={(value) => handleAfterDeliveryChange('verification_status', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {verificationStatuses.map((status) =>
+                      <SelectItem key={status} value={status}>
+                        {status}
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="reported_by">Reported By</Label>
+                <Input
+                  id="reported_by"
+                  type="text"
+                  placeholder="Enter reporter name"
+                  value={afterDeliveryData.reported_by}
+                  onChange={(e) => handleAfterDeliveryChange('reported_by', e.target.value)}
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="discrepancy_notes">Discrepancy Notes</Label>
+                <Textarea
+                  id="discrepancy_notes"
+                  value={afterDeliveryData.discrepancy_notes}
+                  onChange={(e) => handleAfterDeliveryChange('discrepancy_notes', e.target.value)}
+                  placeholder="Enter any discrepancy notes..."
+                  rows={3}
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="additional_notes">Additional Notes</Label>
+                <Textarea
+                  id="additional_notes"
+                  value={afterDeliveryData.additional_notes}
+                  onChange={(e) => handleAfterDeliveryChange('additional_notes', e.target.value)}
+                  placeholder="Enter additional observations..."
+                  rows={3}
+                />
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="supervisor_approval"
+                checked={afterDeliveryData.supervisor_approval}
+                onChange={(e) => handleAfterDeliveryChange('supervisor_approval', e.target.checked)}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <Label htmlFor="supervisor_approval">Supervisor Approval</Label>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Discrepancy Report */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              {discrepancyData.has_discrepancy ? (
+                <AlertTriangle className="h-5 w-5 text-red-500" />
+              ) : (
+                <CheckCircle className="h-5 w-5 text-green-500" />
+              )}
+              Discrepancy Analysis
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {discrepancyData.has_discrepancy && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <XCircle className="h-4 w-4 text-red-500" />
+                  <span className="font-medium text-red-800">Discrepancies Detected</span>
+                </div>
+                <p className="text-red-700 text-sm">
+                  One or more tank levels show discrepancies greater than 5 gallons. Please review and verify the measurements.
+                </p>
+              </div>
+            )}
+            
+            {!discrepancyData.has_discrepancy && (afterDeliveryData.regular_tank_final > 0 || afterDeliveryData.plus_tank_final > 0 || afterDeliveryData.super_tank_final > 0) && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <span className="font-medium text-green-800">All Measurements Verified</span>
+                </div>
+                <p className="text-green-700 text-sm">
+                  Tank levels are within acceptable tolerance limits (±5 gallons).
+                </p>
+              </div>
+            )}
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <h4 className="font-medium text-gray-700 mb-2">Regular Gas</h4>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span>Before + Delivered:</span>
+                    <span>{discrepancyData.regular_expected.toFixed(2)} gal</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>After Delivery:</span>
+                    <span>{afterDeliveryData.regular_tank_final.toFixed(2)} gal</span>
+                  </div>
+                  <div className={`flex justify-between font-medium ${
+                    Math.abs(discrepancyData.regular_discrepancy) > 5 ? 'text-red-600' : 'text-green-600'
+                  }`}>
+                    <span>Difference:</span>
+                    <span>{discrepancyData.regular_discrepancy >= 0 ? '+' : ''}{discrepancyData.regular_discrepancy.toFixed(2)} gal</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="font-medium text-gray-700 mb-2">Plus Gas</h4>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span>Before + Delivered:</span>
+                    <span>{discrepancyData.plus_expected.toFixed(2)} gal</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>After Delivery:</span>
+                    <span>{afterDeliveryData.plus_tank_final.toFixed(2)} gal</span>
+                  </div>
+                  <div className={`flex justify-between font-medium ${
+                    Math.abs(discrepancyData.plus_discrepancy) > 5 ? 'text-red-600' : 'text-green-600'
+                  }`}>
+                    <span>Difference:</span>
+                    <span>{discrepancyData.plus_discrepancy >= 0 ? '+' : ''}{discrepancyData.plus_discrepancy.toFixed(2)} gal</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="font-medium text-gray-700 mb-2">Super Gas</h4>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span>Before + Delivered:</span>
+                    <span>{discrepancyData.super_expected.toFixed(2)} gal</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>After Delivery:</span>
+                    <span>{afterDeliveryData.super_tank_final.toFixed(2)} gal</span>
+                  </div>
+                  <div className={`flex justify-between font-medium ${
+                    Math.abs(discrepancyData.super_discrepancy) > 5 ? 'text-red-600' : 'text-green-600'
+                  }`}>
+                    <span>Difference:</span>
+                    <span>{discrepancyData.super_discrepancy >= 0 ? '+' : ''}{discrepancyData.super_discrepancy.toFixed(2)} gal</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-sm text-gray-600">
+                <strong>Note:</strong> Acceptable tolerance is ±5 gallons. Differences outside this range should be investigated and documented.
+              </p>
             </div>
           </CardContent>
         </Card>
