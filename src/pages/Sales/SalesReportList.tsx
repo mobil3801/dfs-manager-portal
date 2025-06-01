@@ -14,12 +14,28 @@ interface SalesReport {
   ID: number;
   report_date: string;
   station: string;
+  employee_name: string;
+  cash_collection_on_hand: number;
+  total_short_over: number;
+  credit_card_amount: number;
+  debit_card_amount: number;
+  mobile_amount: number;
+  cash_amount: number;
+  grocery_sales: number;
+  ebt_sales: number;
+  lottery_net_sales: number;
+  scratch_off_sales: number;
+  lottery_total_cash: number;
+  regular_gallons: number;
+  super_gallons: number;
+  diesel_gallons: number;
+  total_gallons: number;
+  expenses_data: string;
+  day_report_file_id?: number;
+  veeder_root_file_id?: number;
+  lotto_report_file_id?: number;
+  scratch_off_report_file_id?: number;
   total_sales: number;
-  cash_sales: number;
-  credit_card_sales: number;
-  fuel_sales: number;
-  convenience_sales: number;
-  employee_id: string;
   notes: string;
   created_by: number;
 }
@@ -50,7 +66,7 @@ const SalesReportList: React.FC = () => {
         filters.push({ name: 'station', op: 'StringContains', value: searchTerm });
       }
 
-      const { data, error } = await window.ezsite.apis.tablePage('11728', {
+      const { data, error } = await window.ezsite.apis.tablePage('12356', {
         PageNo: currentPage,
         PageSize: pageSize,
         OrderByField: 'report_date',
@@ -80,7 +96,7 @@ const SalesReportList: React.FC = () => {
     }
 
     try {
-      const { error } = await window.ezsite.apis.tableDelete('11728', { ID: reportId });
+      const { error } = await window.ezsite.apis.tableDelete('12356', { ID: reportId });
       if (error) throw error;
 
       toast({
@@ -136,49 +152,52 @@ const SalesReportList: React.FC = () => {
   const totals = reports.reduce((acc, report) => {
     // Ensure all values are properly parsed as numbers
     const totalSales = parseFloat(report.total_sales) || 0;
-    const cashSales = parseFloat(report.cash_sales) || 0;
-    const creditSales = parseFloat(report.credit_card_sales) || 0;
-    const fuelSales = parseFloat(report.fuel_sales) || 0;
-    const convenienceSales = parseFloat(report.convenience_sales) || 0;
+    const cashAmount = parseFloat(report.cash_amount) || 0;
+    const creditCardAmount = parseFloat(report.credit_card_amount) || 0;
+    const debitCardAmount = parseFloat(report.debit_card_amount) || 0;
+    const mobileAmount = parseFloat(report.mobile_amount) || 0;
+    const grocerySales = parseFloat(report.grocery_sales) || 0;
+    const totalGallons = parseFloat(report.total_gallons) || 0;
+    const lotteryTotalCash = parseFloat(report.lottery_total_cash) || 0;
 
-    // Validate calculations for each report
-    const paymentTotal = cashSales + creditSales;
-    const categoryTotal = fuelSales + convenienceSales;
+    // Calculate payment method totals
+    const paymentTotal = cashAmount + creditCardAmount + debitCardAmount + mobileAmount;
 
     // Log any discrepancies for debugging
-    if (Math.abs(paymentTotal - totalSales) > 0.01) {
-      console.warn(`Report ID ${report.ID}: Payment methods (${paymentTotal}) don't match total (${totalSales})`);
-    }
-
-    if (categoryTotal > totalSales + 0.01) {
-      console.warn(`Report ID ${report.ID}: Categories (${categoryTotal}) exceed total (${totalSales})`);
+    if (Math.abs(paymentTotal + grocerySales - totalSales) > 0.01) {
+      console.warn(`Report ID ${report.ID}: Payment methods + grocery (${paymentTotal + grocerySales}) don't match total (${totalSales})`);
     }
 
     return {
       total_sales: acc.total_sales + totalSales,
-      cash_sales: acc.cash_sales + cashSales,
-      credit_card_sales: acc.credit_card_sales + creditSales,
-      fuel_sales: acc.fuel_sales + fuelSales,
-      convenience_sales: acc.convenience_sales + convenienceSales
+      cash_amount: acc.cash_amount + cashAmount,
+      credit_card_amount: acc.credit_card_amount + creditCardAmount,
+      debit_card_amount: acc.debit_card_amount + debitCardAmount,
+      mobile_amount: acc.mobile_amount + mobileAmount,
+      grocery_sales: acc.grocery_sales + grocerySales,
+      total_gallons: acc.total_gallons + totalGallons,
+      lottery_total_cash: acc.lottery_total_cash + lotteryTotalCash
     };
   }, {
     total_sales: 0,
-    cash_sales: 0,
-    credit_card_sales: 0,
-    fuel_sales: 0,
-    convenience_sales: 0
+    cash_amount: 0,
+    credit_card_amount: 0,
+    debit_card_amount: 0,
+    mobile_amount: 0,
+    grocery_sales: 0,
+    total_gallons: 0,
+    lottery_total_cash: 0
   });
 
   // Validate the summary totals
-  const summaryPaymentTotal = totals.cash_sales + totals.credit_card_sales;
-  const summaryCategoryTotal = totals.fuel_sales + totals.convenience_sales;
+  const summaryPaymentTotal = totals.cash_amount + totals.credit_card_amount + totals.debit_card_amount + totals.mobile_amount;
+  const summaryWithGrocery = summaryPaymentTotal + totals.grocery_sales;
 
   console.log('Summary calculations:', {
     total_sales: totals.total_sales,
     payment_total: summaryPaymentTotal,
-    category_total: summaryCategoryTotal,
-    payment_matches: Math.abs(summaryPaymentTotal - totals.total_sales) <= 0.01,
-    category_valid: summaryCategoryTotal <= totals.total_sales + 0.01
+    with_grocery: summaryWithGrocery,
+    payment_matches: Math.abs(summaryWithGrocery - totals.total_sales) <= 0.01
   });
 
   return (
@@ -202,8 +221,8 @@ const SalesReportList: React.FC = () => {
             <div className="flex items-center space-x-2">
               <TrendingUp className="w-8 h-8 text-blue-600" />
               <div>
-                <p className="text-sm font-medium text-gray-600">Fuel Sales</p>
-                <p className="text-2xl font-bold">{formatCurrency(totals.fuel_sales)}</p>
+                <p className="text-sm font-medium text-gray-600">Total Gallons</p>
+                <p className="text-2xl font-bold">{totals.total_gallons.toFixed(2)}</p>
               </div>
             </div>
           </CardContent>
@@ -214,8 +233,8 @@ const SalesReportList: React.FC = () => {
             <div className="flex items-center space-x-2">
               <DollarSign className="w-8 h-8 text-purple-600" />
               <div>
-                <p className="text-sm font-medium text-gray-600">Convenience Sales</p>
-                <p className="text-2xl font-bold">{formatCurrency(totals.convenience_sales)}</p>
+                <p className="text-sm font-medium text-gray-600">Grocery Sales</p>
+                <p className="text-2xl font-bold">{formatCurrency(totals.grocery_sales)}</p>
               </div>
             </div>
           </CardContent>
@@ -293,9 +312,9 @@ const SalesReportList: React.FC = () => {
                     <TableHead>Date</TableHead>
                     <TableHead>Station</TableHead>
                     <TableHead>Total Sales</TableHead>
-                    <TableHead>Fuel Sales</TableHead>
-                    <TableHead>Convenience</TableHead>
-                    <TableHead>Payment Method</TableHead>
+                    <TableHead>Gallons</TableHead>
+                    <TableHead>Grocery</TableHead>
+                    <TableHead>Payment Methods</TableHead>
                     <TableHead>Employee</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -316,9 +335,12 @@ const SalesReportList: React.FC = () => {
                           <span>{formatCurrency(report.total_sales)}</span>
                           {(() => {
                         const total = parseFloat(report.total_sales) || 0;
-                        const cash = parseFloat(report.cash_sales) || 0;
-                        const credit = parseFloat(report.credit_card_sales) || 0;
-                        const paymentTotal = cash + credit;
+                        const cash = parseFloat(report.cash_amount) || 0;
+                        const credit = parseFloat(report.credit_card_amount) || 0;
+                        const debit = parseFloat(report.debit_card_amount) || 0;
+                        const mobile = parseFloat(report.mobile_amount) || 0;
+                        const grocery = parseFloat(report.grocery_sales) || 0;
+                        const paymentTotal = cash + credit + debit + mobile + grocery;
                         const isPaymentCorrect = Math.abs(paymentTotal - total) <= 0.01;
 
                         return isPaymentCorrect ?
@@ -329,35 +351,23 @@ const SalesReportList: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
-                          <span>{formatCurrency(report.fuel_sales)}</span>
+                          <span>{parseFloat(report.total_gallons || '0').toFixed(2)}</span>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
-                          <span>{formatCurrency(report.convenience_sales)}</span>
-                          {(() => {
-                        const total = parseFloat(report.total_sales) || 0;
-                        const fuel = parseFloat(report.fuel_sales) || 0;
-                        const convenience = parseFloat(report.convenience_sales) || 0;
-                        const categoryTotal = fuel + convenience;
-                        const isCategoryValid = categoryTotal <= total + 0.01;
-
-                        return isCategoryValid ?
-                        <span className="text-green-600 text-xs">✓</span> :
-                        <span className="text-red-600 text-xs" title={`Categories total: ${formatCurrency(categoryTotal)} > Total: ${formatCurrency(total)}`}>⚠️</span>;
-                      })()} 
+                          <span>{formatCurrency(report.grocery_sales)}</span>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="space-y-1 text-sm">
-                          <div>Cash: {formatCurrency(report.cash_sales)}</div>
-                          <div>Card: {formatCurrency(report.credit_card_sales)}</div>
-                          <div className="text-xs text-gray-500">
-                            Total: {formatCurrency((parseFloat(report.cash_sales) || 0) + (parseFloat(report.credit_card_sales) || 0))}
-                          </div>
+                        <div className="space-y-1 text-xs">
+                          <div>Cash: {formatCurrency(report.cash_amount)}</div>
+                          <div>Credit: {formatCurrency(report.credit_card_amount)}</div>
+                          <div>Debit: {formatCurrency(report.debit_card_amount)}</div>
+                          <div>Mobile: {formatCurrency(report.mobile_amount)}</div>
                         </div>
                       </TableCell>
-                      <TableCell>{report.employee_id}</TableCell>
+                      <TableCell>{report.employee_name}</TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Button
@@ -403,31 +413,24 @@ const SalesReportList: React.FC = () => {
                     <TableCell className="font-bold text-green-600">
                       <div className="flex items-center space-x-2">
                         <span>{formatCurrency(totals.total_sales)}</span>
-                        {Math.abs(summaryPaymentTotal - totals.total_sales) <= 0.01 ?
+                        {Math.abs(summaryWithGrocery - totals.total_sales) <= 0.01 ?
                       <span className="text-green-600 text-xs">✓</span> :
                       <span className="text-red-600 text-xs">⚠️</span>
                       }
                       </div>
                     </TableCell>
                     <TableCell className="font-bold text-blue-600">
-                      {formatCurrency(totals.fuel_sales)}
+                      {totals.total_gallons.toFixed(2)}
                     </TableCell>
                     <TableCell className="font-bold text-purple-600">
-                      <div className="flex items-center space-x-2">
-                        <span>{formatCurrency(totals.convenience_sales)}</span>
-                        {summaryCategoryTotal <= totals.total_sales + 0.01 ?
-                      <span className="text-green-600 text-xs">✓</span> :
-                      <span className="text-red-600 text-xs">⚠️</span>
-                      }
-                      </div>
+                      {formatCurrency(totals.grocery_sales)}
                     </TableCell>
                     <TableCell>
-                      <div className="space-y-1 text-sm">
-                        <div className="font-medium">Cash: {formatCurrency(totals.cash_sales)}</div>
-                        <div className="font-medium">Card: {formatCurrency(totals.credit_card_sales)}</div>
-                        <div className="text-xs text-gray-600">
-                          Total: {formatCurrency(summaryPaymentTotal)}
-                        </div>
+                      <div className="space-y-1 text-xs">
+                        <div className="font-medium">Cash: {formatCurrency(totals.cash_amount)}</div>
+                        <div className="font-medium">Credit: {formatCurrency(totals.credit_card_amount)}</div>
+                        <div className="font-medium">Debit: {formatCurrency(totals.debit_card_amount)}</div>
+                        <div className="font-medium">Mobile: {formatCurrency(totals.mobile_amount)}</div>
                       </div>
                     </TableCell>
                     <TableCell className="text-gray-500">-</TableCell>

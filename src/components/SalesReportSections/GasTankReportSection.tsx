@@ -37,8 +37,8 @@ const GasTankReportSection: React.FC<GasTankReportSectionProps> = ({
               onChange={(value) => onChange('regularGallons', value || 0)}
               min={0}
               step={0.01}
-              required
-            />
+              required />
+
           </div>
           <div className="space-y-2">
             <Label htmlFor="super">Super (Gallons) *</Label>
@@ -48,8 +48,8 @@ const GasTankReportSection: React.FC<GasTankReportSectionProps> = ({
               onChange={(value) => onChange('superGallons', value || 0)}
               min={0}
               step={0.01}
-              required
-            />
+              required />
+
           </div>
           <div className="space-y-2">
             <Label htmlFor="diesel">Diesel (Gallons) *</Label>
@@ -59,8 +59,8 @@ const GasTankReportSection: React.FC<GasTankReportSectionProps> = ({
               onChange={(value) => onChange('dieselGallons', value || 0)}
               min={0}
               step={0.01}
-              required
-            />
+              required />
+
           </div>
         </div>
         
@@ -74,8 +74,8 @@ const GasTankReportSection: React.FC<GasTankReportSectionProps> = ({
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default GasTankReportSection;
