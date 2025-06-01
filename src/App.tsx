@@ -26,6 +26,10 @@ import GasDeliveryInventory from './pages/Inventory/GasDeliveryInventory';
 import DeliveryList from './pages/Delivery/DeliveryList';
 import DeliveryForm from './pages/Delivery/DeliveryForm';
 import AppSettings from './pages/Settings/AppSettings';
+import UserManagement from './pages/Admin/UserManagement';
+import SiteManagement from './pages/Admin/SiteManagement';
+import SystemLogs from './pages/Admin/SystemLogs';
+import SecuritySettings from './pages/Admin/SecuritySettings';
 import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient();
@@ -88,6 +92,12 @@ function App() {
               <Route path="delivery" element={<DeliveryList />} />
               <Route path="delivery/new" element={<DeliveryForm />} />
               <Route path="delivery/edit/:id" element={<DeliveryForm />} />
+              
+              {/* Admin routes */}
+              <Route path="admin/users" element={<UserManagement />} />
+              <Route path="admin/site" element={<SiteManagement />} />
+              <Route path="admin/logs" element={<SystemLogs />} />
+              <Route path="admin/security" element={<SecuritySettings />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />

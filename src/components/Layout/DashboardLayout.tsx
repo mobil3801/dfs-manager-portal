@@ -19,7 +19,12 @@ import {
   CheckCircle,
   Edit3,
   Fuel,
-  Truck } from
+  Truck,
+  Settings,
+  Shield,
+  Database,
+  UserCheck,
+  Globe } from
 'lucide-react';
 
 import Logo from '@/components/Logo';
@@ -29,6 +34,12 @@ interface NavigationItem {
   name: string;
   path: string;
   icon: React.ReactNode;
+  children?: NavigationItem[];
+}
+
+interface NavigationGroup {
+  title: string;
+  items: NavigationItem[];
 }
 
 const DashboardLayout: React.FC = () => {
@@ -38,19 +49,36 @@ const DashboardLayout: React.FC = () => {
   const location = useLocation();
 
 
-  const navigationItems: NavigationItem[] = [
-  { name: 'Dashboard', path: '/dashboard', icon: <Home className="w-5 h-5" /> },
-  { name: 'All Products', path: '/products', icon: <Package className="w-5 h-5" /> },
-  { name: 'All Employees', path: '/employees', icon: <Users className="w-5 h-5" /> },
-  { name: 'Sales Reports', path: '/sales', icon: <TrendingUp className="w-5 h-5" /> },
-  { name: 'Add Report', path: '/sales/new', icon: <Plus className="w-5 h-5" /> },
-  { name: 'Salary Records', path: '/salary', icon: <DollarSign className="w-5 h-5" /> },
-  { name: 'Inventory Alerts', path: '/inventory/alerts', icon: <AlertTriangle className="w-5 h-5" /> },
-  { name: 'New Delivery', path: '/delivery', icon: <Truck className="w-5 h-5" /> },
-  { name: 'All Vendors', path: '/vendors', icon: <Building2 className="w-5 h-5" /> },
-  { name: 'All Orders', path: '/orders', icon: <ShoppingCart className="w-5 h-5" /> },
-  { name: 'Create Order', path: '/orders/new', icon: <Plus className="w-5 h-5" /> },
-  { name: 'All Licenses', path: '/licenses', icon: <FileText className="w-5 h-5" /> }];
+  const [expandedGroups, setExpandedGroups] = useState<string[]>(['main']);
+
+  const navigationGroups: NavigationGroup[] = [
+    {
+      title: 'Main Navigation',
+      items: [
+        { name: 'Dashboard', path: '/dashboard', icon: <Home className="w-5 h-5" /> },
+        { name: 'All Products', path: '/products', icon: <Package className="w-5 h-5" /> },
+        { name: 'All Employees', path: '/employees', icon: <Users className="w-5 h-5" /> },
+        { name: 'Sales Reports', path: '/sales', icon: <TrendingUp className="w-5 h-5" /> },
+        { name: 'Add Report', path: '/sales/new', icon: <Plus className="w-5 h-5" /> },
+        { name: 'Salary Records', path: '/salary', icon: <DollarSign className="w-5 h-5" /> },
+        { name: 'Inventory Alerts', path: '/inventory/alerts', icon: <AlertTriangle className="w-5 h-5" /> },
+        { name: 'New Delivery', path: '/delivery', icon: <Truck className="w-5 h-5" /> },
+        { name: 'All Vendors', path: '/vendors', icon: <Building2 className="w-5 h-5" /> },
+        { name: 'All Orders', path: '/orders', icon: <ShoppingCart className="w-5 h-5" /> },
+        { name: 'Create Order', path: '/orders/new', icon: <Plus className="w-5 h-5" /> },
+        { name: 'All Licenses', path: '/licenses', icon: <FileText className="w-5 h-5" /> }
+      ]
+    },
+    {
+      title: 'Site & User Management',
+      items: [
+        { name: 'User Management', path: '/admin/users', icon: <UserCheck className="w-5 h-5" /> },
+        { name: 'Site Management', path: '/admin/site', icon: <Globe className="w-5 h-5" /> },
+        { name: 'System Logs', path: '/admin/logs', icon: <Database className="w-5 h-5" /> },
+        { name: 'Security Settings', path: '/admin/security', icon: <Shield className="w-5 h-5" /> }
+      ]
+    }
+  ];
 
 
 
@@ -59,14 +87,24 @@ const DashboardLayout: React.FC = () => {
     setSidebarOpen(false);
   };
 
-  const renderNavigationItem = (item: NavigationItem) => {
+  const toggleGroup = (groupTitle: string) => {
+    setExpandedGroups(prev => 
+      prev.includes(groupTitle) 
+        ? prev.filter(g => g !== groupTitle)
+        : [...prev, groupTitle]
+    );
+  };
+
+  const renderNavigationItem = (item: NavigationItem, isSubItem = false) => {
     const isActive = location.pathname === item.path;
 
     return (
       <Button
         key={item.path}
         variant="ghost"
-        className={`w-full justify-start text-left h-11 px-4 hover:bg-gray-100 transition-colors ${
+        className={`w-full justify-start text-left h-11 hover:bg-gray-100 transition-colors ${
+          isSubItem ? 'ml-4 px-3' : 'px-4'
+        } ${
         isActive ? 'bg-brand-50 text-brand-800 border-r-2 border-brand-700' : ''}`
         }
         onClick={() => handleNavigation(item.path)}
@@ -76,7 +114,38 @@ const DashboardLayout: React.FC = () => {
           {!sidebarCollapsed && <span className="font-medium">{item.name}</span>}
         </div>
       </Button>);
+  };
 
+  const renderNavigationGroup = (group: NavigationGroup) => {
+    const isExpanded = expandedGroups.includes(group.title.toLowerCase().replace(/\s+/g, '-'));
+    const groupKey = group.title.toLowerCase().replace(/\s+/g, '-');
+    
+    if (sidebarCollapsed) {
+      return (
+        <div key={groupKey} className="space-y-1">
+          {group.items.map(item => renderNavigationItem(item))}
+        </div>
+      );
+    }
+
+    return (
+      <div key={groupKey} className="space-y-1">
+        <Button
+          variant="ghost"
+          className="w-full justify-between text-left h-10 px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+          onClick={() => toggleGroup(groupKey)}
+        >
+          <span>{group.title}</span>
+          <ChevronRight className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+        </Button>
+        
+        {isExpanded && (
+          <div className="space-y-1">
+            {group.items.map(item => renderNavigationItem(item, true))}
+          </div>
+        )}
+      </div>
+    );
   };
 
   const getPageTitle = () => {
@@ -87,11 +156,15 @@ const DashboardLayout: React.FC = () => {
     if (path.startsWith('/sales')) return 'Sales Reports';
     if (path.startsWith('/salary')) return 'Salary Management';
     if (path.startsWith('/inventory')) return 'Inventory Management';
-
     if (path.startsWith('/delivery')) return 'Delivery Management';
     if (path.startsWith('/vendors')) return 'Vendors';
     if (path.startsWith('/orders')) return 'Orders';
     if (path.startsWith('/licenses')) return 'Licenses & Certificates';
+    if (path.startsWith('/admin/users')) return 'User Management';
+    if (path.startsWith('/admin/site')) return 'Site Management';
+    if (path.startsWith('/admin/logs')) return 'System Logs';
+    if (path.startsWith('/admin/security')) return 'Security Settings';
+    if (path.startsWith('/admin')) return 'Site & User Management';
     return 'DFS Manager';
   };
 
@@ -135,8 +208,8 @@ const DashboardLayout: React.FC = () => {
           </div>
         </div>
 
-        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400" style={{ height: 'calc(100vh - 4rem)' }}>
-          {navigationItems.map((item) => renderNavigationItem(item))}
+        <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400" style={{ height: 'calc(100vh - 4rem)' }}>
+          {navigationGroups.map(group => renderNavigationGroup(group))}
         </nav>
       </div>
 
