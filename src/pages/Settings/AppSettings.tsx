@@ -18,8 +18,8 @@ const AppSettings: React.FC = () => {
           variant="outline"
           size="sm"
           onClick={() => navigate('/dashboard')}
-          className="flex items-center gap-2"
-        >
+          className="flex items-center gap-2">
+
           <ArrowLeft className="h-4 w-4" />
           Back to Dashboard
         </Button>
@@ -123,8 +123,8 @@ const AppSettings: React.FC = () => {
           </Card>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AppSettings;

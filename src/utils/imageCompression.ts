@@ -52,16 +52,16 @@ const createCanvas = (width: number, height: number): HTMLCanvasElement => {
  * Calculate new dimensions while maintaining aspect ratio
  */
 const calculateDimensions = (
-  originalWidth: number,
-  originalHeight: number,
-  maxWidthOrHeight?: number
-): { width: number; height: number } => {
-  if (!maxWidthOrHeight || (originalWidth <= maxWidthOrHeight && originalHeight <= maxWidthOrHeight)) {
+originalWidth: number,
+originalHeight: number,
+maxWidthOrHeight?: number)
+: {width: number;height: number;} => {
+  if (!maxWidthOrHeight || originalWidth <= maxWidthOrHeight && originalHeight <= maxWidthOrHeight) {
     return { width: originalWidth, height: originalHeight };
   }
 
   const aspectRatio = originalWidth / originalHeight;
-  
+
   if (originalWidth > originalHeight) {
     return {
       width: maxWidthOrHeight,
@@ -91,9 +91,9 @@ const loadImage = (file: File): Promise<HTMLImageElement> => {
  * Compress image using canvas
  */
 const compressImageWithCanvas = (
-  img: HTMLImageElement,
-  options: CompressionOptions
-): Promise<Blob> => {
+img: HTMLImageElement,
+options: CompressionOptions)
+: Promise<Blob> => {
   return new Promise((resolve, reject) => {
     const { width, height } = calculateDimensions(
       img.naturalWidth,
@@ -103,7 +103,7 @@ const compressImageWithCanvas = (
 
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext('2d');
-    
+
     if (!ctx) {
       reject(new Error('Could not get canvas context'));
       return;
@@ -135,10 +135,10 @@ const compressImageWithCanvas = (
  * Iteratively compress image until target size is reached
  */
 const compressToTargetSize = async (
-  img: HTMLImageElement,
-  targetSizeMB: number,
-  options: CompressionOptions
-): Promise<Blob> => {
+img: HTMLImageElement,
+targetSizeMB: number,
+options: CompressionOptions)
+: Promise<Blob> => {
   let quality = options.initialQuality || 0.8;
   let blob: Blob;
   let attempts = 0;
@@ -147,7 +147,7 @@ const compressToTargetSize = async (
 
   do {
     blob = await compressImageWithCanvas(img, { ...options, quality });
-    
+
     if (blob.size <= targetSizeBytes || attempts >= maxAttempts) {
       break;
     }
@@ -180,7 +180,7 @@ const getCompressionSettings = (): CompressionOptions => {
   } catch (error) {
     console.error('Failed to load compression settings:', error);
   }
-  
+
   // Return defaults if no settings found
   return {
     maxSizeMB: 1,
@@ -212,17 +212,17 @@ const isCompressionEnabled = (): boolean => {
  * Main compression function
  */
 export const compressImage = async (
-  file: File,
-  options?: Partial<CompressionOptions>
-): Promise<CompressionResult> => {
+file: File,
+options?: Partial<CompressionOptions>)
+: Promise<CompressionResult> => {
   // Get settings from localStorage or use provided options
   const savedSettings = getCompressionSettings();
   const finalOptions = { ...savedSettings, ...options };
-  
+
   const originalSize = file.size;
   const targetSizeMB = finalOptions.maxSizeMB;
   const targetSizeBytes = targetSizeMB * 1024 * 1024;
-  
+
   // Check if compression is enabled
   if (!isCompressionEnabled()) {
     return {
@@ -254,7 +254,7 @@ export const compressImage = async (
       return false;
     }
   })();
-  
+
   if (!autoCompress && originalSize <= targetSizeBytes) {
     return {
       file,
@@ -297,7 +297,7 @@ export const compressImage = async (
     };
   } catch (error) {
     console.error('Image compression failed:', error);
-    
+
     // Return original file if compression fails
     return {
       file,
@@ -313,16 +313,16 @@ export const compressImage = async (
  * Batch compress multiple images
  */
 export const compressImages = async (
-  files: File[],
-  options: CompressionOptions = { maxSizeMB: 1 }
-): Promise<CompressionResult[]> => {
+files: File[],
+options: CompressionOptions = { maxSizeMB: 1 })
+: Promise<CompressionResult[]> => {
   const results: CompressionResult[] = [];
-  
+
   for (const file of files) {
     const result = await compressImage(file, options);
     results.push(result);
   }
-  
+
   return results;
 };
 
@@ -332,8 +332,8 @@ export const compressImages = async (
 export const getCompressionStats = (results: CompressionResult[]) => {
   const totalOriginalSize = results.reduce((sum, result) => sum + result.originalSize, 0);
   const totalCompressedSize = results.reduce((sum, result) => sum + result.compressedSize, 0);
-  const compressedCount = results.filter(result => result.wasCompressed).length;
-  
+  const compressedCount = results.filter((result) => result.wasCompressed).length;
+
   return {
     totalOriginalSize,
     totalCompressedSize,

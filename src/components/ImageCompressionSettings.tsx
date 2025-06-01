@@ -58,11 +58,11 @@ const ImageCompressionSettings: React.FC<ImageCompressionSettingsProps> = ({
     setHasChanges(currentSettings !== originalSettings);
   }, [settings]);
 
-  const updateSetting = <K extends keyof CompressionSettings>(
-    key: K,
-    value: CompressionSettings[K]
-  ) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
+  const updateSetting = <K extends keyof CompressionSettings,>(
+  key: K,
+  value: CompressionSettings[K]) =>
+  {
+    setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
   const saveSettings = () => {
@@ -100,12 +100,12 @@ const ImageCompressionSettings: React.FC<ImageCompressionSettingsProps> = ({
         <CardTitle className="flex items-center gap-2">
           <Zap className="h-5 w-5 text-blue-600" />
           Image Compression Settings
-          {settings.enabled && (
-            <Badge variant="default" className="ml-2">
+          {settings.enabled &&
+          <Badge variant="default" className="ml-2">
               <Settings className="h-3 w-3 mr-1" />
               Active
             </Badge>
-          )}
+          }
         </CardTitle>
       </CardHeader>
       
@@ -120,12 +120,12 @@ const ImageCompressionSettings: React.FC<ImageCompressionSettingsProps> = ({
           </div>
           <Switch
             checked={settings.enabled}
-            onCheckedChange={(checked) => updateSetting('enabled', checked)}
-          />
+            onCheckedChange={(checked) => updateSetting('enabled', checked)} />
+
         </div>
 
-        {settings.enabled && (
-          <>
+        {settings.enabled &&
+        <>
             {/* Auto-compress threshold */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -133,13 +133,13 @@ const ImageCompressionSettings: React.FC<ImageCompressionSettingsProps> = ({
                 <Badge variant="outline">{settings.maxSizeMB}MB</Badge>
               </div>
               <Slider
-                value={[settings.maxSizeMB]}
-                onValueChange={([value]) => updateSetting('maxSizeMB', value)}
-                max={10}
-                min={0.5}
-                step={0.5}
-                className="w-full"
-              />
+              value={[settings.maxSizeMB]}
+              onValueChange={([value]) => updateSetting('maxSizeMB', value)}
+              max={10}
+              min={0.5}
+              step={0.5}
+              className="w-full" />
+
               <p className="text-xs text-gray-600">
                 Images larger than this size will be compressed
               </p>
@@ -152,13 +152,13 @@ const ImageCompressionSettings: React.FC<ImageCompressionSettingsProps> = ({
                 <Badge variant="outline">{qualityPercentage}%</Badge>
               </div>
               <Slider
-                value={[settings.quality]}
-                onValueChange={([value]) => updateSetting('quality', value)}
-                max={1}
-                min={0.1}
-                step={0.1}
-                className="w-full"
-              />
+              value={[settings.quality]}
+              onValueChange={([value]) => updateSetting('quality', value)}
+              max={1}
+              min={0.1}
+              step={0.1}
+              className="w-full" />
+
               <p className="text-xs text-gray-600">
                 Higher quality means larger file sizes
               </p>
@@ -171,13 +171,13 @@ const ImageCompressionSettings: React.FC<ImageCompressionSettingsProps> = ({
                 <Badge variant="outline">{settings.maxResolution}px</Badge>
               </div>
               <Slider
-                value={[settings.maxResolution]}
-                onValueChange={([value]) => updateSetting('maxResolution', value)}
-                max={4096}
-                min={720}
-                step={240}
-                className="w-full"
-              />
+              value={[settings.maxResolution]}
+              onValueChange={([value]) => updateSetting('maxResolution', value)}
+              max={4096}
+              min={720}
+              step={240}
+              className="w-full" />
+
               <p className="text-xs text-gray-600">
                 Maximum width or height for compressed images
               </p>
@@ -192,26 +192,26 @@ const ImageCompressionSettings: React.FC<ImageCompressionSettingsProps> = ({
                 </p>
               </div>
               <Switch
-                checked={settings.autoCompress}
-                onCheckedChange={(checked) => updateSetting('autoCompress', checked)}
-              />
+              checked={settings.autoCompress}
+              onCheckedChange={(checked) => updateSetting('autoCompress', checked)} />
+
             </div>
           </>
-        )}
+        }
 
         {/* Compression preview/info */}
         <div className="p-3 bg-gray-50 rounded-lg">
           <h4 className="text-sm font-medium mb-2">Current Settings Summary</h4>
           <div className="space-y-1 text-xs text-gray-600">
             <p>Status: {settings.enabled ? 'Enabled' : 'Disabled'}</p>
-            {settings.enabled && (
-              <>
+            {settings.enabled &&
+            <>
                 <p>Threshold: Images over {settings.maxSizeMB}MB will be compressed</p>
                 <p>Quality: {qualityPercentage}% (balance of quality vs. file size)</p>
                 <p>Max Resolution: {settings.maxResolution}px (width or height)</p>
                 <p>Auto-compress: {settings.autoCompress ? 'All images' : 'Large images only'}</p>
               </>
-            )}
+            }
           </div>
         </div>
 
@@ -220,22 +220,22 @@ const ImageCompressionSettings: React.FC<ImageCompressionSettingsProps> = ({
           <Button
             onClick={saveSettings}
             disabled={!hasChanges}
-            className="flex-1"
-          >
+            className="flex-1">
+
             <Save className="h-4 w-4 mr-2" />
             Save Settings
           </Button>
           <Button
             variant="outline"
-            onClick={resetSettings}
-          >
+            onClick={resetSettings}>
+
             <RotateCcw className="h-4 w-4 mr-2" />
             Reset
           </Button>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default ImageCompressionSettings;

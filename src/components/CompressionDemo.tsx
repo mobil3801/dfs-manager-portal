@@ -40,7 +40,7 @@ const CompressionDemo: React.FC<CompressionDemoProps> = ({ className = '' }) => 
       if (result.wasCompressed) {
         toast({
           title: 'Compression Complete!',
-          description: `File size reduced by ${((1 - result.compressedSize / result.originalSize) * 100).toFixed(1)}%`,
+          description: `File size reduced by ${((1 - result.compressedSize / result.originalSize) * 100).toFixed(1)}%`
         });
       } else {
         toast({
@@ -75,8 +75,8 @@ const CompressionDemo: React.FC<CompressionDemoProps> = ({ className = '' }) => 
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {!selectedFile ? (
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+        {!selectedFile ?
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
             <div className="space-y-3">
               <Upload className="h-8 w-8 mx-auto text-gray-400" />
               <div>
@@ -85,19 +85,19 @@ const CompressionDemo: React.FC<CompressionDemoProps> = ({ className = '' }) => 
               </div>
               <label className="cursor-pointer">
                 <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                />
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden" />
+
                 <Button variant="outline" className="mt-2">
                   Choose File
                 </Button>
               </label>
             </div>
-          </div>
-        ) : (
-          <div className="space-y-4">
+          </div> :
+
+        <div className="space-y-4">
             {/* Selected file info */}
             <div className="p-3 bg-gray-50 rounded-lg">
               <div className="flex items-center justify-between">
@@ -112,43 +112,43 @@ const CompressionDemo: React.FC<CompressionDemoProps> = ({ className = '' }) => 
               <div className="mt-2 flex items-center gap-4 text-xs text-gray-600">
                 <span>Size: {formatFileSize(selectedFile.size)}</span>
                 <span>Type: {selectedFile.type}</span>
-                {isImageFile(selectedFile) && selectedFile.size > 1024 * 1024 && (
-                  <Badge variant="outline" className="text-xs">
+                {isImageFile(selectedFile) && selectedFile.size > 1024 * 1024 &&
+              <Badge variant="outline" className="text-xs">
                     <Zap className="h-3 w-3 mr-1" />
                     Will be compressed
                   </Badge>
-                )}
+              }
               </div>
             </div>
 
             {/* Compression button */}
             <Button
-              onClick={handleCompress}
-              disabled={isCompressing}
-              className="w-full"
-            >
-              {isCompressing ? (
-                <>
+            onClick={handleCompress}
+            disabled={isCompressing}
+            className="w-full">
+
+              {isCompressing ?
+            <>
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
                   Compressing...
-                </>
-              ) : (
-                <>
+                </> :
+
+            <>
                   <Zap className="h-4 w-4 mr-2" />
                   Test Compression
                 </>
-              )}
+            }
             </Button>
 
             {/* Results */}
-            {compressionResult && (
-              <div className="space-y-3">
+            {compressionResult &&
+          <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  {compressionResult.wasCompressed ? (
-                    <Check className="h-5 w-5 text-green-600" />
-                  ) : (
-                    <FileImage className="h-5 w-5 text-blue-600" />
-                  )}
+                  {compressionResult.wasCompressed ?
+              <Check className="h-5 w-5 text-green-600" /> :
+
+              <FileImage className="h-5 w-5 text-blue-600" />
+              }
                   <span className="font-medium text-sm">
                     {compressionResult.wasCompressed ? 'Compression Complete' : 'No Compression Needed'}
                   </span>
@@ -165,8 +165,8 @@ const CompressionDemo: React.FC<CompressionDemoProps> = ({ className = '' }) => 
                   </div>
                 </div>
 
-                {compressionResult.wasCompressed && (
-                  <div className="p-3 bg-green-50 rounded-lg">
+                {compressionResult.wasCompressed &&
+            <div className="p-3 bg-green-50 rounded-lg">
                     <div className="flex items-center gap-2 text-green-800">
                       <TrendingDown className="h-4 w-4" />
                       <span className="font-medium">
@@ -177,14 +177,14 @@ const CompressionDemo: React.FC<CompressionDemoProps> = ({ className = '' }) => 
                       Saved {formatFileSize(compressionResult.originalSize - compressionResult.compressedSize)} of storage space
                     </p>
                   </div>
-                )}
+            }
               </div>
-            )}
+          }
           </div>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default CompressionDemo;

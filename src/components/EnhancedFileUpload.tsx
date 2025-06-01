@@ -87,7 +87,7 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
   const processFile = async (file: File) => {
     // Check if it's an image and larger than 1MB
     const needsCompression = isImageFile(file) && file.size > 1024 * 1024;
-    
+
     if (needsCompression) {
       setIsCompressing(true);
       try {
@@ -97,17 +97,17 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
           quality: 0.8,
           initialQuality: 0.8
         });
-        
+
         setCompressionResult(result);
-        
+
         if (result.wasCompressed) {
           toast({
             title: "Image compressed",
-            description: `File size reduced from ${formatFileSize(result.originalSize)} to ${formatFileSize(result.compressedSize)} (${(result.compressionRatio).toFixed(1)}x smaller)`,
+            description: `File size reduced from ${formatFileSize(result.originalSize)} to ${formatFileSize(result.compressedSize)} (${result.compressionRatio.toFixed(1)}x smaller)`,
             duration: 5000
           });
         }
-        
+
         onFileSelect(result.file);
         setIsOpen(false);
       } catch (error) {
@@ -320,8 +320,8 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
               </div>
 
               {/* Compression status */}
-              {isCompressing && (
-                <Card className="border-blue-200 bg-blue-50">
+              {isCompressing &&
+            <Card className="border-blue-200 bg-blue-50">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
                       <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
@@ -332,20 +332,20 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
                     </div>
                   </CardContent>
                 </Card>
-              )}
+            }
 
               {/* File type info */}
               <div className="text-center text-sm text-gray-500">
                 <p>Accepted file types: {accept}</p>
                 <p>Maximum file size: {maxSize}MB</p>
-                {isImageFile({ type: accept } as File) && (
-                  <div className="mt-2 p-2 bg-green-50 rounded-lg border border-green-200">
+                {isImageFile({ type: accept } as File) &&
+              <div className="mt-2 p-2 bg-green-50 rounded-lg border border-green-200">
                     <div className="flex items-center justify-center gap-2 text-green-700">
                       <Zap className="h-4 w-4" />
                       <span className="text-xs font-medium">Auto-compression enabled for images &gt;1MB</span>
                     </div>
                   </div>
-                )}
+              }
               </div>
             </div> : (
 

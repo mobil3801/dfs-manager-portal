@@ -69,8 +69,8 @@ const CompressionStatus: React.FC<CompressionStatusProps> = ({ result, className
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default CompressionStatus;

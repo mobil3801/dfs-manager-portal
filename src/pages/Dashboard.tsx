@@ -4,7 +4,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import SalesChart from '@/components/SalesChart';
-import VisualEditIndicator from '@/components/VisualEditIndicator';
 import {
   Package,
   Users,
@@ -501,17 +500,7 @@ const Dashboard: React.FC = () => {
           <h1 className="text-4xl font-bold mb-2">
             DFS Manager Portal
           </h1>
-          <div className="mt-4 flex justify-center">
-            <VisualEditIndicator className="mb-2" />
-            <Button
-              variant="outline"
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20 ml-4"
-              onClick={() => setShowGuide(true)}>
 
-              <Info className="w-4 h-4 mr-2" />
-              View Editing Guide
-            </Button>
-          </div>
         </div>
       </div>
 
