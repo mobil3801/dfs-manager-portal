@@ -30,12 +30,6 @@ interface AfterDeliveryReport {
   regular_tank_final: number;
   plus_tank_final: number;
   super_tank_final: number;
-  tank_temperature: number;
-  verification_status: string;
-  discrepancy_notes: string;
-  reported_by: string;
-  supervisor_approval: boolean;
-  additional_notes: string;
 }
 
 interface DiscrepancyData {
@@ -70,13 +64,7 @@ const DeliveryForm: React.FC = () => {
   const [afterDeliveryData, setAfterDeliveryData] = useState<AfterDeliveryReport>({
     regular_tank_final: 0,
     plus_tank_final: 0,
-    super_tank_final: 0,
-    tank_temperature: 70,
-    verification_status: 'Pending Review',
-    discrepancy_notes: '',
-    reported_by: '',
-    supervisor_approval: false,
-    additional_notes: ''
+    super_tank_final: 0
   });
 
   const [discrepancyData, setDiscrepancyData] = useState<DiscrepancyData>({
@@ -90,7 +78,6 @@ const DeliveryForm: React.FC = () => {
   });
 
   const stations = ['MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN'];
-  const verificationStatuses = ['Verified', 'Discrepancy Found', 'Pending Review'];
 
   // Calculate expected tank levels and discrepancies
   useEffect(() => {
@@ -103,10 +90,10 @@ const DeliveryForm: React.FC = () => {
     const super_discrepancy = afterDeliveryData.super_tank_final - super_expected;
 
     const tolerance = 5; // 5 gallon tolerance
-    const has_discrepancy = 
-      Math.abs(regular_discrepancy) > tolerance ||
-      Math.abs(plus_discrepancy) > tolerance ||
-      Math.abs(super_discrepancy) > tolerance;
+    const has_discrepancy =
+    Math.abs(regular_discrepancy) > tolerance ||
+    Math.abs(plus_discrepancy) > tolerance ||
+    Math.abs(super_discrepancy) > tolerance;
 
     setDiscrepancyData({
       regular_expected,
@@ -118,18 +105,7 @@ const DeliveryForm: React.FC = () => {
       has_discrepancy
     });
 
-    // Auto-update verification status based on discrepancies
-    if (has_discrepancy) {
-      setAfterDeliveryData(prev => ({
-        ...prev,
-        verification_status: 'Discrepancy Found'
-      }));
-    } else if (afterDeliveryData.regular_tank_final > 0 || afterDeliveryData.plus_tank_final > 0 || afterDeliveryData.super_tank_final > 0) {
-      setAfterDeliveryData(prev => ({
-        ...prev,
-        verification_status: 'Verified'
-      }));
-    }
+    // Auto-update verification status based on discrepancies - removed as verification_status field is no longer used
   }, [formData, afterDeliveryData.regular_tank_final, afterDeliveryData.plus_tank_final, afterDeliveryData.super_tank_final]);
 
   useEffect(() => {
@@ -153,13 +129,7 @@ const DeliveryForm: React.FC = () => {
         setAfterDeliveryData({
           regular_tank_final: report.regular_tank_final || 0,
           plus_tank_final: report.plus_tank_final || 0,
-          super_tank_final: report.super_tank_final || 0,
-          tank_temperature: report.tank_temperature || 70,
-          verification_status: report.verification_status || 'Pending Review',
-          discrepancy_notes: report.discrepancy_notes || '',
-          reported_by: report.reported_by || '',
-          supervisor_approval: report.supervisor_approval || false,
-          additional_notes: report.additional_notes || ''
+          super_tank_final: report.super_tank_final || 0
         });
       }
     } catch (error) {
@@ -184,7 +154,7 @@ const DeliveryForm: React.FC = () => {
           ...record,
           delivery_date: record.delivery_date ? new Date(record.delivery_date).toISOString().split('T')[0] : ''
         });
-        
+
         // Load associated after-delivery tank report if exists
         loadAfterDeliveryReport(parseInt(id!));
       }
@@ -221,7 +191,7 @@ const DeliveryForm: React.FC = () => {
       };
 
       let deliveryRecordId;
-      
+
       if (id) {
         const { error } = await window.ezsite.apis.tableUpdate(12196, {
           ID: parseInt(id),
@@ -252,7 +222,9 @@ const DeliveryForm: React.FC = () => {
           station: formData.station,
           delivery_record_id: deliveryRecordId,
           bol_number: formData.bol_number,
-          ...afterDeliveryData,
+          regular_tank_final: afterDeliveryData.regular_tank_final,
+          plus_tank_final: afterDeliveryData.plus_tank_final,
+          super_tank_final: afterDeliveryData.super_tank_final,
           created_by: formData.created_by
         };
 
@@ -480,8 +452,8 @@ const DeliveryForm: React.FC = () => {
                   id="regular_tank_final"
                   step="0.01"
                   value={afterDeliveryData.regular_tank_final}
-                  onChange={(value) => handleAfterDeliveryChange('regular_tank_final', value)}
-                />
+                  onChange={(value) => handleAfterDeliveryChange('regular_tank_final', value)} />
+
               </div>
               
               <div>
@@ -490,8 +462,8 @@ const DeliveryForm: React.FC = () => {
                   id="plus_tank_final"
                   step="0.01"
                   value={afterDeliveryData.plus_tank_final}
-                  onChange={(value) => handleAfterDeliveryChange('plus_tank_final', value)}
-                />
+                  onChange={(value) => handleAfterDeliveryChange('plus_tank_final', value)} />
+
               </div>
               
               <div>
@@ -500,85 +472,9 @@ const DeliveryForm: React.FC = () => {
                   id="super_tank_final"
                   step="0.01"
                   value={afterDeliveryData.super_tank_final}
-                  onChange={(value) => handleAfterDeliveryChange('super_tank_final', value)}
-                />
+                  onChange={(value) => handleAfterDeliveryChange('super_tank_final', value)} />
+
               </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="tank_temperature">Tank Temperature (°F)</Label>
-                <NumberInput
-                  id="tank_temperature"
-                  step="1"
-                  value={afterDeliveryData.tank_temperature}
-                  onChange={(value) => handleAfterDeliveryChange('tank_temperature', value)}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="verification_status">Verification Status</Label>
-                <Select
-                  value={afterDeliveryData.verification_status}
-                  onValueChange={(value) => handleAfterDeliveryChange('verification_status', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {verificationStatuses.map((status) =>
-                      <SelectItem key={status} value={status}>
-                        {status}
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div>
-                <Label htmlFor="reported_by">Reported By</Label>
-                <Input
-                  id="reported_by"
-                  type="text"
-                  placeholder="Enter reporter name"
-                  value={afterDeliveryData.reported_by}
-                  onChange={(e) => handleAfterDeliveryChange('reported_by', e.target.value)}
-                />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="discrepancy_notes">Discrepancy Notes</Label>
-                <Textarea
-                  id="discrepancy_notes"
-                  value={afterDeliveryData.discrepancy_notes}
-                  onChange={(e) => handleAfterDeliveryChange('discrepancy_notes', e.target.value)}
-                  placeholder="Enter any discrepancy notes..."
-                  rows={3}
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="additional_notes">Additional Notes</Label>
-                <Textarea
-                  id="additional_notes"
-                  value={afterDeliveryData.additional_notes}
-                  onChange={(e) => handleAfterDeliveryChange('additional_notes', e.target.value)}
-                  placeholder="Enter additional observations..."
-                  rows={3}
-                />
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="supervisor_approval"
-                checked={afterDeliveryData.supervisor_approval}
-                onChange={(e) => handleAfterDeliveryChange('supervisor_approval', e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <Label htmlFor="supervisor_approval">Supervisor Approval</Label>
             </div>
           </CardContent>
         </Card>
@@ -587,17 +483,17 @@ const DeliveryForm: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              {discrepancyData.has_discrepancy ? (
-                <AlertTriangle className="h-5 w-5 text-red-500" />
-              ) : (
-                <CheckCircle className="h-5 w-5 text-green-500" />
-              )}
+              {discrepancyData.has_discrepancy ?
+              <AlertTriangle className="h-5 w-5 text-red-500" /> :
+
+              <CheckCircle className="h-5 w-5 text-green-500" />
+              }
               Discrepancy Analysis
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {discrepancyData.has_discrepancy && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            {discrepancyData.has_discrepancy &&
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
                 <div className="flex items-center gap-2 mb-2">
                   <XCircle className="h-4 w-4 text-red-500" />
                   <span className="font-medium text-red-800">Discrepancies Detected</span>
@@ -606,10 +502,10 @@ const DeliveryForm: React.FC = () => {
                   One or more tank levels show discrepancies greater than 5 gallons. Please review and verify the measurements.
                 </p>
               </div>
-            )}
+            }
             
-            {!discrepancyData.has_discrepancy && (afterDeliveryData.regular_tank_final > 0 || afterDeliveryData.plus_tank_final > 0 || afterDeliveryData.super_tank_final > 0) && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+            {!discrepancyData.has_discrepancy && (afterDeliveryData.regular_tank_final > 0 || afterDeliveryData.plus_tank_final > 0 || afterDeliveryData.super_tank_final > 0) &&
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
                 <div className="flex items-center gap-2 mb-2">
                   <CheckCircle className="h-4 w-4 text-green-500" />
                   <span className="font-medium text-green-800">All Measurements Verified</span>
@@ -618,7 +514,7 @@ const DeliveryForm: React.FC = () => {
                   Tank levels are within acceptable tolerance limits (±5 gallons).
                 </p>
               </div>
-            )}
+            }
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -633,8 +529,8 @@ const DeliveryForm: React.FC = () => {
                     <span>{afterDeliveryData.regular_tank_final.toFixed(2)} gal</span>
                   </div>
                   <div className={`flex justify-between font-medium ${
-                    Math.abs(discrepancyData.regular_discrepancy) > 5 ? 'text-red-600' : 'text-green-600'
-                  }`}>
+                  Math.abs(discrepancyData.regular_discrepancy) > 5 ? 'text-red-600' : 'text-green-600'}`
+                  }>
                     <span>Difference:</span>
                     <span>{discrepancyData.regular_discrepancy >= 0 ? '+' : ''}{discrepancyData.regular_discrepancy.toFixed(2)} gal</span>
                   </div>
@@ -653,8 +549,8 @@ const DeliveryForm: React.FC = () => {
                     <span>{afterDeliveryData.plus_tank_final.toFixed(2)} gal</span>
                   </div>
                   <div className={`flex justify-between font-medium ${
-                    Math.abs(discrepancyData.plus_discrepancy) > 5 ? 'text-red-600' : 'text-green-600'
-                  }`}>
+                  Math.abs(discrepancyData.plus_discrepancy) > 5 ? 'text-red-600' : 'text-green-600'}`
+                  }>
                     <span>Difference:</span>
                     <span>{discrepancyData.plus_discrepancy >= 0 ? '+' : ''}{discrepancyData.plus_discrepancy.toFixed(2)} gal</span>
                   </div>
@@ -673,8 +569,8 @@ const DeliveryForm: React.FC = () => {
                     <span>{afterDeliveryData.super_tank_final.toFixed(2)} gal</span>
                   </div>
                   <div className={`flex justify-between font-medium ${
-                    Math.abs(discrepancyData.super_discrepancy) > 5 ? 'text-red-600' : 'text-green-600'
-                  }`}>
+                  Math.abs(discrepancyData.super_discrepancy) > 5 ? 'text-red-600' : 'text-green-600'}`
+                  }>
                     <span>Difference:</span>
                     <span>{discrepancyData.super_discrepancy >= 0 ? '+' : ''}{discrepancyData.super_discrepancy.toFixed(2)} gal</span>
                   </div>
