@@ -356,7 +356,7 @@ export default function SalesReportForm() {
                   <Select
                     value={formData.employee_id}
                     onValueChange={(value) => {
-                      const selectedEmployee = employees.find(emp => emp.employee_id === value);
+                      const selectedEmployee = employees.find((emp) => emp.employee_id === value);
                       if (selectedEmployee) {
                         updateFormData('employee_id', value);
                         updateFormData('employee_name', `${selectedEmployee.first_name} ${selectedEmployee.last_name}`);
@@ -368,7 +368,7 @@ export default function SalesReportForm() {
                     </SelectTrigger>
                     <SelectContent>
                       {employees.map((employee) =>
-                        <SelectItem key={employee.id} value={employee.employee_id}>
+                      <SelectItem key={employee.id} value={employee.employee_id}>
                           {employee.first_name} {employee.last_name} (ID: {employee.employee_id})
                         </SelectItem>
                       )}
