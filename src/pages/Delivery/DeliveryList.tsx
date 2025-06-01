@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Plus, Search, Edit, Trash2, Truck, Filter, Download, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import VisualEditToolbar from '@/components/VisualEditToolbar';
-import DeliveryReportDialog from '@/components/DeliveryReportDialog';
+import EnhancedDeliveryPrintDialog from '@/components/EnhancedDeliveryPrintDialog';
 
 interface DeliveryRecord {
   id: number;
@@ -361,8 +361,8 @@ const DeliveryList: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Delivery Report Dialog */}
-      <DeliveryReportDialog
+      {/* Enhanced Delivery Report Dialog */}
+      <EnhancedDeliveryPrintDialog
         open={reportDialogOpen}
         onOpenChange={setReportDialogOpen}
         delivery={selectedDelivery} />

@@ -118,7 +118,7 @@ export default function SalesReportForm() {
           scratchOffReportFileId: report.scratch_off_report_file_id,
           notes: report.notes
         });
-        
+
         // Parse expenses from JSON
         if (report.expenses_data) {
           try {

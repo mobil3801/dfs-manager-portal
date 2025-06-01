@@ -8,7 +8,7 @@ import { toast } from '@/hooks/use-toast';
 import { Plus, Search, Edit, Trash2, FileText, AlertTriangle, CheckCircle, Printer } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import PrintDialog from '@/components/PrintDialog';
+import EnhancedLicensePrintDialog from '@/components/EnhancedLicensePrintDialog';
 
 interface License {
   ID: number;
@@ -396,8 +396,8 @@ const LicenseList: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Print Dialog */}
-      <PrintDialog
+      {/* Enhanced Print Dialog */}
+      <EnhancedLicensePrintDialog
         license={selectedLicenseForPrint}
         isOpen={isPrintDialogOpen}
         onClose={closePrintDialog} />

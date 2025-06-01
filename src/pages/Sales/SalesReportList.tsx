@@ -8,7 +8,7 @@ import { toast } from '@/hooks/use-toast';
 import { Plus, Search, Edit, Trash2, TrendingUp, DollarSign, Calendar, Printer } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import SalesReportPrintDialog from '@/components/SalesReportPrintDialog';
+import EnhancedSalesReportPrintDialog from '@/components/EnhancedSalesReportPrintDialog';
 
 interface SalesReport {
   ID: number;
@@ -474,8 +474,8 @@ const SalesReportList: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Print Dialog */}
-      <SalesReportPrintDialog
+      {/* Enhanced Print Dialog */}
+      <EnhancedSalesReportPrintDialog
         open={printDialogOpen}
         onOpenChange={setPrintDialogOpen}
         report={selectedReport} />
