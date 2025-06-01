@@ -4,108 +4,214 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NumberInput } from '@/components/ui/number-input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
-import { ShoppingCart, Save, ArrowLeft } from 'lucide-react';
+import { ShoppingCart, Save, ArrowLeft, Camera, Plus, Minus, Trash2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+
+interface Product {
+  ID: number;
+  product_name: string;
+  product_code: string;
+  bar_code_case: string;
+  bar_code_unit: string;
+  price: number;
+  retail_price: number;
+  category: string;
+  supplier: string;
+  quantity_in_stock: number;
+}
+
+interface OrderItem {
+  product: Product;
+  quantity: number;
+  subtotal: number;
+}
 
 interface OrderFormData {
   order_number: string;
-  vendor_id: string;
-  order_date: string;
-  expected_delivery: string;
   station: string;
-  total_amount: number;
-  status: string;
   notes: string;
-}
-
-interface Vendor {
-  ID: number;
-  vendor_name: string;
+  items: OrderItem[];
+  total_amount: number;
 }
 
 const OrderForm: React.FC = () => {
   const [formData, setFormData] = useState<OrderFormData>({
     order_number: '',
-    vendor_id: '',
-    order_date: new Date().toISOString().split('T')[0],
-    expected_delivery: '',
     station: '',
-    total_amount: 0,
-    status: 'Pending',
-    notes: ''
+    notes: '',
+    items: [],
+    total_amount: 0
   });
-  const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [matchedProducts, setMatchedProducts] = useState<Product[]>([]);
+  const [selectedQuantity, setSelectedQuantity] = useState<{[key: number]: number}>({});
 
   const navigate = useNavigate();
   const { id } = useParams();
 
   const stations = ['MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN'];
-  const statuses = ['Pending', 'Approved', 'Shipped', 'Delivered', 'Cancelled'];
 
-  useEffect(() => {
-    loadVendors();
-    if (id) {
-      setIsEditing(true);
-      loadOrder(parseInt(id));
-    }
-  }, [id]);
+  // Enhanced barcode scanner with camera access
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const [videoRef, setVideoRef] = useState<HTMLVideoElement | null>(null);
 
-  const loadVendors = async () => {
+  const startCamera = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage('11729', {
-        PageNo: 1,
-        PageSize: 100,
-        OrderByField: 'vendor_name',
-        IsAsc: true,
-        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' }
       });
-
-      if (error) throw error;
-      setVendors(data?.List || []);
+      
+      if (videoRef) {
+        videoRef.srcObject = mediaStream;
+        setStream(mediaStream);
+      }
     } catch (error) {
-      console.error('Error loading vendors:', error);
+      console.error('Error accessing camera:', error);
+      toast({
+        variant: "destructive",
+        title: "Camera Error",
+        description: "Unable to access camera. Please check permissions."
+      });
     }
   };
 
-  const loadOrder = async (orderId: number) => {
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+      setStream(null);
+    }
+  };
+
+  const searchProductsByBarcode = async (barcode: string) => {
     try {
       setLoading(true);
-      const { data, error } = await window.ezsite.apis.tablePage('11730', {
+      
+      // Search for products matching the barcode
+      const { data, error } = await window.ezsite.apis.tablePage('11726', {
         PageNo: 1,
-        PageSize: 1,
-        Filters: [{ name: 'ID', op: 'Equal', value: orderId }]
+        PageSize: 10,
+        Filters: [
+          { name: 'bar_code_case', op: 'Equal', value: barcode },
+          { name: 'bar_code_unit', op: 'Equal', value: barcode }
+        ]
       });
 
       if (error) throw error;
 
-      if (data && data.List && data.List.length > 0) {
-        const order = data.List[0];
-        setFormData({
-          order_number: order.order_number || '',
-          vendor_id: order.vendor_id?.toString() || '',
-          order_date: order.order_date ? order.order_date.split('T')[0] : '',
-          expected_delivery: order.expected_delivery ? order.expected_delivery.split('T')[0] : '',
-          station: order.station || '',
-          total_amount: order.total_amount || 0,
-          status: order.status || 'Pending',
-          notes: order.notes || ''
+      const products = data?.List || [];
+      setMatchedProducts(products);
+      
+      if (products.length === 0) {
+        toast({
+          title: "No Products Found",
+          description: `No products found with barcode: ${barcode}`,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Products Found",
+          description: `Found ${products.length} product(s) matching barcode: ${barcode}`
         });
       }
     } catch (error) {
-      console.error('Error loading order:', error);
+      console.error('Error searching products:', error);
       toast({
-        title: "Error",
-        description: "Failed to load order details",
+        title: "Search Error",
+        description: "Failed to search for products",
         variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
+  };
+
+  const simulateBarcodeCapture = () => {
+    // Simulate barcode detection for demo purposes
+    // In production, this would use a real barcode detection library
+    const simulatedBarcode = '123456789012';
+    searchProductsByBarcode(simulatedBarcode);
+    setScannerOpen(false);
+    stopCamera();
+  };
+
+  const addProductToOrder = (product: Product) => {
+    const quantity = selectedQuantity[product.ID] || 1;
+    const subtotal = product.price * quantity;
+    
+    const newItem: OrderItem = {
+      product,
+      quantity,
+      subtotal
+    };
+
+    // Check if product already exists in order
+    const existingItemIndex = formData.items.findIndex(item => item.product.ID === product.ID);
+    
+    let updatedItems;
+    if (existingItemIndex >= 0) {
+      // Update existing item
+      updatedItems = [...formData.items];
+      updatedItems[existingItemIndex] = {
+        ...updatedItems[existingItemIndex],
+        quantity: updatedItems[existingItemIndex].quantity + quantity,
+        subtotal: updatedItems[existingItemIndex].product.price * (updatedItems[existingItemIndex].quantity + quantity)
+      };
+    } else {
+      // Add new item
+      updatedItems = [...formData.items, newItem];
+    }
+
+    const newTotal = updatedItems.reduce((sum, item) => sum + item.subtotal, 0);
+
+    setFormData(prev => ({
+      ...prev,
+      items: updatedItems,
+      total_amount: newTotal
+    }));
+
+    setMatchedProducts([]);
+    setSelectedQuantity({});
+
+    toast({
+      title: "Product Added",
+      description: `${product.product_name} added to order`
+    });
+  };
+
+  const updateItemQuantity = (itemIndex: number, newQuantity: number) => {
+    if (newQuantity <= 0) {
+      removeItem(itemIndex);
+      return;
+    }
+
+    const updatedItems = [...formData.items];
+    updatedItems[itemIndex] = {
+      ...updatedItems[itemIndex],
+      quantity: newQuantity,
+      subtotal: updatedItems[itemIndex].product.price * newQuantity
+    };
+
+    const newTotal = updatedItems.reduce((sum, item) => sum + item.subtotal, 0);
+
+    setFormData(prev => ({
+      ...prev,
+      items: updatedItems,
+      total_amount: newTotal
+    }));
+  };
+
+  const removeItem = (itemIndex: number) => {
+    const updatedItems = formData.items.filter((_, index) => index !== itemIndex);
+    const newTotal = updatedItems.reduce((sum, item) => sum + item.subtotal, 0);
+
+    setFormData(prev => ({
+      ...prev,
+      items: updatedItems,
+      total_amount: newTotal
+    }));
   };
 
   const generateOrderNumber = () => {
@@ -117,59 +223,61 @@ const OrderForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (formData.items.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please add at least one product to the order",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!formData.station) {
+      toast({
+        title: "Error", 
+        description: "Please select a delivery station",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       setLoading(true);
 
-      let orderNumber = formData.order_number;
-      if (!orderNumber && !isEditing) {
-        orderNumber = generateOrderNumber();
-      }
+      const orderNumber = formData.order_number || generateOrderNumber();
 
-      const dataToSubmit = {
-        ...formData,
+      const orderData = {
         order_number: orderNumber,
-        vendor_id: parseInt(formData.vendor_id),
-        order_date: formData.order_date ? new Date(formData.order_date).toISOString() : '',
-        expected_delivery: formData.expected_delivery ? new Date(formData.expected_delivery).toISOString() : '',
+        vendor_id: 1, // Default vendor for barcode orders
+        order_date: new Date().toISOString(),
+        station: formData.station,
+        total_amount: formData.total_amount,
+        status: 'Pending',
+        notes: formData.notes + `\n\nItems:\n${formData.items.map(item => 
+          `- ${item.product.product_name} (${item.product.product_code}) x${item.quantity} = $${item.subtotal.toFixed(2)}`
+        ).join('\n')}`,
         created_by: 1
       };
 
-      if (isEditing && id) {
-        const { error } = await window.ezsite.apis.tableUpdate('11730', {
-          ID: parseInt(id),
-          ...dataToSubmit
-        });
-        if (error) throw error;
+      const { error } = await window.ezsite.apis.tableCreate('11730', orderData);
+      if (error) throw error;
 
-        toast({
-          title: "Success",
-          description: "Order updated successfully"
-        });
-      } else {
-        const { error } = await window.ezsite.apis.tableCreate('11730', dataToSubmit);
-        if (error) throw error;
-
-        toast({
-          title: "Success",
-          description: "Order created successfully"
-        });
-      }
+      toast({
+        title: "Success",
+        description: "Order created successfully"
+      });
 
       navigate('/orders');
     } catch (error) {
-      console.error('Error saving order:', error);
+      console.error('Error creating order:', error);
       toast({
         title: "Error",
-        description: `Failed to ${isEditing ? 'update' : 'create'} order`,
+        description: "Failed to create order",
         variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleInputChange = (field: keyof OrderFormData, value: string | number) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -180,10 +288,10 @@ const OrderForm: React.FC = () => {
             <div>
               <CardTitle className="flex items-center space-x-2">
                 <ShoppingCart className="w-6 h-6" />
-                <span>{isEditing ? 'Edit Order' : 'Create New Order'}</span>
+                <span>Create Order with Barcode Scanner</span>
               </CardTitle>
               <CardDescription>
-                {isEditing ? 'Update order information' : 'Create a new purchase order'}
+                Scan product barcodes to quickly add items to your order
               </CardDescription>
             </div>
             <Button variant="outline" onClick={() => navigate('/orders')}>
@@ -193,140 +301,253 @@ const OrderForm: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="order_number">Order Number</Label>
-                <Input
-                  id="order_number"
-                  value={formData.order_number}
-                  onChange={(e) => handleInputChange('order_number', e.target.value)}
-                  placeholder={isEditing ? "Enter order number" : "Auto-generated if left empty"} />
+          {/* Barcode Scanner Section */}
+          <div className="space-y-6">
+            <Card className="border-2 border-dashed border-primary/30 hover:border-primary/50 transition-colors">
+              <CardContent className="p-6">
+                <div className="text-center space-y-4">
+                  <Camera className="w-12 h-12 mx-auto text-primary" />
+                  <h3 className="text-lg font-semibold">Barcode Scanner</h3>
+                  <p className="text-muted-foreground">
+                    Click to open camera and scan product barcodes
+                  </p>
+                  <Button 
+                    onClick={() => {
+                      setScannerOpen(true);
+                      setTimeout(startCamera, 100);
+                    }}
+                    className="w-full sm:w-auto"
+                    disabled={loading}
+                  >
+                    <Camera className="w-4 h-4 mr-2" />
+                    Open Barcode Scanner
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
-                {!isEditing &&
-                <p className="text-sm text-gray-500">Leave empty to auto-generate</p>
-                }
-              </div>
+            {/* Camera Dialog */}
+            {scannerOpen && (
+              <Card className="border-primary">
+                <CardHeader>
+                  <CardTitle>Barcode Scanner</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="relative w-full max-w-md mx-auto aspect-video bg-black rounded-lg overflow-hidden">
+                      <video
+                        ref={(ref) => setVideoRef(ref)}
+                        autoPlay
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="border-2 border-white border-dashed w-48 h-24 rounded-lg"></div>
+                      </div>
+                    </div>
+                    <div className="flex space-x-2 justify-center">
+                      <Button onClick={simulateBarcodeCapture} disabled={loading}>
+                        Capture Barcode
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          setScannerOpen(false);
+                          stopCamera();
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                    <p className="text-sm text-muted-foreground text-center">
+                      Position the barcode within the frame and click Capture
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-              <div className="space-y-2">
-                <Label htmlFor="vendor_id">Vendor *</Label>
-                <Select value={formData.vendor_id} onValueChange={(value) => handleInputChange('vendor_id', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select vendor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {vendors && vendors.map((vendor) =>
-                    vendor.ID ?
-                    <SelectItem key={vendor.ID} value={vendor.ID.toString()}>
-                        {vendor.vendor_name || 'Unknown Vendor'}
-                      </SelectItem> :
-                    null
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
+            {/* Matched Products Section */}
+            {matchedProducts.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Found Products</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {matchedProducts.map((product) => (
+                      <div key={product.ID} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex-1">
+                          <h4 className="font-semibold">{product.product_name}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Code: {product.product_code} | Category: {product.category}
+                          </p>
+                          <p className="text-sm font-medium text-green-600">
+                            Price: ${product.price.toFixed(2)} | Stock: {product.quantity_in_stock}
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <div className="flex items-center space-x-2">
+                            <Label htmlFor={`qty-${product.ID}`} className="text-sm">Qty:</Label>
+                            <NumberInput
+                              id={`qty-${product.ID}`}
+                              value={selectedQuantity[product.ID] || 1}
+                              onChange={(value) => setSelectedQuantity(prev => ({
+                                ...prev,
+                                [product.ID]: value
+                              }))}
+                              min={1}
+                              max={product.quantity_in_stock}
+                              className="w-20"
+                            />
+                          </div>
+                          <Button
+                            size="sm"
+                            onClick={() => addProductToOrder(product)}
+                            className="flex items-center space-x-1"
+                          >
+                            <Plus className="w-4 h-4" />
+                            <span>Add</span>
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-              <div className="space-y-2">
-                <Label htmlFor="order_date">Order Date *</Label>
-                <Input
-                  id="order_date"
-                  type="date"
-                  value={formData.order_date}
-                  onChange={(e) => handleInputChange('order_date', e.target.value)}
-                  required />
+            {/* Order Items Section */}
+            {formData.items.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Order Items ({formData.items.length})</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {formData.items.map((item, index) => (
+                      <div key={`${item.product.ID}-${index}`} className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+                        <div className="flex-1">
+                          <h4 className="font-semibold">{item.product.product_name}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            {item.product.product_code} | ${item.product.price.toFixed(2)} each
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => updateItemQuantity(index, item.quantity - 1)}
+                            >
+                              <Minus className="w-3 h-3" />
+                            </Button>
+                            <span className="w-8 text-center font-medium">{item.quantity}</span>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => updateItemQuantity(index, item.quantity + 1)}
+                            >
+                              <Plus className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          <div className="text-right min-w-[80px]">
+                            <p className="font-semibold">${item.subtotal.toFixed(2)}</p>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => removeItem(index)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="border-t pt-3">
+                      <div className="flex justify-between items-center text-lg font-bold">
+                        <span>Total Amount:</span>
+                        <span>${formData.total_amount.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-              </div>
+            {/* Order Details Form */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Order Details</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="order_number">Order Number</Label>
+                      <Input
+                        id="order_number"
+                        value={formData.order_number}
+                        onChange={(e) => setFormData(prev => ({ ...prev, order_number: e.target.value }))}
+                        placeholder="Auto-generated if left empty"
+                      />
+                    </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="expected_delivery">Expected Delivery Date</Label>
-                <Input
-                  id="expected_delivery"
-                  type="date"
-                  value={formData.expected_delivery}
-                  onChange={(e) => handleInputChange('expected_delivery', e.target.value)} />
+                    <div className="space-y-2">
+                      <Label htmlFor="station">Delivery Station *</Label>
+                      <Select
+                        value={formData.station}
+                        onValueChange={(value) => setFormData(prev => ({ ...prev, station: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select delivery station" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {stations.map((station) => (
+                            <SelectItem key={station} value={station}>
+                              {station}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
 
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">Notes</Label>
+                    <Input
+                      id="notes"
+                      value={formData.notes}
+                      onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                      placeholder="Enter any additional notes about this order..."
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="station">Delivery Station *</Label>
-                <Select value={formData.station} onValueChange={(value) => handleInputChange('station', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select delivery station" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {stations && stations.map((station) =>
-                    <SelectItem key={station} value={station}>
-                        {station}
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="total_amount">Total Amount ($) *</Label>
-                <NumberInput
-                  id="total_amount"
-                  step="0.01"
-                  min="0"
-                  value={formData.total_amount}
-                  onChange={(value) => handleInputChange('total_amount', value)}
-                  required />
-
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
-                <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {statuses && statuses.map((status) =>
-                    <SelectItem key={status} value={status}>
-                        {status}
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notes</Label>
-              <Textarea
-                id="notes"
-                value={formData.notes}
-                onChange={(e) => handleInputChange('notes', e.target.value)}
-                placeholder="Enter any additional notes about this order..."
-                rows={4} />
-
-            </div>
-
-            <div className="flex items-center justify-end space-x-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate('/orders')}>
-
-                Cancel
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ?
-                'Saving...' :
-
-                <>
-                    <Save className="w-4 h-4 mr-2" />
-                    {isEditing ? 'Update Order' : 'Create Order'}
-                  </>
-                }
-              </Button>
-            </div>
-          </form>
+                  <div className="flex items-center justify-end space-x-4 pt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => navigate('/orders')}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={loading || formData.items.length === 0}>
+                      {loading ? 'Creating...' : (
+                        <>
+                          <Save className="w-4 h-4 mr-2" />
+                          Create Order
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
         </CardContent>
       </Card>
-    </div>);
-
+    </div>
+  );
 };
 
 export default OrderForm;

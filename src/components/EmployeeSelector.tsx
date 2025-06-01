@@ -49,8 +49,8 @@ const EmployeeSelector: React.FC<EmployeeSelectorProps> = ({
     setLoading(true);
     try {
       const filters = [
-        { name: 'is_active', op: 'Equal', value: true }
-      ];
+      { name: 'is_active', op: 'Equal', value: true }];
+
 
       // Add station filter if provided
       if (station) {
@@ -80,7 +80,7 @@ const EmployeeSelector: React.FC<EmployeeSelectorProps> = ({
   };
 
   const handleValueChange = (selectedEmployeeId: string) => {
-    const selectedEmployee = employees.find(emp => emp.employee_id === selectedEmployeeId);
+    const selectedEmployee = employees.find((emp) => emp.employee_id === selectedEmployeeId);
     if (selectedEmployee) {
       const fullName = `${selectedEmployee.first_name} ${selectedEmployee.last_name}`;
       onValueChange(selectedEmployeeId, fullName);
@@ -89,40 +89,40 @@ const EmployeeSelector: React.FC<EmployeeSelectorProps> = ({
 
   return (
     <div className={`space-y-2 ${className}`}>
-      {showLabel && (
-        <Label htmlFor="employee-selector" className="flex items-center gap-2">
+      {showLabel &&
+      <Label htmlFor="employee-selector" className="flex items-center gap-2">
           <Users className="w-4 h-4" />
           {label} {required && <span className="text-red-500">*</span>}
         </Label>
-      )}
+      }
       
       <Select
         value={value}
         onValueChange={handleValueChange}
         disabled={disabled || loading}
-        required={required}
-      >
+        required={required}>
+
         <SelectTrigger className="w-full">
-          <SelectValue 
+          <SelectValue
             placeholder={
-              loading ? (
-                <div className="flex items-center gap-2">
+            loading ?
+            <div className="flex items-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Loading employees...
-                </div>
-              ) : placeholder
-            } 
-          />
+                </div> :
+            placeholder
+            } />
+
         </SelectTrigger>
         <SelectContent>
-          {employees.length === 0 && !loading && (
-            <div className="p-2 text-center text-gray-500">
+          {employees.length === 0 && !loading &&
+          <div className="p-2 text-center text-gray-500">
               {station ? `No active employees found for ${station}` : 'No active employees found'}
             </div>
-          )}
+          }
           
-          {employees.map((employee) => (
-            <SelectItem key={employee.id} value={employee.employee_id}>
+          {employees.map((employee) =>
+          <SelectItem key={employee.id} value={employee.employee_id}>
               <div className="flex flex-col">
                 <span className="font-medium">
                   {employee.first_name} {employee.last_name}
@@ -132,17 +132,17 @@ const EmployeeSelector: React.FC<EmployeeSelectorProps> = ({
                 </span>
               </div>
             </SelectItem>
-          ))}
+          )}
         </SelectContent>
       </Select>
       
-      {station && (
-        <p className="text-xs text-gray-500">
+      {station &&
+      <p className="text-xs text-gray-500">
           Showing employees from {station} station only
         </p>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default EmployeeSelector;
