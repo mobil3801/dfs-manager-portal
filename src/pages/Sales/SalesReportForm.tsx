@@ -250,7 +250,7 @@ export default function SalesReportForm() {
         description: `Sales report has been ${isEditing ? 'updated' : 'created'} successfully.`
       });
 
-      navigate('/sales-reports');
+      navigate('/dashboard');
     } catch (error) {
       console.error('Error saving report:', error);
       toast({
@@ -281,7 +281,7 @@ export default function SalesReportForm() {
           <div className="mb-6">
             <Button
               variant="outline"
-              onClick={() => navigate('/sales-reports')}
+              onClick={() => navigate('/dashboard')}
               className="mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Reports
@@ -476,7 +476,7 @@ export default function SalesReportForm() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate('/sales-reports')}>
+              onClick={() => navigate('/dashboard')}>
               Cancel
             </Button>
             <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
