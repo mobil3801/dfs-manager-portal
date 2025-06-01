@@ -67,30 +67,31 @@ const UserManagement: React.FC = () => {
   });
 
   useEffect(() => {
-    fetchUsers();
     fetchUserProfiles();
+    fetchUsers(); // Fetch current user info for context, but don't block on errors
   }, []);
 
   const fetchUsers = async () => {
     try {
-      // Get user info to see if current user has admin access
+      // Get current user info for display purposes
       const { data: currentUser, error: userError } = await window.ezsite.apis.getUserInfo();
-      if (userError) throw userError;
-
-      // This would typically fetch all users - for now we'll show current user
+      if (userError) {
+        console.log('User info not available:', userError);
+        // Don't show error toast for this, as it's not critical
+        setUsers([]);
+        return;
+      }
       setUsers([currentUser]);
     } catch (error) {
-      console.error('Error fetching users:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch users",
-        variant: "destructive"
-      });
+      console.error('Error fetching current user info:', error);
+      // Don't show error toast for this, as user profiles are the main data
+      setUsers([]);
     }
   };
 
   const fetchUserProfiles = async () => {
     try {
+      console.log('Fetching user profiles from table ID: 11725');
       const { data, error } = await window.ezsite.apis.tablePage(11725, {
         PageNo: 1,
         PageSize: 100,
@@ -99,15 +100,22 @@ const UserManagement: React.FC = () => {
         Filters: []
       });
 
-      if (error) throw error;
-      setUserProfiles(data.List || []);
+      if (error) {
+        console.error('API returned error:', error);
+        throw error;
+      }
+      
+      console.log('User profiles data received:', data);
+      setUserProfiles(data?.List || []);
     } catch (error) {
       console.error('Error fetching user profiles:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch user profiles",
+        description: `Failed to fetch user profiles: ${error}`,
         variant: "destructive"
       });
+      // Set empty array on error so the UI still works
+      setUserProfiles([]);
     } finally {
       setLoading(false);
     }
@@ -466,46 +474,54 @@ const UserManagement: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredProfiles.map((profile) =>
-                <TableRow key={profile.id}>
-                    <TableCell className="font-medium">{profile.employee_id}</TableCell>
-                    <TableCell>
-                      <Badge className={getRoleBadgeColor(profile.role)}>
-                        {profile.role}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getStationBadgeColor(profile.station)}>
-                        {profile.station}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{profile.phone}</TableCell>
-                    <TableCell>{new Date(profile.hire_date).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <Badge className={profile.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
-                        {profile.is_active ? 'Active' : 'Inactive'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleEditProfile(profile)}>
-
-                          <Edit3 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDeleteProfile(profile.id)}
-                        className="text-red-600 hover:text-red-700">
-
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+                {filteredProfiles.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                      {userProfiles.length === 0 ? "No user profiles found. Create your first user profile to get started." : "No profiles match your current filters."}
                     </TableCell>
                   </TableRow>
+                ) : (
+                  filteredProfiles.map((profile) =>
+                  <TableRow key={profile.id}>
+                      <TableCell className="font-medium">{profile.employee_id}</TableCell>
+                      <TableCell>
+                        <Badge className={getRoleBadgeColor(profile.role)}>
+                          {profile.role}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={getStationBadgeColor(profile.station)}>
+                          {profile.station}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{profile.phone}</TableCell>
+                      <TableCell>{profile.hire_date ? new Date(profile.hire_date).toLocaleDateString() : 'N/A'}</TableCell>
+                      <TableCell>
+                        <Badge className={profile.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                          {profile.is_active ? 'Active' : 'Inactive'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEditProfile(profile)}>
+
+                            <Edit3 className="w-4 h-4" />
+                          </Button>
+                          <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDeleteProfile(profile.id)}
+                          className="text-red-600 hover:text-red-700">
+
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
                 )}
               </TableBody>
             </Table>

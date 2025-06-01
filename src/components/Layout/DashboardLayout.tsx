@@ -44,23 +44,23 @@ const DashboardLayout: React.FC = () => {
 
   // All navigation items in one place
   const navigationItems: NavigationItem[] = [
-    { name: 'Dashboard', path: '/dashboard', icon: <Home className="w-5 h-5" /> },
-    { name: 'All Products', path: '/products', icon: <Package className="w-5 h-5" /> },
-    { name: 'All Employees', path: '/employees', icon: <Users className="w-5 h-5" /> },
-    { name: 'Sales Reports', path: '/sales', icon: <TrendingUp className="w-5 h-5" /> },
-    { name: 'Add Report', path: '/sales/new', icon: <Plus className="w-5 h-5" /> },
-    { name: 'Salary Records', path: '/salary', icon: <DollarSign className="w-5 h-5" /> },
-    { name: 'Inventory Alerts', path: '/inventory/alerts', icon: <AlertTriangle className="w-5 h-5" /> },
-    { name: 'New Delivery', path: '/delivery', icon: <Truck className="w-5 h-5" /> },
-    { name: 'All Vendors', path: '/vendors', icon: <Building2 className="w-5 h-5" /> },
-    { name: 'All Orders', path: '/orders', icon: <ShoppingCart className="w-5 h-5" /> },
-    { name: 'Create Order', path: '/orders/new', icon: <Plus className="w-5 h-5" /> },
-    { name: 'All Licenses', path: '/licenses', icon: <FileText className="w-5 h-5" /> },
-    { name: 'User Management', path: '/admin/users', icon: <UserCheck className="w-5 h-5" /> },
-    { name: 'Site Management', path: '/admin/site', icon: <Globe className="w-5 h-5" /> },
-    { name: 'System Logs', path: '/admin/logs', icon: <Database className="w-5 h-5" /> },
-    { name: 'Security Settings', path: '/admin/security', icon: <Shield className="w-5 h-5" /> }
-  ];
+  { name: 'Dashboard', path: '/dashboard', icon: <Home className="w-5 h-5" /> },
+  { name: 'All Products', path: '/products', icon: <Package className="w-5 h-5" /> },
+  { name: 'All Employees', path: '/employees', icon: <Users className="w-5 h-5" /> },
+  { name: 'Sales Reports', path: '/sales', icon: <TrendingUp className="w-5 h-5" /> },
+  { name: 'Add Report', path: '/sales/new', icon: <Plus className="w-5 h-5" /> },
+  { name: 'Salary Records', path: '/salary', icon: <DollarSign className="w-5 h-5" /> },
+  { name: 'Inventory Alerts', path: '/inventory/alerts', icon: <AlertTriangle className="w-5 h-5" /> },
+  { name: 'New Delivery', path: '/delivery', icon: <Truck className="w-5 h-5" /> },
+  { name: 'All Vendors', path: '/vendors', icon: <Building2 className="w-5 h-5" /> },
+  { name: 'All Orders', path: '/orders', icon: <ShoppingCart className="w-5 h-5" /> },
+  { name: 'Create Order', path: '/orders/new', icon: <Plus className="w-5 h-5" /> },
+  { name: 'All Licenses', path: '/licenses', icon: <FileText className="w-5 h-5" /> },
+  { name: 'User Management', path: '/admin/users', icon: <UserCheck className="w-5 h-5" /> },
+  { name: 'Site Management', path: '/admin/site', icon: <Globe className="w-5 h-5" /> },
+  { name: 'System Logs', path: '/admin/logs', icon: <Database className="w-5 h-5" /> },
+  { name: 'Security Settings', path: '/admin/security', icon: <Shield className="w-5 h-5" /> }];
+
 
 
 
