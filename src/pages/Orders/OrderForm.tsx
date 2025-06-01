@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from '@/hooks/use-toast';
 import { ShoppingCart, Save, ArrowLeft, Camera, Plus, Minus, Trash2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import ProductSearchBar from '@/components/ProductSearchBar';
+import ProductSelectionDialog from '@/components/ProductSelectionDialog';
 
 interface Product {
   ID: number;
@@ -20,11 +22,15 @@ interface Product {
   category: string;
   supplier: string;
   quantity_in_stock: number;
+  unit_per_case: number;
+  weight: number;
+  weight_unit: string;
 }
 
 interface OrderItem {
   product: Product;
   quantity: number;
+  unitType: string;
   subtotal: number;
 }
 
@@ -39,7 +45,7 @@ interface OrderFormData {
 const OrderForm: React.FC = () => {
   const [formData, setFormData] = useState<OrderFormData>({
     order_number: '',
-    station: '',
+    station: 'MOBIL',
     notes: '',
     items: [],
     total_amount: 0
@@ -47,7 +53,9 @@ const OrderForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
   const [matchedProducts, setMatchedProducts] = useState<Product[]>([]);
-  const [selectedQuantity, setSelectedQuantity] = useState<{[key: number]: number}>({});
+  const [selectedQuantity, setSelectedQuantity] = useState<{[key: number]: number;}>({});
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [showSelectionDialog, setShowSelectionDialog] = useState(false);
 
   const navigate = useNavigate();
   const { id } = useParams();
@@ -63,7 +71,7 @@ const OrderForm: React.FC = () => {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment' }
       });
-      
+
       if (videoRef) {
         videoRef.srcObject = mediaStream;
         setStream(mediaStream);
@@ -88,22 +96,22 @@ const OrderForm: React.FC = () => {
   const searchProductsByBarcode = async (barcode: string) => {
     try {
       setLoading(true);
-      
+
       // Search for products matching the barcode
       const { data, error } = await window.ezsite.apis.tablePage('11726', {
         PageNo: 1,
         PageSize: 10,
         Filters: [
-          { name: 'bar_code_case', op: 'Equal', value: barcode },
-          { name: 'bar_code_unit', op: 'Equal', value: barcode }
-        ]
+        { name: 'bar_code_case', op: 'Equal', value: barcode },
+        { name: 'bar_code_unit', op: 'Equal', value: barcode }]
+
       });
 
       if (error) throw error;
 
       const products = data?.List || [];
       setMatchedProducts(products);
-      
+
       if (products.length === 0) {
         toast({
           title: "No Products Found",
@@ -137,27 +145,43 @@ const OrderForm: React.FC = () => {
     stopCamera();
   };
 
-  const addProductToOrder = (product: Product) => {
-    const quantity = selectedQuantity[product.ID] || 1;
-    const subtotal = product.price * quantity;
+  const addProductToOrder = (product: Product, quantity: number = 1, unitType: string = 'pieces') => {
+    let pricePerUnit = product.price;
     
+    // Adjust price based on unit type
+    if (unitType === 'cases' && product.unit_per_case > 0) {
+      pricePerUnit = product.price * product.unit_per_case;
+    }
+    
+    const subtotal = pricePerUnit * quantity;
+
     const newItem: OrderItem = {
       product,
       quantity,
+      unitType,
       subtotal
     };
 
-    // Check if product already exists in order
-    const existingItemIndex = formData.items.findIndex(item => item.product.ID === product.ID);
-    
+    // Check if product already exists in order with same unit type
+    const existingItemIndex = formData.items.findIndex(
+      (item) => item.product.ID === product.ID && item.unitType === unitType
+    );
+
     let updatedItems;
     if (existingItemIndex >= 0) {
       // Update existing item
       updatedItems = [...formData.items];
+      const newQuantity = updatedItems[existingItemIndex].quantity + quantity;
+      let newPricePerUnit = updatedItems[existingItemIndex].product.price;
+      
+      if (unitType === 'cases' && product.unit_per_case > 0) {
+        newPricePerUnit = product.price * product.unit_per_case;
+      }
+      
       updatedItems[existingItemIndex] = {
         ...updatedItems[existingItemIndex],
-        quantity: updatedItems[existingItemIndex].quantity + quantity,
-        subtotal: updatedItems[existingItemIndex].product.price * (updatedItems[existingItemIndex].quantity + quantity)
+        quantity: newQuantity,
+        subtotal: newPricePerUnit * newQuantity
       };
     } else {
       // Add new item
@@ -166,7 +190,7 @@ const OrderForm: React.FC = () => {
 
     const newTotal = updatedItems.reduce((sum, item) => sum + item.subtotal, 0);
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       items: updatedItems,
       total_amount: newTotal
@@ -177,7 +201,7 @@ const OrderForm: React.FC = () => {
 
     toast({
       title: "Product Added",
-      description: `${product.product_name} added to order`
+      description: `${quantity} ${unitType} of ${product.product_name} added to order`
     });
   };
 
@@ -188,15 +212,22 @@ const OrderForm: React.FC = () => {
     }
 
     const updatedItems = [...formData.items];
+    const item = updatedItems[itemIndex];
+    let pricePerUnit = item.product.price;
+    
+    if (item.unitType === 'cases' && item.product.unit_per_case > 0) {
+      pricePerUnit = item.product.price * item.product.unit_per_case;
+    }
+    
     updatedItems[itemIndex] = {
       ...updatedItems[itemIndex],
       quantity: newQuantity,
-      subtotal: updatedItems[itemIndex].product.price * newQuantity
+      subtotal: pricePerUnit * newQuantity
     };
 
     const newTotal = updatedItems.reduce((sum, item) => sum + item.subtotal, 0);
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       items: updatedItems,
       total_amount: newTotal
@@ -207,11 +238,22 @@ const OrderForm: React.FC = () => {
     const updatedItems = formData.items.filter((_, index) => index !== itemIndex);
     const newTotal = updatedItems.reduce((sum, item) => sum + item.subtotal, 0);
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       items: updatedItems,
       total_amount: newTotal
     }));
+  };
+
+  const handleProductSelect = (product: Product) => {
+    setSelectedProduct(product);
+    setShowSelectionDialog(true);
+  };
+
+  const handleProductConfirm = (product: Product, quantity: number, unitType: string) => {
+    addProductToOrder(product, quantity, unitType);
+    setShowSelectionDialog(false);
+    setSelectedProduct(null);
   };
 
   const generateOrderNumber = () => {
@@ -234,7 +276,7 @@ const OrderForm: React.FC = () => {
 
     if (!formData.station) {
       toast({
-        title: "Error", 
+        title: "Error",
         description: "Please select a delivery station",
         variant: "destructive"
       });
@@ -253,8 +295,8 @@ const OrderForm: React.FC = () => {
         station: formData.station,
         total_amount: formData.total_amount,
         status: 'Pending',
-        notes: formData.notes + `\n\nItems:\n${formData.items.map(item => 
-          `- ${item.product.product_name} (${item.product.product_code}) x${item.quantity} = $${item.subtotal.toFixed(2)}`
+        notes: formData.notes + `\n\nItems:\n${formData.items.map((item) =>
+        `- ${item.product.product_name} (${item.product.product_code}) x${item.quantity} ${item.unitType} = $${item.subtotal.toFixed(2)}`
         ).join('\n')}`,
         created_by: 1
       };
@@ -288,10 +330,10 @@ const OrderForm: React.FC = () => {
             <div>
               <CardTitle className="flex items-center space-x-2">
                 <ShoppingCart className="w-6 h-6" />
-                <span>Create Order with Barcode Scanner</span>
+                <span>Create Order</span>
               </CardTitle>
               <CardDescription>
-                Scan product barcodes to quickly add items to your order
+                Scan product barcodes or search manually to add items to your order
               </CardDescription>
             </div>
             <Button variant="outline" onClick={() => navigate('/orders')}>
@@ -311,14 +353,14 @@ const OrderForm: React.FC = () => {
                   <p className="text-muted-foreground">
                     Click to open camera and scan product barcodes
                   </p>
-                  <Button 
+                  <Button
                     onClick={() => {
                       setScannerOpen(true);
                       setTimeout(startCamera, 100);
                     }}
                     className="w-full sm:w-auto"
-                    disabled={loading}
-                  >
+                    disabled={loading}>
+
                     <Camera className="w-4 h-4 mr-2" />
                     Open Barcode Scanner
                   </Button>
@@ -326,9 +368,12 @@ const OrderForm: React.FC = () => {
               </CardContent>
             </Card>
 
+            {/* Manual Product Search */}
+            <ProductSearchBar onProductSelect={handleProductSelect} />
+
             {/* Camera Dialog */}
-            {scannerOpen && (
-              <Card className="border-primary">
+            {scannerOpen &&
+            <Card className="border-primary">
                 <CardHeader>
                   <CardTitle>Barcode Scanner</CardTitle>
                 </CardHeader>
@@ -336,11 +381,11 @@ const OrderForm: React.FC = () => {
                   <div className="space-y-4">
                     <div className="relative w-full max-w-md mx-auto aspect-video bg-black rounded-lg overflow-hidden">
                       <video
-                        ref={(ref) => setVideoRef(ref)}
-                        autoPlay
-                        playsInline
-                        className="w-full h-full object-cover"
-                      />
+                      ref={(ref) => setVideoRef(ref)}
+                      autoPlay
+                      playsInline
+                      className="w-full h-full object-cover" />
+
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="border-2 border-white border-dashed w-48 h-24 rounded-lg"></div>
                       </div>
@@ -349,13 +394,13 @@ const OrderForm: React.FC = () => {
                       <Button onClick={simulateBarcodeCapture} disabled={loading}>
                         Capture Barcode
                       </Button>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => {
-                          setScannerOpen(false);
-                          stopCamera();
-                        }}
-                      >
+                      <Button
+                      variant="outline"
+                      onClick={() => {
+                        setScannerOpen(false);
+                        stopCamera();
+                      }}>
+
                         Cancel
                       </Button>
                     </div>
@@ -365,18 +410,18 @@ const OrderForm: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
-            )}
+            }
 
             {/* Matched Products Section */}
-            {matchedProducts.length > 0 && (
-              <Card>
+            {matchedProducts.length > 0 &&
+            <Card>
                 <CardHeader>
                   <CardTitle>Found Products</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {matchedProducts.map((product) => (
-                      <div key={product.ID} className="flex items-center justify-between p-4 border rounded-lg">
+                    {matchedProducts.map((product) =>
+                  <div key={product.ID} className="flex items-center justify-between p-4 border rounded-lg">
                         <div className="flex-1">
                           <h4 className="font-semibold">{product.product_name}</h4>
                           <p className="text-sm text-muted-foreground">
@@ -390,64 +435,67 @@ const OrderForm: React.FC = () => {
                           <div className="flex items-center space-x-2">
                             <Label htmlFor={`qty-${product.ID}`} className="text-sm">Qty:</Label>
                             <NumberInput
-                              id={`qty-${product.ID}`}
-                              value={selectedQuantity[product.ID] || 1}
-                              onChange={(value) => setSelectedQuantity(prev => ({
-                                ...prev,
-                                [product.ID]: value
-                              }))}
-                              min={1}
-                              max={product.quantity_in_stock}
-                              className="w-20"
-                            />
+                          id={`qty-${product.ID}`}
+                          value={selectedQuantity[product.ID] || 1}
+                          onChange={(value) => setSelectedQuantity((prev) => ({
+                            ...prev,
+                            [product.ID]: value
+                          }))}
+                          min={1}
+                          max={product.quantity_in_stock}
+                          className="w-20" />
+
                           </div>
                           <Button
-                            size="sm"
-                            onClick={() => addProductToOrder(product)}
-                            className="flex items-center space-x-1"
-                          >
+                        size="sm"
+                        onClick={() => addProductToOrder(product)}
+                        className="flex items-center space-x-1">
+
                             <Plus className="w-4 h-4" />
                             <span>Add</span>
                           </Button>
                         </div>
                       </div>
-                    ))}
+                  )}
                   </div>
                 </CardContent>
               </Card>
-            )}
+            }
 
             {/* Order Items Section */}
-            {formData.items.length > 0 && (
-              <Card>
+            {formData.items.length > 0 &&
+            <Card>
                 <CardHeader>
                   <CardTitle>Order Items ({formData.items.length})</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {formData.items.map((item, index) => (
-                      <div key={`${item.product.ID}-${index}`} className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+                    {formData.items.map((item, index) =>
+                  <div key={`${item.product.ID}-${index}`} className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
                         <div className="flex-1">
                           <h4 className="font-semibold">{item.product.product_name}</h4>
                           <p className="text-sm text-muted-foreground">
-                            {item.product.product_code} | ${item.product.price.toFixed(2)} each
+                            {item.product.product_code} | ${(item.subtotal / item.quantity).toFixed(2)} per {item.unitType}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Unit Type: {item.unitType}
                           </p>
                         </div>
                         <div className="flex items-center space-x-3">
                           <div className="flex items-center space-x-2">
                             <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => updateItemQuantity(index, item.quantity - 1)}
-                            >
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updateItemQuantity(index, item.quantity - 1)}>
+
                               <Minus className="w-3 h-3" />
                             </Button>
-                            <span className="w-8 text-center font-medium">{item.quantity}</span>
+                            <span className="w-8 text-center font-medium">{item.quantity} {item.unitType}</span>
                             <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => updateItemQuantity(index, item.quantity + 1)}
-                            >
+                          size="sm"
+                          variant="outline"
+                          onClick={() => updateItemQuantity(index, item.quantity + 1)}>
+
                               <Plus className="w-3 h-3" />
                             </Button>
                           </div>
@@ -455,15 +503,15 @@ const OrderForm: React.FC = () => {
                             <p className="font-semibold">${item.subtotal.toFixed(2)}</p>
                           </div>
                           <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => removeItem(index)}
-                          >
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => removeItem(index)}>
+
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       </div>
-                    ))}
+                  )}
                     <div className="border-t pt-3">
                       <div className="flex justify-between items-center text-lg font-bold">
                         <span>Total Amount:</span>
@@ -473,7 +521,7 @@ const OrderForm: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
-            )}
+            }
 
             {/* Order Details Form */}
             <Card>
@@ -488,26 +536,26 @@ const OrderForm: React.FC = () => {
                       <Input
                         id="order_number"
                         value={formData.order_number}
-                        onChange={(e) => setFormData(prev => ({ ...prev, order_number: e.target.value }))}
-                        placeholder="Auto-generated if left empty"
-                      />
+                        onChange={(e) => setFormData((prev) => ({ ...prev, order_number: e.target.value }))}
+                        placeholder="Auto-generated if left empty" />
+
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="station">Delivery Station *</Label>
                       <Select
                         value={formData.station}
-                        onValueChange={(value) => setFormData(prev => ({ ...prev, station: value }))}
-                      >
+                        onValueChange={(value) => setFormData((prev) => ({ ...prev, station: value }))}>
+
                         <SelectTrigger>
                           <SelectValue placeholder="Select delivery station" />
                         </SelectTrigger>
                         <SelectContent>
-                          {stations.map((station) => (
-                            <SelectItem key={station} value={station}>
+                          {stations.map((station) =>
+                          <SelectItem key={station} value={station}>
                               {station}
                             </SelectItem>
-                          ))}
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
@@ -518,26 +566,26 @@ const OrderForm: React.FC = () => {
                     <Input
                       id="notes"
                       value={formData.notes}
-                      onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                      placeholder="Enter any additional notes about this order..."
-                    />
+                      onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
+                      placeholder="Enter any additional notes about this order..." />
+
                   </div>
 
                   <div className="flex items-center justify-end space-x-4 pt-4">
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => navigate('/orders')}
-                    >
+                      onClick={() => navigate('/orders')}>
+
                       Cancel
                     </Button>
                     <Button type="submit" disabled={loading || formData.items.length === 0}>
-                      {loading ? 'Creating...' : (
-                        <>
+                      {loading ? 'Creating...' :
+                      <>
                           <Save className="w-4 h-4 mr-2" />
                           Create Order
                         </>
-                      )}
+                      }
                     </Button>
                   </div>
                 </form>
@@ -546,8 +594,19 @@ const OrderForm: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+
+      {/* Product Selection Dialog */}
+      <ProductSelectionDialog
+        isOpen={showSelectionDialog}
+        onClose={() => {
+          setShowSelectionDialog(false);
+          setSelectedProduct(null);
+        }}
+        product={selectedProduct}
+        onConfirm={handleProductConfirm}
+      />
+    </div>);
+
 };
 
 export default OrderForm;
