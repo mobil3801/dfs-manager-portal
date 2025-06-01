@@ -42,7 +42,7 @@ const ProductLogs: React.FC<ProductLogsProps> = ({ isOpen, onClose, productId, p
     try {
       setLoading(true);
       console.log('Loading product logs for product ID:', productId);
-      
+
       const { data, error } = await window.ezsite.apis.tablePage('11756', {
         PageNo: 1,
         PageSize: 100,
