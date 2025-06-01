@@ -25,8 +25,6 @@ import AlertSettings from './pages/Inventory/AlertSettings';
 import GasDeliveryInventory from './pages/Inventory/GasDeliveryInventory';
 import DeliveryList from './pages/Delivery/DeliveryList';
 import DeliveryForm from './pages/Delivery/DeliveryForm';
-import AfterDeliveryTankReportList from './pages/Delivery/AfterDeliveryTankReportList';
-import AfterDeliveryTankReportForm from './pages/Delivery/AfterDeliveryTankReportForm';
 import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient();
@@ -89,11 +87,6 @@ function App() {
               <Route path="delivery" element={<DeliveryList />} />
               <Route path="delivery/new" element={<DeliveryForm />} />
               <Route path="delivery/edit/:id" element={<DeliveryForm />} />
-              
-              {/* After Delivery Tank Report routes */}
-              <Route path="delivery/after-tank-reports" element={<AfterDeliveryTankReportList />} />
-              <Route path="delivery/after-tank-reports/new" element={<AfterDeliveryTankReportForm />} />
-              <Route path="delivery/after-tank-reports/:id" element={<AfterDeliveryTankReportForm />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />
