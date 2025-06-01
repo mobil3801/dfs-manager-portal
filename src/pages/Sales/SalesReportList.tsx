@@ -120,6 +120,7 @@ const SalesReportList: React.FC = () => {
   };
 
   const isAdmin = userProfile?.role === 'Administrator';
+  const canAddReport = userProfile?.role === 'Employee' || userProfile?.role === 'Administrator';
 
   const getStationBadgeColor = (station: string) => {
     switch (station.toUpperCase()) {
@@ -265,10 +266,12 @@ const SalesReportList: React.FC = () => {
                 Track daily sales performance across all stations
               </CardDescription>
             </div>
-            <Button onClick={() => navigate('/sales/new')} className="flex items-center space-x-2">
-              <Plus className="w-4 h-4" />
-              <span>Add Report</span>
-            </Button>
+            {canAddReport && (
+              <Button onClick={() => navigate('/sales/new')} className="flex items-center space-x-2">
+                <Plus className="w-4 h-4" />
+                <span>Add Report</span>
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -296,13 +299,14 @@ const SalesReportList: React.FC = () => {
           <div className="text-center py-8">
               <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No sales reports found</p>
-              <Button
-              variant="outline"
-              className="mt-4"
-              onClick={() => navigate('/sales/new')}>
-
-                Add Your First Sales Report
-              </Button>
+              {canAddReport && (
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                  onClick={() => navigate('/sales/new')}>
+                  Add Your First Sales Report
+                </Button>
+              )}
             </div> :
 
           <div className="border rounded-lg overflow-hidden">

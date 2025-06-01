@@ -104,7 +104,7 @@ const UserManagement: React.FC = () => {
         console.error('API returned error:', error);
         throw error;
       }
-      
+
       console.log('User profiles data received:', data);
       setUserProfiles(data?.List || []);
     } catch (error) {
@@ -474,15 +474,15 @@ const UserManagement: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredProfiles.length === 0 ? (
-                  <TableRow>
+                {filteredProfiles.length === 0 ?
+                <TableRow>
                     <TableCell colSpan={7} className="text-center py-8 text-gray-500">
                       {userProfiles.length === 0 ? "No user profiles found. Create your first user profile to get started." : "No profiles match your current filters."}
                     </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredProfiles.map((profile) =>
-                  <TableRow key={profile.id}>
+                  </TableRow> :
+
+                filteredProfiles.map((profile) =>
+                <TableRow key={profile.id}>
                       <TableCell className="font-medium">{profile.employee_id}</TableCell>
                       <TableCell>
                         <Badge className={getRoleBadgeColor(profile.role)}>
@@ -504,25 +504,25 @@ const UserManagement: React.FC = () => {
                       <TableCell>
                         <div className="flex space-x-2">
                           <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEditProfile(profile)}>
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditProfile(profile)}>
 
                             <Edit3 className="w-4 h-4" />
                           </Button>
                           <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDeleteProfile(profile.id)}
-                          className="text-red-600 hover:text-red-700">
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDeleteProfile(profile.id)}
+                        className="text-red-600 hover:text-red-700">
 
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       </TableCell>
                     </TableRow>
-                  )
-                )}
+                )
+                }
               </TableBody>
             </Table>
           </div>
