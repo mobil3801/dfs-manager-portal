@@ -506,10 +506,10 @@ const EmployeeForm: React.FC = () => {
                     label="Upload ID Document or Take Photo"
                     currentFile={selectedFile?.name}
                     maxSize={10}
-                    allowCamera={true}
-                  />
+                    allowCamera={true} />
+
                   {selectedFile &&
-                    <div className="p-3 bg-gray-50 rounded-lg">
+                  <div className="p-3 bg-gray-50 rounded-lg">
                       <p className="text-sm font-medium">Selected file:</p>
                       <p className="text-sm text-gray-600">{selectedFile.name}</p>
                       <p className="text-xs text-gray-500 mt-1">

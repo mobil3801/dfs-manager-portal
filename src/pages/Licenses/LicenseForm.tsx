@@ -329,8 +329,8 @@ const LicenseForm: React.FC = () => {
                 currentFile={uploadedFile?.name || (formData.document_file_id > 0 ? `Document ID: ${formData.document_file_id}` : undefined)}
                 maxSize={10}
                 allowCamera={true}
-                disabled={uploadLoading}
-              />
+                disabled={uploadLoading} />
+
               
               {uploadedFile &&
               <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">

@@ -3,8 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Upload, Camera, FileText, Image, X, RotateCcw, Check } from 'lucide-react';
+import { Upload, Camera, FileText, Image, X, RotateCcw, Check, Loader2, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { compressImage, formatFileSize, isImageFile, type CompressionResult } from '@/utils/imageCompression';
 
 interface EnhancedFileUploadProps {
   onFileSelect: (file: File) => void;
@@ -32,11 +33,13 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isCameraLoading, setIsCameraLoading] = useState(false);
-  
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressionResult, setCompressionResult] = useState<CompressionResult | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  
+
   const { toast } = useToast();
 
   // Check if the accept type includes images
@@ -56,8 +59,8 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
 
     // Check file type if accept is specified
     if (accept && accept !== "*/*") {
-      const acceptedTypes = accept.split(',').map(type => type.trim());
-      const isAccepted = acceptedTypes.some(type => {
+      const acceptedTypes = accept.split(',').map((type) => type.trim());
+      const isAccepted = acceptedTypes.some((type) => {
         if (type.startsWith('.')) {
           return file.name.toLowerCase().endsWith(type.toLowerCase());
         } else if (type.includes('*')) {
@@ -81,15 +84,58 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
     return true;
   };
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file && validateFile(file)) {
+  const processFile = async (file: File) => {
+    // Check if it's an image and larger than 1MB
+    const needsCompression = isImageFile(file) && file.size > 1024 * 1024;
+    
+    if (needsCompression) {
+      setIsCompressing(true);
+      try {
+        const result = await compressImage(file, {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1920,
+          quality: 0.8,
+          initialQuality: 0.8
+        });
+        
+        setCompressionResult(result);
+        
+        if (result.wasCompressed) {
+          toast({
+            title: "Image compressed",
+            description: `File size reduced from ${formatFileSize(result.originalSize)} to ${formatFileSize(result.compressedSize)} (${(result.compressionRatio).toFixed(1)}x smaller)`,
+            duration: 5000
+          });
+        }
+        
+        onFileSelect(result.file);
+        setIsOpen(false);
+      } catch (error) {
+        console.error('Compression failed:', error);
+        toast({
+          title: "Compression failed",
+          description: "Using original file instead",
+          variant: "destructive"
+        });
+        onFileSelect(file);
+        setIsOpen(false);
+      } finally {
+        setIsCompressing(false);
+      }
+    } else {
       onFileSelect(file);
       setIsOpen(false);
       toast({
         title: "File selected",
-        description: `${file.name} has been selected successfully`,
+        description: `${file.name} has been selected successfully`
       });
+    }
+  };
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && validateFile(file)) {
+      await processFile(file);
     }
     // Reset input
     if (fileInputRef.current) {
@@ -107,10 +153,10 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
           facingMode: 'environment' // Use back camera on mobile if available
         }
       });
-      
+
       setCameraStream(stream);
       setShowCamera(true);
-      
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
@@ -128,7 +174,7 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
 
   const stopCamera = () => {
     if (cameraStream) {
-      cameraStream.getTracks().forEach(track => track.stop());
+      cameraStream.getTracks().forEach((track) => track.stop());
       setCameraStream(null);
     }
     setShowCamera(false);
@@ -140,33 +186,32 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
       const video = videoRef.current;
       const canvas = canvasRef.current;
       const context = canvas.getContext('2d');
-      
+
       if (context) {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         context.drawImage(video, 0, 0);
-        
+
         const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8);
         setCapturedImage(imageDataUrl);
       }
     }
   };
 
-  const confirmCapture = () => {
+  const confirmCapture = async () => {
     if (capturedImage && canvasRef.current) {
-      canvasRef.current.toBlob((blob) => {
+      canvasRef.current.toBlob(async (blob) => {
         if (blob) {
           const file = new File([blob], `captured-${Date.now()}.jpg`, {
             type: 'image/jpeg'
           });
-          
+
           if (validateFile(file)) {
-            onFileSelect(file);
             stopCamera();
-            setIsOpen(false);
+            await processFile(file);
             toast({
               title: "Photo captured",
-              description: "Photo has been captured successfully",
+              description: "Photo has been captured successfully"
             });
           }
         }
@@ -197,8 +242,8 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
           <Button
             variant="outline"
             disabled={disabled}
-            className="w-full flex items-center gap-2"
-          >
+            className="w-full flex items-center gap-2">
+
             {getFileIcon()}
             {label}
           </Button>
@@ -212,11 +257,11 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
             </DialogTitle>
           </DialogHeader>
 
-          {!showCamera ? (
-            <div className="space-y-4">
+          {!showCamera ?
+          <div className="space-y-4">
               {/* Current file display */}
-              {currentFile && (
-                <Card>
+              {currentFile &&
+            <Card>
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Current file:</span>
@@ -224,7 +269,7 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
                     </div>
                   </CardContent>
                 </Card>
-              )}
+            }
 
               {/* Upload options */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -232,10 +277,10 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
                 <Card className="cursor-pointer hover:bg-gray-50 transition-colors">
                   <CardContent className="p-6">
                     <Button
-                      variant="ghost"
-                      className="w-full h-auto p-0 flex flex-col items-center gap-3"
-                      onClick={() => fileInputRef.current?.click()}
-                    >
+                    variant="ghost"
+                    className="w-full h-auto p-0 flex flex-col items-center gap-3"
+                    onClick={() => fileInputRef.current?.click()}>
+
                       <div className="p-4 bg-blue-100 rounded-full">
                         <Upload className="h-8 w-8 text-blue-600" />
                       </div>
@@ -250,15 +295,15 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
                 </Card>
 
                 {/* Camera option */}
-                {shouldShowCamera && (
-                  <Card className="cursor-pointer hover:bg-gray-50 transition-colors">
+                {shouldShowCamera &&
+              <Card className="cursor-pointer hover:bg-gray-50 transition-colors">
                     <CardContent className="p-6">
                       <Button
-                        variant="ghost"
-                        className="w-full h-auto p-0 flex flex-col items-center gap-3"
-                        onClick={startCamera}
-                        disabled={isCameraLoading}
-                      >
+                    variant="ghost"
+                    className="w-full h-auto p-0 flex flex-col items-center gap-3"
+                    onClick={startCamera}
+                    disabled={isCameraLoading}>
+
                         <div className="p-4 bg-green-100 rounded-full">
                           <Camera className="h-8 w-8 text-green-600" />
                         </div>
@@ -271,18 +316,41 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
                       </Button>
                     </CardContent>
                 </Card>
-                )}
+              }
               </div>
+
+              {/* Compression status */}
+              {isCompressing && (
+                <Card className="border-blue-200 bg-blue-50">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                      <div>
+                        <p className="font-medium text-blue-800">Compressing image...</p>
+                        <p className="text-sm text-blue-600">Optimizing file size for better performance</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* File type info */}
               <div className="text-center text-sm text-gray-500">
                 <p>Accepted file types: {accept}</p>
                 <p>Maximum file size: {maxSize}MB</p>
+                {isImageFile({ type: accept } as File) && (
+                  <div className="mt-2 p-2 bg-green-50 rounded-lg border border-green-200">
+                    <div className="flex items-center justify-center gap-2 text-green-700">
+                      <Zap className="h-4 w-4" />
+                      <span className="text-xs font-medium">Auto-compression enabled for images &gt;1MB</span>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          ) : (
-            /* Camera interface */
-            <div className="space-y-4">
+            </div> : (
+
+          /* Camera interface */
+          <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Camera</h3>
                 <Button variant="ghost" size="sm" onClick={closeDialog}>
@@ -291,28 +359,28 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
               </div>
 
               <div className="relative bg-black rounded-lg overflow-hidden">
-                {!capturedImage ? (
-                  <video
-                    ref={videoRef}
-                    autoPlay
-                    playsInline
-                    className="w-full h-64 md:h-96 object-cover"
-                  />
-                ) : (
-                  <img
-                    src={capturedImage}
-                    alt="Captured"
-                    className="w-full h-64 md:h-96 object-cover"
-                  />
-                )}
+                {!capturedImage ?
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                className="w-full h-64 md:h-96 object-cover" /> :
+
+
+              <img
+                src={capturedImage}
+                alt="Captured"
+                className="w-full h-64 md:h-96 object-cover" />
+
+              }
                 
                 {/* Hidden canvas for capture */}
                 <canvas ref={canvasRef} className="hidden" />
               </div>
 
               <div className="flex justify-center gap-4">
-                {!capturedImage ? (
-                  <>
+                {!capturedImage ?
+              <>
                     <Button onClick={capturePhoto} className="flex items-center gap-2">
                       <Camera className="h-4 w-4" />
                       Capture
@@ -320,9 +388,9 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
                     <Button variant="outline" onClick={stopCamera}>
                       Cancel
                     </Button>
-                  </>
-                ) : (
-                  <>
+                  </> :
+
+              <>
                     <Button onClick={confirmCapture} className="flex items-center gap-2">
                       <Check className="h-4 w-4" />
                       Use This Photo
@@ -332,10 +400,10 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
                       Retake
                     </Button>
                   </>
-                )}
+              }
               </div>
-            </div>
-          )}
+            </div>)
+          }
         </DialogContent>
       </Dialog>
 
@@ -345,10 +413,10 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
         type="file"
         accept={accept}
         onChange={handleFileSelect}
-        className="hidden"
-      />
-    </div>
-  );
+        className="hidden" />
+
+    </div>);
+
 };
 
 export default EnhancedFileUpload;

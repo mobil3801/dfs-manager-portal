@@ -22,6 +22,7 @@ import {
   Info,
   AlertCircle,
   Plus,
+  Settings,
   X } from
 'lucide-react';
 
@@ -598,8 +599,8 @@ const Dashboard: React.FC = () => {
         </Card>
       </div>
 
-      {/* New Features - Salary & Inventory */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* New Features - Salary, Inventory & Settings */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-blue-200 bg-blue-50" onClick={() => navigate('/salary')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -632,6 +633,24 @@ const Dashboard: React.FC = () => {
             </div>
             <div className="mt-4 text-xs text-red-600">
               ✨ NEW FEATURE - Smart notifications
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-green-200 bg-green-50" onClick={() => navigate('/inventory/settings')}>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-green-700">⚙️ System Settings</p>
+                <p className="text-lg font-bold text-green-900 mt-1">App Configuration</p>
+                <p className="text-sm text-green-600">Image compression & alerts</p>
+              </div>
+              <div className="p-3 rounded-full bg-green-600 text-white">
+                <Settings className="w-6 h-6" />
+              </div>
+            </div>
+            <div className="mt-4 text-xs text-green-600">
+              ✨ NEW - Auto image compression
             </div>
           </CardContent>
         </Card>

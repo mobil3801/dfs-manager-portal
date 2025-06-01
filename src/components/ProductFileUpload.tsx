@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Upload, FileText, Download } from 'lucide-react';
+import { Upload, FileText, Download, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import EnhancedFileUpload from '@/components/EnhancedFileUpload';
 
@@ -164,60 +164,71 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
             <Button
               variant={uploadMethod === 'enhanced' ? 'default' : 'outline'}
               onClick={() => setUploadMethod('enhanced')}
-              className="flex items-center gap-2"
-            >
+              className="flex items-center gap-2">
+
               <Upload className="h-4 w-4" />
               Enhanced Upload
             </Button>
             <Button
               variant={uploadMethod === 'manual' ? 'default' : 'outline'}
               onClick={() => setUploadMethod('manual')}
-              className="flex items-center gap-2"
-            >
+              className="flex items-center gap-2">
+
               <FileText className="h-4 w-4" />
               Manual Upload
             </Button>
           </div>
 
           {uploadMethod === 'enhanced' ? (
-            /* Enhanced upload with camera option */
-            <div className="space-y-4">
-              <EnhancedFileUpload
-                onFileSelect={handleEnhancedFileSelect}
-                accept=".csv,image/*"
-                label="Select CSV File or Take Photo"
-                currentFile={file?.name}
-                maxSize={10}
-                allowCamera={true}
-              />
+          /* Enhanced upload with camera option */
+          <div className="space-y-4">
+              {/* Compression info banner */}
+              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex items-center gap-2 text-blue-700">
+                  <Zap className="h-4 w-4" />
+                  <span className="text-sm font-medium">Auto-compression enabled for large images</span>
+                </div>
+                <p className="text-xs text-blue-600 mt-1">
+                  Images over 1MB will be automatically optimized for faster uploads and processing
+                </p>
+              </div>
               
-              {file && (
-                <div className="p-3 bg-gray-50 rounded-lg">
+              <EnhancedFileUpload
+              onFileSelect={handleEnhancedFileSelect}
+              accept=".csv,image/*"
+              label="Select CSV File or Take Photo"
+              currentFile={file?.name}
+              maxSize={10}
+              allowCamera={true} />
+
+              
+              {file &&
+            <div className="p-3 bg-gray-50 rounded-lg">
                   <p className="text-sm font-medium">Selected file:</p>
                   <p className="text-sm text-gray-600">{file.name}</p>
                   <p className="text-xs text-gray-500 mt-1">
                     {file.type.includes('image') ? 'Image file - OCR processing will be applied' : 'CSV file ready for import'}
                   </p>
                 </div>
-              )}
-            </div>
-          ) : (
-            /* Traditional manual upload */
-            <div className="space-y-2">
+            }
+            </div>) : (
+
+          /* Traditional manual upload */
+          <div className="space-y-2">
               <Label htmlFor="file">Select CSV File</Label>
               <Input
-                id="file"
-                type="file"
-                accept=".csv"
-                onChange={handleFileChange} />
+              id="file"
+              type="file"
+              accept=".csv"
+              onChange={handleFileChange} />
 
               {file &&
-              <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
                   Selected: {file.name}
                 </p>
-              }
-            </div>
-          )}
+            }
+            </div>)
+          }
 
           <div className="space-y-2">
             <Label>Download Template</Label>
