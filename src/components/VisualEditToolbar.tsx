@@ -10,9 +10,9 @@ interface VisualEditToolbarProps {
   showQuickActions?: boolean;
 }
 
-const VisualEditToolbar: React.FC<VisualEditToolbarProps> = ({ 
-  className = '', 
-  showQuickActions = true 
+const VisualEditToolbar: React.FC<VisualEditToolbarProps> = ({
+  className = '',
+  showQuickActions = true
 }) => {
   const { isVisualEditingEnabled, canEdit, canDelete, canCreate } = useAuth();
 
@@ -30,24 +30,24 @@ const VisualEditToolbar: React.FC<VisualEditToolbarProps> = ({
               <span className="font-medium text-green-800">Visual Editing Active</span>
             </div>
             <div className="flex items-center space-x-2">
-              {canCreate() && (
-                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+              {canCreate() &&
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
                   <Plus className="w-3 h-3 mr-1" />
                   Create
                 </Badge>
-              )}
-              {canEdit() && (
-                <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+              }
+              {canEdit() &&
+              <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
                   <Pencil className="w-3 h-3 mr-1" />
                   Edit
                 </Badge>
-              )}
-              {canDelete() && (
-                <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+              }
+              {canDelete() &&
+              <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
                   <Trash2 className="w-3 h-3 mr-1" />
                   Delete
                 </Badge>
-              )}
+              }
               <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
                 <Eye className="w-3 h-3 mr-1" />
                 View
@@ -55,18 +55,18 @@ const VisualEditToolbar: React.FC<VisualEditToolbarProps> = ({
             </div>
           </div>
           
-          {showQuickActions && (
-            <div className="flex items-center space-x-2">
+          {showQuickActions &&
+          <div className="flex items-center space-x-2">
               <span className="text-sm text-green-700">All permissions enabled</span>
               <Button variant="ghost" size="sm" className="text-green-700 hover:text-green-800">
                 <Settings className="w-4 h-4" />
               </Button>
             </div>
-          )}
+          }
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default VisualEditToolbar;

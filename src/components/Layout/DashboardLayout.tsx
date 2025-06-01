@@ -47,8 +47,7 @@ const DashboardLayout: React.FC = () => {
   { name: 'All Vendors', path: '/vendors', icon: <Building2 className="w-5 h-5" /> },
   { name: 'All Orders', path: '/orders', icon: <ShoppingCart className="w-5 h-5" /> },
   { name: 'Create Order', path: '/orders/new', icon: <Plus className="w-5 h-5" /> },
-  { name: 'All Licenses', path: '/licenses', icon: <FileText className="w-5 h-5" /> },
-  { name: 'Add License', path: '/licenses/new', icon: <Plus className="w-5 h-5" /> }];
+  { name: 'All Licenses', path: '/licenses', icon: <FileText className="w-5 h-5" /> }];
 
 
 

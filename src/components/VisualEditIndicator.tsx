@@ -7,9 +7,9 @@ interface VisualEditIndicatorProps {
   className?: string;
 }
 
-const VisualEditIndicator: React.FC<VisualEditIndicatorProps> = ({ 
-  feature = 'all features', 
-  className = '' 
+const VisualEditIndicator: React.FC<VisualEditIndicatorProps> = ({
+  feature = 'all features',
+  className = ''
 }) => {
   return (
     <div className={`flex items-center space-x-2 ${className}`}>
@@ -21,8 +21,8 @@ const VisualEditIndicator: React.FC<VisualEditIndicatorProps> = ({
         <Edit3 className="w-3 h-3 mr-1" />
         Full Permissions Active
       </Badge>
-    </div>
-  );
+    </div>);
+
 };
 
 export default VisualEditIndicator;

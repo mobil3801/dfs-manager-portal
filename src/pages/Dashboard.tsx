@@ -502,11 +502,11 @@ const Dashboard: React.FC = () => {
           </h1>
           <div className="mt-4 flex justify-center">
             <VisualEditIndicator className="mb-2" />
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="bg-white/10 border-white/20 text-white hover:bg-white/20 ml-4"
-              onClick={() => setShowGuide(true)}
-            >
+              onClick={() => setShowGuide(true)}>
+
               <Info className="w-4 h-4 mr-2" />
               View Editing Guide
             </Button>
@@ -799,8 +799,8 @@ const Dashboard: React.FC = () => {
       </div>
       
       {/* Visual Edit Status Note */}
-      {showGuide && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      {showGuide &&
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Visual Editing Guide</h3>
@@ -837,7 +837,7 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
+      }
     </div>);
 
 };

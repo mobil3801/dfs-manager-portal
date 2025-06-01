@@ -399,18 +399,18 @@ const ProductList: React.FC = () => {
                               <FileText className="w-4 h-4" />
                             </Button>
                             <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => navigate(`/products/edit/${product.ID}`)}
-                              title="Edit product">
+                            variant="outline"
+                            size="sm"
+                            onClick={() => navigate(`/products/edit/${product.ID}`)}
+                            title="Edit product">
                               <Edit className="w-4 h-4" />
                             </Button>
                             <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDelete(product.ID)}
-                              className="text-red-600 hover:text-red-700"
-                              title="Delete product">
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(product.ID)}
+                            className="text-red-600 hover:text-red-700"
+                            title="Delete product">
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
