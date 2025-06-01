@@ -13,6 +13,7 @@ import {
   FileText,
   Plus,
   ChevronLeft,
+  ChevronRight,
   DollarSign,
   AlertTriangle,
   CheckCircle,
@@ -66,6 +67,13 @@ const DashboardLayout: React.FC = () => {
 
 
   const handleNavigation = (path: string) => {
+    // Special case for User Management - redirect to external URL
+    if (path === '/admin/users') {
+      window.open('https://www.ezsite.ai/project-backend/14184', '_blank');
+      setSidebarOpen(false);
+      return;
+    }
+    
     navigate(path);
     setSidebarOpen(false);
   };
