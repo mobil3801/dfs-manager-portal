@@ -269,71 +269,35 @@ const DeliveryList: React.FC = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Station</TableHead>
-                      <TableHead>Tank Volumes (Gal)</TableHead>
-                      <TableHead>Delivered (Gal)</TableHead>
-                      <TableHead>Total Tank</TableHead>
-                      <TableHead>Total Delivered</TableHead>
-                      <TableHead>Notes</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead>Serial</TableHead>
+                      <TableHead>Station Name</TableHead>
+                      <TableHead>Regular (Delivered)</TableHead>
+                      <TableHead>Plus Delivered</TableHead>
+                      <TableHead>Super Delivered</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {deliveries.map((delivery) =>
-                  <TableRow key={delivery.id}>
-                        <TableCell>{formatDate(delivery.delivery_date)}</TableCell>
+                    {deliveries.map((delivery, index) =>
+                      <TableRow key={delivery.id}>
+                        <TableCell className="font-medium">
+                          {(currentPage - 1) * pageSize + index + 1}
+                        </TableCell>
                         <TableCell>
                           <Badge className={getStationBadgeColor(delivery.station)}>
                             {delivery.station}
                           </Badge>
                         </TableCell>
-                        <TableCell>
-                          <div className="text-xs space-y-1">
-                            <div>R: {formatNumber(delivery.regular_tank_volume)}</div>
-                            <div>P: {formatNumber(delivery.plus_tank_volume)}</div>
-                            <div>S: {formatNumber(delivery.super_tank_volume)}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-xs space-y-1">
-                            <div>R: {formatNumber(delivery.regular_delivered)}</div>
-                            <div>P: {formatNumber(delivery.plus_delivered)}</div>
-                            <div>S: {formatNumber(delivery.super_delivered)}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {formatNumber(getTotalTankVolume(delivery))}
+                        <TableCell className="font-medium text-blue-600">
+                          {formatNumber(delivery.regular_delivered)} gal
                         </TableCell>
                         <TableCell className="font-medium text-green-600">
-                          {formatNumber(getTotalDelivered(delivery))}
+                          {formatNumber(delivery.plus_delivered)} gal
                         </TableCell>
-                        <TableCell>
-                          <div className="max-w-32 truncate" title={delivery.delivery_notes}>
-                            {delivery.delivery_notes || '-'}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex space-x-2">
-                            <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => navigate(`/delivery/edit/${delivery.id}`)}>
-
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDelete(delivery.id)}
-                          className="text-red-600 hover:text-red-700">
-
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
+                        <TableCell className="font-medium text-purple-600">
+                          {formatNumber(delivery.super_delivered)} gal
                         </TableCell>
                       </TableRow>
-                  )}
+                    )}
                   </TableBody>
                 </Table>
               </div>
