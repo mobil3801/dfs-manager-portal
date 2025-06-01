@@ -211,64 +211,102 @@ const ProductForm = () => {
   };
 
   const handleBulkImport = async (importedData: any[]) => {
+    if (!isAdministrator) {
+      toast({
+        variant: "destructive",
+        title: "Access Denied",
+        description: "Only System Administrator can import products."
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       let successCount = 0;
       let errorCount = 0;
+      const errors: string[] = [];
+
+      // Get the latest serial number once
+      const serialResponse = await window.ezsite.apis.tablePage(11726, {
+        PageNo: 1,
+        PageSize: 1,
+        OrderByField: "serial_number",
+        IsAsc: false,
+        Filters: []
+      });
+
+      let lastSerial = serialResponse.data?.List?.[0]?.serial_number || 0;
 
       for (const productData of importedData) {
         try {
-          // Generate serial number for each product
-          const serialResponse = await window.ezsite.apis.tablePage(11726, {
-            PageNo: 1,
-            PageSize: 1,
-            OrderByField: "serial_number",
-            IsAsc: false,
-            Filters: []
-          });
-
-          const lastSerial = serialResponse.data?.List?.[0]?.serial_number || successCount;
+          // Ensure we have a product name (this should already be validated)
+          if (!productData.product_name?.trim()) {
+            errors.push(`Row ${successCount + errorCount + 1}: Product name is required`);
+            errorCount++;
+            continue;
+          }
 
           const productPayload = {
             serial_number: lastSerial + successCount + 1,
-            product_name: productData.product_name || '',
-            weight: parseFloat(productData.weight) || 0,
+            product_name: productData.product_name.trim(),
+            weight: productData.weight || 0,
             weight_unit: productData.weight_unit || 'lb',
             department: productData.department || 'Convenience Store',
             bar_code_case: productData.bar_code_case || '',
             bar_code_unit: productData.bar_code_unit || '',
             last_updated_date: new Date().toISOString(),
-            last_shopping_date: productData.last_shopping_date || null,
-            case_price: parseFloat(productData.case_price) || 0,
-            unit_per_case: parseInt(productData.unit_per_case) || 1,
-            unit_price: parseFloat(productData.unit_price) || 0,
-            retail_price: parseFloat(productData.retail_price) || 0,
+            last_shopping_date: productData.last_shopping_date ? new Date(productData.last_shopping_date).toISOString() : null,
+            case_price: productData.case_price || 0,
+            unit_per_case: productData.unit_per_case || 1,
+            unit_price: productData.unit_price || 0,
+            retail_price: productData.retail_price || 0,
             overdue: false,
             category: productData.category || '',
             supplier: productData.supplier || '',
-            quantity_in_stock: parseInt(productData.quantity_in_stock) || 0,
-            minimum_stock: parseInt(productData.minimum_stock) || 0,
-            description: productData.description || ''
+            quantity_in_stock: productData.quantity_in_stock || 0,
+            minimum_stock: productData.minimum_stock || 0,
+            description: productData.description || '',
+            merchant_id: productData.merchant_id ? parseInt(productData.merchant_id) : null
           };
+
+          console.log('Creating product:', productPayload);
 
           const { error } = await window.ezsite.apis.tableCreate(11726, productPayload);
 
           if (error) {
             console.error('Error creating product:', error);
+            errors.push(`${productData.product_name}: ${error}`);
             errorCount++;
           } else {
+            console.log('Successfully created product:', productData.product_name);
             successCount++;
           }
         } catch (error) {
           console.error('Error processing product:', error);
+          const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+          errors.push(`${productData.product_name || 'Unknown'}: ${errorMsg}`);
           errorCount++;
         }
       }
 
-      toast({
-        title: "Bulk Import Complete",
-        description: `Successfully imported ${successCount} products. ${errorCount} errors.`
-      });
+      // Show detailed results
+      if (successCount > 0) {
+        toast({
+          title: "Import Complete",
+          description: `Successfully imported ${successCount} products. ${errorCount > 0 ? `${errorCount} errors occurred.` : ''}`
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Import Failed",
+          description: `No products were imported. ${errorCount} errors occurred.`
+        });
+      }
+
+      // Log errors for debugging
+      if (errors.length > 0) {
+        console.error('Import errors:', errors);
+      }
 
       if (successCount > 0) {
         navigate('/products');
@@ -278,7 +316,7 @@ const ProductForm = () => {
       toast({
         variant: "destructive",
         title: "Import Failed",
-        description: "Failed to import product data."
+        description: error instanceof Error ? error.message : "Failed to import product data."
       });
     } finally {
       setIsLoading(false);
