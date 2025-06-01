@@ -24,7 +24,8 @@ import {
   Shield,
   Database,
   UserCheck,
-  Globe } from
+  Globe,
+  MessageSquare } from
 'lucide-react';
 
 import Logo from '@/components/Logo';
@@ -59,6 +60,7 @@ const DashboardLayout: React.FC = () => {
   { name: 'All Licenses', path: '/licenses', icon: <FileText className="w-5 h-5" /> },
   { name: 'User Management', path: '/admin/users', icon: <UserCheck className="w-5 h-5" /> },
   { name: 'Site Management', path: '/admin/site', icon: <Globe className="w-5 h-5" /> },
+  { name: 'SMS Alerts', path: '/admin/sms-alerts', icon: <MessageSquare className="w-5 h-5" /> },
   { name: 'System Logs', path: '/admin/logs', icon: <Database className="w-5 h-5" /> },
   { name: 'Security Settings', path: '/admin/security', icon: <Shield className="w-5 h-5" /> }];
 
@@ -104,6 +106,7 @@ const DashboardLayout: React.FC = () => {
     if (path.startsWith('/licenses')) return 'Licenses & Certificates';
     if (path.startsWith('/admin/users')) return 'User Management';
     if (path.startsWith('/admin/site')) return 'Site Management';
+    if (path.startsWith('/admin/sms-alerts')) return 'SMS Alert Management';
     if (path.startsWith('/admin/logs')) return 'System Logs';
     if (path.startsWith('/admin/security')) return 'Security Settings';
     if (path.startsWith('/admin')) return 'Site & User Management';

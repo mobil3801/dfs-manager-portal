@@ -30,6 +30,7 @@ import UserManagement from './pages/Admin/UserManagement';
 import SiteManagement from './pages/Admin/SiteManagement';
 import SystemLogs from './pages/Admin/SystemLogs';
 import SecuritySettings from './pages/Admin/SecuritySettings';
+import SMSAlertManagement from './pages/Admin/SMSAlertManagement';
 import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient();
@@ -98,6 +99,7 @@ function App() {
               <Route path="admin/site" element={<SiteManagement />} />
               <Route path="admin/logs" element={<SystemLogs />} />
               <Route path="admin/security" element={<SecuritySettings />} />
+              <Route path="admin/sms-alerts" element={<SMSAlertManagement />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />

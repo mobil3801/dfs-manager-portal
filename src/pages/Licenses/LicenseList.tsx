@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Search, Edit, Trash2, FileText, AlertTriangle, CheckCircle, Printer } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, FileText, AlertTriangle, CheckCircle, Printer, MessageSquare, Send } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import EnhancedLicensePrintDialog from '@/components/EnhancedLicensePrintDialog';
@@ -32,6 +32,7 @@ const LicenseList: React.FC = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [selectedLicenseForPrint, setSelectedLicenseForPrint] = useState<License | null>(null);
   const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
+  const [sendingSMS, setSendingSMS] = useState(false);
   const navigate = useNavigate();
   const { userProfile } = useAuth();
 
@@ -106,6 +107,146 @@ const LicenseList: React.FC = () => {
   const closePrintDialog = () => {
     setIsPrintDialogOpen(false);
     setSelectedLicenseForPrint(null);
+  };
+
+  const sendExpiryAlerts = async () => {
+    try {
+      setSendingSMS(true);
+      
+      // Get active SMS settings
+      const settingsResponse = await window.ezsite.apis.tablePage('12611', {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: 'id',
+        IsAsc: false,
+        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+      });
+      
+      if (settingsResponse.error) throw settingsResponse.error;
+      const settings = settingsResponse.data?.List || [];
+      
+      if (settings.length === 0) {
+        toast({
+          title: "No SMS Settings",
+          description: "Please configure SMS alert settings first",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Get active SMS contacts
+      const contactsResponse = await window.ezsite.apis.tablePage('12612', {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: 'id',
+        IsAsc: false,
+        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+      });
+      
+      if (contactsResponse.error) throw contactsResponse.error;
+      const contacts = contactsResponse.data?.List || [];
+      
+      if (contacts.length === 0) {
+        toast({
+          title: "No SMS Contacts",
+          description: "Please add SMS contacts first",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      let alertsSent = 0;
+      const today = new Date();
+      
+      // Check each license for expiry alerts
+      for (const license of licenses) {
+        if (!license.expiry_date) continue;
+        
+        const expiryDate = new Date(license.expiry_date);
+        const daysDiff = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
+        
+        // Check if any setting criteria match
+        for (const setting of settings) {
+          if (daysDiff <= setting.days_before_expiry && daysDiff >= 0) {
+            // Check if we should send alert based on frequency
+            const shouldSendAlert = await checkShouldSendAlert(license.ID, setting.alert_frequency_days);
+            
+            if (shouldSendAlert) {
+              // Send to relevant contacts
+              const relevantContacts = contacts.filter(contact => 
+                contact.station === 'ALL' || contact.station === license.station
+              );
+              
+              for (const contact of relevantContacts) {
+                const message = setting.message_template
+                  .replace('{license_name}', license.license_name)
+                  .replace('{station}', license.station)
+                  .replace('{expiry_date}', formatDate(license.expiry_date));
+                
+                // Create SMS history record
+                await window.ezsite.apis.tableCreate('12613', {
+                  license_id: license.ID,
+                  contact_id: contact.id,
+                  mobile_number: contact.mobile_number,
+                  message_content: message,
+                  sent_date: new Date().toISOString(),
+                  delivery_status: 'Sent',
+                  days_before_expiry: daysDiff,
+                  created_by: userProfile?.user_id || 1
+                });
+                
+                alertsSent++;
+              }
+            }
+          }
+        }
+      }
+      
+      toast({
+        title: "SMS Alerts Sent",
+        description: `${alertsSent} SMS alerts sent successfully`
+      });
+      
+    } catch (error) {
+      console.error('Error sending SMS alerts:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send SMS alerts",
+        variant: "destructive"
+      });
+    } finally {
+      setSendingSMS(false);
+    }
+  };
+  
+  const checkShouldSendAlert = async (licenseId: number, frequencyDays: number) => {
+    try {
+      // Check if we've sent an alert for this license recently
+      const { data, error } = await window.ezsite.apis.tablePage('12613', {
+        PageNo: 1,
+        PageSize: 1,
+        OrderByField: 'sent_date',
+        IsAsc: false,
+        Filters: [
+          { name: 'license_id', op: 'Equal', value: licenseId }
+        ]
+      });
+      
+      if (error) throw error;
+      
+      if (data?.List && data.List.length > 0) {
+        const lastAlert = data.List[0];
+        const lastAlertDate = new Date(lastAlert.sent_date);
+        const daysSinceLastAlert = Math.ceil((new Date().getTime() - lastAlertDate.getTime()) / (1000 * 3600 * 24));
+        
+        return daysSinceLastAlert >= frequencyDays;
+      }
+      
+      return true; // No previous alert found, should send
+    } catch (error) {
+      console.error('Error checking alert frequency:', error);
+      return true; // Default to sending if we can't check
+    }
   };
 
   // Check if user is Administrator
@@ -233,10 +374,33 @@ const LicenseList: React.FC = () => {
                 Manage your business licenses and certificates
               </CardDescription>
             </div>
-            <Button onClick={() => navigate('/licenses/new')} className="flex items-center space-x-2">
-              <Plus className="w-4 h-4" />
-              <span>Add License</span>
-            </Button>
+            <div className="flex items-center space-x-2">
+              {isAdmin && (
+                <>
+                  <Button 
+                    onClick={sendExpiryAlerts} 
+                    disabled={sendingSMS}
+                    variant="outline"
+                    className="flex items-center space-x-2"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span>{sendingSMS ? 'Sending...' : 'Send SMS Alerts'}</span>
+                  </Button>
+                  <Button 
+                    onClick={() => navigate('/admin/sms-alerts')} 
+                    variant="outline"
+                    className="flex items-center space-x-2"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    <span>SMS Settings</span>
+                  </Button>
+                </>
+              )}
+              <Button onClick={() => navigate('/licenses/new')} className="flex items-center space-x-2">
+                <Plus className="w-4 h-4" />
+                <span>Add License</span>
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
