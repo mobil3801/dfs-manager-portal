@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { FileText, Upload, CheckCircle, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import EnhancedFileUpload from '@/components/EnhancedFileUpload';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DocumentUpload {
   name: string;
@@ -148,26 +150,15 @@ const DocumentsUploadSection: React.FC<DocumentsUploadSectionProps> = ({
                   </Badge>
                 </div>
                 
-                <div className="flex items-center space-x-2">
-                  <Input
-                    type="file"
-                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) uploadDocument(document.field, file);
-                    }}
-                    className="flex-1" />
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={!document.fileId}
-                    className="whitespace-nowrap">
-
-                    <Upload className="w-4 h-4 mr-1" />
-                    {document.fileId ? 'Re-upload' : 'Upload'}
-                  </Button>
+                <div className="space-y-2">
+                  <EnhancedFileUpload
+                    onFileSelect={(file) => uploadDocument(document.field, file)}
+                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,image/*"
+                    label={document.fileId ? 'Re-upload Document' : 'Upload Document'}
+                    maxSize={15}
+                    allowCamera={true}
+                    className="w-full"
+                  />
                 </div>
                 
                 {document.fileId &&

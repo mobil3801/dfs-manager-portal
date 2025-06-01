@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from '@/hooks/use-toast';
 import { FileText, Save, ArrowLeft, Upload, FileIcon } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import EnhancedFileUpload from '@/components/EnhancedFileUpload';
 
 interface LicenseFormData {
   license_name: string;
@@ -321,55 +322,37 @@ const LicenseForm: React.FC = () => {
             {/* File Upload Section */}
             <div className="space-y-4">
               <Label>License Document</Label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
-                <div className="text-center">
-                  <FileIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <div className="space-y-2">
-                    <Label htmlFor="file-upload" className="cursor-pointer">
-                      <div className="flex items-center justify-center space-x-2">
-                        <Upload className="w-4 h-4" />
-                        <span className="text-blue-600 hover:text-blue-700">
-                          {uploadLoading ? 'Uploading...' : 'Upload license document'}
-                        </span>
-                      </div>
-                    </Label>
-                    <Input
-                      id="file-upload"
-                      type="file"
-                      className="hidden"
-                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          handleFileUpload(file);
-                        }
-                      }}
-                      disabled={uploadLoading} />
-
-                    <p className="text-sm text-gray-500">
-                      PDF, DOC, DOCX, JPG, PNG files up to 10MB
-                    </p>
+              <EnhancedFileUpload
+                onFileSelect={handleFileUpload}
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,image/*"
+                label="Upload License Document or Take Photo"
+                currentFile={uploadedFile?.name || (formData.document_file_id > 0 ? `Document ID: ${formData.document_file_id}` : undefined)}
+                maxSize={10}
+                allowCamera={true}
+                disabled={uploadLoading}
+              />
+              
+              {uploadedFile &&
+              <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">
+                  <div className="flex items-center space-x-2">
+                    <FileIcon className="w-4 h-4 text-green-600" />
+                    <span className="text-sm text-green-800">Recently uploaded: {uploadedFile.name}</span>
                   </div>
                 </div>
-                
-                {uploadedFile &&
-                <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">
-                    <div className="flex items-center space-x-2">
-                      <FileIcon className="w-4 h-4 text-green-600" />
-                      <span className="text-sm text-green-800">{uploadedFile.name}</span>
-                    </div>
+              }
+              
+              {formData.document_file_id > 0 && !uploadedFile &&
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
+                  <div className="flex items-center space-x-2">
+                    <FileIcon className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm text-blue-800">Document uploaded (ID: {formData.document_file_id})</span>
                   </div>
-                }
-                
-                {formData.document_file_id > 0 && !uploadedFile &&
-                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
-                    <div className="flex items-center space-x-2">
-                      <FileIcon className="w-4 h-4 text-blue-600" />
-                      <span className="text-sm text-blue-800">Document uploaded (ID: {formData.document_file_id})</span>
-                    </div>
-                  </div>
-                }
-              </div>
+                </div>
+              }
+              
+              <p className="text-sm text-gray-500">
+                PDF, DOC, DOCX, JPG, PNG files up to 10MB
+              </p>
             </div>
 
             <div className="flex items-center justify-end space-x-4">

@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Upload, FileText, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import EnhancedFileUpload from '@/components/EnhancedFileUpload';
 
 interface ProductFileUploadProps {
   onDataImport: (data: any[]) => void;
@@ -15,6 +16,7 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
   const [isOpen, setIsOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [uploadMethod, setUploadMethod] = useState<'manual' | 'enhanced'>('enhanced');
   const { toast } = useToast();
 
   const downloadTemplate = () => {
@@ -132,6 +134,18 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
     }
   };
 
+  const handleEnhancedFileSelect = (selectedFile: File) => {
+    if (!selectedFile.name.endsWith('.csv') && !selectedFile.type.includes('image')) {
+      toast({
+        variant: "destructive",
+        title: "Invalid File Type",
+        description: "Please select a CSV file or image."
+      });
+      return;
+    }
+    setFile(selectedFile);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -140,25 +154,70 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
           Import Products
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Import Product Data</DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="file">Select CSV File</Label>
-            <Input
-              id="file"
-              type="file"
-              accept=".csv"
-              onChange={handleFileChange} />
-
-            {file &&
-            <p className="text-sm text-muted-foreground">
-                Selected: {file.name}
-              </p>
-            }
+          {/* Upload method selector */}
+          <div className="flex gap-4 justify-center">
+            <Button
+              variant={uploadMethod === 'enhanced' ? 'default' : 'outline'}
+              onClick={() => setUploadMethod('enhanced')}
+              className="flex items-center gap-2"
+            >
+              <Upload className="h-4 w-4" />
+              Enhanced Upload
+            </Button>
+            <Button
+              variant={uploadMethod === 'manual' ? 'default' : 'outline'}
+              onClick={() => setUploadMethod('manual')}
+              className="flex items-center gap-2"
+            >
+              <FileText className="h-4 w-4" />
+              Manual Upload
+            </Button>
           </div>
+
+          {uploadMethod === 'enhanced' ? (
+            /* Enhanced upload with camera option */
+            <div className="space-y-4">
+              <EnhancedFileUpload
+                onFileSelect={handleEnhancedFileSelect}
+                accept=".csv,image/*"
+                label="Select CSV File or Take Photo"
+                currentFile={file?.name}
+                maxSize={10}
+                allowCamera={true}
+              />
+              
+              {file && (
+                <div className="p-3 bg-gray-50 rounded-lg">
+                  <p className="text-sm font-medium">Selected file:</p>
+                  <p className="text-sm text-gray-600">{file.name}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {file.type.includes('image') ? 'Image file - OCR processing will be applied' : 'CSV file ready for import'}
+                  </p>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Traditional manual upload */
+            <div className="space-y-2">
+              <Label htmlFor="file">Select CSV File</Label>
+              <Input
+                id="file"
+                type="file"
+                accept=".csv"
+                onChange={handleFileChange} />
+
+              {file &&
+              <p className="text-sm text-muted-foreground">
+                  Selected: {file.name}
+                </p>
+              }
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label>Download Template</Label>

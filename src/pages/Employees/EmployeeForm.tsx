@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 import { Users, Save, ArrowLeft, Upload } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import EnhancedFileUpload from '@/components/EnhancedFileUpload';
 
 interface EmployeeFormData {
   employee_id: string;
@@ -498,21 +499,24 @@ const EmployeeForm: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="id_document">ID Document Upload</Label>
-                  <div className="flex items-center space-x-2">
-                    <Input
-                      type="file"
-                      id="id_document"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                      className="flex-1" />
-                    {selectedFile &&
-                    <span className="text-sm text-green-600 flex items-center">
-                        <Upload className="w-4 h-4 mr-1" />
-                        {selectedFile.name}
-                      </span>
-                    }
-                  </div>
+                  <Label>ID Document Upload</Label>
+                  <EnhancedFileUpload
+                    onFileSelect={setSelectedFile}
+                    accept=".pdf,.jpg,.jpeg,.png,image/*"
+                    label="Upload ID Document or Take Photo"
+                    currentFile={selectedFile?.name}
+                    maxSize={10}
+                    allowCamera={true}
+                  />
+                  {selectedFile &&
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <p className="text-sm font-medium">Selected file:</p>
+                      <p className="text-sm text-gray-600">{selectedFile.name}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {selectedFile.type.includes('image') ? 'Image file selected' : 'Document file selected'}
+                      </p>
+                    </div>
+                  }
                   <p className="text-xs text-gray-500">Supported formats: PDF, JPG, PNG (Max 10MB)</p>
                 </div>
               </div>
