@@ -42,6 +42,7 @@ export default function SalesReportForm() {
   const [formData, setFormData] = useState({
     report_date: new Date().toISOString().split('T')[0],
     station: '',
+    shift: 'DAY',
     employee_name: '',
     employee_id: '',
     // Cash Collection
@@ -100,6 +101,7 @@ export default function SalesReportForm() {
         setFormData({
           report_date: report.report_date.split('T')[0],
           station: report.station,
+          shift: report.shift || 'DAY',
           employee_name: report.employee_name,
           employee_id: report.employee_id || '',
           cashCollectionOnHand: report.cash_collection_on_hand,
@@ -206,6 +208,7 @@ export default function SalesReportForm() {
     const submitData = {
       report_date: formData.report_date,
       station: formData.station,
+      shift: formData.shift,
       employee_name: formData.employee_name,
       employee_id: formData.employee_id,
       cash_collection_on_hand: formData.cashCollectionOnHand,
@@ -324,7 +327,7 @@ export default function SalesReportForm() {
               <CardTitle className="text-lg">Basic Information</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="report_date">Report Date *</Label>
                   <Input
@@ -340,6 +343,20 @@ export default function SalesReportForm() {
                   <div className="h-9 px-3 py-2 border border-gray-200 rounded-md bg-gray-100 flex items-center">
                     <span className="text-gray-700 font-medium">{selectedStation}</span>
                   </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="shift">Shift *</Label>
+                  <Select
+                    value={formData.shift}
+                    onValueChange={(value) => updateFormData('shift', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select shift" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="DAY">DAY</SelectItem>
+                      <SelectItem value="NIGHT">NIGHT</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="employee">Employee Name *</Label>

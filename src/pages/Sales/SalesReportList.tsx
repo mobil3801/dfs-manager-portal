@@ -14,6 +14,7 @@ interface SalesReport {
   ID: number;
   report_date: string;
   station: string;
+  shift: string;
   employee_name: string;
   cash_collection_on_hand: number;
   total_short_over: number;
@@ -315,6 +316,7 @@ const SalesReportList: React.FC = () => {
                   <TableRow>
                     <TableHead>Date</TableHead>
                     <TableHead>Station</TableHead>
+                    <TableHead>Shift</TableHead>
                     <TableHead>Total Sales</TableHead>
                     <TableHead>Gallons</TableHead>
                     <TableHead>Grocery</TableHead>
@@ -332,6 +334,11 @@ const SalesReportList: React.FC = () => {
                       <TableCell>
                         <Badge className={`text-white ${getStationBadgeColor(report.station)}`}>
                           {report.station}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={report.shift === 'DAY' ? 'default' : 'secondary'}>
+                          {report.shift || 'DAY'}
                         </Badge>
                       </TableCell>
                       <TableCell className="font-medium">
@@ -414,6 +421,7 @@ const SalesReportList: React.FC = () => {
                         {reports.length} reports
                       </Badge>
                     </TableCell>
+                    <TableCell className="text-gray-500">-</TableCell>
                     <TableCell className="font-bold text-green-600">
                       <div className="flex items-center space-x-2">
                         <span>{formatCurrency(totals.total_sales)}</span>
