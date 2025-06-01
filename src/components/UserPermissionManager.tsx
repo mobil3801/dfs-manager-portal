@@ -24,8 +24,8 @@ import {
   Edit,
   Plus,
   Trash2,
-  Save
-} from 'lucide-react';
+  Save } from
+'lucide-react';
 
 interface UserProfile {
   id: number;
@@ -94,31 +94,31 @@ const defaultDetailedPermissions: DetailedPermissions = {
 };
 
 const contentAreas = [
-  { key: 'dashboard', label: 'Dashboard', icon: BarChart3, color: 'text-blue-600' },
-  { key: 'products', label: 'Products', icon: Package, color: 'text-green-600' },
-  { key: 'employees', label: 'Employees', icon: Users, color: 'text-purple-600' },
-  { key: 'sales_reports', label: 'Sales Reports', icon: FileText, color: 'text-orange-600' },
-  { key: 'vendors', label: 'Vendors', icon: Building2, color: 'text-teal-600' },
-  { key: 'orders', label: 'Orders', icon: Truck, color: 'text-indigo-600' },
-  { key: 'licenses', label: 'Licenses', icon: Shield, color: 'text-red-600' },
-  { key: 'salary', label: 'Salary Management', icon: DollarSign, color: 'text-yellow-600' },
-  { key: 'inventory', label: 'Inventory', icon: Database, color: 'text-cyan-600' },
-  { key: 'delivery', label: 'Delivery', icon: Truck, color: 'text-pink-600' },
-  { key: 'settings', label: 'App Settings', icon: Settings, color: 'text-gray-600' },
-  { key: 'user_management', label: 'User Management', icon: UserCheck, color: 'text-red-600' },
-  { key: 'site_management', label: 'Site Management', icon: Building2, color: 'text-blue-600' },
-  { key: 'system_logs', label: 'System Logs', icon: FileText, color: 'text-gray-600' },
-  { key: 'security_settings', label: 'Security Settings', icon: Shield, color: 'text-red-600' }
-];
+{ key: 'dashboard', label: 'Dashboard', icon: BarChart3, color: 'text-blue-600' },
+{ key: 'products', label: 'Products', icon: Package, color: 'text-green-600' },
+{ key: 'employees', label: 'Employees', icon: Users, color: 'text-purple-600' },
+{ key: 'sales_reports', label: 'Sales Reports', icon: FileText, color: 'text-orange-600' },
+{ key: 'vendors', label: 'Vendors', icon: Building2, color: 'text-teal-600' },
+{ key: 'orders', label: 'Orders', icon: Truck, color: 'text-indigo-600' },
+{ key: 'licenses', label: 'Licenses', icon: Shield, color: 'text-red-600' },
+{ key: 'salary', label: 'Salary Management', icon: DollarSign, color: 'text-yellow-600' },
+{ key: 'inventory', label: 'Inventory', icon: Database, color: 'text-cyan-600' },
+{ key: 'delivery', label: 'Delivery', icon: Truck, color: 'text-pink-600' },
+{ key: 'settings', label: 'App Settings', icon: Settings, color: 'text-gray-600' },
+{ key: 'user_management', label: 'User Management', icon: UserCheck, color: 'text-red-600' },
+{ key: 'site_management', label: 'Site Management', icon: Building2, color: 'text-blue-600' },
+{ key: 'system_logs', label: 'System Logs', icon: FileText, color: 'text-gray-600' },
+{ key: 'security_settings', label: 'Security Settings', icon: Shield, color: 'text-red-600' }];
+
 
 const permissionTypes = [
-  { key: 'view', label: 'View', icon: Eye, description: 'Can view and access the content' },
-  { key: 'create', label: 'Create', icon: Plus, description: 'Can create new records' },
-  { key: 'edit', label: 'Edit', icon: Edit, description: 'Can modify existing records' },
-  { key: 'delete', label: 'Delete', icon: Trash2, description: 'Can delete records' },
-  { key: 'export', label: 'Export', icon: FileText, description: 'Can export data' },
-  { key: 'print', label: 'Print', icon: FileText, description: 'Can print reports' }
-];
+{ key: 'view', label: 'View', icon: Eye, description: 'Can view and access the content' },
+{ key: 'create', label: 'Create', icon: Plus, description: 'Can create new records' },
+{ key: 'edit', label: 'Edit', icon: Edit, description: 'Can modify existing records' },
+{ key: 'delete', label: 'Delete', icon: Trash2, description: 'Can delete records' },
+{ key: 'export', label: 'Export', icon: FileText, description: 'Can export data' },
+{ key: 'print', label: 'Print', icon: FileText, description: 'Can print reports' }];
+
 
 const UserPermissionManager: React.FC = () => {
   const [userProfiles, setUserProfiles] = useState<UserProfile[]>([]);
@@ -158,14 +158,14 @@ const UserPermissionManager: React.FC = () => {
   };
 
   const handleUserSelect = (userId: string) => {
-    const user = userProfiles.find(u => u.id.toString() === userId);
+    const user = userProfiles.find((u) => u.id.toString() === userId);
     if (user) {
       setSelectedUser(user);
       // Parse existing permissions or use defaults
       try {
-        const existingPermissions = user.detailed_permissions 
-          ? JSON.parse(user.detailed_permissions) 
-          : defaultDetailedPermissions;
+        const existingPermissions = user.detailed_permissions ?
+        JSON.parse(user.detailed_permissions) :
+        defaultDetailedPermissions;
         setPermissions(existingPermissions);
       } catch (error) {
         console.error('Error parsing permissions:', error);
@@ -175,7 +175,7 @@ const UserPermissionManager: React.FC = () => {
   };
 
   const handlePermissionChange = (contentArea: string, permissionType: string, value: boolean) => {
-    setPermissions(prev => ({
+    setPermissions((prev) => ({
       ...prev,
       [contentArea]: {
         ...prev[contentArea as keyof DetailedPermissions],
@@ -187,8 +187,8 @@ const UserPermissionManager: React.FC = () => {
   const handleBulkPermissionChange = (contentArea: string, action: 'grant_all' | 'revoke_all') => {
     const allTrue = permissionTypes.reduce((acc, type) => ({ ...acc, [type.key]: true }), {});
     const allFalse = permissionTypes.reduce((acc, type) => ({ ...acc, [type.key]: false }), {});
-    
-    setPermissions(prev => ({
+
+    setPermissions((prev) => ({
       ...prev,
       [contentArea]: action === 'grant_all' ? allTrue as Permission : allFalse as Permission
     }));
@@ -212,9 +212,9 @@ const UserPermissionManager: React.FC = () => {
           const isAdminArea = ['user_management', 'site_management', 'system_logs', 'security_settings'].includes(area);
           return {
             ...acc,
-            [area]: isAdminArea 
-              ? { ...defaultPermissions, view: true } 
-              : permissionTypes.reduce((perms, type) => ({ ...perms, [type.key]: true }), {})
+            [area]: isAdminArea ?
+            { ...defaultPermissions, view: true } :
+            permissionTypes.reduce((perms, type) => ({ ...perms, [type.key]: true }), {})
           };
         }, {} as DetailedPermissions);
         break;
@@ -256,10 +256,10 @@ const UserPermissionManager: React.FC = () => {
       });
 
       // Update the local state
-      setUserProfiles(prev => prev.map(user => 
-        user.id === selectedUser.id 
-          ? { ...user, detailed_permissions: JSON.stringify(permissions) }
-          : user
+      setUserProfiles((prev) => prev.map((user) =>
+      user.id === selectedUser.id ?
+      { ...user, detailed_permissions: JSON.stringify(permissions) } :
+      user
       ));
     } catch (error) {
       console.error('Error saving permissions:', error);
@@ -275,13 +275,13 @@ const UserPermissionManager: React.FC = () => {
 
   const getPermissionSummary = (user: UserProfile) => {
     try {
-      const userPermissions = user.detailed_permissions 
-        ? JSON.parse(user.detailed_permissions) 
-        : defaultDetailedPermissions;
-      
+      const userPermissions = user.detailed_permissions ?
+      JSON.parse(user.detailed_permissions) :
+      defaultDetailedPermissions;
+
       const totalAreas = contentAreas.length;
-      const areasWithAccess = contentAreas.filter(area => 
-        userPermissions[area.key]?.view
+      const areasWithAccess = contentAreas.filter((area) =>
+      userPermissions[area.key]?.view
       ).length;
 
       return `${areasWithAccess}/${totalAreas} areas`;
@@ -294,8 +294,8 @@ const UserPermissionManager: React.FC = () => {
     return (
       <div className="flex items-center justify-center min-h-64">
         <div className="text-lg">Loading permission management...</div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -325,8 +325,8 @@ const UserPermissionManager: React.FC = () => {
                   <SelectValue placeholder="Select a user to manage permissions" />
                 </SelectTrigger>
                 <SelectContent>
-                  {userProfiles.map((user) => (
-                    <SelectItem key={user.id} value={user.id.toString()}>
+                  {userProfiles.map((user) =>
+                  <SelectItem key={user.id} value={user.id.toString()}>
                       <div className="flex items-center justify-between w-full">
                         <span>{user.employee_id} - {user.role}</span>
                         <Badge variant="outline" className="ml-2">
@@ -334,46 +334,46 @@ const UserPermissionManager: React.FC = () => {
                         </Badge>
                       </div>
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
             </div>
 
-            {selectedUser && (
-              <div>
+            {selectedUser &&
+            <div>
                 <Label>Apply Role Template</Label>
                 <div className="flex space-x-2">
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => applyRoleTemplate('Administrator')}
-                    className="flex-1"
-                  >
+                  variant="outline"
+                  size="sm"
+                  onClick={() => applyRoleTemplate('Administrator')}
+                  className="flex-1">
+
                     Admin Template
                   </Button>
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => applyRoleTemplate('Management')}
-                    className="flex-1"
-                  >
+                  variant="outline"
+                  size="sm"
+                  onClick={() => applyRoleTemplate('Management')}
+                  className="flex-1">
+
                     Manager Template
                   </Button>
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => applyRoleTemplate('Employee')}
-                    className="flex-1"
-                  >
+                  variant="outline"
+                  size="sm"
+                  onClick={() => applyRoleTemplate('Employee')}
+                  className="flex-1">
+
                     Employee Template
                   </Button>
                 </div>
               </div>
-            )}
+            }
           </div>
 
-          {selectedUser && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+          {selectedUser &&
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="font-semibold">{selectedUser.employee_id}</h3>
@@ -388,24 +388,24 @@ const UserPermissionManager: React.FC = () => {
                 </div>
               </div>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
       {/* Permission Matrix */}
-      {selectedUser && (
-        <Card>
+      {selectedUser &&
+      <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center space-x-2">
                 <Shield className="w-5 h-5" />
                 <span>Detailed Permissions for {selectedUser.employee_id}</span>
               </CardTitle>
-              <Button 
-                onClick={savePermissions} 
-                disabled={saving}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
+              <Button
+              onClick={savePermissions}
+              disabled={saving}
+              className="bg-blue-600 hover:bg-blue-700">
+
                 <Save className="w-4 h-4 mr-2" />
                 {saving ? 'Saving...' : 'Save Permissions'}
               </Button>
@@ -417,61 +417,61 @@ const UserPermissionManager: React.FC = () => {
                 <thead>
                   <tr className="border-b">
                     <th className="text-left p-3 font-semibold">Content Area</th>
-                    {permissionTypes.map((type) => (
-                      <th key={type.key} className="text-center p-3 font-semibold min-w-20">
+                    {permissionTypes.map((type) =>
+                  <th key={type.key} className="text-center p-3 font-semibold min-w-20">
                         <div className="flex flex-col items-center space-y-1">
                           <type.icon className="w-4 h-4" />
                           <span className="text-xs">{type.label}</span>
                         </div>
                       </th>
-                    ))}
+                  )}
                     <th className="text-center p-3 font-semibold">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {contentAreas.map((area) => {
-                    const areaPermissions = permissions[area.key as keyof DetailedPermissions];
-                    return (
-                      <tr key={area.key} className="border-b hover:bg-gray-50">
+                  const areaPermissions = permissions[area.key as keyof DetailedPermissions];
+                  return (
+                    <tr key={area.key} className="border-b hover:bg-gray-50">
                         <td className="p-3">
                           <div className="flex items-center space-x-3">
                             <area.icon className={`w-5 h-5 ${area.color}`} />
                             <span className="font-medium">{area.label}</span>
                           </div>
                         </td>
-                        {permissionTypes.map((type) => (
-                          <td key={type.key} className="text-center p-3">
+                        {permissionTypes.map((type) =>
+                      <td key={type.key} className="text-center p-3">
                             <Switch
-                              checked={areaPermissions[type.key as keyof Permission]}
-                              onCheckedChange={(checked) => 
-                                handlePermissionChange(area.key, type.key, checked)
-                              }
-                            />
+                          checked={areaPermissions[type.key as keyof Permission]}
+                          onCheckedChange={(checked) =>
+                          handlePermissionChange(area.key, type.key, checked)
+                          } />
+
                           </td>
-                        ))}
+                      )}
                         <td className="text-center p-3">
                           <div className="flex space-x-1">
                             <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleBulkPermissionChange(area.key, 'grant_all')}
-                              className="text-green-600 hover:text-green-700"
-                            >
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleBulkPermissionChange(area.key, 'grant_all')}
+                            className="text-green-600 hover:text-green-700">
+
                               <CheckCircle2 className="w-3 h-3" />
                             </Button>
                             <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleBulkPermissionChange(area.key, 'revoke_all')}
-                              className="text-red-600 hover:text-red-700"
-                            >
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleBulkPermissionChange(area.key, 'revoke_all')}
+                            className="text-red-600 hover:text-red-700">
+
                               <XCircle className="w-3 h-3" />
                             </Button>
                           </div>
                         </td>
-                      </tr>
-                    );
-                  })}
+                      </tr>);
+
+                })}
                 </tbody>
               </table>
             </div>
@@ -480,20 +480,20 @@ const UserPermissionManager: React.FC = () => {
             <div className="mt-6 p-4 bg-blue-50 rounded-lg">
               <h4 className="font-semibold mb-3">Permission Types:</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {permissionTypes.map((type) => (
-                  <div key={type.key} className="flex items-center space-x-2">
+                {permissionTypes.map((type) =>
+              <div key={type.key} className="flex items-center space-x-2">
                     <type.icon className="w-4 h-4 text-gray-600" />
                     <span className="font-medium">{type.label}:</span>
                     <span className="text-sm text-gray-600">{type.description}</span>
                   </div>
-                ))}
+              )}
               </div>
             </div>
           </CardContent>
         </Card>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default UserPermissionManager;

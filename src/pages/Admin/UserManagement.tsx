@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -23,7 +25,12 @@ import {
   Phone,
   Calendar,
   Building2,
-  Settings } from
+  Settings,
+  Clock,
+  Activity,
+  Eye,
+  FileText,
+  AlertCircle } from
 'lucide-react';
 
 interface User {
@@ -254,13 +261,13 @@ const UserManagement: React.FC = () => {
       if (!profile.detailed_permissions) return 'Basic access';
       const permissions = JSON.parse(profile.detailed_permissions);
       const contentAreas = [
-        'dashboard', 'products', 'employees', 'sales_reports', 'vendors',
-        'orders', 'licenses', 'salary', 'inventory', 'delivery', 'settings',
-        'user_management', 'site_management', 'system_logs', 'security_settings'
-      ];
-      
-      const areasWithAccess = contentAreas.filter(area => 
-        permissions[area]?.view
+      'dashboard', 'products', 'employees', 'sales_reports', 'vendors',
+      'orders', 'licenses', 'salary', 'inventory', 'delivery', 'settings',
+      'user_management', 'site_management', 'system_logs', 'security_settings'];
+
+
+      const areasWithAccess = contentAreas.filter((area) =>
+      permissions[area]?.view
       ).length;
 
       return `${areasWithAccess}/${contentAreas.length} areas`;
@@ -577,74 +584,221 @@ const UserManagement: React.FC = () => {
 
           {/* Edit Dialog */}
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-4xl max-h-[90vh]">
               <DialogHeader>
                 <DialogTitle>Edit User Profile</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="edit_role">Role</Label>
-                  <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {roles.map((role) =>
-                      <SelectItem key={role} value={role}>{role}</SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[600px]">
+                {/* Left Side - Edit Form */}
+                <div className="lg:col-span-2 space-y-4">
+                  <div>
+                    <Label htmlFor="edit_role">Role</Label>
+                    <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {roles.map((role) =>
+                        <SelectItem key={role} value={role}>{role}</SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="edit_station">Station</Label>
+                    <Select value={formData.station} onValueChange={(value) => setFormData({ ...formData, station: value })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {stations.map((station) =>
+                        <SelectItem key={station} value={station}>{station}</SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="edit_employee_id">Employee ID</Label>
+                    <Input
+                      id="edit_employee_id"
+                      value={formData.employee_id}
+                      onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit_phone">Phone</Label>
+                    <Input
+                      id="edit_phone"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit_hire_date">Hire Date</Label>
+                    <Input
+                      id="edit_hire_date"
+                      type="date"
+                      value={formData.hire_date}
+                      onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })} />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="edit_is_active"
+                      checked={formData.is_active}
+                      onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })} />
+                    <Label htmlFor="edit_is_active">Active User</Label>
+                  </div>
+                  <Button onClick={handleUpdateProfile} className="w-full">
+                    Update Profile
+                  </Button>
                 </div>
-                <div>
-                  <Label htmlFor="edit_station">Station</Label>
-                  <Select value={formData.station} onValueChange={(value) => setFormData({ ...formData, station: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {stations.map((station) =>
-                      <SelectItem key={station} value={station}>{station}</SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="edit_employee_id">Employee ID</Label>
-                  <Input
-                    id="edit_employee_id"
-                    value={formData.employee_id}
-                    onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })} />
 
-                </div>
-                <div>
-                  <Label htmlFor="edit_phone">Phone</Label>
-                  <Input
-                    id="edit_phone"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+                {/* Right Side - Scrollable Sidebar */}
+                <div className="hidden lg:block border-l pl-6">
+                  <ScrollArea className="h-full">
+                    <div className="space-y-6">
+                      {/* User Summary */}
+                      <div>
+                        <h3 className="font-semibold text-lg mb-3 flex items-center">
+                          <Eye className="w-5 h-5 mr-2 text-blue-600" />
+                          User Summary
+                        </h3>
+                        <div className="space-y-2">
+                          <div className="p-3 bg-gray-50 rounded-lg">
+                            <p className="text-sm text-gray-600">Employee ID</p>
+                            <p className="font-medium">{selectedUserProfile?.employee_id || 'N/A'}</p>
+                          </div>
+                          <div className="p-3 bg-gray-50 rounded-lg">
+                            <p className="text-sm text-gray-600">Current Role</p>
+                            <Badge className={getRoleBadgeColor(selectedUserProfile?.role || '')}>
+                              {selectedUserProfile?.role || 'N/A'}
+                            </Badge>
+                          </div>
+                          <div className="p-3 bg-gray-50 rounded-lg">
+                            <p className="text-sm text-gray-600">Station Assignment</p>
+                            <Badge className={getStationBadgeColor(selectedUserProfile?.station || '')}>
+                              {selectedUserProfile?.station || 'N/A'}
+                            </Badge>
+                          </div>
+                          <div className="p-3 bg-gray-50 rounded-lg">
+                            <p className="text-sm text-gray-600">Status</p>
+                            <Badge className={selectedUserProfile?.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                              {selectedUserProfile?.is_active ? 'Active' : 'Inactive'}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
 
-                </div>
-                <div>
-                  <Label htmlFor="edit_hire_date">Hire Date</Label>
-                  <Input
-                    id="edit_hire_date"
-                    type="date"
-                    value={formData.hire_date}
-                    onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })} />
+                      <Separator />
 
-                </div>
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="edit_is_active"
-                    checked={formData.is_active}
-                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })} />
+                      {/* Permissions Overview */}
+                      <div>
+                        <h3 className="font-semibold text-lg mb-3 flex items-center">
+                          <Shield className="w-5 h-5 mr-2 text-green-600" />
+                          Permissions Overview
+                        </h3>
+                        <div className="space-y-2">
+                          {(() => {
+                            try {
+                              const permissions = selectedUserProfile?.detailed_permissions ? 
+                                JSON.parse(selectedUserProfile.detailed_permissions) : {};
+                              const areas = ['dashboard', 'products', 'employees', 'sales_reports', 'vendors', 'orders', 'licenses', 'salary'];
+                              
+                              return areas.map((area) => {
+                                const hasAccess = permissions[area]?.view;
+                                return (
+                                  <div key={area} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                    <span className="text-sm capitalize">{area.replace('_', ' ')}</span>
+                                    <Badge variant={hasAccess ? 'default' : 'secondary'}>
+                                      {hasAccess ? 'Access' : 'No Access'}
+                                    </Badge>
+                                  </div>
+                                );
+                              });
+                            } catch {
+                              return (
+                                <div className="p-2 bg-gray-50 rounded text-sm text-gray-600">
+                                  Basic permissions configured
+                                </div>
+                              );
+                            }
+                          })()}
+                        </div>
+                      </div>
 
-                  <Label htmlFor="edit_is_active">Active User</Label>
+                      <Separator />
+
+                      {/* Recent Activity */}
+                      <div>
+                        <h3 className="font-semibold text-lg mb-3 flex items-center">
+                          <Activity className="w-5 h-5 mr-2 text-orange-600" />
+                          Recent Activity
+                        </h3>
+                        <div className="space-y-3">
+                          <div className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
+                            <Clock className="w-4 h-4 text-blue-600 mt-1" />
+                            <div>
+                              <p className="text-sm font-medium">Profile Updated</p>
+                              <p className="text-xs text-gray-600">Last modified today</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start space-x-3 p-3 bg-green-50 rounded-lg">
+                            <UserCheck className="w-4 h-4 text-green-600 mt-1" />
+                            <div>
+                              <p className="text-sm font-medium">Account Status</p>
+                              <p className="text-xs text-gray-600">Currently {selectedUserProfile?.is_active ? 'active' : 'inactive'}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start space-x-3 p-3 bg-purple-50 rounded-lg">
+                            <Building2 className="w-4 h-4 text-purple-600 mt-1" />
+                            <div>
+                              <p className="text-sm font-medium">Station Assignment</p>
+                              <p className="text-xs text-gray-600">Assigned to {selectedUserProfile?.station}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <Separator />
+
+                      {/* Tips & Help */}
+                      <div>
+                        <h3 className="font-semibold text-lg mb-3 flex items-center">
+                          <FileText className="w-5 h-5 mr-2 text-indigo-600" />
+                          Tips & Help
+                        </h3>
+                        <div className="space-y-3">
+                          <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <div className="flex items-start space-x-2">
+                              <AlertCircle className="w-4 h-4 text-yellow-600 mt-1" />
+                              <div>
+                                <p className="text-sm font-medium text-yellow-800">Role Changes</p>
+                                <p className="text-xs text-yellow-700">Changing roles will affect user permissions immediately</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <div className="flex items-start space-x-2">
+                              <Settings className="w-4 h-4 text-blue-600 mt-1" />
+                              <div>
+                                <p className="text-sm font-medium text-blue-800">Station Assignment</p>
+                                <p className="text-xs text-blue-700">Users can only access data for their assigned station</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                            <div className="flex items-start space-x-2">
+                              <Phone className="w-4 h-4 text-green-600 mt-1" />
+                              <div>
+                                <p className="text-sm font-medium text-green-800">Contact Information</p>
+                                <p className="text-xs text-green-700">Keep phone numbers updated for important notifications</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </ScrollArea>
                 </div>
-                <Button onClick={handleUpdateProfile} className="w-full">
-                  Update Profile
-                </Button>
               </div>
             </DialogContent>
           </Dialog>
