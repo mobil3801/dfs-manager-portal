@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { NumberInput } from '@/components/ui/number-input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -385,45 +386,41 @@ const SalaryForm: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="base_salary">Base Salary</Label>
-                <Input
+                <NumberInput
                   id="base_salary"
-                  type="number"
                   step="0.01"
                   value={formData.base_salary}
-                  onChange={(e) => handleInputChange('base_salary', parseFloat(e.target.value) || 0)} />
+                  onChange={(value) => handleInputChange('base_salary', value)} />
 
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="hourly_rate">Hourly Rate</Label>
-                <Input
+                <NumberInput
                   id="hourly_rate"
-                  type="number"
                   step="0.01"
                   value={formData.hourly_rate}
-                  onChange={(e) => handleInputChange('hourly_rate', parseFloat(e.target.value) || 0)} />
+                  onChange={(value) => handleInputChange('hourly_rate', value)} />
 
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="regular_hours">Regular Hours</Label>
-                <Input
+                <NumberInput
                   id="regular_hours"
-                  type="number"
                   step="0.01"
                   value={formData.regular_hours}
-                  onChange={(e) => handleInputChange('regular_hours', parseFloat(e.target.value) || 0)} />
+                  onChange={(value) => handleInputChange('regular_hours', value)} />
 
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="overtime_hours">Overtime Hours</Label>
-                <Input
+                <NumberInput
                   id="overtime_hours"
-                  type="number"
                   step="0.01"
                   value={formData.overtime_hours}
-                  onChange={(e) => handleInputChange('overtime_hours', parseFloat(e.target.value) || 0)} />
+                  onChange={(value) => handleInputChange('overtime_hours', value)} />
 
               </div>
 
@@ -453,23 +450,21 @@ const SalaryForm: React.FC = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="bonus_amount">Bonus Amount</Label>
-                <Input
+                <NumberInput
                   id="bonus_amount"
-                  type="number"
                   step="0.01"
                   value={formData.bonus_amount}
-                  onChange={(e) => handleInputChange('bonus_amount', parseFloat(e.target.value) || 0)} />
+                  onChange={(value) => handleInputChange('bonus_amount', value)} />
 
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="commission">Commission</Label>
-                <Input
+                <NumberInput
                   id="commission"
-                  type="number"
                   step="0.01"
                   value={formData.commission}
-                  onChange={(e) => handleInputChange('commission', parseFloat(e.target.value) || 0)} />
+                  onChange={(value) => handleInputChange('commission', value)} />
 
               </div>
 
@@ -546,34 +541,31 @@ const SalaryForm: React.FC = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="health_insurance">Health Insurance</Label>
-                <Input
+                <NumberInput
                   id="health_insurance"
-                  type="number"
                   step="0.01"
                   value={formData.health_insurance}
-                  onChange={(e) => handleInputChange('health_insurance', parseFloat(e.target.value) || 0)} />
+                  onChange={(value) => handleInputChange('health_insurance', value)} />
 
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="retirement_401k">401(k) Contribution</Label>
-                <Input
+                <NumberInput
                   id="retirement_401k"
-                  type="number"
                   step="0.01"
                   value={formData.retirement_401k}
-                  onChange={(e) => handleInputChange('retirement_401k', parseFloat(e.target.value) || 0)} />
+                  onChange={(value) => handleInputChange('retirement_401k', value)} />
 
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="other_deductions">Other Deductions</Label>
-                <Input
+                <NumberInput
                   id="other_deductions"
-                  type="number"
                   step="0.01"
                   value={formData.other_deductions}
-                  onChange={(e) => handleInputChange('other_deductions', parseFloat(e.target.value) || 0)} />
+                  onChange={(value) => handleInputChange('other_deductions', value)} />
 
               </div>
 

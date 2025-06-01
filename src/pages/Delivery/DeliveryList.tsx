@@ -44,9 +44,9 @@ const DeliveryList: React.FC = () => {
   const loadDeliveries = async () => {
     try {
       setLoading(true);
-      
+
       const filters = [];
-      
+
       if (stationFilter !== 'all') {
         filters.push({
           name: 'station',
@@ -54,7 +54,7 @@ const DeliveryList: React.FC = () => {
           value: stationFilter
         });
       }
-      
+
       if (searchTerm) {
         filters.push({
           name: 'delivery_notes',
@@ -100,12 +100,12 @@ const DeliveryList: React.FC = () => {
         title: "Success",
         description: "Delivery record deleted successfully"
       });
-      
+
       loadDeliveries();
     } catch (error) {
       console.error('Error deleting delivery:', error);
       toast({
-        title: "Error", 
+        title: "Error",
         description: "Failed to delete delivery record",
         variant: "destructive"
       });
@@ -150,8 +150,8 @@ const DeliveryList: React.FC = () => {
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading delivery records...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -180,8 +180,8 @@ const DeliveryList: React.FC = () => {
                   placeholder="Search by notes..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
+                  className="pl-10" />
+
               </div>
               
               <div>
@@ -191,11 +191,11 @@ const DeliveryList: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Stations</SelectItem>
-                    {stations.map((station) => (
-                      <SelectItem key={station} value={station}>
+                    {stations.map((station) =>
+                    <SelectItem key={station} value={station}>
                         {station}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -232,7 +232,7 @@ const DeliveryList: React.FC = () => {
         <Card>
           <CardContent className="pt-6">
             <div className="text-2xl font-bold text-purple-600">
-              {new Set(deliveries.map(d => d.station)).size}
+              {new Set(deliveries.map((d) => d.station)).size}
             </div>
             <p className="text-sm text-gray-600">Stations Served</p>
           </CardContent>
@@ -241,7 +241,7 @@ const DeliveryList: React.FC = () => {
         <Card>
           <CardContent className="pt-6">
             <div className="text-2xl font-bold text-orange-600">
-              {deliveries.filter(d => new Date(d.delivery_date) >= new Date(Date.now() - 7*24*60*60*1000)).length}
+              {deliveries.filter((d) => new Date(d.delivery_date) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}
             </div>
             <p className="text-sm text-gray-600">This Week</p>
           </CardContent>
@@ -254,17 +254,17 @@ const DeliveryList: React.FC = () => {
           <CardTitle>Delivery Records</CardTitle>
         </CardHeader>
         <CardContent>
-          {deliveries.length === 0 ? (
-            <div className="text-center py-8">
+          {deliveries.length === 0 ?
+          <div className="text-center py-8">
               <Truck className="mx-auto h-12 w-12 text-gray-400 mb-4" />
               <p className="text-gray-600">No delivery records found</p>
               <Button onClick={() => navigate('/delivery/new')} className="mt-4">
                 <Plus className="mr-2 h-4 w-4" />
                 Add First Delivery
               </Button>
-            </div>
-          ) : (
-            <>
+            </div> :
+
+          <>
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -280,8 +280,8 @@ const DeliveryList: React.FC = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {deliveries.map((delivery) => (
-                      <TableRow key={delivery.id}>
+                    {deliveries.map((delivery) =>
+                  <TableRow key={delivery.id}>
                         <TableCell>{formatDate(delivery.delivery_date)}</TableCell>
                         <TableCell>
                           <Badge className={getStationBadgeColor(delivery.station)}>
@@ -316,60 +316,60 @@ const DeliveryList: React.FC = () => {
                         <TableCell>
                           <div className="flex space-x-2">
                             <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => navigate(`/delivery/edit/${delivery.id}`)}
-                            >
+                          size="sm"
+                          variant="outline"
+                          onClick={() => navigate(`/delivery/edit/${delivery.id}`)}>
+
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleDelete(delivery.id)}
-                              className="text-red-600 hover:text-red-700"
-                            >
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDelete(delivery.id)}
+                          className="text-red-600 hover:text-red-700">
+
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                         </TableCell>
                       </TableRow>
-                    ))}
+                  )}
                   </TableBody>
                 </Table>
               </div>
 
               {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-4">
+              {totalPages > 1 &&
+            <div className="flex items-center justify-between mt-4">
                   <p className="text-sm text-gray-600">
                     Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} records
                   </p>
                   <div className="flex space-x-2">
                     <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                      disabled={currentPage === 1}
-                    >
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}>
+
                       Previous
                     </Button>
                     <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                      disabled={currentPage === totalPages}
-                    >
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}>
+
                       Next
                     </Button>
                   </div>
                 </div>
-              )}
+            }
             </>
-          )}
+          }
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default DeliveryList;

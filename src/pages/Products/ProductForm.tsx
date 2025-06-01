@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { NumberInput } from '@/components/ui/number-input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -443,11 +444,10 @@ const ProductForm = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="serial_number">Serial Number</Label>
-                <Input
+                <NumberInput
                   id="serial_number"
-                  type="number"
                   value={formData.serial_number}
-                  onChange={(e) => handleInputChange('serial_number', parseInt(e.target.value))}
+                  onChange={(value) => handleInputChange('serial_number', value)}
                   disabled
                   className="bg-muted" />
 
@@ -484,14 +484,12 @@ const ProductForm = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="weight">Weight</Label>
-                <Input
+                <NumberInput
                   id="weight"
-                  type="number"
                   step="0.01"
                   min="0"
-                  placeholder="0.00"
                   value={formData.weight}
-                  onChange={(e) => handleInputChange('weight', parseFloat(e.target.value) || 0)}
+                  onChange={(value) => handleInputChange('weight', value)}
                   disabled={!canEdit}
                   className={!canEdit ? 'bg-muted' : ''} />
 
@@ -618,14 +616,12 @@ const ProductForm = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="case_price">Case Price ($)</Label>
-                <Input
+                <NumberInput
                   id="case_price"
-                  type="number"
                   step="0.01"
                   min="0"
-                  placeholder="0.00"
                   value={formData.case_price}
-                  onChange={(e) => handleInputChange('case_price', parseFloat(e.target.value) || 0)}
+                  onChange={(value) => handleInputChange('case_price', value)}
                   disabled={!canEdit}
                   className={!canEdit ? 'bg-muted' : ''} />
 
@@ -633,13 +629,11 @@ const ProductForm = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="unit_per_case">Units Per Case</Label>
-                <Input
+                <NumberInput
                   id="unit_per_case"
-                  type="number"
                   min="1"
-                  placeholder="1"
                   value={formData.unit_per_case}
-                  onChange={(e) => handleInputChange('unit_per_case', parseInt(e.target.value) || 1)}
+                  onChange={(value) => handleInputChange('unit_per_case', value)}
                   disabled={!canEdit}
                   className={!canEdit ? 'bg-muted' : ''} />
 
@@ -647,14 +641,12 @@ const ProductForm = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="unit_price">Unit Price ($)</Label>
-                <Input
+                <NumberInput
                   id="unit_price"
-                  type="number"
                   step="0.01"
                   min="0"
-                  placeholder="0.00"
                   value={formData.unit_price}
-                  onChange={(e) => handleInputChange('unit_price', parseFloat(e.target.value) || 0)}
+                  onChange={(value) => handleInputChange('unit_price', value)}
                   disabled={!canEdit}
                   className={!canEdit ? 'bg-muted' : ''} />
 
@@ -666,14 +658,12 @@ const ProductForm = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="retail_price">Retail Price ($)</Label>
-                <Input
+                <NumberInput
                   id="retail_price"
-                  type="number"
                   step="0.01"
                   min="0"
-                  placeholder="0.00"
                   value={formData.retail_price}
-                  onChange={(e) => handleInputChange('retail_price', parseFloat(e.target.value) || 0)}
+                  onChange={(value) => handleInputChange('retail_price', value)}
                   disabled={!canEdit}
                   className={!canEdit ? 'bg-muted' : ''} />
 

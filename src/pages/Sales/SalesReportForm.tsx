@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { NumberInput } from '@/components/ui/number-input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -291,28 +292,24 @@ const SalesReportForm: React.FC = () => {
                   <div className="space-y-3">
                     <div className="space-y-2">
                       <Label htmlFor="cash_sales">Cash Sales ($) *</Label>
-                      <Input
+                      <NumberInput
                         id="cash_sales"
-                        type="number"
                         step="0.01"
                         min="0"
                         value={formData.cash_sales}
-                        onChange={(e) => handleInputChange('cash_sales', parseFloat(e.target.value) || 0)}
-                        placeholder="0.00"
+                        onChange={(value) => handleInputChange('cash_sales', value)}
                         required />
 
                     </div>
                     
                     <div className="space-y-2">
                       <Label htmlFor="credit_card_sales">Credit Card Sales ($) *</Label>
-                      <Input
+                      <NumberInput
                         id="credit_card_sales"
-                        type="number"
                         step="0.01"
                         min="0"
                         value={formData.credit_card_sales}
-                        onChange={(e) => handleInputChange('credit_card_sales', parseFloat(e.target.value) || 0)}
-                        placeholder="0.00"
+                        onChange={(value) => handleInputChange('credit_card_sales', value)}
                         required />
 
                     </div>
@@ -337,14 +334,12 @@ const SalesReportForm: React.FC = () => {
                   <div className="space-y-3">
                     <div className="space-y-2">
                       <Label htmlFor="fuel_sales">Fuel Sales ($) *</Label>
-                      <Input
+                      <NumberInput
                         id="fuel_sales"
-                        type="number"
                         step="0.01"
                         min="0"
                         value={formData.fuel_sales}
-                        onChange={(e) => handleInputChange('fuel_sales', parseFloat(e.target.value) || 0)}
-                        placeholder="0.00"
+                        onChange={(value) => handleInputChange('fuel_sales', value)}
                         required />
 
                     </div>
@@ -352,14 +347,12 @@ const SalesReportForm: React.FC = () => {
                     <div className="space-y-2">
                       <Label htmlFor="convenience_sales">Convenience Sales ($) *</Label>
                       <div className="flex space-x-2">
-                        <Input
+                        <NumberInput
                           id="convenience_sales"
-                          type="number"
                           step="0.01"
                           min="0"
                           value={formData.convenience_sales}
-                          onChange={(e) => handleInputChange('convenience_sales', parseFloat(e.target.value) || 0)}
-                          placeholder="0.00"
+                          onChange={(value) => handleInputChange('convenience_sales', value)}
                           required />
 
                         <Button

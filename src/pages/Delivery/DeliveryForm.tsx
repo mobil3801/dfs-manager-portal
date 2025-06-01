@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { NumberInput } from '@/components/ui/number-input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
@@ -57,9 +58,9 @@ const DeliveryForm: React.FC = () => {
         PageSize: 1,
         Filters: [{ name: 'id', op: 'Equal', value: parseInt(id!) }]
       });
-      
+
       if (error) throw error;
-      
+
       if (data?.List?.length > 0) {
         const record = data.List[0];
         setFormData({
@@ -81,7 +82,7 @@ const DeliveryForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.station || !formData.delivery_date) {
       toast({
         title: "Validation Error",
@@ -93,7 +94,7 @@ const DeliveryForm: React.FC = () => {
 
     try {
       setLoading(true);
-      
+
       const submitData = {
         ...formData,
         delivery_date: new Date(formData.delivery_date).toISOString()
@@ -105,7 +106,7 @@ const DeliveryForm: React.FC = () => {
           ...submitData
         });
         if (error) throw error;
-        
+
         toast({
           title: "Success",
           description: "Delivery record updated successfully"
@@ -113,13 +114,13 @@ const DeliveryForm: React.FC = () => {
       } else {
         const { error } = await window.ezsite.apis.tableCreate(12196, submitData);
         if (error) throw error;
-        
+
         toast({
-          title: "Success", 
+          title: "Success",
           description: "Delivery record created successfully"
         });
       }
-      
+
       navigate('/delivery');
     } catch (error) {
       console.error('Error saving delivery record:', error);
@@ -134,7 +135,7 @@ const DeliveryForm: React.FC = () => {
   };
 
   const handleInputChange = (field: keyof DeliveryRecord, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [field]: value
     }));
@@ -147,18 +148,18 @@ const DeliveryForm: React.FC = () => {
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading delivery record...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="mb-6">
-        <Button 
-          onClick={() => navigate('/delivery')} 
-          variant="ghost" 
-          className="mb-4"
-        >
+        <Button
+          onClick={() => navigate('/delivery')}
+          variant="ghost"
+          className="mb-4">
+
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Delivery List
         </Button>
@@ -186,25 +187,25 @@ const DeliveryForm: React.FC = () => {
                   type="date"
                   value={formData.delivery_date}
                   onChange={(e) => handleInputChange('delivery_date', e.target.value)}
-                  required
-                />
+                  required />
+
               </div>
               
               <div>
                 <Label htmlFor="station">Station *</Label>
                 <Select
                   value={formData.station}
-                  onValueChange={(value) => handleInputChange('station', value)}
-                >
+                  onValueChange={(value) => handleInputChange('station', value)}>
+
                   <SelectTrigger>
                     <SelectValue placeholder="Select station" />
                   </SelectTrigger>
                   <SelectContent>
-                    {stations.map((station) => (
-                      <SelectItem key={station} value={station}>
+                    {stations.map((station) =>
+                    <SelectItem key={station} value={station}>
                         {station}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -221,38 +222,32 @@ const DeliveryForm: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="regular_tank_volume">Regular Tank Volume (Gallons)</Label>
-                <Input
+                <NumberInput
                   id="regular_tank_volume"
-                  type="number"
                   step="0.01"
                   value={formData.regular_tank_volume}
-                  onChange={(e) => handleInputChange('regular_tank_volume', parseFloat(e.target.value) || 0)}
-                  placeholder="0.00"
-                />
+                  onChange={(value) => handleInputChange('regular_tank_volume', value)} />
+
               </div>
               
               <div>
                 <Label htmlFor="plus_tank_volume">Plus Tank Volume (Gallons)</Label>
-                <Input
+                <NumberInput
                   id="plus_tank_volume"
-                  type="number"
                   step="0.01"
                   value={formData.plus_tank_volume}
-                  onChange={(e) => handleInputChange('plus_tank_volume', parseFloat(e.target.value) || 0)}
-                  placeholder="0.00"
-                />
+                  onChange={(value) => handleInputChange('plus_tank_volume', value)} />
+
               </div>
               
               <div>
                 <Label htmlFor="super_tank_volume">Super Tank Volume (Gallons)</Label>
-                <Input
+                <NumberInput
                   id="super_tank_volume"
-                  type="number"
                   step="0.01"
                   value={formData.super_tank_volume}
-                  onChange={(e) => handleInputChange('super_tank_volume', parseFloat(e.target.value) || 0)}
-                  placeholder="0.00"
-                />
+                  onChange={(value) => handleInputChange('super_tank_volume', value)} />
+
               </div>
             </div>
           </CardContent>
@@ -267,38 +262,32 @@ const DeliveryForm: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="regular_delivered">Regular Delivered (Gallons)</Label>
-                <Input
+                <NumberInput
                   id="regular_delivered"
-                  type="number"
                   step="0.01"
                   value={formData.regular_delivered}
-                  onChange={(e) => handleInputChange('regular_delivered', parseFloat(e.target.value) || 0)}
-                  placeholder="0.00"
-                />
+                  onChange={(value) => handleInputChange('regular_delivered', value)} />
+
               </div>
               
               <div>
                 <Label htmlFor="plus_delivered">Plus Delivered (Gallons)</Label>
-                <Input
+                <NumberInput
                   id="plus_delivered"
-                  type="number"
                   step="0.01"
                   value={formData.plus_delivered}
-                  onChange={(e) => handleInputChange('plus_delivered', parseFloat(e.target.value) || 0)}
-                  placeholder="0.00"
-                />
+                  onChange={(value) => handleInputChange('plus_delivered', value)} />
+
               </div>
               
               <div>
                 <Label htmlFor="super_delivered">Super Delivered (Gallons)</Label>
-                <Input
+                <NumberInput
                   id="super_delivered"
-                  type="number"
                   step="0.01"
                   value={formData.super_delivered}
-                  onChange={(e) => handleInputChange('super_delivered', parseFloat(e.target.value) || 0)}
-                  placeholder="0.00"
-                />
+                  onChange={(value) => handleInputChange('super_delivered', value)} />
+
               </div>
             </div>
           </CardContent>
@@ -317,8 +306,8 @@ const DeliveryForm: React.FC = () => {
                 value={formData.delivery_notes}
                 onChange={(e) => handleInputChange('delivery_notes', e.target.value)}
                 placeholder="Enter any additional notes about the delivery..."
-                rows={3}
-              />
+                rows={3} />
+
             </div>
           </CardContent>
         </Card>
@@ -328,8 +317,8 @@ const DeliveryForm: React.FC = () => {
           <Button
             type="button"
             variant="outline"
-            onClick={() => navigate('/delivery')}
-          >
+            onClick={() => navigate('/delivery')}>
+
             Cancel
           </Button>
           <Button type="submit" disabled={loading}>
@@ -338,8 +327,8 @@ const DeliveryForm: React.FC = () => {
           </Button>
         </div>
       </form>
-    </div>
-  );
+    </div>);
+
 };
 
 export default DeliveryForm;
