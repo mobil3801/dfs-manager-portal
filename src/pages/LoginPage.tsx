@@ -24,7 +24,7 @@ const LoginPage: React.FC = () => {
       if (isLogin) {
         const success = await login(email, password);
         if (success) {
-          navigate('/app/dashboard');
+          navigate('/dashboard');
         }
       } else {
         const success = await register(email, password);

@@ -30,31 +30,31 @@ const DocumentsUploadSection: React.FC<DocumentsUploadSectionProps> = ({
   const { toast } = useToast();
 
   const documentTypes: DocumentUpload[] = [
-  {
-    name: 'Day Report',
-    field: 'dayReportFileId',
-    fileId: documents.dayReportFileId,
-    required: true
-  },
-  {
-    name: 'Veeder Root Report',
-    field: 'veederRootFileId',
-    fileId: documents.veederRootFileId,
-    required: true
-  },
-  {
-    name: 'Lotto Report',
-    field: 'lottoReportFileId',
-    fileId: documents.lottoReportFileId,
-    required: true
-  },
-  {
-    name: 'Scratch Off Report',
-    field: 'scratchOffReportFileId',
-    fileId: documents.scratchOffReportFileId,
-    required: true
-  }];
-
+    {
+      name: 'Day Report',
+      field: 'dayReportFileId',
+      fileId: documents.dayReportFileId,
+      required: true
+    },
+    {
+      name: 'Veeder Root Report',
+      field: 'veederRootFileId',
+      fileId: documents.veederRootFileId,
+      required: true
+    },
+    {
+      name: 'Lotto Report',
+      field: 'lottoReportFileId',
+      fileId: documents.lottoReportFileId,
+      required: true
+    },
+    {
+      name: 'Scratch Off Report',
+      field: 'scratchOffReportFileId',
+      fileId: documents.scratchOffReportFileId,
+      required: true
+    }
+  ];
 
   const uploadDocument = async (field: string, file: File) => {
     try {
@@ -65,10 +65,10 @@ const DocumentsUploadSection: React.FC<DocumentsUploadSectionProps> = ({
 
       if (error) throw error;
       onChange(field, fileId);
-
+      
       toast({
         title: 'Success',
-        description: `${field.replace('FileId', '').replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())} uploaded successfully`
+        description: `${field.replace('FileId', '').replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} uploaded successfully`
       });
     } catch (error) {
       console.error('Error uploading document:', error);
@@ -96,7 +96,7 @@ const DocumentsUploadSection: React.FC<DocumentsUploadSectionProps> = ({
     }
   };
 
-  const submittedCount = documentTypes.filter((doc) => doc.fileId).length;
+  const submittedCount = documentTypes.filter(doc => doc.fileId).length;
   const totalCount = documentTypes.length;
 
   return (
@@ -107,10 +107,10 @@ const DocumentsUploadSection: React.FC<DocumentsUploadSectionProps> = ({
             <FileText className="w-5 h-5" />
             <span>Documents Upload</span>
           </div>
-          <Badge
-            variant="outline"
-            className={submittedCount === totalCount ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
-
+          <Badge 
+            variant="outline" 
+            className={submittedCount === totalCount ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}
+          >
             {submittedCount}/{totalCount} Submitted
           </Badge>
         </CardTitle>
@@ -129,16 +129,16 @@ const DocumentsUploadSection: React.FC<DocumentsUploadSectionProps> = ({
         <div className="space-y-4">
           {documentTypes.map((document) => {
             const status = getStatus(document);
-
+            
             return (
               <div key={document.field} className="border border-purple-200 rounded-lg p-4 bg-white">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center space-x-3">
                     <FileText className="w-5 h-5 text-purple-600" />
                     <span className="font-medium">{document.name}</span>
-                    {document.required &&
-                    <Badge variant="destructive" className="text-xs">Required</Badge>
-                    }
+                    {document.required && (
+                      <Badge variant="destructive" className="text-xs">Required</Badge>
+                    )}
                   </div>
                   <Badge className={status.color}>
                     <div className="flex items-center space-x-1">
@@ -156,28 +156,28 @@ const DocumentsUploadSection: React.FC<DocumentsUploadSectionProps> = ({
                       const file = e.target.files?.[0];
                       if (file) uploadDocument(document.field, file);
                     }}
-                    className="flex-1" />
-
+                    className="flex-1"
+                  />
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     disabled={!document.fileId}
-                    className="whitespace-nowrap">
-
+                    className="whitespace-nowrap"
+                  >
                     <Upload className="w-4 h-4 mr-1" />
                     {document.fileId ? 'Re-upload' : 'Upload'}
                   </Button>
                 </div>
                 
-                {document.fileId &&
-                <div className="mt-2 text-xs text-green-600 flex items-center space-x-1">
+                {document.fileId && (
+                  <div className="mt-2 text-xs text-green-600 flex items-center space-x-1">
                     <CheckCircle className="w-3 h-3" />
                     <span>File uploaded successfully (ID: {document.fileId})</span>
                   </div>
-                }
-              </div>);
-
+                )}
+              </div>
+            );
           })}
         </div>
         
@@ -186,20 +186,20 @@ const DocumentsUploadSection: React.FC<DocumentsUploadSectionProps> = ({
             <span className="text-gray-600">Submission Progress:</span>
             <div className="flex items-center space-x-2">
               <div className="w-32 bg-gray-200 rounded-full h-2">
-                <div
+                <div 
                   className="bg-purple-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${submittedCount / totalCount * 100}%` }} />
-
+                  style={{ width: `${(submittedCount / totalCount) * 100}%` }}
+                />
               </div>
               <span className="font-medium text-purple-800">
-                {Math.round(submittedCount / totalCount * 100)}%
+                {Math.round((submittedCount / totalCount) * 100)}%
               </span>
             </div>
           </div>
         </div>
       </CardContent>
-    </Card>);
-
+    </Card>
+  );
 };
 
 export default DocumentsUploadSection;

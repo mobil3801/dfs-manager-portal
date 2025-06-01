@@ -46,8 +46,8 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 onChange={(value) => onChange('creditCardAmount', value || 0)}
                 min={0}
                 step={0.01}
-                required />
-
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="debitCard">Debit Card Amount ($) *</Label>
@@ -57,8 +57,8 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 onChange={(value) => onChange('debitCardAmount', value || 0)}
                 min={0}
                 step={0.01}
-                required />
-
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="mobile">Mobile Payment Amount ($) *</Label>
@@ -68,8 +68,8 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 onChange={(value) => onChange('mobileAmount', value || 0)}
                 min={0}
                 step={0.01}
-                required />
-
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="cash">Cash Amount ($) *</Label>
@@ -79,8 +79,8 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 onChange={(value) => onChange('cashAmount', value || 0)}
                 min={0}
                 step={0.01}
-                required />
-
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="grocery">Grocery Sales ($) *</Label>
@@ -90,8 +90,8 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 onChange={(value) => onChange('grocerySales', value || 0)}
                 min={0}
                 step={0.01}
-                required />
-
+                required
+              />
             </div>
           </div>
           
@@ -108,8 +108,8 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
       </Card>
 
       {/* Grocery Sales Section (MOBIL only) */}
-      {isMobil &&
-      <Card className="bg-green-50 border-green-200">
+      {isMobil && (
+        <Card className="bg-green-50 border-green-200">
           <CardHeader>
             <CardTitle className="text-green-800 flex items-center space-x-2">
               <ShoppingCart className="w-5 h-5" />
@@ -121,39 +121,39 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
               <div className="space-y-2">
                 <Label htmlFor="groceryCash">Cash Sales ($) *</Label>
                 <NumberInput
-                id="groceryCash"
-                value={values.cashAmount}
-                onChange={(value) => onChange('cashAmount', value || 0)}
-                min={0}
-                step={0.01}
-                required />
-
+                  id="groceryCash"
+                  value={values.cashAmount}
+                  onChange={(value) => onChange('cashAmount', value || 0)}
+                  min={0}
+                  step={0.01}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="groceryCreditDebit">Credit/Debit Card ($) *</Label>
                 <NumberInput
-                id="groceryCreditDebit"
-                value={values.creditCardAmount + values.debitCardAmount}
-                onChange={(value) => {
-                  const half = (value || 0) / 2;
-                  onChange('creditCardAmount', half);
-                  onChange('debitCardAmount', half);
-                }}
-                min={0}
-                step={0.01}
-                required />
-
+                  id="groceryCreditDebit"
+                  value={values.creditCardAmount + values.debitCardAmount}
+                  onChange={(value) => {
+                    const half = (value || 0) / 2;
+                    onChange('creditCardAmount', half);
+                    onChange('debitCardAmount', half);
+                  }}
+                  min={0}
+                  step={0.01}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="ebt">EBT ($) *</Label>
                 <NumberInput
-                id="ebt"
-                value={values.ebtSales || 0}
-                onChange={(value) => onChange('ebtSales', value || 0)}
-                min={0}
-                step={0.01}
-                required />
-
+                  id="ebt"
+                  value={values.ebtSales || 0}
+                  onChange={(value) => onChange('ebtSales', value || 0)}
+                  min={0}
+                  step={0.01}
+                  required
+                />
               </div>
             </div>
             
@@ -167,9 +167,9 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
             </div>
           </CardContent>
         </Card>
-      }
-    </div>);
-
+      )}
+    </div>
+  );
 };
 
 export default GasGrocerySalesSection;

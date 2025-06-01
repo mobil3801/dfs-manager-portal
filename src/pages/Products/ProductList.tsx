@@ -229,7 +229,7 @@ const ProductList: React.FC = () => {
               </CardDescription>
             </div>
             <Button
-              onClick={() => navigate('/app/products/new')}
+              onClick={() => navigate('/products/new')}
               className="bg-brand-600 hover:bg-brand-700 text-white">
 
               <Plus className="w-4 h-4 mr-2" />
@@ -288,7 +288,7 @@ const ProductList: React.FC = () => {
               <Button
               variant="outline"
               className="mt-4"
-              onClick={() => debouncedSearchTerm ? handleClearSearch() : navigate('/app/products/new')}>
+              onClick={() => debouncedSearchTerm ? handleClearSearch() : navigate('/products/new')}>
                 {debouncedSearchTerm ? 'Clear Search' : 'Add Your First Product'}
               </Button>
             </div> :
@@ -401,7 +401,7 @@ const ProductList: React.FC = () => {
                             <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => navigate(`/app/products/edit/${product.ID}`)}
+                            onClick={() => navigate(`/products/edit/${product.ID}`)}
                             title="Edit product">
                               <Edit className="w-4 h-4" />
                             </Button>

@@ -339,7 +339,7 @@ const Dashboard: React.FC = () => {
         message: `${currentStats.lowStockProducts} product(s) are running low on stock. Consider reordering soon.`,
         timestamp: new Date(now.getTime() - Math.random() * 60 * 60 * 1000), // Random time within last hour
         isRead: false,
-        action: () => navigate('/app/products'),
+        action: () => navigate('/products'),
         actionLabel: 'View Products'
       });
     }
@@ -353,7 +353,7 @@ const Dashboard: React.FC = () => {
         message: `You have ${currentStats.pendingOrders} pending order(s) that require attention.`,
         timestamp: new Date(now.getTime() - Math.random() * 2 * 60 * 60 * 1000), // Random time within last 2 hours
         isRead: false,
-        action: () => navigate('/app/orders'),
+        action: () => navigate('/orders'),
         actionLabel: 'View Orders'
       });
     }
@@ -367,7 +367,7 @@ const Dashboard: React.FC = () => {
         message: `${currentStats.expiringLicenses} license(s) will expire within 30 days. Renew them to avoid compliance issues.`,
         timestamp: new Date(now.getTime() - Math.random() * 30 * 60 * 1000), // Random time within last 30 minutes
         isRead: false,
-        action: () => navigate('/app/licenses'),
+        action: () => navigate('/licenses'),
         actionLabel: 'View Licenses'
       });
     }
@@ -381,7 +381,7 @@ const Dashboard: React.FC = () => {
         message: `Today's sales reached ${formatCurrency(currentStats.todaySales)}. Keep up the excellent work!`,
         timestamp: new Date(now.getTime() - Math.random() * 4 * 60 * 60 * 1000), // Random time within last 4 hours
         isRead: false,
-        action: () => navigate('/app/sales'),
+        action: () => navigate('/sales'),
         actionLabel: 'View Reports'
       });
     }
@@ -395,7 +395,7 @@ const Dashboard: React.FC = () => {
         message: `All systems operational. ${currentStats.activeEmployees} staff members are currently active.`,
         timestamp: new Date(now.getTime() - Math.random() * 6 * 60 * 60 * 1000), // Random time within last 6 hours
         isRead: Math.random() > 0.3, // 70% chance to be unread
-        action: () => navigate('/app/employees'),
+        action: () => navigate('/employees'),
         actionLabel: 'View Staff'
       });
     }
@@ -519,7 +519,7 @@ const Dashboard: React.FC = () => {
         {/* Products */}
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/app/products')}>
+            <div className="flex items-center space-x-2 cursor-pointer" onClick={() => navigate('/products')}>
               <Package className="w-6 h-6 text-brand-700" />
               <span className="font-semibold">Products</span>
             </div>
@@ -529,7 +529,7 @@ const Dashboard: React.FC = () => {
           </CardDescription>
           <CardContent className="p-6 pt-0">
             <div className="flex items-center justify-between">
-              <div className="cursor-pointer flex-1" onClick={() => navigate('/app/products')}>
+              <div className="cursor-pointer flex-1" onClick={() => navigate('/products')}>
                 <p className="text-sm font-medium text-gray-600">Total Products</p>
                 <p className="text-2xl font-bold text-gray-900 mt-1">{stats.totalProducts}</p>
                 {stats.lowStockProducts > 0 &&
@@ -544,7 +544,7 @@ const Dashboard: React.FC = () => {
         </Card>
 
         {/* Employees */}
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/app/employees')}>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/employees')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -562,7 +562,7 @@ const Dashboard: React.FC = () => {
         </Card>
 
         {/* Monthly Sales */}
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/app/sales')}>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/sales')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -582,7 +582,7 @@ const Dashboard: React.FC = () => {
         </Card>
 
         {/* Orders */}
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/app/orders')}>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/orders')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -600,7 +600,7 @@ const Dashboard: React.FC = () => {
 
       {/* New Features - Salary & Inventory */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-blue-200 bg-blue-50" onClick={() => navigate('/app/salary')}>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-blue-200 bg-blue-50" onClick={() => navigate('/salary')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -618,7 +618,7 @@ const Dashboard: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-red-200 bg-red-50" onClick={() => navigate('/app/inventory/alerts')}>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-red-200 bg-red-50" onClick={() => navigate('/inventory/alerts')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -639,7 +639,7 @@ const Dashboard: React.FC = () => {
 
       {/* Secondary Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/app/vendors')}>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/vendors')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -653,7 +653,7 @@ const Dashboard: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/app/orders')}>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/orders')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -665,7 +665,7 @@ const Dashboard: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/app/licenses')}>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/licenses')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>

@@ -39,18 +39,18 @@ const DashboardLayout: React.FC = () => {
 
 
   const navigationItems: NavigationItem[] = [
-  { name: 'Dashboard', path: '/app/dashboard', icon: <Home className="w-5 h-5" /> },
-  { name: 'All Products', path: '/app/products', icon: <Package className="w-5 h-5" /> },
-  { name: 'All Employees', path: '/app/employees', icon: <Users className="w-5 h-5" /> },
-  { name: 'Sales Reports', path: '/app/sales', icon: <TrendingUp className="w-5 h-5" /> },
-  { name: 'Add Report', path: '/app/sales/new', icon: <Plus className="w-5 h-5" /> },
-  { name: 'Salary Records', path: '/app/salary', icon: <DollarSign className="w-5 h-5" /> },
-  { name: 'Inventory Alerts', path: '/app/inventory/alerts', icon: <AlertTriangle className="w-5 h-5" /> },
-  { name: 'New Delivery', path: '/app/delivery', icon: <Truck className="w-5 h-5" /> },
-  { name: 'All Vendors', path: '/app/vendors', icon: <Building2 className="w-5 h-5" /> },
-  { name: 'All Orders', path: '/app/orders', icon: <ShoppingCart className="w-5 h-5" /> },
-  { name: 'Create Order', path: '/app/orders/new', icon: <Plus className="w-5 h-5" /> },
-  { name: 'All Licenses', path: '/app/licenses', icon: <FileText className="w-5 h-5" /> }];
+  { name: 'Dashboard', path: '/dashboard', icon: <Home className="w-5 h-5" /> },
+  { name: 'All Products', path: '/products', icon: <Package className="w-5 h-5" /> },
+  { name: 'All Employees', path: '/employees', icon: <Users className="w-5 h-5" /> },
+  { name: 'Sales Reports', path: '/sales', icon: <TrendingUp className="w-5 h-5" /> },
+  { name: 'Add Report', path: '/sales/new', icon: <Plus className="w-5 h-5" /> },
+  { name: 'Salary Records', path: '/salary', icon: <DollarSign className="w-5 h-5" /> },
+  { name: 'Inventory Alerts', path: '/inventory/alerts', icon: <AlertTriangle className="w-5 h-5" /> },
+  { name: 'New Delivery', path: '/delivery', icon: <Truck className="w-5 h-5" /> },
+  { name: 'All Vendors', path: '/vendors', icon: <Building2 className="w-5 h-5" /> },
+  { name: 'All Orders', path: '/orders', icon: <ShoppingCart className="w-5 h-5" /> },
+  { name: 'Create Order', path: '/orders/new', icon: <Plus className="w-5 h-5" /> },
+  { name: 'All Licenses', path: '/licenses', icon: <FileText className="w-5 h-5" /> }];
 
 
 
@@ -81,16 +81,17 @@ const DashboardLayout: React.FC = () => {
 
   const getPageTitle = () => {
     const path = location.pathname;
-    if (path === '/app/dashboard') return 'Dashboard';
-    if (path.startsWith('/app/products')) return 'Products';
-    if (path.startsWith('/app/employees')) return 'Employees';
-    if (path.startsWith('/app/sales')) return 'Sales Reports';
-    if (path.startsWith('/app/salary')) return 'Salary Management';
-    if (path.startsWith('/app/inventory')) return 'Inventory Management';
-    if (path.startsWith('/app/delivery')) return 'Delivery Management';
-    if (path.startsWith('/app/vendors')) return 'Vendors';
-    if (path.startsWith('/app/orders')) return 'Orders';
-    if (path.startsWith('/app/licenses')) return 'Licenses & Certificates';
+    if (path === '/dashboard') return 'Dashboard';
+    if (path.startsWith('/products')) return 'Products';
+    if (path.startsWith('/employees')) return 'Employees';
+    if (path.startsWith('/sales')) return 'Sales Reports';
+    if (path.startsWith('/salary')) return 'Salary Management';
+    if (path.startsWith('/inventory')) return 'Inventory Management';
+
+    if (path.startsWith('/delivery')) return 'Delivery Management';
+    if (path.startsWith('/vendors')) return 'Vendors';
+    if (path.startsWith('/orders')) return 'Orders';
+    if (path.startsWith('/licenses')) return 'Licenses & Certificates';
     return 'DFS Manager';
   };
 

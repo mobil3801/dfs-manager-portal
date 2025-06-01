@@ -42,8 +42,8 @@ const CashCollectionSection: React.FC<CashCollectionSectionProps> = ({
               onChange={(value) => onChange('cashCollectionOnHand', value || 0)}
               min={0}
               step={0.01}
-              required />
-
+              required
+            />
             <div className="text-xs text-gray-600">
               Physical cash counted at end of shift
             </div>
@@ -63,29 +63,29 @@ const CashCollectionSection: React.FC<CashCollectionSectionProps> = ({
             <Label>Total (+/-) Short/Over</Label>
             <div className="h-10 px-3 py-2 border rounded-md flex items-center justify-between bg-white">
               <span className={`font-bold text-lg ${
-              isShort ? 'text-red-600' : isOver ? 'text-green-600' : 'text-gray-700'}`
-              }>
+                isShort ? 'text-red-600' : isOver ? 'text-green-600' : 'text-gray-700'
+              }`}>
                 ${Math.abs(shortOver).toFixed(2)}
               </span>
               {isShort && <TrendingDown className="w-5 h-5 text-red-600" />}
               {isOver && <TrendingUp className="w-5 h-5 text-green-600" />}
             </div>
             <div className="flex items-center space-x-1">
-              {isShort &&
-              <Badge variant="destructive" className="text-xs">
+              {isShort && (
+                <Badge variant="destructive" className="text-xs">
                   Short
                 </Badge>
-              }
-              {isOver &&
-              <Badge className="bg-green-100 text-green-800 text-xs">
+              )}
+              {isOver && (
+                <Badge className="bg-green-100 text-green-800 text-xs">
                   Over
                 </Badge>
-              }
-              {!isShort && !isOver &&
-              <Badge variant="outline" className="text-xs">
+              )}
+              {!isShort && !isOver && (
+                <Badge variant="outline" className="text-xs">
                   Exact
                 </Badge>
-              }
+              )}
             </div>
           </div>
         </div>
@@ -109,16 +109,16 @@ const CashCollectionSection: React.FC<CashCollectionSectionProps> = ({
               <span className="font-medium">${values.cashCollectionOnHand.toFixed(2)}</span>
             </div>
             <div className={`flex justify-between border-t border-blue-200 pt-2 font-bold ${
-            isShort ? 'text-red-600' : isOver ? 'text-green-600' : 'text-blue-800'}`
-            }>
+              isShort ? 'text-red-600' : isOver ? 'text-green-600' : 'text-blue-800'
+            }`}>
               <span>Difference:</span>
               <span>{isShort ? '-' : '+'}${Math.abs(shortOver).toFixed(2)}</span>
             </div>
           </div>
         </div>
       </CardContent>
-    </Card>);
-
+    </Card>
+  );
 };
 
 export default CashCollectionSection;

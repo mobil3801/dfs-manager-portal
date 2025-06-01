@@ -137,7 +137,7 @@ const EmployeeList: React.FC = () => {
               </CardDescription>
             </div>
             <Button
-              onClick={() => navigate('/app/employees/new')}
+              onClick={() => navigate('/employees/new')}
               className="flex items-center space-x-2">
 
               <Plus className="w-4 h-4" />
@@ -241,7 +241,7 @@ const EmployeeList: React.FC = () => {
                           <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => navigate(`/app/employees/edit/${employee.ID}`)}>
+                        onClick={() => navigate(`/employees/edit/${employee.ID}`)}>
 
                             <Edit className="w-4 h-4" />
                           </Button>

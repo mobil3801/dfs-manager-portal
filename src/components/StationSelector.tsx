@@ -8,28 +8,28 @@ interface StationSelectorProps {
 }
 
 const stations = [
-{
-  id: 'MOBIL',
-  name: 'MOBIL',
-  location: 'Far Rockaway',
-  description: 'Gas station with convenience store',
-  color: 'bg-blue-50 border-blue-200 hover:bg-blue-100'
-},
-{
-  id: 'AMOCO ROSEDALE',
-  name: 'AMOCO',
-  location: 'Rosedale',
-  description: 'Full service gas station',
-  color: 'bg-green-50 border-green-200 hover:bg-green-100'
-},
-{
-  id: 'AMOCO BROOKLYN',
-  name: 'AMOCO',
-  location: 'Brooklyn',
-  description: 'Full service gas station',
-  color: 'bg-purple-50 border-purple-200 hover:bg-purple-100'
-}];
-
+  {
+    id: 'MOBIL',
+    name: 'MOBIL',
+    location: 'Far Rockaway',
+    description: 'Gas station with convenience store',
+    color: 'bg-blue-50 border-blue-200 hover:bg-blue-100'
+  },
+  {
+    id: 'AMOCO ROSEDALE',
+    name: 'AMOCO',
+    location: 'Rosedale',
+    description: 'Full service gas station',
+    color: 'bg-green-50 border-green-200 hover:bg-green-100'
+  },
+  {
+    id: 'AMOCO BROOKLYN',
+    name: 'AMOCO',
+    location: 'Brooklyn',
+    description: 'Full service gas station',
+    color: 'bg-purple-50 border-purple-200 hover:bg-purple-100'
+  }
+];
 
 const StationSelector: React.FC<StationSelectorProps> = ({ onStationSelect }) => {
   return (
@@ -45,13 +45,13 @@ const StationSelector: React.FC<StationSelectorProps> = ({ onStationSelect }) =>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {stations.map((station) =>
-          <Button
-            key={station.id}
-            variant="outline"
-            className={`h-auto p-6 flex flex-col items-center space-y-3 ${station.color} transition-all duration-200`}
-            onClick={() => onStationSelect(station.id)}>
-
+          {stations.map((station) => (
+            <Button
+              key={station.id}
+              variant="outline"
+              className={`h-auto p-6 flex flex-col items-center space-y-3 ${station.color} transition-all duration-200`}
+              onClick={() => onStationSelect(station.id)}
+            >
               <MapPin className="w-8 h-8" />
               <div className="text-center">
                 <div className="font-semibold text-lg">{station.name}</div>
@@ -59,11 +59,11 @@ const StationSelector: React.FC<StationSelectorProps> = ({ onStationSelect }) =>
                 <div className="text-xs text-muted-foreground mt-1">{station.description}</div>
               </div>
             </Button>
-          )}
+          ))}
         </div>
       </CardContent>
-    </Card>);
-
+    </Card>
+  );
 };
 
 export default StationSelector;

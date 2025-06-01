@@ -36,8 +36,8 @@ const LotterySalesSection: React.FC<LotterySalesSectionProps> = ({
               onChange={(value) => onChange('lotteryNetSales', value || 0)}
               min={0}
               step={0.01}
-              required />
-
+              required
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="scratchOff">Scratch Off Sales ($) *</Label>
@@ -47,8 +47,8 @@ const LotterySalesSection: React.FC<LotterySalesSectionProps> = ({
               onChange={(value) => onChange('scratchOffSales', value || 0)}
               min={0}
               step={0.01}
-              required />
-
+              required
+            />
           </div>
         </div>
         
@@ -62,8 +62,8 @@ const LotterySalesSection: React.FC<LotterySalesSectionProps> = ({
           </div>
         </div>
       </CardContent>
-    </Card>);
-
+    </Card>
+  );
 };
 
 export default LotterySalesSection;
