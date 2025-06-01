@@ -43,6 +43,7 @@ export default function SalesReportForm() {
     report_date: new Date().toISOString().split('T')[0],
     station: '',
     employee_name: '',
+    employee_id: '',
     // Cash Collection
     cashCollectionOnHand: 0,
     // Gas & Grocery Sales
@@ -100,6 +101,7 @@ export default function SalesReportForm() {
           report_date: report.report_date.split('T')[0],
           station: report.station,
           employee_name: report.employee_name,
+          employee_id: report.employee_id || '',
           cashCollectionOnHand: report.cash_collection_on_hand,
           creditCardAmount: report.credit_card_amount,
           debitCardAmount: report.debit_card_amount,
@@ -205,6 +207,7 @@ export default function SalesReportForm() {
       report_date: formData.report_date,
       station: formData.station,
       employee_name: formData.employee_name,
+      employee_id: formData.employee_id,
       cash_collection_on_hand: formData.cashCollectionOnHand,
       total_short_over: formData.cashCollectionOnHand - (totalCashFromSales - totalCashFromExpenses),
       credit_card_amount: formData.creditCardAmount,
@@ -349,18 +352,24 @@ export default function SalesReportForm() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="employee">Employee *</Label>
+                  <Label htmlFor="employee">Employee Name *</Label>
                   <Select
-                    value={formData.employee_name}
-                    onValueChange={(value) => updateFormData('employee_name', value)}>
-
+                    value={formData.employee_id}
+                    onValueChange={(value) => {
+                      const selectedEmployee = employees.find(emp => emp.employee_id === value);
+                      if (selectedEmployee) {
+                        updateFormData('employee_id', value);
+                        updateFormData('employee_name', `${selectedEmployee.first_name} ${selectedEmployee.last_name}`);
+                      }
+                    }}
+                    disabled={isLoadingEmployees}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select employee" />
+                      <SelectValue placeholder={isLoadingEmployees ? "Loading employees..." : "Select employee"} />
                     </SelectTrigger>
                     <SelectContent>
                       {employees.map((employee) =>
-                      <SelectItem key={employee.id} value={`${employee.first_name} ${employee.last_name}`}>
-                          {employee.first_name} {employee.last_name} ({employee.employee_id})
+                        <SelectItem key={employee.id} value={employee.employee_id}>
+                          {employee.first_name} {employee.last_name} (ID: {employee.employee_id})
                         </SelectItem>
                       )}
                     </SelectContent>

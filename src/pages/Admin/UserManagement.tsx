@@ -360,7 +360,7 @@ const UserManagement: React.FC = () => {
               if (open) {
                 // Generate new random user ID when opening dialog
                 const newUserId = generateRandomUserId();
-                setFormData(prev => ({ ...prev, user_id: newUserId }));
+                setFormData((prev) => ({ ...prev, user_id: newUserId }));
               }
               setIsAddDialogOpen(open);
             }}>
@@ -394,14 +394,14 @@ const UserManagement: React.FC = () => {
                           className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-gray-200"
                           onClick={() => {
                             const newUserId = generateRandomUserId();
-                            setFormData(prev => ({ ...prev, user_id: newUserId }));
+                            setFormData((prev) => ({ ...prev, user_id: newUserId }));
                             toast({
                               title: "Success",
                               description: `New User ID generated: ${newUserId}`
                             });
                           }}
-                          title="Generate new random User ID"
-                        >
+                          title="Generate new random User ID">
+
                           <RefreshCw className="w-3 h-3" />
                         </Button>
                       </div>
