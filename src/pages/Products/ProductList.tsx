@@ -222,7 +222,7 @@ const ProductList: React.FC = () => {
           IsAsc: false,
           Filters: []
         });
-        
+
         const lastSerial = serialData?.List?.[0]?.serial_number || 0;
         const newSerial = lastSerial + 1;
 
@@ -252,7 +252,7 @@ const ProductList: React.FC = () => {
 
         console.log('Creating new product with data:', newProductData);
         const { error } = await window.ezsite.apis.tableCreate('11726', newProductData);
-        
+
         if (error) {
           console.error('API returned error:', error);
           throw error;
@@ -266,7 +266,7 @@ const ProductList: React.FC = () => {
         });
       } else {
         // Update existing product
-        const product = products.find(p => p.ID === productId);
+        const product = products.find((p) => p.ID === productId);
         if (!product) {
           throw new Error('Product not found');
         }
@@ -457,11 +457,11 @@ const ProductList: React.FC = () => {
               onClick={() => handleSaveProduct(null)}
               disabled={savingProductId === -1}
               className="bg-brand-600 hover:bg-brand-700 text-white">
-              {savingProductId === -1 ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <Plus className="w-4 h-4 mr-2" />
-              )}
+              {savingProductId === -1 ?
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" /> :
+
+              <Plus className="w-4 h-4 mr-2" />
+              }
               {savingProductId === -1 ? 'Creating...' : 'Add Product'}
             </Button>
           </div>
@@ -639,11 +639,11 @@ const ProductList: React.FC = () => {
                             }}
                             disabled={savingProductId === product.ID}
                             title="Save product">
-                              {savingProductId === product.ID ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <Save className="w-4 h-4" />
-                              )}
+                              {savingProductId === product.ID ?
+                            <Loader2 className="w-4 h-4 animate-spin" /> :
+
+                            <Save className="w-4 h-4" />
+                            }
                             </Button>
                             <Button
                             variant="outline"
