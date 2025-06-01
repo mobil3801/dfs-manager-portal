@@ -316,19 +316,19 @@ const SalesReportForm: React.FC = () => {
                     Employee
                   </div>
                 </Label>
-                {employeesLoading ? (
-                  <div className="flex items-center justify-center p-2">
+                {employeesLoading ?
+                <div className="flex items-center justify-center p-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
                     <span className="ml-2 text-sm text-gray-600">Loading employees...</span>
-                  </div>
-                ) : (
-                  <Select value={formData.employee_id} onValueChange={(value) => handleInputChange('employee_id', value)}>
+                  </div> :
+
+                <Select value={formData.employee_id} onValueChange={(value) => handleInputChange('employee_id', value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Search and select employee" />
                     </SelectTrigger>
                     <SelectContent>
-                      {employees.map((employee) => (
-                        <SelectItem key={employee.employee_id} value={employee.employee_id}>
+                      {employees.map((employee) =>
+                    <SelectItem key={employee.employee_id} value={employee.employee_id}>
                           <div className="flex flex-col">
                             <span className="font-medium">{employee.first_name} {employee.last_name}</span>
                             <span className="text-xs text-gray-500">
@@ -336,10 +336,10 @@ const SalesReportForm: React.FC = () => {
                             </span>
                           </div>
                         </SelectItem>
-                      ))}
+                    )}
                     </SelectContent>
                   </Select>
-                )}
+                }
               </div>
             </div>
 

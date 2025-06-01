@@ -2,6 +2,7 @@ import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import {
   Truck,
@@ -11,7 +12,8 @@ import {
   Gauge,
   Fuel,
   User,
-  Hash } from
+  Hash,
+  Printer } from
 'lucide-react';
 
 interface DeliveryRecord {
@@ -76,14 +78,161 @@ const DeliveryReportDialog: React.FC<DeliveryReportDialogProps> = ({
     }
   };
 
+  const handlePrint = () => {
+    // Create print content
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Delivery Report - ${delivery.bol_number || `Record #${delivery.id}`}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+            .company-name { font-size: 24px; font-weight: bold; color: #333; }
+            .report-title { font-size: 18px; color: #666; margin-top: 10px; }
+            .section { margin-bottom: 25px; }
+            .section-title { font-size: 16px; font-weight: bold; color: #333; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+            .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+            .info-item { padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+            .info-label { font-size: 12px; color: #666; text-transform: uppercase; }
+            .info-value { font-size: 14px; font-weight: bold; margin-top: 5px; }
+            .fuel-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+            .fuel-item { text-align: center; padding: 15px; border: 2px solid; border-radius: 8px; }
+            .fuel-regular { border-color: #3b82f6; background-color: #eff6ff; }
+            .fuel-plus { border-color: #10b981; background-color: #f0fdf4; }
+            .fuel-super { border-color: #8b5cf6; background-color: #faf5ff; }
+            .fuel-total { border-color: #f59e0b; background-color: #fffbeb; }
+            .fuel-amount { font-size: 24px; font-weight: bold; }
+            .fuel-label { font-size: 12px; margin-top: 5px; }
+            .notes { background-color: #f9fafb; padding: 15px; border-radius: 5px; border-left: 4px solid #3b82f6; }
+            .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #666; border-top: 1px solid #ddd; padding-top: 20px; }
+            @media print { body { margin: 0; } }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="company-name">DFS Manager Portal</div>
+            <div class="report-title">Fuel Delivery Report</div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">Delivery Information</div>
+            <div class="info-grid">
+              <div class="info-item">
+                <div class="info-label">Record ID</div>
+                <div class="info-value">#${delivery.id}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Delivery Date</div>
+                <div class="info-value">${formatDate(delivery.delivery_date)}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">BOL Number</div>
+                <div class="info-value">${delivery.bol_number || 'Not Assigned'}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">Station</div>
+                <div class="info-value">${delivery.station}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">Tank Volumes Before Delivery</div>
+            <div class="fuel-grid">
+              <div class="fuel-item fuel-regular">
+                <div class="fuel-amount">${formatNumber(delivery.regular_tank_volume)}</div>
+                <div class="fuel-label">Regular Tank (gal)</div>
+              </div>
+              <div class="fuel-item fuel-plus">
+                <div class="fuel-amount">${formatNumber(delivery.plus_tank_volume)}</div>
+                <div class="fuel-label">Plus Tank (gal)</div>
+              </div>
+              <div class="fuel-item fuel-super">
+                <div class="fuel-amount">${formatNumber(delivery.super_tank_volume)}</div>
+                <div class="fuel-label">Super Tank (gal)</div>
+              </div>
+              <div class="fuel-item">
+                <div class="fuel-amount">${formatNumber(getTotalTankVolume())}</div>
+                <div class="fuel-label">Total Volume (gal)</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">Fuel Delivered</div>
+            <div class="fuel-grid">
+              <div class="fuel-item fuel-regular">
+                <div class="fuel-amount">${formatNumber(delivery.regular_delivered)}</div>
+                <div class="fuel-label">Regular Delivered (gal)</div>
+              </div>
+              <div class="fuel-item fuel-plus">
+                <div class="fuel-amount">${formatNumber(delivery.plus_delivered)}</div>
+                <div class="fuel-label">Plus Delivered (gal)</div>
+              </div>
+              <div class="fuel-item fuel-super">
+                <div class="fuel-amount">${formatNumber(delivery.super_delivered)}</div>
+                <div class="fuel-label">Super Delivered (gal)</div>
+              </div>
+              <div class="fuel-item fuel-total">
+                <div class="fuel-amount">${formatNumber(getTotalDelivered())}</div>
+                <div class="fuel-label">Total Delivered (gal)</div>
+              </div>
+            </div>
+          </div>
+
+          ${delivery.delivery_notes ? `
+          <div class="section">
+            <div class="section-title">Delivery Notes</div>
+            <div class="notes">${delivery.delivery_notes}</div>
+          </div>
+          ` : ''}
+
+          <div class="footer">
+            <div>Report generated on ${new Date().toLocaleDateString('en-US', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}</div>
+            <div>Created by User #${delivery.created_by} | DFS Manager Portal</div>
+          </div>
+        </body>
+      </html>
+    `;
+
+    // Open print window
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Truck className="h-5 w-5 text-blue-600" />
-            Delivery Report - {delivery.bol_number || `Record #${delivery.id}`}
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-2">
+              <Truck className="h-5 w-5 text-blue-600" />
+              Delivery Report - {delivery.bol_number || `Record #${delivery.id}`}
+            </DialogTitle>
+            <Button
+              onClick={handlePrint}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+            >
+              <Printer className="h-4 w-4" />
+              Print Report
+            </Button>
+          </div>
         </DialogHeader>
 
         <div className="grid gap-6">
