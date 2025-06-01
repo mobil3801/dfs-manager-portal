@@ -3,16 +3,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Truck, 
-  Calendar, 
-  MapPin, 
-  FileText, 
-  Gauge, 
+import {
+  Truck,
+  Calendar,
+  MapPin,
+  FileText,
+  Gauge,
   Fuel,
   User,
-  Hash
-} from 'lucide-react';
+  Hash } from
+'lucide-react';
 
 interface DeliveryRecord {
   id: number;
@@ -229,27 +229,27 @@ const DeliveryReportDialog: React.FC<DeliveryReportDialogProps> = ({
                     <div className="flex justify-between">
                       <span className="text-sm">Regular:</span>
                       <span className="text-sm font-medium">
-                        {delivery.regular_tank_volume > 0 ? 
-                          `${((delivery.regular_delivered / (delivery.regular_tank_volume + delivery.regular_delivered)) * 100).toFixed(1)}%` : 
-                          'N/A'
+                        {delivery.regular_tank_volume > 0 ?
+                        `${(delivery.regular_delivered / (delivery.regular_tank_volume + delivery.regular_delivered) * 100).toFixed(1)}%` :
+                        'N/A'
                         }
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm">Plus:</span>
                       <span className="text-sm font-medium">
-                        {delivery.plus_tank_volume > 0 ? 
-                          `${((delivery.plus_delivered / (delivery.plus_tank_volume + delivery.plus_delivered)) * 100).toFixed(1)}%` : 
-                          'N/A'
+                        {delivery.plus_tank_volume > 0 ?
+                        `${(delivery.plus_delivered / (delivery.plus_tank_volume + delivery.plus_delivered) * 100).toFixed(1)}%` :
+                        'N/A'
                         }
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm">Super:</span>
                       <span className="text-sm font-medium">
-                        {delivery.super_tank_volume > 0 ? 
-                          `${((delivery.super_delivered / (delivery.super_tank_volume + delivery.super_delivered)) * 100).toFixed(1)}%` : 
-                          'N/A'
+                        {delivery.super_tank_volume > 0 ?
+                        `${(delivery.super_delivered / (delivery.super_tank_volume + delivery.super_delivered) * 100).toFixed(1)}%` :
+                        'N/A'
                         }
                       </span>
                     </div>
@@ -262,27 +262,27 @@ const DeliveryReportDialog: React.FC<DeliveryReportDialogProps> = ({
                     <div className="flex justify-between">
                       <span className="text-sm">Regular:</span>
                       <span className="text-sm font-medium">
-                        {getTotalDelivered() > 0 ? 
-                          `${((delivery.regular_delivered / getTotalDelivered()) * 100).toFixed(1)}%` : 
-                          '0%'
+                        {getTotalDelivered() > 0 ?
+                        `${(delivery.regular_delivered / getTotalDelivered() * 100).toFixed(1)}%` :
+                        '0%'
                         }
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm">Plus:</span>
                       <span className="text-sm font-medium">
-                        {getTotalDelivered() > 0 ? 
-                          `${((delivery.plus_delivered / getTotalDelivered()) * 100).toFixed(1)}%` : 
-                          '0%'
+                        {getTotalDelivered() > 0 ?
+                        `${(delivery.plus_delivered / getTotalDelivered() * 100).toFixed(1)}%` :
+                        '0%'
                         }
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm">Super:</span>
                       <span className="text-sm font-medium">
-                        {getTotalDelivered() > 0 ? 
-                          `${((delivery.super_delivered / getTotalDelivered()) * 100).toFixed(1)}%` : 
-                          '0%'
+                        {getTotalDelivered() > 0 ?
+                        `${(delivery.super_delivered / getTotalDelivered() * 100).toFixed(1)}%` :
+                        '0%'
                         }
                       </span>
                     </div>
@@ -303,8 +303,8 @@ const DeliveryReportDialog: React.FC<DeliveryReportDialogProps> = ({
           </Card>
 
           {/* Delivery Notes */}
-          {delivery.delivery_notes && (
-            <Card>
+          {delivery.delivery_notes &&
+          <Card>
               <CardHeader>
                 <CardTitle>Delivery Notes</CardTitle>
               </CardHeader>
@@ -316,11 +316,11 @@ const DeliveryReportDialog: React.FC<DeliveryReportDialogProps> = ({
                 </div>
               </CardContent>
             </Card>
-          )}
+          }
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default DeliveryReportDialog;

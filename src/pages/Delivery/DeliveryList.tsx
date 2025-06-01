@@ -316,11 +316,11 @@ const DeliveryList: React.FC = () => {
                         </TableCell>
                         <TableCell>
                           <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleViewReport(delivery)}
-                            className="h-8 w-8 p-0 hover:bg-blue-50"
-                          >
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleViewReport(delivery)}
+                        className="h-8 w-8 p-0 hover:bg-blue-50">
+
                             <Eye className="h-4 w-4 text-blue-600" />
                           </Button>
                         </TableCell>
@@ -365,8 +365,8 @@ const DeliveryList: React.FC = () => {
       <DeliveryReportDialog
         open={reportDialogOpen}
         onOpenChange={setReportDialogOpen}
-        delivery={selectedDelivery}
-      />
+        delivery={selectedDelivery} />
+
     </div>);
 
 };
