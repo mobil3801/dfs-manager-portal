@@ -7,7 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import { useBatchSelection } from '@/hooks/use-batch-selection';
+import BatchActionBar from '@/components/BatchActionBar';
+import BatchDeleteDialog from '@/components/BatchDeleteDialog';
 import {
   Shield,
   Key,
@@ -117,7 +121,12 @@ const SecuritySettings: React.FC = () => {
   const [securityEvents, setSecurityEvents] = useState<SecurityEvent[]>([]);
   const [newIPAddress, setNewIPAddress] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isBatchDeleteDialogOpen, setIsBatchDeleteDialogOpen] = useState(false);
+  const [batchActionLoading, setBatchActionLoading] = useState(false);
   const { toast } = useToast();
+
+  // Batch selection hook for security events
+  const batchSelection = useBatchSelection<SecurityEvent>();
 
   useEffect(() => {
     generateSampleSecurityEvents();
@@ -227,6 +236,49 @@ const SecuritySettings: React.FC = () => {
       case 'medium':return 'bg-yellow-100 text-yellow-800';
       case 'low':return 'bg-blue-100 text-blue-800';
       default:return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  // Batch operations for security events
+  const handleBatchDelete = () => {
+    const selectedData = batchSelection.getSelectedData(securityEvents, (event) => event.id);
+    if (selectedData.length === 0) {
+      toast({
+        title: "No Selection",
+        description: "Please select security events to delete",
+        variant: "destructive"
+      });
+      return;
+    }
+    setIsBatchDeleteDialogOpen(true);
+  };
+
+  const confirmBatchDelete = async () => {
+    setBatchActionLoading(true);
+    try {
+      const selectedData = batchSelection.getSelectedData(securityEvents, (event) => event.id);
+      const selectedIds = selectedData.map(event => event.id);
+      
+      // Filter out selected events
+      const remainingEvents = securityEvents.filter(event => !selectedIds.includes(event.id));
+      setSecurityEvents(remainingEvents);
+
+      toast({
+        title: "Success",
+        description: `Deleted ${selectedData.length} security events successfully`
+      });
+
+      setIsBatchDeleteDialogOpen(false);
+      batchSelection.clearSelection();
+    } catch (error) {
+      console.error('Error in batch delete:', error);
+      toast({
+        title: "Error",
+        description: `Failed to delete security events: ${error}`,
+        variant: "destructive"
+      });
+    } finally {
+      setBatchActionLoading(false);
     }
   };
 
@@ -738,6 +790,15 @@ const SecuritySettings: React.FC = () => {
         </CardContent>
       </Card>
 
+      {/* Batch Action Bar for Security Events */}
+      <BatchActionBar
+        selectedCount={batchSelection.selectedCount}
+        onBatchDelete={handleBatchDelete}
+        onClearSelection={batchSelection.clearSelection}
+        isLoading={batchActionLoading}
+        showEdit={false}
+      />
+
       {/* Recent Security Events */}
       <Card>
         <CardHeader>
@@ -751,6 +812,13 @@ const SecuritySettings: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-12">
+                    <Checkbox
+                      checked={securityEvents.length > 0 && batchSelection.selectedCount === securityEvents.length}
+                      onCheckedChange={() => batchSelection.toggleSelectAll(securityEvents, (event) => event.id)}
+                      aria-label="Select all security events"
+                    />
+                  </TableHead>
                   <TableHead>Time</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Severity</TableHead>
@@ -761,7 +829,14 @@ const SecuritySettings: React.FC = () => {
               </TableHeader>
               <TableBody>
                 {securityEvents.map((event) =>
-                <TableRow key={event.id}>
+                <TableRow key={event.id} className={batchSelection.isSelected(event.id) ? "bg-blue-50" : ""}>
+                    <TableCell>
+                      <Checkbox
+                        checked={batchSelection.isSelected(event.id)}
+                        onCheckedChange={() => batchSelection.toggleItem(event.id)}
+                        aria-label={`Select security event ${event.id}`}
+                      />
+                    </TableCell>
                     <TableCell className="font-mono text-sm">
                       <div className="flex items-center space-x-2">
                         <Clock className="w-3 h-3 text-gray-400" />
@@ -789,6 +864,20 @@ const SecuritySettings: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Batch Delete Dialog */}
+      <BatchDeleteDialog
+        isOpen={isBatchDeleteDialogOpen}
+        onClose={() => setIsBatchDeleteDialogOpen(false)}
+        onConfirm={confirmBatchDelete}
+        selectedCount={batchSelection.selectedCount}
+        isLoading={batchActionLoading}
+        itemName="security events"
+        selectedItems={batchSelection.getSelectedData(securityEvents, (event) => event.id).map(event => ({
+          id: event.id,
+          name: `${event.type} - ${event.severity.toUpperCase()} - ${event.description.substring(0, 50)}...`
+        }))}
+      />
     </div>);
 
 };

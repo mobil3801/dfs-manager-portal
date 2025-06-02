@@ -10,7 +10,12 @@ import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import { useBatchSelection } from '@/hooks/use-batch-selection';
+import BatchActionBar from '@/components/BatchActionBar';
+import BatchDeleteDialog from '@/components/BatchDeleteDialog';
+import BatchEditDialog from '@/components/BatchEditDialog';
 import UserPermissionManager from '@/components/UserPermissionManager';
 import EnhancedUserPermissionManager from '@/components/EnhancedUserPermissionManager';
 import ComprehensivePermissionDialog from '@/components/ComprehensivePermissionDialog';
@@ -65,8 +70,21 @@ const UserManagement: React.FC = () => {
   const [selectedStation, setSelectedStation] = useState('All');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isBatchEditDialogOpen, setIsBatchEditDialogOpen] = useState(false);
+  const [isBatchDeleteDialogOpen, setIsBatchDeleteDialogOpen] = useState(false);
   const [selectedUserProfile, setSelectedUserProfile] = useState<UserProfile | null>(null);
+  const [batchActionLoading, setBatchActionLoading] = useState(false);
   const { toast } = useToast();
+
+  // Batch selection hook
+  const batchSelection = useBatchSelection<UserProfile>();
+
+  // Batch edit form data
+  const [batchEditData, setBatchEditData] = useState({
+    role: '',
+    station: '',
+    is_active: true
+  });
 
   const roles = ['Administrator', 'Management', 'Employee'];
   const stations = ['MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN'];
@@ -248,6 +266,99 @@ const UserManagement: React.FC = () => {
         description: `Failed to delete user profile: ${error}`,
         variant: "destructive"
       });
+    }
+  };
+
+  // Batch operations
+  const handleBatchEdit = () => {
+    const selectedData = batchSelection.getSelectedData(filteredProfiles, (profile) => profile.id);
+    if (selectedData.length === 0) {
+      toast({
+        title: "No Selection",
+        description: "Please select profiles to edit",
+        variant: "destructive"
+      });
+      return;
+    }
+    setIsBatchEditDialogOpen(true);
+  };
+
+  const handleBatchDelete = () => {
+    const selectedData = batchSelection.getSelectedData(filteredProfiles, (profile) => profile.id);
+    if (selectedData.length === 0) {
+      toast({
+        title: "No Selection",
+        description: "Please select profiles to delete",
+        variant: "destructive"
+      });
+      return;
+    }
+    setIsBatchDeleteDialogOpen(true);
+  };
+
+  const confirmBatchEdit = async () => {
+    setBatchActionLoading(true);
+    try {
+      const selectedData = batchSelection.getSelectedData(filteredProfiles, (profile) => profile.id);
+      const updates = selectedData.map(profile => ({
+        id: profile.id,
+        ...(batchEditData.role && { role: batchEditData.role }),
+        ...(batchEditData.station && { station: batchEditData.station }),
+        is_active: batchEditData.is_active
+      }));
+
+      for (const update of updates) {
+        const { error } = await window.ezsite.apis.tableUpdate(11725, update);
+        if (error) throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: `Updated ${selectedData.length} user profiles successfully`
+      });
+
+      setIsBatchEditDialogOpen(false);
+      batchSelection.clearSelection();
+      fetchUserProfiles();
+    } catch (error) {
+      console.error('Error in batch edit:', error);
+      toast({
+        title: "Error",
+        description: `Failed to update profiles: ${error}`,
+        variant: "destructive"
+      });
+    } finally {
+      setBatchActionLoading(false);
+    }
+  };
+
+  const confirmBatchDelete = async () => {
+    setBatchActionLoading(true);
+    try {
+      const selectedData = batchSelection.getSelectedData(filteredProfiles, (profile) => profile.id);
+      
+      for (const profile of selectedData) {
+        const { error } = await window.ezsite.apis.tableDelete(11725, { id: profile.id });
+        if (error) throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: `Deleted ${selectedData.length} user profiles successfully`
+      });
+
+      setIsBatchDeleteDialogOpen(false);
+      batchSelection.clearSelection();
+      fetchUserProfiles();
+    } catch (error) {
+      console.error('Error in batch delete:', error);
+      toast({
+        title: "Error",
+        description: `Failed to delete profiles: ${error}`,
+        variant: "destructive"
+      });
+    } finally {
+      setBatchActionLoading(false);
     }
   };
 
@@ -585,6 +696,15 @@ const UserManagement: React.FC = () => {
             </CardContent>
           </Card>
 
+          {/* Batch Action Bar */}
+          <BatchActionBar
+            selectedCount={batchSelection.selectedCount}
+            onBatchEdit={handleBatchEdit}
+            onBatchDelete={handleBatchDelete}
+            onClearSelection={batchSelection.clearSelection}
+            isLoading={batchActionLoading}
+          />
+
           {/* User Profiles Table */}
           <Card>
             <CardHeader>
@@ -595,6 +715,13 @@ const UserManagement: React.FC = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-12">
+                        <Checkbox
+                          checked={filteredProfiles.length > 0 && batchSelection.selectedCount === filteredProfiles.length}
+                          onCheckedChange={() => batchSelection.toggleSelectAll(filteredProfiles, (profile) => profile.id)}
+                          aria-label="Select all profiles"
+                        />
+                      </TableHead>
                       <TableHead>Employee ID</TableHead>
                       <TableHead>Role</TableHead>
                       <TableHead>Station</TableHead>
@@ -608,13 +735,20 @@ const UserManagement: React.FC = () => {
                   <TableBody>
                     {filteredProfiles.length === 0 ?
                     <TableRow>
-                        <TableCell colSpan={8} className="text-center py-8 text-gray-500">
+                        <TableCell colSpan={9} className="text-center py-8 text-gray-500">
                           {userProfiles.length === 0 ? "No user profiles found. Create your first user profile to get started." : "No profiles match your current filters."}
                         </TableCell>
                       </TableRow> :
 
                     filteredProfiles.map((profile) =>
-                    <TableRow key={profile.id}>
+                    <TableRow key={profile.id} className={batchSelection.isSelected(profile.id) ? "bg-blue-50" : ""}>
+                          <TableCell>
+                            <Checkbox
+                              checked={batchSelection.isSelected(profile.id)}
+                              onCheckedChange={() => batchSelection.toggleItem(profile.id)}
+                              aria-label={`Select profile ${profile.employee_id}`}
+                            />
+                          </TableCell>
                           <TableCell className="font-medium">{profile.employee_id}</TableCell>
                           <TableCell>
                             <Badge className={getRoleBadgeColor(profile.role)}>
@@ -927,6 +1061,69 @@ const UserManagement: React.FC = () => {
           <EnhancedUserPermissionManager />
         </TabsContent>
       </Tabs>
+
+      {/* Batch Edit Dialog */}
+      <BatchEditDialog
+        isOpen={isBatchEditDialogOpen}
+        onClose={() => setIsBatchEditDialogOpen(false)}
+        onSave={confirmBatchEdit}
+        selectedCount={batchSelection.selectedCount}
+        isLoading={batchActionLoading}
+        itemName="user profiles"
+      >
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="batch_role">Role</Label>
+            <Select value={batchEditData.role} onValueChange={(value) => setBatchEditData({ ...batchEditData, role: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select role to update" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Keep existing roles</SelectItem>
+                {roles.map((role) =>
+                  <SelectItem key={role} value={role}>{role}</SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="batch_station">Station</Label>
+            <Select value={batchEditData.station} onValueChange={(value) => setBatchEditData({ ...batchEditData, station: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select station to update" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Keep existing stations</SelectItem>
+                {stations.map((station) =>
+                  <SelectItem key={station} value={station}>{station}</SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="batch_is_active"
+              checked={batchEditData.is_active}
+              onCheckedChange={(checked) => setBatchEditData({ ...batchEditData, is_active: checked as boolean })}
+            />
+            <Label htmlFor="batch_is_active">Set all selected users as active</Label>
+          </div>
+        </div>
+      </BatchEditDialog>
+
+      {/* Batch Delete Dialog */}
+      <BatchDeleteDialog
+        isOpen={isBatchDeleteDialogOpen}
+        onClose={() => setIsBatchDeleteDialogOpen(false)}
+        onConfirm={confirmBatchDelete}
+        selectedCount={batchSelection.selectedCount}
+        isLoading={batchActionLoading}
+        itemName="user profiles"
+        selectedItems={batchSelection.getSelectedData(filteredProfiles, (profile) => profile.id).map(profile => ({
+          id: profile.id,
+          name: `${profile.employee_id} - ${profile.role}`
+        }))}
+      />
     </div>);
 
 };

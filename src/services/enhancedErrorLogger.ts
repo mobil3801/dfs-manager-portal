@@ -18,7 +18,7 @@ export interface ErrorAnalytics {
   errorsByHour: Record<string, number>;
   errorsByComponent: Record<string, number>;
   errorsBySeverity: Record<string, number>;
-  topErrorMessages: Array<{ message: string; count: number }>;
+  topErrorMessages: Array<{message: string;count: number;}>;
   recoveryRate: number;
   patterns: ErrorPattern[];
   trends: {
@@ -32,7 +32,7 @@ export class EnhancedErrorLogger extends ErrorLogger {
   private static enhancedInstance: EnhancedErrorLogger;
   private patterns: Map<string, ErrorPattern> = new Map();
   private analytics: ErrorAnalytics | null = null;
-  
+
   private constructor() {
     super();
     this.initializePatterns();
@@ -48,74 +48,74 @@ export class EnhancedErrorLogger extends ErrorLogger {
   private initializePatterns(): void {
     // Define common error patterns
     const commonPatterns: Omit<ErrorPattern, 'frequency' | 'lastOccurrence' | 'trend'>[] = [
-      {
-        id: 'network_timeout',
-        name: 'Network Timeout Pattern',
-        description: 'Repeated network timeouts indicating connectivity issues',
-        severity: 'high',
-        components: ['api', 'network', 'fetch'],
-        suggestedActions: [
-          'Check network connectivity',
-          'Implement retry logic',
-          'Review API endpoint health',
-          'Consider connection pooling'
-        ]
-      },
-      {
-        id: 'memory_leak',
-        name: 'Memory Leak Pattern',
-        description: 'Components consuming excessive memory over time',
-        severity: 'critical',
-        components: ['memory', 'component', 'useEffect'],
-        suggestedActions: [
-          'Review component cleanup',
-          'Check for event listener cleanup',
-          'Audit interval and timeout usage',
-          'Implement memory monitoring'
-        ]
-      },
-      {
-        id: 'render_errors',
-        name: 'Render Error Pattern',
-        description: 'Frequent component rendering failures',
-        severity: 'medium',
-        components: ['render', 'component', 'state'],
-        suggestedActions: [
-          'Review component state management',
-          'Add prop validation',
-          'Implement error boundaries',
-          'Check for null/undefined values'
-        ]
-      },
-      {
-        id: 'async_race',
-        name: 'Async Race Condition Pattern',
-        description: 'Race conditions in asynchronous operations',
-        severity: 'high',
-        components: ['async', 'promise', 'api'],
-        suggestedActions: [
-          'Implement proper loading states',
-          'Use AbortController for cancellation',
-          'Review async/await usage',
-          'Add request deduplication'
-        ]
-      },
-      {
-        id: 'form_validation',
-        name: 'Form Validation Pattern',
-        description: 'Repeated form validation and submission errors',
-        severity: 'medium',
-        components: ['form', 'validation', 'input'],
-        suggestedActions: [
-          'Enhance client-side validation',
-          'Improve error messaging',
-          'Add real-time validation',
-          'Review form state management'
-        ]
-      }
-    ];
+    {
+      id: 'network_timeout',
+      name: 'Network Timeout Pattern',
+      description: 'Repeated network timeouts indicating connectivity issues',
+      severity: 'high',
+      components: ['api', 'network', 'fetch'],
+      suggestedActions: [
+      'Check network connectivity',
+      'Implement retry logic',
+      'Review API endpoint health',
+      'Consider connection pooling']
 
-    commonPatterns.forEach(pattern => {
+    },
+    {
+      id: 'memory_leak',
+      name: 'Memory Leak Pattern',
+      description: 'Components consuming excessive memory over time',
+      severity: 'critical',
+      components: ['memory', 'component', 'useEffect'],
+      suggestedActions: [
+      'Review component cleanup',
+      'Check for event listener cleanup',
+      'Audit interval and timeout usage',
+      'Implement memory monitoring']
+
+    },
+    {
+      id: 'render_errors',
+      name: 'Render Error Pattern',
+      description: 'Frequent component rendering failures',
+      severity: 'medium',
+      components: ['render', 'component', 'state'],
+      suggestedActions: [
+      'Review component state management',
+      'Add prop validation',
+      'Implement error boundaries',
+      'Check for null/undefined values']
+
+    },
+    {
+      id: 'async_race',
+      name: 'Async Race Condition Pattern',
+      description: 'Race conditions in asynchronous operations',
+      severity: 'high',
+      components: ['async', 'promise', 'api'],
+      suggestedActions: [
+      'Implement proper loading states',
+      'Use AbortController for cancellation',
+      'Review async/await usage',
+      'Add request deduplication']
+
+    },
+    {
+      id: 'form_validation',
+      name: 'Form Validation Pattern',
+      description: 'Repeated form validation and submission errors',
+      severity: 'medium',
+      components: ['form', 'validation', 'input'],
+      suggestedActions: [
+      'Enhance client-side validation',
+      'Improve error messaging',
+      'Add real-time validation',
+      'Review form state management']
+
+    }];
+
+
+    commonPatterns.forEach((pattern) => {
       this.patterns.set(pattern.id, {
         ...pattern,
         frequency: 0,
@@ -127,12 +127,12 @@ export class EnhancedErrorLogger extends ErrorLogger {
 
   // Override the log method to include pattern detection
   log(
-    error: Error,
-    severity: ErrorLogEntry['severity'] = 'medium',
-    component?: string,
-    errorInfo?: React.ErrorInfo,
-    context?: Record<string, any>
-  ): void {
+  error: Error,
+  severity: ErrorLogEntry['severity'] = 'medium',
+  component?: string,
+  errorInfo?: React.ErrorInfo,
+  context?: Record<string, any>)
+  : void {
     // Call parent log method
     super.log(error, severity, component, errorInfo, context);
 
@@ -153,20 +153,20 @@ export class EnhancedErrorLogger extends ErrorLogger {
       let isMatch = false;
 
       // Check if error matches pattern criteria
-      if (patternId === 'network_timeout' && 
-          (errorMessage.includes('timeout') || errorMessage.includes('network') || errorMessage.includes('connection'))) {
+      if (patternId === 'network_timeout' && (
+      errorMessage.includes('timeout') || errorMessage.includes('network') || errorMessage.includes('connection'))) {
         isMatch = true;
-      } else if (patternId === 'memory_leak' && 
-                 (errorMessage.includes('memory') || errorMessage.includes('leak') || errorMessage.includes('interval'))) {
+      } else if (patternId === 'memory_leak' && (
+      errorMessage.includes('memory') || errorMessage.includes('leak') || errorMessage.includes('interval'))) {
         isMatch = true;
-      } else if (patternId === 'render_errors' && 
-                 (errorMessage.includes('render') || errorMessage.includes('component') || errorStack.includes('render'))) {
+      } else if (patternId === 'render_errors' && (
+      errorMessage.includes('render') || errorMessage.includes('component') || errorStack.includes('render'))) {
         isMatch = true;
-      } else if (patternId === 'async_race' && 
-                 (errorMessage.includes('async') || errorMessage.includes('promise') || errorMessage.includes('race'))) {
+      } else if (patternId === 'async_race' && (
+      errorMessage.includes('async') || errorMessage.includes('promise') || errorMessage.includes('race'))) {
         isMatch = true;
-      } else if (patternId === 'form_validation' && 
-                 (errorMessage.includes('validation') || errorMessage.includes('form') || component?.includes('form'))) {
+      } else if (patternId === 'form_validation' && (
+      errorMessage.includes('validation') || errorMessage.includes('form') || component?.includes('form'))) {
         isMatch = true;
       }
 
@@ -212,20 +212,20 @@ export class EnhancedErrorLogger extends ErrorLogger {
     const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
     // Error counts by time period
-    const errorsLastHour = logs.filter(log => log.timestamp > oneHourAgo).length;
-    const errorsLastDay = logs.filter(log => log.timestamp > oneDayAgo).length;
-    const errorsLastWeek = logs.filter(log => log.timestamp > oneWeekAgo).length;
+    const errorsLastHour = logs.filter((log) => log.timestamp > oneHourAgo).length;
+    const errorsLastDay = logs.filter((log) => log.timestamp > oneDayAgo).length;
+    const errorsLastWeek = logs.filter((log) => log.timestamp > oneWeekAgo).length;
 
     // Error distribution by hour
     const errorsByHour: Record<string, number> = {};
-    logs.forEach(log => {
+    logs.forEach((log) => {
       const hour = log.timestamp.getHours().toString().padStart(2, '0');
       errorsByHour[hour] = (errorsByHour[hour] || 0) + 1;
     });
 
     // Error distribution by component
     const errorsByComponent: Record<string, number> = {};
-    logs.forEach(log => {
+    logs.forEach((log) => {
       if (log.component) {
         errorsByComponent[log.component] = (errorsByComponent[log.component] || 0) + 1;
       }
@@ -233,24 +233,24 @@ export class EnhancedErrorLogger extends ErrorLogger {
 
     // Error distribution by severity
     const errorsBySeverity: Record<string, number> = {};
-    logs.forEach(log => {
+    logs.forEach((log) => {
       errorsBySeverity[log.severity] = (errorsBySeverity[log.severity] || 0) + 1;
     });
 
     // Top error messages
     const errorMessageCounts: Record<string, number> = {};
-    logs.forEach(log => {
+    logs.forEach((log) => {
       const message = log.error.message;
       errorMessageCounts[message] = (errorMessageCounts[message] || 0) + 1;
     });
 
-    const topErrorMessages = Object.entries(errorMessageCounts)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 10)
-      .map(([message, count]) => ({ message, count }));
+    const topErrorMessages = Object.entries(errorMessageCounts).
+    sort(([, a], [, b]) => b - a).
+    slice(0, 10).
+    map(([message, count]) => ({ message, count }));
 
     // Calculate recovery rate (simplified - based on error resolution)
-    const recoveryRate = logs.length > 0 ? Math.max(0, 100 - (errorsLastHour / logs.length) * 100) : 100;
+    const recoveryRate = logs.length > 0 ? Math.max(0, 100 - errorsLastHour / logs.length * 100) : 100;
 
     this.analytics = {
       totalErrors: logs.length,
@@ -280,16 +280,16 @@ export class EnhancedErrorLogger extends ErrorLogger {
   }
 
   getCriticalPatterns(): ErrorPattern[] {
-    return this.getPatterns().filter(pattern => 
-      pattern.severity === 'critical' || 
-      (pattern.severity === 'high' && pattern.trend === 'increasing')
+    return this.getPatterns().filter((pattern) =>
+    pattern.severity === 'critical' ||
+    pattern.severity === 'high' && pattern.trend === 'increasing'
     );
   }
 
-  getRecommendations(): Array<{ priority: 'high' | 'medium' | 'low'; action: string; reason: string }> {
-    const recommendations: Array<{ priority: 'high' | 'medium' | 'low'; action: string; reason: string }> = [];
+  getRecommendations(): Array<{priority: 'high' | 'medium' | 'low';action: string;reason: string;}> {
+    const recommendations: Array<{priority: 'high' | 'medium' | 'low';action: string;reason: string;}> = [];
     const analytics = this.getAnalytics();
-    
+
     if (!analytics) return recommendations;
 
     // High priority recommendations
@@ -302,8 +302,8 @@ export class EnhancedErrorLogger extends ErrorLogger {
     }
 
     // Pattern-based recommendations
-    this.getCriticalPatterns().forEach(pattern => {
-      pattern.suggestedActions.forEach(action => {
+    this.getCriticalPatterns().forEach((pattern) => {
+      pattern.suggestedActions.forEach((action) => {
         recommendations.push({
           priority: pattern.severity === 'critical' ? 'high' : 'medium',
           action,
@@ -313,9 +313,9 @@ export class EnhancedErrorLogger extends ErrorLogger {
     });
 
     // Component-based recommendations
-    const topErrorComponent = Object.entries(analytics.errorsByComponent)
-      .sort(([, a], [, b]) => b - a)[0];
-    
+    const topErrorComponent = Object.entries(analytics.errorsByComponent).
+    sort(([, a], [, b]) => b - a)[0];
+
     if (topErrorComponent && topErrorComponent[1] > 3) {
       recommendations.push({
         priority: 'medium',
@@ -351,9 +351,9 @@ export class EnhancedErrorLogger extends ErrorLogger {
 
 // Helper function to format error patterns for display
 export const formatErrorPattern = (pattern: ErrorPattern): string => {
-  const trendIcon = pattern.trend === 'increasing' ? '📈' : 
-                   pattern.trend === 'decreasing' ? '📉' : '➡️';
-  
+  const trendIcon = pattern.trend === 'increasing' ? '📈' :
+  pattern.trend === 'decreasing' ? '📉' : '➡️';
+
   return `${trendIcon} ${pattern.name} (${pattern.frequency}x) - ${pattern.description}`;
 };
 

@@ -5,12 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
-import { 
-  BarChart3, 
-  TrendingUp, 
-  TrendingDown, 
-  AlertTriangle, 
-  Target, 
+import {
+  BarChart3,
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+  Target,
   Clock,
   Activity,
   Shield,
@@ -19,8 +19,8 @@ import {
   RefreshCw,
   CheckCircle2,
   XCircle,
-  AlertCircle
-} from 'lucide-react';
+  AlertCircle } from
+'lucide-react';
 import { EnhancedErrorLogger, ErrorPattern, formatErrorPattern, getSeverityColor } from '@/services/enhancedErrorLogger';
 import { useToast } from '@/hooks/use-toast';
 
@@ -39,7 +39,7 @@ const ErrorAnalyticsDashboard: React.FC = () => {
       const analyticsData = errorLogger.getAnalytics();
       const patternsData = errorLogger.getPatterns();
       const recommendationsData = errorLogger.getRecommendations();
-      
+
       setAnalytics(analyticsData);
       setPatterns(patternsData);
       setRecommendations(recommendationsData);
@@ -59,17 +59,17 @@ const ErrorAnalyticsDashboard: React.FC = () => {
       const report = errorLogger.exportComprehensiveReport();
       const dataStr = JSON.stringify(report, null, 2);
       const dataBlob = new Blob([dataStr], { type: 'application/json' });
-      
+
       const url = URL.createObjectURL(dataBlob);
       const link = document.createElement('a');
       link.href = url;
       link.download = `error-analytics-report-${new Date().toISOString().split('T')[0]}.json`;
       link.click();
-      
+
       URL.revokeObjectURL(url);
       toast({
         title: "Report Exported",
-        description: "Comprehensive error analytics report has been downloaded.",
+        description: "Comprehensive error analytics report has been downloaded."
       });
     } catch (error) {
       toast({
@@ -82,7 +82,7 @@ const ErrorAnalyticsDashboard: React.FC = () => {
 
   useEffect(() => {
     refreshData();
-    
+
     // Set up auto-refresh every 30 seconds
     const interval = setInterval(refreshData, 30000);
     return () => clearInterval(interval);
@@ -95,12 +95,12 @@ const ErrorAnalyticsDashboard: React.FC = () => {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
           <p className="text-sm text-muted-foreground">Loading analytics data...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
-  const criticalPatterns = patterns.filter(p => p.severity === 'critical' || p.trend === 'increasing');
-  const healthScore = Math.max(0, 100 - (analytics.trends.hourly * 10));
+  const criticalPatterns = patterns.filter((p) => p.severity === 'critical' || p.trend === 'increasing');
+  const healthScore = Math.max(0, 100 - analytics.trends.hourly * 10);
 
   return (
     <div className="space-y-6">
@@ -113,12 +113,12 @@ const ErrorAnalyticsDashboard: React.FC = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            onClick={refreshData} 
+          <Button
+            onClick={refreshData}
             disabled={isRefreshing}
             variant="outline"
-            size="sm"
-          >
+            size="sm">
+
             <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
@@ -188,8 +188,8 @@ const ErrorAnalyticsDashboard: React.FC = () => {
       </div>
 
       {/* Critical Alerts */}
-      {criticalPatterns.length > 0 && (
-        <Alert className="border-red-200 bg-red-50">
+      {criticalPatterns.length > 0 &&
+      <Alert className="border-red-200 bg-red-50">
           <AlertTriangle className="h-4 w-4 text-red-600" />
           <AlertDescription>
             <div className="flex items-center justify-between">
@@ -203,7 +203,7 @@ const ErrorAnalyticsDashboard: React.FC = () => {
             </div>
           </AlertDescription>
         </Alert>
-      )}
+      }
 
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="grid w-full grid-cols-4">
@@ -222,8 +222,8 @@ const ErrorAnalyticsDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {Object.entries(analytics.errorsBySeverity).map(([severity, count]) => (
-                    <div key={severity} className="flex items-center justify-between">
+                  {Object.entries(analytics.errorsBySeverity).map(([severity, count]) =>
+                  <div key={severity} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className={getSeverityColor(severity)}>
                           {severity}
@@ -231,16 +231,16 @@ const ErrorAnalyticsDashboard: React.FC = () => {
                         <span className="text-sm">{count} errors</span>
                       </div>
                       <div className="flex-1 mx-4">
-                        <Progress 
-                          value={(count / analytics.totalErrors) * 100} 
-                          className="h-2"
-                        />
+                        <Progress
+                        value={count / analytics.totalErrors * 100}
+                        className="h-2" />
+
                       </div>
                       <span className="text-xs text-muted-foreground">
-                        {((count / analytics.totalErrors) * 100).toFixed(1)}%
+                        {(count / analytics.totalErrors * 100).toFixed(1)}%
                       </span>
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -252,18 +252,18 @@ const ErrorAnalyticsDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {Object.entries(analytics.errorsByComponent)
-                    .sort(([, a], [, b]) => b - a)
-                    .slice(0, 5)
-                    .map(([component, count]) => (
-                    <div key={component} className="flex items-center justify-between">
+                  {Object.entries(analytics.errorsByComponent).
+                  sort(([, a], [, b]) => b - a).
+                  slice(0, 5).
+                  map(([component, count]) =>
+                  <div key={component} className="flex items-center justify-between">
                       <span className="text-sm font-medium">{component}</span>
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-muted-foreground">{count} errors</span>
                         <Badge variant="secondary">{count}</Badge>
                       </div>
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -309,14 +309,14 @@ const ErrorAnalyticsDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {patterns.length === 0 ? (
-                  <div className="text-center py-8">
+                {patterns.length === 0 ?
+                <div className="text-center py-8">
                     <CheckCircle2 className="h-12 w-12 mx-auto mb-4 text-green-600" />
                     <p className="text-muted-foreground">No error patterns detected</p>
-                  </div>
-                ) : (
-                  patterns.map((pattern) => (
-                    <Card key={pattern.id} className="border-l-4 border-l-blue-500">
+                  </div> :
+
+                patterns.map((pattern) =>
+                <Card key={pattern.id} className="border-l-4 border-l-blue-500">
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
@@ -347,8 +347,8 @@ const ErrorAnalyticsDashboard: React.FC = () => {
                         </div>
                       </CardContent>
                     </Card>
-                  ))
-                )}
+                )
+                }
               </div>
             </CardContent>
           </Card>
@@ -363,17 +363,17 @@ const ErrorAnalyticsDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {Object.entries(analytics.errorsByHour)
-                    .sort(([a], [b]) => parseInt(a) - parseInt(b))
-                    .map(([hour, count]) => (
-                    <div key={hour} className="flex items-center gap-3">
+                  {Object.entries(analytics.errorsByHour).
+                  sort(([a], [b]) => parseInt(a) - parseInt(b)).
+                  map(([hour, count]) =>
+                  <div key={hour} className="flex items-center gap-3">
                       <span className="text-sm font-mono w-8">{hour}:00</span>
                       <div className="flex-1">
-                        <Progress value={(count / Math.max(...Object.values(analytics.errorsByHour))) * 100} />
+                        <Progress value={count / Math.max(...Object.values(analytics.errorsByHour)) * 100} />
                       </div>
                       <span className="text-sm w-8 text-right">{count}</span>
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -385,22 +385,22 @@ const ErrorAnalyticsDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {analytics.topErrorMessages.slice(0, 5).map((error, index) => (
-                    <div key={index} className="p-3 border rounded-lg">
+                  {analytics.topErrorMessages.slice(0, 5).map((error, index) =>
+                  <div key={index} className="p-3 border rounded-lg">
                       <div className="flex items-center justify-between mb-1">
                         <Badge variant="secondary">{error.count}x</Badge>
                         <span className="text-xs text-muted-foreground">
-                          {((error.count / analytics.totalErrors) * 100).toFixed(1)}%
+                          {(error.count / analytics.totalErrors * 100).toFixed(1)}%
                         </span>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        {error.message.length > 80 
-                          ? `${error.message.substring(0, 80)}...` 
-                          : error.message
-                        }
+                        {error.message.length > 80 ?
+                      `${error.message.substring(0, 80)}...` :
+                      error.message
+                      }
                       </p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -417,35 +417,35 @@ const ErrorAnalyticsDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recommendations.length === 0 ? (
-                  <div className="text-center py-8">
+                {recommendations.length === 0 ?
+                <div className="text-center py-8">
                     <CheckCircle2 className="h-12 w-12 mx-auto mb-4 text-green-600" />
                     <p className="text-muted-foreground">No specific recommendations at this time</p>
                     <p className="text-sm text-muted-foreground mt-1">
                       System appears to be running smoothly
                     </p>
-                  </div>
-                ) : (
-                  recommendations.map((rec, index) => (
-                    <Card key={index} className="border-l-4 border-l-orange-500">
+                  </div> :
+
+                recommendations.map((rec, index) =>
+                <Card key={index} className="border-l-4 border-l-orange-500">
                       <CardContent className="p-4">
                         <div className="flex items-start gap-3">
                           <div className="p-2 rounded-full bg-orange-100">
-                            {rec.priority === 'high' ? (
-                              <AlertCircle className="h-4 w-4 text-orange-600" />
-                            ) : rec.priority === 'medium' ? (
-                              <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                            ) : (
-                              <Target className="h-4 w-4 text-blue-600" />
-                            )}
+                            {rec.priority === 'high' ?
+                        <AlertCircle className="h-4 w-4 text-orange-600" /> :
+                        rec.priority === 'medium' ?
+                        <AlertTriangle className="h-4 w-4 text-yellow-600" /> :
+
+                        <Target className="h-4 w-4 text-blue-600" />
+                        }
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <h4 className="font-medium">{rec.action}</h4>
-                              <Badge 
-                                variant={rec.priority === 'high' ? 'destructive' : 
-                                       rec.priority === 'medium' ? 'default' : 'secondary'}
-                              >
+                              <Badge
+                            variant={rec.priority === 'high' ? 'destructive' :
+                            rec.priority === 'medium' ? 'default' : 'secondary'}>
+
                                 {rec.priority} priority
                               </Badge>
                             </div>
@@ -454,15 +454,15 @@ const ErrorAnalyticsDashboard: React.FC = () => {
                         </div>
                       </CardContent>
                     </Card>
-                  ))
-                )}
+                )
+                }
               </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ErrorAnalyticsDashboard;

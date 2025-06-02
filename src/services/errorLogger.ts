@@ -135,6 +135,18 @@ export class ErrorLogger {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
       // Example API call (not implemented in this demo)
       // fetch('/api/errors', {
       //   method: 'POST',
@@ -142,17 +154,5 @@ export class ErrorLogger {
       //   body: JSON.stringify(entry)
       // });
     } catch (e) {console.warn('Failed to send error to reporting service:', e);}}private generateId(): string {return Date.now().toString(36) + Math.random().toString(36).substr(2);}private getCurrentUserId(): string | undefined {// Try to get user ID from authentication context
-    try {return localStorage.getItem('user_id') || undefined;} catch {return undefined;}}getLogs(): ErrorLogEntry[] {return [...this.logs];}clearLogs(): void {this.logs = [];localStorage.removeItem('dfs_error_logs');}
-
-  getLogsSummary(): {total: number;bySeverity: Record<string, number>;} {
-    const bySeverity = this.logs.reduce((acc, log) => {
-      acc[log.severity] = (acc[log.severity] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    return {
-      total: this.logs.length,
-      bySeverity
-    };
-  }
+    try {return localStorage.getItem('user_id') || undefined;} catch {return undefined;}}getLogs(): ErrorLogEntry[] {return [...this.logs];}clearLogs(): void {this.logs = [];localStorage.removeItem('dfs_error_logs');}getLogsSummary(): {total: number;bySeverity: Record<string, number>;} {const bySeverity = this.logs.reduce((acc, log) => {acc[log.severity] = (acc[log.severity] || 0) + 1;return acc;}, {} as Record<string, number>);return { total: this.logs.length, bySeverity };}
 }

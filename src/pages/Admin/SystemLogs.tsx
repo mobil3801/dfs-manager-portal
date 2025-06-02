@@ -5,7 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import { useBatchSelection } from '@/hooks/use-batch-selection';
+import BatchActionBar from '@/components/BatchActionBar';
+import BatchDeleteDialog from '@/components/BatchDeleteDialog';
 import {
   FileText,
   Download,
@@ -42,7 +46,12 @@ const SystemLogs: React.FC = () => {
   const [selectedLevel, setSelectedLevel] = useState('All');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [dateRange, setDateRange] = useState('today');
+  const [isBatchDeleteDialogOpen, setIsBatchDeleteDialogOpen] = useState(false);
+  const [batchActionLoading, setBatchActionLoading] = useState(false);
   const { toast } = useToast();
+
+  // Batch selection hook
+  const batchSelection = useBatchSelection<LogEntry>();
 
   const logLevels = ['INFO', 'WARNING', 'ERROR', 'DEBUG'];
   const categories = ['Authentication', 'Database', 'File Upload', 'Email', 'API', 'Security', 'System'];
@@ -200,6 +209,49 @@ const SystemLogs: React.FC = () => {
     });
   };
 
+  // Batch operations
+  const handleBatchDelete = () => {
+    const selectedData = batchSelection.getSelectedData(filteredLogs, (log) => log.id);
+    if (selectedData.length === 0) {
+      toast({
+        title: "No Selection",
+        description: "Please select log entries to delete",
+        variant: "destructive"
+      });
+      return;
+    }
+    setIsBatchDeleteDialogOpen(true);
+  };
+
+  const confirmBatchDelete = async () => {
+    setBatchActionLoading(true);
+    try {
+      const selectedData = batchSelection.getSelectedData(filteredLogs, (log) => log.id);
+      const selectedIds = selectedData.map(log => log.id);
+      
+      // Filter out selected logs
+      const remainingLogs = logs.filter(log => !selectedIds.includes(log.id));
+      setLogs(remainingLogs);
+
+      toast({
+        title: "Success",
+        description: `Deleted ${selectedData.length} log entries successfully`
+      });
+
+      setIsBatchDeleteDialogOpen(false);
+      batchSelection.clearSelection();
+    } catch (error) {
+      console.error('Error in batch delete:', error);
+      toast({
+        title: "Error",
+        description: `Failed to delete log entries: ${error}`,
+        variant: "destructive"
+      });
+    } finally {
+      setBatchActionLoading(false);
+    }
+  };
+
   const getFilteredLogs = () => {
     return logs.filter((log) => {
       const matchesSearch =
@@ -323,6 +375,15 @@ const SystemLogs: React.FC = () => {
         </Card>
       </div>
 
+      {/* Batch Action Bar */}
+      <BatchActionBar
+        selectedCount={batchSelection.selectedCount}
+        onBatchDelete={handleBatchDelete}
+        onClearSelection={batchSelection.clearSelection}
+        isLoading={batchActionLoading}
+        showEdit={false}
+      />
+
       {/* Filters */}
       <Card>
         <CardContent className="p-4">
@@ -397,6 +458,13 @@ const SystemLogs: React.FC = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-12">
+                    <Checkbox
+                      checked={filteredLogs.length > 0 && batchSelection.selectedCount === filteredLogs.length}
+                      onCheckedChange={() => batchSelection.toggleSelectAll(filteredLogs, (log) => log.id)}
+                      aria-label="Select all logs"
+                    />
+                  </TableHead>
                   <TableHead>Time</TableHead>
                   <TableHead>Level</TableHead>
                   <TableHead>Category</TableHead>
@@ -407,7 +475,14 @@ const SystemLogs: React.FC = () => {
               </TableHeader>
               <TableBody>
                 {filteredLogs.map((log) =>
-                <TableRow key={log.id}>
+                <TableRow key={log.id} className={batchSelection.isSelected(log.id) ? "bg-blue-50" : ""}>
+                    <TableCell>
+                      <Checkbox
+                        checked={batchSelection.isSelected(log.id)}
+                        onCheckedChange={() => batchSelection.toggleItem(log.id)}
+                        aria-label={`Select log ${log.id}`}
+                      />
+                    </TableCell>
                     <TableCell className="font-mono text-sm">
                       <div className="flex items-center space-x-2">
                         <Clock className="w-3 h-3 text-gray-400" />
@@ -467,6 +542,20 @@ const SystemLogs: React.FC = () => {
           }
         </CardContent>
       </Card>
+
+      {/* Batch Delete Dialog */}
+      <BatchDeleteDialog
+        isOpen={isBatchDeleteDialogOpen}
+        onClose={() => setIsBatchDeleteDialogOpen(false)}
+        onConfirm={confirmBatchDelete}
+        selectedCount={batchSelection.selectedCount}
+        isLoading={batchActionLoading}
+        itemName="log entries"
+        selectedItems={batchSelection.getSelectedData(filteredLogs, (log) => log.id).map(log => ({
+          id: log.id,
+          name: `${log.level} - ${log.category} - ${log.message.substring(0, 50)}...`
+        }))}
+      />
     </div>);
 
 };

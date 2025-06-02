@@ -162,10 +162,10 @@ const ErrorRecoveryPage: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent>
-              {showDemo ? (
-                <EnhancedErrorBoundaryDemo />
-              ) : (
-                <div className="text-center py-8">
+              {showDemo ?
+              <EnhancedErrorBoundaryDemo /> :
+
+              <div className="text-center py-8">
                   <TestTube className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                   <p className="text-muted-foreground mb-4">
                     Click "Show Enhanced Demo" to access comprehensive error testing scenarios
@@ -178,7 +178,7 @@ const ErrorRecoveryPage: React.FC = () => {
                     <li>• Automated testing suite</li>
                   </ul>
                 </div>
-              )}
+              }
             </CardContent>
           </Card>
 

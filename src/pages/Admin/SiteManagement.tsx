@@ -6,7 +6,12 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import { useBatchSelection } from '@/hooks/use-batch-selection';
+import BatchActionBar from '@/components/BatchActionBar';
+import BatchDeleteDialog from '@/components/BatchDeleteDialog';
+import BatchEditDialog from '@/components/BatchEditDialog';
 import StationEditDialog from '@/components/StationEditDialog';
 import {
   Settings,
@@ -85,10 +90,23 @@ const SiteManagement: React.FC = () => {
   const [loadingStations, setLoadingStations] = useState(true);
   const [editingStation, setEditingStation] = useState<Station | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [isBatchEditDialogOpen, setIsBatchEditDialogOpen] = useState(false);
+  const [isBatchDeleteDialogOpen, setIsBatchDeleteDialogOpen] = useState(false);
+  const [batchActionLoading, setBatchActionLoading] = useState(false);
 
   const [showApiKeys, setShowApiKeys] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
+
+  // Batch selection hook
+  const batchSelection = useBatchSelection<Station>();
+
+  // Batch edit form data
+  const [batchEditData, setBatchEditData] = useState({
+    status: '',
+    manager_name: '',
+    operating_hours: ''
+  });
 
   // Load stations from database
   const loadStations = async () => {
@@ -190,6 +208,100 @@ const SiteManagement: React.FC = () => {
     return isEnabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
   };
 
+  // Batch operations
+  const handleBatchEdit = () => {
+    const selectedData = batchSelection.getSelectedData(stations, (station) => station.id);
+    if (selectedData.length === 0) {
+      toast({
+        title: "No Selection",
+        description: "Please select stations to edit",
+        variant: "destructive"
+      });
+      return;
+    }
+    setIsBatchEditDialogOpen(true);
+  };
+
+  const handleBatchDelete = () => {
+    const selectedData = batchSelection.getSelectedData(stations, (station) => station.id);
+    if (selectedData.length === 0) {
+      toast({
+        title: "No Selection",
+        description: "Please select stations to delete",
+        variant: "destructive"
+      });
+      return;
+    }
+    setIsBatchDeleteDialogOpen(true);
+  };
+
+  const confirmBatchEdit = async () => {
+    setBatchActionLoading(true);
+    try {
+      const selectedData = batchSelection.getSelectedData(stations, (station) => station.id);
+      const updates = selectedData.map(station => ({
+        id: station.id,
+        ...(batchEditData.status && { status: batchEditData.status }),
+        ...(batchEditData.manager_name && { manager_name: batchEditData.manager_name }),
+        ...(batchEditData.operating_hours && { operating_hours: batchEditData.operating_hours }),
+        last_updated: new Date().toISOString()
+      }));
+
+      for (const update of updates) {
+        const { error } = await window.ezsite.apis.tableUpdate(12599, update);
+        if (error) throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: `Updated ${selectedData.length} stations successfully`
+      });
+
+      setIsBatchEditDialogOpen(false);
+      batchSelection.clearSelection();
+      loadStations();
+    } catch (error) {
+      console.error('Error in batch edit:', error);
+      toast({
+        title: "Error",
+        description: `Failed to update stations: ${error}`,
+        variant: "destructive"
+      });
+    } finally {
+      setBatchActionLoading(false);
+    }
+  };
+
+  const confirmBatchDelete = async () => {
+    setBatchActionLoading(true);
+    try {
+      const selectedData = batchSelection.getSelectedData(stations, (station) => station.id);
+      
+      for (const station of selectedData) {
+        const { error } = await window.ezsite.apis.tableDelete(12599, { id: station.id });
+        if (error) throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: `Deleted ${selectedData.length} stations successfully`
+      });
+
+      setIsBatchDeleteDialogOpen(false);
+      batchSelection.clearSelection();
+      loadStations();
+    } catch (error) {
+      console.error('Error in batch delete:', error);
+      toast({
+        title: "Error",
+        description: `Failed to delete stations: ${error}`,
+        variant: "destructive"
+      });
+    } finally {
+      setBatchActionLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -269,12 +381,30 @@ const SiteManagement: React.FC = () => {
         </Card>
       </div>
 
+      {/* Batch Action Bar for Stations */}
+      <BatchActionBar
+        selectedCount={batchSelection.selectedCount}
+        onBatchEdit={handleBatchEdit}
+        onBatchDelete={handleBatchDelete}
+        onClearSelection={batchSelection.clearSelection}
+        isLoading={batchActionLoading}
+      />
+
       {/* Station Information */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Building2 className="w-5 h-5" />
-            <span>Station Information</span>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Building2 className="w-5 h-5" />
+              <span>Station Information</span>
+            </div>
+            {stations.length > 0 && (
+              <Checkbox
+                checked={stations.length > 0 && batchSelection.selectedCount === stations.length}
+                onCheckedChange={() => batchSelection.toggleSelectAll(stations, (station) => station.id)}
+                aria-label="Select all stations"
+              />
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -298,11 +428,18 @@ const SiteManagement: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {stations.map((station, index) =>
-            <Card key={station.id || index} className="border">
+            <Card key={station.id || index} className={`border ${batchSelection.isSelected(station.id) ? 'bg-blue-50 border-blue-200' : ''}`}>
                   <CardContent className="p-4">
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-lg">{station.station_name}</h3>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            checked={batchSelection.isSelected(station.id)}
+                            onCheckedChange={() => batchSelection.toggleItem(station.id)}
+                            aria-label={`Select station ${station.station_name}`}
+                          />
+                          <h3 className="font-semibold text-lg">{station.station_name}</h3>
+                        </div>
                         <div className="flex items-center space-x-2">
                           <Badge className={`${
                       station.status === 'Active' ?
@@ -616,6 +753,65 @@ const SiteManagement: React.FC = () => {
         onOpenChange={setEditDialogOpen}
         station={editingStation}
         onSave={handleStationSaved} />
+
+      {/* Batch Edit Dialog */}
+      <BatchEditDialog
+        isOpen={isBatchEditDialogOpen}
+        onClose={() => setIsBatchEditDialogOpen(false)}
+        onSave={confirmBatchEdit}
+        selectedCount={batchSelection.selectedCount}
+        isLoading={batchActionLoading}
+        itemName="stations"
+      >
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="batch_status">Status</Label>
+            <select 
+              id="batch_status"
+              value={batchEditData.status} 
+              onChange={(e) => setBatchEditData({ ...batchEditData, status: e.target.value })}
+              className="w-full p-2 border rounded-md"
+            >
+              <option value="">Keep existing status</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+              <option value="Maintenance">Maintenance</option>
+            </select>
+          </div>
+          <div>
+            <Label htmlFor="batch_manager">Manager Name</Label>
+            <Input
+              id="batch_manager"
+              value={batchEditData.manager_name}
+              onChange={(e) => setBatchEditData({ ...batchEditData, manager_name: e.target.value })}
+              placeholder="Leave empty to keep existing managers"
+            />
+          </div>
+          <div>
+            <Label htmlFor="batch_hours">Operating Hours</Label>
+            <Input
+              id="batch_hours"
+              value={batchEditData.operating_hours}
+              onChange={(e) => setBatchEditData({ ...batchEditData, operating_hours: e.target.value })}
+              placeholder="Leave empty to keep existing hours"
+            />
+          </div>
+        </div>
+      </BatchEditDialog>
+
+      {/* Batch Delete Dialog */}
+      <BatchDeleteDialog
+        isOpen={isBatchDeleteDialogOpen}
+        onClose={() => setIsBatchDeleteDialogOpen(false)}
+        onConfirm={confirmBatchDelete}
+        selectedCount={batchSelection.selectedCount}
+        isLoading={batchActionLoading}
+        itemName="stations"
+        selectedItems={batchSelection.getSelectedData(stations, (station) => station.id).map(station => ({
+          id: station.id,
+          name: station.station_name
+        }))}
+      />
 
     </div>);
 

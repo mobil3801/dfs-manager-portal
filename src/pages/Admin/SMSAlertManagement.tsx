@@ -10,7 +10,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import { useBatchSelection } from '@/hooks/use-batch-selection';
+import BatchActionBar from '@/components/BatchActionBar';
+import BatchDeleteDialog from '@/components/BatchDeleteDialog';
+import BatchEditDialog from '@/components/BatchEditDialog';
 import { MessageSquare, Phone, Settings, History, Plus, Edit, Trash2, Send, CheckCircle, AlertCircle } from 'lucide-react';
 import { smsService } from '@/services/smsService';
 import SMSSetupGuide from '@/components/SMSSetupGuide';
@@ -60,7 +65,23 @@ const SMSAlertManagement: React.FC = () => {
   const [editingContact, setEditingContact] = useState<SMSContact | null>(null);
   const [sendingTestSMS, setSendingTestSMS] = useState(false);
   const [serviceStatus, setServiceStatus] = useState<{available: boolean;message: string;} | null>(null);
+  const [isBatchDeleteDialogOpen, setIsBatchDeleteDialogOpen] = useState(false);
+  const [isBatchEditDialogOpen, setIsBatchEditDialogOpen] = useState(false);
+  const [batchActionLoading, setBatchActionLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('trigger');
   const { toast } = useToast();
+
+  // Batch selection hooks
+  const settingsBatchSelection = useBatchSelection<SMSAlertSetting>();
+  const contactsBatchSelection = useBatchSelection<SMSContact>();
+  const historyBatchSelection = useBatchSelection<SMSHistory>();
+
+  // Batch edit form data
+  const [batchEditData, setBatchEditData] = useState({
+    is_active: true,
+    station: '',
+    contact_role: ''
+  });
 
   // Validate phone number helper function
   const isValidPhoneNumber = (phone: string) => {
@@ -442,6 +463,254 @@ const SMSAlertManagement: React.FC = () => {
     setIsContactDialogOpen(true);
   };
 
+  // Batch operations for settings
+  const handleBatchDeleteSettings = () => {
+    const selectedData = settingsBatchSelection.getSelectedData(settings, (setting) => setting.id);
+    if (selectedData.length === 0) {
+      toast({
+        title: "No Selection",
+        description: "Please select settings to delete",
+        variant: "destructive"
+      });
+      return;
+    }
+    setIsBatchDeleteDialogOpen(true);
+  };
+
+  const confirmBatchDeleteSettings = async () => {
+    setBatchActionLoading(true);
+    try {
+      const selectedData = settingsBatchSelection.getSelectedData(settings, (setting) => setting.id);
+      
+      for (const setting of selectedData) {
+        const { error } = await window.ezsite.apis.tableDelete('12611', { id: setting.id });
+        if (error) throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: `Deleted ${selectedData.length} SMS alert settings successfully`
+      });
+
+      setIsBatchDeleteDialogOpen(false);
+      settingsBatchSelection.clearSelection();
+      loadSettings();
+    } catch (error) {
+      console.error('Error in batch delete:', error);
+      toast({
+        title: "Error",
+        description: `Failed to delete settings: ${error}`,
+        variant: "destructive"
+      });
+    } finally {
+      setBatchActionLoading(false);
+    }
+  };
+
+  // Batch operations for contacts
+  const handleBatchEditContacts = () => {
+    const selectedData = contactsBatchSelection.getSelectedData(contacts, (contact) => contact.id);
+    if (selectedData.length === 0) {
+      toast({
+        title: "No Selection",
+        description: "Please select contacts to edit",
+        variant: "destructive"
+      });
+      return;
+    }
+    setIsBatchEditDialogOpen(true);
+  };
+
+  const handleBatchDeleteContacts = () => {
+    const selectedData = contactsBatchSelection.getSelectedData(contacts, (contact) => contact.id);
+    if (selectedData.length === 0) {
+      toast({
+        title: "No Selection",
+        description: "Please select contacts to delete",
+        variant: "destructive"
+      });
+      return;
+    }
+    setIsBatchDeleteDialogOpen(true);
+  };
+
+  const confirmBatchEditContacts = async () => {
+    setBatchActionLoading(true);
+    try {
+      const selectedData = contactsBatchSelection.getSelectedData(contacts, (contact) => contact.id);
+      const updates = selectedData.map(contact => ({
+        id: contact.id,
+        ...(batchEditData.station && { station: batchEditData.station }),
+        ...(batchEditData.contact_role && { contact_role: batchEditData.contact_role }),
+        is_active: batchEditData.is_active
+      }));
+
+      for (const update of updates) {
+        const { error } = await window.ezsite.apis.tableUpdate('12612', update);
+        if (error) throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: `Updated ${selectedData.length} SMS contacts successfully`
+      });
+
+      setIsBatchEditDialogOpen(false);
+      contactsBatchSelection.clearSelection();
+      loadContacts();
+    } catch (error) {
+      console.error('Error in batch edit:', error);
+      toast({
+        title: "Error",
+        description: `Failed to update contacts: ${error}`,
+        variant: "destructive"
+      });
+    } finally {
+      setBatchActionLoading(false);
+    }
+  };
+
+  const confirmBatchDeleteContacts = async () => {
+    setBatchActionLoading(true);
+    try {
+      const selectedData = contactsBatchSelection.getSelectedData(contacts, (contact) => contact.id);
+      
+      for (const contact of selectedData) {
+        const { error } = await window.ezsite.apis.tableDelete('12612', { id: contact.id });
+        if (error) throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: `Deleted ${selectedData.length} SMS contacts successfully`
+      });
+
+      setIsBatchDeleteDialogOpen(false);
+      contactsBatchSelection.clearSelection();
+      loadContacts();
+    } catch (error) {
+      console.error('Error in batch delete:', error);
+      toast({
+        title: "Error",
+        description: `Failed to delete contacts: ${error}`,
+        variant: "destructive"
+      });
+    } finally {
+      setBatchActionLoading(false);
+    }
+  };
+
+  // Batch operations for history
+  const handleBatchDeleteHistory = () => {
+    const selectedData = historyBatchSelection.getSelectedData(history, (record) => record.id);
+    if (selectedData.length === 0) {
+      toast({
+        title: "No Selection",
+        description: "Please select history records to delete",
+        variant: "destructive"
+      });
+      return;
+    }
+    setIsBatchDeleteDialogOpen(true);
+  };
+
+  const confirmBatchDeleteHistory = async () => {
+    setBatchActionLoading(true);
+    try {
+      const selectedData = historyBatchSelection.getSelectedData(history, (record) => record.id);
+      
+      for (const record of selectedData) {
+        const { error } = await window.ezsite.apis.tableDelete('12613', { id: record.id });
+        if (error) throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: `Deleted ${selectedData.length} SMS history records successfully`
+      });
+
+      setIsBatchDeleteDialogOpen(false);
+      historyBatchSelection.clearSelection();
+      loadHistory();
+    } catch (error) {
+      console.error('Error in batch delete:', error);
+      toast({
+        title: "Error",
+        description: `Failed to delete history records: ${error}`,
+        variant: "destructive"
+      });
+    } finally {
+      setBatchActionLoading(false);
+    }
+  };
+
+  // Get current batch selection based on active tab
+  const getCurrentBatchSelection = () => {
+    switch (activeTab) {
+      case 'settings': return settingsBatchSelection;
+      case 'contacts': return contactsBatchSelection;
+      case 'history': return historyBatchSelection;
+      default: return { selectedCount: 0, clearSelection: () => {} };
+    }
+  };
+
+  // Get current batch operations based on active tab
+  const getCurrentBatchOperations = () => {
+    switch (activeTab) {
+      case 'settings':
+        return {
+          onBatchDelete: handleBatchDeleteSettings,
+          showEdit: false
+        };
+      case 'contacts':
+        return {
+          onBatchEdit: handleBatchEditContacts,
+          onBatchDelete: handleBatchDeleteContacts,
+          showEdit: true
+        };
+      case 'history':
+        return {
+          onBatchDelete: handleBatchDeleteHistory,
+          showEdit: false
+        };
+      default:
+        return { showEdit: false };
+    }
+  };
+
+  // Get current selected data for dialogs
+  const getCurrentSelectedData = () => {
+    switch (activeTab) {
+      case 'settings':
+        return settingsBatchSelection.getSelectedData(settings, (setting) => setting.id).map(setting => ({
+          id: setting.id,
+          name: setting.setting_name
+        }));
+      case 'contacts':
+        return contactsBatchSelection.getSelectedData(contacts, (contact) => contact.id).map(contact => ({
+          id: contact.id,
+          name: `${contact.contact_name} - ${contact.mobile_number}`
+        }));
+      case 'history':
+        return historyBatchSelection.getSelectedData(history, (record) => record.id).map(record => ({
+          id: record.id,
+          name: `${record.mobile_number} - ${new Date(record.sent_date).toLocaleDateString()}`
+        }));
+      default:
+        return [];
+    }
+  };
+
+  // Get current confirm function based on active tab
+  const getCurrentConfirmFunction = () => {
+    switch (activeTab) {
+      case 'settings': return confirmBatchDeleteSettings;
+      case 'contacts': return activeTab === 'contacts' && isBatchEditDialogOpen ? confirmBatchEditContacts : confirmBatchDeleteContacts;
+      case 'history': return confirmBatchDeleteHistory;
+      default: return () => {};
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -475,7 +744,19 @@ const SMSAlertManagement: React.FC = () => {
       {/* SMS Setup Guide */}
       <SMSSetupGuide />
 
-      <Tabs defaultValue="trigger" className="space-y-6">
+      {/* Show batch action bar only for relevant tabs */}
+      {(activeTab === 'settings' || activeTab === 'contacts' || activeTab === 'history') && (
+        <BatchActionBar
+          selectedCount={getCurrentBatchSelection().selectedCount}
+          onBatchEdit={getCurrentBatchOperations().onBatchEdit}
+          onBatchDelete={getCurrentBatchOperations().onBatchDelete}
+          onClearSelection={getCurrentBatchSelection().clearSelection}
+          isLoading={batchActionLoading}
+          showEdit={getCurrentBatchOperations().showEdit}
+        />
+      )}
+
+      <Tabs defaultValue="trigger" className="space-y-6" onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="trigger">Alert Triggers</TabsTrigger>
           <TabsTrigger value="settings">Alert Settings</TabsTrigger>
@@ -576,6 +857,13 @@ const SMSAlertManagement: React.FC = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-12">
+                      <Checkbox
+                        checked={settings.length > 0 && settingsBatchSelection.selectedCount === settings.length}
+                        onCheckedChange={() => settingsBatchSelection.toggleSelectAll(settings, (setting) => setting.id)}
+                        aria-label="Select all settings"
+                      />
+                    </TableHead>
                     <TableHead>Setting Name</TableHead>
                     <TableHead>Days Before</TableHead>
                     <TableHead>Frequency</TableHead>
@@ -585,7 +873,14 @@ const SMSAlertManagement: React.FC = () => {
                 </TableHeader>
                 <TableBody>
                   {settings.map((setting) =>
-                  <TableRow key={setting.id}>
+                  <TableRow key={setting.id} className={settingsBatchSelection.isSelected(setting.id) ? "bg-blue-50" : ""}>
+                      <TableCell>
+                        <Checkbox
+                          checked={settingsBatchSelection.isSelected(setting.id)}
+                          onCheckedChange={() => settingsBatchSelection.toggleItem(setting.id)}
+                          aria-label={`Select setting ${setting.setting_name}`}
+                        />
+                      </TableCell>
                       <TableCell className="font-medium">{setting.setting_name}</TableCell>
                       <TableCell>{setting.days_before_expiry} days</TableCell>
                       <TableCell>Every {setting.alert_frequency_days} days</TableCell>
@@ -728,6 +1023,13 @@ const SMSAlertManagement: React.FC = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-12">
+                      <Checkbox
+                        checked={contacts.length > 0 && contactsBatchSelection.selectedCount === contacts.length}
+                        onCheckedChange={() => contactsBatchSelection.toggleSelectAll(contacts, (contact) => contact.id)}
+                        aria-label="Select all contacts"
+                      />
+                    </TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Mobile Number</TableHead>
                     <TableHead>Station</TableHead>
@@ -738,7 +1040,14 @@ const SMSAlertManagement: React.FC = () => {
                 </TableHeader>
                 <TableBody>
                   {contacts.map((contact) =>
-                  <TableRow key={contact.id}>
+                  <TableRow key={contact.id} className={contactsBatchSelection.isSelected(contact.id) ? "bg-blue-50" : ""}>
+                      <TableCell>
+                        <Checkbox
+                          checked={contactsBatchSelection.isSelected(contact.id)}
+                          onCheckedChange={() => contactsBatchSelection.toggleItem(contact.id)}
+                          aria-label={`Select contact ${contact.contact_name}`}
+                        />
+                      </TableCell>
                       <TableCell className="font-medium">{contact.contact_name}</TableCell>
                       <TableCell>{contact.mobile_number}</TableCell>
                       <TableCell>{contact.station}</TableCell>
@@ -786,6 +1095,13 @@ const SMSAlertManagement: React.FC = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-12">
+                      <Checkbox
+                        checked={history.length > 0 && historyBatchSelection.selectedCount === history.length}
+                        onCheckedChange={() => historyBatchSelection.toggleSelectAll(history, (record) => record.id)}
+                        aria-label="Select all history records"
+                      />
+                    </TableHead>
                     <TableHead>Date Sent</TableHead>
                     <TableHead>Mobile Number</TableHead>
                     <TableHead>Message</TableHead>
@@ -795,7 +1111,14 @@ const SMSAlertManagement: React.FC = () => {
                 </TableHeader>
                 <TableBody>
                   {history.map((record) =>
-                  <TableRow key={record.id}>
+                  <TableRow key={record.id} className={historyBatchSelection.isSelected(record.id) ? "bg-blue-50" : ""}>
+                      <TableCell>
+                        <Checkbox
+                          checked={historyBatchSelection.isSelected(record.id)}
+                          onCheckedChange={() => historyBatchSelection.toggleItem(record.id)}
+                          aria-label={`Select history record ${record.id}`}
+                        />
+                      </TableCell>
                       <TableCell>
                         {new Date(record.sent_date).toLocaleDateString()}
                       </TableCell>
@@ -826,6 +1149,68 @@ const SMSAlertManagement: React.FC = () => {
           <SMSServiceManager />
         </TabsContent>
       </Tabs>
+
+      {/* Batch Edit Dialog for Contacts */}
+      <BatchEditDialog
+        isOpen={isBatchEditDialogOpen}
+        onClose={() => setIsBatchEditDialogOpen(false)}
+        onSave={confirmBatchEditContacts}
+        selectedCount={contactsBatchSelection.selectedCount}
+        isLoading={batchActionLoading}
+        itemName="SMS contacts"
+      >
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="batch_station">Station</Label>
+            <Select value={batchEditData.station} onValueChange={(value) => setBatchEditData({ ...batchEditData, station: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select station to update" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Keep existing stations</SelectItem>
+                <SelectItem value="ALL">All Stations</SelectItem>
+                <SelectItem value="MOBIL">MOBIL</SelectItem>
+                <SelectItem value="AMOCO ROSEDALE">AMOCO ROSEDALE</SelectItem>
+                <SelectItem value="AMOCO BROOKLYN">AMOCO BROOKLYN</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="batch_role">Contact Role</Label>
+            <Select value={batchEditData.contact_role} onValueChange={(value) => setBatchEditData({ ...batchEditData, contact_role: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select role to update" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Keep existing roles</SelectItem>
+                <SelectItem value="Manager">Manager</SelectItem>
+                <SelectItem value="Supervisor">Supervisor</SelectItem>
+                <SelectItem value="Administrator">Administrator</SelectItem>
+                <SelectItem value="Owner">Owner</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="batch_is_active"
+              checked={batchEditData.is_active}
+              onCheckedChange={(checked) => setBatchEditData({ ...batchEditData, is_active: checked })}
+            />
+            <Label htmlFor="batch_is_active">Set all selected contacts as active</Label>
+          </div>
+        </div>
+      </BatchEditDialog>
+
+      {/* Batch Delete Dialog */}
+      <BatchDeleteDialog
+        isOpen={isBatchDeleteDialogOpen}
+        onClose={() => setIsBatchDeleteDialogOpen(false)}
+        onConfirm={getCurrentConfirmFunction()}
+        selectedCount={getCurrentBatchSelection().selectedCount}
+        isLoading={batchActionLoading}
+        itemName={activeTab === 'settings' ? 'SMS alert settings' : activeTab === 'contacts' ? 'SMS contacts' : 'SMS history records'}
+        selectedItems={getCurrentSelectedData()}
+      />
     </div>);
 
 };
