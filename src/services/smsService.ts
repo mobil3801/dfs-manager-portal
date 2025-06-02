@@ -25,30 +25,30 @@ interface SMSProvider {
 
 class SMSService {
   private providers: SMSProvider[] = [
-    {
-      name: 'TextBelt',
-      url: 'https://api.textbelt.com/text',
-      apiKey: 'textbelt', // Free tier for testing
-      isActive: true
-    },
-    {
-      name: 'Twilio',
-      url: 'https://api.twilio.com/2010-04-01/Accounts/YOUR_ACCOUNT_SID/Messages.json',
-      apiKey: 'YOUR_TWILIO_AUTH_TOKEN',
-      isActive: false // Set to true when configured
-    }
-  ];
+  {
+    name: 'TextBelt',
+    url: 'https://api.textbelt.com/text',
+    apiKey: 'textbelt', // Free tier for testing
+    isActive: true
+  },
+  {
+    name: 'Twilio',
+    url: 'https://api.twilio.com/2010-04-01/Accounts/YOUR_ACCOUNT_SID/Messages.json',
+    apiKey: 'YOUR_TWILIO_AUTH_TOKEN',
+    isActive: false // Set to true when configured
+  }];
+
 
   private currentProvider: SMSProvider;
 
   constructor() {
-    this.currentProvider = this.providers.find(p => p.isActive) || this.providers[0];
+    this.currentProvider = this.providers.find((p) => p.isActive) || this.providers[0];
   }
 
   /**
    * Send SMS using the active provider with failover support
    */
-  async sendSMS(to: string, message: string, options?: { priority?: 'low' | 'normal' | 'high' }): Promise<SMSResponse> {
+  async sendSMS(to: string, message: string, options?: {priority?: 'low' | 'normal' | 'high';}): Promise<SMSResponse> {
     try {
       console.log(`📱 Sending SMS via ${this.currentProvider.name} to ${to}: ${message}`);
 
@@ -65,7 +65,7 @@ class SMSService {
 
       // Try current provider first
       let result = await this.sendWithProvider(this.currentProvider, cleanedNumber, message);
-      
+
       // If failed, try other active providers
       if (!result.success) {
         console.log(`⚠️ Primary provider failed, trying backup providers...`);
@@ -159,7 +159,7 @@ class SMSService {
     // This is a placeholder implementation
     // In production, you would implement the actual Twilio API call
     console.log(`📞 Twilio SMS implementation needed for ${to}`);
-    
+
     return {
       success: false,
       error: 'Twilio provider not configured',
@@ -239,7 +239,7 @@ class SMSService {
   /**
    * Get comprehensive SMS service status
    */
-  async getServiceStatus(): Promise<{available: boolean; message: string; providers?: any[]; quota?: any;}> {
+  async getServiceStatus(): Promise<{available: boolean;message: string;providers?: any[];quota?: any;}> {
     try {
       const providerStatuses = [];
       let anyAvailable = false;
@@ -262,9 +262,9 @@ class SMSService {
 
       return {
         available: anyAvailable,
-        message: anyAvailable 
-          ? `SMS service is available via ${providerStatuses.filter(p => p.available).map(p => p.name).join(', ')}` 
-          : 'No SMS providers are currently available',
+        message: anyAvailable ?
+        `SMS service is available via ${providerStatuses.filter((p) => p.available).map((p) => p.name).join(', ')}` :
+        'No SMS providers are currently available',
         providers: providerStatuses,
         quota
       };
@@ -279,14 +279,14 @@ class SMSService {
   /**
    * Check status of a specific provider
    */
-  private async checkProviderStatus(provider: SMSProvider): Promise<{available: boolean; message: string;}> {
+  private async checkProviderStatus(provider: SMSProvider): Promise<{available: boolean;message: string;}> {
     try {
       if (provider.name === 'TextBelt') {
         // For TextBelt, we can check quota
         const response = await fetch('https://api.textbelt.com/quota/textbelt', {
           method: 'GET'
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           return {
@@ -330,7 +330,7 @@ class SMSService {
    * Switch to a different provider
    */
   switchProvider(providerName: string): boolean {
-    const provider = this.providers.find(p => p.name === providerName && p.isActive);
+    const provider = this.providers.find((p) => p.name === providerName && p.isActive);
     if (provider) {
       this.currentProvider = provider;
       console.log(`🔄 Switched to SMS provider: ${providerName}`);
@@ -350,7 +350,7 @@ class SMSService {
    * Get all available providers
    */
   getAvailableProviders(): SMSProvider[] {
-    return this.providers.filter(p => p.isActive);
+    return this.providers.filter((p) => p.isActive);
   }
 
   /**

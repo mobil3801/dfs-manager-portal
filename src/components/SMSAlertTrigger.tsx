@@ -6,18 +6,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Bell, 
-  Clock, 
-  Zap, 
-  Calendar, 
-  AlertTriangle, 
-  Send, 
+import {
+  Bell,
+  Clock,
+  Zap,
+  Calendar,
+  AlertTriangle,
+  Send,
   CheckCircle,
   RefreshCw,
   Settings,
-  Users
-} from 'lucide-react';
+  Users } from
+'lucide-react';
 import licenseAlertService from '@/services/licenseAlertService';
 import smsService from '@/services/smsService';
 
@@ -85,8 +85,8 @@ const SMSAlertTrigger: React.FC = () => {
         OrderByField: 'expiry_date',
         IsAsc: true,
         Filters: [
-          { name: 'status', op: 'Equal', value: 'Active' }
-        ]
+        { name: 'status', op: 'Equal', value: 'Active' }]
+
       });
 
       if (error) throw error;
@@ -137,7 +137,7 @@ const SMSAlertTrigger: React.FC = () => {
 
     const now = new Date();
     const lastRun = lastAutoRun;
-    
+
     // Only run once per day
     if (lastRun && now.toDateString() === lastRun.toDateString()) {
       return;
@@ -145,7 +145,7 @@ const SMSAlertTrigger: React.FC = () => {
 
     console.log('🔔 Running automatic license alert check...');
     await triggerLicenseAlerts('scheduled');
-    
+
     setLastAutoRun(now);
     localStorage.setItem('sms_last_auto_run', now.toISOString());
   };
@@ -153,7 +153,7 @@ const SMSAlertTrigger: React.FC = () => {
   const triggerLicenseAlerts = async (type: 'manual' | 'scheduled' = 'manual') => {
     try {
       setTriggeringAlerts(true);
-      
+
       const jobId = Date.now().toString();
       const newJob: AlertJob = {
         id: jobId,
@@ -170,11 +170,11 @@ const SMSAlertTrigger: React.FC = () => {
 
       // Run the license alert service
       await licenseAlertService.checkAndSendAlerts();
-      
+
       // Simulate some processing and get alert count
       // In a real implementation, the alert service would return statistics
       const mockAlertsSent = Math.floor(Math.random() * 5); // Mock data
-      
+
       const completedJob: AlertJob = {
         ...newJob,
         status: 'completed',
@@ -182,8 +182,8 @@ const SMSAlertTrigger: React.FC = () => {
         alertsSent: mockAlertsSent
       };
 
-      const finalJobs = alertJobs.map(job => 
-        job.id === jobId ? completedJob : job
+      const finalJobs = alertJobs.map((job) =>
+      job.id === jobId ? completedJob : job
       );
       setAlertJobs(finalJobs);
       saveAlertJobs(finalJobs);
@@ -196,7 +196,7 @@ const SMSAlertTrigger: React.FC = () => {
       }
     } catch (error) {
       console.error('Error triggering license alerts:', error);
-      
+
       const failedJob: AlertJob = {
         id: Date.now().toString(),
         type,
@@ -227,7 +227,7 @@ const SMSAlertTrigger: React.FC = () => {
   const triggerSpecificLicenseAlert = async (licenseId: number) => {
     try {
       const result = await licenseAlertService.sendImmediateAlert(licenseId);
-      
+
       if (result.success) {
         toast({
           title: "✅ Alert Sent",
@@ -253,7 +253,7 @@ const SMSAlertTrigger: React.FC = () => {
   const toggleAutoScheduling = (enabled: boolean) => {
     setAutoScheduling(enabled);
     localStorage.setItem('sms_auto_scheduling', enabled.toString());
-    
+
     if (enabled) {
       toast({
         title: "Auto Scheduling Enabled",
@@ -269,12 +269,12 @@ const SMSAlertTrigger: React.FC = () => {
 
   const getExpiringLicenses = () => {
     const today = new Date();
-    return licenses.filter(license => {
+    return licenses.filter((license) => {
       const expiryDate = new Date(license.expiry_date);
       const daysUntilExpiry = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
       return daysUntilExpiry <= alertThreshold && daysUntilExpiry > 0;
-    }).filter(license => 
-      selectedStation === 'ALL' || license.station === selectedStation
+    }).filter((license) =>
+    selectedStation === 'ALL' || license.station === selectedStation
     );
   };
 
@@ -346,8 +346,8 @@ const SMSAlertTrigger: React.FC = () => {
               <Switch
                 id="auto-scheduling"
                 checked={autoScheduling}
-                onCheckedChange={toggleAutoScheduling}
-              />
+                onCheckedChange={toggleAutoScheduling} />
+
               <Label htmlFor="auto-scheduling">Auto Scheduling</Label>
             </div>
           </div>
@@ -357,8 +357,8 @@ const SMSAlertTrigger: React.FC = () => {
               <Button
                 onClick={() => triggerLicenseAlerts('manual')}
                 disabled={triggeringAlerts}
-                className="bg-orange-600 hover:bg-orange-700"
-              >
+                className="bg-orange-600 hover:bg-orange-700">
+
                 <Zap className="w-4 h-4 mr-2" />
                 {triggeringAlerts ? 'Processing...' : 'Trigger All Alerts'}
               </Button>
@@ -366,25 +366,25 @@ const SMSAlertTrigger: React.FC = () => {
               <Button
                 variant="outline"
                 onClick={loadLicenses}
-                disabled={loading}
-              >
+                disabled={loading}>
+
                 <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
             </div>
 
-            {lastAutoRun && (
-              <div className="text-sm text-gray-500">
+            {lastAutoRun &&
+            <div className="text-sm text-gray-500">
                 Last auto run: {lastAutoRun.toLocaleString()}
               </div>
-            )}
+            }
           </div>
         </CardContent>
       </Card>
 
       {/* Licenses Requiring Alerts */}
-      {expiringLicenses.length > 0 && (
-        <Card>
+      {expiringLicenses.length > 0 &&
+      <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
               <AlertTriangle className="w-5 h-5 mr-2 text-orange-500" />
@@ -393,13 +393,13 @@ const SMSAlertTrigger: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {expiringLicenses.map(license => {
-                const expiryDate = new Date(license.expiry_date);
-                const today = new Date();
-                const daysUntilExpiry = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-                
-                return (
-                  <div key={license.id} className="flex items-center justify-between p-3 border rounded">
+              {expiringLicenses.map((license) => {
+              const expiryDate = new Date(license.expiry_date);
+              const today = new Date();
+              const daysUntilExpiry = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+              return (
+                <div key={license.id} className="flex items-center justify-between p-3 border rounded">
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-1">
                         <span className="font-medium">{license.license_name}</span>
@@ -411,24 +411,24 @@ const SMSAlertTrigger: React.FC = () => {
                       <p className="text-sm text-gray-600">Expires: {expiryDate.toLocaleDateString()}</p>
                     </div>
                     <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => triggerSpecificLicenseAlert(license.id)}
-                    >
+                    size="sm"
+                    variant="outline"
+                    onClick={() => triggerSpecificLicenseAlert(license.id)}>
+
                       <Send className="w-4 h-4 mr-1" />
                       Send Alert
                     </Button>
-                  </div>
-                );
-              })}
+                  </div>);
+
+            })}
             </div>
           </CardContent>
         </Card>
-      )}
+      }
 
       {/* Alert Job History */}
-      {alertJobs.length > 0 && (
-        <Card>
+      {alertJobs.length > 0 &&
+      <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
               <Clock className="w-5 h-5 mr-2" />
@@ -437,8 +437,8 @@ const SMSAlertTrigger: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {alertJobs.map(job => (
-                <div key={job.id} className="flex items-center justify-between p-3 border rounded">
+              {alertJobs.map((job) =>
+            <div key={job.id} className="flex items-center justify-between p-3 border rounded">
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-1">
                       {getStatusBadge(job.status)}
@@ -452,19 +452,19 @@ const SMSAlertTrigger: React.FC = () => {
                     <div className="text-sm text-gray-600">
                       {job.alertsSent} alerts sent • {formatJobDuration(job)} • {job.totalLicenses} licenses checked
                     </div>
-                    {job.error && (
-                      <p className="text-sm text-red-600 mt-1">Error: {job.error}</p>
-                    )}
+                    {job.error &&
+                <p className="text-sm text-red-600 mt-1">Error: {job.error}</p>
+                }
                   </div>
-                  {job.status === 'completed' && (
-                    <CheckCircle className="w-5 h-5 text-green-500" />
-                  )}
+                  {job.status === 'completed' &&
+              <CheckCircle className="w-5 h-5 text-green-500" />
+              }
                 </div>
-              ))}
+            )}
             </div>
           </CardContent>
         </Card>
-      )}
+      }
 
       {/* Summary Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -493,15 +493,15 @@ const SMSAlertTrigger: React.FC = () => {
             <div className="text-center">
               <Users className="w-8 h-8 text-green-500 mx-auto mb-2" />
               <div className="text-2xl font-bold">
-                {alertJobs.filter(job => job.status === 'completed').reduce((sum, job) => sum + job.alertsSent, 0)}
+                {alertJobs.filter((job) => job.status === 'completed').reduce((sum, job) => sum + job.alertsSent, 0)}
               </div>
               <p className="text-sm text-gray-600">Total Alerts Sent</p>
             </div>
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SMSAlertTrigger;

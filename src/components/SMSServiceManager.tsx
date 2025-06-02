@@ -8,20 +8,20 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  MessageSquare, 
-  Settings, 
-  TestTube, 
-  Zap, 
-  CheckCircle, 
-  AlertCircle, 
+import {
+  MessageSquare,
+  Settings,
+  TestTube,
+  Zap,
+  CheckCircle,
+  AlertCircle,
   Clock,
   RefreshCw,
   Send,
   Activity,
   Smartphone,
-  TrendingUp
-} from 'lucide-react';
+  TrendingUp } from
+'lucide-react';
 import smsService from '@/services/smsService';
 
 interface ServiceStatus {
@@ -125,9 +125,9 @@ const SMSServiceManager: React.FC = () => {
 
     try {
       setSendingTest(true);
-      
+
       const result = await smsService.sendSMS(testPhone, testMessage);
-      
+
       const testResult: TestResult = {
         phoneNumber: testPhone,
         message: testMessage,
@@ -180,11 +180,11 @@ const SMSServiceManager: React.FC = () => {
   };
 
   const getStatusIcon = (available: boolean) => {
-    return available ? (
-      <CheckCircle className="w-5 h-5 text-green-500" />
-    ) : (
-      <AlertCircle className="w-5 h-5 text-red-500" />
-    );
+    return available ?
+    <CheckCircle className="w-5 h-5 text-green-500" /> :
+
+    <AlertCircle className="w-5 h-5 text-red-500" />;
+
   };
 
   return (
@@ -202,16 +202,16 @@ const SMSServiceManager: React.FC = () => {
                 <Switch
                   id="auto-refresh"
                   checked={autoRefresh}
-                  onCheckedChange={setAutoRefresh}
-                />
+                  onCheckedChange={setAutoRefresh} />
+
                 <Label htmlFor="auto-refresh" className="text-sm">Auto Refresh</Label>
               </div>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={checkServiceStatus}
-                disabled={loading}
-              >
+                disabled={loading}>
+
                 <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
@@ -219,8 +219,8 @@ const SMSServiceManager: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {serviceStatus ? (
-            <div className="space-y-4">
+          {serviceStatus ?
+          <div className="space-y-4">
               <div className="flex items-center space-x-3">
                 {getStatusIcon(serviceStatus.available)}
                 <span className={`font-medium ${serviceStatus.available ? 'text-green-600' : 'text-red-600'}`}>
@@ -229,25 +229,25 @@ const SMSServiceManager: React.FC = () => {
               </div>
 
               {/* Provider Status */}
-              {serviceStatus.providers && serviceStatus.providers.length > 0 && (
-                <div>
+              {serviceStatus.providers && serviceStatus.providers.length > 0 &&
+            <div>
                   <h4 className="font-medium text-sm text-gray-700 mb-2">Provider Status:</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {serviceStatus.providers.map((provider, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                    {serviceStatus.providers.map((provider, index) =>
+                <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                         <span className="font-medium">{provider.name}</span>
                         <Badge variant={provider.available ? 'default' : 'secondary'}>
                           {provider.available ? 'Available' : 'Unavailable'}
                         </Badge>
                       </div>
-                    ))}
+                )}
                   </div>
                 </div>
-              )}
+            }
 
               {/* Quota Information */}
-              {serviceStatus.quota && (
-                <div className="bg-blue-50 p-3 rounded">
+              {serviceStatus.quota &&
+            <div className="bg-blue-50 p-3 rounded">
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-blue-800">Free SMS Quota</span>
                     <Badge variant="outline" className="text-blue-600">
@@ -255,16 +255,16 @@ const SMSServiceManager: React.FC = () => {
                     </Badge>
                   </div>
                 </div>
-              )}
-            </div>
-          ) : (
-            <div className="flex items-center justify-center py-8">
+            }
+            </div> :
+
+          <div className="flex items-center justify-center py-8">
               <div className="text-center">
                 <Clock className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                 <p className="text-gray-500">Loading service status...</p>
               </div>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
@@ -285,13 +285,13 @@ const SMSServiceManager: React.FC = () => {
                 value={testPhone}
                 onChange={(e) => setTestPhone(e.target.value)}
                 placeholder="+1234567890 or 1234567890"
-                className="mt-1"
-              />
-              {testPhone && !smsService.isValidPhoneNumber(testPhone) && (
-                <p className="text-sm text-red-500 mt-1">
+                className="mt-1" />
+
+              {testPhone && !smsService.isValidPhoneNumber(testPhone) &&
+              <p className="text-sm text-red-500 mt-1">
                   Please enter a valid phone number
                 </p>
-              )}
+              }
             </div>
             <div>
               <Label htmlFor="test-message">Test Message</Label>
@@ -301,8 +301,8 @@ const SMSServiceManager: React.FC = () => {
                 onChange={(e) => setTestMessage(e.target.value)}
                 placeholder="Enter your test message..."
                 rows={3}
-                className="mt-1"
-              />
+                className="mt-1" />
+
               <p className="text-xs text-gray-500 mt-1">
                 {testMessage.length}/1600 characters
               </p>
@@ -313,28 +313,28 @@ const SMSServiceManager: React.FC = () => {
             <Button
               onClick={sendTestSMS}
               disabled={sendingTest || !serviceStatus?.available}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
+              className="bg-blue-600 hover:bg-blue-700">
+
               <Send className="w-4 h-4 mr-2" />
               {sendingTest ? 'Sending...' : 'Send Test SMS'}
             </Button>
             
-            {testResults.length > 0 && (
-              <Button
-                variant="outline"
-                onClick={clearTestHistory}
-                size="sm"
-              >
+            {testResults.length > 0 &&
+            <Button
+              variant="outline"
+              onClick={clearTestHistory}
+              size="sm">
+
                 Clear History
               </Button>
-            )}
+            }
           </div>
         </CardContent>
       </Card>
 
       {/* Test Results History */}
-      {testResults.length > 0 && (
-        <Card>
+      {testResults.length > 0 &&
+      <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
               <TrendingUp className="w-5 h-5 mr-2" />
@@ -343,8 +343,8 @@ const SMSServiceManager: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {testResults.map((result, index) => (
-                <div key={index} className="border rounded-lg p-3">
+              {testResults.map((result, index) =>
+            <div key={index} className="border rounded-lg p-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-1">
@@ -353,30 +353,30 @@ const SMSServiceManager: React.FC = () => {
                         <Badge variant={result.success ? 'default' : 'destructive'}>
                           {result.success ? 'Success' : 'Failed'}
                         </Badge>
-                        {result.provider && (
-                          <Badge variant="outline" className="text-xs">
+                        {result.provider &&
+                    <Badge variant="outline" className="text-xs">
                             {result.provider}
                           </Badge>
-                        )}
+                    }
                       </div>
                       <p className="text-sm text-gray-600 mb-1">{result.message}</p>
-                      {result.error && (
-                        <p className="text-sm text-red-600">Error: {result.error}</p>
-                      )}
-                      {result.messageId && (
-                        <p className="text-xs text-gray-500">Message ID: {result.messageId}</p>
-                      )}
+                      {result.error &&
+                  <p className="text-sm text-red-600">Error: {result.error}</p>
+                  }
+                      {result.messageId &&
+                  <p className="text-xs text-gray-500">Message ID: {result.messageId}</p>
+                  }
                     </div>
                     <div className="text-right text-xs text-gray-500">
                       {formatTimestamp(result.timestamp)}
                     </div>
                   </div>
                 </div>
-              ))}
+            )}
             </div>
           </CardContent>
         </Card>
-      )}
+      }
 
       {/* Service Configuration Help */}
       <Card>
@@ -418,8 +418,8 @@ const SMSServiceManager: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SMSServiceManager;
