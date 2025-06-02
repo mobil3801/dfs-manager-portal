@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { MessageSquare, Phone, Settings, History, Plus, Edit, Trash2, Send, CheckCircle, AlertCircle } from 'lucide-react';
-import smsService from '@/services/smsService';
+import { smsService } from '@/services/smsService';
 import SMSSetupGuide from '@/components/SMSSetupGuide';
 import SMSServiceManager from '@/components/SMSServiceManager';
 import SMSAlertTrigger from '@/components/SMSAlertTrigger';
@@ -62,6 +62,12 @@ const SMSAlertManagement: React.FC = () => {
   const [serviceStatus, setServiceStatus] = useState<{available: boolean;message: string;} | null>(null);
   const { toast } = useToast();
 
+  // Validate phone number helper function
+  const isValidPhoneNumber = (phone: string) => {
+    const cleaned = phone.replace(/[^\d]/g, '');
+    return cleaned.length >= 10 && cleaned.length <= 15;
+  };
+
   // New setting form state
   const [newSetting, setNewSetting] = useState({
     setting_name: '',
@@ -89,8 +95,11 @@ const SMSAlertManagement: React.FC = () => {
 
   const checkServiceStatus = async () => {
     try {
-      const status = await smsService.getServiceStatus();
-      setServiceStatus(status);
+      const isConfigured = smsService.isServiceConfigured();
+      setServiceStatus({
+        available: isConfigured,
+        message: isConfigured ? 'SMS service is configured and ready' : 'SMS service needs configuration'
+      });
     } catch (error) {
       console.error('Error checking SMS service status:', error);
       setServiceStatus({
@@ -330,7 +339,7 @@ const SMSAlertManagement: React.FC = () => {
         console.log(`Sending test SMS to ${contact.contact_name} at ${contact.mobile_number}`);
 
         // Validate phone number
-        if (!smsService.isValidPhoneNumber(contact.mobile_number)) {
+        if (!isValidPhoneNumber(contact.mobile_number)) {
           console.error(`Invalid phone number for ${contact.contact_name}: ${contact.mobile_number}`);
           failureCount++;
 
@@ -349,7 +358,11 @@ const SMSAlertManagement: React.FC = () => {
         }
 
         // Send actual SMS
-        const smsResult = await smsService.sendSMS(contact.mobile_number, testMessage);
+        const smsResult = await smsService.sendSMS({
+          to: contact.mobile_number,
+          message: testMessage,
+          type: 'test'
+        });
 
         if (smsResult.success) {
           successCount++;
@@ -655,7 +668,7 @@ const SMSAlertManagement: React.FC = () => {
                           onChange={(e) => setNewContact({ ...newContact, mobile_number: e.target.value })}
                           placeholder="+1234567890 or 1234567890" />
 
-                        {newContact.mobile_number && !smsService.isValidPhoneNumber(newContact.mobile_number) &&
+                        {newContact.mobile_number && !isValidPhoneNumber(newContact.mobile_number) &&
                         <p className="text-sm text-red-500 mt-1">
                             Please enter a valid phone number (e.g., +1234567890 or 1234567890)
                           </p>

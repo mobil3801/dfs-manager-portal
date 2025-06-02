@@ -22,7 +22,7 @@ import {
   Smartphone,
   TrendingUp } from
 'lucide-react';
-import smsService from '@/services/smsService';
+import { smsService } from '@/services/smsService';
 
 interface ServiceStatus {
   available: boolean;

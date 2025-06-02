@@ -19,7 +19,7 @@ import {
   Users } from
 'lucide-react';
 import licenseAlertService from '@/services/licenseAlertService';
-import smsService from '@/services/smsService';
+import { smsService } from '@/services/smsService';
 
 interface License {
   id: number;

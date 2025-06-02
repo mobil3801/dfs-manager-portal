@@ -1,5 +1,5 @@
 // License Alert Service for automated SMS notifications
-import smsService from './smsService';
+import { smsService } from './smsService';
 
 interface License {
   id: number;
@@ -219,7 +219,11 @@ class LicenseAlertService {
       console.log(`📱 Sending license alert to ${contact.contact_name} (${contact.mobile_number})`);
 
       // Send SMS
-      const smsResult = await smsService.sendSMS(contact.mobile_number, message);
+      const smsResult = await smsService.sendSMS({
+        to: contact.mobile_number,
+        message: message,
+        type: 'license_alert'
+      });
 
       // Record in history
       await window.ezsite.apis.tableCreate('12613', {
@@ -314,7 +318,11 @@ class LicenseAlertService {
 
       let successCount = 0;
       for (const contact of relevantContacts) {
-        const smsResult = await smsService.sendSMS(contact.mobile_number, defaultTemplate);
+        const smsResult = await smsService.sendSMS({
+          to: contact.mobile_number,
+          message: defaultTemplate,
+          type: 'immediate_alert'
+        });
 
         await window.ezsite.apis.tableCreate('12613', {
           license_id: license.ID, // Use the actual ID field

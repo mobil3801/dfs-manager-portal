@@ -42,7 +42,7 @@ class SMSService {
   async configure(config: TwilioConfig) {
     this.config = config;
     this.isConfigured = true;
-    
+
     // Validate Twilio credentials
     try {
       await this.validateCredentials();
@@ -65,7 +65,7 @@ class SMSService {
       });
 
       if (error) throw new Error(error);
-      
+
       if (data?.List && data.List.length > 0) {
         const config = data.List[0];
         await this.configure({
@@ -120,7 +120,7 @@ class SMSService {
     try {
       // Check monthly limits
       await this.checkMonthlyLimit();
-      
+
       // Process template if templateId is provided
       let finalMessage = message.message;
       if (message.templateId) {
@@ -186,18 +186,18 @@ class SMSService {
       });
 
       if (error) throw new Error(error);
-      
+
       if (data?.List && data.List.length > 0) {
         let message = data.List[0].message_content;
-        
+
         // Replace placeholders
         Object.entries(placeholders).forEach(([key, value]) => {
           message = message.replace(new RegExp(`{${key}}`, 'g'), value);
         });
-        
+
         return message;
       }
-      
+
       throw new Error('Template not found');
     } catch (error) {
       console.error('Error processing template:', error);
@@ -216,7 +216,7 @@ class SMSService {
       });
 
       if (error) throw new Error(error);
-      
+
       if (data?.List && data.List.length > 0) {
         const config = data.List[0];
         if (config.current_month_count >= config.monthly_limit) {
@@ -240,7 +240,7 @@ class SMSService {
       });
 
       if (error) throw new Error(error);
-      
+
       if (data?.List && data.List.length > 0) {
         const config = data.List[0];
         await window.ezsite.apis.tableUpdate(12640, {
@@ -277,7 +277,7 @@ class SMSService {
         const result = await this.sendSMS(message);
         results.push(result);
         // Add small delay between messages to respect rate limits
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
       } catch (error) {
         results.push({
           success: false,
@@ -288,7 +288,7 @@ class SMSService {
     return results;
   }
 
-  async getDeliveryStatus(messageId: string): Promise<{ status: string; delivered: boolean }> {
+  async getDeliveryStatus(messageId: string): Promise<{status: string;delivered: boolean;}> {
     if (!this.isConfigured) {
       throw new Error('SMS service not configured');
     }
@@ -297,7 +297,7 @@ class SMSService {
     // For now, simulate different statuses
     const statuses = ['queued', 'sent', 'delivered', 'failed', 'undelivered'];
     const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
-    
+
     return {
       status: randomStatus,
       delivered: randomStatus === 'delivered'
@@ -323,14 +323,14 @@ class SMSService {
   }
 
   async removeTestNumber(phoneNumber: string): Promise<void> {
-    this.testNumbers = this.testNumbers.filter(num => num !== phoneNumber);
+    this.testNumbers = this.testNumbers.filter((num) => num !== phoneNumber);
   }
 
   getTestNumbers(): string[] {
     return [...this.testNumbers];
   }
 
-  async getMonthlyUsage(): Promise<{ used: number; limit: number; percentage: number }> {
+  async getMonthlyUsage(): Promise<{used: number;limit: number;percentage: number;}> {
     try {
       const { data, error } = await window.ezsite.apis.tablePage(12640, {
         PageNo: 1,
@@ -341,16 +341,16 @@ class SMSService {
       });
 
       if (error) throw new Error(error);
-      
+
       if (data?.List && data.List.length > 0) {
         const config = data.List[0];
         const used = config.current_month_count;
         const limit = config.monthly_limit;
-        const percentage = (used / limit) * 100;
-        
+        const percentage = used / limit * 100;
+
         return { used, limit, percentage };
       }
-      
+
       return { used: 0, limit: 1000, percentage: 0 };
     } catch (error) {
       console.error('Error getting monthly usage:', error);

@@ -9,7 +9,7 @@ import { Plus, Search, Edit, Trash2, FileText, AlertTriangle, CheckCircle, Print
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import EnhancedLicensePrintDialog from '@/components/EnhancedLicensePrintDialog';
-import smsService from '@/services/smsService';
+import { smsService } from '@/services/smsService';
 import licenseAlertService from '@/services/licenseAlertService';
 
 interface License {
