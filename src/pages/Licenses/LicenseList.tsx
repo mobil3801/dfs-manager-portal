@@ -114,7 +114,7 @@ const LicenseList: React.FC = () => {
   const sendExpiryAlerts = async () => {
     try {
       setSendingSMS(true);
-      
+
       toast({
         title: "📱 Checking Licenses",
         description: "Analyzing licenses for expiry alerts..."
@@ -122,12 +122,12 @@ const LicenseList: React.FC = () => {
 
       // Use the enhanced license alert service
       await licenseAlertService.checkAndSendAlerts();
-      
+
       toast({
         title: "✅ License Alerts Complete",
         description: "SMS alerts sent for expiring licenses. Check SMS History for details."
       });
-      
+
     } catch (error) {
       console.error('Error sending SMS alerts:', error);
       toast({
@@ -139,11 +139,11 @@ const LicenseList: React.FC = () => {
       setSendingSMS(false);
     }
   };
-  
+
   const sendImmediateAlert = async (licenseId: number) => {
     try {
       const result = await licenseAlertService.sendImmediateAlert(licenseId);
-      
+
       if (result.success) {
         toast({
           title: "📱 SMS Alert Sent",
@@ -447,16 +447,16 @@ const LicenseList: React.FC = () => {
                         title="Print Document">
                             <Printer className="w-4 h-4" />
                           </Button>
-                          {(isExpiringSoon(license.expiry_date) || isExpired(license.expiry_date)) && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => sendImmediateAlert(license.ID)}
-                              className="text-orange-600 hover:text-orange-700"
-                              title="Send SMS Alert">
+                          {(isExpiringSoon(license.expiry_date) || isExpired(license.expiry_date)) &&
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => sendImmediateAlert(license.ID)}
+                        className="text-orange-600 hover:text-orange-700"
+                        title="Send SMS Alert">
                               <MessageSquare className="w-4 h-4" />
                             </Button>
-                          )}
+                      }
                           {isAdmin &&
                       <>
                               <Button

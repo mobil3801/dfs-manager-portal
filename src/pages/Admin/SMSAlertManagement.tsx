@@ -14,6 +14,8 @@ import { useToast } from '@/hooks/use-toast';
 import { MessageSquare, Phone, Settings, History, Plus, Edit, Trash2, Send, CheckCircle, AlertCircle } from 'lucide-react';
 import smsService from '@/services/smsService';
 import SMSSetupGuide from '@/components/SMSSetupGuide';
+import SMSServiceManager from '@/components/SMSServiceManager';
+import SMSAlertTrigger from '@/components/SMSAlertTrigger';
 
 interface SMSAlertSetting {
   id: number;
@@ -57,7 +59,7 @@ const SMSAlertManagement: React.FC = () => {
   const [editingSetting, setEditingSetting] = useState<SMSAlertSetting | null>(null);
   const [editingContact, setEditingContact] = useState<SMSContact | null>(null);
   const [sendingTestSMS, setSendingTestSMS] = useState(false);
-  const [serviceStatus, setServiceStatus] = useState<{ available: boolean; message: string } | null>(null);
+  const [serviceStatus, setServiceStatus] = useState<{available: boolean;message: string;} | null>(null);
   const { toast } = useToast();
 
   // New setting form state
@@ -305,7 +307,7 @@ const SMSAlertManagement: React.FC = () => {
 
       // Get all active contacts
       const activeContacts = contacts.filter((c) => c.is_active);
-      
+
       if (activeContacts.length === 0) {
         toast({
           title: "No Active Contacts",
@@ -326,12 +328,12 @@ const SMSAlertManagement: React.FC = () => {
       // Send SMS to each contact
       for (const contact of activeContacts) {
         console.log(`Sending test SMS to ${contact.contact_name} at ${contact.mobile_number}`);
-        
+
         // Validate phone number
         if (!smsService.isValidPhoneNumber(contact.mobile_number)) {
           console.error(`Invalid phone number for ${contact.contact_name}: ${contact.mobile_number}`);
           failureCount++;
-          
+
           // Still create history record for tracking
           await window.ezsite.apis.tableCreate('12613', {
             license_id: 0,
@@ -348,7 +350,7 @@ const SMSAlertManagement: React.FC = () => {
 
         // Send actual SMS
         const smsResult = await smsService.sendSMS(contact.mobile_number, testMessage);
-        
+
         if (smsResult.success) {
           successCount++;
           console.log(`✅ SMS sent successfully to ${contact.contact_name}`);
@@ -432,25 +434,25 @@ const SMSAlertManagement: React.FC = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">SMS Alert Management</h1>
         <div className="flex items-center space-x-4">
-          {serviceStatus && (
-            <div className="flex items-center space-x-2">
-              {serviceStatus.available ? (
-                <CheckCircle className="w-5 h-5 text-green-500" />
-              ) : (
-                <AlertCircle className="w-5 h-5 text-red-500" />
-              )}
+          {serviceStatus &&
+          <div className="flex items-center space-x-2">
+              {serviceStatus.available ?
+            <CheckCircle className="w-5 h-5 text-green-500" /> :
+
+            <AlertCircle className="w-5 h-5 text-red-500" />
+            }
               <span className={`text-sm ${
-                serviceStatus.available ? 'text-green-600' : 'text-red-600'
-              }`}>
+            serviceStatus.available ? 'text-green-600' : 'text-red-600'}`
+            }>
                 {serviceStatus.available ? 'SMS Service Online' : 'SMS Service Offline'}
               </span>
             </div>
-          )}
-          <Button 
-            onClick={sendTestSMS} 
+          }
+          <Button
+            onClick={sendTestSMS}
             disabled={sendingTestSMS || !serviceStatus?.available}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
+            className="bg-blue-600 hover:bg-blue-700">
+
             <Send className="w-4 h-4 mr-2" />
             {sendingTestSMS ? 'Sending...' : 'Send Test SMS'}
           </Button>
@@ -460,12 +462,18 @@ const SMSAlertManagement: React.FC = () => {
       {/* SMS Setup Guide */}
       <SMSSetupGuide />
 
-      <Tabs defaultValue="settings" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+      <Tabs defaultValue="trigger" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="trigger">Alert Triggers</TabsTrigger>
           <TabsTrigger value="settings">Alert Settings</TabsTrigger>
           <TabsTrigger value="contacts">SMS Contacts</TabsTrigger>
           <TabsTrigger value="history">SMS History</TabsTrigger>
+          <TabsTrigger value="service">SMS Service</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="trigger">
+          <SMSAlertTrigger />
+        </TabsContent>
 
         <TabsContent value="settings">
           <Card>
@@ -645,13 +653,13 @@ const SMSAlertManagement: React.FC = () => {
                           id="mobile_number"
                           value={newContact.mobile_number}
                           onChange={(e) => setNewContact({ ...newContact, mobile_number: e.target.value })}
-                          placeholder="+1234567890 or 1234567890"
-                        />
-                        {newContact.mobile_number && !smsService.isValidPhoneNumber(newContact.mobile_number) && (
-                          <p className="text-sm text-red-500 mt-1">
+                          placeholder="+1234567890 or 1234567890" />
+
+                        {newContact.mobile_number && !smsService.isValidPhoneNumber(newContact.mobile_number) &&
+                        <p className="text-sm text-red-500 mt-1">
                             Please enter a valid phone number (e.g., +1234567890 or 1234567890)
                           </p>
-                        )}
+                        }
                       </div>
                       <div>
                         <Label htmlFor="station">Station</Label>
@@ -799,6 +807,10 @@ const SMSAlertManagement: React.FC = () => {
               </Table>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="service">
+          <SMSServiceManager />
         </TabsContent>
       </Tabs>
     </div>);

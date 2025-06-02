@@ -78,8 +78,8 @@ const SMSSetupGuide: React.FC = () => {
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default SMSSetupGuide;

@@ -42,7 +42,7 @@ class LicenseAlertService {
   async checkAndSendAlerts(): Promise<void> {
     try {
       console.log('🔍 Checking for licenses requiring alerts...');
-      
+
       // Get all active alert settings
       const { data: settingsData, error: settingsError } = await window.ezsite.apis.tablePage('12611', {
         PageNo: 1,
@@ -50,8 +50,8 @@ class LicenseAlertService {
         OrderByField: 'id',
         IsAsc: false,
         Filters: [
-          { name: 'is_active', op: 'Equal', value: true }
-        ]
+        { name: 'is_active', op: 'Equal', value: true }]
+
       });
 
       if (settingsError) {
@@ -72,8 +72,8 @@ class LicenseAlertService {
         OrderByField: 'expiry_date',
         IsAsc: true,
         Filters: [
-          { name: 'status', op: 'Equal', value: 'Active' }
-        ]
+        { name: 'status', op: 'Equal', value: 'Active' }]
+
       });
 
       if (licensesError) {
@@ -91,8 +91,8 @@ class LicenseAlertService {
         OrderByField: 'id',
         IsAsc: false,
         Filters: [
-          { name: 'is_active', op: 'Equal', value: true }
-        ]
+        { name: 'is_active', op: 'Equal', value: true }]
+
       });
 
       if (contactsError) {
@@ -128,10 +128,10 @@ class LicenseAlertService {
 
             if (shouldSendAlert) {
               console.log(`⚠️ License ${license.license_name} needs alert (${daysUntilExpiry} days remaining)`);
-              
+
               // Get relevant contacts for this license
               const relevantContacts = this.getRelevantContacts(contacts, license.station);
-              
+
               // Send alerts
               for (const contact of relevantContacts) {
                 await this.sendLicenseAlert(license, contact, setting, daysUntilExpiry);
@@ -152,10 +152,10 @@ class LicenseAlertService {
    * Check if we should send an alert based on frequency settings
    */
   private async shouldSendAlert(
-    licenseId: number,
-    settingId: number,
-    frequencyDays: number
-  ): Promise<boolean> {
+  licenseId: number,
+  settingId: number,
+  frequencyDays: number)
+  : Promise<boolean> {
     try {
       // Get the last alert sent for this license/setting combination
       const { data, error } = await window.ezsite.apis.tablePage('12613', {
@@ -164,8 +164,8 @@ class LicenseAlertService {
         OrderByField: 'sent_date',
         IsAsc: false,
         Filters: [
-          { name: 'license_id', op: 'Equal', value: licenseId }
-        ]
+        { name: 'license_id', op: 'Equal', value: licenseId }]
+
       });
 
       if (error) {
@@ -194,8 +194,8 @@ class LicenseAlertService {
    * Get contacts relevant to a specific station
    */
   private getRelevantContacts(contacts: SMSContact[], station: string): SMSContact[] {
-    return contacts.filter(contact => 
-      contact.station === 'ALL' || contact.station === station
+    return contacts.filter((contact) =>
+    contact.station === 'ALL' || contact.station === station
     );
   }
 
@@ -203,11 +203,11 @@ class LicenseAlertService {
    * Send SMS alert for a specific license
    */
   private async sendLicenseAlert(
-    license: License,
-    contact: SMSContact,
-    setting: SMSAlertSetting,
-    daysUntilExpiry: number
-  ): Promise<void> {
+  license: License,
+  contact: SMSContact,
+  setting: SMSAlertSetting,
+  daysUntilExpiry: number)
+  : Promise<void> {
     try {
       // Create message from template
       const message = this.createMessageFromTemplate(
@@ -217,10 +217,10 @@ class LicenseAlertService {
       );
 
       console.log(`📱 Sending license alert to ${contact.contact_name} (${contact.mobile_number})`);
-      
+
       // Send SMS
       const smsResult = await smsService.sendSMS(contact.mobile_number, message);
-      
+
       // Record in history
       await window.ezsite.apis.tableCreate('12613', {
         license_id: license.id,
@@ -247,25 +247,25 @@ class LicenseAlertService {
    * Create SMS message from template
    */
   private createMessageFromTemplate(
-    template: string,
-    license: License,
-    daysUntilExpiry: number
-  ): string {
+  template: string,
+  license: License,
+  daysUntilExpiry: number)
+  : string {
     const expiryDate = new Date(license.expiry_date).toLocaleDateString();
-    
-    return template
-      .replace(/{license_name}/g, license.license_name)
-      .replace(/{station}/g, license.station)
-      .replace(/{expiry_date}/g, expiryDate)
-      .replace(/{days_remaining}/g, daysUntilExpiry.toString())
-      .replace(/{license_number}/g, license.license_number)
-      .replace(/{category}/g, license.category);
+
+    return template.
+    replace(/{license_name}/g, license.license_name).
+    replace(/{station}/g, license.station).
+    replace(/{expiry_date}/g, expiryDate).
+    replace(/{days_remaining}/g, daysUntilExpiry.toString()).
+    replace(/{license_number}/g, license.license_number).
+    replace(/{category}/g, license.category);
   }
 
   /**
    * Send immediate alert for a specific license (manual trigger)
    */
-  async sendImmediateAlert(licenseId: number): Promise<{ success: boolean; message: string }> {
+  async sendImmediateAlert(licenseId: number): Promise<{success: boolean;message: string;}> {
     try {
       // Get license details using ID field
       const { data: licenseData, error: licenseError } = await window.ezsite.apis.tablePage('11731', {
@@ -274,8 +274,8 @@ class LicenseAlertService {
         OrderByField: 'id',
         IsAsc: false,
         Filters: [
-          { name: 'ID', op: 'Equal', value: licenseId }
-        ]
+        { name: 'ID', op: 'Equal', value: licenseId }]
+
       });
 
       if (licenseError || !licenseData.List || licenseData.List.length === 0) {
@@ -294,8 +294,8 @@ class LicenseAlertService {
         OrderByField: 'id',
         IsAsc: false,
         Filters: [
-          { name: 'is_active', op: 'Equal', value: true }
-        ]
+        { name: 'is_active', op: 'Equal', value: true }]
+
       });
 
       if (contactsError) {
@@ -311,11 +311,11 @@ class LicenseAlertService {
 
       // Use default alert setting
       const defaultTemplate = `🚨 URGENT: License '${license.license_name}' for ${license.station} expires in ${daysUntilExpiry} days (${expiryDate.toLocaleDateString()}). Please renew immediately!`;
-      
+
       let successCount = 0;
       for (const contact of relevantContacts) {
         const smsResult = await smsService.sendSMS(contact.mobile_number, defaultTemplate);
-        
+
         await window.ezsite.apis.tableCreate('12613', {
           license_id: license.ID, // Use the actual ID field
           contact_id: contact.id,
