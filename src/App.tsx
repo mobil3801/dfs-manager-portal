@@ -108,8 +108,8 @@ function App() {
           <Toaster />
         </TooltipProvider>
       </AuthProvider>
-    </QueryClientProvider>);
-
+    </QueryClientProvider>
+  );
 }
 
 export default App;
