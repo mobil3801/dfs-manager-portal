@@ -35,6 +35,9 @@ import SMSAlertManagement from './pages/Admin/SMSAlertManagement';
 import ErrorRecoveryPage from './pages/Admin/ErrorRecoveryPage';
 import MemoryMonitoring from './pages/Admin/MemoryMonitoring';
 import DatabaseMonitoring from './pages/Admin/DatabaseMonitoring';
+import LoginPage from './pages/LoginPage';
+import OnAuthSuccessPage from './pages/OnAuthSuccessPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient();
@@ -47,6 +50,12 @@ function App() {
           <TooltipProvider>
             <Router>
           <Routes>
+            {/* Public routes */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
+            <Route path="/resetpassword" element={<ResetPasswordPage />} />
+            
+            {/* Protected routes */}
             <Route path="/" element={<DashboardLayout />}>
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import {
   Menu,
@@ -26,7 +27,9 @@ import {
   UserCheck,
   Globe,
   MessageSquare,
-  Activity } from
+  Activity,
+  LogOut,
+  User } from
 'lucide-react';
 
 import Logo from '@/components/Logo';
@@ -45,6 +48,28 @@ const DashboardLayout: React.FC = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, loading, logout } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/login');
+    }
+  }, [loading, user, navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Logo size="lg" className="mb-4" />
+          <div className="text-gray-600">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Will redirect to login
+  }
 
   // All navigation items in one place
   const navigationItems: NavigationItem[] = [
@@ -187,8 +212,17 @@ const DashboardLayout: React.FC = () => {
 
           <div className="flex items-center space-x-4">
             <span className="text-sm text-gray-600 hidden lg:inline">
-              Gas Station Management
+              Welcome, {user.Name}
             </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={logout}
+              className="text-gray-600 hover:text-red-600"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
           </div>
         </div>
 
