@@ -6,8 +6,8 @@ import { MemoryLeakMonitor } from '@/services/memoryLeakMonitor';
  */
 
 // Global flag to enable/disable automatic memory leak detection
-export const MEMORY_LEAK_DETECTION_ENABLED = process.env.NODE_ENV === 'development' || 
-  (typeof window !== 'undefined' && window.location.search.includes('memory-debug=true'));
+export const MEMORY_LEAK_DETECTION_ENABLED = process.env.NODE_ENV === 'development' ||
+typeof window !== 'undefined' && window.location.search.includes('memory-debug=true');
 
 /**
  * Monkey patch common browser APIs to include memory leak warnings
@@ -28,40 +28,40 @@ export function initializeMemoryLeakDetection() {
   const activeTimers = new Set<number>();
   const activeIntervals = new Set<number>();
 
-  window.setTimeout = function(callback: Function, delay?: number, ...args: any[]) {
+  window.setTimeout = function (callback: Function, delay?: number, ...args: any[]) {
     const id = originalSetTimeout.call(window, (...callbackArgs) => {
       activeTimers.delete(id);
       return callback(...callbackArgs);
     }, delay, ...args);
-    
+
     activeTimers.add(id);
-    
+
     if (activeTimers.size > 50) {
       console.warn(`🚨 High number of active timers detected: ${activeTimers.size}`);
     }
-    
+
     return id;
   };
 
-  window.setInterval = function(callback: Function, delay?: number, ...args: any[]) {
+  window.setInterval = function (callback: Function, delay?: number, ...args: any[]) {
     const id = originalSetInterval.call(window, callback, delay, ...args);
     activeIntervals.add(id);
-    
+
     if (activeIntervals.size > 20) {
       console.warn(`🚨 High number of active intervals detected: ${activeIntervals.size}`);
     }
-    
+
     return id;
   };
 
-  window.clearTimeout = function(id?: number) {
+  window.clearTimeout = function (id?: number) {
     if (id) {
       activeTimers.delete(id);
     }
     return originalClearTimeout.call(window, id);
   };
 
-  window.clearInterval = function(id?: number) {
+  window.clearInterval = function (id?: number) {
     if (id) {
       activeIntervals.delete(id);
     }
@@ -72,12 +72,12 @@ export function initializeMemoryLeakDetection() {
   const originalFetch = window.fetch;
   const activeRequests = new Set<string>();
 
-  window.fetch = function(input: RequestInfo | URL, init?: RequestInit) {
+  window.fetch = function (input: RequestInfo | URL, init?: RequestInit) {
     const url = typeof input === 'string' ? input : input.toString();
     const requestId = `${Date.now()}-${Math.random()}`;
-    
+
     activeRequests.add(requestId);
-    
+
     if (activeRequests.size > 100) {
       console.warn(`🚨 High number of active fetch requests: ${activeRequests.size}`);
     }
@@ -90,19 +90,19 @@ export function initializeMemoryLeakDetection() {
   // Monitor page unload to detect potential leaks
   window.addEventListener('beforeunload', () => {
     const leaks = [];
-    
+
     if (activeTimers.size > 0) {
       leaks.push(`${activeTimers.size} active timers`);
     }
-    
+
     if (activeIntervals.size > 0) {
       leaks.push(`${activeIntervals.size} active intervals`);
     }
-    
+
     if (activeRequests.size > 0) {
       leaks.push(`${activeRequests.size} active requests`);
     }
-    
+
     if (leaks.length > 0) {
       console.warn('🚨 Potential memory leaks detected on page unload:', leaks.join(', '));
     }
@@ -115,9 +115,9 @@ export function initializeMemoryLeakDetection() {
       const usedMB = (memory.usedJSHeapSize / 1024 / 1024).toFixed(2);
       const totalMB = (memory.totalJSHeapSize / 1024 / 1024).toFixed(2);
       const limitMB = (memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2);
-      
+
       console.log(`📊 Memory: ${usedMB}MB used, ${totalMB}MB total, ${limitMB}MB limit`);
-      
+
       // Check for rapid memory growth
       const pressure = memory.usedJSHeapSize / memory.jsHeapSizeLimit;
       if (pressure > 0.8) {
@@ -137,7 +137,7 @@ export function reportMemoryLeak(componentName: string, leakType: string, detail
 
   const monitor = MemoryLeakMonitor.getInstance();
   monitor.reportPotentialLeak(componentName, leakType, details);
-  
+
   console.warn(`🔴 Memory leak reported: ${componentName} - ${leakType}`, details);
 }
 
@@ -145,21 +145,21 @@ export function reportMemoryLeak(componentName: string, leakType: string, detail
  * Higher-order function to wrap components with automatic memory tracking
  */
 export function withMemoryTracking(componentName: string) {
-  return function<T extends React.ComponentType<any>>(Component: T): T {
+  return function <T extends React.ComponentType<any>>(Component: T): T {
     const WrappedComponent = (props: any) => {
       const monitor = MemoryLeakMonitor.getInstance();
-      
+
       React.useEffect(() => {
         monitor.trackComponent(componentName);
-        
+
         return () => {
           monitor.untrackComponent(componentName);
         };
       }, []);
-      
+
       return React.createElement(Component, props);
     };
-    
+
     WrappedComponent.displayName = `withMemoryTracking(${componentName})`;
     return WrappedComponent as T;
   };
@@ -170,11 +170,11 @@ export function withMemoryTracking(componentName: string) {
  */
 export function useComponentMemoryTracking(componentName: string) {
   const monitor = MemoryLeakMonitor.getInstance();
-  
+
   React.useEffect(() => {
     if (MEMORY_LEAK_DETECTION_ENABLED) {
       monitor.trackComponent(componentName);
-      
+
       return () => {
         monitor.untrackComponent(componentName);
       };

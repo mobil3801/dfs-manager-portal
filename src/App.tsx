@@ -34,6 +34,7 @@ import SecuritySettings from './pages/Admin/SecuritySettings';
 import SMSAlertManagement from './pages/Admin/SMSAlertManagement';
 import ErrorRecoveryPage from './pages/Admin/ErrorRecoveryPage';
 import MemoryMonitoring from './pages/Admin/MemoryMonitoring';
+import DatabaseMonitoring from './pages/Admin/DatabaseMonitoring';
 import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient();
@@ -106,6 +107,7 @@ function App() {
               <Route path="admin/sms-alerts" element={<SMSAlertManagement />} />
               <Route path="admin/error-recovery" element={<ErrorRecoveryPage />} />
               <Route path="admin/memory-monitoring" element={<MemoryMonitoring />} />
+              <Route path="admin/database-monitoring" element={<DatabaseMonitoring />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />

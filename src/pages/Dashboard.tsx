@@ -7,6 +7,7 @@ import SalesChart from '@/components/SalesChart';
 import SMSAlertStatus from '@/components/SMSAlertStatus';
 import ErrorMonitoringWidget from '@/components/ErrorMonitoringWidget';
 import MemoryMonitoringWidget from '@/components/MemoryMonitoringWidget';
+import DatabaseConnectionAlert from '@/components/DatabaseConnectionAlert';
 import {
   Package,
   Users,
@@ -497,6 +498,9 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Database Connection Alert */}
+      <DatabaseConnectionAlert connections={85} max={100} className="mb-6" />
+
       {/* Welcome Section */}
       <div className="bg-gradient-to-r from-brand-800 to-brand-900 rounded-lg p-6 text-white">
         <div className="text-center">

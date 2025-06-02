@@ -4,17 +4,17 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  ChevronDown, 
-  CheckCircle, 
-  AlertTriangle, 
-  Code, 
+import {
+  ChevronDown,
+  CheckCircle,
+  AlertTriangle,
+  Code,
   Lightbulb,
   BookOpen,
   Target,
   Shield,
-  Zap
-} from 'lucide-react';
+  Zap } from
+'lucide-react';
 
 interface CodeExample {
   title: string;
@@ -38,10 +38,10 @@ const MemoryLeakPreventionGuide: React.FC = () => {
   };
 
   const commonPatterns: CodeExample[] = [
-    {
-      title: "Timer Cleanup",
-      description: "Always clear timers when components unmount",
-      badCode: `// ❌ BAD: Timer not cleared
+  {
+    title: "Timer Cleanup",
+    description: "Always clear timers when components unmount",
+    badCode: `// ❌ BAD: Timer not cleared
 function BadComponent() {
   const [count, setCount] = useState(0);
   
@@ -53,7 +53,7 @@ function BadComponent() {
   
   return <div>{count}</div>;
 }`,
-      goodCode: `// ✅ GOOD: Timer properly cleaned up
+    goodCode: `// ✅ GOOD: Timer properly cleaned up
 function GoodComponent() {
   const [count, setCount] = useState(0);
   
@@ -67,12 +67,12 @@ function GoodComponent() {
   
   return <div>{count}</div>;
 }`,
-      explanation: "Timers continue running even after component unmount unless explicitly cleared, causing memory leaks and potential state updates on unmounted components."
-    },
-    {
-      title: "Event Listener Cleanup",
-      description: "Remove event listeners to prevent memory leaks",
-      badCode: `// ❌ BAD: Event listener not removed
+    explanation: "Timers continue running even after component unmount unless explicitly cleared, causing memory leaks and potential state updates on unmounted components."
+  },
+  {
+    title: "Event Listener Cleanup",
+    description: "Remove event listeners to prevent memory leaks",
+    badCode: `// ❌ BAD: Event listener not removed
 function BadComponent() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   
@@ -87,7 +87,7 @@ function BadComponent() {
   
   return <div>Mouse: {position.x}, {position.y}</div>;
 }`,
-      goodCode: `// ✅ GOOD: Event listener properly removed
+    goodCode: `// ✅ GOOD: Event listener properly removed
 function GoodComponent() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   
@@ -105,12 +105,12 @@ function GoodComponent() {
   
   return <div>Mouse: {position.x}, {position.y}</div>;
 }`,
-      explanation: "Event listeners hold references to components, preventing garbage collection. Always remove them in cleanup functions."
-    },
-    {
-      title: "Async Operations",
-      description: "Cancel async operations when component unmounts",
-      badCode: `// ❌ BAD: Async operation not cancelled
+    explanation: "Event listeners hold references to components, preventing garbage collection. Always remove them in cleanup functions."
+  },
+  {
+    title: "Async Operations",
+    description: "Cancel async operations when component unmounts",
+    badCode: `// ❌ BAD: Async operation not cancelled
 function BadComponent({ userId }) {
   const [user, setUser] = useState(null);
   
@@ -126,7 +126,7 @@ function BadComponent({ userId }) {
   
   return user ? <div>{user.name}</div> : <div>Loading...</div>;
 }`,
-      goodCode: `// ✅ GOOD: Async operation cancelled on unmount
+    goodCode: `// ✅ GOOD: Async operation cancelled on unmount
 function GoodComponent({ userId }) {
   const [user, setUser] = useState(null);
   
@@ -154,55 +154,55 @@ function GoodComponent({ userId }) {
   
   return user ? <div>{user.name}</div> : <div>Loading...</div>;
 }`,
-      explanation: "Async operations can complete after component unmount, leading to state updates on unmounted components. Use AbortController to cancel them."
-    }
-  ];
+    explanation: "Async operations can complete after component unmount, leading to state updates on unmounted components. Use AbortController to cancel them."
+  }];
+
 
   const bestPractices = [
-    {
-      title: "Use Memory Leak Detection Hooks",
-      description: "Implement our custom hooks for automatic cleanup",
-      icon: <Shield className="h-5 w-5" />,
-      tips: [
-        "Use useMemoryLeakDetector for automatic resource tracking",
-        "Implement useSafeAsync for protected async operations",
-        "Wrap components with withMemoryLeakDetection HOC"
-      ]
-    },
-    {
-      title: "Monitor Component Lifecycle",
-      description: "Track mount/unmount cycles and resource usage",
-      icon: <Target className="h-5 w-5" />,
-      tips: [
-        "Use refs to track component mount status",
-        "Log resource allocation and cleanup",
-        "Monitor memory usage during development"
-      ]
-    },
-    {
-      title: "Implement Proper Error Boundaries",
-      description: "Catch and handle errors to prevent resource leaks",
-      icon: <Zap className="h-5 w-5" />,
-      tips: [
-        "Use error boundaries to prevent cascading failures",
-        "Clean up resources in error scenarios",
-        "Log errors with memory context"
-      ]
-    }
-  ];
+  {
+    title: "Use Memory Leak Detection Hooks",
+    description: "Implement our custom hooks for automatic cleanup",
+    icon: <Shield className="h-5 w-5" />,
+    tips: [
+    "Use useMemoryLeakDetector for automatic resource tracking",
+    "Implement useSafeAsync for protected async operations",
+    "Wrap components with withMemoryLeakDetection HOC"]
+
+  },
+  {
+    title: "Monitor Component Lifecycle",
+    description: "Track mount/unmount cycles and resource usage",
+    icon: <Target className="h-5 w-5" />,
+    tips: [
+    "Use refs to track component mount status",
+    "Log resource allocation and cleanup",
+    "Monitor memory usage during development"]
+
+  },
+  {
+    title: "Implement Proper Error Boundaries",
+    description: "Catch and handle errors to prevent resource leaks",
+    icon: <Zap className="h-5 w-5" />,
+    tips: [
+    "Use error boundaries to prevent cascading failures",
+    "Clean up resources in error scenarios",
+    "Log errors with memory context"]
+
+  }];
+
 
   const checklistItems = [
-    "✅ All timers are cleared in useEffect cleanup",
-    "✅ Event listeners are removed on unmount",
-    "✅ Async operations use AbortController",
-    "✅ Subscriptions are properly unsubscribed",
-    "✅ Large objects are not captured in closures",
-    "✅ State updates check component mount status",
-    "✅ WebSocket connections are closed",
-    "✅ ResizeObserver and IntersectionObserver are disconnected",
-    "✅ File readers and streams are closed",
-    "✅ Animation frames are cancelled"
-  ];
+  "✅ All timers are cleared in useEffect cleanup",
+  "✅ Event listeners are removed on unmount",
+  "✅ Async operations use AbortController",
+  "✅ Subscriptions are properly unsubscribed",
+  "✅ Large objects are not captured in closures",
+  "✅ State updates check component mount status",
+  "✅ WebSocket connections are closed",
+  "✅ ResizeObserver and IntersectionObserver are disconnected",
+  "✅ File readers and streams are closed",
+  "✅ Animation frames are cancelled"];
+
 
   return (
     <div className="space-y-6">
@@ -232,13 +232,13 @@ function GoodComponent({ userId }) {
           </Alert>
 
           <div className="space-y-4">
-            {commonPatterns.map((pattern, index) => (
-              <Card key={index}>
+            {commonPatterns.map((pattern, index) =>
+            <Card key={index}>
                 <div>
-                  <CardHeader 
-                    className="cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => toggleSection(`pattern-${index}`)}
-                  >
+                  <CardHeader
+                  className="cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => toggleSection(`pattern-${index}`)}>
+
                     <div className="flex items-center justify-between">
                       <div>
                         <CardTitle className="flex items-center gap-2">
@@ -248,12 +248,12 @@ function GoodComponent({ userId }) {
                         <CardDescription>{pattern.description}</CardDescription>
                       </div>
                       <ChevronDown className={`h-4 w-4 transition-transform ${
-                        openSections.has(`pattern-${index}`) ? 'rotate-180' : ''
-                      }`} />
+                    openSections.has(`pattern-${index}`) ? 'rotate-180' : ''}`
+                    } />
                     </div>
                   </CardHeader>
-                  {openSections.has(`pattern-${index}`) && (
-                    <CardContent className="space-y-4">
+                  {openSections.has(`pattern-${index}`) &&
+                <CardContent className="space-y-4">
                       <div className="grid md:grid-cols-2 gap-4">
                         <div>
                           <h4 className="font-semibold text-red-600 mb-2">❌ Problematic Code</h4>
@@ -273,17 +273,17 @@ function GoodComponent({ userId }) {
                         <AlertDescription>{pattern.explanation}</AlertDescription>
                       </Alert>
                     </CardContent>
-                  )}
+                }
                 </div>
               </Card>
-            ))}
+            )}
           </div>
         </TabsContent>
 
         <TabsContent value="practices" className="space-y-4">
           <div className="grid gap-4">
-            {bestPractices.map((practice, index) => (
-              <Card key={index}>
+            {bestPractices.map((practice, index) =>
+            <Card key={index}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     {practice.icon}
@@ -293,16 +293,16 @@ function GoodComponent({ userId }) {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {practice.tips.map((tip, tipIndex) => (
-                      <li key={tipIndex} className="flex items-start gap-2">
+                    {practice.tips.map((tip, tipIndex) =>
+                  <li key={tipIndex} className="flex items-start gap-2">
                         <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                         <span className="text-sm">{tip}</span>
                       </li>
-                    ))}
+                  )}
                   </ul>
                 </CardContent>
               </Card>
-            ))}
+            )}
           </div>
         </TabsContent>
 
@@ -319,12 +319,12 @@ function GoodComponent({ userId }) {
             </CardHeader>
             <CardContent>
               <div className="grid gap-3">
-                {checklistItems.map((item, index) => (
-                  <div key={index} className="flex items-start gap-2 p-2 rounded hover:bg-muted/50">
+                {checklistItems.map((item, index) =>
+                <div key={index} className="flex items-start gap-2 p-2 rounded hover:bg-muted/50">
                     <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                     <span className="text-sm">{item.replace('✅ ', '')}</span>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -418,8 +418,8 @@ function MyComponent() {
           </div>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default MemoryLeakPreventionGuide;

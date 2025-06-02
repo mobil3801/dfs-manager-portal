@@ -5,18 +5,18 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Activity, 
-  AlertTriangle, 
-  BarChart3, 
-  RefreshCw, 
-  Trash2, 
+import {
+  Activity,
+  AlertTriangle,
+  BarChart3,
+  RefreshCw,
+  Trash2,
   Download,
   TrendingUp,
   Cpu,
   HardDrive,
-  Zap
-} from 'lucide-react';
+  Zap } from
+'lucide-react';
 import { MemoryLeakMonitor } from '@/services/memoryLeakMonitor';
 import { useToast } from '@/hooks/use-toast';
 
@@ -38,7 +38,7 @@ interface ComponentTracker {
 const MemoryLeakDashboard: React.FC = () => {
   const [memoryInfo, setMemoryInfo] = useState<any>(null);
   const [components, setComponents] = useState<ComponentTracker[]>([]);
-  const [memoryHistory, setMemoryHistory] = useState<{ timestamp: number; memory: MemoryStats }[]>([]);
+  const [memoryHistory, setMemoryHistory] = useState<{timestamp: number;memory: MemoryStats;}[]>([]);
   const [isMonitoring, setIsMonitoring] = useState(true);
   const { toast } = useToast();
 
@@ -56,9 +56,9 @@ const MemoryLeakDashboard: React.FC = () => {
 
   useEffect(() => {
     refreshData();
-    
+
     const interval = setInterval(refreshData, 5000); // Refresh every 5 seconds
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -83,7 +83,7 @@ const MemoryLeakDashboard: React.FC = () => {
     if (success) {
       toast({
         title: "Garbage Collection Triggered",
-        description: "Manual garbage collection has been executed.",
+        description: "Manual garbage collection has been executed."
       });
       setTimeout(refreshData, 1000); // Refresh after GC
     } else {
@@ -99,7 +99,7 @@ const MemoryLeakDashboard: React.FC = () => {
     monitor.resetBaseline();
     toast({
       title: "Baseline Reset",
-      description: "Memory monitoring baseline has been reset.",
+      description: "Memory monitoring baseline has been reset."
     });
     refreshData();
   };
@@ -115,16 +115,16 @@ const MemoryLeakDashboard: React.FC = () => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
+
     toast({
       title: "Report Downloaded",
-      description: "Memory leak report has been saved to your downloads.",
+      description: "Memory leak report has been saved to your downloads."
     });
   };
 
-  const suspiciousComponents = components
-    .filter(comp => comp.leakReports.length > 0)
-    .sort((a, b) => b.leakReports.length - a.leakReports.length);
+  const suspiciousComponents = components.
+  filter((comp) => comp.leakReports.length > 0).
+  sort((a, b) => b.leakReports.length - a.leakReports.length);
 
   if (!memoryInfo) {
     return (
@@ -135,8 +135,8 @@ const MemoryLeakDashboard: React.FC = () => {
             Loading memory data...
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -232,15 +232,15 @@ const MemoryLeakDashboard: React.FC = () => {
       </div>
 
       {/* Memory Pressure Alert */}
-      {memoryInfo.pressure > 0.7 && (
-        <Alert>
+      {memoryInfo.pressure > 0.7 &&
+      <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
             High memory pressure detected ({(memoryInfo.pressure * 100).toFixed(1)}%). 
             Consider triggering garbage collection or investigating memory leaks.
           </AlertDescription>
         </Alert>
-      )}
+      }
 
       {/* Tabs for detailed views */}
       <Tabs defaultValue="components" className="space-y-4">
@@ -248,11 +248,11 @@ const MemoryLeakDashboard: React.FC = () => {
           <TabsTrigger value="components">Component Tracking</TabsTrigger>
           <TabsTrigger value="leaks">
             Leak Reports
-            {suspiciousComponents.length > 0 && (
-              <Badge variant="destructive" className="ml-2">
+            {suspiciousComponents.length > 0 &&
+            <Badge variant="destructive" className="ml-2">
                 {suspiciousComponents.length}
               </Badge>
-            )}
+            }
           </TabsTrigger>
           <TabsTrigger value="history">Memory History</TabsTrigger>
         </TabsList>
@@ -266,22 +266,22 @@ const MemoryLeakDashboard: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {components.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">
+              {components.length === 0 ?
+              <p className="text-center text-muted-foreground py-8">
                   No components are currently being tracked
-                </p>
-              ) : (
-                <div className="space-y-4">
-                  {components.map((component, index) => (
-                    <div key={index} className="border rounded-lg p-4">
+                </p> :
+
+              <div className="space-y-4">
+                  {components.map((component, index) =>
+                <div key={index} className="border rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
                         <h3 className="font-semibold">{component.name}</h3>
                         <div className="flex gap-2">
-                          {component.leakReports.length > 0 && (
-                            <Badge variant="destructive">
+                          {component.leakReports.length > 0 &&
+                      <Badge variant="destructive">
                               {component.leakReports.length} leaks
                             </Badge>
-                          )}
+                      }
                           <Badge variant={component.unmountTime ? "secondary" : "default"}>
                             {component.unmountTime ? "Unmounted" : "Mounted"}
                           </Badge>
@@ -293,29 +293,29 @@ const MemoryLeakDashboard: React.FC = () => {
                           <span className="text-muted-foreground">Mount Time:</span>
                           <p>{new Date(component.mountTime).toLocaleTimeString()}</p>
                         </div>
-                        {component.unmountTime && (
-                          <div>
+                        {component.unmountTime &&
+                    <div>
                             <span className="text-muted-foreground">Unmount Time:</span>
                             <p>{new Date(component.unmountTime).toLocaleTimeString()}</p>
                           </div>
-                        )}
-                        {component.memoryUsageOnMount && (
-                          <div>
+                    }
+                        {component.memoryUsageOnMount &&
+                    <div>
                             <span className="text-muted-foreground">Memory on Mount:</span>
                             <p>{formatBytes(component.memoryUsageOnMount.usedJSHeapSize)}</p>
                           </div>
-                        )}
-                        {component.memoryUsageOnUnmount && (
-                          <div>
+                    }
+                        {component.memoryUsageOnUnmount &&
+                    <div>
                             <span className="text-muted-foreground">Memory on Unmount:</span>
                             <p>{formatBytes(component.memoryUsageOnUnmount.usedJSHeapSize)}</p>
                           </div>
-                        )}
+                    }
                       </div>
                     </div>
-                  ))}
+                )}
                 </div>
-              )}
+              }
             </CardContent>
           </Card>
         </TabsContent>
@@ -329,15 +329,15 @@ const MemoryLeakDashboard: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {suspiciousComponents.length === 0 ? (
-                <div className="text-center py-8">
+              {suspiciousComponents.length === 0 ?
+              <div className="text-center py-8">
                   <div className="text-green-600 mb-2">✅ No memory leaks detected</div>
                   <p className="text-muted-foreground">All components are clean!</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {suspiciousComponents.map((component, index) => (
-                    <div key={index} className="border border-red-200 rounded-lg p-4 bg-red-50">
+                </div> :
+
+              <div className="space-y-4">
+                  {suspiciousComponents.map((component, index) =>
+                <div key={index} className="border border-red-200 rounded-lg p-4 bg-red-50">
                       <div className="flex items-center justify-between mb-2">
                         <h3 className="font-semibold text-red-900">{component.name}</h3>
                         <Badge variant="destructive">
@@ -346,26 +346,26 @@ const MemoryLeakDashboard: React.FC = () => {
                       </div>
                       
                       <div className="space-y-2">
-                        {component.leakReports.map((report, reportIndex) => (
-                          <div key={reportIndex} className="text-sm bg-white rounded p-2">
+                        {component.leakReports.map((report, reportIndex) =>
+                    <div key={reportIndex} className="text-sm bg-white rounded p-2">
                             <div className="flex items-center justify-between">
                               <span className="font-medium">{report.leakType}</span>
                               <span className="text-muted-foreground">
                                 {new Date(report.timestamp).toLocaleTimeString()}
                               </span>
                             </div>
-                            {report.metadata && (
-                              <pre className="mt-1 text-xs text-gray-600 bg-gray-100 p-1 rounded overflow-x-auto">
+                            {report.metadata &&
+                      <pre className="mt-1 text-xs text-gray-600 bg-gray-100 p-1 rounded overflow-x-auto">
                                 {JSON.stringify(report.metadata, null, 2)}
                               </pre>
-                            )}
+                      }
                           </div>
-                        ))}
+                    )}
                       </div>
                     </div>
-                  ))}
+                )}
                 </div>
-              )}
+              }
             </CardContent>
           </Card>
         </TabsContent>
@@ -379,17 +379,17 @@ const MemoryLeakDashboard: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {memoryHistory.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">
+              {memoryHistory.length === 0 ?
+              <p className="text-center text-muted-foreground py-8">
                   No memory history data available
-                </p>
-              ) : (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {memoryHistory
-                    .slice(-20) // Show last 20 entries
-                    .reverse()
-                    .map((entry, index) => (
-                      <div key={index} className="flex items-center justify-between py-2 border-b">
+                </p> :
+
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {memoryHistory.
+                slice(-20) // Show last 20 entries
+                .reverse().
+                map((entry, index) =>
+                <div key={index} className="flex items-center justify-between py-2 border-b">
                         <span className="text-sm text-muted-foreground">
                           {new Date(entry.timestamp).toLocaleString()}
                         </span>
@@ -398,19 +398,19 @@ const MemoryLeakDashboard: React.FC = () => {
                             {formatBytes(entry.memory.usedJSHeapSize)}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {((entry.memory.usedJSHeapSize / entry.memory.jsHeapSizeLimit) * 100).toFixed(1)}% of limit
+                            {(entry.memory.usedJSHeapSize / entry.memory.jsHeapSizeLimit * 100).toFixed(1)}% of limit
                           </div>
                         </div>
                       </div>
-                    ))}
+                )}
                 </div>
-              )}
+              }
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default MemoryLeakDashboard;

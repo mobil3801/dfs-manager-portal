@@ -4,28 +4,28 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Play, 
-  Square, 
-  AlertTriangle, 
-  CheckCircle, 
+import {
+  Play,
+  Square,
+  AlertTriangle,
+  CheckCircle,
   Activity,
   Timer,
   MousePointer,
   Zap,
-  Database
-} from 'lucide-react';
+  Database } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 // Simple demo component without complex dependencies
-const BadComponent: React.FC<{ onStop: () => void }> = ({ onStop }) => {
+const BadComponent: React.FC<{onStop: () => void;}> = ({ onStop }) => {
   const [count, setCount] = useState(0);
   const { toast } = useToast();
 
   useEffect(() => {
     // ❌ Memory leak: Timer not cleared
     const interval = setInterval(() => {
-      setCount(prev => prev + 1);
+      setCount((prev) => prev + 1);
     }, 1000);
 
     // Missing cleanup - intentional for demo
@@ -52,19 +52,19 @@ const BadComponent: React.FC<{ onStop: () => void }> = ({ onStop }) => {
           This component has active timers that won't be cleaned up!
         </AlertDescription>
       </Alert>
-    </div>
-  );
+    </div>);
+
 };
 
 // Simple good component
-const GoodComponent: React.FC<{ onStop: () => void }> = ({ onStop }) => {
+const GoodComponent: React.FC<{onStop: () => void;}> = ({ onStop }) => {
   const [count, setCount] = useState(0);
   const { toast } = useToast();
 
   useEffect(() => {
     // ✅ Safe timer with cleanup
     const timer = setTimeout(() => {
-      setCount(prev => prev + 1);
+      setCount((prev) => prev + 1);
     }, 1000);
 
     // Proper cleanup
@@ -75,7 +75,7 @@ const GoodComponent: React.FC<{ onStop: () => void }> = ({ onStop }) => {
     if (count > 10) {
       toast({
         title: "Memory Safe Demo",
-        description: "Timer has been safely managed for 10 seconds!",
+        description: "Timer has been safely managed for 10 seconds!"
       });
       onStop();
     }
@@ -91,8 +91,8 @@ const GoodComponent: React.FC<{ onStop: () => void }> = ({ onStop }) => {
           This component properly cleans up its resources!
         </AlertDescription>
       </Alert>
-    </div>
-  );
+    </div>);
+
 };
 
 const MemoryLeakDemo: React.FC = () => {
@@ -101,7 +101,7 @@ const MemoryLeakDemo: React.FC = () => {
 
   const startBadDemo = () => {
     setBadComponentActive(true);
-    
+
     setTimeout(() => {
       setBadComponentActive(false);
     }, 15000); // Auto-stop after 15 seconds
@@ -109,7 +109,7 @@ const MemoryLeakDemo: React.FC = () => {
 
   const startGoodDemo = () => {
     setGoodComponentActive(true);
-    
+
     setTimeout(() => {
       setGoodComponentActive(false);
     }, 15000); // Auto-stop after 15 seconds
@@ -153,35 +153,35 @@ const MemoryLeakDemo: React.FC = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex gap-2">
-                  <Button 
-                    onClick={startBadDemo} 
+                  <Button
+                    onClick={startBadDemo}
                     disabled={badComponentActive}
                     variant="destructive"
-                    size="sm"
-                  >
+                    size="sm">
+
                     <Play className="h-4 w-4 mr-2" />
                     Start Leak Demo
                   </Button>
-                  <Button 
-                    onClick={stopBadDemo} 
+                  <Button
+                    onClick={stopBadDemo}
                     disabled={!badComponentActive}
                     variant="outline"
-                    size="sm"
-                  >
+                    size="sm">
+
                     <Square className="h-4 w-4 mr-2" />
                     Stop
                   </Button>
-                  {badComponentActive && (
-                    <Badge variant="destructive">
+                  {badComponentActive &&
+                  <Badge variant="destructive">
                       <Activity className="h-3 w-3 mr-1" />
                       Active Leaks
                     </Badge>
-                  )}
+                  }
                 </div>
                 
-                {badComponentActive && (
-                  <BadComponent onStop={stopBadDemo} />
-                )}
+                {badComponentActive &&
+                <BadComponent onStop={stopBadDemo} />
+                }
               </CardContent>
             </Card>
 
@@ -198,34 +198,34 @@ const MemoryLeakDemo: React.FC = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex gap-2">
-                  <Button 
-                    onClick={startGoodDemo} 
+                  <Button
+                    onClick={startGoodDemo}
                     disabled={goodComponentActive}
-                    size="sm"
-                  >
+                    size="sm">
+
                     <Play className="h-4 w-4 mr-2" />
                     Start Safe Demo
                   </Button>
-                  <Button 
-                    onClick={stopGoodDemo} 
+                  <Button
+                    onClick={stopGoodDemo}
                     disabled={!goodComponentActive}
                     variant="outline"
-                    size="sm"
-                  >
+                    size="sm">
+
                     <Square className="h-4 w-4 mr-2" />
                     Stop
                   </Button>
-                  {goodComponentActive && (
-                    <Badge variant="default">
+                  {goodComponentActive &&
+                  <Badge variant="default">
                       <CheckCircle className="h-3 w-3 mr-1" />
                       Protected
                     </Badge>
-                  )}
+                  }
                 </div>
                 
-                {goodComponentActive && (
-                  <GoodComponent onStop={stopGoodDemo} />
-                )}
+                {goodComponentActive &&
+                <GoodComponent onStop={stopGoodDemo} />
+                }
               </CardContent>
             </Card>
           </div>
@@ -304,8 +304,8 @@ const MemoryLeakDemo: React.FC = () => {
           </div>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default MemoryLeakDemo;

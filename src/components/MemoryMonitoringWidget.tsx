@@ -3,19 +3,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Activity, 
-  AlertTriangle, 
-  CheckCircle, 
+import {
+  Activity,
+  AlertTriangle,
+  CheckCircle,
   TrendingUp,
   Zap,
-  Eye
-} from 'lucide-react';
+  Eye } from
+'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { MemoryLeakMonitor } from '@/services/memoryLeakMonitor';
 
 interface MemoryInfo {
-  current: { usedJSHeapSize: number; jsHeapSizeLimit: number } | null;
+  current: {usedJSHeapSize: number;jsHeapSizeLimit: number;} | null;
   pressure: number;
   componentsTracked: number;
   totalLeakReports: number;
@@ -31,18 +31,18 @@ const MemoryMonitoringWidget: React.FC = () => {
     // Check if memory monitoring is available
     if (typeof window !== 'undefined' && window.performance?.memory) {
       setIsAvailable(true);
-      
+
       // Get initial memory info
       const monitor = MemoryLeakMonitor.getInstance();
       const info = monitor.getCurrentMemoryInfo();
       setMemoryInfo(info);
-      
+
       // Set up periodic updates
       const interval = setInterval(() => {
         const updatedInfo = monitor.getCurrentMemoryInfo();
         setMemoryInfo(updatedInfo);
       }, 10000); // Update every 10 seconds
-      
+
       return () => clearInterval(interval);
     } else {
       setIsAvailable(false);
@@ -55,10 +55,10 @@ const MemoryMonitoringWidget: React.FC = () => {
 
   const getMemoryStatus = () => {
     if (!memoryInfo || !memoryInfo.current) return { status: 'unknown', color: 'gray' };
-    
+
     const pressure = memoryInfo.pressure;
     const hasLeaks = memoryInfo.totalLeakReports > 0;
-    
+
     if (hasLeaks && pressure > 0.7) {
       return { status: 'critical', color: 'red', icon: AlertTriangle };
     } else if (hasLeaks || pressure > 0.7) {
@@ -91,8 +91,8 @@ const MemoryMonitoringWidget: React.FC = () => {
             <Badge variant="secondary">Disabled</Badge>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   if (!memoryInfo) {
@@ -109,8 +109,8 @@ const MemoryMonitoringWidget: React.FC = () => {
             <p className="text-sm text-gray-500">Loading memory data...</p>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   const status = getMemoryStatus();
@@ -124,10 +124,10 @@ const MemoryMonitoringWidget: React.FC = () => {
             <Activity className="h-5 w-5" />
             Memory Monitor
           </CardTitle>
-          <Badge 
+          <Badge
             variant={status.color === 'green' ? 'default' : 'destructive'}
-            className="capitalize"
-          >
+            className="capitalize">
+
             <StatusIcon className="h-3 w-3 mr-1" />
             {status.status}
           </Badge>
@@ -138,28 +138,28 @@ const MemoryMonitoringWidget: React.FC = () => {
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Memory Usage */}
-        {memoryInfo.current && (
-          <div>
+        {memoryInfo.current &&
+        <div>
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium">Memory Usage</span>
               <span className="text-sm text-muted-foreground">
                 {formatBytes(memoryInfo.current.usedJSHeapSize)}
               </span>
             </div>
-            <Progress 
-              value={memoryInfo.pressure * 100} 
-              className={`h-2 ${
-                memoryInfo.pressure > 0.8 ? 'text-red-600' :
-                memoryInfo.pressure > 0.6 ? 'text-yellow-600' : 
-                'text-green-600'
-              }`}
-            />
+            <Progress
+            value={memoryInfo.pressure * 100}
+            className={`h-2 ${
+            memoryInfo.pressure > 0.8 ? 'text-red-600' :
+            memoryInfo.pressure > 0.6 ? 'text-yellow-600' :
+            'text-green-600'}`
+            } />
+
             <div className="flex justify-between text-xs text-muted-foreground mt-1">
               <span>0MB</span>
               <span>{formatBytes(memoryInfo.current.jsHeapSizeLimit)}</span>
             </div>
           </div>
-        )}
+        }
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-3 text-sm">
@@ -175,13 +175,13 @@ const MemoryMonitoringWidget: React.FC = () => {
           <div className="bg-white/60 rounded-lg p-3">
             <div className="flex items-center gap-2 mb-1">
               <AlertTriangle className={`h-4 w-4 ${
-                memoryInfo.totalLeakReports > 0 ? 'text-red-600' : 'text-green-600'
-              }`} />
+              memoryInfo.totalLeakReports > 0 ? 'text-red-600' : 'text-green-600'}`
+              } />
               <span className="font-medium">Leaks</span>
             </div>
             <div className={`text-lg font-bold ${
-              memoryInfo.totalLeakReports > 0 ? 'text-red-600' : 'text-green-600'
-            }`}>
+            memoryInfo.totalLeakReports > 0 ? 'text-red-600' : 'text-green-600'}`
+            }>
               {memoryInfo.totalLeakReports}
             </div>
             <div className="text-xs text-muted-foreground">Detected</div>
@@ -189,8 +189,8 @@ const MemoryMonitoringWidget: React.FC = () => {
         </div>
 
         {/* Memory Growth Alert */}
-        {memoryInfo.growth > 50 * 1024 * 1024 && ( // 50MB threshold
-          <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+        {memoryInfo.growth > 50 * 1024 * 1024 && // 50MB threshold
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
             <div className="flex items-center gap-2 mb-1">
               <AlertTriangle className="h-4 w-4 text-orange-600" />
               <span className="text-sm font-medium text-orange-800">Memory Growth Alert</span>
@@ -199,11 +199,11 @@ const MemoryMonitoringWidget: React.FC = () => {
               Memory usage has grown by {formatBytes(memoryInfo.growth)} since baseline
             </p>
           </div>
-        )}
+        }
 
         {/* Leak Reports Alert */}
-        {memoryInfo.totalLeakReports > 0 && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+        {memoryInfo.totalLeakReports > 0 &&
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3">
             <div className="flex items-center gap-2 mb-1">
               <AlertTriangle className="h-4 w-4 text-red-600" />
               <span className="text-sm font-medium text-red-800">Leak Detection</span>
@@ -212,11 +212,11 @@ const MemoryMonitoringWidget: React.FC = () => {
               {memoryInfo.totalLeakReports} potential memory leak(s) detected
             </p>
           </div>
-        )}
+        }
 
         {/* Success State */}
-        {memoryInfo.totalLeakReports === 0 && memoryInfo.pressure < 0.5 && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+        {memoryInfo.totalLeakReports === 0 && memoryInfo.pressure < 0.5 &&
+        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
             <div className="flex items-center gap-2 mb-1">
               <CheckCircle className="h-4 w-4 text-green-600" />
               <span className="text-sm font-medium text-green-800">All Clear</span>
@@ -225,34 +225,34 @@ const MemoryMonitoringWidget: React.FC = () => {
               No memory leaks detected, low memory pressure
             </p>
           </div>
-        )}
+        }
 
         {/* Action Buttons */}
         <div className="flex gap-2 pt-2">
-          <Button 
+          <Button
             onClick={handleViewDetails}
-            size="sm" 
+            size="sm"
             variant="outline"
-            className="flex-1"
-          >
+            className="flex-1">
+
             <Eye className="h-3 w-3 mr-1" />
             View Details
           </Button>
-          {memoryInfo.totalLeakReports > 0 && (
-            <Button 
-              onClick={() => navigate('/admin/memory-monitoring?tab=guide')}
-              size="sm"
-              variant="destructive"
-              className="flex-1"
-            >
+          {memoryInfo.totalLeakReports > 0 &&
+          <Button
+            onClick={() => navigate('/admin/memory-monitoring?tab=guide')}
+            size="sm"
+            variant="destructive"
+            className="flex-1">
+
               <Zap className="h-3 w-3 mr-1" />
               Fix Leaks
             </Button>
-          )}
+          }
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default MemoryMonitoringWidget;

@@ -178,8 +178,8 @@ const MemoryMonitoring: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default MemoryMonitoring;

@@ -66,7 +66,8 @@ const DashboardLayout: React.FC = () => {
   { name: 'System Logs', path: '/admin/logs', icon: <Database className="w-5 h-5" /> },
   { name: 'Security Settings', path: '/admin/security', icon: <Shield className="w-5 h-5" /> },
   { name: 'Error Recovery', path: '/admin/error-recovery', icon: <AlertTriangle className="w-5 h-5" /> },
-  { name: 'Memory Monitoring', path: '/admin/memory-monitoring', icon: <Activity className="w-5 h-5" /> }];
+  { name: 'Memory Monitoring', path: '/admin/memory-monitoring', icon: <Activity className="w-5 h-5" /> },
+  { name: 'Database Monitoring', path: '/admin/database-monitoring', icon: <Database className="w-5 h-5" /> }];
 
 
 
@@ -115,6 +116,7 @@ const DashboardLayout: React.FC = () => {
     if (path.startsWith('/admin/security')) return 'Security Settings';
     if (path.startsWith('/admin/error-recovery')) return 'Error Recovery Center';
     if (path.startsWith('/admin/memory-monitoring')) return 'Memory Leak Monitoring';
+    if (path.startsWith('/admin/database-monitoring')) return 'Database Connection Monitoring';
     if (path.startsWith('/admin')) return 'Site & User Management';
     return 'DFS Manager';
   };

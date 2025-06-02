@@ -29,7 +29,7 @@ export class MemoryLeakMonitor {
   private memoryCheckFrequency = 30000; // 30 seconds
   private isMonitoring = false;
   private baselineMemory: MemoryStats | null = null;
-  private memoryHistory: { timestamp: number; memory: MemoryStats }[] = [];
+  private memoryHistory: {timestamp: number;memory: MemoryStats;}[] = [];
   private maxHistorySize = 100;
 
   private constructor() {
@@ -107,7 +107,7 @@ export class MemoryLeakMonitor {
 
     // Check for memory growth
     const memoryGrowth = currentMemory.usedJSHeapSize - this.baselineMemory.usedJSHeapSize;
-    
+
     if (memoryGrowth > this.maxMemoryGrowth) {
       this.reportGlobalMemoryLeak(currentMemory, memoryGrowth);
     }
@@ -122,20 +122,20 @@ export class MemoryLeakMonitor {
 
   private reportGlobalMemoryLeak(currentMemory: MemoryStats, growth: number): void {
     console.warn(`Potential memory leak detected! Memory grew by ${(growth / 1024 / 1024).toFixed(2)}MB`);
-    
+
     // Report components that might be leaking
-    const suspiciousComponents = Array.from(this.components.entries())
-      .filter(([_, tracker]) => tracker.leakReports.length > 0)
-      .map(([name, tracker]) => ({
-        name,
-        leakCount: tracker.leakReports.length,
-        lastLeakTime: Math.max(...tracker.leakReports.map(r => r.timestamp))
-      }))
-      .sort((a, b) => b.leakCount - a.leakCount);
+    const suspiciousComponents = Array.from(this.components.entries()).
+    filter(([_, tracker]) => tracker.leakReports.length > 0).
+    map(([name, tracker]) => ({
+      name,
+      leakCount: tracker.leakReports.length,
+      lastLeakTime: Math.max(...tracker.leakReports.map((r) => r.timestamp))
+    })).
+    sort((a, b) => b.leakCount - a.leakCount);
 
     if (suspiciousComponents.length > 0) {
       console.group('🔍 Suspicious Components:');
-      suspiciousComponents.forEach(comp => {
+      suspiciousComponents.forEach((comp) => {
         console.log(`${comp.name}: ${comp.leakCount} potential leaks`);
       });
       console.groupEnd();
@@ -153,7 +153,7 @@ export class MemoryLeakMonitor {
 
   trackComponent(componentName: string): void {
     const memoryStats = this.getCurrentMemoryStats();
-    
+
     if (this.components.has(componentName)) {
       // Component remounting
       const existing = this.components.get(componentName)!;
@@ -185,12 +185,12 @@ export class MemoryLeakMonitor {
     tracker.memoryUsageOnUnmount = memoryStats;
 
     const lifecycleTime = tracker.unmountTime - tracker.mountTime;
-    
+
     // Check for memory growth during component lifecycle
     if (tracker.memoryUsageOnMount && memoryStats) {
       const memoryDelta = memoryStats.usedJSHeapSize - tracker.memoryUsageOnMount.usedJSHeapSize;
-      
-      if (memoryDelta > 5 * 1024 * 1024) { // 5MB threshold
+
+      if (memoryDelta > 5 * 1024 * 1024) {// 5MB threshold
         console.warn(`Component ${componentName} may have caused memory growth: ${(memoryDelta / 1024 / 1024).toFixed(2)}MB`);
       }
     }
@@ -252,7 +252,7 @@ export class MemoryLeakMonitor {
     return Array.from(this.components.values());
   }
 
-  getMemoryHistory(): { timestamp: number; memory: MemoryStats }[] {
+  getMemoryHistory(): {timestamp: number;memory: MemoryStats;}[] {
     return [...this.memoryHistory];
   }
 
@@ -265,12 +265,12 @@ export class MemoryLeakMonitor {
     totalLeakReports: number;
   } {
     const current = this.getCurrentMemoryStats();
-    const growth = current && this.baselineMemory 
-      ? current.usedJSHeapSize - this.baselineMemory.usedJSHeapSize 
-      : 0;
+    const growth = current && this.baselineMemory ?
+    current.usedJSHeapSize - this.baselineMemory.usedJSHeapSize :
+    0;
     const pressure = current ? current.usedJSHeapSize / current.jsHeapSizeLimit : 0;
-    const totalLeakReports = Array.from(this.components.values())
-      .reduce((total, tracker) => total + tracker.leakReports.length, 0);
+    const totalLeakReports = Array.from(this.components.values()).
+    reduce((total, tracker) => total + tracker.leakReports.length, 0);
 
     return {
       current,
@@ -303,9 +303,9 @@ export class MemoryLeakMonitor {
   // Generate memory report
   generateReport(): string {
     const info = this.getCurrentMemoryInfo();
-    const suspiciousComponents = Array.from(this.components.values())
-      .filter(tracker => tracker.leakReports.length > 0)
-      .sort((a, b) => b.leakReports.length - a.leakReports.length);
+    const suspiciousComponents = Array.from(this.components.values()).
+    filter((tracker) => tracker.leakReports.length > 0).
+    sort((a, b) => b.leakReports.length - a.leakReports.length);
 
     const report = `
 Memory Leak Detection Report
@@ -323,15 +323,15 @@ Components Tracked: ${info.componentsTracked}
 Total Leak Reports: ${info.totalLeakReports}
 
 === Suspicious Components ===
-${suspiciousComponents.length === 0 ? 'No suspicious components detected' : 
-  suspiciousComponents.map(comp => 
+${suspiciousComponents.length === 0 ? 'No suspicious components detected' :
+    suspiciousComponents.map((comp) =>
     `${comp.name}: ${comp.leakReports.length} leak reports`
-  ).join('\n')}
+    ).join('\n')}
 
 === Memory History (Last 10 entries) ===
-${this.memoryHistory.slice(-10).map(entry => 
-  `${new Date(entry.timestamp).toISOString()}: ${(entry.memory.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB`
-).join('\n')}
+${this.memoryHistory.slice(-10).map((entry) =>
+    `${new Date(entry.timestamp).toISOString()}: ${(entry.memory.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB`
+    ).join('\n')}
     `;
 
     return report.trim();
