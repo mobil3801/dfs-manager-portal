@@ -35,6 +35,7 @@ import SMSAlertManagement from './pages/Admin/SMSAlertManagement';
 import ErrorRecoveryPage from './pages/Admin/ErrorRecoveryPage';
 import MemoryMonitoring from './pages/Admin/MemoryMonitoring';
 import DatabaseMonitoring from './pages/Admin/DatabaseMonitoring';
+import AuditMonitoring from './pages/Admin/AuditMonitoring';
 import LoginPage from './pages/LoginPage';
 import OnAuthSuccessPage from './pages/OnAuthSuccessPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
@@ -117,6 +118,7 @@ function App() {
               <Route path="admin/error-recovery" element={<ErrorRecoveryPage />} />
               <Route path="admin/memory-monitoring" element={<MemoryMonitoring />} />
               <Route path="admin/database-monitoring" element={<DatabaseMonitoring />} />
+              <Route path="admin/audit-monitoring" element={<AuditMonitoring />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />

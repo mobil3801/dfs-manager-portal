@@ -19,6 +19,8 @@ import BatchEditDialog from '@/components/BatchEditDialog';
 import UserPermissionManager from '@/components/UserPermissionManager';
 import EnhancedUserPermissionManager from '@/components/EnhancedUserPermissionManager';
 import ComprehensivePermissionDialog from '@/components/ComprehensivePermissionDialog';
+import AccessDenied from '@/components/AccessDenied';
+import useAdminAccess from '@/hooks/use-admin-access';
 import {
   Users,
   Plus,
@@ -61,6 +63,7 @@ interface UserProfile {
 }
 
 const UserManagement: React.FC = () => {
+  const { isAdmin } = useAdminAccess();
   const [users, setUsers] = useState<User[]>([]);
   const [userProfiles, setUserProfiles] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -423,6 +426,15 @@ const UserManagement: React.FC = () => {
       return 'Basic access';
     }
   };
+
+  // Check admin access first
+  if (!isAdmin) {
+    return (
+      <AccessDenied
+        feature="User Management"
+        requiredRole="Administrator" />
+    );
+  }
 
   if (loading) {
     return (

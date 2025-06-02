@@ -18,7 +18,7 @@ const ResetPasswordPage: React.FC = () => {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'error' | 'success'>('error');
   const [token, setToken] = useState('');
-  
+
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
@@ -69,16 +69,16 @@ const ResetPasswordPage: React.FC = () => {
         toast({
           title: "Error",
           description: error,
-          variant: "destructive",
+          variant: "destructive"
         });
       } else {
         setMessage('Password reset successfully! Redirecting to login...');
         setMessageType('success');
         toast({
           title: "Success",
-          description: "Password reset successfully",
+          description: "Password reset successfully"
         });
-        
+
         setTimeout(() => {
           navigate('/login');
         }, 3000);
@@ -90,7 +90,7 @@ const ResetPasswordPage: React.FC = () => {
       toast({
         title: "Error",
         description: errorMessage,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
@@ -123,18 +123,18 @@ const ResetPasswordPage: React.FC = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {message && (
-              <Alert className={`mb-4 ${messageType === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-                {messageType === 'success' ? (
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                ) : (
-                  <AlertCircle className="h-4 w-4 text-red-600" />
-                )}
+            {message &&
+            <Alert className={`mb-4 ${messageType === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                {messageType === 'success' ?
+              <CheckCircle2 className="h-4 w-4 text-green-600" /> :
+
+              <AlertCircle className="h-4 w-4 text-red-600" />
+              }
                 <AlertDescription className={messageType === 'success' ? 'text-green-800' : 'text-red-800'}>
                   {message}
                 </AlertDescription>
               </Alert>
-            )}
+            }
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Password Field */}
@@ -150,13 +150,13 @@ const ResetPasswordPage: React.FC = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={6}
-                    className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                  />
+                    className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
+
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  >
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600">
+
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
@@ -175,13 +175,13 @@ const ResetPasswordPage: React.FC = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
-                    className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                  />
+                    className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
+
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  >
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600">
+
                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
@@ -191,19 +191,19 @@ const ResetPasswordPage: React.FC = () => {
               <Button
                 type="submit"
                 className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02]"
-                disabled={isLoading || !token}
-              >
-                {isLoading ? (
-                  <>
+                disabled={isLoading || !token}>
+
+                {isLoading ?
+                <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Resetting Password...
-                  </>
-                ) : (
-                  <>
+                  </> :
+
+                <>
                     <Lock className="mr-2 h-4 w-4" />
                     Reset Password
                   </>
-                )}
+                }
               </Button>
             </form>
 
@@ -212,8 +212,8 @@ const ResetPasswordPage: React.FC = () => {
               <Button
                 variant="link"
                 className="text-blue-600 hover:text-blue-800"
-                onClick={() => navigate('/login')}
-              >
+                onClick={() => navigate('/login')}>
+
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Login
               </Button>
@@ -226,8 +226,8 @@ const ResetPasswordPage: React.FC = () => {
           <p>&copy; 2024 DFS Management Systems. All rights reserved.</p>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ResetPasswordPage;

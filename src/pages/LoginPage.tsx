@@ -23,7 +23,7 @@ const LoginPage: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'error' | 'success'>('error');
-  
+
   const { login, register } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -52,14 +52,14 @@ const LoginPage: React.FC = () => {
         toast({
           title: "Error",
           description: error,
-          variant: "destructive",
+          variant: "destructive"
         });
       } else {
         setMessage('Password reset link has been sent to your email address');
         setMessageType('success');
         toast({
           title: "Success",
-          description: "Password reset link sent to your email",
+          description: "Password reset link sent to your email"
         });
         setTimeout(() => {
           setAuthMode('login');
@@ -73,7 +73,7 @@ const LoginPage: React.FC = () => {
       toast({
         title: "Error",
         description: errorMessage,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
@@ -102,7 +102,7 @@ const LoginPage: React.FC = () => {
         if (success) {
           toast({
             title: "Welcome back!",
-            description: "Successfully logged in",
+            description: "Successfully logged in"
           });
           navigate('/dashboard');
         }
@@ -113,7 +113,7 @@ const LoginPage: React.FC = () => {
           setMessageType('success');
           toast({
             title: "Account Created",
-            description: "Please check your email for verification",
+            description: "Please check your email for verification"
           });
           setTimeout(() => {
             setAuthMode('login');
@@ -128,7 +128,7 @@ const LoginPage: React.FC = () => {
       toast({
         title: "Error",
         description: errorMessage,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
@@ -137,39 +137,39 @@ const LoginPage: React.FC = () => {
 
   const getFormTitle = () => {
     switch (authMode) {
-      case 'login': return 'Welcome Back';
-      case 'register': return 'Create Account';
-      case 'forgot-password': return 'Reset Password';
-      default: return 'Sign In';
+      case 'login':return 'Welcome Back';
+      case 'register':return 'Create Account';
+      case 'forgot-password':return 'Reset Password';
+      default:return 'Sign In';
     }
   };
 
   const getFormDescription = () => {
     switch (authMode) {
-      case 'login': return 'Enter your credentials to access the portal';
-      case 'register': return 'Create a new account to get started';
-      case 'forgot-password': return 'Enter your email to receive a password reset link';
-      default: return '';
+      case 'login':return 'Enter your credentials to access the portal';
+      case 'register':return 'Create a new account to get started';
+      case 'forgot-password':return 'Enter your email to receive a password reset link';
+      default:return '';
     }
   };
 
   const getSubmitButtonText = () => {
     if (isLoading) return 'Please wait...';
     switch (authMode) {
-      case 'login': return 'Sign In';
-      case 'register': return 'Create Account';
-      case 'forgot-password': return 'Send Reset Link';
-      default: return 'Submit';
+      case 'login':return 'Sign In';
+      case 'register':return 'Create Account';
+      case 'forgot-password':return 'Send Reset Link';
+      default:return 'Submit';
     }
   };
 
   const getSubmitButtonIcon = () => {
     if (isLoading) return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
     switch (authMode) {
-      case 'login': return <LogIn className="mr-2 h-4 w-4" />;
-      case 'register': return <UserPlus className="mr-2 h-4 w-4" />;
-      case 'forgot-password': return <Mail className="mr-2 h-4 w-4" />;
-      default: return null;
+      case 'login':return <LogIn className="mr-2 h-4 w-4" />;
+      case 'register':return <UserPlus className="mr-2 h-4 w-4" />;
+      case 'forgot-password':return <Mail className="mr-2 h-4 w-4" />;
+      default:return null;
     }
   };
 
@@ -199,18 +199,18 @@ const LoginPage: React.FC = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {message && (
-              <Alert className={`mb-4 ${messageType === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-                {messageType === 'success' ? (
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                ) : (
-                  <AlertCircle className="h-4 w-4 text-red-600" />
-                )}
+            {message &&
+            <Alert className={`mb-4 ${messageType === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                {messageType === 'success' ?
+              <CheckCircle2 className="h-4 w-4 text-green-600" /> :
+
+              <AlertCircle className="h-4 w-4 text-red-600" />
+              }
                 <AlertDescription className={messageType === 'success' ? 'text-green-800' : 'text-red-800'}>
                   {message}
                 </AlertDescription>
               </Alert>
-            )}
+            }
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email Field */}
@@ -225,87 +225,87 @@ const LoginPage: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="h-11 pl-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                  />
+                    className="h-11 pl-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
+
                 </div>
               </div>
 
               {/* Password Field */}
-              {authMode !== 'forgot-password' && (
-                <div className="space-y-2">
+              {authMode !== 'forgot-password' &&
+              <div className="space-y-2">
                   <Label htmlFor="password" className="text-slate-700 font-medium">Password</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                     <Input
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                    />
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
+
                     <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                    >
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600">
+
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
                 </div>
-              )}
+              }
 
               {/* Confirm Password Field */}
-              {authMode === 'register' && (
-                <div className="space-y-2">
+              {authMode === 'register' &&
+              <div className="space-y-2">
                   <Label htmlFor="confirmPassword" className="text-slate-700 font-medium">Confirm Password</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                     <Input
-                      id="confirmPassword"
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      placeholder="Confirm your password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                      className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                    />
+                    id="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    placeholder="Confirm your password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
+
                     <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                    >
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600">
+
                       {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
                 </div>
-              )}
+              }
 
               {/* Forgot Password Link */}
-              {authMode === 'login' && (
-                <div className="text-right">
+              {authMode === 'login' &&
+              <div className="text-right">
                   <Button
-                    type="button"
-                    variant="link"
-                    className="p-0 h-auto text-blue-600 hover:text-blue-800 text-sm"
-                    onClick={() => {
-                      setAuthMode('forgot-password');
-                      setPassword('');
-                      setMessage('');
-                    }}
-                  >
+                  type="button"
+                  variant="link"
+                  className="p-0 h-auto text-blue-600 hover:text-blue-800 text-sm"
+                  onClick={() => {
+                    setAuthMode('forgot-password');
+                    setPassword('');
+                    setMessage('');
+                  }}>
+
                     Forgot password?
                   </Button>
                 </div>
-              )}
+              }
 
               {/* Submit Button */}
               <Button
                 type="submit"
                 className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02]"
-                disabled={isLoading}
-              >
+                disabled={isLoading}>
+
                 {getSubmitButtonIcon()}
                 {getSubmitButtonText()}
               </Button>
@@ -315,53 +315,53 @@ const LoginPage: React.FC = () => {
             <div className="mt-6">
               <Separator className="my-4" />
               <div className="text-center space-y-2">
-                {authMode === 'login' && (
-                  <div>
+                {authMode === 'login' &&
+                <div>
                     <span className="text-sm text-slate-600">Don't have an account? </span>
                     <Button
-                      variant="link"
-                      className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
-                      onClick={() => {
-                        setAuthMode('register');
-                        clearForm();
-                      }}
-                    >
+                    variant="link"
+                    className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
+                    onClick={() => {
+                      setAuthMode('register');
+                      clearForm();
+                    }}>
+
                       Create one
                     </Button>
                   </div>
-                )}
+                }
 
-                {authMode === 'register' && (
-                  <div>
+                {authMode === 'register' &&
+                <div>
                     <span className="text-sm text-slate-600">Already have an account? </span>
                     <Button
-                      variant="link"
-                      className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
-                      onClick={() => {
-                        setAuthMode('login');
-                        clearForm();
-                      }}
-                    >
+                    variant="link"
+                    className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
+                    onClick={() => {
+                      setAuthMode('login');
+                      clearForm();
+                    }}>
+
                       Sign in
                     </Button>
                   </div>
-                )}
+                }
 
-                {authMode === 'forgot-password' && (
-                  <div>
+                {authMode === 'forgot-password' &&
+                <div>
                     <span className="text-sm text-slate-600">Remember your password? </span>
                     <Button
-                      variant="link"
-                      className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
-                      onClick={() => {
-                        setAuthMode('login');
-                        clearForm();
-                      }}
-                    >
+                    variant="link"
+                    className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
+                    onClick={() => {
+                      setAuthMode('login');
+                      clearForm();
+                    }}>
+
                       Sign in
                     </Button>
                   </div>
-                )}
+                }
               </div>
             </div>
           </CardContent>
@@ -372,8 +372,8 @@ const LoginPage: React.FC = () => {
           <p>&copy; 2024 DFS Management Systems. All rights reserved.</p>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default LoginPage;

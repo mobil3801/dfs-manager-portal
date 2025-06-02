@@ -10,6 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useBatchSelection } from '@/hooks/use-batch-selection';
 import BatchActionBar from '@/components/BatchActionBar';
 import BatchDeleteDialog from '@/components/BatchDeleteDialog';
+import AccessDenied from '@/components/AccessDenied';
+import useAdminAccess from '@/hooks/use-admin-access';
 import {
   FileText,
   Download,
@@ -40,6 +42,7 @@ interface LogEntry {
 }
 
 const SystemLogs: React.FC = () => {
+  const { isAdmin } = useAdminAccess();
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -302,6 +305,15 @@ const SystemLogs: React.FC = () => {
   const errorCount = logs.filter((log) => log.level === 'ERROR').length;
   const warningCount = logs.filter((log) => log.level === 'WARNING').length;
   const infoCount = logs.filter((log) => log.level === 'INFO').length;
+
+  // Check admin access first
+  if (!isAdmin) {
+    return (
+      <AccessDenied
+        feature="System Logs"
+        requiredRole="Administrator" />
+    );
+  }
 
   return (
     <div className="space-y-6">

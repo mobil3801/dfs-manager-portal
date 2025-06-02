@@ -21,6 +21,8 @@ import { smsService } from '@/services/smsService';
 import SMSSetupGuide from '@/components/SMSSetupGuide';
 import SMSServiceManager from '@/components/SMSServiceManager';
 import SMSAlertTrigger from '@/components/SMSAlertTrigger';
+import AccessDenied from '@/components/AccessDenied';
+import useAdminAccess from '@/hooks/use-admin-access';
 
 interface SMSAlertSetting {
   id: number;
@@ -55,6 +57,7 @@ interface SMSHistory {
 }
 
 const SMSAlertManagement: React.FC = () => {
+  const { isAdmin } = useAdminAccess();
   const [settings, setSettings] = useState<SMSAlertSetting[]>([]);
   const [contacts, setContacts] = useState<SMSContact[]>([]);
   const [history, setHistory] = useState<SMSHistory[]>([]);
@@ -710,6 +713,15 @@ const SMSAlertManagement: React.FC = () => {
       default:return () => {};
     }
   };
+
+  // Check admin access first
+  if (!isAdmin) {
+    return (
+      <AccessDenied
+        feature="SMS Alert Management"
+        requiredRole="Administrator" />
+    );
+  }
 
   return (
     <div className="space-y-6">

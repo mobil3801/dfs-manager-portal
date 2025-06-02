@@ -48,7 +48,7 @@ const DashboardLayout: React.FC = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, loading, logout } = useAuth();
+  const { user, loading, logout, isAdmin } = useAuth();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -63,36 +63,48 @@ const DashboardLayout: React.FC = () => {
           <Logo size="lg" className="mb-4" />
           <div className="text-gray-600">Loading...</div>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   if (!user) {
     return null; // Will redirect to login
   }
 
-  // All navigation items in one place
+  // Base navigation items (available to all users)
+  const baseNavigationItems: NavigationItem[] = [
+    { name: 'Dashboard', path: '/dashboard', icon: <Home className="w-5 h-5" /> },
+    { name: 'All Products', path: '/products', icon: <Package className="w-5 h-5" /> },
+    { name: 'All Employees', path: '/employees', icon: <Users className="w-5 h-5" /> },
+    { name: 'Sales Reports', path: '/sales', icon: <TrendingUp className="w-5 h-5" /> },
+    { name: 'Add Report', path: '/sales/new', icon: <Plus className="w-5 h-5" /> },
+    { name: 'Salary Records', path: '/salary', icon: <DollarSign className="w-5 h-5" /> },
+    { name: 'Inventory Alerts', path: '/inventory/alerts', icon: <AlertTriangle className="w-5 h-5" /> },
+    { name: 'New Delivery', path: '/delivery', icon: <Truck className="w-5 h-5" /> },
+    { name: 'All Vendors', path: '/vendors', icon: <Building2 className="w-5 h-5" /> },
+    { name: 'All Orders', path: '/orders', icon: <ShoppingCart className="w-5 h-5" /> },
+    { name: 'Create Order', path: '/orders/new', icon: <Plus className="w-5 h-5" /> },
+    { name: 'All Licenses', path: '/licenses', icon: <FileText className="w-5 h-5" /> }
+  ];
+
+  // Admin-only navigation items
+  const adminNavigationItems: NavigationItem[] = [
+    { name: 'User Management', path: '/admin/users', icon: <UserCheck className="w-5 h-5" /> },
+    { name: 'Site Management', path: '/admin/site', icon: <Globe className="w-5 h-5" /> },
+    { name: 'SMS Alerts', path: '/admin/sms-alerts', icon: <MessageSquare className="w-5 h-5" /> },
+    { name: 'System Logs', path: '/admin/logs', icon: <Database className="w-5 h-5" /> },
+    { name: 'Security Settings', path: '/admin/security', icon: <Shield className="w-5 h-5" /> },
+    { name: 'Error Recovery', path: '/admin/error-recovery', icon: <AlertTriangle className="w-5 h-5" /> },
+    { name: 'Memory Monitoring', path: '/admin/memory-monitoring', icon: <Activity className="w-5 h-5" /> },
+    { name: 'Database Monitoring', path: '/admin/database-monitoring', icon: <Database className="w-5 h-5" /> },
+    { name: 'Audit Monitoring', path: '/admin/audit-monitoring', icon: <Shield className="w-5 h-5" /> }
+  ];
+
+  // Combine navigation items based on user role
   const navigationItems: NavigationItem[] = [
-  { name: 'Dashboard', path: '/dashboard', icon: <Home className="w-5 h-5" /> },
-  { name: 'All Products', path: '/products', icon: <Package className="w-5 h-5" /> },
-  { name: 'All Employees', path: '/employees', icon: <Users className="w-5 h-5" /> },
-  { name: 'Sales Reports', path: '/sales', icon: <TrendingUp className="w-5 h-5" /> },
-  { name: 'Add Report', path: '/sales/new', icon: <Plus className="w-5 h-5" /> },
-  { name: 'Salary Records', path: '/salary', icon: <DollarSign className="w-5 h-5" /> },
-  { name: 'Inventory Alerts', path: '/inventory/alerts', icon: <AlertTriangle className="w-5 h-5" /> },
-  { name: 'New Delivery', path: '/delivery', icon: <Truck className="w-5 h-5" /> },
-  { name: 'All Vendors', path: '/vendors', icon: <Building2 className="w-5 h-5" /> },
-  { name: 'All Orders', path: '/orders', icon: <ShoppingCart className="w-5 h-5" /> },
-  { name: 'Create Order', path: '/orders/new', icon: <Plus className="w-5 h-5" /> },
-  { name: 'All Licenses', path: '/licenses', icon: <FileText className="w-5 h-5" /> },
-  { name: 'User Management', path: '/admin/users', icon: <UserCheck className="w-5 h-5" /> },
-  { name: 'Site Management', path: '/admin/site', icon: <Globe className="w-5 h-5" /> },
-  { name: 'SMS Alerts', path: '/admin/sms-alerts', icon: <MessageSquare className="w-5 h-5" /> },
-  { name: 'System Logs', path: '/admin/logs', icon: <Database className="w-5 h-5" /> },
-  { name: 'Security Settings', path: '/admin/security', icon: <Shield className="w-5 h-5" /> },
-  { name: 'Error Recovery', path: '/admin/error-recovery', icon: <AlertTriangle className="w-5 h-5" /> },
-  { name: 'Memory Monitoring', path: '/admin/memory-monitoring', icon: <Activity className="w-5 h-5" /> },
-  { name: 'Database Monitoring', path: '/admin/database-monitoring', icon: <Database className="w-5 h-5" /> }];
+    ...baseNavigationItems,
+    ...(isAdmin ? adminNavigationItems : [])
+  ];
 
 
 
@@ -142,6 +154,7 @@ const DashboardLayout: React.FC = () => {
     if (path.startsWith('/admin/error-recovery')) return 'Error Recovery Center';
     if (path.startsWith('/admin/memory-monitoring')) return 'Memory Leak Monitoring';
     if (path.startsWith('/admin/database-monitoring')) return 'Database Connection Monitoring';
+    if (path.startsWith('/admin/audit-monitoring')) return 'Audit & Security Monitoring';
     if (path.startsWith('/admin')) return 'Site & User Management';
     return 'DFS Manager';
   };
@@ -218,8 +231,8 @@ const DashboardLayout: React.FC = () => {
               variant="ghost"
               size="sm"
               onClick={logout}
-              className="text-gray-600 hover:text-red-600"
-            >
+              className="text-gray-600 hover:text-red-600">
+
               <LogOut className="w-4 h-4 mr-2" />
               Logout
             </Button>

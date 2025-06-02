@@ -12,6 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useBatchSelection } from '@/hooks/use-batch-selection';
 import BatchActionBar from '@/components/BatchActionBar';
 import BatchDeleteDialog from '@/components/BatchDeleteDialog';
+import AccessDenied from '@/components/AccessDenied';
+import useAdminAccess from '@/hooks/use-admin-access';
 import {
   Shield,
   Key,
@@ -82,6 +84,7 @@ interface SecurityEvent {
 }
 
 const SecuritySettings: React.FC = () => {
+  const { isAdmin } = useAdminAccess();
   const [settings, setSettings] = useState<SecuritySettings>({
     passwordPolicy: {
       minLength: 8,
@@ -314,6 +317,15 @@ const SecuritySettings: React.FC = () => {
   };
 
   const securityScore = getSecurityScore();
+
+  // Check admin access first
+  if (!isAdmin) {
+    return (
+      <AccessDenied
+        feature="Security Settings"
+        requiredRole="Administrator" />
+    );
+  }
 
   return (
     <div className="space-y-6">

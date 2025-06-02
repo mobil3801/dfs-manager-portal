@@ -13,6 +13,8 @@ import BatchActionBar from '@/components/BatchActionBar';
 import BatchDeleteDialog from '@/components/BatchDeleteDialog';
 import BatchEditDialog from '@/components/BatchEditDialog';
 import StationEditDialog from '@/components/StationEditDialog';
+import AccessDenied from '@/components/AccessDenied';
+import useAdminAccess from '@/hooks/use-admin-access';
 import {
   Settings,
   Database,
@@ -67,6 +69,7 @@ interface Station {
 }
 
 const SiteManagement: React.FC = () => {
+  const { isAdmin } = useAdminAccess();
   const [settings, setSettings] = useState<SiteSettings>({
     siteName: 'DFS Manager Portal',
     siteDescription: 'Comprehensive gas station management system',
@@ -301,6 +304,15 @@ const SiteManagement: React.FC = () => {
       setBatchActionLoading(false);
     }
   };
+
+  // Check admin access first
+  if (!isAdmin) {
+    return (
+      <AccessDenied
+        feature="Site Management"
+        requiredRole="Administrator" />
+    );
+  }
 
   return (
     <div className="space-y-6">

@@ -23,6 +23,7 @@ interface UserProfile {
 interface AuthContextType {
   user: User | null;
   userProfile: UserProfile | null;
+  isAdmin: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   register: (email: string, password: string) => Promise<boolean>;
@@ -326,10 +327,12 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
   };
 
   const isVisualEditingEnabled = true;
+  const isAdmin = userProfile?.role === 'Administrator';
 
   const value = {
     user,
     userProfile,
+    isAdmin,
     login,
     logout,
     register,
