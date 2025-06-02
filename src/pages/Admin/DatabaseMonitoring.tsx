@@ -15,11 +15,11 @@ const DatabaseMonitoringPage = () => {
   // Check admin access first
   if (!hasMonitoringAccess) {
     return (
-      <AccessDenied 
+      <AccessDenied
         feature="Database Monitoring System"
-        requiredRole="Administrator"
-      />
-    );
+        requiredRole="Administrator" />);
+
+
   }
 
   return (

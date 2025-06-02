@@ -432,6 +432,20 @@ const ProductForm = () => {
 
       if (error) throw error;
 
+      // Log data modification for audit trail
+      if (userProfile) {
+        await auditLogger.logDataModification(
+          'products',
+          id ? 'update' : 'create',
+          undefined,
+          {
+            product_id: id || 'new',
+            product_name: formData.product_name,
+            changes: id ? { ...formData } : formData
+          }
+        );
+      }
+
       // Log changes for existing products
       if (id && originalData && userProfile) {
         const fieldsToTrack = [

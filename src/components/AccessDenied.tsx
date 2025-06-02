@@ -62,22 +62,22 @@ const AccessDenied: React.FC<AccessDeniedProps> = ({
             <p>Contact your system administrator to request {requiredRole} privileges.</p>
           </div>
 
-          {showBackButton && (
-            <div className="pt-4">
+          {showBackButton &&
+          <div className="pt-4">
               <Button
-                variant="outline"
-                onClick={() => navigate(-1)}
-                className="w-full border-red-300 text-red-700 hover:bg-red-100"
-              >
+              variant="outline"
+              onClick={() => navigate(-1)}
+              className="w-full border-red-300 text-red-700 hover:bg-red-100">
+
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Go Back
               </Button>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AccessDenied;

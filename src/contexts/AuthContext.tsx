@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from '@/hooks/use-toast';
+import AuditLoggerService from '@/services/auditLogger';
 
 interface User {
   ID: number;
@@ -142,11 +143,16 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
   };
 
   const login = async (email: string, password: string): Promise<boolean> => {
+    const auditLogger = AuditLoggerService.getInstance();
+
     try {
       setLoading(true);
       const { error } = await window.ezsite.apis.login({ email, password });
 
       if (error) {
+        // Log failed login attempt
+        await auditLogger.logLogin(email, false, undefined, error);
+
         toast({
           title: "Login Failed",
           description: error,
@@ -158,6 +164,8 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
       // Get user info after successful login
       const { data: userData, error: userError } = await window.ezsite.apis.getUserInfo();
       if (userError) {
+        await auditLogger.logLogin(email, false, undefined, 'Failed to get user information');
+
         toast({
           title: "Error",
           description: "Failed to get user information",
@@ -169,6 +177,9 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
       setUser(userData);
       await fetchUserProfile(userData.ID);
 
+      // Log successful login
+      await auditLogger.logLogin(email, true, userData.ID);
+
       toast({
         title: "Success",
         description: "Login successful!"
@@ -177,6 +188,8 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
       return true;
     } catch (error) {
       console.error('Login error:', error);
+      await auditLogger.logLogin(email, false, undefined, 'Unexpected error during login');
+
       toast({
         title: "Error",
         description: "An unexpected error occurred during login",
@@ -189,11 +202,16 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
   };
 
   const register = async (email: string, password: string): Promise<boolean> => {
+    const auditLogger = AuditLoggerService.getInstance();
+
     try {
       setLoading(true);
       const { error } = await window.ezsite.apis.register({ email, password });
 
       if (error) {
+        // Log failed registration attempt
+        await auditLogger.logRegistration(email, false, error);
+
         toast({
           title: "Registration Failed",
           description: error,
@@ -201,6 +219,9 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
         });
         return false;
       }
+
+      // Log successful registration
+      await auditLogger.logRegistration(email, true);
 
       toast({
         title: "Registration Successful",
@@ -210,6 +231,8 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
       return true;
     } catch (error) {
       console.error('Registration error:', error);
+      await auditLogger.logRegistration(email, false, 'Unexpected error during registration');
+
       toast({
         title: "Error",
         description: "An unexpected error occurred during registration",
@@ -222,7 +245,14 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
   };
 
   const logout = async () => {
+    const auditLogger = AuditLoggerService.getInstance();
+
     try {
+      // Log logout before clearing user state
+      if (user) {
+        await auditLogger.logLogout(user.Email, user.ID);
+      }
+
       await window.ezsite.apis.logout();
       setUser(null);
       setUserProfile(null);
@@ -237,60 +267,60 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
 
   const hasPermission = (feature: string, action: 'read' | 'write'): boolean => {
     if (!userProfile) return false;
-    
+
     // Special handling for monitoring features
     if (feature === 'monitoring') {
       return userProfile.role === 'Administrator';
     }
-    
+
     // Full access for all other features
     return true;
   };
 
   const canEdit = (feature?: string): boolean => {
     if (!userProfile) return false;
-    
+
     // Monitoring features restricted to Administrators
     if (feature === 'monitoring') {
       return userProfile.role === 'Administrator';
     }
-    
+
     // Full visual editing access for all users and other features
     return true;
   };
 
   const canDelete = (feature?: string): boolean => {
     if (!userProfile) return false;
-    
+
     // Monitoring features restricted to Administrators
     if (feature === 'monitoring') {
       return userProfile.role === 'Administrator';
     }
-    
+
     // Full delete access for all users and other features
     return true;
   };
 
   const canCreate = (feature?: string): boolean => {
     if (!userProfile) return false;
-    
+
     // Monitoring features restricted to Administrators
     if (feature === 'monitoring') {
       return userProfile.role === 'Administrator';
     }
-    
+
     // Full create access for all users and other features
     return true;
   };
 
   const canViewLogs = (feature?: string): boolean => {
     if (!userProfile) return false;
-    
+
     // Monitoring features restricted to Administrators
     if (feature === 'monitoring') {
       return userProfile.role === 'Administrator';
     }
-    
+
     // Full log viewing access for all users and other features
     return true;
   };

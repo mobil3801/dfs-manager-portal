@@ -15,11 +15,11 @@ const MemoryMonitoring: React.FC = () => {
   // Check admin access first
   if (!hasMonitoringAccess) {
     return (
-      <AccessDenied 
+      <AccessDenied
         feature="Memory Leak Monitoring System"
-        requiredRole="Administrator"
-      />
-    );
+        requiredRole="Administrator" />);
+
+
   }
 
   return (

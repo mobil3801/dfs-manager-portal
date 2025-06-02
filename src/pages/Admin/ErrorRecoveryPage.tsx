@@ -18,11 +18,11 @@ const ErrorRecoveryPage: React.FC = () => {
   // Check admin access first
   if (!hasMonitoringAccess) {
     return (
-      <AccessDenied 
+      <AccessDenied
         feature="Error Recovery and Monitoring"
-        requiredRole="Administrator"
-      />
-    );
+        requiredRole="Administrator" />);
+
+
   }
 
   return (
