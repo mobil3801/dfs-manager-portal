@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import SalesChart from '@/components/SalesChart';
 import SMSAlertStatus from '@/components/SMSAlertStatus';
+import ErrorMonitoringWidget from '@/components/ErrorMonitoringWidget';
 import {
   Package,
   Users,
@@ -660,7 +661,10 @@ const Dashboard: React.FC = () => {
       {/* Sales Analytics Chart */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <SalesChart />
-        <SMSAlertStatus />
+        <div className="space-y-6">
+          <SMSAlertStatus />
+          <ErrorMonitoringWidget />
+        </div>
 
         {/* Notifications Panel */}
         <Card>

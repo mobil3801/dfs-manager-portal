@@ -105,10 +105,10 @@ export const useErrorHandler = (options: UseErrorHandlerOptions = {}) => {
 };
 
 // HOC for wrapping components with error handling
-export const withErrorHandler = <P extends object>(
+export const withErrorHandler = <P extends object,>(
 Component: React.ComponentType<P>,
 errorHandlerOptions?: UseErrorHandlerOptions) => {
-  return React.forwardRef<any, P & { errorHandler?: ReturnType<typeof useErrorHandler> }>((props, ref) => {
+  return React.forwardRef<any, P & {errorHandler?: ReturnType<typeof useErrorHandler>;}>((props, ref) => {
     const errorHandler = useErrorHandler(errorHandlerOptions);
 
     return React.createElement(Component, {
