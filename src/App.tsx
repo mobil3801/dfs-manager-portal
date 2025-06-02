@@ -3,6 +3,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
+import { GlobalErrorBoundary } from './components/ErrorBoundary';
 
 import DashboardLayout from './components/Layout/DashboardLayout';
 import Dashboard from './pages/Dashboard';
@@ -31,16 +32,18 @@ import SiteManagement from './pages/Admin/SiteManagement';
 import SystemLogs from './pages/Admin/SystemLogs';
 import SecuritySettings from './pages/Admin/SecuritySettings';
 import SMSAlertManagement from './pages/Admin/SMSAlertManagement';
+import ErrorRecoveryPage from './pages/Admin/ErrorRecoveryPage';
 import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Router>
+    <GlobalErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <TooltipProvider>
+            <Router>
           <Routes>
             <Route path="/" element={<DashboardLayout />}>
               <Route index element={<Navigate to="/dashboard" replace />} />
@@ -100,16 +103,19 @@ function App() {
               <Route path="admin/logs" element={<SystemLogs />} />
               <Route path="admin/security" element={<SecuritySettings />} />
               <Route path="admin/sms-alerts" element={<SMSAlertManagement />} />
+              <Route path="admin/error-recovery" element={<ErrorRecoveryPage />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />
           </Routes>
-          </Router>
-          <Toaster />
-        </TooltipProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+            </Router>
+            <Toaster />
+          </TooltipProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    </GlobalErrorBoundary>
   );
+
 }
 
 export default App;

@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Camera, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { ComponentErrorBoundary } from './ErrorBoundary';
 
 interface BarcodeScannerProps {
   onScan: (barcode: string) => void;
@@ -86,7 +87,12 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, triggerText = "
   }, [isOpen]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <ComponentErrorBoundary 
+      componentName="BarcodeScanner" 
+      severity="medium"
+      minHeight="200px"
+    >
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button type="button" variant="outline" size="sm" disabled={disabled}>
           <Camera className="w-4 h-4 mr-2" />
@@ -132,7 +138,9 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, triggerText = "
           </p>
         </div>
       </DialogContent>
-    </Dialog>);
+      </Dialog>
+    </ComponentErrorBoundary>
+  );
 
 };
 

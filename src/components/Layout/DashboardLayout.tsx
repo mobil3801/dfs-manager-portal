@@ -29,6 +29,7 @@ import {
 'lucide-react';
 
 import Logo from '@/components/Logo';
+import { PageErrorBoundary } from '@/components/ErrorBoundary';
 
 
 interface NavigationItem {
@@ -62,7 +63,8 @@ const DashboardLayout: React.FC = () => {
   { name: 'Site Management', path: '/admin/site', icon: <Globe className="w-5 h-5" /> },
   { name: 'SMS Alerts', path: '/admin/sms-alerts', icon: <MessageSquare className="w-5 h-5" /> },
   { name: 'System Logs', path: '/admin/logs', icon: <Database className="w-5 h-5" /> },
-  { name: 'Security Settings', path: '/admin/security', icon: <Shield className="w-5 h-5" /> }];
+  { name: 'Security Settings', path: '/admin/security', icon: <Shield className="w-5 h-5" /> },
+  { name: 'Error Recovery', path: '/admin/error-recovery', icon: <AlertTriangle className="w-5 h-5" /> }];
 
 
 
@@ -109,6 +111,7 @@ const DashboardLayout: React.FC = () => {
     if (path.startsWith('/admin/sms-alerts')) return 'SMS Alert Management';
     if (path.startsWith('/admin/logs')) return 'System Logs';
     if (path.startsWith('/admin/security')) return 'Security Settings';
+    if (path.startsWith('/admin/error-recovery')) return 'Error Recovery Center';
     if (path.startsWith('/admin')) return 'Site & User Management';
     return 'DFS Manager';
   };
@@ -187,7 +190,9 @@ const DashboardLayout: React.FC = () => {
         {/* Page content */}
         <main className="flex-1 p-4 lg:p-8 overflow-y-auto">
           <div className="space-y-6">
-            <Outlet />
+            <PageErrorBoundary pageName={getPageTitle()}>
+              <Outlet />
+            </PageErrorBoundary>
           </div>
         </main>
       </div>

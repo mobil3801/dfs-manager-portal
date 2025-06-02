@@ -9,10 +9,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
+import { useErrorHandler } from '@/hooks/use-error-handler';
 import { ArrowLeft, Save, Calendar, Lock, AlertTriangle } from 'lucide-react';
 import BarcodeScanner from '@/components/BarcodeScanner';
 import ProductFileUpload from '@/components/ProductFileUpload';
 import { useAuth } from '@/contexts/AuthContext';
+import { FormErrorBoundary } from '@/components/ErrorBoundary';
 
 
 const ProductForm = () => {
@@ -20,6 +22,10 @@ const ProductForm = () => {
   const { id } = useParams();
   const { toast } = useToast();
   const { userProfile } = useAuth();
+  const { handleApiCall, handleError } = useErrorHandler({
+    component: 'ProductForm',
+    severity: 'high'
+  });
 
 
   // Use AuthContext permission methods
@@ -85,26 +91,22 @@ const ProductForm = () => {
   }, [id]);
 
   const fetchVendors = async () => {
-    try {
-      const { data, error } = await window.ezsite.apis.tablePage(11729, {
+    const data = await handleApiCall(
+      () => window.ezsite.apis.tablePage(11729, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: "vendor_name",
         IsAsc: true,
         Filters: [
-        { name: "is_active", op: "Equal", value: true }]
-
-      });
-
-      if (error) throw error;
-      setVendors(data?.List || []);
-    } catch (error) {
-      console.error('Error fetching vendors:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to load vendors list."
-      });
+          { name: "is_active", op: "Equal", value: true }
+        ]
+      }),
+      "Failed to load vendors list",
+      { action: 'fetchVendors' }
+    );
+    
+    if (data) {
+      setVendors(data.List || []);
     }
   };
 
@@ -518,7 +520,40 @@ const ProductForm = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6 pt-0">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <FormErrorBoundary 
+            formName="Product Form" 
+            showDataRecovery={true}
+            onFormReset={() => {
+              if (id) {
+                fetchProduct();
+              } else {
+                setFormData({
+                  serial_number: 0,
+                  product_name: '',
+                  weight: 0,
+                  weight_unit: 'lb',
+                  department: 'Convenience Store',
+                  merchant_id: '',
+                  bar_code_case: '',
+                  bar_code_unit: '',
+                  last_updated_date: new Date().toISOString().split('T')[0],
+                  last_shopping_date: '',
+                  case_price: 0,
+                  unit_per_case: 1,
+                  unit_price: 0,
+                  retail_price: 0,
+                  overdue: false,
+                  category: '',
+                  supplier: '',
+                  quantity_in_stock: 0,
+                  minimum_stock: 0,
+                  description: ''
+                });
+                generateSerialNumber();
+              }
+            }}
+          >
+            <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
@@ -786,6 +821,7 @@ const ProductForm = () => {
               </Button>
             </div>
           </form>
+        </FormErrorBoundary>
         </CardContent>
       </Card>
     </div>);
