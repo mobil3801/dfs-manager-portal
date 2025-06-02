@@ -9,6 +9,8 @@ import { Plus, Search, Edit, Trash2, FileText, AlertTriangle, CheckCircle, Print
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import EnhancedLicensePrintDialog from '@/components/EnhancedLicensePrintDialog';
+import smsService from '@/services/smsService';
+import licenseAlertService from '@/services/licenseAlertService';
 
 interface License {
   ID: number;
@@ -113,105 +115,24 @@ const LicenseList: React.FC = () => {
     try {
       setSendingSMS(true);
       
-      // Get active SMS settings
-      const settingsResponse = await window.ezsite.apis.tablePage('12611', {
-        PageNo: 1,
-        PageSize: 100,
-        OrderByField: 'id',
-        IsAsc: false,
-        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+      toast({
+        title: "📱 Checking Licenses",
+        description: "Analyzing licenses for expiry alerts..."
       });
-      
-      if (settingsResponse.error) throw settingsResponse.error;
-      const settings = settingsResponse.data?.List || [];
-      
-      if (settings.length === 0) {
-        toast({
-          title: "No SMS Settings",
-          description: "Please configure SMS alert settings first",
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      // Get active SMS contacts
-      const contactsResponse = await window.ezsite.apis.tablePage('12612', {
-        PageNo: 1,
-        PageSize: 100,
-        OrderByField: 'id',
-        IsAsc: false,
-        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
-      });
-      
-      if (contactsResponse.error) throw contactsResponse.error;
-      const contacts = contactsResponse.data?.List || [];
-      
-      if (contacts.length === 0) {
-        toast({
-          title: "No SMS Contacts",
-          description: "Please add SMS contacts first",
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      let alertsSent = 0;
-      const today = new Date();
-      
-      // Check each license for expiry alerts
-      for (const license of licenses) {
-        if (!license.expiry_date) continue;
-        
-        const expiryDate = new Date(license.expiry_date);
-        const daysDiff = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
-        
-        // Check if any setting criteria match
-        for (const setting of settings) {
-          if (daysDiff <= setting.days_before_expiry && daysDiff >= 0) {
-            // Check if we should send alert based on frequency
-            const shouldSendAlert = await checkShouldSendAlert(license.ID, setting.alert_frequency_days);
-            
-            if (shouldSendAlert) {
-              // Send to relevant contacts
-              const relevantContacts = contacts.filter(contact => 
-                contact.station === 'ALL' || contact.station === license.station
-              );
-              
-              for (const contact of relevantContacts) {
-                const message = setting.message_template
-                  .replace('{license_name}', license.license_name)
-                  .replace('{station}', license.station)
-                  .replace('{expiry_date}', formatDate(license.expiry_date));
-                
-                // Create SMS history record
-                await window.ezsite.apis.tableCreate('12613', {
-                  license_id: license.ID,
-                  contact_id: contact.id,
-                  mobile_number: contact.mobile_number,
-                  message_content: message,
-                  sent_date: new Date().toISOString(),
-                  delivery_status: 'Sent',
-                  days_before_expiry: daysDiff,
-                  created_by: userProfile?.user_id || 1
-                });
-                
-                alertsSent++;
-              }
-            }
-          }
-        }
-      }
+
+      // Use the enhanced license alert service
+      await licenseAlertService.checkAndSendAlerts();
       
       toast({
-        title: "SMS Alerts Sent",
-        description: `${alertsSent} SMS alerts sent successfully`
+        title: "✅ License Alerts Complete",
+        description: "SMS alerts sent for expiring licenses. Check SMS History for details."
       });
       
     } catch (error) {
       console.error('Error sending SMS alerts:', error);
       toast({
-        title: "Error",
-        description: "Failed to send SMS alerts",
+        title: "❌ Alert Failed",
+        description: "Failed to send SMS alerts. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -219,6 +140,32 @@ const LicenseList: React.FC = () => {
     }
   };
   
+  const sendImmediateAlert = async (licenseId: number) => {
+    try {
+      const result = await licenseAlertService.sendImmediateAlert(licenseId);
+      
+      if (result.success) {
+        toast({
+          title: "📱 SMS Alert Sent",
+          description: result.message
+        });
+      } else {
+        toast({
+          title: "❌ Alert Failed",
+          description: result.message,
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error sending immediate alert:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send SMS alert",
+        variant: "destructive"
+      });
+    }
+  };
+
   const checkShouldSendAlert = async (licenseId: number, frequencyDays: number) => {
     try {
       // Check if we've sent an alert for this license recently
@@ -228,20 +175,20 @@ const LicenseList: React.FC = () => {
         OrderByField: 'sent_date',
         IsAsc: false,
         Filters: [
-          { name: 'license_id', op: 'Equal', value: licenseId }
-        ]
+        { name: 'license_id', op: 'Equal', value: licenseId }]
+
       });
-      
+
       if (error) throw error;
-      
+
       if (data?.List && data.List.length > 0) {
         const lastAlert = data.List[0];
         const lastAlertDate = new Date(lastAlert.sent_date);
         const daysSinceLastAlert = Math.ceil((new Date().getTime() - lastAlertDate.getTime()) / (1000 * 3600 * 24));
-        
+
         return daysSinceLastAlert >= frequencyDays;
       }
-      
+
       return true; // No previous alert found, should send
     } catch (error) {
       console.error('Error checking alert frequency:', error);
@@ -375,27 +322,27 @@ const LicenseList: React.FC = () => {
               </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
-              {isAdmin && (
-                <>
-                  <Button 
-                    onClick={sendExpiryAlerts} 
-                    disabled={sendingSMS}
-                    variant="outline"
-                    className="flex items-center space-x-2"
-                  >
+              {isAdmin &&
+              <>
+                  <Button
+                  onClick={sendExpiryAlerts}
+                  disabled={sendingSMS}
+                  variant="outline"
+                  className="flex items-center space-x-2">
+
                     <Send className="w-4 h-4" />
                     <span>{sendingSMS ? 'Sending...' : 'Send SMS Alerts'}</span>
                   </Button>
-                  <Button 
-                    onClick={() => navigate('/admin/sms-alerts')} 
-                    variant="outline"
-                    className="flex items-center space-x-2"
-                  >
+                  <Button
+                  onClick={() => navigate('/admin/sms-alerts')}
+                  variant="outline"
+                  className="flex items-center space-x-2">
+
                     <MessageSquare className="w-4 h-4" />
                     <span>SMS Settings</span>
                   </Button>
                 </>
-              )}
+              }
               <Button onClick={() => navigate('/licenses/new')} className="flex items-center space-x-2">
                 <Plus className="w-4 h-4" />
                 <span>Add License</span>
@@ -500,6 +447,16 @@ const LicenseList: React.FC = () => {
                         title="Print Document">
                             <Printer className="w-4 h-4" />
                           </Button>
+                          {(isExpiringSoon(license.expiry_date) || isExpired(license.expiry_date)) && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => sendImmediateAlert(license.ID)}
+                              className="text-orange-600 hover:text-orange-700"
+                              title="Send SMS Alert">
+                              <MessageSquare className="w-4 h-4" />
+                            </Button>
+                          )}
                           {isAdmin &&
                       <>
                               <Button

@@ -25,7 +25,7 @@ const SMSAlertStatus: React.FC<SMSAlertStatusProps> = ({ className = '' }) => {
   const loadSMSStatus = async () => {
     try {
       setLoading(true);
-      
+
       // Load active contacts
       const contactsResponse = await window.ezsite.apis.tablePage('12612', {
         PageNo: 1,
@@ -34,11 +34,11 @@ const SMSAlertStatus: React.FC<SMSAlertStatusProps> = ({ className = '' }) => {
         IsAsc: false,
         Filters: [{ name: 'is_active', op: 'Equal', value: true }]
       });
-      
+
       if (!contactsResponse.error) {
         setActiveContacts(contactsResponse.data?.List?.length || 0);
       }
-      
+
       // Load active settings
       const settingsResponse = await window.ezsite.apis.tablePage('12611', {
         PageNo: 1,
@@ -47,25 +47,25 @@ const SMSAlertStatus: React.FC<SMSAlertStatusProps> = ({ className = '' }) => {
         IsAsc: false,
         Filters: [{ name: 'is_active', op: 'Equal', value: true }]
       });
-      
+
       if (!settingsResponse.error) {
         setActiveSettings(settingsResponse.data?.List?.length || 0);
       }
-      
+
       // Load recent alerts (last 7 days)
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
-      
+
       const historyResponse = await window.ezsite.apis.tablePage('12613', {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'sent_date',
         IsAsc: false,
         Filters: [
-          { name: 'sent_date', op: 'GreaterThanOrEqual', value: weekAgo.toISOString() }
-        ]
+        { name: 'sent_date', op: 'GreaterThanOrEqual', value: weekAgo.toISOString() }]
+
       });
-      
+
       if (!historyResponse.error) {
         setRecentAlerts(historyResponse.data?.List?.length || 0);
       }
@@ -79,7 +79,7 @@ const SMSAlertStatus: React.FC<SMSAlertStatusProps> = ({ className = '' }) => {
   const sendTestAlert = async () => {
     try {
       const testMessage = "Test SMS: This is a test message from DFS Manager License Alert System.";
-      
+
       // Get active contacts
       const contactsResponse = await window.ezsite.apis.tablePage('12612', {
         PageNo: 1,
@@ -88,11 +88,11 @@ const SMSAlertStatus: React.FC<SMSAlertStatusProps> = ({ className = '' }) => {
         IsAsc: false,
         Filters: [{ name: 'is_active', op: 'Equal', value: true }]
       });
-      
+
       if (contactsResponse.error) throw contactsResponse.error;
-      
+
       const contacts = contactsResponse.data?.List || [];
-      
+
       if (contacts.length === 0) {
         toast({
           title: "No Contacts",
@@ -101,7 +101,7 @@ const SMSAlertStatus: React.FC<SMSAlertStatusProps> = ({ className = '' }) => {
         });
         return;
       }
-      
+
       // Send test SMS to all active contacts
       for (const contact of contacts) {
         await window.ezsite.apis.tableCreate('12613', {
@@ -115,12 +115,12 @@ const SMSAlertStatus: React.FC<SMSAlertStatusProps> = ({ className = '' }) => {
           created_by: 1
         });
       }
-      
+
       toast({
         title: "Test SMS Sent",
         description: `Test SMS sent to ${contacts.length} contacts`
       });
-      
+
       loadSMSStatus(); // Refresh stats
     } catch (error) {
       console.error('Error sending test SMS:', error);
@@ -141,8 +141,8 @@ const SMSAlertStatus: React.FC<SMSAlertStatusProps> = ({ className = '' }) => {
             <div className="h-6 bg-gray-200 rounded w-1/2"></div>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -179,10 +179,10 @@ const SMSAlertStatus: React.FC<SMSAlertStatusProps> = ({ className = '' }) => {
         </div>
         
         <div className="flex items-center justify-between pt-2 border-t">
-          <Badge 
+          <Badge
             variant={activeContacts > 0 && activeSettings > 0 ? 'default' : 'secondary'}
-            className="text-xs"
-          >
+            className="text-xs">
+
             {activeContacts > 0 && activeSettings > 0 ? 'System Active' : 'Setup Required'}
           </Badge>
           
@@ -192,23 +192,23 @@ const SMSAlertStatus: React.FC<SMSAlertStatusProps> = ({ className = '' }) => {
               variant="outline"
               onClick={sendTestAlert}
               className="text-xs px-2 py-1 h-7"
-              disabled={activeContacts === 0}
-            >
+              disabled={activeContacts === 0}>
+
               Test SMS
             </Button>
             <Button
               size="sm"
               variant="outline"
               onClick={() => navigate('/admin/sms-alerts')}
-              className="text-xs px-2 py-1 h-7"
-            >
+              className="text-xs px-2 py-1 h-7">
+
               Manage
             </Button>
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default SMSAlertStatus;

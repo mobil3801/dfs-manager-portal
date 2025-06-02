@@ -11,7 +11,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { MessageSquare, Phone, Settings, History, Plus, Edit, Trash2, Send } from 'lucide-react';
+import { MessageSquare, Phone, Settings, History, Plus, Edit, Trash2, Send, CheckCircle, AlertCircle } from 'lucide-react';
+import smsService from '@/services/smsService';
+import SMSSetupGuide from '@/components/SMSSetupGuide';
 
 interface SMSAlertSetting {
   id: number;
@@ -54,6 +56,8 @@ const SMSAlertManagement: React.FC = () => {
   const [isContactDialogOpen, setIsContactDialogOpen] = useState(false);
   const [editingSetting, setEditingSetting] = useState<SMSAlertSetting | null>(null);
   const [editingContact, setEditingContact] = useState<SMSContact | null>(null);
+  const [sendingTestSMS, setSendingTestSMS] = useState(false);
+  const [serviceStatus, setServiceStatus] = useState<{ available: boolean; message: string } | null>(null);
   const { toast } = useToast();
 
   // New setting form state
@@ -78,7 +82,21 @@ const SMSAlertManagement: React.FC = () => {
     loadSettings();
     loadContacts();
     loadHistory();
+    checkServiceStatus();
   }, []);
+
+  const checkServiceStatus = async () => {
+    try {
+      const status = await smsService.getServiceStatus();
+      setServiceStatus(status);
+    } catch (error) {
+      console.error('Error checking SMS service status:', error);
+      setServiceStatus({
+        available: false,
+        message: 'Unable to check SMS service status'
+      });
+    }
+  };
 
   const loadSettings = async () => {
     try {
@@ -244,7 +262,7 @@ const SMSAlertManagement: React.FC = () => {
     try {
       const { error } = await window.ezsite.apis.tableDelete('12611', { id });
       if (error) throw error;
-      
+
       toast({
         title: "Success",
         description: "SMS alert setting deleted successfully"
@@ -264,7 +282,7 @@ const SMSAlertManagement: React.FC = () => {
     try {
       const { error } = await window.ezsite.apis.tableDelete('12612', { id });
       if (error) throw error;
-      
+
       toast({
         title: "Success",
         description: "SMS contact deleted successfully"
@@ -282,39 +300,106 @@ const SMSAlertManagement: React.FC = () => {
 
   const sendTestSMS = async () => {
     try {
-      // Simulate sending test SMS
-      const testMessage = "Test SMS: This is a test message from DFS Manager License Alert System.";
+      setSendingTestSMS(true);
+      const testMessage = "🔔 Test SMS from DFS Manager: This is a test message from your License Alert System. SMS functionality is working correctly!";
+
+      // Get all active contacts
+      const activeContacts = contacts.filter((c) => c.is_active);
       
-      // Send to all active contacts
-      const activeContacts = contacts.filter(c => c.is_active);
-      
+      if (activeContacts.length === 0) {
+        toast({
+          title: "No Active Contacts",
+          description: "Please add active SMS contacts before sending test messages.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Sending Test SMS",
+        description: `Sending test SMS to ${activeContacts.length} contact(s)...`
+      });
+
+      let successCount = 0;
+      let failureCount = 0;
+
+      // Send SMS to each contact
       for (const contact of activeContacts) {
-        // Create history record for test SMS
+        console.log(`Sending test SMS to ${contact.contact_name} at ${contact.mobile_number}`);
+        
+        // Validate phone number
+        if (!smsService.isValidPhoneNumber(contact.mobile_number)) {
+          console.error(`Invalid phone number for ${contact.contact_name}: ${contact.mobile_number}`);
+          failureCount++;
+          
+          // Still create history record for tracking
+          await window.ezsite.apis.tableCreate('12613', {
+            license_id: 0,
+            contact_id: contact.id,
+            mobile_number: contact.mobile_number,
+            message_content: testMessage,
+            sent_date: new Date().toISOString(),
+            delivery_status: 'Failed - Invalid Number',
+            days_before_expiry: 0,
+            created_by: 1
+          });
+          continue;
+        }
+
+        // Send actual SMS
+        const smsResult = await smsService.sendSMS(contact.mobile_number, testMessage);
+        
+        if (smsResult.success) {
+          successCount++;
+          console.log(`✅ SMS sent successfully to ${contact.contact_name}`);
+        } else {
+          failureCount++;
+          console.error(`❌ SMS failed to ${contact.contact_name}:`, smsResult.error);
+        }
+
+        // Create history record
         await window.ezsite.apis.tableCreate('12613', {
           license_id: 0, // Test SMS
           contact_id: contact.id,
           mobile_number: contact.mobile_number,
           message_content: testMessage,
           sent_date: new Date().toISOString(),
-          delivery_status: 'Test Sent',
+          delivery_status: smsResult.success ? 'Sent' : `Failed - ${smsResult.error}`,
           days_before_expiry: 0,
           created_by: 1
         });
       }
 
-      toast({
-        title: "Test SMS Sent",
-        description: `Test SMS sent to ${activeContacts.length} contacts`
-      });
-      
+      // Show results
+      if (successCount > 0 && failureCount === 0) {
+        toast({
+          title: "✅ Test SMS Sent Successfully",
+          description: `Test SMS sent to all ${successCount} contact(s). Check your mobile device!`
+        });
+      } else if (successCount > 0 && failureCount > 0) {
+        toast({
+          title: "⚠️ Partial Success",
+          description: `${successCount} SMS sent successfully, ${failureCount} failed. Check SMS History for details.`,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "❌ All SMS Failed",
+          description: "Failed to send SMS to any contacts. Please check phone numbers and try again.",
+          variant: "destructive"
+        });
+      }
+
       loadHistory();
     } catch (error) {
       console.error('Error sending test SMS:', error);
       toast({
         title: "Error",
-        description: "Failed to send test SMS",
+        description: `Failed to send test SMS: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive"
       });
+    } finally {
+      setSendingTestSMS(false);
     }
   };
 
@@ -346,11 +431,34 @@ const SMSAlertManagement: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">SMS Alert Management</h1>
-        <Button onClick={sendTestSMS} className="bg-blue-600 hover:bg-blue-700">
-          <Send className="w-4 h-4 mr-2" />
-          Send Test SMS
-        </Button>
+        <div className="flex items-center space-x-4">
+          {serviceStatus && (
+            <div className="flex items-center space-x-2">
+              {serviceStatus.available ? (
+                <CheckCircle className="w-5 h-5 text-green-500" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-red-500" />
+              )}
+              <span className={`text-sm ${
+                serviceStatus.available ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {serviceStatus.available ? 'SMS Service Online' : 'SMS Service Offline'}
+              </span>
+            </div>
+          )}
+          <Button 
+            onClick={sendTestSMS} 
+            disabled={sendingTestSMS || !serviceStatus?.available}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            <Send className="w-4 h-4 mr-2" />
+            {sendingTestSMS ? 'Sending...' : 'Send Test SMS'}
+          </Button>
+        </div>
       </div>
+
+      {/* SMS Setup Guide */}
+      <SMSSetupGuide />
 
       <Tabs defaultValue="settings" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
@@ -395,9 +503,9 @@ const SMSAlertManagement: React.FC = () => {
                         <Input
                           id="setting_name"
                           value={newSetting.setting_name}
-                          onChange={(e) => setNewSetting({...newSetting, setting_name: e.target.value})}
-                          placeholder="e.g., Standard License Alert"
-                        />
+                          onChange={(e) => setNewSetting({ ...newSetting, setting_name: e.target.value })}
+                          placeholder="e.g., Standard License Alert" />
+
                       </div>
                       <div>
                         <Label htmlFor="days_before">Days Before Expiry</Label>
@@ -405,8 +513,8 @@ const SMSAlertManagement: React.FC = () => {
                           id="days_before"
                           type="number"
                           value={newSetting.days_before_expiry}
-                          onChange={(e) => setNewSetting({...newSetting, days_before_expiry: parseInt(e.target.value)})}
-                        />
+                          onChange={(e) => setNewSetting({ ...newSetting, days_before_expiry: parseInt(e.target.value) })} />
+
                       </div>
                       <div>
                         <Label htmlFor="frequency">Alert Frequency (Days)</Label>
@@ -414,15 +522,15 @@ const SMSAlertManagement: React.FC = () => {
                           id="frequency"
                           type="number"
                           value={newSetting.alert_frequency_days}
-                          onChange={(e) => setNewSetting({...newSetting, alert_frequency_days: parseInt(e.target.value)})}
-                        />
+                          onChange={(e) => setNewSetting({ ...newSetting, alert_frequency_days: parseInt(e.target.value) })} />
+
                       </div>
                       <div className="flex items-center space-x-2">
                         <Switch
                           id="is_active"
                           checked={newSetting.is_active}
-                          onCheckedChange={(checked) => setNewSetting({...newSetting, is_active: checked})}
-                        />
+                          onCheckedChange={(checked) => setNewSetting({ ...newSetting, is_active: checked })} />
+
                         <Label htmlFor="is_active">Active</Label>
                       </div>
                       <div>
@@ -430,10 +538,10 @@ const SMSAlertManagement: React.FC = () => {
                         <Textarea
                           id="template"
                           value={newSetting.message_template}
-                          onChange={(e) => setNewSetting({...newSetting, message_template: e.target.value})}
+                          onChange={(e) => setNewSetting({ ...newSetting, message_template: e.target.value })}
                           placeholder="Use {license_name}, {station}, {expiry_date} as placeholders"
-                          rows={3}
-                        />
+                          rows={3} />
+
                       </div>
                       <Button onClick={saveSetting} disabled={loading} className="w-full">
                         {loading ? 'Saving...' : editingSetting ? 'Update' : 'Create'}
@@ -455,8 +563,8 @@ const SMSAlertManagement: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {settings.map((setting) => (
-                    <TableRow key={setting.id}>
+                  {settings.map((setting) =>
+                  <TableRow key={setting.id}>
                       <TableCell className="font-medium">{setting.setting_name}</TableCell>
                       <TableCell>{setting.days_before_expiry} days</TableCell>
                       <TableCell>Every {setting.alert_frequency_days} days</TableCell>
@@ -468,23 +576,23 @@ const SMSAlertManagement: React.FC = () => {
                       <TableCell>
                         <div className="flex space-x-2">
                           <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => editSetting(setting)}
-                          >
+                          size="sm"
+                          variant="outline"
+                          onClick={() => editSetting(setting)}>
+
                             <Edit className="w-4 h-4" />
                           </Button>
                           <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => deleteSetting(setting.id)}
-                          >
+                          size="sm"
+                          variant="outline"
+                          onClick={() => deleteSetting(setting.id)}>
+
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
@@ -497,7 +605,7 @@ const SMSAlertManagement: React.FC = () => {
               <div className="flex justify-between items-center">
                 <CardTitle className="flex items-center">
                   <Phone className="w-5 h-5 mr-2" />
-                  SMS Contacts ({contacts.filter(c => c.is_active).length} active)
+                  SMS Contacts ({contacts.filter((c) => c.is_active).length} active)
                 </CardTitle>
                 <Dialog open={isContactDialogOpen} onOpenChange={setIsContactDialogOpen}>
                   <DialogTrigger asChild>
@@ -527,25 +635,30 @@ const SMSAlertManagement: React.FC = () => {
                         <Input
                           id="contact_name"
                           value={newContact.contact_name}
-                          onChange={(e) => setNewContact({...newContact, contact_name: e.target.value})}
-                          placeholder="Full name"
-                        />
+                          onChange={(e) => setNewContact({ ...newContact, contact_name: e.target.value })}
+                          placeholder="Full name" />
+
                       </div>
                       <div>
                         <Label htmlFor="mobile_number">Mobile Number</Label>
                         <Input
                           id="mobile_number"
                           value={newContact.mobile_number}
-                          onChange={(e) => setNewContact({...newContact, mobile_number: e.target.value})}
-                          placeholder="+1234567890"
+                          onChange={(e) => setNewContact({ ...newContact, mobile_number: e.target.value })}
+                          placeholder="+1234567890 or 1234567890"
                         />
+                        {newContact.mobile_number && !smsService.isValidPhoneNumber(newContact.mobile_number) && (
+                          <p className="text-sm text-red-500 mt-1">
+                            Please enter a valid phone number (e.g., +1234567890 or 1234567890)
+                          </p>
+                        )}
                       </div>
                       <div>
                         <Label htmlFor="station">Station</Label>
                         <Select
                           value={newContact.station}
-                          onValueChange={(value) => setNewContact({...newContact, station: value})}
-                        >
+                          onValueChange={(value) => setNewContact({ ...newContact, station: value })}>
+
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
@@ -561,8 +674,8 @@ const SMSAlertManagement: React.FC = () => {
                         <Label htmlFor="contact_role">Role</Label>
                         <Select
                           value={newContact.contact_role}
-                          onValueChange={(value) => setNewContact({...newContact, contact_role: value})}
-                        >
+                          onValueChange={(value) => setNewContact({ ...newContact, contact_role: value })}>
+
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
@@ -578,8 +691,8 @@ const SMSAlertManagement: React.FC = () => {
                         <Switch
                           id="contact_active"
                           checked={newContact.is_active}
-                          onCheckedChange={(checked) => setNewContact({...newContact, is_active: checked})}
-                        />
+                          onCheckedChange={(checked) => setNewContact({ ...newContact, is_active: checked })} />
+
                         <Label htmlFor="contact_active">Active</Label>
                       </div>
                       <Button onClick={saveContact} disabled={loading} className="w-full">
@@ -603,8 +716,8 @@ const SMSAlertManagement: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {contacts.map((contact) => (
-                    <TableRow key={contact.id}>
+                  {contacts.map((contact) =>
+                  <TableRow key={contact.id}>
                       <TableCell className="font-medium">{contact.contact_name}</TableCell>
                       <TableCell>{contact.mobile_number}</TableCell>
                       <TableCell>{contact.station}</TableCell>
@@ -617,23 +730,23 @@ const SMSAlertManagement: React.FC = () => {
                       <TableCell>
                         <div className="flex space-x-2">
                           <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => editContact(contact)}
-                          >
+                          size="sm"
+                          variant="outline"
+                          onClick={() => editContact(contact)}>
+
                             <Edit className="w-4 h-4" />
                           </Button>
                           <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => deleteContact(contact.id)}
-                          >
+                          size="sm"
+                          variant="outline"
+                          onClick={() => deleteContact(contact.id)}>
+
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
@@ -660,8 +773,8 @@ const SMSAlertManagement: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {history.map((record) => (
-                    <TableRow key={record.id}>
+                  {history.map((record) =>
+                  <TableRow key={record.id}>
                       <TableCell>
                         {new Date(record.sent_date).toLocaleDateString()}
                       </TableCell>
@@ -673,23 +786,23 @@ const SMSAlertManagement: React.FC = () => {
                         {record.days_before_expiry === 0 ? 'Test' : `${record.days_before_expiry} days`}
                       </TableCell>
                       <TableCell>
-                        <Badge 
-                          variant={record.delivery_status === 'Sent' || record.delivery_status === 'Test Sent' 
-                            ? 'default' : 'destructive'}
-                        >
+                        <Badge
+                        variant={record.delivery_status === 'Sent' || record.delivery_status === 'Test Sent' ?
+                        'default' : 'destructive'}>
+
                           {record.delivery_status}
                         </Badge>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SMSAlertManagement;
