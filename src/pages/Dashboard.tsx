@@ -664,123 +664,123 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Sales Analytics Chart */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <SalesChart />
         <div className="space-y-6">
           <SMSAlertStatus />
           <ErrorMonitoringWidget />
           <MemoryMonitoringWidget />
         </div>
+      </div>
 
-        {/* Notifications Panel */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Bell className="w-5 h-5 text-brand-700" />
-                <CardTitle>Recent Notifications</CardTitle>
-                {unreadCount > 0 &&
-                <Badge variant="destructive" className="text-xs">
-                    {unreadCount}
-                  </Badge>
-                }
-              </div>
+      {/* Notifications Panel - Moved to Bottom */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Bell className="w-5 h-5 text-brand-700" />
+              <CardTitle>Recent Notifications</CardTitle>
               {unreadCount > 0 &&
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={markAllAsRead}
-                className="text-sm text-brand-700 hover:text-brand-800">
-
-                  Mark all read
-                </Button>
+              <Badge variant="destructive" className="text-xs">
+                  {unreadCount}
+                </Badge>
               }
             </div>
-            <CardDescription>
-              Stay updated with important alerts and system notifications
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {notifications.length === 0 ?
-            <div className="text-center py-8 text-gray-500">
-                <Bell className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                <p>No notifications at the moment</p>
-                <p className="text-sm">All systems are running smoothly</p>
-              </div> :
+            {unreadCount > 0 &&
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={markAllAsRead}
+              className="text-sm text-brand-700 hover:text-brand-800">
 
-            <div className="space-y-3 max-h-80 overflow-y-auto">
-                {notifications.map((notification) =>
-              <div
-                key={notification.id}
-                className={`p-3 rounded-lg transition-all duration-200 hover:shadow-sm cursor-pointer ${
-                getNotificationStyle(notification.type)} ${
-                notification.isRead ? 'opacity-70' : ''}`}
-                onClick={() => markAsRead(notification.id)}>
+                Mark all read
+              </Button>
+            }
+          </div>
+          <CardDescription>
+            Stay updated with important alerts and system notifications
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {notifications.length === 0 ?
+          <div className="text-center py-8 text-gray-500">
+              <Bell className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+              <p>No notifications at the moment</p>
+              <p className="text-sm">All systems are running smoothly</p>
+            </div> :
 
-                    <div className="flex items-start space-x-3">
-                      <div className="flex-shrink-0 mt-0.5">
-                        {getNotificationIcon(notification.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <h4 className={`text-sm font-medium ${
-                      notification.isRead ? 'text-gray-600' : 'text-gray-900'}`
-                      }>
-                            {notification.title}
-                          </h4>
-                          <div className="flex items-center space-x-2">
-                            {!notification.isRead &&
-                        <div className="w-2 h-2 bg-brand-700 rounded-full"></div>
-                        }
-                            <div className="flex items-center text-xs text-gray-500">
-                              <Clock className="w-3 h-3 mr-1" />
-                              {formatTimeAgo(notification.timestamp)}
-                            </div>
+          <div className="space-y-3 max-h-80 overflow-y-auto">
+              {notifications.map((notification) =>
+            <div
+              key={notification.id}
+              className={`p-3 rounded-lg transition-all duration-200 hover:shadow-sm cursor-pointer ${
+              getNotificationStyle(notification.type)} ${
+              notification.isRead ? 'opacity-70' : ''}`}
+              onClick={() => markAsRead(notification.id)}>
+
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-shrink-0 mt-0.5">
+                      {getNotificationIcon(notification.type)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <h4 className={`text-sm font-medium ${
+                    notification.isRead ? 'text-gray-600' : 'text-gray-900'}`
+                    }>
+                          {notification.title}
+                        </h4>
+                        <div className="flex items-center space-x-2">
+                          {!notification.isRead &&
+                      <div className="w-2 h-2 bg-brand-700 rounded-full"></div>
+                      }
+                          <div className="flex items-center text-xs text-gray-500">
+                            <Clock className="w-3 h-3 mr-1" />
+                            {formatTimeAgo(notification.timestamp)}
                           </div>
                         </div>
-                        <p className={`text-sm ${
-                    notification.isRead ? 'text-gray-500' : 'text-gray-700'}`
-                    }>
-                          {notification.message}
-                        </p>
-                        {notification.action && notification.actionLabel &&
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        notification.action!();
-                      }}
-                      className="mt-2 text-xs px-2 py-1 h-auto">
-
-                            {notification.actionLabel}
-                          </Button>
-                    }
                       </div>
+                      <p className={`text-sm ${
+                  notification.isRead ? 'text-gray-500' : 'text-gray-700'}`
+                  }>
+                        {notification.message}
+                      </p>
+                      {notification.action && notification.actionLabel &&
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      notification.action!();
+                    }}
+                    className="mt-2 text-xs px-2 py-1 h-auto">
+
+                          {notification.actionLabel}
+                        </Button>
+                  }
                     </div>
                   </div>
-              )}
-              </div>
-            }
-            
-            {notifications.length > 0 &&
-            <div className="pt-3 border-t">
-                <Button
-                variant="ghost"
-                size="sm"
-                className="w-full text-sm text-gray-600 hover:text-gray-800"
-                onClick={() => {
-                  // Could navigate to a full notifications page in the future
-                  console.log('View all notifications');
-                }}>
+                </div>
+            )}
+            </div>
+          }
+          
+          {notifications.length > 0 &&
+          <div className="pt-3 border-t">
+              <Button
+              variant="ghost"
+              size="sm"
+              className="w-full text-sm text-gray-600 hover:text-gray-800"
+              onClick={() => {
+                // Could navigate to a full notifications page in the future
+                console.log('View all notifications');
+              }}>
 
-                  View all notifications
-                </Button>
-              </div>
-            }
-          </CardContent>
-        </Card>
-      </div>
+                View all notifications
+              </Button>
+            </div>
+          }
+        </CardContent>
+      </Card>
       
       {/* Visual Edit Status Note */}
       {showGuide &&
