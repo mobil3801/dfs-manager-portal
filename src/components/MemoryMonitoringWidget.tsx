@@ -13,6 +13,7 @@ import {
 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { MemoryLeakMonitor } from '@/services/memoryLeakMonitor';
+import useAdminAccess from '@/hooks/use-admin-access';
 
 interface MemoryInfo {
   current: {usedJSHeapSize: number;jsHeapSizeLimit: number;} | null;
@@ -23,9 +24,15 @@ interface MemoryInfo {
 }
 
 const MemoryMonitoringWidget: React.FC = () => {
+  const { hasMonitoringAccess } = useAdminAccess();
   const [memoryInfo, setMemoryInfo] = useState<MemoryInfo | null>(null);
   const [isAvailable, setIsAvailable] = useState(false);
   const navigate = useNavigate();
+
+  // Return null if user doesn't have monitoring access
+  if (!hasMonitoringAccess) {
+    return null;
+  }
 
   useEffect(() => {
     // Check if memory monitoring is available

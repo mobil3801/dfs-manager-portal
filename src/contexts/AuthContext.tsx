@@ -36,7 +36,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Full access for all users - visual editing enabled
+// Access matrix with monitoring restrictions
 const ACCESS_MATRIX = {
   Employee: {
     dashboard: ['read', 'write'],
@@ -45,7 +45,8 @@ const ACCESS_MATRIX = {
     sales: ['read', 'write'],
     vendors: ['read', 'write'],
     orders: ['read', 'write'],
-    licenses: ['read', 'write']
+    licenses: ['read', 'write'],
+    monitoring: [] // No monitoring access
   },
   Management: {
     dashboard: ['read', 'write'],
@@ -54,7 +55,8 @@ const ACCESS_MATRIX = {
     sales: ['read', 'write'],
     vendors: ['read', 'write'],
     orders: ['read', 'write'],
-    licenses: ['read', 'write']
+    licenses: ['read', 'write'],
+    monitoring: [] // No monitoring access
   },
   Administrator: {
     dashboard: ['read', 'write'],
@@ -63,7 +65,8 @@ const ACCESS_MATRIX = {
     sales: ['read', 'write'],
     vendors: ['read', 'write'],
     orders: ['read', 'write'],
-    licenses: ['read', 'write']
+    licenses: ['read', 'write'],
+    monitoring: ['read', 'write'] // Full monitoring access
   }
 };
 
@@ -233,27 +236,62 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
   };
 
   const hasPermission = (feature: string, action: 'read' | 'write'): boolean => {
-    // Always return true for visual editing access
+    if (!userProfile) return false;
+    
+    // Special handling for monitoring features
+    if (feature === 'monitoring') {
+      return userProfile.role === 'Administrator';
+    }
+    
+    // Full access for all other features
     return true;
   };
 
   const canEdit = (feature?: string): boolean => {
-    // Full visual editing access for all users and features
+    if (!userProfile) return false;
+    
+    // Monitoring features restricted to Administrators
+    if (feature === 'monitoring') {
+      return userProfile.role === 'Administrator';
+    }
+    
+    // Full visual editing access for all users and other features
     return true;
   };
 
   const canDelete = (feature?: string): boolean => {
-    // Full delete access for all users and features
+    if (!userProfile) return false;
+    
+    // Monitoring features restricted to Administrators
+    if (feature === 'monitoring') {
+      return userProfile.role === 'Administrator';
+    }
+    
+    // Full delete access for all users and other features
     return true;
   };
 
   const canCreate = (feature?: string): boolean => {
-    // Full create access for all users and features
+    if (!userProfile) return false;
+    
+    // Monitoring features restricted to Administrators
+    if (feature === 'monitoring') {
+      return userProfile.role === 'Administrator';
+    }
+    
+    // Full create access for all users and other features
     return true;
   };
 
   const canViewLogs = (feature?: string): boolean => {
-    // Full log viewing access for all users and features
+    if (!userProfile) return false;
+    
+    // Monitoring features restricted to Administrators
+    if (feature === 'monitoring') {
+      return userProfile.role === 'Administrator';
+    }
+    
+    // Full log viewing access for all users and other features
     return true;
   };
 

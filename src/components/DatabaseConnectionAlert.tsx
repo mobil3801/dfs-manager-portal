@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, Database, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import useAdminAccess from '@/hooks/use-admin-access';
 
 interface DatabaseConnectionAlertProps {
   connections: number;
@@ -18,8 +19,14 @@ const DatabaseConnectionAlert: React.FC<DatabaseConnectionAlertProps> = ({
   showDetails = true,
   className = ""
 }) => {
+  const { hasMonitoringAccess } = useAdminAccess();
   const navigate = useNavigate();
   const percentage = connections / max * 100;
+
+  // Return null if user doesn't have monitoring access
+  if (!hasMonitoringAccess) {
+    return null;
+  }
 
   // Only show alert if connection usage is high
   if (percentage < 70) {

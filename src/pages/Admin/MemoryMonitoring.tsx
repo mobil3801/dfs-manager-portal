@@ -6,8 +6,22 @@ import { Activity, Shield, TrendingUp, AlertTriangle, Play } from 'lucide-react'
 import MemoryLeakDashboard from '@/components/MemoryLeakDashboard';
 import MemoryLeakPreventionGuide from '@/components/MemoryLeakPreventionGuide';
 import MemoryLeakDemo from '@/components/MemoryLeakDemo';
+import AccessDenied from '@/components/AccessDenied';
+import useAdminAccess from '@/hooks/use-admin-access';
 
 const MemoryMonitoring: React.FC = () => {
+  const { hasMonitoringAccess } = useAdminAccess();
+
+  // Check admin access first
+  if (!hasMonitoringAccess) {
+    return (
+      <AccessDenied 
+        feature="Memory Leak Monitoring System"
+        requiredRole="Administrator"
+      />
+    );
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}

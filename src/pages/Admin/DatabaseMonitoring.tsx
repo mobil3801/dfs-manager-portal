@@ -6,8 +6,22 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Database, AlertTriangle, TrendingUp, Settings, Shield } from 'lucide-react';
 import DatabaseConnectionMonitor from '@/components/DatabaseConnectionMonitor';
+import AccessDenied from '@/components/AccessDenied';
+import useAdminAccess from '@/hooks/use-admin-access';
 
 const DatabaseMonitoringPage = () => {
+  const { hasMonitoringAccess } = useAdminAccess();
+
+  // Check admin access first
+  if (!hasMonitoringAccess) {
+    return (
+      <AccessDenied 
+        feature="Database Monitoring System"
+        requiredRole="Administrator"
+      />
+    );
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">

@@ -198,10 +198,10 @@ config: MemoryLeakConfig = DEFAULT_CONFIG)
 
 
 
+
+
       // Ignore circular reference errors for closure size checking
-    }}, [componentName, config.warnOnLargeClosure, config.maxClosureSize]);return { safeSetTimeout,
-    safeSetInterval,
-    safeAddEventListener,
+    }}, [componentName, config.warnOnLargeClosure, config.maxClosureSize]);return { safeSetTimeout, safeSetInterval, safeAddEventListener,
     trackSubscription,
     trackAsyncOperation,
     safeSetState,

@@ -6,11 +6,24 @@ import { ErrorRecovery } from '@/components/ErrorBoundary';
 import ErrorBoundaryDemo from '@/components/ErrorBoundaryDemo';
 import EnhancedErrorBoundaryDemo from '@/components/EnhancedErrorBoundaryDemo';
 import ErrorAnalyticsDashboard from '@/components/ErrorAnalyticsDashboard';
+import AccessDenied from '@/components/AccessDenied';
+import useAdminAccess from '@/hooks/use-admin-access';
 import { AlertTriangle, Shield, Bug, TestTube, BarChart3, Activity } from 'lucide-react';
 
 const ErrorRecoveryPage: React.FC = () => {
+  const { hasMonitoringAccess } = useAdminAccess();
   const [showDemo, setShowDemo] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+
+  // Check admin access first
+  if (!hasMonitoringAccess) {
+    return (
+      <AccessDenied 
+        feature="Error Recovery and Monitoring"
+        requiredRole="Administrator"
+      />
+    );
+  }
 
   return (
     <div className="container mx-auto p-6 space-y-6">

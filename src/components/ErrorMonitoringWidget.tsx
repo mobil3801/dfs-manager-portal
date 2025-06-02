@@ -15,6 +15,7 @@ import {
 'lucide-react';
 import { EnhancedErrorLogger } from '@/services/enhancedErrorLogger';
 import { useToast } from '@/hooks/use-toast';
+import useAdminAccess from '@/hooks/use-admin-access';
 
 interface ErrorAlert {
   id: string;
@@ -26,6 +27,7 @@ interface ErrorAlert {
 }
 
 const ErrorMonitoringWidget: React.FC = () => {
+  const { hasMonitoringAccess } = useAdminAccess();
   const [systemStatus, setSystemStatus] = useState<'healthy' | 'warning' | 'critical'>('healthy');
   const [activeAlerts, setActiveAlerts] = useState<ErrorAlert[]>([]);
   const [errorTrend, setErrorTrend] = useState<'increasing' | 'stable' | 'decreasing'>('stable');
@@ -33,6 +35,11 @@ const ErrorMonitoringWidget: React.FC = () => {
   const { toast } = useToast();
 
   const errorLogger = EnhancedErrorLogger.getInstance();
+
+  // Return null if user doesn't have monitoring access
+  if (!hasMonitoringAccess) {
+    return null;
+  }
 
   const checkSystemHealth = () => {
     const analytics = errorLogger.getAnalytics();
