@@ -300,7 +300,7 @@ const UserManagement: React.FC = () => {
     setBatchActionLoading(true);
     try {
       const selectedData = batchSelection.getSelectedData(filteredProfiles, (profile) => profile.id);
-      const updates = selectedData.map(profile => ({
+      const updates = selectedData.map((profile) => ({
         id: profile.id,
         ...(batchEditData.role && { role: batchEditData.role }),
         ...(batchEditData.station && { station: batchEditData.station }),
@@ -336,7 +336,7 @@ const UserManagement: React.FC = () => {
     setBatchActionLoading(true);
     try {
       const selectedData = batchSelection.getSelectedData(filteredProfiles, (profile) => profile.id);
-      
+
       for (const profile of selectedData) {
         const { error } = await window.ezsite.apis.tableDelete(11725, { id: profile.id });
         if (error) throw error;
@@ -702,8 +702,8 @@ const UserManagement: React.FC = () => {
             onBatchEdit={handleBatchEdit}
             onBatchDelete={handleBatchDelete}
             onClearSelection={batchSelection.clearSelection}
-            isLoading={batchActionLoading}
-          />
+            isLoading={batchActionLoading} />
+
 
           {/* User Profiles Table */}
           <Card>
@@ -719,8 +719,8 @@ const UserManagement: React.FC = () => {
                         <Checkbox
                           checked={filteredProfiles.length > 0 && batchSelection.selectedCount === filteredProfiles.length}
                           onCheckedChange={() => batchSelection.toggleSelectAll(filteredProfiles, (profile) => profile.id)}
-                          aria-label="Select all profiles"
-                        />
+                          aria-label="Select all profiles" />
+
                       </TableHead>
                       <TableHead>Employee ID</TableHead>
                       <TableHead>Role</TableHead>
@@ -744,10 +744,10 @@ const UserManagement: React.FC = () => {
                     <TableRow key={profile.id} className={batchSelection.isSelected(profile.id) ? "bg-blue-50" : ""}>
                           <TableCell>
                             <Checkbox
-                              checked={batchSelection.isSelected(profile.id)}
-                              onCheckedChange={() => batchSelection.toggleItem(profile.id)}
-                              aria-label={`Select profile ${profile.employee_id}`}
-                            />
+                          checked={batchSelection.isSelected(profile.id)}
+                          onCheckedChange={() => batchSelection.toggleItem(profile.id)}
+                          aria-label={`Select profile ${profile.employee_id}`} />
+
                           </TableCell>
                           <TableCell className="font-medium">{profile.employee_id}</TableCell>
                           <TableCell>
@@ -1069,8 +1069,8 @@ const UserManagement: React.FC = () => {
         onSave={confirmBatchEdit}
         selectedCount={batchSelection.selectedCount}
         isLoading={batchActionLoading}
-        itemName="user profiles"
-      >
+        itemName="user profiles">
+
         <div className="space-y-4">
           <div>
             <Label htmlFor="batch_role">Role</Label>
@@ -1081,7 +1081,7 @@ const UserManagement: React.FC = () => {
               <SelectContent>
                 <SelectItem value="">Keep existing roles</SelectItem>
                 {roles.map((role) =>
-                  <SelectItem key={role} value={role}>{role}</SelectItem>
+                <SelectItem key={role} value={role}>{role}</SelectItem>
                 )}
               </SelectContent>
             </Select>
@@ -1095,7 +1095,7 @@ const UserManagement: React.FC = () => {
               <SelectContent>
                 <SelectItem value="">Keep existing stations</SelectItem>
                 {stations.map((station) =>
-                  <SelectItem key={station} value={station}>{station}</SelectItem>
+                <SelectItem key={station} value={station}>{station}</SelectItem>
                 )}
               </SelectContent>
             </Select>
@@ -1104,8 +1104,8 @@ const UserManagement: React.FC = () => {
             <Checkbox
               id="batch_is_active"
               checked={batchEditData.is_active}
-              onCheckedChange={(checked) => setBatchEditData({ ...batchEditData, is_active: checked as boolean })}
-            />
+              onCheckedChange={(checked) => setBatchEditData({ ...batchEditData, is_active: checked as boolean })} />
+
             <Label htmlFor="batch_is_active">Set all selected users as active</Label>
           </div>
         </div>
@@ -1119,11 +1119,11 @@ const UserManagement: React.FC = () => {
         selectedCount={batchSelection.selectedCount}
         isLoading={batchActionLoading}
         itemName="user profiles"
-        selectedItems={batchSelection.getSelectedData(filteredProfiles, (profile) => profile.id).map(profile => ({
+        selectedItems={batchSelection.getSelectedData(filteredProfiles, (profile) => profile.id).map((profile) => ({
           id: profile.id,
           name: `${profile.employee_id} - ${profile.role}`
-        }))}
-      />
+        }))} />
+
     </div>);
 
 };

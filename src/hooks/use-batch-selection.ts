@@ -24,11 +24,11 @@ export function useBatchSelection<T>(): BatchSelectionHook<T> {
   }, [selectedItems]);
 
   const selectItem = useCallback((id: string | number) => {
-    setSelectedItems(prev => new Set([...prev, id]));
+    setSelectedItems((prev) => new Set([...prev, id]));
   }, []);
 
   const deselectItem = useCallback((id: string | number) => {
-    setSelectedItems(prev => {
+    setSelectedItems((prev) => {
       const newSet = new Set(prev);
       newSet.delete(id);
       return newSet;
@@ -54,8 +54,8 @@ export function useBatchSelection<T>(): BatchSelectionHook<T> {
 
   const toggleSelectAll = useCallback((items: T[], getItemId: (item: T) => string | number) => {
     const allIds = items.map(getItemId);
-    const allSelected = allIds.every(id => selectedItems.has(id));
-    
+    const allSelected = allIds.every((id) => selectedItems.has(id));
+
     if (allSelected) {
       deselectAll();
     } else {
@@ -64,7 +64,7 @@ export function useBatchSelection<T>(): BatchSelectionHook<T> {
   }, [selectedItems, selectAll, deselectAll]);
 
   const getSelectedData = useCallback((items: T[], getItemId: (item: T) => string | number) => {
-    return items.filter(item => selectedItems.has(getItemId(item)));
+    return items.filter((item) => selectedItems.has(getItemId(item)));
   }, [selectedItems]);
 
   const clearSelection = useCallback(() => {

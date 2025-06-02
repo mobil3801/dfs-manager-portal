@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import SalesChart from '@/components/SalesChart';
 import SMSAlertStatus from '@/components/SMSAlertStatus';
 import ErrorMonitoringWidget from '@/components/ErrorMonitoringWidget';
+import MemoryMonitoringWidget from '@/components/MemoryMonitoringWidget';
 import {
   Package,
   Users,
@@ -664,6 +665,7 @@ const Dashboard: React.FC = () => {
         <div className="space-y-6">
           <SMSAlertStatus />
           <ErrorMonitoringWidget />
+          <MemoryMonitoringWidget />
         </div>
 
         {/* Notifications Panel */}

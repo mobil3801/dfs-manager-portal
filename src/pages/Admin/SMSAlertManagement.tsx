@@ -481,7 +481,7 @@ const SMSAlertManagement: React.FC = () => {
     setBatchActionLoading(true);
     try {
       const selectedData = settingsBatchSelection.getSelectedData(settings, (setting) => setting.id);
-      
+
       for (const setting of selectedData) {
         const { error } = await window.ezsite.apis.tableDelete('12611', { id: setting.id });
         if (error) throw error;
@@ -538,7 +538,7 @@ const SMSAlertManagement: React.FC = () => {
     setBatchActionLoading(true);
     try {
       const selectedData = contactsBatchSelection.getSelectedData(contacts, (contact) => contact.id);
-      const updates = selectedData.map(contact => ({
+      const updates = selectedData.map((contact) => ({
         id: contact.id,
         ...(batchEditData.station && { station: batchEditData.station }),
         ...(batchEditData.contact_role && { contact_role: batchEditData.contact_role }),
@@ -574,7 +574,7 @@ const SMSAlertManagement: React.FC = () => {
     setBatchActionLoading(true);
     try {
       const selectedData = contactsBatchSelection.getSelectedData(contacts, (contact) => contact.id);
-      
+
       for (const contact of selectedData) {
         const { error } = await window.ezsite.apis.tableDelete('12612', { id: contact.id });
         if (error) throw error;
@@ -618,7 +618,7 @@ const SMSAlertManagement: React.FC = () => {
     setBatchActionLoading(true);
     try {
       const selectedData = historyBatchSelection.getSelectedData(history, (record) => record.id);
-      
+
       for (const record of selectedData) {
         const { error } = await window.ezsite.apis.tableDelete('12613', { id: record.id });
         if (error) throw error;
@@ -647,10 +647,10 @@ const SMSAlertManagement: React.FC = () => {
   // Get current batch selection based on active tab
   const getCurrentBatchSelection = () => {
     switch (activeTab) {
-      case 'settings': return settingsBatchSelection;
-      case 'contacts': return contactsBatchSelection;
-      case 'history': return historyBatchSelection;
-      default: return { selectedCount: 0, clearSelection: () => {} };
+      case 'settings':return settingsBatchSelection;
+      case 'contacts':return contactsBatchSelection;
+      case 'history':return historyBatchSelection;
+      default:return { selectedCount: 0, clearSelection: () => {} };
     }
   };
 
@@ -682,17 +682,17 @@ const SMSAlertManagement: React.FC = () => {
   const getCurrentSelectedData = () => {
     switch (activeTab) {
       case 'settings':
-        return settingsBatchSelection.getSelectedData(settings, (setting) => setting.id).map(setting => ({
+        return settingsBatchSelection.getSelectedData(settings, (setting) => setting.id).map((setting) => ({
           id: setting.id,
           name: setting.setting_name
         }));
       case 'contacts':
-        return contactsBatchSelection.getSelectedData(contacts, (contact) => contact.id).map(contact => ({
+        return contactsBatchSelection.getSelectedData(contacts, (contact) => contact.id).map((contact) => ({
           id: contact.id,
           name: `${contact.contact_name} - ${contact.mobile_number}`
         }));
       case 'history':
-        return historyBatchSelection.getSelectedData(history, (record) => record.id).map(record => ({
+        return historyBatchSelection.getSelectedData(history, (record) => record.id).map((record) => ({
           id: record.id,
           name: `${record.mobile_number} - ${new Date(record.sent_date).toLocaleDateString()}`
         }));
@@ -704,10 +704,10 @@ const SMSAlertManagement: React.FC = () => {
   // Get current confirm function based on active tab
   const getCurrentConfirmFunction = () => {
     switch (activeTab) {
-      case 'settings': return confirmBatchDeleteSettings;
-      case 'contacts': return activeTab === 'contacts' && isBatchEditDialogOpen ? confirmBatchEditContacts : confirmBatchDeleteContacts;
-      case 'history': return confirmBatchDeleteHistory;
-      default: return () => {};
+      case 'settings':return confirmBatchDeleteSettings;
+      case 'contacts':return activeTab === 'contacts' && isBatchEditDialogOpen ? confirmBatchEditContacts : confirmBatchDeleteContacts;
+      case 'history':return confirmBatchDeleteHistory;
+      default:return () => {};
     }
   };
 
@@ -745,16 +745,16 @@ const SMSAlertManagement: React.FC = () => {
       <SMSSetupGuide />
 
       {/* Show batch action bar only for relevant tabs */}
-      {(activeTab === 'settings' || activeTab === 'contacts' || activeTab === 'history') && (
-        <BatchActionBar
-          selectedCount={getCurrentBatchSelection().selectedCount}
-          onBatchEdit={getCurrentBatchOperations().onBatchEdit}
-          onBatchDelete={getCurrentBatchOperations().onBatchDelete}
-          onClearSelection={getCurrentBatchSelection().clearSelection}
-          isLoading={batchActionLoading}
-          showEdit={getCurrentBatchOperations().showEdit}
-        />
-      )}
+      {(activeTab === 'settings' || activeTab === 'contacts' || activeTab === 'history') &&
+      <BatchActionBar
+        selectedCount={getCurrentBatchSelection().selectedCount}
+        onBatchEdit={getCurrentBatchOperations().onBatchEdit}
+        onBatchDelete={getCurrentBatchOperations().onBatchDelete}
+        onClearSelection={getCurrentBatchSelection().clearSelection}
+        isLoading={batchActionLoading}
+        showEdit={getCurrentBatchOperations().showEdit} />
+
+      }
 
       <Tabs defaultValue="trigger" className="space-y-6" onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-5">
@@ -861,8 +861,8 @@ const SMSAlertManagement: React.FC = () => {
                       <Checkbox
                         checked={settings.length > 0 && settingsBatchSelection.selectedCount === settings.length}
                         onCheckedChange={() => settingsBatchSelection.toggleSelectAll(settings, (setting) => setting.id)}
-                        aria-label="Select all settings"
-                      />
+                        aria-label="Select all settings" />
+
                     </TableHead>
                     <TableHead>Setting Name</TableHead>
                     <TableHead>Days Before</TableHead>
@@ -876,10 +876,10 @@ const SMSAlertManagement: React.FC = () => {
                   <TableRow key={setting.id} className={settingsBatchSelection.isSelected(setting.id) ? "bg-blue-50" : ""}>
                       <TableCell>
                         <Checkbox
-                          checked={settingsBatchSelection.isSelected(setting.id)}
-                          onCheckedChange={() => settingsBatchSelection.toggleItem(setting.id)}
-                          aria-label={`Select setting ${setting.setting_name}`}
-                        />
+                        checked={settingsBatchSelection.isSelected(setting.id)}
+                        onCheckedChange={() => settingsBatchSelection.toggleItem(setting.id)}
+                        aria-label={`Select setting ${setting.setting_name}`} />
+
                       </TableCell>
                       <TableCell className="font-medium">{setting.setting_name}</TableCell>
                       <TableCell>{setting.days_before_expiry} days</TableCell>
@@ -1027,8 +1027,8 @@ const SMSAlertManagement: React.FC = () => {
                       <Checkbox
                         checked={contacts.length > 0 && contactsBatchSelection.selectedCount === contacts.length}
                         onCheckedChange={() => contactsBatchSelection.toggleSelectAll(contacts, (contact) => contact.id)}
-                        aria-label="Select all contacts"
-                      />
+                        aria-label="Select all contacts" />
+
                     </TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Mobile Number</TableHead>
@@ -1043,10 +1043,10 @@ const SMSAlertManagement: React.FC = () => {
                   <TableRow key={contact.id} className={contactsBatchSelection.isSelected(contact.id) ? "bg-blue-50" : ""}>
                       <TableCell>
                         <Checkbox
-                          checked={contactsBatchSelection.isSelected(contact.id)}
-                          onCheckedChange={() => contactsBatchSelection.toggleItem(contact.id)}
-                          aria-label={`Select contact ${contact.contact_name}`}
-                        />
+                        checked={contactsBatchSelection.isSelected(contact.id)}
+                        onCheckedChange={() => contactsBatchSelection.toggleItem(contact.id)}
+                        aria-label={`Select contact ${contact.contact_name}`} />
+
                       </TableCell>
                       <TableCell className="font-medium">{contact.contact_name}</TableCell>
                       <TableCell>{contact.mobile_number}</TableCell>
@@ -1099,8 +1099,8 @@ const SMSAlertManagement: React.FC = () => {
                       <Checkbox
                         checked={history.length > 0 && historyBatchSelection.selectedCount === history.length}
                         onCheckedChange={() => historyBatchSelection.toggleSelectAll(history, (record) => record.id)}
-                        aria-label="Select all history records"
-                      />
+                        aria-label="Select all history records" />
+
                     </TableHead>
                     <TableHead>Date Sent</TableHead>
                     <TableHead>Mobile Number</TableHead>
@@ -1114,10 +1114,10 @@ const SMSAlertManagement: React.FC = () => {
                   <TableRow key={record.id} className={historyBatchSelection.isSelected(record.id) ? "bg-blue-50" : ""}>
                       <TableCell>
                         <Checkbox
-                          checked={historyBatchSelection.isSelected(record.id)}
-                          onCheckedChange={() => historyBatchSelection.toggleItem(record.id)}
-                          aria-label={`Select history record ${record.id}`}
-                        />
+                        checked={historyBatchSelection.isSelected(record.id)}
+                        onCheckedChange={() => historyBatchSelection.toggleItem(record.id)}
+                        aria-label={`Select history record ${record.id}`} />
+
                       </TableCell>
                       <TableCell>
                         {new Date(record.sent_date).toLocaleDateString()}
@@ -1157,8 +1157,8 @@ const SMSAlertManagement: React.FC = () => {
         onSave={confirmBatchEditContacts}
         selectedCount={contactsBatchSelection.selectedCount}
         isLoading={batchActionLoading}
-        itemName="SMS contacts"
-      >
+        itemName="SMS contacts">
+
         <div className="space-y-4">
           <div>
             <Label htmlFor="batch_station">Station</Label>
@@ -1194,8 +1194,8 @@ const SMSAlertManagement: React.FC = () => {
             <Switch
               id="batch_is_active"
               checked={batchEditData.is_active}
-              onCheckedChange={(checked) => setBatchEditData({ ...batchEditData, is_active: checked })}
-            />
+              onCheckedChange={(checked) => setBatchEditData({ ...batchEditData, is_active: checked })} />
+
             <Label htmlFor="batch_is_active">Set all selected contacts as active</Label>
           </div>
         </div>
@@ -1209,8 +1209,8 @@ const SMSAlertManagement: React.FC = () => {
         selectedCount={getCurrentBatchSelection().selectedCount}
         isLoading={batchActionLoading}
         itemName={activeTab === 'settings' ? 'SMS alert settings' : activeTab === 'contacts' ? 'SMS contacts' : 'SMS history records'}
-        selectedItems={getCurrentSelectedData()}
-      />
+        selectedItems={getCurrentSelectedData()} />
+
     </div>);
 
 };

@@ -227,10 +227,10 @@ const SystemLogs: React.FC = () => {
     setBatchActionLoading(true);
     try {
       const selectedData = batchSelection.getSelectedData(filteredLogs, (log) => log.id);
-      const selectedIds = selectedData.map(log => log.id);
-      
+      const selectedIds = selectedData.map((log) => log.id);
+
       // Filter out selected logs
-      const remainingLogs = logs.filter(log => !selectedIds.includes(log.id));
+      const remainingLogs = logs.filter((log) => !selectedIds.includes(log.id));
       setLogs(remainingLogs);
 
       toast({
@@ -381,8 +381,8 @@ const SystemLogs: React.FC = () => {
         onBatchDelete={handleBatchDelete}
         onClearSelection={batchSelection.clearSelection}
         isLoading={batchActionLoading}
-        showEdit={false}
-      />
+        showEdit={false} />
+
 
       {/* Filters */}
       <Card>
@@ -462,8 +462,8 @@ const SystemLogs: React.FC = () => {
                     <Checkbox
                       checked={filteredLogs.length > 0 && batchSelection.selectedCount === filteredLogs.length}
                       onCheckedChange={() => batchSelection.toggleSelectAll(filteredLogs, (log) => log.id)}
-                      aria-label="Select all logs"
-                    />
+                      aria-label="Select all logs" />
+
                   </TableHead>
                   <TableHead>Time</TableHead>
                   <TableHead>Level</TableHead>
@@ -478,10 +478,10 @@ const SystemLogs: React.FC = () => {
                 <TableRow key={log.id} className={batchSelection.isSelected(log.id) ? "bg-blue-50" : ""}>
                     <TableCell>
                       <Checkbox
-                        checked={batchSelection.isSelected(log.id)}
-                        onCheckedChange={() => batchSelection.toggleItem(log.id)}
-                        aria-label={`Select log ${log.id}`}
-                      />
+                      checked={batchSelection.isSelected(log.id)}
+                      onCheckedChange={() => batchSelection.toggleItem(log.id)}
+                      aria-label={`Select log ${log.id}`} />
+
                     </TableCell>
                     <TableCell className="font-mono text-sm">
                       <div className="flex items-center space-x-2">
@@ -551,11 +551,11 @@ const SystemLogs: React.FC = () => {
         selectedCount={batchSelection.selectedCount}
         isLoading={batchActionLoading}
         itemName="log entries"
-        selectedItems={batchSelection.getSelectedData(filteredLogs, (log) => log.id).map(log => ({
+        selectedItems={batchSelection.getSelectedData(filteredLogs, (log) => log.id).map((log) => ({
           id: log.id,
           name: `${log.level} - ${log.category} - ${log.message.substring(0, 50)}...`
-        }))}
-      />
+        }))} />
+
     </div>);
 
 };

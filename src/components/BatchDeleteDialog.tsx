@@ -7,8 +7,8 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+  AlertDialogTitle } from
+'@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Trash2 } from 'lucide-react';
 
@@ -48,26 +48,26 @@ const BatchDeleteDialog: React.FC<BatchDeleteDialogProps> = ({
               {itemName}? This action cannot be undone.
             </div>
             
-            {selectedItems.length > 0 && selectedItems.length <= 5 && (
-              <div className="mt-4">
+            {selectedItems.length > 0 && selectedItems.length <= 5 &&
+            <div className="mt-4">
                 <p className="text-sm font-medium text-gray-700 mb-2">Items to be deleted:</p>
                 <div className="space-y-1">
-                  {selectedItems.map((item, index) => (
-                    <div key={index} className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                  {selectedItems.map((item, index) =>
+                <div key={index} className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
                       {item.name || item.title || item.id || 'Unknown item'}
                     </div>
-                  ))}
+                )}
                 </div>
               </div>
-            )}
+            }
             
-            {selectedItems.length > 5 && (
-              <div className="mt-4">
+            {selectedItems.length > 5 &&
+            <div className="mt-4">
                 <p className="text-sm text-gray-600">
                   {selectedCount} {itemName} will be permanently deleted.
                 </p>
               </div>
-            )}
+            }
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -75,14 +75,14 @@ const BatchDeleteDialog: React.FC<BatchDeleteDialogProps> = ({
           <AlertDialogAction
             onClick={onConfirm}
             disabled={isLoading}
-            className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
-          >
+            className="bg-red-600 hover:bg-red-700 focus:ring-red-600">
+
             {isLoading ? 'Deleting...' : `Delete ${selectedCount} ${itemName}`}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
-    </AlertDialog>
-  );
+    </AlertDialog>);
+
 };
 
 export default BatchDeleteDialog;

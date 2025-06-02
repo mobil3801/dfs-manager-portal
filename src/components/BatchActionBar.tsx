@@ -32,31 +32,31 @@ const BatchActionBar: React.FC<BatchActionBarProps> = ({
         </Badge>
         
         <div className="flex items-center gap-2">
-          {showEdit && onBatchEdit && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={onBatchEdit}
-              disabled={isLoading}
-              className="flex items-center gap-2"
-            >
+          {showEdit && onBatchEdit &&
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onBatchEdit}
+            disabled={isLoading}
+            className="flex items-center gap-2">
+
               <Edit className="h-4 w-4" />
               Edit Selected
             </Button>
-          )}
+          }
           
-          {showDelete && onBatchDelete && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={onBatchDelete}
-              disabled={isLoading}
-              className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-            >
+          {showDelete && onBatchDelete &&
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onBatchDelete}
+            disabled={isLoading}
+            className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50">
+
               <Trash2 className="h-4 w-4" />
               Delete Selected
             </Button>
-          )}
+          }
         </div>
       </div>
       
@@ -65,13 +65,13 @@ const BatchActionBar: React.FC<BatchActionBarProps> = ({
         variant="ghost"
         onClick={onClearSelection}
         disabled={isLoading}
-        className="flex items-center gap-2"
-      >
+        className="flex items-center gap-2">
+
         <X className="h-4 w-4" />
         Clear Selection
       </Button>
-    </div>
-  );
+    </div>);
+
 };
 
 export default BatchActionBar;

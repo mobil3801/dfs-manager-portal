@@ -239,7 +239,7 @@ const SiteManagement: React.FC = () => {
     setBatchActionLoading(true);
     try {
       const selectedData = batchSelection.getSelectedData(stations, (station) => station.id);
-      const updates = selectedData.map(station => ({
+      const updates = selectedData.map((station) => ({
         id: station.id,
         ...(batchEditData.status && { status: batchEditData.status }),
         ...(batchEditData.manager_name && { manager_name: batchEditData.manager_name }),
@@ -276,7 +276,7 @@ const SiteManagement: React.FC = () => {
     setBatchActionLoading(true);
     try {
       const selectedData = batchSelection.getSelectedData(stations, (station) => station.id);
-      
+
       for (const station of selectedData) {
         const { error } = await window.ezsite.apis.tableDelete(12599, { id: station.id });
         if (error) throw error;
@@ -387,8 +387,8 @@ const SiteManagement: React.FC = () => {
         onBatchEdit={handleBatchEdit}
         onBatchDelete={handleBatchDelete}
         onClearSelection={batchSelection.clearSelection}
-        isLoading={batchActionLoading}
-      />
+        isLoading={batchActionLoading} />
+
 
       {/* Station Information */}
       <Card>
@@ -398,13 +398,13 @@ const SiteManagement: React.FC = () => {
               <Building2 className="w-5 h-5" />
               <span>Station Information</span>
             </div>
-            {stations.length > 0 && (
-              <Checkbox
-                checked={stations.length > 0 && batchSelection.selectedCount === stations.length}
-                onCheckedChange={() => batchSelection.toggleSelectAll(stations, (station) => station.id)}
-                aria-label="Select all stations"
-              />
-            )}
+            {stations.length > 0 &&
+            <Checkbox
+              checked={stations.length > 0 && batchSelection.selectedCount === stations.length}
+              onCheckedChange={() => batchSelection.toggleSelectAll(stations, (station) => station.id)}
+              aria-label="Select all stations" />
+
+            }
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -434,10 +434,10 @@ const SiteManagement: React.FC = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <Checkbox
-                            checked={batchSelection.isSelected(station.id)}
-                            onCheckedChange={() => batchSelection.toggleItem(station.id)}
-                            aria-label={`Select station ${station.station_name}`}
-                          />
+                        checked={batchSelection.isSelected(station.id)}
+                        onCheckedChange={() => batchSelection.toggleItem(station.id)}
+                        aria-label={`Select station ${station.station_name}`} />
+
                           <h3 className="font-semibold text-lg">{station.station_name}</h3>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -761,17 +761,17 @@ const SiteManagement: React.FC = () => {
         onSave={confirmBatchEdit}
         selectedCount={batchSelection.selectedCount}
         isLoading={batchActionLoading}
-        itemName="stations"
-      >
+        itemName="stations">
+
         <div className="space-y-4">
           <div>
             <Label htmlFor="batch_status">Status</Label>
-            <select 
+            <select
               id="batch_status"
-              value={batchEditData.status} 
+              value={batchEditData.status}
               onChange={(e) => setBatchEditData({ ...batchEditData, status: e.target.value })}
-              className="w-full p-2 border rounded-md"
-            >
+              className="w-full p-2 border rounded-md">
+
               <option value="">Keep existing status</option>
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
@@ -784,8 +784,8 @@ const SiteManagement: React.FC = () => {
               id="batch_manager"
               value={batchEditData.manager_name}
               onChange={(e) => setBatchEditData({ ...batchEditData, manager_name: e.target.value })}
-              placeholder="Leave empty to keep existing managers"
-            />
+              placeholder="Leave empty to keep existing managers" />
+
           </div>
           <div>
             <Label htmlFor="batch_hours">Operating Hours</Label>
@@ -793,8 +793,8 @@ const SiteManagement: React.FC = () => {
               id="batch_hours"
               value={batchEditData.operating_hours}
               onChange={(e) => setBatchEditData({ ...batchEditData, operating_hours: e.target.value })}
-              placeholder="Leave empty to keep existing hours"
-            />
+              placeholder="Leave empty to keep existing hours" />
+
           </div>
         </div>
       </BatchEditDialog>
@@ -807,11 +807,11 @@ const SiteManagement: React.FC = () => {
         selectedCount={batchSelection.selectedCount}
         isLoading={batchActionLoading}
         itemName="stations"
-        selectedItems={batchSelection.getSelectedData(stations, (station) => station.id).map(station => ({
+        selectedItems={batchSelection.getSelectedData(stations, (station) => station.id).map((station) => ({
           id: station.id,
           name: station.station_name
-        }))}
-      />
+        }))} />
+
 
     </div>);
 

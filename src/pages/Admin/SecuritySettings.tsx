@@ -257,10 +257,10 @@ const SecuritySettings: React.FC = () => {
     setBatchActionLoading(true);
     try {
       const selectedData = batchSelection.getSelectedData(securityEvents, (event) => event.id);
-      const selectedIds = selectedData.map(event => event.id);
-      
+      const selectedIds = selectedData.map((event) => event.id);
+
       // Filter out selected events
-      const remainingEvents = securityEvents.filter(event => !selectedIds.includes(event.id));
+      const remainingEvents = securityEvents.filter((event) => !selectedIds.includes(event.id));
       setSecurityEvents(remainingEvents);
 
       toast({
@@ -796,8 +796,8 @@ const SecuritySettings: React.FC = () => {
         onBatchDelete={handleBatchDelete}
         onClearSelection={batchSelection.clearSelection}
         isLoading={batchActionLoading}
-        showEdit={false}
-      />
+        showEdit={false} />
+
 
       {/* Recent Security Events */}
       <Card>
@@ -816,8 +816,8 @@ const SecuritySettings: React.FC = () => {
                     <Checkbox
                       checked={securityEvents.length > 0 && batchSelection.selectedCount === securityEvents.length}
                       onCheckedChange={() => batchSelection.toggleSelectAll(securityEvents, (event) => event.id)}
-                      aria-label="Select all security events"
-                    />
+                      aria-label="Select all security events" />
+
                   </TableHead>
                   <TableHead>Time</TableHead>
                   <TableHead>Type</TableHead>
@@ -832,10 +832,10 @@ const SecuritySettings: React.FC = () => {
                 <TableRow key={event.id} className={batchSelection.isSelected(event.id) ? "bg-blue-50" : ""}>
                     <TableCell>
                       <Checkbox
-                        checked={batchSelection.isSelected(event.id)}
-                        onCheckedChange={() => batchSelection.toggleItem(event.id)}
-                        aria-label={`Select security event ${event.id}`}
-                      />
+                      checked={batchSelection.isSelected(event.id)}
+                      onCheckedChange={() => batchSelection.toggleItem(event.id)}
+                      aria-label={`Select security event ${event.id}`} />
+
                     </TableCell>
                     <TableCell className="font-mono text-sm">
                       <div className="flex items-center space-x-2">
@@ -873,11 +873,11 @@ const SecuritySettings: React.FC = () => {
         selectedCount={batchSelection.selectedCount}
         isLoading={batchActionLoading}
         itemName="security events"
-        selectedItems={batchSelection.getSelectedData(securityEvents, (event) => event.id).map(event => ({
+        selectedItems={batchSelection.getSelectedData(securityEvents, (event) => event.id).map((event) => ({
           id: event.id,
           name: `${event.type} - ${event.severity.toUpperCase()} - ${event.description.substring(0, 50)}...`
-        }))}
-      />
+        }))} />
+
     </div>);
 
 };
