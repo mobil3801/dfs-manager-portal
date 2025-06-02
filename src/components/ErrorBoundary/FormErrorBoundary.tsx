@@ -76,7 +76,7 @@ class FormErrorBoundary extends Component<Props, State> {
       // Try to extract form data from the DOM
       const formElements = document.querySelectorAll('input, select, textarea');
       const formData: Record<string, any> = {};
-      
+
       formElements.forEach((element: any) => {
         if (element.name || element.id) {
           const key = element.name || element.id;
@@ -87,7 +87,7 @@ class FormErrorBoundary extends Component<Props, State> {
           }
         }
       });
-      
+
       return formData;
     } catch (e) {
       console.warn('Failed to recover form data:', e);
@@ -128,9 +128,9 @@ class FormErrorBoundary extends Component<Props, State> {
             errorInfo={this.state.errorInfo}
             formName={this.props.formName}
             onFormReset={this.handleFormReset}
-            onDataSave={this.handleDataSave}
-          />
-        );
+            onDataSave={this.handleDataSave} />);
+
+
       }
 
       // Default form error fallback UI
@@ -149,11 +149,11 @@ class FormErrorBoundary extends Component<Props, State> {
               <AlertDescription className="text-red-800">
                 An error occurred while processing the{' '}
                 {this.props.formName ? `${this.props.formName} form` : 'form'}.
-                {this.props.showDataRecovery && (
-                  <span className="block mt-1 text-sm">
+                {this.props.showDataRecovery &&
+                <span className="block mt-1 text-sm">
                     Your form data may have been preserved and can be recovered.
                   </span>
-                )}
+                }
               </AlertDescription>
             </Alert>
 
@@ -168,35 +168,35 @@ class FormErrorBoundary extends Component<Props, State> {
                 onClick={this.handleReset}
                 variant="default"
                 size="sm"
-                className="flex items-center gap-2"
-              >
+                className="flex items-center gap-2">
+
                 <RefreshCw size={16} />
                 Retry Form
               </Button>
 
-              {this.props.onFormReset && (
-                <Button
-                  onClick={this.handleFormReset}
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-2 border-red-300 text-red-700 hover:bg-red-100"
-                >
+              {this.props.onFormReset &&
+              <Button
+                onClick={this.handleFormReset}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2 border-red-300 text-red-700 hover:bg-red-100">
+
                   <RefreshCw size={16} />
                   Reset Form
                 </Button>
-              )}
+              }
 
-              {this.props.showDataRecovery && this.props.onDataSave && (
-                <Button
-                  onClick={this.handleDataSave}
-                  variant="secondary"
-                  size="sm"
-                  className="flex items-center gap-2"
-                >
+              {this.props.showDataRecovery && this.props.onDataSave &&
+              <Button
+                onClick={this.handleDataSave}
+                variant="secondary"
+                size="sm"
+                className="flex items-center gap-2">
+
                   <Save size={16} />
                   Save Draft
                 </Button>
-              )}
+              }
             </div>
 
             {/* Recovery Tips */}
@@ -208,9 +208,9 @@ class FormErrorBoundary extends Component<Props, State> {
                 <li>• Try refreshing the page and filling out the form again</li>
                 <li>• Check that all required fields are properly filled</li>
                 <li>• Ensure your internet connection is stable</li>
-                {this.props.showDataRecovery && (
-                  <li>• Use "Save Draft" to preserve your current data</li>
-                )}
+                {this.props.showDataRecovery &&
+                <li>• Use "Save Draft" to preserve your current data</li>
+                }
               </ul>
             </div>
 
@@ -226,8 +226,8 @@ class FormErrorBoundary extends Component<Props, State> {
               </div>
             </details>
           </CardContent>
-        </Card>
-      );
+        </Card>);
+
     }
 
     return this.props.children;

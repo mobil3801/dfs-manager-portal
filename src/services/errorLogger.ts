@@ -28,12 +28,12 @@ export class ErrorLogger {
   }
 
   log(
-    error: Error,
-    severity: ErrorLogEntry['severity'] = 'medium',
-    component?: string,
-    errorInfo?: React.ErrorInfo,
-    context?: Record<string, any>
-  ): void {
+  error: Error,
+  severity: ErrorLogEntry['severity'] = 'medium',
+  component?: string,
+  errorInfo?: React.ErrorInfo,
+  context?: Record<string, any>)
+  : void {
     const logEntry: ErrorLogEntry = {
       id: this.generateId(),
       timestamp: new Date(),
@@ -93,7 +93,7 @@ export class ErrorLogger {
 
   private persistLogs(): void {
     try {
-      const serializedLogs = this.logs.map(log => ({
+      const serializedLogs = this.logs.map((log) => ({
         ...log,
         error: {
           name: log.error.name,
@@ -111,26 +111,26 @@ export class ErrorLogger {
     // In a real application, you would send this to an error reporting service
     // like Sentry, LogRocket, or Bugsnag
     try {
+
+
+
+
+
+
+
+
+
+
+
+
       // Example API call (not implemented in this demo)
       // fetch('/api/errors', {
       //   method: 'POST',
       //   headers: { 'Content-Type': 'application/json' },
       //   body: JSON.stringify(entry)
       // });
-    } catch (e) {
-      console.warn('Failed to send error to reporting service:', e);
-    }
-  }
-
-  private generateId(): string {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
-  }
-
-  private getCurrentUserId(): string | undefined {
-    // Try to get user ID from authentication context
-    try {
-      return localStorage.getItem('user_id') || undefined;
-    } catch {
+    } catch (e) {console.warn('Failed to send error to reporting service:', e);}}private generateId(): string {return Date.now().toString(36) + Math.random().toString(36).substr(2);}private getCurrentUserId(): string | undefined {// Try to get user ID from authentication context
+    try {return localStorage.getItem('user_id') || undefined;} catch {
       return undefined;
     }
   }
@@ -144,7 +144,7 @@ export class ErrorLogger {
     localStorage.removeItem('dfs_error_logs');
   }
 
-  getLogsSummary(): { total: number; bySeverity: Record<string, number> } {
+  getLogsSummary(): {total: number;bySeverity: Record<string, number>;} {
     const bySeverity = this.logs.reduce((acc, log) => {
       acc[log.severity] = (acc[log.severity] || 0) + 1;
       return acc;

@@ -87,11 +87,11 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, triggerText = "
   }, [isOpen]);
 
   return (
-    <ComponentErrorBoundary 
-      componentName="BarcodeScanner" 
+    <ComponentErrorBoundary
+      componentName="BarcodeScanner"
       severity="medium"
-      minHeight="200px"
-    >
+      minHeight="200px">
+
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button type="button" variant="outline" size="sm" disabled={disabled}>
@@ -106,23 +106,23 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, triggerText = "
         <div className="flex flex-col items-center space-y-4">
           <div className="relative w-full max-w-sm aspect-video bg-black rounded-lg overflow-hidden">
             <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              className="w-full h-full object-cover" />
+                ref={videoRef}
+                autoPlay
+                playsInline
+                className="w-full h-full object-cover" />
 
             <canvas
-              ref={canvasRef}
-              className="hidden" />
+                ref={canvasRef}
+                className="hidden" />
 
             {!isScanning &&
-            <div className="absolute inset-0 flex items-center justify-center text-white">
+              <div className="absolute inset-0 flex items-center justify-center text-white">
                 <div className="text-center">
                   <Camera className="w-12 h-12 mx-auto mb-2" />
                   <p>Initializing camera...</p>
                 </div>
               </div>
-            }
+              }
           </div>
           <div className="flex space-x-2">
             <Button onClick={captureFrame} disabled={!isScanning}>
@@ -139,8 +139,8 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScan, triggerText = "
         </div>
       </DialogContent>
       </Dialog>
-    </ComponentErrorBoundary>
-  );
+    </ComponentErrorBoundary>);
+
 
 };
 

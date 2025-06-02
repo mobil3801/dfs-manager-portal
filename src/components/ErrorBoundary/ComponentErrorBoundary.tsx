@@ -94,17 +94,17 @@ class ComponentErrorBoundary extends Component<Props, State> {
             error={this.state.error}
             resetError={this.handleReset}
             errorInfo={this.state.errorInfo}
-            componentName={this.props.componentName}
-          />
-        );
+            componentName={this.props.componentName} />);
+
+
       }
 
       // Default compact fallback UI for components
       return (
-        <Card 
+        <Card
           className="bg-red-50 border-red-200 border-2"
-          style={{ minHeight: this.props.minHeight || 'auto' }}
-        >
+          style={{ minHeight: this.props.minHeight || 'auto' }}>
+
           <CardContent className="p-4">
             <div className="flex items-center justify-center text-center">
               <div className="space-y-3">
@@ -125,35 +125,35 @@ class ComponentErrorBoundary extends Component<Props, State> {
                   onClick={this.handleReset}
                   size="sm"
                   variant="outline"
-                  className="border-red-300 text-red-700 hover:bg-red-100"
-                >
+                  className="border-red-300 text-red-700 hover:bg-red-100">
+
                   <RefreshCw size={14} className="mr-1" />
                   Retry
                 </Button>
 
-                {this.props.showErrorDetails && (
-                  <details className="mt-2 text-xs text-red-600">
+                {this.props.showErrorDetails &&
+                <details className="mt-2 text-xs text-red-600">
                     <summary className="cursor-pointer hover:text-red-800">
                       Error Details
                     </summary>
                     <div className="mt-1 text-left bg-red-100 p-2 rounded font-mono text-xs">
                       <div><strong>Error:</strong> {this.state.error.message}</div>
-                      {this.state.error.stack && (
-                        <div className="mt-1">
+                      {this.state.error.stack &&
+                    <div className="mt-1">
                           <strong>Stack:</strong>
                           <pre className="whitespace-pre-wrap text-xs">
                             {this.state.error.stack.split('\n').slice(0, 3).join('\n')}
                           </pre>
                         </div>
-                      )}
+                    }
                     </div>
                   </details>
-                )}
+                }
               </div>
             </div>
           </CardContent>
-        </Card>
-      );
+        </Card>);
+
     }
 
     return this.props.children;

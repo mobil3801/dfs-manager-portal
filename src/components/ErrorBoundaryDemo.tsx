@@ -6,23 +6,23 @@ import { AlertTriangle, Bug, Zap } from 'lucide-react';
 import { ComponentErrorBoundary, FormErrorBoundary } from './ErrorBoundary';
 
 // Component that throws an error on demand
-const ErrorProneComponent: React.FC<{ shouldError: boolean }> = ({ shouldError }) => {
+const ErrorProneComponent: React.FC<{shouldError: boolean;}> = ({ shouldError }) => {
   if (shouldError) {
     throw new Error('This is a demo error thrown by ErrorProneComponent');
   }
-  
+
   return (
     <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
       <div className="flex items-center gap-2">
         <div className="w-2 h-2 bg-green-500 rounded-full"></div>
         <span className="text-sm text-green-800">Component is working normally</span>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 // Form component that can throw errors
-const ErrorProneForm: React.FC<{ shouldError: boolean }> = ({ shouldError }) => {
+const ErrorProneForm: React.FC<{shouldError: boolean;}> = ({ shouldError }) => {
   const [formData, setFormData] = useState({ name: '', email: '' });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -43,26 +43,26 @@ const ErrorProneForm: React.FC<{ shouldError: boolean }> = ({ shouldError }) => 
         <input
           type="text"
           value={formData.name}
-          onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+          onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Enter your name"
-        />
+          placeholder="Enter your name" />
+
       </div>
       <div>
         <label className="block text-sm font-medium mb-1">Email</label>
         <input
           type="email"
           value={formData.email}
-          onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+          onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Enter your email"
-        />
+          placeholder="Enter your email" />
+
       </div>
       <Button type="submit" className="w-full">
         Submit Form
       </Button>
-    </form>
-  );
+    </form>);
+
 };
 
 const ErrorBoundaryDemo: React.FC = () => {
@@ -89,19 +89,19 @@ const ErrorBoundaryDemo: React.FC = () => {
                 </Badge>
               </div>
               
-              <ComponentErrorBoundary 
+              <ComponentErrorBoundary
                 componentName="Demo Component"
                 severity="medium"
-                showErrorDetails={true}
-              >
+                showErrorDetails={true}>
+
                 <ErrorProneComponent shouldError={componentError} />
               </ComponentErrorBoundary>
               
               <Button
                 onClick={() => setComponentError(!componentError)}
                 variant={componentError ? 'default' : 'destructive'}
-                size="sm"
-              >
+                size="sm">
+
                 <Zap className="w-4 h-4 mr-2" />
                 {componentError ? 'Fix Component' : 'Trigger Error'}
               </Button>
@@ -116,21 +116,21 @@ const ErrorBoundaryDemo: React.FC = () => {
                 </Badge>
               </div>
               
-              <FormErrorBoundary 
+              <FormErrorBoundary
                 formName="Demo Form"
                 showDataRecovery={true}
                 onFormReset={() => {
                   setFormError(false);
-                }}
-              >
+                }}>
+
                 <ErrorProneForm shouldError={formError} />
               </FormErrorBoundary>
               
               <Button
                 onClick={() => setFormError(!formError)}
                 variant={formError ? 'default' : 'destructive'}
-                size="sm"
-              >
+                size="sm">
+
                 <Zap className="w-4 h-4 mr-2" />
                 {formError ? 'Fix Form' : 'Trigger Error'}
               </Button>
@@ -155,8 +155,8 @@ const ErrorBoundaryDemo: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ErrorBoundaryDemo;

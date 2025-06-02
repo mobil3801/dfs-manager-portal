@@ -40,7 +40,7 @@ const ErrorRecovery: React.FC = () => {
       setErrorLogs([]);
       toast({
         title: "Logs Cleared",
-        description: "All error logs have been cleared successfully.",
+        description: "All error logs have been cleared successfully."
       });
     } catch (error) {
       toast({
@@ -63,10 +63,10 @@ const ErrorRecovery: React.FC = () => {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      
+
       toast({
         title: "Export Successful",
-        description: "Error logs exported successfully.",
+        description: "Error logs exported successfully."
       });
     } catch (error) {
       toast({
@@ -106,8 +106,8 @@ const ErrorRecovery: React.FC = () => {
             Loading error recovery information...
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -174,8 +174,8 @@ const ErrorRecovery: React.FC = () => {
                 onClick={exportLogs}
                 variant="outline"
                 size="sm"
-                disabled={errorLogs.length === 0}
-              >
+                disabled={errorLogs.length === 0}>
+
                 <Download size={16} className="mr-1" />
                 Export
               </Button>
@@ -183,8 +183,8 @@ const ErrorRecovery: React.FC = () => {
                 onClick={clearAllLogs}
                 variant="outline"
                 size="sm"
-                disabled={errorLogs.length === 0}
-              >
+                disabled={errorLogs.length === 0}>
+
                 <Trash2 size={16} className="mr-1" />
                 Clear All
               </Button>
@@ -193,8 +193,8 @@ const ErrorRecovery: React.FC = () => {
         </CardHeader>
         
         <CardContent>
-          {errorLogs.length === 0 ? (
-            <div className="text-center py-8">
+          {errorLogs.length === 0 ?
+          <div className="text-center py-8">
               <CheckCircle className="mx-auto h-12 w-12 text-green-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
                 No Errors Detected
@@ -202,9 +202,9 @@ const ErrorRecovery: React.FC = () => {
               <p className="text-gray-500">
                 Great! Your application is running smoothly without any recorded errors.
               </p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
+            </div> :
+
+          <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -216,16 +216,16 @@ const ErrorRecovery: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {errorLogs.slice(0, 20).map((log) => (
-                    <TableRow key={log.id}>
+                  {errorLogs.slice(0, 20).map((log) =>
+                <TableRow key={log.id}>
                       <TableCell className="text-sm">
                         {formatTimestamp(log.timestamp)}
                       </TableCell>
                       <TableCell>
-                        <Badge 
-                          variant={getSeverityBadge(log.severity).variant}
-                          className={getSeverityBadge(log.severity).color}
-                        >
+                        <Badge
+                      variant={getSeverityBadge(log.severity).variant}
+                      className={getSeverityBadge(log.severity).color}>
+
                           {log.severity.toUpperCase()}
                         </Badge>
                       </TableCell>
@@ -243,17 +243,17 @@ const ErrorRecovery: React.FC = () => {
                         </span>
                       </TableCell>
                     </TableRow>
-                  ))}
+                )}
                 </TableBody>
               </Table>
               
-              {errorLogs.length > 20 && (
-                <div className="mt-4 text-center text-sm text-gray-500">
+              {errorLogs.length > 20 &&
+            <div className="mt-4 text-center text-sm text-gray-500">
                   Showing 20 of {errorLogs.length} errors. Export for full details.
                 </div>
-              )}
+            }
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
@@ -287,8 +287,8 @@ const ErrorRecovery: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ErrorRecovery;

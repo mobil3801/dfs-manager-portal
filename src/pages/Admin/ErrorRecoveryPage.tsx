@@ -78,19 +78,19 @@ const ErrorRecoveryPage: React.FC = () => {
                 Interactive demo to test error boundary functionality
               </CardDescription>
             </div>
-            <Button 
+            <Button
               onClick={() => setShowDemo(!showDemo)}
-              variant={showDemo ? 'secondary' : 'default'}
-            >
+              variant={showDemo ? 'secondary' : 'default'}>
+
               {showDemo ? 'Hide Demo' : 'Show Demo'}
             </Button>
           </div>
         </CardHeader>
-        {showDemo && (
-          <CardContent>
+        {showDemo &&
+        <CardContent>
             <ErrorBoundaryDemo />
           </CardContent>
-        )}
+        }
       </Card>
 
       {/* Error Recovery Component */}
@@ -156,8 +156,8 @@ const ErrorRecoveryPage: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ErrorRecoveryPage;

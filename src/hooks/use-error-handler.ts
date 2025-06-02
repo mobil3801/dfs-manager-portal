@@ -12,7 +12,7 @@ interface UseErrorHandlerOptions {
 export const useErrorHandler = (options: UseErrorHandlerOptions = {}) => {
   const { toast } = useToast();
   const errorLogger = ErrorLogger.getInstance();
-  
+
   const {
     component = 'Unknown Component',
     showToast = true,
@@ -21,12 +21,11 @@ export const useErrorHandler = (options: UseErrorHandlerOptions = {}) => {
   } = options;
 
   const handleError = useCallback((
-    error: Error | string,
-    customMessage?: string,
-    context?: Record<string, any>
-  ) => {
+  error: Error | string,
+  customMessage?: string,
+  context?: Record<string, any>) => {
     const errorObj = typeof error === 'string' ? new Error(error) : error;
-    
+
     // Log the error
     if (logError) {
       errorLogger.log(
@@ -57,11 +56,11 @@ export const useErrorHandler = (options: UseErrorHandlerOptions = {}) => {
   }, [component, showToast, logError, severity, toast, errorLogger]);
 
   // Async wrapper that automatically handles errors
-  const handleAsync = useCallback(async <T>(
-    asyncFn: () => Promise<T>,
-    errorMessage?: string,
-    context?: Record<string, any>
-  ): Promise<T | null> => {
+  const handleAsync = useCallback(async <T,>(
+  asyncFn: () => Promise<T>,
+  errorMessage?: string,
+  context?: Record<string, any>)
+  : Promise<T | null> => {
     try {
       return await asyncFn();
     } catch (error) {
@@ -75,18 +74,18 @@ export const useErrorHandler = (options: UseErrorHandlerOptions = {}) => {
   }, [handleError]);
 
   // API call wrapper with built-in error handling
-  const handleApiCall = useCallback(async <T>(
-    apiCall: () => Promise<{ data?: T; error?: string }>,
-    errorMessage?: string,
-    context?: Record<string, any>
-  ): Promise<T | null> => {
+  const handleApiCall = useCallback(async <T,>(
+  apiCall: () => Promise<{data?: T;error?: string;}>,
+  errorMessage?: string,
+  context?: Record<string, any>)
+  : Promise<T | null> => {
     try {
       const result = await apiCall();
-      
+
       if (result.error) {
         throw new Error(result.error);
       }
-      
+
       return result.data || null;
     } catch (error) {
       handleError(
@@ -107,19 +106,16 @@ export const useErrorHandler = (options: UseErrorHandlerOptions = {}) => {
 
 // HOC for wrapping components with error handling
 export const withErrorHandler = <P extends object>(
-  Component: React.ComponentType<P>,
-  errorHandlerOptions?: UseErrorHandlerOptions
-) => {
-  return React.forwardRef<any, P>((props, ref) => {
+Component: React.ComponentType<P>,
+errorHandlerOptions?: UseErrorHandlerOptions) => {
+  return React.forwardRef<any, P & { errorHandler?: ReturnType<typeof useErrorHandler> }>((props, ref) => {
     const errorHandler = useErrorHandler(errorHandlerOptions);
-    
-    return (
-      <Component
-        {...props}
-        ref={ref}
-        errorHandler={errorHandler}
-      />
-    );
+
+    return React.createElement(Component, {
+      ...props,
+      ref,
+      errorHandler
+    });
   });
 };
 

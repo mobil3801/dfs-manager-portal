@@ -98,13 +98,13 @@ const ProductForm = () => {
         OrderByField: "vendor_name",
         IsAsc: true,
         Filters: [
-          { name: "is_active", op: "Equal", value: true }
-        ]
+        { name: "is_active", op: "Equal", value: true }]
+
       }),
       "Failed to load vendors list",
       { action: 'fetchVendors' }
     );
-    
+
     if (data) {
       setVendors(data.List || []);
     }
@@ -520,8 +520,8 @@ const ProductForm = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6 pt-0">
-          <FormErrorBoundary 
-            formName="Product Form" 
+          <FormErrorBoundary
+            formName="Product Form"
             showDataRecovery={true}
             onFormReset={() => {
               if (id) {
@@ -551,19 +551,19 @@ const ProductForm = () => {
                 });
                 generateSerialNumber();
               }
-            }}
-          >
+            }}>
+
             <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="serial_number">Serial Number</Label>
                 <NumberInput
-                  id="serial_number"
-                  value={formData.serial_number}
-                  onChange={(value) => handleInputChange('serial_number', value)}
-                  disabled
-                  className="bg-muted" />
+                    id="serial_number"
+                    value={formData.serial_number}
+                    onChange={(value) => handleInputChange('serial_number', value)}
+                    disabled
+                    className="bg-muted" />
 
                 <p className="text-xs text-muted-foreground">Auto-generated</p>
               </div>
@@ -571,25 +571,25 @@ const ProductForm = () => {
               <div className="space-y-2">
                 <Label htmlFor="product_name">Product Name *</Label>
                 <Input
-                  id="product_name"
-                  placeholder="Enter product name"
-                  value={formData.product_name}
-                  onChange={(e) => handleInputChange('product_name', e.target.value)}
-                  disabled={!canEdit}
-                  className={!canEdit ? 'bg-muted' : ''}
-                  required />
+                    id="product_name"
+                    placeholder="Enter product name"
+                    value={formData.product_name}
+                    onChange={(e) => handleInputChange('product_name', e.target.value)}
+                    disabled={!canEdit}
+                    className={!canEdit ? 'bg-muted' : ''}
+                    required />
 
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
                 <Input
-                  id="category"
-                  placeholder="Enter product category"
-                  value={formData.category}
-                  onChange={(e) => handleInputChange('category', e.target.value)}
-                  disabled={!canEdit}
-                  className={!canEdit ? 'bg-muted' : ''} />
+                    id="category"
+                    placeholder="Enter product category"
+                    value={formData.category}
+                    onChange={(e) => handleInputChange('category', e.target.value)}
+                    disabled={!canEdit}
+                    className={!canEdit ? 'bg-muted' : ''} />
 
               </div>
             </div>
@@ -599,32 +599,32 @@ const ProductForm = () => {
               <div className="space-y-2">
                 <Label htmlFor="weight">Weight</Label>
                 <NumberInput
-                  id="weight"
-                  step="0.01"
-                  min="0"
-                  value={formData.weight}
-                  onChange={(value) => handleInputChange('weight', value)}
-                  disabled={!canEdit}
-                  className={!canEdit ? 'bg-muted' : ''} />
+                    id="weight"
+                    step="0.01"
+                    min="0"
+                    value={formData.weight}
+                    onChange={(value) => handleInputChange('weight', value)}
+                    disabled={!canEdit}
+                    className={!canEdit ? 'bg-muted' : ''} />
 
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="weight_unit">Weight Unit</Label>
                 <Select
-                  value={formData.weight_unit}
-                  onValueChange={(value) => handleInputChange('weight_unit', value)}
-                  disabled={!canEdit}>
+                    value={formData.weight_unit}
+                    onValueChange={(value) => handleInputChange('weight_unit', value)}
+                    disabled={!canEdit}>
 
                   <SelectTrigger>
                     <SelectValue placeholder="Select unit" />
                   </SelectTrigger>
                   <SelectContent>
                     {weightUnits.map((unit) =>
-                    <SelectItem key={unit.value} value={unit.value}>
+                      <SelectItem key={unit.value} value={unit.value}>
                         {unit.label}
                       </SelectItem>
-                    )}
+                      )}
                   </SelectContent>
                 </Select>
               </div>
@@ -632,19 +632,19 @@ const ProductForm = () => {
               <div className="space-y-2">
                 <Label htmlFor="department">Department</Label>
                 <Select
-                  value={formData.department}
-                  onValueChange={(value) => handleInputChange('department', value)}
-                  disabled={!canEdit}>
+                    value={formData.department}
+                    onValueChange={(value) => handleInputChange('department', value)}
+                    disabled={!canEdit}>
 
                   <SelectTrigger>
                     <SelectValue placeholder="Select department" />
                   </SelectTrigger>
                   <SelectContent>
                     {departments.map((dept) =>
-                    <SelectItem key={dept} value={dept}>
+                      <SelectItem key={dept} value={dept}>
                         {dept}
                       </SelectItem>
-                    )}
+                      )}
                   </SelectContent>
                 </Select>
               </div>
@@ -655,19 +655,19 @@ const ProductForm = () => {
               <div className="space-y-2">
                 <Label htmlFor="merchant_id">Merchant</Label>
                 <Select
-                  value={formData.merchant_id}
-                  onValueChange={(value) => handleInputChange('merchant_id', value)}
-                  disabled={!canEdit}>
+                    value={formData.merchant_id}
+                    onValueChange={(value) => handleInputChange('merchant_id', value)}
+                    disabled={!canEdit}>
 
                   <SelectTrigger>
                     <SelectValue placeholder="Select merchant" />
                   </SelectTrigger>
                   <SelectContent>
                     {vendors.map((vendor) =>
-                    <SelectItem key={vendor.id} value={vendor.id.toString()}>
+                      <SelectItem key={vendor.id} value={vendor.id.toString()}>
                         {vendor.vendor_name}
                       </SelectItem>
-                    )}
+                      )}
                   </SelectContent>
                 </Select>
               </div>
@@ -675,12 +675,12 @@ const ProductForm = () => {
               <div className="space-y-2">
                 <Label htmlFor="supplier">Supplier</Label>
                 <Input
-                  id="supplier"
-                  placeholder="Enter supplier name"
-                  value={formData.supplier}
-                  onChange={(e) => handleInputChange('supplier', e.target.value)}
-                  disabled={!canEdit}
-                  className={!canEdit ? 'bg-muted' : ''} />
+                    id="supplier"
+                    placeholder="Enter supplier name"
+                    value={formData.supplier}
+                    onChange={(e) => handleInputChange('supplier', e.target.value)}
+                    disabled={!canEdit}
+                    className={!canEdit ? 'bg-muted' : ''} />
 
               </div>
             </div>
@@ -691,17 +691,17 @@ const ProductForm = () => {
                 <Label htmlFor="bar_code_case">Bar Code Case</Label>
                 <div className="flex space-x-2">
                   <Input
-                    id="bar_code_case"
-                    placeholder="Enter or scan barcode"
-                    value={formData.bar_code_case}
-                    onChange={(e) => handleInputChange('bar_code_case', e.target.value)}
-                    disabled={!canEdit}
-                    className={`flex-1 ${!canEdit ? 'bg-muted' : ''}`} />
+                      id="bar_code_case"
+                      placeholder="Enter or scan barcode"
+                      value={formData.bar_code_case}
+                      onChange={(e) => handleInputChange('bar_code_case', e.target.value)}
+                      disabled={!canEdit}
+                      className={`flex-1 ${!canEdit ? 'bg-muted' : ''}`} />
 
                   <BarcodeScanner
-                    onScan={(barcode) => handleBarcodeScanned('bar_code_case', barcode)}
-                    triggerText="Scan"
-                    disabled={!canEdit} />
+                      onScan={(barcode) => handleBarcodeScanned('bar_code_case', barcode)}
+                      triggerText="Scan"
+                      disabled={!canEdit} />
 
                 </div>
               </div>
@@ -710,17 +710,17 @@ const ProductForm = () => {
                 <Label htmlFor="bar_code_unit">Bar Code Unit</Label>
                 <div className="flex space-x-2">
                   <Input
-                    id="bar_code_unit"
-                    placeholder="Enter or scan barcode"
-                    value={formData.bar_code_unit}
-                    onChange={(e) => handleInputChange('bar_code_unit', e.target.value)}
-                    disabled={!canEdit}
-                    className={`flex-1 ${!canEdit ? 'bg-muted' : ''}`} />
+                      id="bar_code_unit"
+                      placeholder="Enter or scan barcode"
+                      value={formData.bar_code_unit}
+                      onChange={(e) => handleInputChange('bar_code_unit', e.target.value)}
+                      disabled={!canEdit}
+                      className={`flex-1 ${!canEdit ? 'bg-muted' : ''}`} />
 
                   <BarcodeScanner
-                    onScan={(barcode) => handleBarcodeScanned('bar_code_unit', barcode)}
-                    triggerText="Scan"
-                    disabled={!canEdit} />
+                      onScan={(barcode) => handleBarcodeScanned('bar_code_unit', barcode)}
+                      triggerText="Scan"
+                      disabled={!canEdit} />
 
                 </div>
               </div>
@@ -731,38 +731,38 @@ const ProductForm = () => {
               <div className="space-y-2">
                 <Label htmlFor="case_price">Case Price ($)</Label>
                 <NumberInput
-                  id="case_price"
-                  step="0.01"
-                  min="0"
-                  value={formData.case_price}
-                  onChange={(value) => handleInputChange('case_price', value)}
-                  disabled={!canEdit}
-                  className={!canEdit ? 'bg-muted' : ''} />
+                    id="case_price"
+                    step="0.01"
+                    min="0"
+                    value={formData.case_price}
+                    onChange={(value) => handleInputChange('case_price', value)}
+                    disabled={!canEdit}
+                    className={!canEdit ? 'bg-muted' : ''} />
 
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="unit_per_case">Units Per Case</Label>
                 <NumberInput
-                  id="unit_per_case"
-                  min="1"
-                  value={formData.unit_per_case}
-                  onChange={(value) => handleInputChange('unit_per_case', value)}
-                  disabled={!canEdit}
-                  className={!canEdit ? 'bg-muted' : ''} />
+                    id="unit_per_case"
+                    min="1"
+                    value={formData.unit_per_case}
+                    onChange={(value) => handleInputChange('unit_per_case', value)}
+                    disabled={!canEdit}
+                    className={!canEdit ? 'bg-muted' : ''} />
 
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="unit_price">Unit Price ($)</Label>
                 <NumberInput
-                  id="unit_price"
-                  step="0.01"
-                  min="0"
-                  value={formData.unit_price}
-                  onChange={(value) => handleInputChange('unit_price', value)}
-                  disabled={!canEdit}
-                  className={!canEdit ? 'bg-muted' : ''} />
+                    id="unit_price"
+                    step="0.01"
+                    min="0"
+                    value={formData.unit_price}
+                    onChange={(value) => handleInputChange('unit_price', value)}
+                    disabled={!canEdit}
+                    className={!canEdit ? 'bg-muted' : ''} />
 
                 <p className="text-xs text-muted-foreground">Auto-calculated from case price</p>
               </div>
@@ -773,25 +773,25 @@ const ProductForm = () => {
               <div className="space-y-2">
                 <Label htmlFor="retail_price">Retail Price ($)</Label>
                 <NumberInput
-                  id="retail_price"
-                  step="0.01"
-                  min="0"
-                  value={formData.retail_price}
-                  onChange={(value) => handleInputChange('retail_price', value)}
-                  disabled={!canEdit}
-                  className={!canEdit ? 'bg-muted' : ''} />
+                    id="retail_price"
+                    step="0.01"
+                    min="0"
+                    value={formData.retail_price}
+                    onChange={(value) => handleInputChange('retail_price', value)}
+                    disabled={!canEdit}
+                    className={!canEdit ? 'bg-muted' : ''} />
 
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="last_shopping_date">Last Shopping Date</Label>
                 <Input
-                  id="last_shopping_date"
-                  type="date"
-                  value={formData.last_shopping_date}
-                  onChange={(e) => handleInputChange('last_shopping_date', e.target.value)}
-                  disabled={!canEdit}
-                  className={!canEdit ? 'bg-muted' : ''} />
+                    id="last_shopping_date"
+                    type="date"
+                    value={formData.last_shopping_date}
+                    onChange={(e) => handleInputChange('last_shopping_date', e.target.value)}
+                    disabled={!canEdit}
+                    className={!canEdit ? 'bg-muted' : ''} />
 
               </div>
             </div>
@@ -801,13 +801,13 @@ const ProductForm = () => {
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
               <Textarea
-                id="description"
-                placeholder="Enter product description"
-                rows={4}
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                disabled={!canEdit}
-                className={!canEdit ? 'bg-muted' : ''} />
+                  id="description"
+                  placeholder="Enter product description"
+                  rows={4}
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  disabled={!canEdit}
+                  className={!canEdit ? 'bg-muted' : ''} />
 
             </div>
 

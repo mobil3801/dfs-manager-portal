@@ -85,9 +85,9 @@ class PageErrorBoundary extends Component<Props, State> {
             error={this.state.error}
             resetError={this.handleReset}
             errorInfo={this.state.errorInfo}
-            pageName={this.props.pageName}
-          />
-        );
+            pageName={this.props.pageName} />);
+
+
       }
 
       // Default fallback UI
@@ -98,12 +98,12 @@ class PageErrorBoundary extends Component<Props, State> {
           severity={this.props.severity || 'high'}
           component={this.props.pageName}
           customMessage={
-            this.props.pageName
-              ? `An error occurred while loading the ${this.props.pageName} page. You can try refreshing or navigate to another page.`
-              : undefined
-          }
-        />
-      );
+          this.props.pageName ?
+          `An error occurred while loading the ${this.props.pageName} page. You can try refreshing or navigate to another page.` :
+          undefined
+          } />);
+
+
     }
 
     return this.props.children;

@@ -113,8 +113,8 @@ function App() {
           </TooltipProvider>
         </AuthProvider>
       </QueryClientProvider>
-    </GlobalErrorBoundary>
-  );
+    </GlobalErrorBoundary>);
+
 
 }
 

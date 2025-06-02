@@ -80,9 +80,9 @@ class GlobalErrorBoundary extends Component<Props, State> {
           <FallbackComponent
             error={this.state.error}
             resetError={this.handleReset}
-            errorInfo={this.state.errorInfo}
-          />
-        );
+            errorInfo={this.state.errorInfo} />);
+
+
       }
 
       // Default fallback UI
@@ -96,24 +96,24 @@ class GlobalErrorBoundary extends Component<Props, State> {
             customMessage="A critical error occurred that prevented the application from loading properly. This has been automatically reported to our team."
             showNavigation={false}
             customActions={
-              <div className="space-y-2">
+            <div className="space-y-2">
                 <button
-                  onClick={() => window.location.reload()}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                >
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+
                   Reload Application
                 </button>
                 <button
-                  onClick={() => window.location.href = '/'}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors ml-2"
-                >
+                onClick={() => window.location.href = '/'}
+                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors ml-2">
+
                   Go to Home
                 </button>
               </div>
-            }
-          />
-        </div>
-      );
+            } />
+
+        </div>);
+
     }
 
     return this.props.children;
