@@ -8,6 +8,7 @@ import SMSAlertStatus from '@/components/SMSAlertStatus';
 import ErrorMonitoringWidget from '@/components/ErrorMonitoringWidget';
 import MemoryMonitoringWidget from '@/components/MemoryMonitoringWidget';
 import DatabaseConnectionAlert from '@/components/DatabaseConnectionAlert';
+import StationSalesBoxes from '@/components/StationSalesBoxes';
 import {
   Package,
   Users,
@@ -662,6 +663,9 @@ const Dashboard: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Real-time Station Sales Boxes */}
+      <StationSalesBoxes />
 
       {/* Sales Analytics Chart */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
