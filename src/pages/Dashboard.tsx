@@ -589,26 +589,8 @@ const Dashboard: React.FC = () => {
         </Card>
       </div>
 
-      {/* New Features - Salary & Settings */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-blue-200 bg-blue-50" onClick={() => navigate('/salary')}>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-700">💰 Salary Management</p>
-                <p className="text-lg font-bold text-blue-900 mt-1">Payroll System</p>
-                <p className="text-sm text-blue-600">Manage employee salaries & records</p>
-              </div>
-              <div className="p-3 rounded-full bg-blue-600 text-white">
-                <DollarSign className="w-6 h-6" />
-              </div>
-            </div>
-            <div className="mt-4 text-xs text-blue-600">
-              ✨ NEW FEATURE - Click to explore
-            </div>
-          </CardContent>
-        </Card>
-
+      {/* System Settings */}
+      <div className="grid grid-cols-1 gap-6">
         <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-green-200 bg-green-50" onClick={() => navigate('/inventory/settings')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
