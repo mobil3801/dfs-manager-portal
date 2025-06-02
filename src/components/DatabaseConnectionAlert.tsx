@@ -19,8 +19,8 @@ const DatabaseConnectionAlert: React.FC<DatabaseConnectionAlertProps> = ({
   className = ""
 }) => {
   const navigate = useNavigate();
-  const percentage = (connections / max) * 100;
-  
+  const percentage = connections / max * 100;
+
   // Only show alert if connection usage is high
   if (percentage < 70) {
     return null;
@@ -57,32 +57,32 @@ const DatabaseConnectionAlert: React.FC<DatabaseConnectionAlertProps> = ({
           <span className="text-sm">({percentage.toFixed(1)}% capacity)</span>
         </div>
         
-        {showDetails && (
-          <>
+        {showDetails &&
+        <>
             <div className="text-sm text-muted-foreground">
-              {percentage >= 85 ? (
-                "Database connections are critically high. Immediate action required to prevent service disruption."
-              ) : (
-                "Database connection usage is elevated. Monitor closely and consider optimization."
-              )}
+              {percentage >= 85 ?
+            "Database connections are critically high. Immediate action required to prevent service disruption." :
+
+            "Database connection usage is elevated. Monitor closely and consider optimization."
+            }
             </div>
             
             <div className="flex flex-wrap gap-2 mt-3">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleViewDetails}
-                className="flex items-center space-x-1"
-              >
+              <Button
+              variant="outline"
+              size="sm"
+              onClick={handleViewDetails}
+              className="flex items-center space-x-1">
+
                 <ExternalLink className="h-3 w-3" />
                 <span>View Details</span>
               </Button>
             </div>
           </>
-        )}
+        }
       </AlertDescription>
-    </Alert>
-  );
+    </Alert>);
+
 };
 
 export default DatabaseConnectionAlert;

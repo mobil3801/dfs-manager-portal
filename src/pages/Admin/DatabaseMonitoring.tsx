@@ -228,22 +228,22 @@ const DatabaseMonitoringPage = () => {
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Warning Threshold</label>
                   <div className="flex items-center space-x-2">
-                    <input 
-                      type="number" 
-                      className="flex-1 px-3 py-2 border rounded-md" 
-                      defaultValue="70" 
-                    />
+                    <input
+                      type="number"
+                      className="flex-1 px-3 py-2 border rounded-md"
+                      defaultValue="70" />
+
                     <span className="text-sm text-muted-foreground">%</span>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Critical Threshold</label>
                   <div className="flex items-center space-x-2">
-                    <input 
-                      type="number" 
-                      className="flex-1 px-3 py-2 border rounded-md" 
-                      defaultValue="85" 
-                    />
+                    <input
+                      type="number"
+                      className="flex-1 px-3 py-2 border rounded-md"
+                      defaultValue="85" />
+
                     <span className="text-sm text-muted-foreground">%</span>
                   </div>
                 </div>
@@ -272,8 +272,8 @@ const DatabaseMonitoringPage = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default DatabaseMonitoringPage;
