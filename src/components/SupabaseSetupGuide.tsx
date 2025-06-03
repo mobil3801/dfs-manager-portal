@@ -163,11 +163,11 @@ ALTER PUBLICATION supabase_realtime ADD TABLE audit_logs;`;
 
   const testConnection = async () => {
     setConnectionStatus('testing');
-    
+
     try {
       // Test basic connection
       const { data, error } = await supabase.from('user_profiles').select('count', { count: 'exact', head: true });
-      
+
       if (error) {
         console.error('Supabase connection error:', error);
         setConnectionStatus('error');
@@ -180,7 +180,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE audit_logs;`;
         setConnectionStatus('success');
         toast({
           title: 'Connection Successful!',
-          description: 'Supabase is properly configured and ready for real-time features.',
+          description: 'Supabase is properly configured and ready for real-time features.'
         });
       }
     } catch (error) {
@@ -203,12 +203,12 @@ ALTER PUBLICATION supabase_realtime ADD TABLE audit_logs;`;
   };
 
   const setupSteps = [
-    {
-      title: 'Create Supabase Project',
-      description: 'Set up your Supabase project for real-time data',
-      icon: Database,
-      content: (
-        <div className="space-y-4">
+  {
+    title: 'Create Supabase Project',
+    description: 'Set up your Supabase project for real-time data',
+    icon: Database,
+    content:
+    <div className="space-y-4">
           <p>1. Go to <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">supabase.com</a> and create a new account or sign in.</p>
           <p>2. Click "New Project" and fill in the details:</p>
           <ul className="list-disc list-inside pl-4 space-y-1">
@@ -224,14 +224,14 @@ ALTER PUBLICATION supabase_realtime ADD TABLE audit_logs;`;
             </AlertDescription>
           </Alert>
         </div>
-      )
-    },
-    {
-      title: 'Configure Environment Variables',
-      description: 'Set up your API keys and connection strings',
-      icon: Settings,
-      content: (
-        <div className="space-y-4">
+
+  },
+  {
+    title: 'Configure Environment Variables',
+    description: 'Set up your API keys and connection strings',
+    icon: Settings,
+    content:
+    <div className="space-y-4">
           <p>1. In your Supabase project dashboard, go to Settings &gt; API</p>
           <p>2. Copy your Project URL and anon public key:</p>
           
@@ -239,18 +239,18 @@ ALTER PUBLICATION supabase_realtime ADD TABLE audit_logs;`;
             <div className="flex items-center justify-between mb-2">
               <span>VITE_SUPABASE_URL=https://your-project.supabase.co</span>
               <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => copyToClipboard('VITE_SUPABASE_URL=https://your-project.supabase.co', 'Supabase URL template')}>
+            variant="ghost"
+            size="sm"
+            onClick={() => copyToClipboard('VITE_SUPABASE_URL=https://your-project.supabase.co', 'Supabase URL template')}>
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
             <div className="flex items-center justify-between">
               <span>VITE_SUPABASE_ANON_KEY=your-anon-key-here</span>
               <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => copyToClipboard('VITE_SUPABASE_ANON_KEY=your-anon-key-here', 'Supabase anon key template')}>
+            variant="ghost"
+            size="sm"
+            onClick={() => copyToClipboard('VITE_SUPABASE_ANON_KEY=your-anon-key-here', 'Supabase anon key template')}>
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
@@ -265,14 +265,14 @@ ALTER PUBLICATION supabase_realtime ADD TABLE audit_logs;`;
             </AlertDescription>
           </Alert>
         </div>
-      )
-    },
-    {
-      title: 'Setup Database Schema',
-      description: 'Create tables and enable Row Level Security',
-      icon: Code,
-      content: (
-        <div className="space-y-4">
+
+  },
+  {
+    title: 'Setup Database Schema',
+    description: 'Create tables and enable Row Level Security',
+    icon: Code,
+    content:
+    <div className="space-y-4">
           <p>1. Go to your Supabase project dashboard &gt; SQL Editor</p>
           <p>2. Copy and execute the following SQL to create all required tables:</p>
           
@@ -280,9 +280,9 @@ ALTER PUBLICATION supabase_realtime ADD TABLE audit_logs;`;
             <div className="flex items-center justify-between mb-2">
               <span className="font-semibold">Database Schema SQL</span>
               <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => copyToClipboard(schemaSql, 'Database schema')}>
+            variant="ghost"
+            size="sm"
+            onClick={() => copyToClipboard(schemaSql, 'Database schema')}>
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
@@ -294,9 +294,9 @@ ALTER PUBLICATION supabase_realtime ADD TABLE audit_logs;`;
             <div className="flex items-center justify-between mb-2">
               <span>Enable RLS SQL</span>
               <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => copyToClipboard(rlsSql, 'RLS setup')}>
+            variant="ghost"
+            size="sm"
+            onClick={() => copyToClipboard(rlsSql, 'RLS setup')}>
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
@@ -310,14 +310,14 @@ ALTER PUBLICATION supabase_realtime ADD TABLE audit_logs;`;
             </AlertDescription>
           </Alert>
         </div>
-      )
-    },
-    {
-      title: 'Enable Real-time Features',
-      description: 'Configure real-time subscriptions and test connection',
-      icon: Zap,
-      content: (
-        <div className="space-y-4">
+
+  },
+  {
+    title: 'Enable Real-time Features',
+    description: 'Configure real-time subscriptions and test connection',
+    icon: Zap,
+    content:
+    <div className="space-y-4">
           <p>1. In your Supabase project, go to Database &gt; Replication</p>
           <p>2. Enable real-time for all tables by adding them to the publication:</p>
           
@@ -325,9 +325,9 @@ ALTER PUBLICATION supabase_realtime ADD TABLE audit_logs;`;
             <div className="flex items-center justify-between mb-2">
               <span>Enable Real-time SQL</span>
               <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => copyToClipboard(realtimeSql, 'Real-time setup')}>
+            variant="ghost"
+            size="sm"
+            onClick={() => copyToClipboard(realtimeSql, 'Real-time setup')}>
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
@@ -337,29 +337,29 @@ ALTER PUBLICATION supabase_realtime ADD TABLE audit_logs;`;
           <p>3. Test your connection:</p>
           <div className="space-y-2">
             <Button
-              onClick={testConnection}
-              disabled={connectionStatus === 'testing'}
-              className="w-full">
+          onClick={testConnection}
+          disabled={connectionStatus === 'testing'}
+          className="w-full">
               {connectionStatus === 'testing' ? 'Testing...' : 'Test Supabase Connection'}
             </Button>
             
-            {connectionStatus === 'success' && (
-              <Alert>
+            {connectionStatus === 'success' &&
+        <Alert>
                 <CheckCircle className="h-4 w-4" />
                 <AlertDescription className="text-green-700">
                   ✅ Supabase connection successful! Real-time features are now active.
                 </AlertDescription>
               </Alert>
-            )}
+        }
             
-            {connectionStatus === 'error' && (
-              <Alert>
+            {connectionStatus === 'error' &&
+        <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription className="text-red-700">
                   ❌ Connection failed. Please check your environment variables and try again.
                 </AlertDescription>
               </Alert>
-            )}
+        }
           </div>
           
           <Alert>
@@ -369,9 +369,9 @@ ALTER PUBLICATION supabase_realtime ADD TABLE audit_logs;`;
             </AlertDescription>
           </Alert>
         </div>
-      )
-    }
-  ];
+
+  }];
+
 
 
   return (
