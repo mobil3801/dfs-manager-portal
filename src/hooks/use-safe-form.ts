@@ -7,12 +7,12 @@ interface UseSafeFormOptions {
   sanitizeOnChange?: boolean;
 }
 
-export const useSafeForm = <T extends Record<string, any>>(
-  initialData: T,
-  options: UseSafeFormOptions = {}
-) => {
+export const useSafeForm = <T extends Record<string, any>,>(
+initialData: T,
+options: UseSafeFormOptions = {}) =>
+{
   const { onSubmit, validateOnChange = true, sanitizeOnChange = true } = options;
-  
+
   const [formData, setFormData] = useState<T>(sanitizeUserInput(initialData) as T);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,34 +25,34 @@ export const useSafeForm = <T extends Record<string, any>>(
       if (problemChars.test(value)) {
         return 'Invalid characters detected. Please remove special characters.';
       }
-      
+
       // Check for excessive length that might cause issues
       if (value.length > 10000) {
         return 'Input is too long. Please shorten your text.';
       }
     }
-    
+
     return null;
   }, []);
 
   const updateField = useCallback((field: keyof T, value: any) => {
     let processedValue = value;
-    
+
     // Sanitize the value if enabled
     if (sanitizeOnChange && typeof value === 'string') {
       processedValue = sanitizeTextContent(value);
     }
-    
+
     // Validate the field if enabled
     if (validateOnChange) {
       const error = validateField(field as string, processedValue);
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
         [field]: error || ''
       }));
     }
-    
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
       [field]: processedValue
     }));
@@ -60,7 +60,7 @@ export const useSafeForm = <T extends Record<string, any>>(
 
   const updateFields = useCallback((updates: Partial<T>) => {
     const sanitizedUpdates = sanitizeOnChange ? sanitizeUserInput(updates) : updates;
-    
+
     if (validateOnChange) {
       const newErrors: Record<string, string> = {};
       Object.entries(sanitizedUpdates).forEach(([field, value]) => {
@@ -69,10 +69,10 @@ export const useSafeForm = <T extends Record<string, any>>(
           newErrors[field] = error;
         }
       });
-      setErrors(prev => ({ ...prev, ...newErrors }));
+      setErrors((prev) => ({ ...prev, ...newErrors }));
     }
-    
-    setFormData(prev => ({ ...prev, ...sanitizedUpdates }));
+
+    setFormData((prev) => ({ ...prev, ...sanitizedUpdates }));
   }, [sanitizeOnChange, validateOnChange, validateField]);
 
   const resetForm = useCallback(() => {
@@ -84,7 +84,7 @@ export const useSafeForm = <T extends Record<string, any>>(
   const validateForm = useCallback((): boolean => {
     const newErrors: Record<string, string> = {};
     let isValid = true;
-    
+
     Object.entries(formData).forEach(([field, value]) => {
       const error = validateField(field, value);
       if (error) {
@@ -92,7 +92,7 @@ export const useSafeForm = <T extends Record<string, any>>(
         isValid = false;
       }
     });
-    
+
     setErrors(newErrors);
     return isValid;
   }, [formData, validateField]);
@@ -101,21 +101,21 @@ export const useSafeForm = <T extends Record<string, any>>(
     if (e) {
       e.preventDefault();
     }
-    
+
     if (!validateForm()) {
       return false;
     }
-    
+
     setIsSubmitting(true);
-    
+
     try {
       // Final sanitization before submission
       const sanitizedData = sanitizeUserInput(formData);
-      
+
       if (onSubmit) {
         await onSubmit(sanitizedData);
       }
-      
+
       return true;
     } catch (error) {
       console.error('Form submission error:', error);
@@ -134,7 +134,7 @@ export const useSafeForm = <T extends Record<string, any>>(
       onBlur: () => {
         if (validateOnChange) {
           const error = validateField(field as string, formData[field]);
-          setErrors(prev => ({
+          setErrors((prev) => ({
             ...prev,
             [field]: error || ''
           }));
@@ -157,7 +157,7 @@ export const useSafeForm = <T extends Record<string, any>>(
     };
   }, [formData, errors, updateField]);
 
-  const hasErrors = Object.values(errors).some(error => !!error);
+  const hasErrors = Object.values(errors).some((error) => !!error);
 
   return {
     formData,

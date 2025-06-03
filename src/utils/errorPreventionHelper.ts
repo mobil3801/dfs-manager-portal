@@ -8,13 +8,13 @@ import { sanitizeUserInput, sanitizeTextContent, isValidAttributeValue, removeBO
  * Safely creates DOM elements with sanitized attributes
  */
 export const safeCreateElement = (
-  tagName: string,
-  attributes: Record<string, any> = {},
-  textContent?: string
-): HTMLElement => {
+tagName: string,
+attributes: Record<string, any> = {},
+textContent?: string)
+: HTMLElement => {
   try {
     const element = document.createElement(tagName);
-    
+
     // Set attributes safely
     Object.entries(attributes).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
@@ -24,12 +24,12 @@ export const safeCreateElement = (
         }
       }
     });
-    
+
     // Set text content safely
     if (textContent) {
       element.textContent = sanitizeTextContent(textContent);
     }
-    
+
     return element;
   } catch (error) {
     console.error('Error creating element:', error);
@@ -58,7 +58,7 @@ export const safeSetInnerHTML = (element: HTMLElement, content: string): void =>
  */
 export const safeProcessFormData = (formData: FormData): FormData => {
   const safeFormData = new FormData();
-  
+
   try {
     for (const [key, value] of formData.entries()) {
       if (typeof value === 'string') {
@@ -71,7 +71,7 @@ export const safeProcessFormData = (formData: FormData): FormData => {
   } catch (error) {
     console.error('Error processing form data:', error);
   }
-  
+
   return safeFormData;
 };
 
@@ -114,7 +114,7 @@ export const safeLocalStorage = {
       return null;
     }
   },
-  
+
   setItem: (key: string, value: string): void => {
     try {
       const sanitizedValue = sanitizeTextContent(removeBOM(value));
@@ -123,7 +123,7 @@ export const safeLocalStorage = {
       console.error('Error writing to localStorage:', error);
     }
   },
-  
+
   removeItem: (key: string): void => {
     try {
       localStorage.removeItem(key);
@@ -152,7 +152,7 @@ export const safeURLSearchParams = (search: string): URLSearchParams => {
 export const safeFileReader = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    
+
     reader.onload = (event) => {
       try {
         const content = event.target?.result as string;
@@ -163,11 +163,11 @@ export const safeFileReader = (file: File): Promise<string> => {
         reject(error);
       }
     };
-    
+
     reader.onerror = () => {
       reject(new Error('Failed to read file'));
     };
-    
+
     reader.readAsText(file);
   });
 };
@@ -185,7 +185,7 @@ export const safeClipboard = {
       return '';
     }
   },
-  
+
   write: async (text: string): Promise<void> => {
     try {
       const sanitizedText = sanitizeTextContent(removeBOM(text));
@@ -204,9 +204,9 @@ export const setupInvalidCharacterErrorMonitor = (): void => {
   const originalError = console.error;
   console.error = (...args: any[]) => {
     const errorMessage = args.join(' ');
-    if (errorMessage.includes('InvalidCharacterError') || 
-        errorMessage.includes('invalid characters')) {
-      
+    if (errorMessage.includes('InvalidCharacterError') ||
+    errorMessage.includes('invalid characters')) {
+
       // Provide additional debugging information
       console.group('InvalidCharacterError Debug Info');
       console.error('Original error:', ...args);
@@ -214,7 +214,7 @@ export const setupInvalidCharacterErrorMonitor = (): void => {
       console.error('Current URL:', window.location.href);
       console.error('User agent:', navigator.userAgent);
       console.error('Form elements count:', document.forms.length);
-      
+
       // Check for problematic form data
       Array.from(document.forms).forEach((form, index) => {
         console.error(`Form ${index} action:`, form.action);
@@ -225,20 +225,20 @@ export const setupInvalidCharacterErrorMonitor = (): void => {
           }
         }
       });
-      
+
       console.groupEnd();
     }
-    
+
     originalError.apply(console, args);
   };
-  
+
   // Monitor DOM mutations that might cause InvalidCharacterError
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
         if (node.nodeType === Node.ELEMENT_NODE) {
           const element = node as Element;
-          
+
           // Check for problematic attributes
           Array.from(element.attributes || []).forEach((attr) => {
             if (!isValidAttributeValue(attr.value)) {
@@ -253,7 +253,7 @@ export const setupInvalidCharacterErrorMonitor = (): void => {
       });
     });
   });
-  
+
   observer.observe(document.body, {
     childList: true,
     subtree: true,

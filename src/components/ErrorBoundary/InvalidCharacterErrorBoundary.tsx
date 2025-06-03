@@ -33,16 +33,16 @@ class InvalidCharacterErrorBoundary extends Component<Props, State> {
 
   static getDerivedStateFromError(error: Error): Partial<State> {
     // Check if this is an InvalidCharacterError
-    if (error.name === 'InvalidCharacterError' || 
-        error.message.includes('invalid characters') ||
-        error.message.includes('InvalidCharacterError')) {
+    if (error.name === 'InvalidCharacterError' ||
+    error.message.includes('invalid characters') ||
+    error.message.includes('InvalidCharacterError')) {
       return {
         hasError: true,
         error,
         errorId: `invalid-char-${Date.now()}`
       };
     }
-    
+
     // Let other error boundaries handle non-InvalidCharacterError
     throw error;
   }
@@ -51,7 +51,7 @@ class InvalidCharacterErrorBoundary extends Component<Props, State> {
     // Log the error for debugging
     console.error('InvalidCharacterError caught:', error);
     console.error('Component stack:', errorInfo.componentStack);
-    
+
     // Call custom error handler if provided
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
@@ -78,8 +78,8 @@ class InvalidCharacterErrorBoundary extends Component<Props, State> {
     try {
       // Sanitize localStorage data that might contain invalid characters
       const keysToCheck = ['formData', 'userData', 'cachedData', 'preferences'];
-      
-      keysToCheck.forEach(key => {
+
+      keysToCheck.forEach((key) => {
         const data = localStorage.getItem(key);
         if (data) {
           try {
@@ -99,7 +99,7 @@ class InvalidCharacterErrorBoundary extends Component<Props, State> {
 
   private handleRetry = () => {
     if (this.state.retryCount < this.maxRetries) {
-      this.setState(prevState => ({
+      this.setState((prevState) => ({
         hasError: false,
         error: null,
         errorId: '',
@@ -114,10 +114,10 @@ class InvalidCharacterErrorBoundary extends Component<Props, State> {
   private handleReset = () => {
     // Clear potentially problematic data
     this.sanitizeStorageData();
-    
+
     // Clear form data that might contain invalid characters
     const forms = document.querySelectorAll('form');
-    forms.forEach(form => {
+    forms.forEach((form) => {
       try {
         form.reset();
       } catch (e) {
@@ -183,29 +183,29 @@ class InvalidCharacterErrorBoundary extends Component<Props, State> {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-2">
-                {this.state.retryCount < this.maxRetries ? (
-                  <Button 
-                    onClick={this.handleRetry}
-                    className="flex-1"
-                    variant="outline"
-                  >
+                {this.state.retryCount < this.maxRetries ?
+                <Button
+                  onClick={this.handleRetry}
+                  className="flex-1"
+                  variant="outline">
+
                     <RefreshCw className="w-4 h-4 mr-2" />
                     Try Again ({this.maxRetries - this.state.retryCount} left)
-                  </Button>
-                ) : null}
+                  </Button> :
+                null}
                 
-                <Button 
+                <Button
                   onClick={this.handleReset}
                   className="flex-1"
-                  variant="outline"
-                >
+                  variant="outline">
+
                   Clear Data & Reset
                 </Button>
                 
-                <Button 
+                <Button
                   onClick={this.handleReload}
-                  className="flex-1"
-                >
+                  className="flex-1">
+
                   Reload Page
                 </Button>
               </div>
@@ -215,8 +215,8 @@ class InvalidCharacterErrorBoundary extends Component<Props, State> {
               </div>
             </CardContent>
           </Card>
-        </div>
-      );
+        </div>);
+
     }
 
     return this.props.children;

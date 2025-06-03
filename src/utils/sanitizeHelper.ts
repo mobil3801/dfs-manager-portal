@@ -9,13 +9,13 @@
  */
 export const sanitizeElementId = (str: string): string => {
   if (!str) return '';
-  
+
   // Remove or replace invalid characters for HTML IDs
   // HTML IDs must start with a letter and can only contain letters, digits, hyphens, and underscores
-  return str
-    .replace(/[^a-zA-Z0-9\-_]/g, '_') // Replace invalid chars with underscore
-    .replace(/^[^a-zA-Z]/, 'id_') // Ensure it starts with a letter
-    .substring(0, 50); // Limit length
+  return str.
+  replace(/[^a-zA-Z0-9\-_]/g, '_') // Replace invalid chars with underscore
+  .replace(/^[^a-zA-Z]/, 'id_') // Ensure it starts with a letter
+  .substring(0, 50); // Limit length
 };
 
 /**
@@ -25,12 +25,12 @@ export const sanitizeElementId = (str: string): string => {
  */
 export const sanitizeClassName = (str: string): string => {
   if (!str) return '';
-  
+
   // CSS class names should not contain special characters
-  return str
-    .replace(/[^a-zA-Z0-9\-_]/g, '-')
-    .replace(/^[^a-zA-Z]/, 'class-')
-    .substring(0, 50);
+  return str.
+  replace(/[^a-zA-Z0-9\-_]/g, '-').
+  replace(/^[^a-zA-Z]/, 'class-').
+  substring(0, 50);
 };
 
 /**
@@ -40,16 +40,16 @@ export const sanitizeClassName = (str: string): string => {
  */
 export const sanitizeTextContent = (str: string): string => {
   if (!str) return '';
-  
+
   // Escape HTML entities and remove control characters
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\//g, '&#x2F;')
-    .replace(/[\x00-\x1F\x7F-\x9F]/g, ''); // Remove control characters
+  return str.
+  replace(/&/g, '&amp;').
+  replace(/</g, '&lt;').
+  replace(/>/g, '&gt;').
+  replace(/"/g, '&quot;').
+  replace(/'/g, '&#x27;').
+  replace(/\//g, '&#x2F;').
+  replace(/[\x00-\x1F\x7F-\x9F]/g, ''); // Remove control characters
 };
 
 /**
@@ -59,11 +59,11 @@ export const sanitizeTextContent = (str: string): string => {
  */
 export const sanitizeFieldName = (str: string): string => {
   if (!str) return '';
-  
-  return str
-    .replace(/[^a-zA-Z0-9_]/g, '_')
-    .replace(/^[^a-zA-Z]/, 'field_')
-    .substring(0, 50);
+
+  return str.
+  replace(/[^a-zA-Z0-9_]/g, '_').
+  replace(/^[^a-zA-Z]/, 'field_').
+  substring(0, 50);
 };
 
 /**
@@ -73,13 +73,13 @@ export const sanitizeFieldName = (str: string): string => {
  */
 export const sanitizeDataAttribute = (value: any): string => {
   if (value === null || value === undefined) return '';
-  
+
   const str = String(value);
   // Data attributes should not contain quotes or control characters
-  return str
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+  return str.
+  replace(/"/g, '&quot;').
+  replace(/'/g, '&#x27;').
+  replace(/[\x00-\x1F\x7F-\x9F]/g, '');
 };
 
 /**
@@ -90,10 +90,10 @@ export const sanitizeDataAttribute = (value: any): string => {
  */
 export const createSafeKey = (str: string, prefix = 'item'): string => {
   if (!str) return `${prefix}_${Date.now()}`;
-  
-  return `${prefix}_${str
-    .replace(/[^a-zA-Z0-9]/g, '_')
-    .substring(0, 30)}_${Date.now()}`;
+
+  return `${prefix}_${str.
+  replace(/[^a-zA-Z0-9]/g, '_').
+  substring(0, 30)}_${Date.now()}`;
 };
 
 /**
@@ -103,12 +103,12 @@ export const createSafeKey = (str: string, prefix = 'item'): string => {
  */
 export const removeBOM = (str: string): string => {
   if (!str) return '';
-  
+
   // Remove BOM and other problematic Unicode characters
-  return str
-    .replace(/^\uFEFF/, '') // Remove BOM
-    .replace(/[\u200B-\u200D\uFEFF]/g, '') // Remove zero-width characters
-    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, ''); // Remove control characters
+  return str.
+  replace(/^\uFEFF/, '') // Remove BOM
+  .replace(/[\u200B-\u200D\uFEFF]/g, '') // Remove zero-width characters
+  .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, ''); // Remove control characters
 };
 
 /**
@@ -118,7 +118,7 @@ export const removeBOM = (str: string): string => {
  */
 export const isValidAttributeValue = (str: string): boolean => {
   if (!str) return true;
-  
+
   // Check for problematic characters
   const problemChars = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/;
   return !problemChars.test(str);
@@ -131,15 +131,15 @@ export const isValidAttributeValue = (str: string): boolean => {
  */
 export const sanitizeUserInput = (input: any): any => {
   if (input === null || input === undefined) return input;
-  
+
   if (typeof input === 'string') {
     return removeBOM(sanitizeTextContent(input));
   }
-  
+
   if (Array.isArray(input)) {
     return input.map(sanitizeUserInput);
   }
-  
+
   if (typeof input === 'object') {
     const sanitized: any = {};
     for (const [key, value] of Object.entries(input)) {
@@ -148,7 +148,7 @@ export const sanitizeUserInput = (input: any): any => {
     }
     return sanitized;
   }
-  
+
   return input;
 };
 

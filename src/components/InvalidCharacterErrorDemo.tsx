@@ -7,29 +7,29 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  AlertTriangle, 
-  CheckCircle, 
-  XCircle, 
-  Code, 
+import {
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Code,
   Shield,
   FileText,
-  Clipboard
-} from 'lucide-react';
+  Clipboard } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SafeText, SafeInput, withSafeRendering } from '@/components/SafeRenderer';
 import useSafeForm from '@/hooks/use-safe-form';
-import { 
-  sanitizeTextContent, 
-  sanitizeElementId, 
+import {
+  sanitizeTextContent,
+  sanitizeElementId,
   isValidAttributeValue,
-  removeBOM 
-} from '@/utils/sanitizeHelper';
-import { 
-  safeJSONParse, 
+  removeBOM } from
+'@/utils/sanitizeHelper';
+import {
+  safeJSONParse,
   safeClipboard,
-  safeFileReader 
-} from '@/utils/errorPreventionHelper';
+  safeFileReader } from
+'@/utils/errorPreventionHelper';
 
 const InvalidCharacterErrorDemo: React.FC = () => {
   const { toast } = useToast();
@@ -49,23 +49,23 @@ const InvalidCharacterErrorDemo: React.FC = () => {
     onSubmit: async (data) => {
       toast({
         title: 'Form Submitted Safely',
-        description: 'All data was sanitized and validated successfully.',
+        description: 'All data was sanitized and validated successfully.'
       });
     }
   });
 
   const problemCharacterExamples = [
-    { name: 'Zero Width Space', char: '\u200B', description: 'Invisible character that can break rendering' },
-    { name: 'BOM (Byte Order Mark)', char: '\uFEFF', description: 'Can appear at start of files' },
-    { name: 'Null Character', char: '\u0000', description: 'Control character that breaks DOM' },
-    { name: 'Form Feed', char: '\f', description: 'Control character' },
-    { name: 'Vertical Tab', char: '\v', description: 'Control character' },
-    { name: 'Delete Character', char: '\u007F', description: 'Control character' },
-  ];
+  { name: 'Zero Width Space', char: '\u200B', description: 'Invisible character that can break rendering' },
+  { name: 'BOM (Byte Order Mark)', char: '\uFEFF', description: 'Can appear at start of files' },
+  { name: 'Null Character', char: '\u0000', description: 'Control character that breaks DOM' },
+  { name: 'Form Feed', char: '\f', description: 'Control character' },
+  { name: 'Vertical Tab', char: '\v', description: 'Control character' },
+  { name: 'Delete Character', char: '\u007F', description: 'Control character' }];
+
 
   const runCharacterTests = () => {
-    const results: Array<{ test: string; passed: boolean; message: string; }> = [];
-    
+    const results: Array<{test: string;passed: boolean;message: string;}> = [];
+
     // Test 1: Basic sanitization
     try {
       const problematicString = 'Hello\u0000World\uFEFF\u200B';
@@ -158,8 +158,8 @@ const InvalidCharacterErrorDemo: React.FC = () => {
     }
 
     setTestResults(results);
-    
-    const passedCount = results.filter(r => r.passed).length;
+
+    const passedCount = results.filter((r) => r.passed).length;
     toast({
       title: 'Character Safety Tests Complete',
       description: `${passedCount}/${results.length} tests passed`,
@@ -168,7 +168,7 @@ const InvalidCharacterErrorDemo: React.FC = () => {
   };
 
   const insertProblematicCharacter = (char: string) => {
-    setTestInput(prev => prev + char);
+    setTestInput((prev) => prev + char);
   };
 
   const testClipboardSafety = async () => {
@@ -176,13 +176,13 @@ const InvalidCharacterErrorDemo: React.FC = () => {
       // Test writing potentially problematic content
       const problematicText = 'Test\u0000with\uFEFFproblems\u200B';
       await safeClipboard.write(problematicText);
-      
+
       // Test reading it back
       const readText = await safeClipboard.read();
-      
+
       toast({
         title: 'Clipboard Test',
-        description: `Successfully wrote and read text. Cleaned: ${readText.length < problematicText.length ? 'Yes' : 'No'}`,
+        description: `Successfully wrote and read text. Cleaned: ${readText.length < problematicText.length ? 'Yes' : 'No'}`
       });
     } catch (error) {
       toast({
@@ -197,21 +197,21 @@ const InvalidCharacterErrorDemo: React.FC = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    safeFileReader(file)
-      .then(content => {
-        toast({
-          title: 'File Read Successfully',
-          description: `Read ${content.length} characters safely`,
-        });
-        setTestInput(content.substring(0, 500)); // Show first 500 chars
-      })
-      .catch(error => {
-        toast({
-          title: 'File Read Failed',
-          description: error.message,
-          variant: 'destructive'
-        });
+    safeFileReader(file).
+    then((content) => {
+      toast({
+        title: 'File Read Successfully',
+        description: `Read ${content.length} characters safely`
       });
+      setTestInput(content.substring(0, 500)); // Show first 500 chars
+    }).
+    catch((error) => {
+      toast({
+        title: 'File Read Failed',
+        description: error.message,
+        variant: 'destructive'
+      });
+    });
   };
 
   return (
@@ -279,21 +279,21 @@ const InvalidCharacterErrorDemo: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {problemCharacterExamples.map((example, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 border rounded">
+                    {problemCharacterExamples.map((example, index) =>
+                    <div key={index} className="flex items-center justify-between p-3 border rounded">
                         <div>
                           <div className="font-medium text-sm">{example.name}</div>
                           <div className="text-xs text-gray-600">{example.description}</div>
                         </div>
                         <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => insertProblematicCharacter(example.char)}
-                        >
+                        size="sm"
+                        variant="outline"
+                        onClick={() => insertProblematicCharacter(example.char)}>
+
                           Insert
                         </Button>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -310,28 +310,28 @@ const InvalidCharacterErrorDemo: React.FC = () => {
                     Run Safety Tests
                   </Button>
 
-                  {testResults.length > 0 && (
-                    <div className="space-y-2">
-                      {testResults.map((result, index) => (
-                        <div
-                          key={index}
-                          className={`flex items-center space-x-3 p-3 rounded border ${
-                            result.passed ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
-                          }`}
-                        >
-                          {result.passed ? (
-                            <CheckCircle className="w-5 h-5 text-green-600" />
-                          ) : (
-                            <XCircle className="w-5 h-5 text-red-600" />
-                          )}
+                  {testResults.length > 0 &&
+                  <div className="space-y-2">
+                      {testResults.map((result, index) =>
+                    <div
+                      key={index}
+                      className={`flex items-center space-x-3 p-3 rounded border ${
+                      result.passed ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`
+                      }>
+
+                          {result.passed ?
+                      <CheckCircle className="w-5 h-5 text-green-600" /> :
+
+                      <XCircle className="w-5 h-5 text-red-600" />
+                      }
                           <div className="flex-1">
                             <div className="font-medium text-sm">{result.test}</div>
                             <div className="text-xs text-gray-600">{result.message}</div>
                           </div>
                         </div>
-                      ))}
+                    )}
                     </div>
-                  )}
+                  }
                 </CardContent>
               </Card>
 
@@ -347,8 +347,8 @@ const InvalidCharacterErrorDemo: React.FC = () => {
                       value={testInput}
                       onChange={(e) => setTestInput(e.target.value)}
                       placeholder="Paste or type text with potential problematic characters..."
-                      rows={4}
-                    />
+                      rows={4} />
+
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -380,8 +380,8 @@ const InvalidCharacterErrorDemo: React.FC = () => {
                       <Label htmlFor="safe-name">Name:</Label>
                       <SafeInput
                         {...getFieldProps('name')}
-                        placeholder="Enter your name (will be automatically sanitized)"
-                      />
+                        placeholder="Enter your name (will be automatically sanitized)" />
+
                     </div>
 
                     <div>
@@ -389,8 +389,8 @@ const InvalidCharacterErrorDemo: React.FC = () => {
                       <SafeInput
                         {...getFieldProps('email')}
                         type="email"
-                        placeholder="Enter your email"
-                      />
+                        placeholder="Enter your email" />
+
                     </div>
 
                     <div>
@@ -398,22 +398,22 @@ const InvalidCharacterErrorDemo: React.FC = () => {
                       <Textarea
                         {...getFieldProps('message')}
                         placeholder="Enter a message (special characters will be sanitized)"
-                        rows={4}
-                      />
+                        rows={4} />
+
                     </div>
 
                     <Button type="submit" disabled={hasErrors}>
                       Submit Safe Form
                     </Button>
 
-                    {hasErrors && (
-                      <Alert variant="destructive">
+                    {hasErrors &&
+                    <Alert variant="destructive">
                         <AlertTriangle className="h-4 w-4" />
                         <AlertDescription>
                           Form contains errors. Please check your input.
                         </AlertDescription>
                       </Alert>
-                    )}
+                    }
                   </form>
                 </CardContent>
               </Card>
@@ -444,8 +444,8 @@ const InvalidCharacterErrorDemo: React.FC = () => {
                         id="file-test"
                         type="file"
                         accept=".txt,.json,.csv"
-                        onChange={testFileUpload}
-                      />
+                        onChange={testFileUpload} />
+
                     </div>
                   </CardContent>
                 </Card>
@@ -461,8 +461,8 @@ const InvalidCharacterErrorDemo: React.FC = () => {
                     <Input
                       value={testInput}
                       onChange={(e) => setTestInput(e.target.value)}
-                      placeholder="Enter text to test safe rendering"
-                    />
+                      placeholder="Enter text to test safe rendering" />
+
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -485,8 +485,8 @@ const InvalidCharacterErrorDemo: React.FC = () => {
           </Tabs>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default withSafeRendering(InvalidCharacterErrorDemo);

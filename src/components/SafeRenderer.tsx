@@ -11,25 +11,25 @@ interface SafeRendererProps {
 /**
  * SafeRenderer component that automatically sanitizes props to prevent InvalidCharacterError
  */
-const SafeRenderer: React.FC<SafeRendererProps> = ({ 
-  children, 
+const SafeRenderer: React.FC<SafeRendererProps> = ({
+  children,
   className,
   id,
-  ...props 
+  ...props
 }) => {
   // Sanitize common problematic props
   const safeProps: any = {};
-  
+
   // Sanitize className
   if (className) {
     safeProps.className = sanitizeClassName(className);
   }
-  
+
   // Sanitize id
   if (id) {
     safeProps.id = sanitizeElementId(id);
   }
-  
+
   // Sanitize other props
   Object.entries(props).forEach(([key, value]) => {
     if (key.startsWith('data-')) {
@@ -43,27 +43,27 @@ const SafeRenderer: React.FC<SafeRendererProps> = ({
       safeProps[key] = value;
     }
   });
-  
+
   return (
     <div {...safeProps}>
       {children}
-    </div>
-  );
+    </div>);
+
 };
 
 /**
  * Higher-order component that wraps components with safe rendering
  */
-export const withSafeRendering = <P extends object>(
-  Component: React.ComponentType<P>
-): React.FC<P> => {
+export const withSafeRendering = <P extends object,>(
+Component: React.ComponentType<P>)
+: React.FC<P> => {
   return (props: P) => {
     try {
       return <Component {...props} />;
     } catch (error) {
       if (error instanceof Error && error.name === 'InvalidCharacterError') {
         console.error('InvalidCharacterError caught and handled:', error);
-        
+
         // Sanitize props before retrying
         const sanitizedProps = Object.entries(props as any).reduce((acc, [key, value]) => {
           if (typeof value === 'string') {
@@ -73,10 +73,10 @@ export const withSafeRendering = <P extends object>(
           }
           return acc;
         }, {} as any);
-        
+
         return <Component {...sanitizedProps} />;
       }
-      
+
       // Re-throw non-InvalidCharacterError errors
       throw error;
     }
@@ -91,15 +91,15 @@ export const SafeText: React.FC<{
   className?: string;
   tag?: keyof JSX.IntrinsicElements;
   [key: string]: any;
-}> = ({ 
-  children, 
+}> = ({
+  children,
   className,
   tag: Tag = 'span',
-  ...props 
+  ...props
 }) => {
   const safeText = sanitizeTextContent(children || '');
   const safeClassName = className ? sanitizeClassName(className) : undefined;
-  
+
   const safeProps = Object.entries(props).reduce((acc, [key, value]) => {
     if (typeof value === 'string') {
       acc[key] = sanitizeTextContent(value);
@@ -108,14 +108,14 @@ export const SafeText: React.FC<{
     }
     return acc;
   }, {} as any);
-  
+
   return (
-    <Tag 
+    <Tag
       className={safeClassName}
       {...safeProps}
-      dangerouslySetInnerHTML={{ __html: safeText }}
-    />
-  );
+      dangerouslySetInnerHTML={{ __html: safeText }} />);
+
+
 };
 
 /**
@@ -123,13 +123,13 @@ export const SafeText: React.FC<{
  */
 export const SafeInput: React.FC<React.InputHTMLAttributes<HTMLInputElement> & {
   safeId?: string;
-}> = ({ 
+}> = ({
   className,
   id,
   safeId,
   value,
   defaultValue,
-  ...props 
+  ...props
 }) => {
   const inputId = safeId || id;
   const safeProps = {
@@ -137,9 +137,9 @@ export const SafeInput: React.FC<React.InputHTMLAttributes<HTMLInputElement> & {
     className: className ? sanitizeClassName(className) : undefined,
     id: inputId ? sanitizeElementId(inputId) : undefined,
     value: typeof value === 'string' ? sanitizeTextContent(value) : value,
-    defaultValue: typeof defaultValue === 'string' ? sanitizeTextContent(defaultValue) : defaultValue,
+    defaultValue: typeof defaultValue === 'string' ? sanitizeTextContent(defaultValue) : defaultValue
   };
-  
+
   return <input {...safeProps} />;
 };
 
