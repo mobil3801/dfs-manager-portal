@@ -11,10 +11,10 @@ interface ErrorFallbackProps {
   componentName?: string;
 }
 
-const ErrorFallback: React.FC<ErrorFallbackProps> = ({ 
-  error, 
-  resetErrorBoundary, 
-  componentName = 'Component' 
+const ErrorFallback: React.FC<ErrorFallbackProps> = ({
+  error,
+  resetErrorBoundary,
+  componentName = 'Component'
 }) => {
   const navigate = useNavigate();
 
@@ -64,18 +64,18 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
               <RefreshCw className="w-4 h-4 mr-2" />
               Try Again
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={handleGoHome} 
-              className="w-full"
-            >
+            <Button
+              variant="outline"
+              onClick={handleGoHome}
+              className="w-full">
+
               <Home className="w-4 h-4 mr-2" />
               Go to Dashboard
             </Button>
           </div>
 
-          {error && (
-            <details className="text-xs text-gray-500 mt-4">
+          {error &&
+          <details className="text-xs text-gray-500 mt-4">
               <summary className="cursor-pointer hover:text-gray-700">
                 Technical Details
               </summary>
@@ -83,11 +83,11 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
                 {error.stack || error.message}
               </pre>
             </details>
-          )}
+          }
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ErrorFallback;

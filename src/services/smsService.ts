@@ -368,7 +368,7 @@ class SMSService {
   }
 
   // Additional methods for the SMSServiceManager
-  async getServiceStatus(): Promise<{ available: boolean; message: string; providers?: any; quota?: any }> {
+  async getServiceStatus(): Promise<{available: boolean;message: string;providers?: any;quota?: any;}> {
     try {
       if (!this.isConfigured) {
         return {
@@ -379,9 +379,9 @@ class SMSService {
 
       // Simulate service check
       const providers = [
-        { name: 'Twilio', available: this.isConfigured },
-        { name: 'TextBelt (Fallback)', available: true }
-      ];
+      { name: 'Twilio', available: this.isConfigured },
+      { name: 'TextBelt (Fallback)', available: true }];
+
 
       const quota = {
         quotaRemaining: 50 // Simulated quota

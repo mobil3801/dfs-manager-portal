@@ -69,7 +69,7 @@ const SMSAlertManagement: React.FC = () => {
   const [editingSetting, setEditingSetting] = useState<SMSAlertSetting | null>(null);
   const [editingContact, setEditingContact] = useState<SMSContact | null>(null);
   const [sendingTestSMS, setSendingTestSMS] = useState(false);
-  const [serviceStatus, setServiceStatus] = useState<{available: boolean; message: string;} | null>(null);
+  const [serviceStatus, setServiceStatus] = useState<{available: boolean;message: string;} | null>(null);
   const [isBatchDeleteDialogOpen, setIsBatchDeleteDialogOpen] = useState(false);
   const [isBatchEditDialogOpen, setIsBatchEditDialogOpen] = useState(false);
   const [batchActionLoading, setBatchActionLoading] = useState(false);
@@ -122,11 +122,11 @@ const SMSAlertManagement: React.FC = () => {
     const initializeData = async () => {
       try {
         await Promise.allSettled([
-          loadSettings(),
-          loadContacts(),
-          loadHistory(),
-          checkServiceStatus()
-        ]);
+        loadSettings(),
+        loadContacts(),
+        loadHistory(),
+        checkServiceStatus()]
+        );
       } catch (error) {
         console.error('Error initializing SMS Alert Management:', error);
         setError('Failed to initialize SMS Alert Management');
@@ -668,10 +668,10 @@ const SMSAlertManagement: React.FC = () => {
   // Get current batch selection based on active tab
   const getCurrentBatchSelection = () => {
     switch (activeTab) {
-      case 'settings': return settingsBatchSelection;
-      case 'contacts': return contactsBatchSelection;
-      case 'history': return historyBatchSelection;
-      default: return { selectedCount: 0, clearSelection: () => {} };
+      case 'settings':return settingsBatchSelection;
+      case 'contacts':return contactsBatchSelection;
+      case 'history':return historyBatchSelection;
+      default:return { selectedCount: 0, clearSelection: () => {} };
     }
   };
 
@@ -725,10 +725,10 @@ const SMSAlertManagement: React.FC = () => {
   // Get current confirm function based on active tab
   const getCurrentConfirmFunction = () => {
     switch (activeTab) {
-      case 'settings': return confirmBatchDeleteSettings;
-      case 'contacts': return activeTab === 'contacts' && isBatchEditDialogOpen ? confirmBatchEditContacts : confirmBatchDeleteContacts;
-      case 'history': return confirmBatchDeleteHistory;
-      default: return () => {};
+      case 'settings':return confirmBatchDeleteSettings;
+      case 'contacts':return activeTab === 'contacts' && isBatchEditDialogOpen ? confirmBatchEditContacts : confirmBatchDeleteContacts;
+      case 'history':return confirmBatchDeleteHistory;
+      default:return () => {};
     }
   };
 
@@ -737,9 +737,9 @@ const SMSAlertManagement: React.FC = () => {
     return (
       <AccessDenied
         feature="SMS Alert Management"
-        requiredRole="Administrator"
-      />
-    );
+        requiredRole="Administrator" />);
+
+
   }
 
   if (error) {
@@ -755,15 +755,15 @@ const SMSAlertManagement: React.FC = () => {
           <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
-          <Button 
-            onClick={() => window.location.reload()} 
-            className="w-full mt-4"
-          >
+          <Button
+            onClick={() => window.location.reload()}
+            className="w-full mt-4">
+
             Retry
           </Button>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -780,25 +780,25 @@ const SMSAlertManagement: React.FC = () => {
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">SMS Alert Management</h1>
           <div className="flex items-center space-x-4">
-            {serviceStatus && (
-              <div className="flex items-center space-x-2">
-                {serviceStatus.available ? (
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                ) : (
-                  <AlertCircle className="w-5 h-5 text-red-500" />
-                )}
+            {serviceStatus &&
+            <div className="flex items-center space-x-2">
+                {serviceStatus.available ?
+              <CheckCircle className="w-5 h-5 text-green-500" /> :
+
+              <AlertCircle className="w-5 h-5 text-red-500" />
+              }
                 <span className={`text-sm ${
-                  serviceStatus.available ? 'text-green-600' : 'text-red-600'
-                }`}>
+              serviceStatus.available ? 'text-green-600' : 'text-red-600'}`
+              }>
                   {serviceStatus.available ? 'SMS Service Online' : 'SMS Service Offline'}
                 </span>
               </div>
-            )}
+            }
             <Button
               onClick={sendTestSMS}
               disabled={sendingTestSMS || !serviceStatus?.available}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
+              className="bg-blue-600 hover:bg-blue-700">
+
               <Send className="w-4 h-4 mr-2" />
               {sendingTestSMS ? 'Sending...' : 'Send Test SMS'}
             </Button>
@@ -809,16 +809,16 @@ const SMSAlertManagement: React.FC = () => {
         <SMSSetupGuide />
 
         {/* Show batch action bar only for relevant tabs */}
-        {(activeTab === 'settings' || activeTab === 'contacts' || activeTab === 'history') && (
-          <BatchActionBar
-            selectedCount={getCurrentBatchSelection().selectedCount}
-            onBatchEdit={getCurrentBatchOperations().onBatchEdit}
-            onBatchDelete={getCurrentBatchOperations().onBatchDelete}
-            onClearSelection={getCurrentBatchSelection().clearSelection}
-            isLoading={batchActionLoading}
-            showEdit={getCurrentBatchOperations().showEdit}
-          />
-        )}
+        {(activeTab === 'settings' || activeTab === 'contacts' || activeTab === 'history') &&
+        <BatchActionBar
+          selectedCount={getCurrentBatchSelection().selectedCount}
+          onBatchEdit={getCurrentBatchOperations().onBatchEdit}
+          onBatchDelete={getCurrentBatchOperations().onBatchDelete}
+          onClearSelection={getCurrentBatchSelection().clearSelection}
+          isLoading={batchActionLoading}
+          showEdit={getCurrentBatchOperations().showEdit} />
+
+        }
 
         <Tabs defaultValue="test" className="space-y-6" onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-6">
@@ -871,8 +871,8 @@ const SMSAlertManagement: React.FC = () => {
                             id="setting_name"
                             value={newSetting.setting_name}
                             onChange={(e) => setNewSetting({ ...newSetting, setting_name: e.target.value })}
-                            placeholder="e.g., Standard License Alert"
-                          />
+                            placeholder="e.g., Standard License Alert" />
+
                         </div>
                         <div>
                           <Label htmlFor="days_before">Days Before Expiry</Label>
@@ -880,8 +880,8 @@ const SMSAlertManagement: React.FC = () => {
                             id="days_before"
                             type="number"
                             value={newSetting.days_before_expiry}
-                            onChange={(e) => setNewSetting({ ...newSetting, days_before_expiry: parseInt(e.target.value) })}
-                          />
+                            onChange={(e) => setNewSetting({ ...newSetting, days_before_expiry: parseInt(e.target.value) })} />
+
                         </div>
                         <div>
                           <Label htmlFor="frequency">Alert Frequency (Days)</Label>
@@ -889,15 +889,15 @@ const SMSAlertManagement: React.FC = () => {
                             id="frequency"
                             type="number"
                             value={newSetting.alert_frequency_days}
-                            onChange={(e) => setNewSetting({ ...newSetting, alert_frequency_days: parseInt(e.target.value) })}
-                          />
+                            onChange={(e) => setNewSetting({ ...newSetting, alert_frequency_days: parseInt(e.target.value) })} />
+
                         </div>
                         <div className="flex items-center space-x-2">
                           <Switch
                             id="is_active"
                             checked={newSetting.is_active}
-                            onCheckedChange={(checked) => setNewSetting({ ...newSetting, is_active: checked })}
-                          />
+                            onCheckedChange={(checked) => setNewSetting({ ...newSetting, is_active: checked })} />
+
                           <Label htmlFor="is_active">Active</Label>
                         </div>
                         <div>
@@ -907,8 +907,8 @@ const SMSAlertManagement: React.FC = () => {
                             value={newSetting.message_template}
                             onChange={(e) => setNewSetting({ ...newSetting, message_template: e.target.value })}
                             placeholder="Use {license_name}, {station}, {expiry_date} as placeholders"
-                            rows={3}
-                          />
+                            rows={3} />
+
                         </div>
                         <Button onClick={saveSetting} disabled={loading} className="w-full">
                           {loading ? 'Saving...' : editingSetting ? 'Update' : 'Create'}
@@ -926,8 +926,8 @@ const SMSAlertManagement: React.FC = () => {
                         <Checkbox
                           checked={settings.length > 0 && settingsBatchSelection.selectedCount === settings.length}
                           onCheckedChange={() => settingsBatchSelection.toggleSelectAll(settings, (setting) => setting.id)}
-                          aria-label="Select all settings"
-                        />
+                          aria-label="Select all settings" />
+
                       </TableHead>
                       <TableHead>Setting Name</TableHead>
                       <TableHead>Days Before</TableHead>
@@ -937,14 +937,14 @@ const SMSAlertManagement: React.FC = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {settings.map((setting) => (
-                      <TableRow key={setting.id} className={settingsBatchSelection.isSelected(setting.id) ? "bg-blue-50" : ""}>
+                    {settings.map((setting) =>
+                    <TableRow key={setting.id} className={settingsBatchSelection.isSelected(setting.id) ? "bg-blue-50" : ""}>
                         <TableCell>
                           <Checkbox
-                            checked={settingsBatchSelection.isSelected(setting.id)}
-                            onCheckedChange={() => settingsBatchSelection.toggleItem(setting.id)}
-                            aria-label={`Select setting ${setting.setting_name}`}
-                          />
+                          checked={settingsBatchSelection.isSelected(setting.id)}
+                          onCheckedChange={() => settingsBatchSelection.toggleItem(setting.id)}
+                          aria-label={`Select setting ${setting.setting_name}`} />
+
                         </TableCell>
                         <TableCell className="font-medium">{setting.setting_name}</TableCell>
                         <TableCell>{setting.days_before_expiry} days</TableCell>
@@ -957,23 +957,23 @@ const SMSAlertManagement: React.FC = () => {
                         <TableCell>
                           <div className="flex space-x-2">
                             <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => editSetting(setting)}
-                            >
+                            size="sm"
+                            variant="outline"
+                            onClick={() => editSetting(setting)}>
+
                               <Edit className="w-4 h-4" />
                             </Button>
                             <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => deleteSetting(setting.id)}
-                            >
+                            size="sm"
+                            variant="outline"
+                            onClick={() => deleteSetting(setting.id)}>
+
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                         </TableCell>
                       </TableRow>
-                    ))}
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>
@@ -1017,8 +1017,8 @@ const SMSAlertManagement: React.FC = () => {
                             id="contact_name"
                             value={newContact.contact_name}
                             onChange={(e) => setNewContact({ ...newContact, contact_name: e.target.value })}
-                            placeholder="Full name"
-                          />
+                            placeholder="Full name" />
+
                         </div>
                         <div>
                           <Label htmlFor="mobile_number">Mobile Number</Label>
@@ -1026,20 +1026,20 @@ const SMSAlertManagement: React.FC = () => {
                             id="mobile_number"
                             value={newContact.mobile_number}
                             onChange={(e) => setNewContact({ ...newContact, mobile_number: e.target.value })}
-                            placeholder="+1234567890 or 1234567890"
-                          />
-                          {newContact.mobile_number && !isValidPhoneNumber(newContact.mobile_number) && (
-                            <p className="text-sm text-red-500 mt-1">
+                            placeholder="+1234567890 or 1234567890" />
+
+                          {newContact.mobile_number && !isValidPhoneNumber(newContact.mobile_number) &&
+                          <p className="text-sm text-red-500 mt-1">
                               Please enter a valid phone number (e.g., +1234567890 or 1234567890)
                             </p>
-                          )}
+                          }
                         </div>
                         <div>
                           <Label htmlFor="station">Station</Label>
                           <Select
                             value={newContact.station}
-                            onValueChange={(value) => setNewContact({ ...newContact, station: value })}
-                          >
+                            onValueChange={(value) => setNewContact({ ...newContact, station: value })}>
+
                             <SelectTrigger>
                               <SelectValue />
                             </SelectTrigger>
@@ -1055,8 +1055,8 @@ const SMSAlertManagement: React.FC = () => {
                           <Label htmlFor="contact_role">Role</Label>
                           <Select
                             value={newContact.contact_role}
-                            onValueChange={(value) => setNewContact({ ...newContact, contact_role: value })}
-                          >
+                            onValueChange={(value) => setNewContact({ ...newContact, contact_role: value })}>
+
                             <SelectTrigger>
                               <SelectValue />
                             </SelectTrigger>
@@ -1072,8 +1072,8 @@ const SMSAlertManagement: React.FC = () => {
                           <Switch
                             id="contact_active"
                             checked={newContact.is_active}
-                            onCheckedChange={(checked) => setNewContact({ ...newContact, is_active: checked })}
-                          />
+                            onCheckedChange={(checked) => setNewContact({ ...newContact, is_active: checked })} />
+
                           <Label htmlFor="contact_active">Active</Label>
                         </div>
                         <Button onClick={saveContact} disabled={loading} className="w-full">
@@ -1092,8 +1092,8 @@ const SMSAlertManagement: React.FC = () => {
                         <Checkbox
                           checked={contacts.length > 0 && contactsBatchSelection.selectedCount === contacts.length}
                           onCheckedChange={() => contactsBatchSelection.toggleSelectAll(contacts, (contact) => contact.id)}
-                          aria-label="Select all contacts"
-                        />
+                          aria-label="Select all contacts" />
+
                       </TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Mobile Number</TableHead>
@@ -1104,14 +1104,14 @@ const SMSAlertManagement: React.FC = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {contacts.map((contact) => (
-                      <TableRow key={contact.id} className={contactsBatchSelection.isSelected(contact.id) ? "bg-blue-50" : ""}>
+                    {contacts.map((contact) =>
+                    <TableRow key={contact.id} className={contactsBatchSelection.isSelected(contact.id) ? "bg-blue-50" : ""}>
                         <TableCell>
                           <Checkbox
-                            checked={contactsBatchSelection.isSelected(contact.id)}
-                            onCheckedChange={() => contactsBatchSelection.toggleItem(contact.id)}
-                            aria-label={`Select contact ${contact.contact_name}`}
-                          />
+                          checked={contactsBatchSelection.isSelected(contact.id)}
+                          onCheckedChange={() => contactsBatchSelection.toggleItem(contact.id)}
+                          aria-label={`Select contact ${contact.contact_name}`} />
+
                         </TableCell>
                         <TableCell className="font-medium">{contact.contact_name}</TableCell>
                         <TableCell>{contact.mobile_number}</TableCell>
@@ -1125,23 +1125,23 @@ const SMSAlertManagement: React.FC = () => {
                         <TableCell>
                           <div className="flex space-x-2">
                             <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => editContact(contact)}
-                            >
+                            size="sm"
+                            variant="outline"
+                            onClick={() => editContact(contact)}>
+
                               <Edit className="w-4 h-4" />
                             </Button>
                             <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => deleteContact(contact.id)}
-                            >
+                            size="sm"
+                            variant="outline"
+                            onClick={() => deleteContact(contact.id)}>
+
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                         </TableCell>
                       </TableRow>
-                    ))}
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>
@@ -1164,8 +1164,8 @@ const SMSAlertManagement: React.FC = () => {
                         <Checkbox
                           checked={history.length > 0 && historyBatchSelection.selectedCount === history.length}
                           onCheckedChange={() => historyBatchSelection.toggleSelectAll(history, (record) => record.id)}
-                          aria-label="Select all history records"
-                        />
+                          aria-label="Select all history records" />
+
                       </TableHead>
                       <TableHead>Date Sent</TableHead>
                       <TableHead>Mobile Number</TableHead>
@@ -1175,14 +1175,14 @@ const SMSAlertManagement: React.FC = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {history.map((record) => (
-                      <TableRow key={record.id} className={historyBatchSelection.isSelected(record.id) ? "bg-blue-50" : ""}>
+                    {history.map((record) =>
+                    <TableRow key={record.id} className={historyBatchSelection.isSelected(record.id) ? "bg-blue-50" : ""}>
                         <TableCell>
                           <Checkbox
-                            checked={historyBatchSelection.isSelected(record.id)}
-                            onCheckedChange={() => historyBatchSelection.toggleItem(record.id)}
-                            aria-label={`Select history record ${record.id}`}
-                          />
+                          checked={historyBatchSelection.isSelected(record.id)}
+                          onCheckedChange={() => historyBatchSelection.toggleItem(record.id)}
+                          aria-label={`Select history record ${record.id}`} />
+
                         </TableCell>
                         <TableCell>
                           {new Date(record.sent_date).toLocaleDateString()}
@@ -1196,14 +1196,14 @@ const SMSAlertManagement: React.FC = () => {
                         </TableCell>
                         <TableCell>
                           <Badge
-                            variant={record.delivery_status === 'Sent' || record.delivery_status === 'Test Sent' ?
-                              'default' : 'destructive'}
-                          >
+                          variant={record.delivery_status === 'Sent' || record.delivery_status === 'Test Sent' ?
+                          'default' : 'destructive'}>
+
                             {record.delivery_status}
                           </Badge>
                         </TableCell>
                       </TableRow>
-                    ))}
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>
@@ -1226,8 +1226,8 @@ const SMSAlertManagement: React.FC = () => {
           onSave={confirmBatchEditContacts}
           selectedCount={contactsBatchSelection.selectedCount}
           isLoading={batchActionLoading}
-          itemName="SMS contacts"
-        >
+          itemName="SMS contacts">
+
           <div className="space-y-4">
             <div>
               <Label htmlFor="batch_station">Station</Label>
@@ -1263,8 +1263,8 @@ const SMSAlertManagement: React.FC = () => {
               <Switch
                 id="batch_is_active"
                 checked={batchEditData.is_active}
-                onCheckedChange={(checked) => setBatchEditData({ ...batchEditData, is_active: checked })}
-              />
+                onCheckedChange={(checked) => setBatchEditData({ ...batchEditData, is_active: checked })} />
+
               <Label htmlFor="batch_is_active">Set all selected contacts as active</Label>
             </div>
           </div>
@@ -1278,11 +1278,11 @@ const SMSAlertManagement: React.FC = () => {
           selectedCount={getCurrentBatchSelection().selectedCount}
           isLoading={batchActionLoading}
           itemName={activeTab === 'settings' ? 'SMS alert settings' : activeTab === 'contacts' ? 'SMS contacts' : 'SMS history records'}
-          selectedItems={getCurrentSelectedData()}
-        />
+          selectedItems={getCurrentSelectedData()} />
+
       </div>
-    </ComponentErrorBoundary>
-  );
+    </ComponentErrorBoundary>);
+
 };
 
 export default SMSAlertManagement;
