@@ -111,8 +111,8 @@ const AuditLogDashboard: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AuditLogDashboard;

@@ -9,6 +9,11 @@ import ErrorMonitoringWidget from '@/components/ErrorMonitoringWidget';
 import MemoryMonitoringWidget from '@/components/MemoryMonitoringWidget';
 import DatabaseConnectionAlert from '@/components/DatabaseConnectionAlert';
 import StationSalesBoxes from '@/components/StationSalesBoxes';
+import RealtimeStatusIndicator from '@/components/RealtimeStatusIndicator';
+import RealtimeNotifications from '@/components/RealtimeNotifications';
+import SupabaseSetupGuide from '@/components/SupabaseSetupGuide';
+import { useRealtimeData } from '@/hooks/use-realtime';
+import { SupabaseService } from '@/services/supabaseService';
 import {
   Package,
   Users,
@@ -89,9 +94,151 @@ const Dashboard: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showGuide, setShowGuide] = useState(false);
 
+  // Real-time dashboard tables to monitor
+  const realtimeTables = [
+  'products',
+  'employees',
+  'daily_sales_reports_enhanced',
+  'vendors',
+  'orders',
+  'licenses_certificates',
+  'delivery_records',
+  'audit_logs'];
+
+
+  // Real-time data fetching with Supabase
+  const {
+    data: realtimeStats,
+    loading: realtimeLoading,
+    isConnected: realtimeConnected,
+    lastUpdate,
+    refetch
+  } = useRealtimeData(
+    'dashboard_stats',
+    async () => {
+      // This function will be called whenever real-time data changes
+      return await loadDashboardDataFromSupabase();
+    },
+    {
+      showNotifications: false // We handle notifications separately
+    }
+  );
+
   useEffect(() => {
     loadDashboardData();
   }, []);
+
+  // Supabase data loading function
+  const loadDashboardDataFromSupabase = async (): Promise<DashboardStats> => {
+    try {
+      const newStats = { ...stats };
+
+      // Load products from Supabase
+      const { data: productsData } = await SupabaseService.read('products', {
+        pageSize: 1000
+      });
+
+      if (productsData) {
+        const lowStock = productsData.filter((p) => p.quantity_in_stock <= p.minimum_stock);
+        newStats.totalProducts = productsData.length;
+        newStats.lowStockProducts = lowStock.length;
+      }
+
+      // Load employees from Supabase
+      const { data: employeesData } = await SupabaseService.read('employees', {
+        pageSize: 1000
+      });
+
+      if (employeesData) {
+        const active = employeesData.filter((e) => e.is_active);
+        newStats.totalEmployees = employeesData.length;
+        newStats.activeEmployees = active.length;
+      }
+
+      // Load sales reports from Supabase
+      const { data: salesData } = await SupabaseService.read('daily_sales_reports_enhanced', {
+        pageSize: 1000,
+        orderBy: 'report_date',
+        ascending: false
+      });
+
+      if (salesData) {
+        // Calculate totals
+        let totalSales = 0;
+        salesData.forEach((report) => {
+          totalSales += parseFloat(report.total_sales as any) || 0;
+        });
+        newStats.allSalesTotal = totalSales;
+        newStats.totalReports = salesData.length;
+
+        // Today's sales
+        const today = new Date().toISOString().split('T')[0];
+        const todayReports = salesData.filter((r) => r.report_date?.startsWith(today));
+        newStats.todaySales = todayReports.reduce((sum, report) => {
+          return sum + (parseFloat(report.total_sales as any) || 0);
+        }, 0);
+
+        // Month's sales
+        const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+        const monthReports = salesData.filter((r) =>
+        new Date(r.report_date) >= startOfMonth
+        );
+        newStats.monthSales = monthReports.reduce((sum, report) => {
+          return sum + (parseFloat(report.total_sales as any) || 0);
+        }, 0);
+      }
+
+      // Load vendors from Supabase
+      const { data: vendorsData } = await SupabaseService.read('vendors', {
+        pageSize: 1000
+      });
+
+      if (vendorsData) {
+        const active = vendorsData.filter((v) => v.is_active);
+        newStats.totalVendors = vendorsData.length;
+        newStats.activeVendors = active.length;
+      }
+
+      // Load orders from Supabase
+      const { data: pendingOrders } = await SupabaseService.read('orders', {
+        filters: [{ column: 'status', operator: 'eq', value: 'Pending' }],
+        pageSize: 1000
+      });
+
+      const { data: deliveredOrders } = await SupabaseService.read('orders', {
+        filters: [{ column: 'status', operator: 'eq', value: 'Delivered' }],
+        pageSize: 1000
+      });
+
+      newStats.pendingOrders = pendingOrders?.length || 0;
+      newStats.deliveredOrders = deliveredOrders?.length || 0;
+
+      // Load licenses from Supabase
+      const { data: activeLicenses } = await SupabaseService.read('licenses_certificates', {
+        filters: [{ column: 'status', operator: 'eq', value: 'Active' }],
+        pageSize: 1000
+      });
+
+      const thirtyDaysFromNow = new Date();
+      thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+
+      const { data: expiringLicenses } = await SupabaseService.read('licenses_certificates', {
+        filters: [
+        { column: 'expiry_date', operator: 'lte', value: thirtyDaysFromNow.toISOString() },
+        { column: 'status', operator: 'eq', value: 'Active' }],
+
+        pageSize: 1000
+      });
+
+      newStats.activeLicenses = activeLicenses?.length || 0;
+      newStats.expiringLicenses = expiringLicenses?.length || 0;
+
+      return newStats;
+    } catch (error) {
+      console.error('Error loading dashboard data from Supabase:', error);
+      return stats;
+    }
+  };
 
   const loadDashboardData = async () => {
     try {
@@ -502,13 +649,28 @@ const Dashboard: React.FC = () => {
       {/* Database Connection Alert */}
       <DatabaseConnectionAlert connections={85} max={100} className="mb-6" />
 
-      {/* Welcome Section */}
+      {/* Welcome Section with Real-time Status */}
       <div className="bg-gradient-to-r from-brand-800 to-brand-900 rounded-lg p-6 text-white">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold mb-2">
-            DFS Manager Portal
-          </h1>
+        <div className="flex items-center justify-between">
+          <div className="text-center flex-1">
+            <h1 className="text-4xl font-bold mb-2">
+              DFS Manager Portal
+            </h1>
+            <p className="text-brand-200">Real-time Gas Station Management System</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <RealtimeStatusIndicator
+              isConnected={realtimeConnected}
+              lastUpdate={lastUpdate}
+              className="text-white" />
 
+            <RealtimeNotifications
+              tables={realtimeTables}
+              maxNotifications={15}
+              autoRemoveAfter={15000} />
+
+            <SupabaseSetupGuide />
+          </div>
         </div>
       </div>
 

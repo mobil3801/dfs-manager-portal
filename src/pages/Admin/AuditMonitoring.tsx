@@ -18,8 +18,8 @@ const AuditMonitoringPage: React.FC = () => {
     return (
       <AccessDenied
         feature="Audit Monitoring System"
-        requiredRole="Administrator" />
-    );
+        requiredRole="Administrator" />);
+
   }
 
   return (
@@ -211,24 +211,24 @@ const AuditMonitoringPage: React.FC = () => {
                   <h4 className="font-medium mb-3">Monitored Events</h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                     {[
-                      'Login Attempts',
-                      'Logout Events',
-                      'Registration',
-                      'Password Resets',
-                      'Data Access',
-                      'Data Modifications',
-                      'Permission Changes',
-                      'Admin Actions',
-                      'File Uploads',
-                      'Report Generation',
-                      'System Errors',
-                      'Suspicious Activity'
-                    ].map((event) => (
-                      <div key={event} className="flex items-center space-x-2 p-2 border rounded-md">
+                    'Login Attempts',
+                    'Logout Events',
+                    'Registration',
+                    'Password Resets',
+                    'Data Access',
+                    'Data Modifications',
+                    'Permission Changes',
+                    'Admin Actions',
+                    'File Uploads',
+                    'Report Generation',
+                    'System Errors',
+                    'Suspicious Activity'].
+                    map((event) =>
+                    <div key={event} className="flex items-center space-x-2 p-2 border rounded-md">
                         <div className="w-2 h-2 bg-green-500 rounded-full" />
                         <span className="text-xs">{event}</span>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
 
@@ -269,8 +269,8 @@ const AuditMonitoringPage: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AuditMonitoringPage;

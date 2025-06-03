@@ -3,6 +3,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
+import { SupabaseAuthProvider } from './contexts/SupabaseAuthContext';
 import { GlobalErrorBoundary } from './components/ErrorBoundary';
 
 import DashboardLayout from './components/Layout/DashboardLayout';
@@ -47,8 +48,9 @@ function App() {
   return (
     <GlobalErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <TooltipProvider>
+        <SupabaseAuthProvider>
+          <AuthProvider>
+            <TooltipProvider>
             <Router>
           <Routes>
             {/* Public routes */}
@@ -125,8 +127,9 @@ function App() {
           </Routes>
             </Router>
             <Toaster />
-          </TooltipProvider>
-        </AuthProvider>
+            </TooltipProvider>
+          </AuthProvider>
+        </SupabaseAuthProvider>
       </QueryClientProvider>
     </GlobalErrorBoundary>);
 

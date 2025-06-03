@@ -719,8 +719,8 @@ const SMSAlertManagement: React.FC = () => {
     return (
       <AccessDenied
         feature="SMS Alert Management"
-        requiredRole="Administrator" />
-    );
+        requiredRole="Administrator" />);
+
   }
 
   return (
