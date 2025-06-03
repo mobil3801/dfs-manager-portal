@@ -36,55 +36,55 @@ export const ReportHeader: React.FC<ReportHeaderProps> = ({
           {subtitle && <p className="text-blue-100 text-sm">{subtitle}</p>}
         </div>
         <div className="flex gap-2">
-          {onFilter && (
-            <Button variant="secondary" size="sm" onClick={onFilter}>
+          {onFilter &&
+          <Button variant="secondary" size="sm" onClick={onFilter}>
               <FilterIcon className="w-4 h-4 mr-1" />
               Filter
             </Button>
-          )}
-          {onPrint && (
-            <Button variant="secondary" size="sm" onClick={onPrint}>
+          }
+          {onPrint &&
+          <Button variant="secondary" size="sm" onClick={onPrint}>
               <PrinterIcon className="w-4 h-4 mr-1" />
               Print
             </Button>
-          )}
-          {onExport && (
-            <Button variant="secondary" size="sm" onClick={onExport}>
+          }
+          {onExport &&
+          <Button variant="secondary" size="sm" onClick={onExport}>
               <DownloadIcon className="w-4 h-4 mr-1" />
               Export
             </Button>
-          )}
-          {onShare && (
-            <Button variant="secondary" size="sm" onClick={onShare}>
+          }
+          {onShare &&
+          <Button variant="secondary" size="sm" onClick={onShare}>
               <ShareIcon className="w-4 h-4 mr-1" />
               Share
             </Button>
-          )}
+          }
         </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-        {station && (
-          <div>
+        {station &&
+        <div>
             <span className="text-blue-200">Station:</span>
             <Badge variant="secondary" className="ml-2">{station}</Badge>
           </div>
-        )}
-        {dateRange && (
-          <div>
+        }
+        {dateRange &&
+        <div>
             <span className="text-blue-200">Period:</span>
             <span className="ml-2 text-white">{dateRange}</span>
           </div>
-        )}
-        {reportId && (
-          <div>
+        }
+        {reportId &&
+        <div>
             <span className="text-blue-200">Report ID:</span>
             <span className="ml-2 text-white">{reportId}</span>
           </div>
-        )}
+        }
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 interface MetricCardProps {
@@ -116,19 +116,19 @@ export const MetricCard: React.FC<MetricCardProps> = ({
         </div>
         <div className="flex items-baseline gap-2">
           <p className="text-2xl font-bold text-gray-900">{value}</p>
-          {trend && (
-            <Badge 
-              variant={trend.isPositive ? "default" : "destructive"}
-              className="text-xs"
-            >
+          {trend &&
+          <Badge
+            variant={trend.isPositive ? "default" : "destructive"}
+            className="text-xs">
+
               {trend.isPositive ? "+" : ""}{trend.value}%
             </Badge>
-          )}
+          }
         </div>
         {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 interface ReportSectionProps {
@@ -150,29 +150,29 @@ export const ReportSection: React.FC<ReportSectionProps> = ({
 
   return (
     <Card className={`mb-6 ${className}`}>
-      <CardHeader 
+      <CardHeader
         className={`pb-3 ${collapsible ? 'cursor-pointer hover:bg-gray-50' : ''}`}
-        onClick={collapsible ? () => setExpanded(!expanded) : undefined}
-      >
+        onClick={collapsible ? () => setExpanded(!expanded) : undefined}>
+
         <CardTitle className="text-lg font-semibold text-gray-800 flex items-center justify-between">
           {title}
-          {collapsible && (
-            <span className="text-sm text-gray-500">
+          {collapsible &&
+          <span className="text-sm text-gray-500">
               {expanded ? '−' : '+'}
             </span>
-          )}
+          }
         </CardTitle>
       </CardHeader>
-      {expanded && (
-        <>
+      {expanded &&
+      <>
           <Separator />
           <CardContent className="pt-4">
             {children}
           </CardContent>
         </>
-      )}
-    </Card>
-  );
+      }
+    </Card>);
+
 };
 
 interface DataTableProps {
@@ -196,35 +196,35 @@ export const DataTable: React.FC<DataTableProps> = ({
         <thead>
           <tr className="bg-gray-50">
             {showRowNumbers && <th className="border border-gray-300 px-3 py-2 text-left font-semibold">#</th>}
-            {headers.map((header, index) => (
-              <th key={index} className="border border-gray-300 px-3 py-2 text-left font-semibold">
+            {headers.map((header, index) =>
+            <th key={index} className="border border-gray-300 px-3 py-2 text-left font-semibold">
                 {header}
               </th>
-            ))}
+            )}
           </tr>
         </thead>
         <tbody>
-          {data.map((row, rowIndex) => (
-            <tr 
-              key={rowIndex} 
-              className={alternateRows && rowIndex % 2 === 1 ? 'bg-gray-25' : 'bg-white'}
-            >
-              {showRowNumbers && (
-                <td className="border border-gray-300 px-3 py-2 text-sm font-medium text-gray-600">
+          {data.map((row, rowIndex) =>
+          <tr
+            key={rowIndex}
+            className={alternateRows && rowIndex % 2 === 1 ? 'bg-gray-25' : 'bg-white'}>
+
+              {showRowNumbers &&
+            <td className="border border-gray-300 px-3 py-2 text-sm font-medium text-gray-600">
                   {rowIndex + 1}
                 </td>
-              )}
-              {row.map((cell, cellIndex) => (
-                <td key={cellIndex} className="border border-gray-300 px-3 py-2 text-sm">
+            }
+              {row.map((cell, cellIndex) =>
+            <td key={cellIndex} className="border border-gray-300 px-3 py-2 text-sm">
                   {cell}
                 </td>
-              ))}
+            )}
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
-    </div>
-  );
+    </div>);
+
 };
 
 interface ReportFooterProps {
@@ -248,19 +248,19 @@ export const ReportFooter: React.FC<ReportFooterProps> = ({
           {generatedBy && <p><strong>Generated by:</strong> {generatedBy}</p>}
           {generatedAt && <p><strong>Generated at:</strong> {generatedAt}</p>}
         </div>
-        {notes && notes.length > 0 && (
-          <div>
+        {notes && notes.length > 0 &&
+        <div>
             <p className="font-semibold mb-2">Notes:</p>
             <ul className="list-disc list-inside space-y-1">
-              {notes.map((note, index) => (
-                <li key={index} className="text-xs">{note}</li>
-              ))}
+              {notes.map((note, index) =>
+            <li key={index} className="text-xs">{note}</li>
+            )}
             </ul>
           </div>
-        )}
+        }
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default {

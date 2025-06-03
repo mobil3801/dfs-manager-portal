@@ -4,18 +4,18 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  SettingsIcon, 
-  UsersIcon, 
-  ClipboardListIcon, 
+import {
+  SettingsIcon,
+  UsersIcon,
+  ClipboardListIcon,
   AlertTriangleIcon,
   CheckCircleIcon,
   ClockIcon,
   MapPinIcon,
   FileTextIcon,
   TrendingUpIcon,
-  ActivityIcon
-} from 'lucide-react';
+  ActivityIcon } from
+'lucide-react';
 import { ReportHeader, MetricCard, ReportSection, DataTable } from '@/components/Reports/ComprehensiveReportLayout';
 import DeliveryTrackingSystem from '@/components/Operations/DeliveryTrackingSystem';
 
@@ -79,34 +79,34 @@ const ComprehensiveOperationsManager: React.FC = () => {
       setLoading(true);
 
       const [stationsResponse, licensesResponse, employeesResponse] = await Promise.all([
-        window.ezsite.apis.tablePage(12599, {
-          PageNo: 1,
-          PageSize: 100,
-          OrderByField: "station_name",
-          IsAsc: true,
-          Filters: []
-        }),
-        window.ezsite.apis.tablePage(11731, {
-          PageNo: 1,
-          PageSize: 100,
-          OrderByField: "expiry_date",
-          IsAsc: true,
-          Filters: []
-        }),
-        window.ezsite.apis.tablePage(11727, {
-          PageNo: 1,
-          PageSize: 100,
-          OrderByField: "first_name",
-          IsAsc: true,
-          Filters: [
-            {
-              name: "is_active",
-              op: "Equal",
-              value: true
-            }
-          ]
-        })
-      ]);
+      window.ezsite.apis.tablePage(12599, {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: "station_name",
+        IsAsc: true,
+        Filters: []
+      }),
+      window.ezsite.apis.tablePage(11731, {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: "expiry_date",
+        IsAsc: true,
+        Filters: []
+      }),
+      window.ezsite.apis.tablePage(11727, {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: "first_name",
+        IsAsc: true,
+        Filters: [
+        {
+          name: "is_active",
+          op: "Equal",
+          value: true
+        }]
+
+      })]
+      );
 
       if (stationsResponse.error) throw stationsResponse.error;
       if (licensesResponse.error) throw licensesResponse.error;
@@ -129,26 +129,26 @@ const ComprehensiveOperationsManager: React.FC = () => {
 
   const calculateOperationalMetrics = (): OperationalMetrics => {
     const totalStations = stations.length;
-    const activeEmployees = employees.filter(emp => emp.is_active).length;
-    
+    const activeEmployees = employees.filter((emp) => emp.is_active).length;
+
     // Calculate licenses expiring in next 30 days
     const thirtyDaysFromNow = new Date();
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
-    
-    const expiringSoonLicenses = licenses.filter(license => {
+
+    const expiringSoonLicenses = licenses.filter((license) => {
       const expiryDate = new Date(license.expiry_date);
       return expiryDate <= thirtyDaysFromNow && expiryDate >= new Date();
     }).length;
 
-    const pendingTasks = expiringSoonLicenses + 
-      licenses.filter(l => l.status === 'Pending Renewal').length;
+    const pendingTasks = expiringSoonLicenses +
+    licenses.filter((l) => l.status === 'Pending Renewal').length;
 
     const overallEfficiency = Math.round(
-      ((totalStations * activeEmployees) / Math.max(totalStations * 3, 1)) * 100
+      totalStations * activeEmployees / Math.max(totalStations * 3, 1) * 100
     );
 
-    const activeLicenses = licenses.filter(l => l.status === 'Active').length;
-    const complianceRate = licenses.length > 0 ? (activeLicenses / licenses.length) * 100 : 100;
+    const activeLicenses = licenses.filter((l) => l.status === 'Active').length;
+    const complianceRate = licenses.length > 0 ? activeLicenses / licenses.length * 100 : 100;
 
     return {
       totalStations,
@@ -161,20 +161,20 @@ const ComprehensiveOperationsManager: React.FC = () => {
   };
 
   const getStationOperationalStatus = () => {
-    return stations.map(station => {
-      const stationEmployees = employees.filter(emp => emp.station === station.station_name);
-      const stationLicenses = licenses.filter(lic => 
-        lic.station === station.station_name || lic.station === 'ALL'
+    return stations.map((station) => {
+      const stationEmployees = employees.filter((emp) => emp.station === station.station_name);
+      const stationLicenses = licenses.filter((lic) =>
+      lic.station === station.station_name || lic.station === 'ALL'
       );
-      
-      const expiredLicenses = stationLicenses.filter(lic => 
-        new Date(lic.expiry_date) < new Date()
+
+      const expiredLicenses = stationLicenses.filter((lic) =>
+      new Date(lic.expiry_date) < new Date()
       ).length;
 
       const operationalScore = Math.round(
-        ((stationEmployees.length * 30) + 
-         (stationLicenses.length * 20) - 
-         (expiredLicenses * 10)) / 10
+        (stationEmployees.length * 30 +
+        stationLicenses.length * 20 -
+        expiredLicenses * 10) / 10
       );
 
       return {
@@ -195,40 +195,40 @@ const ComprehensiveOperationsManager: React.FC = () => {
     const thirtyDaysFromNow = new Date();
     thirtyDaysFromNow.setDate(today.getDate() + 30);
 
-    return licenses
-      .filter(license => {
-        const expiryDate = new Date(license.expiry_date);
-        return expiryDate <= thirtyDaysFromNow;
-      })
-      .sort((a, b) => new Date(a.expiry_date).getTime() - new Date(b.expiry_date).getTime())
-      .slice(0, 15)
-      .map(license => {
-        const expiryDate = new Date(license.expiry_date);
-        const daysUntilExpiry = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-        
-        return [
-          license.license_name,
-          license.license_number,
-          license.station,
-          license.category,
-          new Date(license.expiry_date).toLocaleDateString(),
-          <Badge 
-            key={license.id}
-            variant={daysUntilExpiry < 0 ? 'destructive' : 
-                    daysUntilExpiry <= 7 ? 'destructive' :
-                    daysUntilExpiry <= 30 ? 'default' : 'secondary'}
-          >
-            {daysUntilExpiry < 0 ? 'Expired' : 
-             daysUntilExpiry === 0 ? 'Expires Today' :
-             `${daysUntilExpiry} days`}
-          </Badge>
-        ];
-      });
+    return licenses.
+    filter((license) => {
+      const expiryDate = new Date(license.expiry_date);
+      return expiryDate <= thirtyDaysFromNow;
+    }).
+    sort((a, b) => new Date(a.expiry_date).getTime() - new Date(b.expiry_date).getTime()).
+    slice(0, 15).
+    map((license) => {
+      const expiryDate = new Date(license.expiry_date);
+      const daysUntilExpiry = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+      return [
+      license.license_name,
+      license.license_number,
+      license.station,
+      license.category,
+      new Date(license.expiry_date).toLocaleDateString(),
+      <Badge
+        key={license.id}
+        variant={daysUntilExpiry < 0 ? 'destructive' :
+        daysUntilExpiry <= 7 ? 'destructive' :
+        daysUntilExpiry <= 30 ? 'default' : 'secondary'}>
+
+            {daysUntilExpiry < 0 ? 'Expired' :
+        daysUntilExpiry === 0 ? 'Expires Today' :
+        `${daysUntilExpiry} days`}
+          </Badge>];
+
+    });
   };
 
   const getEmployeeDistribution = () => {
-    const distribution = stations.map(station => {
-      const stationEmployees = employees.filter(emp => emp.station === station.station_name);
+    const distribution = stations.map((station) => {
+      const stationEmployees = employees.filter((emp) => emp.station === station.station_name);
       return {
         station: station.station_name,
         count: stationEmployees.length,
@@ -239,23 +239,23 @@ const ComprehensiveOperationsManager: React.FC = () => {
       };
     });
 
-    return distribution.map(item => [
-      item.station,
-      item.count,
-      Object.keys(item.positions).join(', '),
-      item.count >= 3 ? 'Adequate' : 'Understaffed'
-    ]);
+    return distribution.map((item) => [
+    item.station,
+    item.count,
+    Object.keys(item.positions).join(', '),
+    item.count >= 3 ? 'Adequate' : 'Understaffed']
+    );
   };
 
   const getUpcomingTasks = () => {
     const tasks = [];
-    
+
     // License renewals
-    licenses.forEach(license => {
+    licenses.forEach((license) => {
       const expiryDate = new Date(license.expiry_date);
       const today = new Date();
       const daysUntilExpiry = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-      
+
       if (daysUntilExpiry <= 30 && daysUntilExpiry >= 0) {
         tasks.push({
           type: 'License Renewal',
@@ -268,10 +268,10 @@ const ComprehensiveOperationsManager: React.FC = () => {
     });
 
     // Station maintenance (simulated based on last updated)
-    stations.forEach(station => {
+    stations.forEach((station) => {
       const lastUpdated = new Date(station.last_updated);
       const daysSinceUpdate = Math.ceil((new Date().getTime() - lastUpdated.getTime()) / (1000 * 60 * 60 * 24));
-      
+
       if (daysSinceUpdate > 30) {
         tasks.push({
           type: 'Station Review',
@@ -283,22 +283,22 @@ const ComprehensiveOperationsManager: React.FC = () => {
       }
     });
 
-    return tasks
-      .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
-      .slice(0, 10)
-      .map(task => [
-        task.type,
-        task.description,
-        task.station,
-        new Date(task.dueDate).toLocaleDateString(),
-        <Badge 
-          key={`${task.type}-${task.station}`}
-          variant={task.priority === 'High' ? 'destructive' : 
-                  task.priority === 'Medium' ? 'default' : 'secondary'}
-        >
+    return tasks.
+    sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()).
+    slice(0, 10).
+    map((task) => [
+    task.type,
+    task.description,
+    task.station,
+    new Date(task.dueDate).toLocaleDateString(),
+    <Badge
+      key={`${task.type}-${task.station}`}
+      variant={task.priority === 'High' ? 'destructive' :
+      task.priority === 'Medium' ? 'default' : 'secondary'}>
+
           {task.priority}
-        </Badge>
-      ]);
+        </Badge>]
+    );
   };
 
   const metrics = calculateOperationalMetrics();
@@ -310,14 +310,14 @@ const ComprehensiveOperationsManager: React.FC = () => {
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-32 bg-gray-200 rounded"></div>
-            ))}
+            {[1, 2, 3, 4].map((i) =>
+            <div key={i} className="h-32 bg-gray-200 rounded"></div>
+            )}
           </div>
           <div className="h-96 bg-gray-200 rounded"></div>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -328,8 +328,8 @@ const ComprehensiveOperationsManager: React.FC = () => {
         reportId={`OPS-${Date.now()}`}
         onPrint={() => window.print()}
         onExport={() => toast({ title: "Export", description: "Export functionality coming soon" })}
-        onFilter={() => {}}
-      />
+        onFilter={() => {}} />
+
 
       {/* Key Operational Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -337,29 +337,29 @@ const ComprehensiveOperationsManager: React.FC = () => {
           title="Active Stations"
           value={metrics.totalStations}
           subtitle="Operational locations"
-          icon={<MapPinIcon className="w-5 h-5" />}
-        />
+          icon={<MapPinIcon className="w-5 h-5" />} />
+
         <MetricCard
           title="Active Employees"
           value={metrics.activeEmployees}
           subtitle="Current workforce"
           icon={<UsersIcon className="w-5 h-5" />}
-          trend={{ value: 5.2, isPositive: true }}
-        />
+          trend={{ value: 5.2, isPositive: true }} />
+
         <MetricCard
           title="Compliance Rate"
           value={`${metrics.complianceRate.toFixed(1)}%`}
           subtitle="License compliance"
           icon={<CheckCircleIcon className="w-5 h-5" />}
-          trend={{ value: 2.1, isPositive: true }}
-        />
+          trend={{ value: 2.1, isPositive: true }} />
+
         <MetricCard
           title="Pending Tasks"
           value={metrics.pendingTasks}
           subtitle="Require attention"
           icon={<AlertTriangleIcon className="w-5 h-5" />}
-          trend={{ value: -12.3, isPositive: true }}
-        />
+          trend={{ value: -12.3, isPositive: true }} />
+
       </div>
 
       {/* Operations Management Tabs */}
@@ -376,18 +376,18 @@ const ComprehensiveOperationsManager: React.FC = () => {
           {/* Station Operational Status */}
           <ReportSection title="Station Operational Status">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {stationStatus.map((station, index) => (
-                <Card key={station.station} className="hover:shadow-lg transition-shadow">
+              {stationStatus.map((station, index) =>
+              <Card key={station.station} className="hover:shadow-lg transition-shadow">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-base flex items-center justify-between">
                       <span className="flex items-center gap-2">
                         <MapPinIcon className="w-4 h-4" />
                         {station.station}
                       </span>
-                      <Badge 
-                        variant={station.operationalScore >= 80 ? 'default' :
-                                station.operationalScore >= 60 ? 'secondary' : 'destructive'}
-                      >
+                      <Badge
+                      variant={station.operationalScore >= 80 ? 'default' :
+                      station.operationalScore >= 60 ? 'secondary' : 'destructive'}>
+
                         {station.operationalScore}%
                       </Badge>
                     </CardTitle>
@@ -412,16 +412,16 @@ const ComprehensiveOperationsManager: React.FC = () => {
                           {station.status}
                         </Badge>
                       </div>
-                      {station.expiredLicenses > 0 && (
-                        <div className="flex justify-between text-sm">
+                      {station.expiredLicenses > 0 &&
+                    <div className="flex justify-between text-sm">
                           <span className="text-red-600">Expired Licenses:</span>
                           <span className="font-medium text-red-600">{station.expiredLicenses}</span>
                         </div>
-                      )}
+                    }
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              )}
             </div>
           </ReportSection>
 
@@ -431,16 +431,16 @@ const ComprehensiveOperationsManager: React.FC = () => {
               headers={['Task Type', 'Description', 'Station', 'Due Date', 'Priority']}
               data={getUpcomingTasks()}
               showRowNumbers={true}
-              alternateRows={true}
-            />
+              alternateRows={true} />
+
           </ReportSection>
         </TabsContent>
 
         <TabsContent value="stations" className="space-y-6">
           <ReportSection title="Station Management">
             <div className="grid grid-cols-1 gap-6">
-              {stations.map((station, index) => (
-                <Card key={station.id} className="hover:shadow-lg transition-shadow">
+              {stations.map((station, index) =>
+              <Card key={station.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                       <span className="flex items-center gap-2">
@@ -484,7 +484,7 @@ const ComprehensiveOperationsManager: React.FC = () => {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              )}
             </div>
           </ReportSection>
         </TabsContent>
@@ -499,7 +499,7 @@ const ComprehensiveOperationsManager: React.FC = () => {
                       <CheckCircleIcon className="w-8 h-8 text-green-500 mx-auto mb-2" />
                       <h3 className="font-semibold">Active Licenses</h3>
                       <p className="text-2xl font-bold text-green-600">
-                        {licenses.filter(l => l.status === 'Active').length}
+                        {licenses.filter((l) => l.status === 'Active').length}
                       </p>
                     </div>
                   </CardContent>
@@ -521,7 +521,7 @@ const ComprehensiveOperationsManager: React.FC = () => {
                       <ClockIcon className="w-8 h-8 text-red-500 mx-auto mb-2" />
                       <h3 className="font-semibold">Expired</h3>
                       <p className="text-2xl font-bold text-red-600">
-                        {licenses.filter(l => new Date(l.expiry_date) < new Date()).length}
+                        {licenses.filter((l) => new Date(l.expiry_date) < new Date()).length}
                       </p>
                     </div>
                   </CardContent>
@@ -533,8 +533,8 @@ const ComprehensiveOperationsManager: React.FC = () => {
               headers={['License Name', 'Number', 'Station', 'Category', 'Expiry Date', 'Status']}
               data={getLicenseComplianceTable()}
               showRowNumbers={true}
-              alternateRows={true}
-            />
+              alternateRows={true} />
+
           </ReportSection>
         </TabsContent>
 
@@ -544,14 +544,14 @@ const ComprehensiveOperationsManager: React.FC = () => {
               headers={['Station', 'Employee Count', 'Positions', 'Status']}
               data={getEmployeeDistribution()}
               showRowNumbers={true}
-              alternateRows={true}
-            />
+              alternateRows={true} />
+
           </ReportSection>
 
           <ReportSection title="Employee Details">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {employees.slice(0, 9).map((employee, index) => (
-                <Card key={employee.id} className="hover:shadow-lg transition-shadow">
+              {employees.slice(0, 9).map((employee, index) =>
+              <Card key={employee.id} className="hover:shadow-lg transition-shadow">
                   <CardContent className="pt-6">
                     <div className="text-center">
                       <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -567,7 +567,7 @@ const ComprehensiveOperationsManager: React.FC = () => {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              )}
             </div>
           </ReportSection>
         </TabsContent>
@@ -576,8 +576,8 @@ const ComprehensiveOperationsManager: React.FC = () => {
           <DeliveryTrackingSystem />
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ComprehensiveOperationsManager;

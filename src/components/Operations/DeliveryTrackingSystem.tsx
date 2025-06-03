@@ -8,11 +8,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  TruckIcon, 
-  MapPinIcon, 
-  ClockIcon, 
-  CheckCircleIcon, 
+import {
+  TruckIcon,
+  MapPinIcon,
+  ClockIcon,
+  CheckCircleIcon,
   AlertCircleIcon,
   FuelIcon,
   CalendarIcon,
@@ -20,20 +20,20 @@ import {
   PlusIcon,
   FileTextIcon,
   TrendingUpIcon,
-  BarChart3Icon
-} from 'lucide-react';
-import { 
-  LineChart, 
-  Line, 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer 
-} from 'recharts';
+  BarChart3Icon } from
+'lucide-react';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer } from
+'recharts';
 import { ReportHeader, MetricCard, ReportSection, DataTable } from '@/components/Reports/ComprehensiveReportLayout';
 import { format } from 'date-fns';
 
@@ -102,10 +102,10 @@ const DeliveryTrackingSystem: React.FC = () => {
   const fetchDeliveryData = async () => {
     try {
       setLoading(true);
-      
+
       const today = new Date();
       let startDate = new Date();
-      
+
       switch (filters.dateRange) {
         case 'today':
           startDate = new Date(today);
@@ -119,12 +119,12 @@ const DeliveryTrackingSystem: React.FC = () => {
       }
 
       const queryFilters = [
-        {
-          name: "delivery_date",
-          op: "GreaterThanOrEqual",
-          value: startDate.toISOString()
-        }
-      ];
+      {
+        name: "delivery_date",
+        op: "GreaterThanOrEqual",
+        value: startDate.toISOString()
+      }];
+
 
       if (filters.station !== 'ALL') {
         queryFilters.push({
@@ -183,17 +183,17 @@ const DeliveryTrackingSystem: React.FC = () => {
 
   const calculateMetrics = () => {
     const totalDeliveries = deliveries.length;
-    const totalGallonsDelivered = deliveries.reduce((sum, delivery) => 
-      sum + delivery.regular_delivered + delivery.plus_delivered + delivery.super_delivered, 0);
-    
-    const verifiedDeliveries = tankReports.filter(report => 
-      report.verification_status === 'Verified').length;
-    
-    const pendingVerification = deliveries.filter(delivery => 
-      !tankReports.some(report => report.delivery_record_id === delivery.id)).length;
-    
-    const discrepancies = tankReports.filter(report => 
-      report.verification_status === 'Discrepancy Found').length;
+    const totalGallonsDelivered = deliveries.reduce((sum, delivery) =>
+    sum + delivery.regular_delivered + delivery.plus_delivered + delivery.super_delivered, 0);
+
+    const verifiedDeliveries = tankReports.filter((report) =>
+    report.verification_status === 'Verified').length;
+
+    const pendingVerification = deliveries.filter((delivery) =>
+    !tankReports.some((report) => report.delivery_record_id === delivery.id)).length;
+
+    const discrepancies = tankReports.filter((report) =>
+    report.verification_status === 'Discrepancy Found').length;
 
     const averageDeliverySize = totalDeliveries > 0 ? totalGallonsDelivered / totalDeliveries : 0;
 
@@ -204,7 +204,7 @@ const DeliveryTrackingSystem: React.FC = () => {
       pendingVerification,
       discrepancies,
       averageDeliverySize,
-      verificationRate: totalDeliveries > 0 ? (verifiedDeliveries / totalDeliveries) * 100 : 0
+      verificationRate: totalDeliveries > 0 ? verifiedDeliveries / totalDeliveries * 100 : 0
     };
   };
 
@@ -215,12 +215,12 @@ const DeliveryTrackingSystem: React.FC = () => {
       return date.toISOString().split('T')[0];
     }).reverse();
 
-    return last7Days.map(date => {
-      const dayDeliveries = deliveries.filter(delivery => 
-        delivery.delivery_date.split('T')[0] === date);
-      
-      const totalGallons = dayDeliveries.reduce((sum, delivery) => 
-        sum + delivery.regular_delivered + delivery.plus_delivered + delivery.super_delivered, 0);
+    return last7Days.map((date) => {
+      const dayDeliveries = deliveries.filter((delivery) =>
+      delivery.delivery_date.split('T')[0] === date);
+
+      const totalGallons = dayDeliveries.reduce((sum, delivery) =>
+      sum + delivery.regular_delivered + delivery.plus_delivered + delivery.super_delivered, 0);
 
       return {
         date: format(new Date(date), 'MMM dd'),
@@ -234,45 +234,45 @@ const DeliveryTrackingSystem: React.FC = () => {
   };
 
   const getStationPerformance = () => {
-    return stations.filter(s => s !== 'ALL').map(station => {
-      const stationDeliveries = deliveries.filter(d => d.station === station);
-      const stationReports = tankReports.filter(r => r.station === station);
-      
-      const totalGallons = stationDeliveries.reduce((sum, delivery) => 
-        sum + delivery.regular_delivered + delivery.plus_delivered + delivery.super_delivered, 0);
-      
-      const verified = stationReports.filter(r => r.verification_status === 'Verified').length;
-      const verificationRate = stationDeliveries.length > 0 ? (verified / stationDeliveries.length) * 100 : 0;
+    return stations.filter((s) => s !== 'ALL').map((station) => {
+      const stationDeliveries = deliveries.filter((d) => d.station === station);
+      const stationReports = tankReports.filter((r) => r.station === station);
+
+      const totalGallons = stationDeliveries.reduce((sum, delivery) =>
+      sum + delivery.regular_delivered + delivery.plus_delivered + delivery.super_delivered, 0);
+
+      const verified = stationReports.filter((r) => r.verification_status === 'Verified').length;
+      const verificationRate = stationDeliveries.length > 0 ? verified / stationDeliveries.length * 100 : 0;
 
       return {
         station,
         deliveries: stationDeliveries.length,
         totalGallons,
         verificationRate: verificationRate.toFixed(1),
-        avgTemperature: stationReports.length > 0 ? 
-          (stationReports.reduce((sum, r) => sum + r.tank_temperature, 0) / stationReports.length).toFixed(1) : '0'
+        avgTemperature: stationReports.length > 0 ?
+        (stationReports.reduce((sum, r) => sum + r.tank_temperature, 0) / stationReports.length).toFixed(1) : '0'
       };
     });
   };
 
   const getRecentDeliveries = () => {
-    return deliveries.slice(0, 10).map(delivery => {
-      const report = tankReports.find(r => r.delivery_record_id === delivery.id);
+    return deliveries.slice(0, 10).map((delivery) => {
+      const report = tankReports.find((r) => r.delivery_record_id === delivery.id);
       const status = report ? report.verification_status : 'Pending Verification';
-      
+
       return [
-        format(new Date(delivery.delivery_date), 'MMM dd, yyyy'),
-        delivery.bol_number,
-        delivery.station,
-        (delivery.regular_delivered + delivery.plus_delivered + delivery.super_delivered).toLocaleString(),
-        <Badge 
-          key={delivery.id}
-          variant={status === 'Verified' ? 'default' : 
-                  status === 'Discrepancy Found' ? 'destructive' : 'secondary'}
-        >
+      format(new Date(delivery.delivery_date), 'MMM dd, yyyy'),
+      delivery.bol_number,
+      delivery.station,
+      (delivery.regular_delivered + delivery.plus_delivered + delivery.super_delivered).toLocaleString(),
+      <Badge
+        key={delivery.id}
+        variant={status === 'Verified' ? 'default' :
+        status === 'Discrepancy Found' ? 'destructive' : 'secondary'}>
+
           {status}
-        </Badge>
-      ];
+        </Badge>];
+
     });
   };
 
@@ -296,7 +296,7 @@ const DeliveryTrackingSystem: React.FC = () => {
 
       toast({
         title: "Success",
-        description: "Delivery record created successfully",
+        description: "Delivery record created successfully"
       });
 
       setShowNewDelivery(false);
@@ -334,7 +334,7 @@ const DeliveryTrackingSystem: React.FC = () => {
 
       toast({
         title: "Success",
-        description: "Tank report created successfully",
+        description: "Tank report created successfully"
       });
 
       setShowTankReport(false);
@@ -360,14 +360,14 @@ const DeliveryTrackingSystem: React.FC = () => {
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-32 bg-gray-200 rounded"></div>
-            ))}
+            {[1, 2, 3, 4].map((i) =>
+            <div key={i} className="h-32 bg-gray-200 rounded"></div>
+            )}
           </div>
           <div className="h-96 bg-gray-200 rounded"></div>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -378,8 +378,8 @@ const DeliveryTrackingSystem: React.FC = () => {
         reportId={`DT-${Date.now()}`}
         onPrint={() => window.print()}
         onExport={() => toast({ title: "Export", description: "Export functionality coming soon" })}
-        onFilter={() => {}}
-      />
+        onFilter={() => {}} />
+
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -388,29 +388,29 @@ const DeliveryTrackingSystem: React.FC = () => {
           value={metrics.totalDeliveries.toLocaleString()}
           subtitle="This period"
           icon={<TruckIcon className="w-5 h-5" />}
-          trend={{ value: 12.5, isPositive: true }}
-        />
+          trend={{ value: 12.5, isPositive: true }} />
+
         <MetricCard
           title="Gallons Delivered"
           value={metrics.totalGallonsDelivered.toLocaleString()}
           subtitle="Total fuel volume"
           icon={<FuelIcon className="w-5 h-5" />}
-          trend={{ value: 8.3, isPositive: true }}
-        />
+          trend={{ value: 8.3, isPositive: true }} />
+
         <MetricCard
           title="Verification Rate"
           value={`${metrics.verificationRate.toFixed(1)}%`}
           subtitle="Completed verifications"
           icon={<CheckCircleIcon className="w-5 h-5" />}
-          trend={{ value: 5.2, isPositive: true }}
-        />
+          trend={{ value: 5.2, isPositive: true }} />
+
         <MetricCard
           title="Pending Verification"
           value={metrics.pendingVerification}
           subtitle="Awaiting tank reports"
           icon={<ClockIcon className="w-5 h-5" />}
-          trend={{ value: -15.1, isPositive: true }}
-        />
+          trend={{ value: -15.1, isPositive: true }} />
+
       </div>
 
       {/* Control Panel */}
@@ -440,21 +440,21 @@ const DeliveryTrackingSystem: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <Label className="text-sm font-medium">Station</Label>
-              <Select value={filters.station} onValueChange={(value) => setFilters({...filters, station: value})}>
+              <Select value={filters.station} onValueChange={(value) => setFilters({ ...filters, station: value })}>
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Select station" />
                 </SelectTrigger>
                 <SelectContent>
-                  {stations.map(station => (
-                    <SelectItem key={station} value={station}>{station}</SelectItem>
-                  ))}
+                  {stations.map((station) =>
+                  <SelectItem key={station} value={station}>{station}</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
             
             <div>
               <Label className="text-sm font-medium">Time Period</Label>
-              <Select value={filters.dateRange} onValueChange={(value) => setFilters({...filters, dateRange: value})}>
+              <Select value={filters.dateRange} onValueChange={(value) => setFilters({ ...filters, dateRange: value })}>
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Select period" />
                 </SelectTrigger>
@@ -468,7 +468,7 @@ const DeliveryTrackingSystem: React.FC = () => {
 
             <div>
               <Label className="text-sm font-medium">Status</Label>
-              <Select value={filters.status} onValueChange={(value) => setFilters({...filters, status: value})}>
+              <Select value={filters.status} onValueChange={(value) => setFilters({ ...filters, status: value })}>
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="All statuses" />
                 </SelectTrigger>
@@ -488,9 +488,9 @@ const DeliveryTrackingSystem: React.FC = () => {
                 <Input
                   placeholder="BOL number..."
                   value={filters.search}
-                  onChange={(e) => setFilters({...filters, search: e.target.value})}
-                  className="pl-10"
-                />
+                  onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                  className="pl-10" />
+
               </div>
             </div>
           </div>
@@ -535,8 +535,8 @@ const DeliveryTrackingSystem: React.FC = () => {
       {/* Station Performance */}
       <ReportSection title="Station Performance Summary">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {stationPerformance.map((station, index) => (
-            <Card key={station.station} className="hover:shadow-lg transition-shadow">
+          {stationPerformance.map((station, index) =>
+          <Card key={station.station} className="hover:shadow-lg transition-shadow">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
                   <span className="flex items-center gap-2">
@@ -563,7 +563,7 @@ const DeliveryTrackingSystem: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
-          ))}
+          )}
         </div>
       </ReportSection>
 
@@ -573,8 +573,8 @@ const DeliveryTrackingSystem: React.FC = () => {
           headers={['Date', 'BOL Number', 'Station', 'Gallons', 'Status']}
           data={getRecentDeliveries()}
           showRowNumbers={true}
-          alternateRows={true}
-        />
+          alternateRows={true} />
+
       </ReportSection>
 
       {/* Tank Report Dialog */}
@@ -583,20 +583,20 @@ const DeliveryTrackingSystem: React.FC = () => {
           <DialogHeader>
             <DialogTitle>Create After-Delivery Tank Report</DialogTitle>
           </DialogHeader>
-          {selectedDelivery && (
-            <TankReportForm 
-              delivery={selectedDelivery} 
-              onSubmit={handleCreateTankReport} 
-            />
-          )}
+          {selectedDelivery &&
+          <TankReportForm
+            delivery={selectedDelivery}
+            onSubmit={handleCreateTankReport} />
+
+          }
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 };
 
 // New Delivery Form Component
-const NewDeliveryForm: React.FC<{ onSubmit: (data: any) => void }> = ({ onSubmit }) => {
+const NewDeliveryForm: React.FC<{onSubmit: (data: any) => void;}> = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
     delivery_date: new Date().toISOString().split('T')[0],
     station: '',
@@ -623,13 +623,13 @@ const NewDeliveryForm: React.FC<{ onSubmit: (data: any) => void }> = ({ onSubmit
           <Input
             type="date"
             value={formData.delivery_date}
-            onChange={(e) => setFormData({...formData, delivery_date: e.target.value})}
-            required
-          />
+            onChange={(e) => setFormData({ ...formData, delivery_date: e.target.value })}
+            required />
+
         </div>
         <div>
           <Label>Station</Label>
-          <Select value={formData.station} onValueChange={(value) => setFormData({...formData, station: value})}>
+          <Select value={formData.station} onValueChange={(value) => setFormData({ ...formData, station: value })}>
             <SelectTrigger>
               <SelectValue placeholder="Select station" />
             </SelectTrigger>
@@ -646,10 +646,10 @@ const NewDeliveryForm: React.FC<{ onSubmit: (data: any) => void }> = ({ onSubmit
         <Label>BOL Number</Label>
         <Input
           value={formData.bol_number}
-          onChange={(e) => setFormData({...formData, bol_number: e.target.value})}
+          onChange={(e) => setFormData({ ...formData, bol_number: e.target.value })}
           placeholder="Bill of Lading number"
-          required
-        />
+          required />
+
       </div>
 
       <div className="grid grid-cols-3 gap-4">
@@ -658,27 +658,27 @@ const NewDeliveryForm: React.FC<{ onSubmit: (data: any) => void }> = ({ onSubmit
           <Input
             type="number"
             value={formData.regular_tank_volume}
-            onChange={(e) => setFormData({...formData, regular_tank_volume: Number(e.target.value)})}
-            placeholder="Gallons"
-          />
+            onChange={(e) => setFormData({ ...formData, regular_tank_volume: Number(e.target.value) })}
+            placeholder="Gallons" />
+
         </div>
         <div>
           <Label>Plus Tank Volume</Label>
           <Input
             type="number"
             value={formData.plus_tank_volume}
-            onChange={(e) => setFormData({...formData, plus_tank_volume: Number(e.target.value)})}
-            placeholder="Gallons"
-          />
+            onChange={(e) => setFormData({ ...formData, plus_tank_volume: Number(e.target.value) })}
+            placeholder="Gallons" />
+
         </div>
         <div>
           <Label>Super Tank Volume</Label>
           <Input
             type="number"
             value={formData.super_tank_volume}
-            onChange={(e) => setFormData({...formData, super_tank_volume: Number(e.target.value)})}
-            placeholder="Gallons"
-          />
+            onChange={(e) => setFormData({ ...formData, super_tank_volume: Number(e.target.value) })}
+            placeholder="Gallons" />
+
         </div>
       </div>
 
@@ -688,27 +688,27 @@ const NewDeliveryForm: React.FC<{ onSubmit: (data: any) => void }> = ({ onSubmit
           <Input
             type="number"
             value={formData.regular_delivered}
-            onChange={(e) => setFormData({...formData, regular_delivered: Number(e.target.value)})}
-            placeholder="Gallons"
-          />
+            onChange={(e) => setFormData({ ...formData, regular_delivered: Number(e.target.value) })}
+            placeholder="Gallons" />
+
         </div>
         <div>
           <Label>Plus Delivered</Label>
           <Input
             type="number"
             value={formData.plus_delivered}
-            onChange={(e) => setFormData({...formData, plus_delivered: Number(e.target.value)})}
-            placeholder="Gallons"
-          />
+            onChange={(e) => setFormData({ ...formData, plus_delivered: Number(e.target.value) })}
+            placeholder="Gallons" />
+
         </div>
         <div>
           <Label>Super Delivered</Label>
           <Input
             type="number"
             value={formData.super_delivered}
-            onChange={(e) => setFormData({...formData, super_delivered: Number(e.target.value)})}
-            placeholder="Gallons"
-          />
+            onChange={(e) => setFormData({ ...formData, super_delivered: Number(e.target.value) })}
+            placeholder="Gallons" />
+
         </div>
       </div>
 
@@ -716,18 +716,18 @@ const NewDeliveryForm: React.FC<{ onSubmit: (data: any) => void }> = ({ onSubmit
         <Label>Delivery Notes</Label>
         <Textarea
           value={formData.delivery_notes}
-          onChange={(e) => setFormData({...formData, delivery_notes: e.target.value})}
-          placeholder="Additional notes about the delivery"
-        />
+          onChange={(e) => setFormData({ ...formData, delivery_notes: e.target.value })}
+          placeholder="Additional notes about the delivery" />
+
       </div>
 
       <Button type="submit" className="w-full">Create Delivery Record</Button>
-    </form>
-  );
+    </form>);
+
 };
 
 // Tank Report Form Component
-const TankReportForm: React.FC<{ delivery: DeliveryRecord; onSubmit: (data: any) => void }> = ({ delivery, onSubmit }) => {
+const TankReportForm: React.FC<{delivery: DeliveryRecord;onSubmit: (data: any) => void;}> = ({ delivery, onSubmit }) => {
   const [formData, setFormData] = useState({
     regular_tank_final: 0,
     plus_tank_final: 0,
@@ -758,27 +758,27 @@ const TankReportForm: React.FC<{ delivery: DeliveryRecord; onSubmit: (data: any)
           <Input
             type="number"
             value={formData.regular_tank_final}
-            onChange={(e) => setFormData({...formData, regular_tank_final: Number(e.target.value)})}
-            placeholder="Final gallons"
-          />
+            onChange={(e) => setFormData({ ...formData, regular_tank_final: Number(e.target.value) })}
+            placeholder="Final gallons" />
+
         </div>
         <div>
           <Label>Plus Tank Final</Label>
           <Input
             type="number"
             value={formData.plus_tank_final}
-            onChange={(e) => setFormData({...formData, plus_tank_final: Number(e.target.value)})}
-            placeholder="Final gallons"
-          />
+            onChange={(e) => setFormData({ ...formData, plus_tank_final: Number(e.target.value) })}
+            placeholder="Final gallons" />
+
         </div>
         <div>
           <Label>Super Tank Final</Label>
           <Input
             type="number"
             value={formData.super_tank_final}
-            onChange={(e) => setFormData({...formData, super_tank_final: Number(e.target.value)})}
-            placeholder="Final gallons"
-          />
+            onChange={(e) => setFormData({ ...formData, super_tank_final: Number(e.target.value) })}
+            placeholder="Final gallons" />
+
         </div>
       </div>
 
@@ -788,12 +788,12 @@ const TankReportForm: React.FC<{ delivery: DeliveryRecord; onSubmit: (data: any)
           <Input
             type="number"
             value={formData.tank_temperature}
-            onChange={(e) => setFormData({...formData, tank_temperature: Number(e.target.value)})}
-          />
+            onChange={(e) => setFormData({ ...formData, tank_temperature: Number(e.target.value) })} />
+
         </div>
         <div>
           <Label>Verification Status</Label>
-          <Select value={formData.verification_status} onValueChange={(value) => setFormData({...formData, verification_status: value})}>
+          <Select value={formData.verification_status} onValueChange={(value) => setFormData({ ...formData, verification_status: value })}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -810,35 +810,35 @@ const TankReportForm: React.FC<{ delivery: DeliveryRecord; onSubmit: (data: any)
         <Label>Reported By</Label>
         <Input
           value={formData.reported_by}
-          onChange={(e) => setFormData({...formData, reported_by: e.target.value})}
+          onChange={(e) => setFormData({ ...formData, reported_by: e.target.value })}
           placeholder="Name of person who conducted measurement"
-          required
-        />
+          required />
+
       </div>
 
-      {formData.verification_status === 'Discrepancy Found' && (
-        <div>
+      {formData.verification_status === 'Discrepancy Found' &&
+      <div>
           <Label>Discrepancy Notes</Label>
           <Textarea
-            value={formData.discrepancy_notes}
-            onChange={(e) => setFormData({...formData, discrepancy_notes: e.target.value})}
-            placeholder="Describe the discrepancy found"
-          />
+          value={formData.discrepancy_notes}
+          onChange={(e) => setFormData({ ...formData, discrepancy_notes: e.target.value })}
+          placeholder="Describe the discrepancy found" />
+
         </div>
-      )}
+      }
 
       <div>
         <Label>Additional Notes</Label>
         <Textarea
           value={formData.additional_notes}
-          onChange={(e) => setFormData({...formData, additional_notes: e.target.value})}
-          placeholder="Any additional observations"
-        />
+          onChange={(e) => setFormData({ ...formData, additional_notes: e.target.value })}
+          placeholder="Any additional observations" />
+
       </div>
 
       <Button type="submit" className="w-full">Submit Tank Report</Button>
-    </form>
-  );
+    </form>);
+
 };
 
 export default DeliveryTrackingSystem;

@@ -7,10 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  AlertTriangleIcon, 
-  PackageIcon, 
-  TrendingUpIcon, 
+import {
+  AlertTriangleIcon,
+  PackageIcon,
+  TrendingUpIcon,
   TrendingDownIcon,
   SearchIcon,
   FilterIcon,
@@ -19,20 +19,20 @@ import {
   AlertCircleIcon,
   CheckCircleIcon,
   XCircleIcon,
-  BarChart3Icon
-} from 'lucide-react';
-import { 
-  BarChart, 
-  Bar, 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer 
-} from 'recharts';
+  BarChart3Icon } from
+'lucide-react';
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer } from
+'recharts';
 import { ReportHeader, MetricCard, ReportSection, DataTable } from '@/components/Reports/ComprehensiveReportLayout';
 
 interface InventoryItem {
@@ -123,7 +123,7 @@ const AdvancedInventoryManagement: React.FC = () => {
   const generateAlerts = () => {
     const newAlerts: InventoryAlert[] = [];
 
-    inventory.forEach(item => {
+    inventory.forEach((item) => {
       // Low stock alert
       if (item.quantity_in_stock <= item.minimum_stock) {
         newAlerts.push({
@@ -159,7 +159,7 @@ const AdvancedInventoryManagement: React.FC = () => {
         const lastShoppingDate = new Date(item.last_shopping_date);
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        
+
         if (lastShoppingDate < thirtyDaysAgo) {
           newAlerts.push({
             type: 'expired',
@@ -175,13 +175,13 @@ const AdvancedInventoryManagement: React.FC = () => {
   };
 
   const getFilteredInventory = () => {
-    return inventory.filter(item => {
+    return inventory.filter((item) => {
       const matchesCategory = filters.category === 'all' || item.category === filters.category;
       const matchesDepartment = filters.department === 'all' || item.department === filters.department;
-      const matchesSearch = filters.search === '' || 
-        item.product_name.toLowerCase().includes(filters.search.toLowerCase()) ||
-        item.product_code.toLowerCase().includes(filters.search.toLowerCase());
-      
+      const matchesSearch = filters.search === '' ||
+      item.product_name.toLowerCase().includes(filters.search.toLowerCase()) ||
+      item.product_code.toLowerCase().includes(filters.search.toLowerCase());
+
       let matchesStatus = true;
       if (filters.status === 'low_stock') {
         matchesStatus = item.quantity_in_stock <= item.minimum_stock;
@@ -197,10 +197,10 @@ const AdvancedInventoryManagement: React.FC = () => {
 
   const calculateMetrics = () => {
     const totalItems = inventory.length;
-    const lowStockItems = inventory.filter(item => item.quantity_in_stock <= item.minimum_stock).length;
-    const outOfStockItems = inventory.filter(item => item.quantity_in_stock <= 0).length;
-    const overdueItems = inventory.filter(item => item.overdue).length;
-    const totalValue = inventory.reduce((sum, item) => sum + (item.quantity_in_stock * item.unit_price), 0);
+    const lowStockItems = inventory.filter((item) => item.quantity_in_stock <= item.minimum_stock).length;
+    const outOfStockItems = inventory.filter((item) => item.quantity_in_stock <= 0).length;
+    const overdueItems = inventory.filter((item) => item.overdue).length;
+    const totalValue = inventory.reduce((sum, item) => sum + item.quantity_in_stock * item.unit_price, 0);
     const averageStock = inventory.length > 0 ? inventory.reduce((sum, item) => sum + item.quantity_in_stock, 0) / inventory.length : 0;
 
     return {
@@ -215,11 +215,11 @@ const AdvancedInventoryManagement: React.FC = () => {
   };
 
   const getInventoryTrends = () => {
-    const categoryData = categories.slice(1).map(category => {
-      const categoryItems = inventory.filter(item => item.category === category);
-      const totalValue = categoryItems.reduce((sum, item) => sum + (item.quantity_in_stock * item.unit_price), 0);
-      const lowStockCount = categoryItems.filter(item => item.quantity_in_stock <= item.minimum_stock).length;
-      
+    const categoryData = categories.slice(1).map((category) => {
+      const categoryItems = inventory.filter((item) => item.category === category);
+      const totalValue = categoryItems.reduce((sum, item) => sum + item.quantity_in_stock * item.unit_price, 0);
+      const lowStockCount = categoryItems.filter((item) => item.quantity_in_stock <= item.minimum_stock).length;
+
       return {
         category,
         totalItems: categoryItems.length,
@@ -233,26 +233,26 @@ const AdvancedInventoryManagement: React.FC = () => {
   };
 
   const getLowStockTable = () => {
-    const lowStockItems = inventory.filter(item => item.quantity_in_stock <= item.minimum_stock);
-    return lowStockItems.slice(0, 10).map(item => [
-      item.product_name,
-      item.product_code,
-      item.category,
-      item.quantity_in_stock,
-      item.minimum_stock,
-      `$${item.unit_price.toFixed(2)}`,
-      item.quantity_in_stock === 0 ? 'Out of Stock' : 'Low Stock'
-    ]);
+    const lowStockItems = inventory.filter((item) => item.quantity_in_stock <= item.minimum_stock);
+    return lowStockItems.slice(0, 10).map((item) => [
+    item.product_name,
+    item.product_code,
+    item.category,
+    item.quantity_in_stock,
+    item.minimum_stock,
+    `$${item.unit_price.toFixed(2)}`,
+    item.quantity_in_stock === 0 ? 'Out of Stock' : 'Low Stock']
+    );
   };
 
   const handleQuickRestock = async (itemId: number) => {
     try {
-      const item = inventory.find(i => i.id === itemId);
+      const item = inventory.find((i) => i.id === itemId);
       if (!item) return;
 
       // Update quantity to minimum stock + 50%
       const newQuantity = Math.ceil(item.minimum_stock * 1.5);
-      
+
       const { error } = await window.ezsite.apis.tableUpdate(11726, {
         ID: itemId,
         quantity_in_stock: newQuantity,
@@ -264,7 +264,7 @@ const AdvancedInventoryManagement: React.FC = () => {
 
       toast({
         title: "Success",
-        description: `${item.product_name} has been restocked to ${newQuantity} units`,
+        description: `${item.product_name} has been restocked to ${newQuantity} units`
       });
 
       fetchInventoryData();
@@ -280,18 +280,18 @@ const AdvancedInventoryManagement: React.FC = () => {
 
   const exportInventoryReport = () => {
     const csvContent = [
-      ['Product Name', 'Code', 'Category', 'Stock', 'Min Stock', 'Price', 'Status'],
-      ...getFilteredInventory().map(item => [
-        item.product_name,
-        item.product_code,
-        item.category,
-        item.quantity_in_stock,
-        item.minimum_stock,
-        item.unit_price,
-        item.quantity_in_stock <= 0 ? 'Out of Stock' : 
-        item.quantity_in_stock <= item.minimum_stock ? 'Low Stock' : 'In Stock'
-      ])
-    ].map(row => row.join(',')).join('\n');
+    ['Product Name', 'Code', 'Category', 'Stock', 'Min Stock', 'Price', 'Status'],
+    ...getFilteredInventory().map((item) => [
+    item.product_name,
+    item.product_code,
+    item.category,
+    item.quantity_in_stock,
+    item.minimum_stock,
+    item.unit_price,
+    item.quantity_in_stock <= 0 ? 'Out of Stock' :
+    item.quantity_in_stock <= item.minimum_stock ? 'Low Stock' : 'In Stock']
+    )].
+    map((row) => row.join(',')).join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -307,10 +307,10 @@ const AdvancedInventoryManagement: React.FC = () => {
 
   const getAlertIcon = (type: string) => {
     switch (type) {
-      case 'critical': return <XCircleIcon className="w-4 h-4 text-red-500" />;
-      case 'low_stock': return <AlertTriangleIcon className="w-4 h-4 text-yellow-500" />;
-      case 'overdue': return <AlertCircleIcon className="w-4 h-4 text-orange-500" />;
-      default: return <CheckCircleIcon className="w-4 h-4 text-green-500" />;
+      case 'critical':return <XCircleIcon className="w-4 h-4 text-red-500" />;
+      case 'low_stock':return <AlertTriangleIcon className="w-4 h-4 text-yellow-500" />;
+      case 'overdue':return <AlertCircleIcon className="w-4 h-4 text-orange-500" />;
+      default:return <CheckCircleIcon className="w-4 h-4 text-green-500" />;
     }
   };
 
@@ -320,14 +320,14 @@ const AdvancedInventoryManagement: React.FC = () => {
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-32 bg-gray-200 rounded"></div>
-            ))}
+            {[1, 2, 3, 4].map((i) =>
+            <div key={i} className="h-32 bg-gray-200 rounded"></div>
+            )}
           </div>
           <div className="h-96 bg-gray-200 rounded"></div>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -338,8 +338,8 @@ const AdvancedInventoryManagement: React.FC = () => {
         reportId={`INV-${Date.now()}`}
         onPrint={() => window.print()}
         onExport={exportInventoryReport}
-        onFilter={() => {}}
-      />
+        onFilter={() => {}} />
+
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -347,34 +347,34 @@ const AdvancedInventoryManagement: React.FC = () => {
           title="Total Items"
           value={metrics.totalItems.toLocaleString()}
           subtitle="Products in inventory"
-          icon={<PackageIcon className="w-5 h-5" />}
-        />
+          icon={<PackageIcon className="w-5 h-5" />} />
+
         <MetricCard
           title="Low Stock Items"
           value={metrics.lowStockItems}
           subtitle="Need restocking"
           icon={<AlertTriangleIcon className="w-5 h-5" />}
-          trend={{ value: -15.2, isPositive: true }}
-        />
+          trend={{ value: -15.2, isPositive: true }} />
+
         <MetricCard
           title="Total Value"
           value={`$${metrics.totalValue.toLocaleString()}`}
           subtitle="Inventory worth"
           icon={<BarChart3Icon className="w-5 h-5" />}
-          trend={{ value: 8.7, isPositive: true }}
-        />
+          trend={{ value: 8.7, isPositive: true }} />
+
         <MetricCard
           title="Stock Turnover"
           value={`${metrics.stockTurnover}%`}
           subtitle="Efficiency rate"
           icon={<TrendingUpIcon className="w-5 h-5" />}
-          trend={{ value: 3.2, isPositive: true }}
-        />
+          trend={{ value: 3.2, isPositive: true }} />
+
       </div>
 
       {/* Alert Panel */}
-      {alerts.length > 0 && (
-        <Card className="border-orange-200 bg-orange-50">
+      {alerts.length > 0 &&
+      <Card className="border-orange-200 bg-orange-50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-orange-800">
               <AlertTriangleIcon className="w-5 h-5" />
@@ -383,42 +383,42 @@ const AdvancedInventoryManagement: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-60 overflow-y-auto">
-              {alerts.slice(0, 9).map((alert, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 bg-white rounded-lg border">
+              {alerts.slice(0, 9).map((alert, index) =>
+            <div key={index} className="flex items-start gap-3 p-3 bg-white rounded-lg border">
                   {getAlertIcon(alert.type)}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate">
                       {alert.item.product_name}
                     </p>
                     <p className="text-xs text-gray-600 mt-1">{alert.message}</p>
-                    <Badge 
-                      variant={alert.priority === 'high' ? 'destructive' : 
-                              alert.priority === 'medium' ? 'default' : 'secondary'}
-                      className="mt-2 text-xs"
-                    >
+                    <Badge
+                  variant={alert.priority === 'high' ? 'destructive' :
+                  alert.priority === 'medium' ? 'default' : 'secondary'}
+                  className="mt-2 text-xs">
+
                       {alert.priority} priority
                     </Badge>
                   </div>
-                  {alert.type === 'low_stock' && (
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => handleQuickRestock(alert.item.id)}
-                    >
+                  {alert.type === 'low_stock' &&
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleQuickRestock(alert.item.id)}>
+
                       Quick Restock
                     </Button>
-                  )}
+              }
                 </div>
-              ))}
+            )}
             </div>
-            {alerts.length > 9 && (
-              <p className="text-sm text-gray-600 mt-3">
+            {alerts.length > 9 &&
+          <p className="text-sm text-gray-600 mt-3">
                 +{alerts.length - 9} more alerts. Use filters to view specific categories.
               </p>
-            )}
+          }
           </CardContent>
         </Card>
-      )}
+      }
 
       {/* Filters and Controls */}
       <Card>
@@ -427,11 +427,11 @@ const AdvancedInventoryManagement: React.FC = () => {
             <span>Inventory Filters & Controls</span>
             <div className="flex items-center gap-2">
               <Label htmlFor="auto-alerts" className="text-sm">Auto Alerts</Label>
-              <Switch 
+              <Switch
                 id="auto-alerts"
                 checked={autoAlerts}
-                onCheckedChange={setAutoAlerts}
-              />
+                onCheckedChange={setAutoAlerts} />
+
             </div>
           </CardTitle>
         </CardHeader>
@@ -444,47 +444,47 @@ const AdvancedInventoryManagement: React.FC = () => {
                 <Input
                   placeholder="Search products..."
                   value={filters.search}
-                  onChange={(e) => setFilters({...filters, search: e.target.value})}
-                  className="pl-10"
-                />
+                  onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                  className="pl-10" />
+
               </div>
             </div>
             
             <div>
               <Label className="text-sm font-medium">Category</Label>
-              <Select value={filters.category} onValueChange={(value) => setFilters({...filters, category: value})}>
+              <Select value={filters.category} onValueChange={(value) => setFilters({ ...filters, category: value })}>
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="All categories" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map(category => (
-                    <SelectItem key={category} value={category}>
+                  {categories.map((category) =>
+                  <SelectItem key={category} value={category}>
                       {category === 'all' ? 'All Categories' : category}
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
             </div>
 
             <div>
               <Label className="text-sm font-medium">Department</Label>
-              <Select value={filters.department} onValueChange={(value) => setFilters({...filters, department: value})}>
+              <Select value={filters.department} onValueChange={(value) => setFilters({ ...filters, department: value })}>
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="All departments" />
                 </SelectTrigger>
                 <SelectContent>
-                  {departments.map(dept => (
-                    <SelectItem key={dept} value={dept}>
+                  {departments.map((dept) =>
+                  <SelectItem key={dept} value={dept}>
                       {dept === 'all' ? 'All Departments' : dept}
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
             </div>
 
             <div>
               <Label className="text-sm font-medium">Status</Label>
-              <Select value={filters.status} onValueChange={(value: any) => setFilters({...filters, status: value})}>
+              <Select value={filters.status} onValueChange={(value: any) => setFilters({ ...filters, status: value })}>
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="All statuses" />
                 </SelectTrigger>
@@ -518,13 +518,13 @@ const AdvancedInventoryManagement: React.FC = () => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={trendData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="category" 
+                <XAxis
+                  dataKey="category"
                   tick={{ fontSize: 12 }}
                   angle={-45}
                   textAnchor="end"
-                  height={80}
-                />
+                  height={80} />
+
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
                 <Legend />
@@ -540,13 +540,13 @@ const AdvancedInventoryManagement: React.FC = () => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={trendData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="category" 
+                <XAxis
+                  dataKey="category"
                   tick={{ fontSize: 12 }}
                   angle={-45}
                   textAnchor="end"
-                  height={80}
-                />
+                  height={80} />
+
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip formatter={(value: any) => [`$${value.toLocaleString()}`, 'Value']} />
                 <Legend />
@@ -563,8 +563,8 @@ const AdvancedInventoryManagement: React.FC = () => {
           headers={['Product Name', 'Code', 'Category', 'Current Stock', 'Min Stock', 'Unit Price', 'Status']}
           data={getLowStockTable()}
           showRowNumbers={true}
-          alternateRows={true}
-        />
+          alternateRows={true} />
+
       </ReportSection>
 
       {/* Current Inventory Overview */}
@@ -572,37 +572,37 @@ const AdvancedInventoryManagement: React.FC = () => {
         <div className="max-h-96 overflow-y-auto">
           <DataTable
             headers={['Product', 'Code', 'Category', 'Stock', 'Min Stock', 'Price', 'Value', 'Status']}
-            data={filteredInventory.slice(0, 50).map(item => [
-              item.product_name,
-              item.product_code,
-              item.category,
-              item.quantity_in_stock,
-              item.minimum_stock,
-              `$${item.unit_price.toFixed(2)}`,
-              `$${(item.quantity_in_stock * item.unit_price).toFixed(2)}`,
-              <Badge 
-                key={item.id}
-                variant={
-                  item.quantity_in_stock <= 0 ? 'destructive' :
-                  item.quantity_in_stock <= item.minimum_stock ? 'default' : 'secondary'
-                }
-              >
+            data={filteredInventory.slice(0, 50).map((item) => [
+            item.product_name,
+            item.product_code,
+            item.category,
+            item.quantity_in_stock,
+            item.minimum_stock,
+            `$${item.unit_price.toFixed(2)}`,
+            `$${(item.quantity_in_stock * item.unit_price).toFixed(2)}`,
+            <Badge
+              key={item.id}
+              variant={
+              item.quantity_in_stock <= 0 ? 'destructive' :
+              item.quantity_in_stock <= item.minimum_stock ? 'default' : 'secondary'
+              }>
+
                 {item.quantity_in_stock <= 0 ? 'Out of Stock' :
-                 item.quantity_in_stock <= item.minimum_stock ? 'Low Stock' : 'In Stock'}
-              </Badge>
-            ])}
+              item.quantity_in_stock <= item.minimum_stock ? 'Low Stock' : 'In Stock'}
+              </Badge>]
+            )}
             showRowNumbers={true}
-            alternateRows={true}
-          />
+            alternateRows={true} />
+
         </div>
-        {filteredInventory.length > 50 && (
-          <p className="text-sm text-gray-600 mt-3">
+        {filteredInventory.length > 50 &&
+        <p className="text-sm text-gray-600 mt-3">
             Showing first 50 items. Use filters to narrow down results.
           </p>
-        )}
+        }
       </ReportSection>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AdvancedInventoryManagement;

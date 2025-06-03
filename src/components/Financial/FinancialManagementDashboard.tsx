@@ -6,9 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  DollarSignIcon, 
-  TrendingUpIcon, 
+import {
+  DollarSignIcon,
+  TrendingUpIcon,
   TrendingDownIcon,
   CreditCardIcon,
   BanknoteIcon,
@@ -17,25 +17,25 @@ import {
   PieChartIcon,
   BarChart3Icon,
   AlertCircleIcon,
-  CheckCircleIcon
-} from 'lucide-react';
-import { 
-  LineChart, 
-  Line, 
-  BarChart, 
-  Bar, 
-  PieChart, 
-  Pie, 
+  CheckCircleIcon } from
+'lucide-react';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
   Cell,
   AreaChart,
   Area,
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer 
-} from 'recharts';
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer } from
+'recharts';
 import { ReportHeader, MetricCard, ReportSection, DataTable } from '@/components/Reports/ComprehensiveReportLayout';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
 
@@ -93,7 +93,7 @@ const FinancialManagementDashboard: React.FC = () => {
     period: 'month',
     station: 'ALL'
   });
-  const [dateRange, setDateRange] = useState<{from: Date | undefined, to: Date | undefined}>({
+  const [dateRange, setDateRange] = useState<{from: Date | undefined;to: Date | undefined;}>({
     from: undefined,
     to: undefined
   });
@@ -108,7 +108,7 @@ const FinancialManagementDashboard: React.FC = () => {
   const fetchFinancialData = async () => {
     try {
       setLoading(true);
-      
+
       // Calculate date range based on filter
       let startDate = new Date();
       let endDate = new Date();
@@ -137,17 +137,17 @@ const FinancialManagementDashboard: React.FC = () => {
 
       // Fetch sales data
       const salesFilters = [
-        {
-          name: "report_date",
-          op: "GreaterThanOrEqual",
-          value: startDate.toISOString()
-        },
-        {
-          name: "report_date",
-          op: "LessThanOrEqual",
-          value: endDate.toISOString()
-        }
-      ];
+      {
+        name: "report_date",
+        op: "GreaterThanOrEqual",
+        value: startDate.toISOString()
+      },
+      {
+        name: "report_date",
+        op: "LessThanOrEqual",
+        value: endDate.toISOString()
+      }];
+
 
       if (filters.station !== 'ALL') {
         salesFilters.push({
@@ -158,21 +158,21 @@ const FinancialManagementDashboard: React.FC = () => {
       }
 
       const [salesResponse, salaryResponse] = await Promise.all([
-        window.ezsite.apis.tablePage(12356, {
-          PageNo: 1,
-          PageSize: 1000,
-          OrderByField: "report_date",
-          IsAsc: false,
-          Filters: salesFilters
-        }),
-        window.ezsite.apis.tablePage(11788, {
-          PageNo: 1,
-          PageSize: 1000,
-          OrderByField: "pay_period_start",
-          IsAsc: false,
-          Filters: []
-        })
-      ]);
+      window.ezsite.apis.tablePage(12356, {
+        PageNo: 1,
+        PageSize: 1000,
+        OrderByField: "report_date",
+        IsAsc: false,
+        Filters: salesFilters
+      }),
+      window.ezsite.apis.tablePage(11788, {
+        PageNo: 1,
+        PageSize: 1000,
+        OrderByField: "pay_period_start",
+        IsAsc: false,
+        Filters: []
+      })]
+      );
 
       if (salesResponse.error) throw salesResponse.error;
       if (salaryResponse.error) throw salaryResponse.error;
@@ -193,7 +193,7 @@ const FinancialManagementDashboard: React.FC = () => {
 
   const calculateFinancialSummary = (): FinancialSummary => {
     const totalRevenue = salesData.reduce((sum, sale) => sum + (sale.total_sales || 0), 0);
-    
+
     // Calculate expenses from sales data
     const totalExpensesFromSales = salesData.reduce((sum, sale) => {
       try {
@@ -205,21 +205,21 @@ const FinancialManagementDashboard: React.FC = () => {
     }, 0);
 
     // Calculate payroll costs
-    const payrollCosts = salaryData
-      .filter(salary => salary.status === 'Paid')
-      .reduce((sum, salary) => sum + (salary.gross_pay || 0), 0);
+    const payrollCosts = salaryData.
+    filter((salary) => salary.status === 'Paid').
+    reduce((sum, salary) => sum + (salary.gross_pay || 0), 0);
 
     const totalExpenses = totalExpensesFromSales + payrollCosts;
     const netProfit = totalRevenue - totalExpenses;
-    const profitMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
-    
+    const profitMargin = totalRevenue > 0 ? netProfit / totalRevenue * 100 : 0;
+
     // Calculate cash flow (simplified)
     const cashFlow = netProfit + payrollCosts * 0.3; // Approximate depreciation and non-cash items
 
     // Calculate previous period for growth comparison
     const previousPeriodRevenue = totalRevenue * 0.9; // Simplified calculation
-    const revenueGrowth = previousPeriodRevenue > 0 ? 
-      ((totalRevenue - previousPeriodRevenue) / previousPeriodRevenue) * 100 : 0;
+    const revenueGrowth = previousPeriodRevenue > 0 ?
+    (totalRevenue - previousPeriodRevenue) / previousPeriodRevenue * 100 : 0;
 
     return {
       totalRevenue,
@@ -242,25 +242,25 @@ const FinancialManagementDashboard: React.FC = () => {
     const totalLottery = salesData.reduce((sum, sale) => sum + (sale.lottery_net_sales || 0), 0);
 
     return [
-      { name: 'Cash', value: totalCash, percentage: 0 },
-      { name: 'Credit Card', value: totalCredit, percentage: 0 },
-      { name: 'Debit Card', value: totalDebit, percentage: 0 },
-      { name: 'Mobile Pay', value: totalMobile, percentage: 0 },
-      { name: 'Grocery', value: totalGrocery, percentage: 0 },
-      { name: 'Lottery', value: totalLottery, percentage: 0 }
-    ].map(item => {
+    { name: 'Cash', value: totalCash, percentage: 0 },
+    { name: 'Credit Card', value: totalCredit, percentage: 0 },
+    { name: 'Debit Card', value: totalDebit, percentage: 0 },
+    { name: 'Mobile Pay', value: totalMobile, percentage: 0 },
+    { name: 'Grocery', value: totalGrocery, percentage: 0 },
+    { name: 'Lottery', value: totalLottery, percentage: 0 }].
+    map((item) => {
       const total = totalCash + totalCredit + totalDebit + totalMobile + totalGrocery + totalLottery;
       return {
         ...item,
-        percentage: total > 0 ? ((item.value / total) * 100).toFixed(1) : '0.0'
+        percentage: total > 0 ? (item.value / total * 100).toFixed(1) : '0.0'
       };
-    }).filter(item => item.value > 0);
+    }).filter((item) => item.value > 0);
   };
 
   const getDailyRevenueTrend = () => {
     const dailyData = new Map();
-    
-    salesData.forEach(sale => {
+
+    salesData.forEach((sale) => {
       const date = sale.report_date.split('T')[0];
       if (!dailyData.has(date)) {
         dailyData.set(date, {
@@ -271,34 +271,34 @@ const FinancialManagementDashboard: React.FC = () => {
           transactions: 0
         });
       }
-      
+
       const dayData = dailyData.get(date);
       dayData.revenue += sale.total_sales || 0;
       dayData.transactions += 1;
-      
+
       try {
         const expenses = JSON.parse(sale.expenses_data || '[]');
         dayData.expenses += expenses.reduce((sum: number, exp: any) => sum + (exp.amount || 0), 0);
       } catch {
+
+
         // Handle invalid JSON
-      }
-      
-      dayData.profit = dayData.revenue - dayData.expenses;
+      }dayData.profit = dayData.revenue - dayData.expenses;
     });
 
-    return Array.from(dailyData.values())
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .map(item => ({
-        ...item,
-        date: format(new Date(item.date), 'MMM dd')
-      }));
+    return Array.from(dailyData.values()).
+    sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).
+    map((item) => ({
+      ...item,
+      date: format(new Date(item.date), 'MMM dd')
+    }));
   };
 
   const getStationProfitability = () => {
-    return stations.filter(s => s !== 'ALL').map(station => {
-      const stationSales = salesData.filter(sale => sale.station === station);
+    return stations.filter((s) => s !== 'ALL').map((station) => {
+      const stationSales = salesData.filter((sale) => sale.station === station);
       const revenue = stationSales.reduce((sum, sale) => sum + (sale.total_sales || 0), 0);
-      
+
       const expenses = stationSales.reduce((sum, sale) => {
         try {
           const expenseData = JSON.parse(sale.expenses_data || '[]');
@@ -308,13 +308,13 @@ const FinancialManagementDashboard: React.FC = () => {
         }
       }, 0);
 
-      const stationPayroll = salaryData
-        .filter(salary => salary.station === station && salary.status === 'Paid')
-        .reduce((sum, salary) => sum + (salary.gross_pay || 0), 0);
+      const stationPayroll = salaryData.
+      filter((salary) => salary.station === station && salary.status === 'Paid').
+      reduce((sum, salary) => sum + (salary.gross_pay || 0), 0);
 
       const totalExpenses = expenses + stationPayroll;
       const profit = revenue - totalExpenses;
-      const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
+      const margin = revenue > 0 ? profit / revenue * 100 : 0;
 
       return {
         station,
@@ -329,42 +329,42 @@ const FinancialManagementDashboard: React.FC = () => {
 
   const getTopExpenseCategories = () => {
     const expenseCategories = new Map();
-    
-    salesData.forEach(sale => {
+
+    salesData.forEach((sale) => {
       try {
         const expenses = JSON.parse(sale.expenses_data || '[]');
         expenses.forEach((expense: any) => {
           const category = expense.vendor || 'Other';
           const amount = expense.amount || 0;
-          
+
           if (!expenseCategories.has(category)) {
             expenseCategories.set(category, 0);
           }
           expenseCategories.set(category, expenseCategories.get(category) + amount);
         });
       } catch {
-        // Handle invalid JSON
-      }
-    });
 
-    return Array.from(expenseCategories.entries())
-      .map(([category, amount]) => ({ category, amount }))
-      .sort((a, b) => b.amount - a.amount)
-      .slice(0, 10)
-      .map((item, index) => [
-        index + 1,
-        item.category,
-        `$${item.amount.toLocaleString()}`,
-        // Calculate percentage of total expenses
-        `${(item.amount / calculateFinancialSummary().operatingExpenses * 100).toFixed(1)}%`
-      ]);
+
+        // Handle invalid JSON
+      }});
+    return Array.from(expenseCategories.entries()).
+    map(([category, amount]) => ({ category, amount })).
+    sort((a, b) => b.amount - a.amount).
+    slice(0, 10).
+    map((item, index) => [
+    index + 1,
+    item.category,
+    `$${item.amount.toLocaleString()}`,
+    // Calculate percentage of total expenses
+    `${(item.amount / calculateFinancialSummary().operatingExpenses * 100).toFixed(1)}%`]
+    );
   };
 
   const getCashFlowData = () => {
     const monthlyData = new Map();
-    
+
     // Group sales by month
-    salesData.forEach(sale => {
+    salesData.forEach((sale) => {
       const month = format(new Date(sale.report_date), 'yyyy-MM');
       if (!monthlyData.has(month)) {
         monthlyData.set(month, {
@@ -375,20 +375,20 @@ const FinancialManagementDashboard: React.FC = () => {
           cashFlow: 0
         });
       }
-      
+
       const data = monthlyData.get(month);
       data.revenue += sale.total_sales || 0;
-      
+
       try {
         const expenses = JSON.parse(sale.expenses_data || '[]');
         data.expenses += expenses.reduce((sum: number, exp: any) => sum + (exp.amount || 0), 0);
       } catch {
-        // Handle invalid JSON
-      }
-    });
 
+
+        // Handle invalid JSON
+      }});
     // Add payroll data
-    salaryData.forEach(salary => {
+    salaryData.forEach((salary) => {
       const month = format(new Date(salary.pay_period_start), 'yyyy-MM');
       if (monthlyData.has(month) && salary.status === 'Paid') {
         const data = monthlyData.get(month);
@@ -397,16 +397,16 @@ const FinancialManagementDashboard: React.FC = () => {
     });
 
     // Calculate cash flow
-    monthlyData.forEach(data => {
+    monthlyData.forEach((data) => {
       data.cashFlow = data.revenue - data.expenses - data.payroll;
     });
 
-    return Array.from(monthlyData.values())
-      .sort((a, b) => a.month.localeCompare(b.month))
-      .map(item => ({
-        ...item,
-        month: format(new Date(item.month + '-01'), 'MMM yyyy')
-      }));
+    return Array.from(monthlyData.values()).
+    sort((a, b) => a.month.localeCompare(b.month)).
+    map((item) => ({
+      ...item,
+      month: format(new Date(item.month + '-01'), 'MMM yyyy')
+    }));
   };
 
   const financialSummary = calculateFinancialSummary();
@@ -421,14 +421,14 @@ const FinancialManagementDashboard: React.FC = () => {
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-32 bg-gray-200 rounded"></div>
-            ))}
+            {[1, 2, 3, 4].map((i) =>
+            <div key={i} className="h-32 bg-gray-200 rounded"></div>
+            )}
           </div>
           <div className="h-96 bg-gray-200 rounded"></div>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -437,14 +437,14 @@ const FinancialManagementDashboard: React.FC = () => {
         title="Financial Management Dashboard"
         subtitle="Comprehensive financial analysis and performance metrics"
         station={filters.station === 'ALL' ? 'All Stations' : filters.station}
-        dateRange={filters.period === 'custom' && dateRange.from && dateRange.to 
-          ? `${format(dateRange.from, 'MMM dd, yyyy')} - ${format(dateRange.to, 'MMM dd, yyyy')}`
-          : filters.period.charAt(0).toUpperCase() + filters.period.slice(1)}
+        dateRange={filters.period === 'custom' && dateRange.from && dateRange.to ?
+        `${format(dateRange.from, 'MMM dd, yyyy')} - ${format(dateRange.to, 'MMM dd, yyyy')}` :
+        filters.period.charAt(0).toUpperCase() + filters.period.slice(1)}
         reportId={`FM-${Date.now()}`}
         onPrint={() => window.print()}
         onExport={() => toast({ title: "Export", description: "Export functionality coming soon" })}
-        onFilter={() => {}}
-      />
+        onFilter={() => {}} />
+
 
       {/* Filters */}
       <Card>
@@ -455,21 +455,21 @@ const FinancialManagementDashboard: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <label className="text-sm font-medium mb-2 block">Station</label>
-              <Select value={filters.station} onValueChange={(value) => setFilters({...filters, station: value})}>
+              <Select value={filters.station} onValueChange={(value) => setFilters({ ...filters, station: value })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select station" />
                 </SelectTrigger>
                 <SelectContent>
-                  {stations.map(station => (
-                    <SelectItem key={station} value={station}>{station}</SelectItem>
-                  ))}
+                  {stations.map((station) =>
+                  <SelectItem key={station} value={station}>{station}</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
             
             <div>
               <label className="text-sm font-medium mb-2 block">Time Period</label>
-              <Select value={filters.period} onValueChange={(value: any) => setFilters({...filters, period: value})}>
+              <Select value={filters.period} onValueChange={(value: any) => setFilters({ ...filters, period: value })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select period" />
                 </SelectTrigger>
@@ -483,8 +483,8 @@ const FinancialManagementDashboard: React.FC = () => {
               </Select>
             </div>
 
-            {filters.period === 'custom' && (
-              <>
+            {filters.period === 'custom' &&
+            <>
                 <div>
                   <label className="text-sm font-medium mb-2 block">Start Date</label>
                   <Popover>
@@ -496,14 +496,14 @@ const FinancialManagementDashboard: React.FC = () => {
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
                       <Calendar
-                        mode="single"
-                        selected={dateRange.from}
-                        onSelect={(date) => {
-                          setDateRange({...dateRange, from: date});
-                          setFilters({...filters, startDate: date});
-                        }}
-                        initialFocus
-                      />
+                      mode="single"
+                      selected={dateRange.from}
+                      onSelect={(date) => {
+                        setDateRange({ ...dateRange, from: date });
+                        setFilters({ ...filters, startDate: date });
+                      }}
+                      initialFocus />
+
                     </PopoverContent>
                   </Popover>
                 </div>
@@ -519,19 +519,19 @@ const FinancialManagementDashboard: React.FC = () => {
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
                       <Calendar
-                        mode="single"
-                        selected={dateRange.to}
-                        onSelect={(date) => {
-                          setDateRange({...dateRange, to: date});
-                          setFilters({...filters, endDate: date});
-                        }}
-                        initialFocus
-                      />
+                      mode="single"
+                      selected={dateRange.to}
+                      onSelect={(date) => {
+                        setDateRange({ ...dateRange, to: date });
+                        setFilters({ ...filters, endDate: date });
+                      }}
+                      initialFocus />
+
                     </PopoverContent>
                   </Popover>
                 </div>
               </>
-            )}
+            }
           </div>
         </CardContent>
       </Card>
@@ -543,29 +543,29 @@ const FinancialManagementDashboard: React.FC = () => {
           value={`$${financialSummary.totalRevenue.toLocaleString()}`}
           subtitle="All income streams"
           icon={<DollarSignIcon className="w-5 h-5" />}
-          trend={{ value: financialSummary.revenueGrowth, isPositive: financialSummary.revenueGrowth > 0 }}
-        />
+          trend={{ value: financialSummary.revenueGrowth, isPositive: financialSummary.revenueGrowth > 0 }} />
+
         <MetricCard
           title="Net Profit"
           value={`$${financialSummary.netProfit.toLocaleString()}`}
           subtitle="After all expenses"
           icon={<TrendingUpIcon className="w-5 h-5" />}
-          trend={{ value: 8.7, isPositive: true }}
-        />
+          trend={{ value: 8.7, isPositive: true }} />
+
         <MetricCard
           title="Profit Margin"
           value={`${financialSummary.profitMargin.toFixed(1)}%`}
           subtitle="Revenue efficiency"
           icon={<BarChart3Icon className="w-5 h-5" />}
-          trend={{ value: 2.3, isPositive: true }}
-        />
+          trend={{ value: 2.3, isPositive: true }} />
+
         <MetricCard
           title="Cash Flow"
           value={`$${financialSummary.cashFlow.toLocaleString()}`}
           subtitle="Operational liquidity"
           icon={<BanknoteIcon className="w-5 h-5" />}
-          trend={{ value: 5.1, isPositive: true }}
-        />
+          trend={{ value: 5.1, isPositive: true }} />
+
       </div>
 
       {/* Revenue Trends */}
@@ -574,33 +574,33 @@ const FinancialManagementDashboard: React.FC = () => {
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={dailyTrend}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="date" 
-                tick={{ fontSize: 12 }}
-              />
+              <XAxis
+                dataKey="date"
+                tick={{ fontSize: 12 }} />
+
               <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip 
-                formatter={(value: any, name: string) => [`$${value.toLocaleString()}`, name]}
-              />
+              <Tooltip
+                formatter={(value: any, name: string) => [`$${value.toLocaleString()}`, name]} />
+
               <Legend />
-              <Area 
-                type="monotone" 
-                dataKey="revenue" 
+              <Area
+                type="monotone"
+                dataKey="revenue"
                 stackId="1"
-                stroke={CHART_COLORS[0]} 
+                stroke={CHART_COLORS[0]}
                 fill={CHART_COLORS[0]}
                 fillOpacity={0.6}
-                name="Revenue"
-              />
-              <Area 
-                type="monotone" 
-                dataKey="profit" 
+                name="Revenue" />
+
+              <Area
+                type="monotone"
+                dataKey="profit"
                 stackId="2"
-                stroke={CHART_COLORS[1]} 
+                stroke={CHART_COLORS[1]}
                 fill={CHART_COLORS[1]}
                 fillOpacity={0.6}
-                name="Profit"
-              />
+                name="Profit" />
+
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -617,14 +617,14 @@ const FinancialManagementDashboard: React.FC = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({name, percentage}) => `${name}: ${percentage}%`}
+                  label={({ name, percentage }) => `${name}: ${percentage}%`}
                   outerRadius={80}
                   fill="#8884d8"
-                  dataKey="value"
-                >
-                  {revenueBySource.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
-                  ))}
+                  dataKey="value">
+
+                  {revenueBySource.map((entry, index) =>
+                  <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                  )}
                 </Pie>
                 <Tooltip formatter={(value: any) => [`$${value.toLocaleString()}`, 'Amount']} />
               </PieChart>
@@ -654,15 +654,15 @@ const FinancialManagementDashboard: React.FC = () => {
       {/* Station Profitability */}
       <ReportSection title="Station Profitability Analysis">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          {stationProfitability.map((station, index) => (
-            <Card key={station.station} className="hover:shadow-lg transition-shadow">
+          {stationProfitability.map((station, index) =>
+          <Card key={station.station} className="hover:shadow-lg transition-shadow">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
                   {station.station}
-                  <Badge 
-                    variant={parseFloat(station.margin) > 10 ? 'default' : 
-                           parseFloat(station.margin) > 5 ? 'secondary' : 'destructive'}
-                  >
+                  <Badge
+                  variant={parseFloat(station.margin) > 10 ? 'default' :
+                  parseFloat(station.margin) > 5 ? 'secondary' : 'destructive'}>
+
                     {station.margin}% margin
                   </Badge>
                 </CardTitle>
@@ -690,7 +690,7 @@ const FinancialManagementDashboard: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
-          ))}
+          )}
         </div>
       </ReportSection>
 
@@ -700,8 +700,8 @@ const FinancialManagementDashboard: React.FC = () => {
           headers={['Rank', 'Category', 'Amount', 'Percentage']}
           data={getTopExpenseCategories()}
           showRowNumbers={false}
-          alternateRows={true}
-        />
+          alternateRows={true} />
+
       </ReportSection>
 
       {/* Financial Health Indicators */}
@@ -710,15 +710,15 @@ const FinancialManagementDashboard: React.FC = () => {
           <Card className="text-center">
             <CardContent className="pt-6">
               <div className="flex items-center justify-center mb-2">
-                {financialSummary.profitMargin > 10 ? 
-                  <CheckCircleIcon className="w-8 h-8 text-green-500" /> :
-                  <AlertCircleIcon className="w-8 h-8 text-yellow-500" />
+                {financialSummary.profitMargin > 10 ?
+                <CheckCircleIcon className="w-8 h-8 text-green-500" /> :
+                <AlertCircleIcon className="w-8 h-8 text-yellow-500" />
                 }
               </div>
               <h3 className="font-semibold">Profitability</h3>
               <p className="text-sm text-gray-600 mt-1">
-                {financialSummary.profitMargin > 10 ? 'Excellent' : 
-                 financialSummary.profitMargin > 5 ? 'Good' : 'Needs Attention'}
+                {financialSummary.profitMargin > 10 ? 'Excellent' :
+                financialSummary.profitMargin > 5 ? 'Good' : 'Needs Attention'}
               </p>
             </CardContent>
           </Card>
@@ -726,9 +726,9 @@ const FinancialManagementDashboard: React.FC = () => {
           <Card className="text-center">
             <CardContent className="pt-6">
               <div className="flex items-center justify-center mb-2">
-                {financialSummary.cashFlow > 0 ? 
-                  <CheckCircleIcon className="w-8 h-8 text-green-500" /> :
-                  <AlertCircleIcon className="w-8 h-8 text-red-500" />
+                {financialSummary.cashFlow > 0 ?
+                <CheckCircleIcon className="w-8 h-8 text-green-500" /> :
+                <AlertCircleIcon className="w-8 h-8 text-red-500" />
                 }
               </div>
               <h3 className="font-semibold">Cash Flow</h3>
@@ -741,9 +741,9 @@ const FinancialManagementDashboard: React.FC = () => {
           <Card className="text-center">
             <CardContent className="pt-6">
               <div className="flex items-center justify-center mb-2">
-                {financialSummary.revenueGrowth > 0 ? 
-                  <TrendingUpIcon className="w-8 h-8 text-green-500" /> :
-                  <TrendingDownIcon className="w-8 h-8 text-red-500" />
+                {financialSummary.revenueGrowth > 0 ?
+                <TrendingUpIcon className="w-8 h-8 text-green-500" /> :
+                <TrendingDownIcon className="w-8 h-8 text-red-500" />
                 }
               </div>
               <h3 className="font-semibold">Growth Trend</h3>
@@ -760,14 +760,14 @@ const FinancialManagementDashboard: React.FC = () => {
               </div>
               <h3 className="font-semibold">Expense Control</h3>
               <p className="text-sm text-gray-600 mt-1">
-                {(financialSummary.totalExpenses / financialSummary.totalRevenue * 100) < 70 ? 'Well Controlled' : 'Monitor Closely'}
+                {financialSummary.totalExpenses / financialSummary.totalRevenue * 100 < 70 ? 'Well Controlled' : 'Monitor Closely'}
               </p>
             </CardContent>
           </Card>
         </div>
       </ReportSection>
-    </div>
-  );
+    </div>);
+
 };
 
 export default FinancialManagementDashboard;

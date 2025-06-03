@@ -6,14 +6,14 @@ import SalesAnalyticsDashboard from '@/components/Analytics/SalesAnalyticsDashbo
 import AdvancedInventoryManagement from '@/components/Inventory/AdvancedInventoryManagement';
 import DeliveryTrackingSystem from '@/components/Operations/DeliveryTrackingSystem';
 import FinancialManagementDashboard from '@/components/Financial/FinancialManagementDashboard';
-import { 
-  BarChart3Icon, 
-  PackageIcon, 
-  TruckIcon, 
+import {
+  BarChart3Icon,
+  PackageIcon,
+  TruckIcon,
   DollarSignIcon,
   TrendingUpIcon,
-  ActivityIcon
-} from 'lucide-react';
+  ActivityIcon } from
+'lucide-react';
 
 const AnalyticsDashboard: React.FC = () => {
   return (
@@ -232,8 +232,8 @@ const AnalyticsDashboard: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AnalyticsDashboard;

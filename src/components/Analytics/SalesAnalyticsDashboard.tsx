@@ -6,32 +6,32 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  TrendingUpIcon, 
-  TrendingDownIcon, 
-  DollarSignIcon, 
-  FuelIcon, 
-  ShoppingCartIcon, 
+import {
+  TrendingUpIcon,
+  TrendingDownIcon,
+  DollarSignIcon,
+  FuelIcon,
+  ShoppingCartIcon,
   CalendarIcon,
   BarChart3Icon,
   LineChartIcon,
-  PieChartIcon
-} from 'lucide-react';
-import { 
-  BarChart, 
-  Bar, 
-  LineChart, 
-  Line, 
-  PieChart, 
-  Pie, 
-  Cell, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer 
-} from 'recharts';
+  PieChartIcon } from
+'lucide-react';
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer } from
+'recharts';
 import { ReportHeader, MetricCard, ReportSection, DataTable } from '@/components/Reports/ComprehensiveReportLayout';
 import { format } from 'date-fns';
 
@@ -61,7 +61,7 @@ const SalesAnalyticsDashboard: React.FC = () => {
     station: 'ALL',
     dateRange: 'month'
   });
-  const [dateRange, setDateRange] = useState<{from: Date | undefined, to: Date | undefined}>({
+  const [dateRange, setDateRange] = useState<{from: Date | undefined;to: Date | undefined;}>({
     from: undefined,
     to: undefined
   });
@@ -76,7 +76,7 @@ const SalesAnalyticsDashboard: React.FC = () => {
   const fetchSalesData = async () => {
     try {
       setLoading(true);
-      
+
       // Calculate date range based on filter
       const today = new Date();
       let startDate = new Date();
@@ -107,17 +107,17 @@ const SalesAnalyticsDashboard: React.FC = () => {
       }
 
       const queryFilters = [
-        {
-          name: "report_date",
-          op: "GreaterThanOrEqual",
-          value: startDate.toISOString()
-        },
-        {
-          name: "report_date",
-          op: "LessThanOrEqual", 
-          value: endDate.toISOString()
-        }
-      ];
+      {
+        name: "report_date",
+        op: "GreaterThanOrEqual",
+        value: startDate.toISOString()
+      },
+      {
+        name: "report_date",
+        op: "LessThanOrEqual",
+        value: endDate.toISOString()
+      }];
+
 
       if (filters.station !== 'ALL') {
         queryFilters.push({
@@ -166,7 +166,7 @@ const SalesAnalyticsDashboard: React.FC = () => {
     const totalGrocerySales = salesData.reduce((sum, item) => sum + item.grocerySales, 0);
     const totalLotteryPayout = salesData.reduce((sum, item) => sum + item.lotteryPlayout, 0);
     const averageDailySales = salesData.length > 0 ? totalSales / salesData.length : 0;
-    
+
     return {
       totalSales,
       totalFuelSales,
@@ -179,7 +179,7 @@ const SalesAnalyticsDashboard: React.FC = () => {
 
   const getChartData = () => {
     const dailyData = salesData.reduce((acc: any[], item) => {
-      const existingDate = acc.find(d => d.date === item.date);
+      const existingDate = acc.find((d) => d.date === item.date);
       if (existingDate) {
         existingDate.totalSales += item.totalSales;
         existingDate.fuelSales += item.fuelSales;
@@ -201,29 +201,29 @@ const SalesAnalyticsDashboard: React.FC = () => {
   };
 
   const getStationComparison = () => {
-    return stations.filter(s => s !== 'ALL').map(station => {
-      const stationData = salesData.filter(item => item.station === station);
+    return stations.filter((s) => s !== 'ALL').map((station) => {
+      const stationData = salesData.filter((item) => item.station === station);
       const totalSales = stationData.reduce((sum, item) => sum + item.totalSales, 0);
       return {
         name: station,
         value: totalSales,
-        percentage: totalSales > 0 ? ((totalSales / calculateMetrics().totalSales) * 100).toFixed(1) : '0.0'
+        percentage: totalSales > 0 ? (totalSales / calculateMetrics().totalSales * 100).toFixed(1) : '0.0'
       };
     });
   };
 
   const getTopPerformingDays = () => {
     const dailyTotals = getChartData();
-    return dailyTotals
-      .sort((a, b) => b.totalSales - a.totalSales)
-      .slice(0, 5)
-      .map((day, index) => [
-        index + 1,
-        format(new Date(day.date), 'MMM dd, yyyy'),
-        `$${day.totalSales.toLocaleString()}`,
-        `$${day.fuelSales.toLocaleString()}`,
-        `$${day.grocerySales.toLocaleString()}`
-      ]);
+    return dailyTotals.
+    sort((a, b) => b.totalSales - a.totalSales).
+    slice(0, 5).
+    map((day, index) => [
+    index + 1,
+    format(new Date(day.date), 'MMM dd, yyyy'),
+    `$${day.totalSales.toLocaleString()}`,
+    `$${day.fuelSales.toLocaleString()}`,
+    `$${day.grocerySales.toLocaleString()}`]
+    );
   };
 
   const metrics = calculateMetrics();
@@ -236,14 +236,14 @@ const SalesAnalyticsDashboard: React.FC = () => {
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-32 bg-gray-200 rounded"></div>
-            ))}
+            {[1, 2, 3, 4].map((i) =>
+            <div key={i} className="h-32 bg-gray-200 rounded"></div>
+            )}
           </div>
           <div className="h-96 bg-gray-200 rounded"></div>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -252,14 +252,14 @@ const SalesAnalyticsDashboard: React.FC = () => {
         title="Sales Analytics Dashboard"
         subtitle="Comprehensive sales performance analysis and insights"
         station={filters.station === 'ALL' ? 'All Stations' : filters.station}
-        dateRange={filters.dateRange === 'custom' && dateRange.from && dateRange.to 
-          ? `${format(dateRange.from, 'MMM dd, yyyy')} - ${format(dateRange.to, 'MMM dd, yyyy')}`
-          : filters.dateRange.charAt(0).toUpperCase() + filters.dateRange.slice(1)}
+        dateRange={filters.dateRange === 'custom' && dateRange.from && dateRange.to ?
+        `${format(dateRange.from, 'MMM dd, yyyy')} - ${format(dateRange.to, 'MMM dd, yyyy')}` :
+        filters.dateRange.charAt(0).toUpperCase() + filters.dateRange.slice(1)}
         reportId={`SA-${Date.now()}`}
         onPrint={() => window.print()}
         onExport={() => toast({ title: "Export", description: "Export functionality coming soon" })}
-        onFilter={() => {}}
-      />
+        onFilter={() => {}} />
+
 
       {/* Filters */}
       <Card>
@@ -270,21 +270,21 @@ const SalesAnalyticsDashboard: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <label className="text-sm font-medium mb-2 block">Station</label>
-              <Select value={filters.station} onValueChange={(value) => setFilters({...filters, station: value})}>
+              <Select value={filters.station} onValueChange={(value) => setFilters({ ...filters, station: value })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select station" />
                 </SelectTrigger>
                 <SelectContent>
-                  {stations.map(station => (
-                    <SelectItem key={station} value={station}>{station}</SelectItem>
-                  ))}
+                  {stations.map((station) =>
+                  <SelectItem key={station} value={station}>{station}</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
             
             <div>
               <label className="text-sm font-medium mb-2 block">Time Period</label>
-              <Select value={filters.dateRange} onValueChange={(value: any) => setFilters({...filters, dateRange: value})}>
+              <Select value={filters.dateRange} onValueChange={(value: any) => setFilters({ ...filters, dateRange: value })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select period" />
                 </SelectTrigger>
@@ -299,8 +299,8 @@ const SalesAnalyticsDashboard: React.FC = () => {
               </Select>
             </div>
 
-            {filters.dateRange === 'custom' && (
-              <>
+            {filters.dateRange === 'custom' &&
+            <>
                 <div>
                   <label className="text-sm font-medium mb-2 block">Start Date</label>
                   <Popover>
@@ -312,14 +312,14 @@ const SalesAnalyticsDashboard: React.FC = () => {
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
                       <Calendar
-                        mode="single"
-                        selected={dateRange.from}
-                        onSelect={(date) => {
-                          setDateRange({...dateRange, from: date});
-                          setFilters({...filters, startDate: date});
-                        }}
-                        initialFocus
-                      />
+                      mode="single"
+                      selected={dateRange.from}
+                      onSelect={(date) => {
+                        setDateRange({ ...dateRange, from: date });
+                        setFilters({ ...filters, startDate: date });
+                      }}
+                      initialFocus />
+
                     </PopoverContent>
                   </Popover>
                 </div>
@@ -335,19 +335,19 @@ const SalesAnalyticsDashboard: React.FC = () => {
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
                       <Calendar
-                        mode="single"
-                        selected={dateRange.to}
-                        onSelect={(date) => {
-                          setDateRange({...dateRange, to: date});
-                          setFilters({...filters, endDate: date});
-                        }}
-                        initialFocus
-                      />
+                      mode="single"
+                      selected={dateRange.to}
+                      onSelect={(date) => {
+                        setDateRange({ ...dateRange, to: date });
+                        setFilters({ ...filters, endDate: date });
+                      }}
+                      initialFocus />
+
                     </PopoverContent>
                   </Popover>
                 </div>
               </>
-            )}
+            }
           </div>
         </CardContent>
       </Card>
@@ -359,29 +359,29 @@ const SalesAnalyticsDashboard: React.FC = () => {
           value={`$${metrics.totalSales.toLocaleString()}`}
           subtitle="All revenue streams"
           icon={<DollarSignIcon className="w-5 h-5" />}
-          trend={{ value: 12.5, isPositive: true }}
-        />
+          trend={{ value: 12.5, isPositive: true }} />
+
         <MetricCard
           title="Fuel Sales"
           value={`$${metrics.totalFuelSales.toLocaleString()}`}
           subtitle="Gasoline & diesel revenue"
           icon={<FuelIcon className="w-5 h-5" />}
-          trend={{ value: 8.3, isPositive: true }}
-        />
+          trend={{ value: 8.3, isPositive: true }} />
+
         <MetricCard
           title="Grocery Sales"
           value={`$${metrics.totalGrocerySales.toLocaleString()}`}
           subtitle="Convenience store items"
           icon={<ShoppingCartIcon className="w-5 h-5" />}
-          trend={{ value: -2.1, isPositive: false }}
-        />
+          trend={{ value: -2.1, isPositive: false }} />
+
         <MetricCard
           title="Average Daily Sales"
           value={`$${metrics.averageDailySales.toLocaleString()}`}
           subtitle="Per day average"
           icon={<BarChart3Icon className="w-5 h-5" />}
-          trend={{ value: 5.7, isPositive: true }}
-        />
+          trend={{ value: 5.7, isPositive: true }} />
+
       </div>
 
       {/* Sales Trend Chart */}
@@ -390,38 +390,38 @@ const SalesAnalyticsDashboard: React.FC = () => {
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="date" 
+              <XAxis
+                dataKey="date"
                 tick={{ fontSize: 12 }}
-                tickFormatter={(value) => format(new Date(value), 'MMM dd')}
-              />
+                tickFormatter={(value) => format(new Date(value), 'MMM dd')} />
+
               <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip 
+              <Tooltip
                 formatter={(value: any, name: string) => [`$${value.toLocaleString()}`, name]}
-                labelFormatter={(label) => format(new Date(label), 'MMM dd, yyyy')}
-              />
+                labelFormatter={(label) => format(new Date(label), 'MMM dd, yyyy')} />
+
               <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="totalSales" 
-                stroke={CHART_COLORS[0]} 
+              <Line
+                type="monotone"
+                dataKey="totalSales"
+                stroke={CHART_COLORS[0]}
                 strokeWidth={2}
-                name="Total Sales"
-              />
-              <Line 
-                type="monotone" 
-                dataKey="fuelSales" 
-                stroke={CHART_COLORS[1]} 
+                name="Total Sales" />
+
+              <Line
+                type="monotone"
+                dataKey="fuelSales"
+                stroke={CHART_COLORS[1]}
                 strokeWidth={2}
-                name="Fuel Sales"
-              />
-              <Line 
-                type="monotone" 
-                dataKey="grocerySales" 
-                stroke={CHART_COLORS[2]} 
+                name="Fuel Sales" />
+
+              <Line
+                type="monotone"
+                dataKey="grocerySales"
+                stroke={CHART_COLORS[2]}
                 strokeWidth={2}
-                name="Grocery Sales"
-              />
+                name="Grocery Sales" />
+
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -434,16 +434,16 @@ const SalesAnalyticsDashboard: React.FC = () => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData.slice(-7)}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="date" 
+                <XAxis
+                  dataKey="date"
                   tick={{ fontSize: 12 }}
-                  tickFormatter={(value) => format(new Date(value), 'MMM dd')}
-                />
+                  tickFormatter={(value) => format(new Date(value), 'MMM dd')} />
+
                 <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip 
+                <Tooltip
                   formatter={(value: any, name: string) => [`$${value.toLocaleString()}`, name]}
-                  labelFormatter={(label) => format(new Date(label), 'MMM dd, yyyy')}
-                />
+                  labelFormatter={(label) => format(new Date(label), 'MMM dd, yyyy')} />
+
                 <Legend />
                 <Bar dataKey="fuelSales" fill={CHART_COLORS[0]} name="Fuel Sales" />
                 <Bar dataKey="grocerySales" fill={CHART_COLORS[1]} name="Grocery Sales" />
@@ -462,14 +462,14 @@ const SalesAnalyticsDashboard: React.FC = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({name, percentage}) => `${name}: ${percentage}%`}
+                  label={({ name, percentage }) => `${name}: ${percentage}%`}
                   outerRadius={80}
                   fill="#8884d8"
-                  dataKey="value"
-                >
-                  {stationComparison.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
-                  ))}
+                  dataKey="value">
+
+                  {stationComparison.map((entry, index) =>
+                  <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                  )}
                 </Pie>
                 <Tooltip formatter={(value: any) => [`$${value.toLocaleString()}`, 'Sales']} />
               </PieChart>
@@ -484,15 +484,15 @@ const SalesAnalyticsDashboard: React.FC = () => {
           headers={['Rank', 'Date', 'Total Sales', 'Fuel Sales', 'Grocery Sales']}
           data={getTopPerformingDays()}
           showRowNumbers={false}
-          alternateRows={true}
-        />
+          alternateRows={true} />
+
       </ReportSection>
 
       {/* Station Performance Summary */}
       <ReportSection title="Station Performance Summary">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {stationComparison.map((station, index) => (
-            <Card key={station.name} className="hover:shadow-lg transition-shadow">
+          {stationComparison.map((station, index) =>
+          <Card key={station.name} className="hover:shadow-lg transition-shadow">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
                   {station.name}
@@ -508,11 +508,11 @@ const SalesAnalyticsDashboard: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
-          ))}
+          )}
         </div>
       </ReportSection>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SalesAnalyticsDashboard;
