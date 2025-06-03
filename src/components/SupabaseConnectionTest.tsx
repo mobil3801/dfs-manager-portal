@@ -6,18 +6,18 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  CheckCircle, 
-  XCircle, 
-  AlertCircle, 
-  Loader2, 
-  Database, 
-  Users, 
-  Shield, 
+import {
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Loader2,
+  Database,
+  Users,
+  Shield,
   Cloud,
   RefreshCw,
-  Activity
-} from 'lucide-react';
+  Activity } from
+'lucide-react';
 
 interface ConnectionTestResult {
   test: string;
@@ -35,7 +35,7 @@ const SupabaseConnectionTest = () => {
   const runConnectionTests = async () => {
     setIsLoading(true);
     setTestResults([]);
-    
+
     const results: ConnectionTestResult[] = [];
 
     // Test 1: Basic Supabase Configuration
@@ -43,7 +43,7 @@ const SupabaseConnectionTest = () => {
     try {
       const url = import.meta.env.VITE_SUPABASE_URL;
       const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      
+
       if (!url || url === 'https://your-project.supabase.co') {
         results.push({
           test: 'Supabase Configuration',
@@ -80,7 +80,7 @@ const SupabaseConnectionTest = () => {
       const connectionStart = Date.now();
       const { data, error } = await supabase.from('stations').select('count', { count: 'exact', head: true });
       const connectionTime = Date.now() - connectionStart;
-      
+
       if (error) {
         results.push({
           test: 'Database Connection',
@@ -112,7 +112,7 @@ const SupabaseConnectionTest = () => {
       const authStart = Date.now();
       const { data: { session }, error } = await supabase.auth.getSession();
       const authTime = Date.now() - authStart;
-      
+
       if (error) {
         results.push({
           test: 'Authentication Service',
@@ -126,7 +126,7 @@ const SupabaseConnectionTest = () => {
           test: 'Authentication Service',
           status: 'success',
           message: 'Authentication service is working',
-          details: { 
+          details: {
             hasSession: !!session,
             userId: session?.user?.id || 'Not logged in'
           },
@@ -145,15 +145,15 @@ const SupabaseConnectionTest = () => {
     // Test 4: Real-time Capabilities
     try {
       const realtimeStart = Date.now();
-      const channel = supabase.channel('connection-test')
-        .on('postgres_changes', 
-          { event: '*', schema: 'public', table: 'stations' }, 
-          () => {})
-        .subscribe();
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const channel = supabase.channel('connection-test').
+      on('postgres_changes',
+      { event: '*', schema: 'public', table: 'stations' },
+      () => {}).
+      subscribe();
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       const realtimeTime = Date.now() - realtimeStart;
-      
+
       if (channel.state === 'SUBSCRIBED') {
         results.push({
           test: 'Real-time Capabilities',
@@ -171,7 +171,7 @@ const SupabaseConnectionTest = () => {
           timing: realtimeTime
         });
       }
-      
+
       supabase.removeChannel(channel);
     } catch (error) {
       results.push({
@@ -187,7 +187,7 @@ const SupabaseConnectionTest = () => {
       const storageStart = Date.now();
       const { data: buckets, error } = await supabase.storage.listBuckets();
       const storageTime = Date.now() - storageStart;
-      
+
       if (error) {
         results.push({
           test: 'Storage Service',
@@ -216,19 +216,19 @@ const SupabaseConnectionTest = () => {
 
     // Test 6: Table Access
     const tableTests = [
-      'stations',
-      'products', 
-      'employees',
-      'daily_sales_reports_enhanced',
-      'delivery_records'
-    ];
+    'stations',
+    'products',
+    'employees',
+    'daily_sales_reports_enhanced',
+    'delivery_records'];
+
 
     for (const table of tableTests) {
       try {
         const tableStart = Date.now();
         const { count, error } = await SupabaseService.read(table as any, { pageSize: 1 });
         const tableTime = Date.now() - tableStart;
-        
+
         if (error) {
           results.push({
             test: `Table Access: ${table}`,
@@ -257,11 +257,11 @@ const SupabaseConnectionTest = () => {
     }
 
     const totalTime = Date.now() - startTime;
-    
+
     // Determine overall status
-    const hasErrors = results.some(r => r.status === 'error');
-    const hasWarnings = results.some(r => r.status === 'warning');
-    
+    const hasErrors = results.some((r) => r.status === 'error');
+    const hasWarnings = results.some((r) => r.status === 'warning');
+
     if (hasErrors) {
       setOverallStatus('error');
     } else if (hasWarnings) {
@@ -276,9 +276,9 @@ const SupabaseConnectionTest = () => {
       message: `Test completed in ${totalTime}ms`,
       details: {
         totalTests: results.length,
-        successful: results.filter(r => r.status === 'success').length,
-        warnings: results.filter(r => r.status === 'warning').length,
-        errors: results.filter(r => r.status === 'error').length,
+        successful: results.filter((r) => r.status === 'success').length,
+        warnings: results.filter((r) => r.status === 'warning').length,
+        errors: results.filter((r) => r.status === 'error').length,
         totalTime
       }
     });
@@ -313,12 +313,12 @@ const SupabaseConnectionTest = () => {
       warning: 'secondary' as const,
       pending: 'outline' as const
     };
-    
+
     return (
       <Badge variant={variants[status as keyof typeof variants] || 'outline'}>
         {status.toUpperCase()}
-      </Badge>
-    );
+      </Badge>);
+
   };
 
   return (
@@ -337,16 +337,16 @@ const SupabaseConnectionTest = () => {
             </div>
             <div className="flex items-center gap-2">
               {getStatusBadge(overallStatus)}
-              <Button 
+              <Button
                 onClick={runConnectionTests}
                 disabled={isLoading}
-                size="sm"
-              >
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <RefreshCw className="h-4 w-4" />
-                )}
+                size="sm">
+
+                {isLoading ?
+                <Loader2 className="h-4 w-4 animate-spin" /> :
+
+                <RefreshCw className="h-4 w-4" />
+                }
                 {isLoading ? 'Testing...' : 'Retest'}
               </Button>
             </div>
@@ -362,8 +362,8 @@ const SupabaseConnectionTest = () => {
         </TabsList>
 
         <TabsContent value="results" className="space-y-4">
-          {testResults.map((result, index) => (
-            <Card key={index}>
+          {testResults.map((result, index) =>
+          <Card key={index}>
               <CardContent className="pt-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
@@ -371,19 +371,19 @@ const SupabaseConnectionTest = () => {
                     <div>
                       <h3 className="font-medium">{result.test}</h3>
                       <p className="text-sm text-muted-foreground">{result.message}</p>
-                      {result.timing && (
-                        <p className="text-xs text-muted-foreground mt-1">
+                      {result.timing &&
+                    <p className="text-xs text-muted-foreground mt-1">
                           <Activity className="h-3 w-3 inline mr-1" />
                           {result.timing}ms
                         </p>
-                      )}
+                    }
                     </div>
                   </div>
                   {getStatusBadge(result.status)}
                 </div>
               </CardContent>
             </Card>
-          ))}
+          )}
         </TabsContent>
 
         <TabsContent value="config" className="space-y-4">
@@ -434,9 +434,9 @@ const SupabaseConnectionTest = () => {
         </TabsContent>
 
         <TabsContent value="details" className="space-y-4">
-          {testResults.map((result, index) => (
-            result.details && (
-              <Card key={index}>
+          {testResults.map((result, index) =>
+          result.details &&
+          <Card key={index}>
                 <CardHeader>
                   <CardTitle className="text-sm">{result.test}</CardTitle>
                 </CardHeader>
@@ -446,12 +446,12 @@ const SupabaseConnectionTest = () => {
                   </pre>
                 </CardContent>
               </Card>
-            )
-          ))}
+
+          )}
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SupabaseConnectionTest;
