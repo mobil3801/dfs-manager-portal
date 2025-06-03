@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,7 +17,7 @@ import { useBatchSelection } from '@/hooks/use-batch-selection';
 import BatchActionBar from '@/components/BatchActionBar';
 import BatchDeleteDialog from '@/components/BatchDeleteDialog';
 import BatchEditDialog from '@/components/BatchEditDialog';
-import { MessageSquare, Phone, Settings, History, Plus, Edit, Trash2, Send, CheckCircle, AlertCircle } from 'lucide-react';
+import { MessageSquare, Phone, Settings, History, Plus, Edit, Trash2, Send, CheckCircle, AlertCircle, TestTube } from 'lucide-react';
 import { smsService } from '@/services/smsService';
 import SMSSetupGuide from '@/components/SMSSetupGuide';
 import SMSServiceManager from '@/components/SMSServiceManager';
@@ -72,7 +73,7 @@ const SMSAlertManagement: React.FC = () => {
   const [isBatchDeleteDialogOpen, setIsBatchDeleteDialogOpen] = useState(false);
   const [isBatchEditDialogOpen, setIsBatchEditDialogOpen] = useState(false);
   const [batchActionLoading, setBatchActionLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('trigger');
+  const [activeTab, setActiveTab] = useState('test');
   const { toast } = useToast();
 
   // Batch selection hooks
@@ -726,6 +727,14 @@ const SMSAlertManagement: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* SMS Test Guide Banner */}
+      <Alert className="border-blue-200 bg-blue-50">
+        <TestTube className="h-4 w-4 text-blue-600" />
+        <AlertDescription className="text-blue-800">
+          <strong>🚨 Important:</strong> Before enabling automatic license expiry alerts, please test your Twilio configuration in the <strong>SMS Test</strong> tab to ensure everything is working properly.
+        </AlertDescription>
+      </Alert>
+
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">SMS Alert Management</h1>
         <div className="flex items-center space-x-4">
@@ -769,14 +778,14 @@ const SMSAlertManagement: React.FC = () => {
 
       }
 
-      <Tabs defaultValue="trigger" className="space-y-6" onValueChange={setActiveTab}>
+      <Tabs defaultValue="test" className="space-y-6" onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="trigger">Alert Triggers</TabsTrigger>
-          <TabsTrigger value="settings">Alert Settings</TabsTrigger>
-          <TabsTrigger value="contacts">SMS Contacts</TabsTrigger>
-          <TabsTrigger value="history">SMS History</TabsTrigger>
+          <TabsTrigger value="test" className="bg-blue-50 text-blue-700 font-semibold">🧪 SMS Test</TabsTrigger>
           <TabsTrigger value="service">SMS Service</TabsTrigger>
-          <TabsTrigger value="test">SMS Test</TabsTrigger>
+          <TabsTrigger value="trigger">Alert Triggers</TabsTrigger>
+          <TabsTrigger value="contacts">SMS Contacts</TabsTrigger>
+          <TabsTrigger value="settings">Alert Settings</TabsTrigger>
+          <TabsTrigger value="history">SMS History</TabsTrigger>
         </TabsList>
 
         <TabsContent value="trigger">
