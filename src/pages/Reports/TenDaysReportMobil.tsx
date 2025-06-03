@@ -7,16 +7,16 @@ import { Table } from '@/components/ui/table';
 import { Select } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  CalendarDays, 
-  TrendingUp, 
-  DollarSign, 
-  Fuel, 
-  FileText, 
+import {
+  CalendarDays,
+  TrendingUp,
+  DollarSign,
+  Fuel,
+  FileText,
   Download,
   Filter,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw } from
+'lucide-react';
 
 interface SalesData {
   id: number;
@@ -45,7 +45,7 @@ const TenDaysReportMobil: React.FC = () => {
     const today = new Date();
     const tenDaysAgo = new Date();
     tenDaysAgo.setDate(today.getDate() - 10);
-    
+
     setEndDate(today.toISOString().split('T')[0]);
     setStartDate(tenDaysAgo.toISOString().split('T')[0]);
   }, []);
@@ -54,14 +54,14 @@ const TenDaysReportMobil: React.FC = () => {
   const fetchSalesData = async () => {
     try {
       setLoading(true);
-      
+
       const filters = [
-        {
-          name: "station",
-          op: "Equal",
-          value: "MOBIL"
-        }
-      ];
+      {
+        name: "station",
+        op: "Equal",
+        value: "MOBIL"
+      }];
+
 
       if (startDate && endDate) {
         filters.push(
@@ -72,7 +72,7 @@ const TenDaysReportMobil: React.FC = () => {
           },
           {
             name: "report_date",
-            op: "LessThanOrEqual", 
+            op: "LessThanOrEqual",
             value: endDate
           }
         );
@@ -110,7 +110,7 @@ const TenDaysReportMobil: React.FC = () => {
       toast({
         title: "Error",
         description: "Failed to fetch sales data. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -129,13 +129,13 @@ const TenDaysReportMobil: React.FC = () => {
     cashSales: acc.cashSales + (record.cash_sales || 0),
     creditCardSales: acc.creditCardSales + (record.credit_card_sales || 0),
     fuelSales: acc.fuelSales + (record.fuel_sales || 0),
-    convenienceSales: acc.convenienceSales + (record.convenience_sales || 0),
+    convenienceSales: acc.convenienceSales + (record.convenience_sales || 0)
   }), {
     totalSales: 0,
     cashSales: 0,
     creditCardSales: 0,
     fuelSales: 0,
-    convenienceSales: 0,
+    convenienceSales: 0
   });
 
   const formatCurrency = (amount: number) => {
@@ -156,18 +156,18 @@ const TenDaysReportMobil: React.FC = () => {
   const exportToCSV = () => {
     const headers = ['Date', 'Employee', 'Shift', 'Total Sales', 'Cash Sales', 'Credit Card Sales', 'Fuel Sales', 'Convenience Sales'];
     const csvContent = [
-      headers.join(','),
-      ...salesData.map(record => [
-        formatDate(record.report_date),
-        record.employee_name,
-        record.shift,
-        record.total_sales || 0,
-        record.cash_sales || 0,
-        record.credit_card_sales || 0,
-        record.fuel_sales || 0,
-        record.convenience_sales || 0
-      ].join(','))
-    ].join('\n');
+    headers.join(','),
+    ...salesData.map((record) => [
+    formatDate(record.report_date),
+    record.employee_name,
+    record.shift,
+    record.total_sales || 0,
+    record.cash_sales || 0,
+    record.credit_card_sales || 0,
+    record.fuel_sales || 0,
+    record.convenience_sales || 0].
+    join(','))].
+    join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -181,7 +181,7 @@ const TenDaysReportMobil: React.FC = () => {
 
     toast({
       title: "Export Successful",
-      description: "Report has been exported to CSV file.",
+      description: "Report has been exported to CSV file."
     });
   };
 
@@ -217,8 +217,8 @@ const TenDaysReportMobil: React.FC = () => {
               id="startDate"
               type="date"
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
+              onChange={(e) => setStartDate(e.target.value)} />
+
           </div>
           <div>
             <Label htmlFor="endDate">End Date</Label>
@@ -226,8 +226,8 @@ const TenDaysReportMobil: React.FC = () => {
               id="endDate"
               type="date"
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
+              onChange={(e) => setEndDate(e.target.value)} />
+
           </div>
           <div>
             <Label htmlFor="shift">Shift</Label>
@@ -243,8 +243,8 @@ const TenDaysReportMobil: React.FC = () => {
               id="employee"
               placeholder="Search employee..."
               value={selectedEmployee === 'ALL' ? '' : selectedEmployee}
-              onChange={(e) => setSelectedEmployee(e.target.value || 'ALL')}
-            />
+              onChange={(e) => setSelectedEmployee(e.target.value || 'ALL')} />
+
           </div>
         </div>
       </Card>
@@ -309,13 +309,13 @@ const TenDaysReportMobil: React.FC = () => {
           <Badge variant="outline">{salesData.length} records</Badge>
         </div>
 
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
+        {loading ?
+        <div className="flex items-center justify-center py-12">
             <RefreshCw className="w-6 h-6 animate-spin text-gray-400" />
             <span className="ml-2 text-gray-600">Loading...</span>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
+          </div> :
+
+        <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200">
@@ -330,15 +330,15 @@ const TenDaysReportMobil: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {salesData.length === 0 ? (
-                  <tr>
+                {salesData.length === 0 ?
+              <tr>
                     <td colSpan={8} className="text-center py-12 text-gray-500">
                       No sales data found for the selected criteria
                     </td>
-                  </tr>
-                ) : (
-                  salesData.map((record) => (
-                    <tr key={record.id} className="border-b border-gray-100 hover:bg-gray-50">
+                  </tr> :
+
+              salesData.map((record) =>
+              <tr key={record.id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-3 px-4">{formatDate(record.report_date)}</td>
                       <td className="py-3 px-4">
                         <span className="font-medium">{record.employee_name}</span>
@@ -364,11 +364,11 @@ const TenDaysReportMobil: React.FC = () => {
                         {formatCurrency(record.convenience_sales || 0)}
                       </td>
                     </tr>
-                  ))
-                )}
+              )
+              }
               </tbody>
-              {salesData.length > 0 && (
-                <tfoot className="bg-gray-50">
+              {salesData.length > 0 &&
+            <tfoot className="bg-gray-50">
                   <tr>
                     <td colSpan={3} className="py-3 px-4 font-semibold text-gray-900">
                       TOTALS
@@ -390,13 +390,13 @@ const TenDaysReportMobil: React.FC = () => {
                     </td>
                   </tr>
                 </tfoot>
-              )}
+            }
             </table>
           </div>
-        )}
+        }
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default TenDaysReportMobil;

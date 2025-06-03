@@ -37,6 +37,8 @@ import MemoryMonitoring from './pages/Admin/MemoryMonitoring';
 import DatabaseMonitoring from './pages/Admin/DatabaseMonitoring';
 import AuditMonitoring from './pages/Admin/AuditMonitoring';
 import TenDaysReportMobil from './pages/Reports/TenDaysReportMobil';
+import AnalyticsDashboard from './pages/Analytics/AnalyticsDashboard';
+import OperationsManager from './pages/Operations/OperationsManager';
 import LoginPage from './pages/LoginPage';
 import OnAuthSuccessPage from './pages/OnAuthSuccessPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
@@ -109,6 +111,12 @@ function App() {
               <Route path="delivery" element={<DeliveryList />} />
               <Route path="delivery/new" element={<DeliveryForm />} />
               <Route path="delivery/edit/:id" element={<DeliveryForm />} />
+              
+              {/* Analytics routes */}
+              <Route path="analytics" element={<AnalyticsDashboard />} />
+              
+              {/* Operations routes */}
+              <Route path="operations" element={<OperationsManager />} />
               
               {/* Reports routes */}
               <Route path="reports/10-days/mobil" element={<TenDaysReportMobil />} />

@@ -488,15 +488,15 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
 
 
 
+
+
           // Invalid date format, ignore
         }} // Calculate profit margin
       const unitPrice = mapped.unit_price || 0;const retailPrice = mapped.retail_price || 0;const profitMargin = calculateProfitMargin(unitPrice, retailPrice); // Calculate overdue status
       const isOverdue = calculateOverdueStatus(mapped.last_shopping_date, mapped.quantity_in_stock, mapped.minimum_stock); // Auto-populate calculated fields
       if (profitMargin > 0) {mapped.profit_margin = profitMargin;}mapped.overdue = isOverdue;mapped.updated_at = new Date().toISOString();mapped.last_updated_date = new Date().toISOString();const isDuplicate = isDuplicateNameInDB || isDuplicateNameInImport || isDuplicateWeightInDB || isDuplicateWeightInImport;return { original: row, mapped, isValid: errors.length === 0, isDuplicate, errors, productName: cleanProductName, weight: weight, profitMargin: profitMargin, isOverdue: isOverdue };});};const handleFileUpload = async () => {if (!file) {toast({ variant: "destructive", title: "No File Selected", description: "Please select a CSV file to upload." });return;}setIsProcessing(true);try {const text = await file.text();const parsedData = parseCSV(text);if (parsedData.length === 0) {throw new Error('No valid data found in file');} // Fetch existing products for duplicate checking
       const existing = await fetchExistingProducts(); // Validate and check for duplicates
-      const validatedProducts = validateAndCheckDuplicates(parsedData, existing);if (validatedProducts.length === 0) {throw new Error('No valid products found in file');}setParsedProducts(validatedProducts);setShowPreview(true);
-      const validCount = validatedProducts.filter((p) => p.isValid).length;
-      const duplicateCount = validatedProducts.filter((p) => p.isDuplicate).length;
+      const validatedProducts = validateAndCheckDuplicates(parsedData, existing);if (validatedProducts.length === 0) {throw new Error('No valid products found in file');}setParsedProducts(validatedProducts);setShowPreview(true);const validCount = validatedProducts.filter((p) => p.isValid).length;const duplicateCount = validatedProducts.filter((p) => p.isDuplicate).length;
       const errorCount = validatedProducts.filter((p) => !p.isValid).length;
 
       toast({
