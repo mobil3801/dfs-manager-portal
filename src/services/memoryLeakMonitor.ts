@@ -31,14 +31,6 @@ export class MemoryLeakMonitor {
   private baselineMemory: MemoryStats | null = null;
   private memoryHistory: {timestamp: number;memory: MemoryStats;}[] = [];
   private maxHistorySize = 100;
-  
-  // Enhanced leak detection properties
-  private leakOccurrences = 0;
-  private lastAlertTime = 0;
-  private readonly ALERT_COOLDOWN = 300000; // 5 minutes between alerts
-  private readonly MIN_OCCURRENCES_FOR_CRITICAL_ALERT = 3;
-  private readonly CONSECUTIVE_GROWTH_THRESHOLD = 5; // Must see growth 5 times consecutively
-  private consecutiveGrowthCount = 0;
 
   private constructor() {
     this.initializeMonitoring();
@@ -113,8 +105,12 @@ export class MemoryLeakMonitor {
       this.memoryHistory.shift();
     }
 
-    // Enhanced memory leak detection
-    this.analyzeMemoryTrend(currentMemory);
+    // Check for memory growth
+    const memoryGrowth = currentMemory.usedJSHeapSize - this.baselineMemory.usedJSHeapSize;
+
+    if (memoryGrowth > this.maxMemoryGrowth) {
+      this.reportGlobalMemoryLeak(currentMemory, memoryGrowth);
+    }
 
     // Check for memory pressure
     const memoryPressure = currentMemory.usedJSHeapSize / currentMemory.jsHeapSizeLimit;
@@ -124,66 +120,10 @@ export class MemoryLeakMonitor {
     }
   }
 
-  private analyzeMemoryTrend(currentMemory: MemoryStats): void {
-    if (this.memoryHistory.length < 10) return;
-
-    const recentHistory = this.memoryHistory.slice(-10);
-    const previousMemory = recentHistory[recentHistory.length - 2];
-    
-    if (!previousMemory) return;
-
-    const memoryDelta = currentMemory.usedJSHeapSize - previousMemory.memory.usedJSHeapSize;
-    const significantGrowth = memoryDelta > (this.maxMemoryGrowth / 10); // 5MB threshold for individual checks
-
-    if (significantGrowth) {
-      this.consecutiveGrowthCount++;
-    } else {
-      // Reset consecutive count if no significant growth
-      this.consecutiveGrowthCount = Math.max(0, this.consecutiveGrowthCount - 1);
-    }
-
-    // Only consider it a potential leak if we see consistent growth
-    if (this.consecutiveGrowthCount >= this.CONSECUTIVE_GROWTH_THRESHOLD) {
-      this.leakOccurrences++;
-      
-      // Check if we should trigger a critical alert
-      const now = Date.now();
-      const shouldTriggerCriticalAlert = 
-        this.leakOccurrences >= this.MIN_OCCURRENCES_FOR_CRITICAL_ALERT &&
-        (now - this.lastAlertTime) > this.ALERT_COOLDOWN;
-
-      if (shouldTriggerCriticalAlert) {
-        this.lastAlertTime = now;
-        this.reportCriticalMemoryLeak(currentMemory);
-      }
-    }
-
-    // Auto-recovery mechanism - reset if memory usage decreases significantly
-    if (memoryDelta < -(this.maxMemoryGrowth / 5)) { // Memory decreased by 10MB or more
-      this.leakOccurrences = 0;
-      this.consecutiveGrowthCount = 0;
-      console.log('Memory usage decreased significantly - resetting leak detection counters');
-    }
-  }
-
-  private reportCriticalMemoryLeak(currentMemory: MemoryStats): void {
-    const memoryGrowth = currentMemory.usedJSHeapSize - this.baselineMemory!.usedJSHeapSize;
-    
-    console.error(`🚨 CRITICAL MEMORY LEAK DETECTED!`);
-    console.error(`Memory grew by ${(memoryGrowth / 1024 / 1024).toFixed(2)}MB`);
-    console.error(`Leak occurrences: ${this.leakOccurrences}`);
-    console.error(`Consecutive growth periods: ${this.consecutiveGrowthCount}`);
-
-    // Report components that might be leaking
-    this.reportSuspiciousComponents();
-  }
-
   private reportGlobalMemoryLeak(currentMemory: MemoryStats, growth: number): void {
     console.warn(`Potential memory leak detected! Memory grew by ${(growth / 1024 / 1024).toFixed(2)}MB`);
-    this.reportSuspiciousComponents();
-  }
 
-  private reportSuspiciousComponents(): void {
+    // Report components that might be leaking
     const suspiciousComponents = Array.from(this.components.entries()).
     filter(([_, tracker]) => tracker.leakReports.length > 0).
     map(([name, tracker]) => ({
@@ -323,9 +263,6 @@ export class MemoryLeakMonitor {
     pressure: number;
     componentsTracked: number;
     totalLeakReports: number;
-    leakOccurrences: number;
-    isCriticalLeakDetected: boolean;
-    nextAlertTime: number;
   } {
     const current = this.getCurrentMemoryStats();
     const growth = current && this.baselineMemory ?
@@ -341,10 +278,7 @@ export class MemoryLeakMonitor {
       growth,
       pressure,
       componentsTracked: this.components.size,
-      totalLeakReports,
-      leakOccurrences: this.leakOccurrences,
-      isCriticalLeakDetected: this.leakOccurrences >= this.MIN_OCCURRENCES_FOR_CRITICAL_ALERT,
-      nextAlertTime: this.lastAlertTime + this.ALERT_COOLDOWN
+      totalLeakReports
     };
   }
 
@@ -359,14 +293,11 @@ export class MemoryLeakMonitor {
     return false;
   }
 
-  // Reset monitoring baseline and counters
+  // Reset monitoring baseline
   resetBaseline(): void {
     this.baselineMemory = this.getCurrentMemoryStats();
     this.memoryHistory = [];
-    this.leakOccurrences = 0;
-    this.consecutiveGrowthCount = 0;
-    this.lastAlertTime = 0;
-    console.log('Memory baseline and leak detection counters reset');
+    console.log('Memory baseline reset');
   }
 
   // Generate memory report
@@ -386,11 +317,6 @@ Baseline Usage: ${info.baseline ? (info.baseline.usedJSHeapSize / 1024 / 1024).t
 Memory Growth: ${(info.growth / 1024 / 1024).toFixed(2)}MB
 Memory Pressure: ${(info.pressure * 100).toFixed(1)}%
 Heap Size Limit: ${info.current ? (info.current.jsHeapSizeLimit / 1024 / 1024).toFixed(2) : 'N/A'}MB
-
-=== Leak Detection Status ===
-Leak Occurrences: ${info.leakOccurrences}
-Critical Leak Detected: ${info.isCriticalLeakDetected ? 'YES' : 'NO'}
-Next Alert Available: ${info.nextAlertTime > Date.now() ? new Date(info.nextAlertTime).toISOString() : 'Now'}
 
 === Component Tracking ===
 Components Tracked: ${info.componentsTracked}

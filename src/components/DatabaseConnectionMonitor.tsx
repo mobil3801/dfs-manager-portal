@@ -4,9 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
-import { AlertTriangle, Database, RefreshCw, TrendingUp, Activity, Zap, Settings } from 'lucide-react';
+import { AlertTriangle, Database, RefreshCw, TrendingUp, Activity } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import DatabaseConnectionManager from '@/services/databaseConnectionManager';
 
 interface ConnectionStats {
   connections: number;
@@ -14,57 +13,46 @@ interface ConnectionStats {
   percentage: number;
   status: 'normal' | 'warning' | 'critical';
   timestamp: Date;
-  idle: number;
-  queued: number;
-  pressure: number;
 }
 
 interface ConnectionHistory {
   timestamp: Date;
   connections: number;
   max: number;
-  idle: number;
-  queued: number;
 }
 
 const DatabaseConnectionMonitor = () => {
   const { toast } = useToast();
   const [connectionStats, setConnectionStats] = useState<ConnectionStats>({
-    connections: 0,
+    connections: 85,
     max: 100,
-    percentage: 0,
-    status: 'normal',
-    timestamp: new Date(),
-    idle: 0,
-    queued: 0,
-    pressure: 0
+    percentage: 85,
+    status: 'critical',
+    timestamp: new Date()
   });
   const [history, setHistory] = useState<ConnectionHistory[]>([]);
   const [isMonitoring, setIsMonitoring] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(true);
-  const [isOptimizing, setIsOptimizing] = useState(false);
 
-  // Get real connection stats from the connection manager
+  // Simulate getting connection stats (replace with actual API call)
   const fetchConnectionStats = async () => {
     try {
-      const connectionManager = DatabaseConnectionManager.getInstance();
-      const stats = connectionManager.getConnectionStats();
-      
-      const percentage = (stats.activeConnections / stats.maxConnections) * 100;
+      // This would be replaced with actual API call to get connection stats
+      // For now, simulate varying connection counts
+      const connections = Math.floor(Math.random() * 20) + 75; // 75-95 range
+      const max = 100;
+      const percentage = connections / max * 100;
+
       let status: 'normal' | 'warning' | 'critical' = 'normal';
-      
-      if (stats.connectionPressure >= 0.85) status = 'critical';
-      else if (stats.connectionPressure >= 0.70) status = 'warning';
+      if (percentage >= 85) status = 'critical';else
+      if (percentage >= 70) status = 'warning';
 
       const newStats: ConnectionStats = {
-        connections: stats.activeConnections,
-        max: stats.maxConnections,
+        connections,
+        max,
         percentage,
         status,
-        timestamp: new Date(),
-        idle: stats.idleConnections,
-        queued: stats.queuedRequests,
-        pressure: stats.connectionPressure
+        timestamp: new Date()
       };
 
       setConnectionStats(newStats);
@@ -73,19 +61,17 @@ const DatabaseConnectionMonitor = () => {
       setHistory((prev) => {
         const newHistory = [...prev, {
           timestamp: new Date(),
-          connections: stats.activeConnections,
-          max: stats.maxConnections,
-          idle: stats.idleConnections,
-          queued: stats.queuedRequests
+          connections,
+          max
         }].slice(-50); // Keep last 50 entries
         return newHistory;
       });
 
       // Show alerts for critical status
-      if (status === 'critical' && stats.activeConnections > 85) {
+      if (status === 'critical' && connections !== 85) {
         toast({
           title: "Critical: High Database Connections",
-          description: `${stats.activeConnections}/${stats.maxConnections} connections in use (${percentage.toFixed(1)}%)`,
+          description: `${connections}/${max} connections in use (${percentage.toFixed(1)}%)`,
           variant: "destructive"
         });
       }
@@ -100,48 +86,20 @@ const DatabaseConnectionMonitor = () => {
     }
   };
 
-  // Optimize connections
-  const handleOptimizeConnections = async () => {
-    setIsOptimizing(true);
-    try {
-      const connectionManager = DatabaseConnectionManager.getInstance();
-      
-      // Get stats before optimization
-      const statsBefore = connectionManager.getConnectionStats();
-      
-      // Force some optimization if needed
-      if (statsBefore.connectionPressure > 0.7) {
-        console.log('Triggering connection optimization due to high pressure');
-        
-        // Create some connections and then optimize to simulate the optimization process
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Force update stats
-        fetchConnectionStats();
-      }
-      
-      toast({
-        title: "Connections Optimized",
-        description: `Connection pressure reduced from ${(statsBefore.connectionPressure * 100).toFixed(1)}% to ${(connectionManager.getConnectionStats().connectionPressure * 100).toFixed(1)}%`
-      });
-    } catch (error) {
-      toast({
-        title: "Optimization Failed",
-        description: "Failed to optimize database connections.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsOptimizing(false);
-    }
-  };
-
   // Get status color
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'critical': return 'destructive';
-      case 'warning': return 'secondary';
-      default: return 'default';
+      case 'critical':return 'destructive';
+      case 'warning':return 'secondary';
+      default:return 'default';
     }
+  };
+
+  // Get progress color
+  const getProgressColor = (percentage: number) => {
+    if (percentage >= 85) return 'bg-red-500';
+    if (percentage >= 70) return 'bg-yellow-500';
+    return 'bg-green-500';
   };
 
   // Start monitoring
@@ -150,7 +108,7 @@ const DatabaseConnectionMonitor = () => {
 
     if (autoRefresh) {
       setIsMonitoring(true);
-      interval = setInterval(fetchConnectionStats, 5000); // Every 5 seconds for real-time monitoring
+      interval = setInterval(fetchConnectionStats, 30000); // Every 30 seconds
       fetchConnectionStats(); // Initial fetch
     } else {
       setIsMonitoring(false);
@@ -169,8 +127,8 @@ const DatabaseConnectionMonitor = () => {
     const avg = recent.reduce((sum, item) => sum + item.connections, 0) / recent.length;
     const previous = history.slice(-10, -5);
     const prevAvg = previous.length > 0 ?
-      previous.reduce((sum, item) => sum + item.connections, 0) / previous.length :
-      avg;
+    previous.reduce((sum, item) => sum + item.connections, 0) / previous.length :
+    avg;
 
     const change = avg - prevAvg;
     const direction = change > 2 ? 'increasing' : change < -2 ? 'decreasing' : 'stable';
@@ -189,42 +147,29 @@ const DatabaseConnectionMonitor = () => {
     });
   };
 
-  // View detailed stats
-  const handleViewDetails = () => {
-    const connectionManager = DatabaseConnectionManager.getInstance();
-    const detailedStats = connectionManager.getDetailedStats();
-    console.log('Database Connection Manager Detailed Stats:', detailedStats);
-    toast({
-      title: "Detailed Stats",
-      description: "Comprehensive connection stats logged to console"
-    });
-  };
-
   // Recommendations based on status
   const getRecommendations = () => {
     if (connectionStats.status === 'critical') {
       return [
-        "IMMEDIATE: Use 'Optimize Connections' button to reduce load",
-        "Check for connection leaks in application code",
-        "Review long-running queries and transactions", 
-        "Monitor queued requests and idle connections",
-        "Consider scaling database resources"
-      ];
+      "Immediately check for connection leaks in application code",
+      "Review long-running queries and transactions",
+      "Consider implementing connection pooling",
+      "Check for stuck or idle connections",
+      "Restart application servers if necessary"];
+
     } else if (connectionStats.status === 'warning') {
       return [
-        "Monitor connection usage closely",
-        "Review recent application deployments",
-        "Check query performance and optimization",
-        "Implement connection timeout policies",
-        "Prepare for potential scaling if trend continues"
-      ];
+      "Monitor connection usage closely",
+      "Review recent application deployments",
+      "Check query performance and optimization",
+      "Implement connection timeout policies"];
+
     } else {
       return [
-        "Connection usage is within normal limits",
-        "Continue regular monitoring",
-        "Maintain current connection pooling strategies",
-        "Connection manager is automatically optimizing usage"
-      ];
+      "Connection usage is within normal limits",
+      "Continue regular monitoring",
+      "Maintain current connection pooling strategies"];
+
     }
   };
 
@@ -236,7 +181,7 @@ const DatabaseConnectionMonitor = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Database className="h-5 w-5" />
-              <CardTitle>Enhanced Database Connection Monitor</CardTitle>
+              <CardTitle>Database Connection Monitor</CardTitle>
             </div>
             <div className="flex items-center space-x-2">
               <Badge variant={getStatusColor(connectionStats.status)}>
@@ -247,144 +192,86 @@ const DatabaseConnectionMonitor = () => {
                 size="sm"
                 onClick={handleManualRefresh}
                 disabled={isMonitoring}>
+
                 <RefreshCw className={`h-4 w-4 mr-2 ${isMonitoring ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
             </div>
           </div>
           <CardDescription>
-            Real-time monitoring with automatic connection management
+            Real-time monitoring of database connection usage
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Current Status Alert */}
           {connectionStats.status === 'critical' &&
-            <Alert variant="destructive">
+          <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
               <AlertTitle>Critical Connection Usage Detected</AlertTitle>
               <AlertDescription>
-                Database connections are at {connectionStats.percentage.toFixed(1)}% capacity 
-                ({connectionStats.connections}/{connectionStats.max}). 
-                {connectionStats.queued > 0 && ` ${connectionStats.queued} requests are queued.`}
+                Database connections are at {connectionStats.percentage.toFixed(1)}% capacity. 
                 Immediate action required to prevent service disruption.
               </AlertDescription>
             </Alert>
           }
 
-          {connectionStats.status === 'warning' &&
-            <Alert>
-              <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>High Connection Usage Warning</AlertTitle>
-              <AlertDescription>
-                Connection pressure is at {(connectionStats.pressure * 100).toFixed(1)}%. 
-                {connectionStats.queued > 0 && ` ${connectionStats.queued} requests are currently queued.`}
-                Monitor closely and consider optimization.
-              </AlertDescription>
-            </Alert>
-          }
-
-          {/* Connection Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* Connection Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Active</span>
-                <span className="text-2xl font-bold text-blue-600">
-                  {connectionStats.connections}
+                <span className="text-sm font-medium">Current Connections</span>
+                <span className="text-2xl font-bold">
+                  {connectionStats.connections}/{connectionStats.max}
                 </span>
               </div>
+              <Progress
+                value={connectionStats.percentage}
+                className="h-3" />
+
               <div className="text-xs text-muted-foreground">
-                Active connections
+                {connectionStats.percentage.toFixed(1)}% utilized
               </div>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Idle</span>
-                <span className="text-2xl font-bold text-green-600">
-                  {connectionStats.idle}
-                </span>
+                <span className="text-sm font-medium">Status</span>
+                <Badge variant={getStatusColor(connectionStats.status)}>
+                  {connectionStats.status}
+                </Badge>
               </div>
               <div className="text-xs text-muted-foreground">
-                Idle connections
+                Last updated: {connectionStats.timestamp.toLocaleTimeString()}
               </div>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Queued</span>
-                <span className="text-2xl font-bold text-yellow-600">
-                  {connectionStats.queued}
-                </span>
-              </div>
-              <div className="text-xs text-muted-foreground">
-                Pending requests
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Pressure</span>
-                <span className="text-2xl font-bold text-purple-600">
-                  {(connectionStats.pressure * 100).toFixed(1)}%
-                </span>
-              </div>
-              <div className="text-xs text-muted-foreground">
-                System pressure
+                <span className="text-sm font-medium">Trend</span>
+                <div className="flex items-center space-x-1">
+                  <TrendingUp className="h-4 w-4" />
+                  <span className="text-sm">
+                    {trend.direction} {trend.change > 0 ? `±${trend.change.toFixed(1)}` : ''}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Progress Bar */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Connection Usage</span>
-              <span className="text-sm text-muted-foreground">
-                {connectionStats.connections}/{connectionStats.max}
-              </span>
-            </div>
-            <Progress
-              value={connectionStats.percentage}
-              className="h-3"
-            />
-            <div className="text-xs text-muted-foreground">
-              {connectionStats.percentage.toFixed(1)}% of maximum capacity
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-            <Button 
-              onClick={handleOptimizeConnections}
-              disabled={isOptimizing}
-              variant={connectionStats.status === 'critical' ? 'destructive' : 'default'}
-            >
-              {isOptimizing ? (
-                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Zap className="mr-2 h-4 w-4" />
-              )}
-              {isOptimizing ? 'Optimizing...' : 'Optimize Connections'}
-            </Button>
-            
-            <Button onClick={handleViewDetails} variant="outline">
-              <Settings className="mr-2 h-4 w-4" />
-              View Details
-            </Button>
-
+          {/* Auto-refresh toggle */}
+          <div className="flex items-center space-x-2">
+            <Activity className="h-4 w-4" />
+            <span className="text-sm">Auto-refresh every 30 seconds</span>
+            <Badge variant={autoRefresh ? "default" : "secondary"}>
+              {isMonitoring ? 'Active' : 'Inactive'}
+            </Badge>
             <Button
               variant="outline"
+              size="sm"
               onClick={() => setAutoRefresh(!autoRefresh)}>
-              <Activity className="mr-2 h-4 w-4" />
-              {autoRefresh ? 'Disable Auto-refresh' : 'Enable Auto-refresh'}
-            </Button>
-          </div>
 
-          {/* Monitoring Status */}
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>Last updated: {connectionStats.timestamp.toLocaleTimeString()}</span>
-            <Badge variant={autoRefresh ? "default" : "secondary"}>
-              {isMonitoring ? 'Auto-monitoring Active' : 'Manual Mode'}
-            </Badge>
+              {autoRefresh ? 'Disable' : 'Enable'}
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -400,7 +287,7 @@ const DatabaseConnectionMonitor = () => {
         <CardContent>
           <ul className="space-y-2">
             {getRecommendations().map((recommendation, index) =>
-              <li key={index} className="flex items-start space-x-2">
+            <li key={index} className="flex items-start space-x-2">
                 <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
                 <span className="text-sm">{recommendation}</span>
               </li>
@@ -411,38 +298,35 @@ const DatabaseConnectionMonitor = () => {
 
       {/* Connection History */}
       {history.length > 0 &&
-        <Card>
+      <Card>
           <CardHeader>
             <CardTitle>Recent Connection History</CardTitle>
             <CardDescription>
-              Last {history.length} measurements with connection manager data
+              Last {history.length} measurements
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2 max-h-40 overflow-y-auto">
               {history.slice(-10).reverse().map((entry, index) =>
-                <div key={index} className="flex items-center justify-between text-sm">
+            <div key={index} className="flex items-center justify-between text-sm">
                   <span>{entry.timestamp.toLocaleTimeString()}</span>
-                  <div className="flex items-center space-x-2">
-                    <span>A:{entry.connections}</span>
-                    <span>I:{entry.idle}</span>
-                    <span>Q:{entry.queued}</span>
-                    <Badge
-                      variant={
-                        entry.connections / entry.max * 100 >= 85 ? 'destructive' :
-                        entry.connections / entry.max * 100 >= 70 ? 'secondary' : 'default'
-                      }>
-                      {(entry.connections / entry.max * 100).toFixed(1)}%
-                    </Badge>
-                  </div>
+                  <span>{entry.connections}/{entry.max}</span>
+                  <Badge
+                variant={
+                entry.connections / entry.max * 100 >= 85 ? 'destructive' :
+                entry.connections / entry.max * 100 >= 70 ? 'secondary' : 'default'
+                }>
+
+                    {(entry.connections / entry.max * 100).toFixed(1)}%
+                  </Badge>
                 </div>
-              )}
+            )}
             </div>
           </CardContent>
         </Card>
       }
-    </div>
-  );
+    </div>);
+
 };
 
 export default DatabaseConnectionMonitor;
