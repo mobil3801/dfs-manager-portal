@@ -432,8 +432,8 @@ const UserManagement: React.FC = () => {
     return (
       <AccessDenied
         feature="User Management"
-        requiredRole="Administrator" />);
-
+        requiredRole="Administrator" />
+    );
   }
 
   if (loading) {

@@ -311,8 +311,8 @@ const SystemLogs: React.FC = () => {
     return (
       <AccessDenied
         feature="System Logs"
-        requiredRole="Administrator" />);
-
+        requiredRole="Administrator" />
+    );
   }
 
   return (

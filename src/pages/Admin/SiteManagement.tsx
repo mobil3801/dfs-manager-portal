@@ -310,8 +310,8 @@ const SiteManagement: React.FC = () => {
     return (
       <AccessDenied
         feature="Site Management"
-        requiredRole="Administrator" />);
-
+        requiredRole="Administrator" />
+    );
   }
 
   return (

@@ -323,8 +323,8 @@ const SecuritySettings: React.FC = () => {
     return (
       <AccessDenied
         feature="Security Settings"
-        requiredRole="Administrator" />);
-
+        requiredRole="Administrator" />
+    );
   }
 
   return (

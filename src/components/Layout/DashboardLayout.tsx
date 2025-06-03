@@ -15,8 +15,6 @@ import {
   Plus,
   ChevronLeft,
   ChevronRight,
-  ChevronDown,
-  ChevronUp,
   DollarSign,
   AlertTriangle,
   CheckCircle,
@@ -31,9 +29,7 @@ import {
   MessageSquare,
   Activity,
   LogOut,
-  User,
-  BarChart3,
-  CalendarDays } from
+  User } from
 'lucide-react';
 
 import Logo from '@/components/Logo';
@@ -50,7 +46,6 @@ interface NavigationItem {
 const DashboardLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
   const { user, loading, logout, isAdmin } = useAuth();
@@ -78,46 +73,38 @@ const DashboardLayout: React.FC = () => {
 
   // Base navigation items (available to all users)
   const baseNavigationItems: NavigationItem[] = [
-  { name: 'Dashboard', path: '/dashboard', icon: <Home className="w-5 h-5" /> },
-  { name: 'All Products', path: '/products', icon: <Package className="w-5 h-5" /> },
-  { name: 'All Employees', path: '/employees', icon: <Users className="w-5 h-5" /> },
-  { name: 'Sales Reports', path: '/sales', icon: <TrendingUp className="w-5 h-5" /> },
-  { name: 'Add Report', path: '/sales/new', icon: <Plus className="w-5 h-5" /> },
-  { 
-    name: '10 days Report', 
-    path: '/reports', 
-    icon: <CalendarDays className="w-5 h-5" />,
-    children: [
-      { name: 'Mobil', path: '/reports/10-days/mobil', icon: <BarChart3 className="w-4 h-4" /> }
-    ]
-  },
-  { name: 'Salary Records', path: '/salary', icon: <DollarSign className="w-5 h-5" /> },
-  { name: 'Inventory Alerts', path: '/inventory/alerts', icon: <AlertTriangle className="w-5 h-5" /> },
-  { name: 'New Delivery', path: '/delivery', icon: <Truck className="w-5 h-5" /> },
-  { name: 'All Vendors', path: '/vendors', icon: <Building2 className="w-5 h-5" /> },
-  { name: 'All Orders', path: '/orders', icon: <ShoppingCart className="w-5 h-5" /> },
-  { name: 'Create Order', path: '/orders/new', icon: <Plus className="w-5 h-5" /> },
-  { name: 'All Licenses', path: '/licenses', icon: <FileText className="w-5 h-5" /> }];
-
+    { name: 'Dashboard', path: '/dashboard', icon: <Home className="w-5 h-5" /> },
+    { name: 'All Products', path: '/products', icon: <Package className="w-5 h-5" /> },
+    { name: 'All Employees', path: '/employees', icon: <Users className="w-5 h-5" /> },
+    { name: 'Sales Reports', path: '/sales', icon: <TrendingUp className="w-5 h-5" /> },
+    { name: 'Add Report', path: '/sales/new', icon: <Plus className="w-5 h-5" /> },
+    { name: 'Salary Records', path: '/salary', icon: <DollarSign className="w-5 h-5" /> },
+    { name: 'Inventory Alerts', path: '/inventory/alerts', icon: <AlertTriangle className="w-5 h-5" /> },
+    { name: 'New Delivery', path: '/delivery', icon: <Truck className="w-5 h-5" /> },
+    { name: 'All Vendors', path: '/vendors', icon: <Building2 className="w-5 h-5" /> },
+    { name: 'All Orders', path: '/orders', icon: <ShoppingCart className="w-5 h-5" /> },
+    { name: 'Create Order', path: '/orders/new', icon: <Plus className="w-5 h-5" /> },
+    { name: 'All Licenses', path: '/licenses', icon: <FileText className="w-5 h-5" /> }
+  ];
 
   // Admin-only navigation items
   const adminNavigationItems: NavigationItem[] = [
-  { name: 'User Management', path: '/admin/users', icon: <UserCheck className="w-5 h-5" /> },
-  { name: 'Site Management', path: '/admin/site', icon: <Globe className="w-5 h-5" /> },
-  { name: 'SMS Alerts', path: '/admin/sms-alerts', icon: <MessageSquare className="w-5 h-5" /> },
-  { name: 'System Logs', path: '/admin/logs', icon: <Database className="w-5 h-5" /> },
-  { name: 'Security Settings', path: '/admin/security', icon: <Shield className="w-5 h-5" /> },
-  { name: 'Error Recovery', path: '/admin/error-recovery', icon: <AlertTriangle className="w-5 h-5" /> },
-  { name: 'Memory Monitoring', path: '/admin/memory-monitoring', icon: <Activity className="w-5 h-5" /> },
-  { name: 'Database Monitoring', path: '/admin/database-monitoring', icon: <Database className="w-5 h-5" /> },
-  { name: 'Audit Monitoring', path: '/admin/audit-monitoring', icon: <Shield className="w-5 h-5" /> }];
-
+    { name: 'User Management', path: '/admin/users', icon: <UserCheck className="w-5 h-5" /> },
+    { name: 'Site Management', path: '/admin/site', icon: <Globe className="w-5 h-5" /> },
+    { name: 'SMS Alerts', path: '/admin/sms-alerts', icon: <MessageSquare className="w-5 h-5" /> },
+    { name: 'System Logs', path: '/admin/logs', icon: <Database className="w-5 h-5" /> },
+    { name: 'Security Settings', path: '/admin/security', icon: <Shield className="w-5 h-5" /> },
+    { name: 'Error Recovery', path: '/admin/error-recovery', icon: <AlertTriangle className="w-5 h-5" /> },
+    { name: 'Memory Monitoring', path: '/admin/memory-monitoring', icon: <Activity className="w-5 h-5" /> },
+    { name: 'Database Monitoring', path: '/admin/database-monitoring', icon: <Database className="w-5 h-5" /> },
+    { name: 'Audit Monitoring', path: '/admin/audit-monitoring', icon: <Shield className="w-5 h-5" /> }
+  ];
 
   // Combine navigation items based on user role
   const navigationItems: NavigationItem[] = [
-  ...baseNavigationItems,
-  ...(isAdmin ? adminNavigationItems : [])];
-
+    ...baseNavigationItems,
+    ...(isAdmin ? adminNavigationItems : [])
+  ];
 
 
 
@@ -128,67 +115,8 @@ const DashboardLayout: React.FC = () => {
     setSidebarOpen(false);
   };
 
-  const toggleSubmenu = (itemName: string) => {
-    setExpandedMenus(prev => 
-      prev.includes(itemName) 
-        ? prev.filter(name => name !== itemName)
-        : [...prev, itemName]
-    );
-  };
-
   const renderNavigationItem = (item: NavigationItem) => {
     const isActive = location.pathname === item.path;
-    const hasChildren = item.children && item.children.length > 0;
-    const isExpanded = expandedMenus.includes(item.name);
-    const isChildActive = hasChildren && item.children?.some(child => location.pathname === child.path);
-
-    if (hasChildren) {
-      return (
-        <div key={item.name} className="space-y-1">
-          <Button
-            variant="ghost"
-            className={`w-full justify-start text-left h-11 hover:bg-gray-100 transition-colors px-4 ${
-            isChildActive ? 'bg-brand-50 text-brand-800' : ''}`
-            }
-            onClick={() => sidebarCollapsed ? handleNavigation(item.children![0].path) : toggleSubmenu(item.name)}
-            title={sidebarCollapsed ? item.name : undefined}>
-            <div className={`flex items-center w-full ${sidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
-              <div className={`flex items-center ${sidebarCollapsed ? '' : 'space-x-3'}`}>
-                {item.icon}
-                {!sidebarCollapsed && <span className="font-medium">{item.name}</span>}
-              </div>
-              {!sidebarCollapsed && (
-                <div className="ml-auto">
-                  {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </div>
-              )}
-            </div>
-          </Button>
-          
-          {!sidebarCollapsed && isExpanded && (
-            <div className="ml-6 space-y-1">
-              {item.children?.map((child) => {
-                const isChildItemActive = location.pathname === child.path;
-                return (
-                  <Button
-                    key={child.path}
-                    variant="ghost"
-                    className={`w-full justify-start text-left h-10 hover:bg-gray-100 transition-colors px-4 text-sm ${
-                    isChildItemActive ? 'bg-brand-50 text-brand-800 border-r-2 border-brand-700' : ''}`
-                    }
-                    onClick={() => handleNavigation(child.path)}>
-                    <div className="flex items-center space-x-3">
-                      {child.icon}
-                      <span>{child.name}</span>
-                    </div>
-                  </Button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      );
-    }
 
     return (
       <Button
@@ -212,8 +140,6 @@ const DashboardLayout: React.FC = () => {
     if (path.startsWith('/products')) return 'Products';
     if (path.startsWith('/employees')) return 'Employees';
     if (path.startsWith('/sales')) return 'Sales Reports';
-    if (path.startsWith('/reports/10-days/mobil')) return '10 Days Report - MOBIL';
-    if (path.startsWith('/reports')) return '10 Days Reports';
     if (path.startsWith('/salary')) return 'Salary Management';
     if (path.startsWith('/inventory')) return 'Inventory Management';
     if (path.startsWith('/delivery')) return 'Delivery Management';
