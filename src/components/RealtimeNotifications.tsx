@@ -61,7 +61,7 @@ const RealtimeNotifications: React.FC<RealtimeNotificationsProps> = ({
       read: false
     };
 
-    setNotifications(prev => {
+    setNotifications((prev) => {
       const updated = [newNotification, ...prev].slice(0, maxNotifications);
       return updated;
     });
@@ -75,12 +75,12 @@ const RealtimeNotifications: React.FC<RealtimeNotificationsProps> = ({
   };
 
   const removeNotification = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
   const markAsRead = (id: string) => {
-    setNotifications(prev =>
-      prev.map(n => n.id === id ? { ...n, read: true } : n)
+    setNotifications((prev) =>
+    prev.map((n) => n.id === id ? { ...n, read: true } : n)
     );
   };
 
@@ -89,8 +89,8 @@ const RealtimeNotifications: React.FC<RealtimeNotificationsProps> = ({
   };
 
   const formatTableName = (table: string) => {
-    return table.split('_').map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1)
+    return table.split('_').map((word) =>
+    word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
   };
 
@@ -99,7 +99,7 @@ const RealtimeNotifications: React.FC<RealtimeNotificationsProps> = ({
   };
 
   // Set up real-time subscriptions for all tables
-  tables.forEach(table => {
+  tables.forEach((table) => {
     useRealtime({
       table,
       onInsert: (payload) => {
@@ -133,7 +133,7 @@ const RealtimeNotifications: React.FC<RealtimeNotificationsProps> = ({
     });
   });
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <div className="relative">
@@ -141,27 +141,27 @@ const RealtimeNotifications: React.FC<RealtimeNotificationsProps> = ({
         variant="outline"
         size="sm"
         onClick={() => setIsOpen(!isOpen)}
-        className="relative"
-      >
+        className="relative">
+
         <Bell className="h-4 w-4" />
-        {unreadCount > 0 && (
-          <Badge 
-            className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs"
-            variant="destructive"
-          >
+        {unreadCount > 0 &&
+        <Badge
+          className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs"
+          variant="destructive">
+
             {unreadCount > 9 ? '9+' : unreadCount}
           </Badge>
-        )}
+        }
       </Button>
 
       <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.95 }}
-            className="absolute right-0 top-full mt-2 z-50"
-          >
+        {isOpen &&
+        <motion.div
+          initial={{ opacity: 0, y: -10, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -10, scale: 0.95 }}
+          className="absolute right-0 top-full mt-2 z-50">
+
             <Card className="w-80 max-h-96 shadow-lg border">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
@@ -169,46 +169,46 @@ const RealtimeNotifications: React.FC<RealtimeNotificationsProps> = ({
                     Real-time Notifications
                   </CardTitle>
                   <div className="flex items-center gap-2">
-                    {notifications.length > 0 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={clearAll}
-                        className="text-xs h-7"
-                      >
+                    {notifications.length > 0 &&
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearAll}
+                    className="text-xs h-7">
+
                         Clear All
                       </Button>
-                    )}
+                  }
                     <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsOpen(false)}
-                      className="h-7 w-7 p-0"
-                    >
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsOpen(false)}
+                    className="h-7 w-7 p-0">
+
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="p-0">
-                {notifications.length === 0 ? (
-                  <div className="p-4 text-center text-sm text-muted-foreground">
+                {notifications.length === 0 ?
+              <div className="p-4 text-center text-sm text-muted-foreground">
                     No notifications yet
-                  </div>
-                ) : (
-                  <ScrollArea className="h-80">
+                  </div> :
+
+              <ScrollArea className="h-80">
                     <div className="space-y-1 p-2">
-                      {notifications.map((notification) => (
-                        <motion.div
-                          key={notification.id}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: 20 }}
-                          className={`p-3 rounded-lg border transition-colors hover:bg-muted/50 cursor-pointer ${
-                            !notification.read ? 'bg-blue-50 border-blue-200' : 'bg-background'
-                          }`}
-                          onClick={() => markAsRead(notification.id)}
-                        >
+                      {notifications.map((notification) =>
+                  <motion.div
+                    key={notification.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    className={`p-3 rounded-lg border transition-colors hover:bg-muted/50 cursor-pointer ${
+                    !notification.read ? 'bg-blue-50 border-blue-200' : 'bg-background'}`
+                    }
+                    onClick={() => markAsRead(notification.id)}>
+
                           <div className="flex items-start gap-3">
                             {getNotificationIcon(notification.type)}
                             <div className="flex-1 min-w-0">
@@ -217,14 +217,14 @@ const RealtimeNotifications: React.FC<RealtimeNotificationsProps> = ({
                                   {notification.title}
                                 </p>
                                 <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    removeNotification(notification.id);
-                                  }}
-                                  className="h-6 w-6 p-0 opacity-60 hover:opacity-100"
-                                >
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeNotification(notification.id);
+                            }}
+                            className="h-6 w-6 p-0 opacity-60 hover:opacity-100">
+
                                   <X className="h-3 w-3" />
                                 </Button>
                               </div>
@@ -243,17 +243,17 @@ const RealtimeNotifications: React.FC<RealtimeNotificationsProps> = ({
                             </div>
                           </div>
                         </motion.div>
-                      ))}
+                  )}
                     </div>
                   </ScrollArea>
-                )}
+              }
               </CardContent>
             </Card>
           </motion.div>
-        )}
+        }
       </AnimatePresence>
-    </div>
-  );
+    </div>);
+
 };
 
 export default RealtimeNotifications;

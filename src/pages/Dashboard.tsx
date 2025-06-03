@@ -32,7 +32,8 @@ import {
   AlertCircle,
   Plus,
   Settings,
-  X } from
+  X,
+  Zap } from
 'lucide-react';
 
 interface DashboardStats {
@@ -657,6 +658,14 @@ const Dashboard: React.FC = () => {
               DFS Manager Portal
             </h1>
             <p className="text-brand-200">Real-time Gas Station Management System</p>
+            <div className="mt-3 flex items-center justify-center gap-4">
+              <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200">
+                ✅ Full Visual Editing Enabled
+              </Badge>
+              <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200">
+                🚀 Ready for Supabase Integration
+              </Badge>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <RealtimeStatusIndicator
@@ -669,6 +678,34 @@ const Dashboard: React.FC = () => {
               maxNotifications={15}
               autoRemoveAfter={15000} />
 
+            <div className="bg-white/10 p-2 rounded-lg">
+              <SupabaseSetupGuide />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Supabase Activation Banner */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white shadow-lg">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-white/20 rounded-full">
+              <Zap className="w-8 h-8" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold mb-1">
+                ⚡ Activate Real-time Features
+              </h2>
+              <p className="text-blue-100">
+                Connect to Supabase for live data synchronization, real-time notifications, and multi-user collaboration
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <p className="text-sm text-blue-100">Complete Setup Guide</p>
+              <p className="text-lg font-semibold">4 Simple Steps</p>
+            </div>
             <SupabaseSetupGuide />
           </div>
         </div>
