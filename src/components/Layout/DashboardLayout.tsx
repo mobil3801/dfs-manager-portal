@@ -79,19 +79,17 @@ const DashboardLayout: React.FC = () => {
   // Base navigation items (available to all users)
   const baseNavigationItems: NavigationItem[] = [
   { name: 'Dashboard', path: '/dashboard', icon: <Home className="w-5 h-5" /> },
-  { name: 'Analytics', path: '/analytics', icon: <BarChart3 className="w-5 h-5" /> },
-  { name: 'Operations', path: '/operations', icon: <Settings className="w-5 h-5" /> },
   { name: 'All Products', path: '/products', icon: <Package className="w-5 h-5" /> },
   { name: 'All Employees', path: '/employees', icon: <Users className="w-5 h-5" /> },
   { name: 'Sales Reports', path: '/sales', icon: <TrendingUp className="w-5 h-5" /> },
   { name: 'Add Report', path: '/sales/new', icon: <Plus className="w-5 h-5" /> },
-  {
-    name: '10 days Report',
-    path: '/reports',
+  { 
+    name: '10 days Report', 
+    path: '/reports', 
     icon: <CalendarDays className="w-5 h-5" />,
     children: [
-    { name: 'Mobil', path: '/reports/10-days/mobil', icon: <BarChart3 className="w-4 h-4" /> }]
-
+      { name: 'Mobil', path: '/reports/10-days/mobil', icon: <BarChart3 className="w-4 h-4" /> }
+    ]
   },
   { name: 'Salary Records', path: '/salary', icon: <DollarSign className="w-5 h-5" /> },
   { name: 'Inventory Alerts', path: '/inventory/alerts', icon: <AlertTriangle className="w-5 h-5" /> },
@@ -131,10 +129,10 @@ const DashboardLayout: React.FC = () => {
   };
 
   const toggleSubmenu = (itemName: string) => {
-    setExpandedMenus((prev) =>
-    prev.includes(itemName) ?
-    prev.filter((name) => name !== itemName) :
-    [...prev, itemName]
+    setExpandedMenus(prev => 
+      prev.includes(itemName) 
+        ? prev.filter(name => name !== itemName)
+        : [...prev, itemName]
     );
   };
 
@@ -142,7 +140,7 @@ const DashboardLayout: React.FC = () => {
     const isActive = location.pathname === item.path;
     const hasChildren = item.children && item.children.length > 0;
     const isExpanded = expandedMenus.includes(item.name);
-    const isChildActive = hasChildren && item.children?.some((child) => location.pathname === child.path);
+    const isChildActive = hasChildren && item.children?.some(child => location.pathname === child.path);
 
     if (hasChildren) {
       return (
@@ -159,37 +157,37 @@ const DashboardLayout: React.FC = () => {
                 {item.icon}
                 {!sidebarCollapsed && <span className="font-medium">{item.name}</span>}
               </div>
-              {!sidebarCollapsed &&
-              <div className="ml-auto">
+              {!sidebarCollapsed && (
+                <div className="ml-auto">
                   {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </div>
-              }
+              )}
             </div>
           </Button>
           
-          {!sidebarCollapsed && isExpanded &&
-          <div className="ml-6 space-y-1">
+          {!sidebarCollapsed && isExpanded && (
+            <div className="ml-6 space-y-1">
               {item.children?.map((child) => {
-              const isChildItemActive = location.pathname === child.path;
-              return (
-                <Button
-                  key={child.path}
-                  variant="ghost"
-                  className={`w-full justify-start text-left h-10 hover:bg-gray-100 transition-colors px-4 text-sm ${
-                  isChildItemActive ? 'bg-brand-50 text-brand-800 border-r-2 border-brand-700' : ''}`
-                  }
-                  onClick={() => handleNavigation(child.path)}>
+                const isChildItemActive = location.pathname === child.path;
+                return (
+                  <Button
+                    key={child.path}
+                    variant="ghost"
+                    className={`w-full justify-start text-left h-10 hover:bg-gray-100 transition-colors px-4 text-sm ${
+                    isChildItemActive ? 'bg-brand-50 text-brand-800 border-r-2 border-brand-700' : ''}`
+                    }
+                    onClick={() => handleNavigation(child.path)}>
                     <div className="flex items-center space-x-3">
                       {child.icon}
                       <span>{child.name}</span>
                     </div>
-                  </Button>);
-
-            })}
+                  </Button>
+                );
+              })}
             </div>
-          }
-        </div>);
-
+          )}
+        </div>
+      );
     }
 
     return (
@@ -211,8 +209,6 @@ const DashboardLayout: React.FC = () => {
   const getPageTitle = () => {
     const path = location.pathname;
     if (path === '/dashboard') return 'Dashboard';
-    if (path === '/analytics') return 'Analytics Dashboard';
-    if (path === '/operations') return 'Operations Manager';
     if (path.startsWith('/products')) return 'Products';
     if (path.startsWith('/employees')) return 'Employees';
     if (path.startsWith('/sales')) return 'Sales Reports';
@@ -284,7 +280,38 @@ const DashboardLayout: React.FC = () => {
 
       {/* Main content - Adjusted for fixed sidebar */}
       <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
+        {/* Top bar */}
+        <div className="sticky top-0 z-10 flex items-center justify-between h-16 px-4 bg-white border-b border-gray-200 lg:px-8 flex-shrink-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="lg:hidden"
+            onClick={() => setSidebarOpen(true)}>
 
+            <Menu className="w-5 h-5" />
+          </Button>
+          
+          <div className="flex items-center space-x-4">
+            <h1 className="text-xl font-semibold text-brand-900">
+              {getPageTitle()}
+            </h1>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <span className="text-sm text-gray-600 hidden lg:inline">
+              Welcome, {user.Name}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={logout}
+              className="text-gray-600 hover:text-red-600">
+
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
+        </div>
 
         {/* Page content */}
         <main className="flex-1 p-4 lg:p-8 overflow-y-auto">
