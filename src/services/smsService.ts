@@ -366,6 +366,61 @@ class SMSService {
   getConfiguration(): TwilioConfig | null {
     return this.config;
   }
+
+  // Additional methods for the SMSServiceManager
+  async getServiceStatus(): Promise<{ available: boolean; message: string; providers?: any; quota?: any }> {
+    try {
+      if (!this.isConfigured) {
+        return {
+          available: false,
+          message: 'SMS service not configured. Please configure Twilio settings.'
+        };
+      }
+
+      // Simulate service check
+      const providers = [
+        { name: 'Twilio', available: this.isConfigured },
+        { name: 'TextBelt (Fallback)', available: true }
+      ];
+
+      const quota = {
+        quotaRemaining: 50 // Simulated quota
+      };
+
+      return {
+        available: true,
+        message: 'SMS service is configured and ready',
+        providers,
+        quota
+      };
+    } catch (error) {
+      console.error('Error checking service status:', error);
+      return {
+        available: false,
+        message: 'Error checking service status'
+      };
+    }
+  }
+
+  // Wrapper method for sending SMS with simplified interface
+  async sendSimpleSMS(phoneNumber: string, message: string): Promise<SMSResponse> {
+    return this.sendSMS({
+      to: phoneNumber,
+      message: message,
+      type: 'test'
+    });
+  }
+
+  // Phone number validation helper
+  isValidPhoneNumber(phoneNumber: string): boolean {
+    try {
+      const cleaned = phoneNumber.replace(/[^\d]/g, '');
+      return cleaned.length >= 10 && cleaned.length <= 15;
+    } catch (error) {
+      console.error('Error validating phone number:', error);
+      return false;
+    }
+  }
 }
 
 export const smsService = new SMSService();

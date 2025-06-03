@@ -126,7 +126,7 @@ const SMSServiceManager: React.FC = () => {
     try {
       setSendingTest(true);
 
-      const result = await smsService.sendSMS(testPhone, testMessage);
+      const result = await smsService.sendSimpleSMS(testPhone, testMessage);
 
       const testResult: TestResult = {
         phoneNumber: testPhone,

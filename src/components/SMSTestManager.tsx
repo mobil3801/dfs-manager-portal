@@ -46,8 +46,8 @@ const SMSTestManager: React.FC = () => {
   const [templateVariables, setTemplateVariables] = useState<Record<string, string>>({});
   const [testContacts, setTestContacts] = useState<any[]>([]);
   const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
-  const [configValidation, setConfigValidation] = useState<{ isValid: boolean; errors: string[] }>({ isValid: false, errors: [] });
-  const [bulkTestProgress, setBulkTestProgress] = useState<{ current: number; total: number; isRunning: boolean }>({ current: 0, total: 0, isRunning: false });
+  const [configValidation, setConfigValidation] = useState<{isValid: boolean;errors: string[];}>({ isValid: false, errors: [] });
+  const [bulkTestProgress, setBulkTestProgress] = useState<{current: number;total: number;isRunning: boolean;}>({ current: 0, total: 0, isRunning: false });
 
   useEffect(() => {
     loadConfiguration();
@@ -126,7 +126,7 @@ const SMSTestManager: React.FC = () => {
 
   const validateConfiguration = () => {
     const errors: string[] = [];
-    
+
     if (!config) {
       errors.push('No SMS configuration found');
       setConfigValidation({ isValid: false, errors });
@@ -136,15 +136,15 @@ const SMSTestManager: React.FC = () => {
     if (!config.account_sid || config.account_sid.length < 30) {
       errors.push('Invalid or missing Twilio Account SID');
     }
-    
+
     if (!config.auth_token || config.auth_token.length < 30) {
       errors.push('Invalid or missing Twilio Auth Token');
     }
-    
+
     if (!config.from_number || !config.from_number.match(/^\+[1-9]\d{1,14}$/)) {
       errors.push('Invalid or missing From Phone Number (must be in E.164 format)');
     }
-    
+
     if (!config.is_active) {
       errors.push('SMS configuration is not active');
     }
@@ -254,27 +254,27 @@ const SMSTestManager: React.FC = () => {
     }
 
     setBulkTestProgress({ current: 0, total: selectedContacts.length, isRunning: true });
-    
+
     try {
       let successCount = 0;
       let failureCount = 0;
-      
+
       for (let i = 0; i < selectedContacts.length; i++) {
         const contactId = selectedContacts[i];
-        const contact = testContacts.find(c => c.id.toString() === contactId);
-        
+        const contact = testContacts.find((c) => c.id.toString() === contactId);
+
         if (!contact) continue;
-        
-        setBulkTestProgress(prev => ({ ...prev, current: i + 1 }));
-        
+
+        setBulkTestProgress((prev) => ({ ...prev, current: i + 1 }));
+
         const finalMessage = `📱 Bulk Test SMS from DFS Manager Portal for ${contact.contact_name} at ${contact.station}. SMS system is working correctly!`;
-        
+
         const result = await simulateTwilioSMS({
           to: contact.mobile_number,
           message: finalMessage,
           config: config!
         });
-        
+
         // Add to test results
         const testResult: SMSTestResult = {
           success: result.success,
@@ -284,9 +284,9 @@ const SMSTestManager: React.FC = () => {
           to: contact.mobile_number,
           message: finalMessage
         };
-        
-        setTestResults(prev => [testResult, ...prev]);
-        
+
+        setTestResults((prev) => [testResult, ...prev]);
+
         // Log to SMS history
         await window.ezsite.apis.tableCreate(12613, {
           license_id: 0,
@@ -298,28 +298,28 @@ const SMSTestManager: React.FC = () => {
           days_before_expiry: 0,
           created_by: 1
         });
-        
+
         if (result.success) {
           successCount++;
         } else {
           failureCount++;
         }
-        
+
         // Small delay between messages
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
-      
+
       // Update monthly count
       await window.ezsite.apis.tableUpdate(12640, {
         ID: config!.id,
         current_month_count: config!.current_month_count + successCount
       });
-      
+
       toast({
         title: 'Bulk Test Complete',
         description: `✅ ${successCount} sent successfully, ❌ ${failureCount} failed`
       });
-      
+
     } catch (error) {
       console.error('Error in bulk SMS test:', error);
       toast({
@@ -332,7 +332,7 @@ const SMSTestManager: React.FC = () => {
     }
   };
 
-  const simulateTwilioSMS = async ({ to, message, config }: {to: string; message: string; config: TwilioConfig;}) => {
+  const simulateTwilioSMS = async ({ to, message, config }: {to: string;message: string;config: TwilioConfig;}) => {
     // Simulate real Twilio API call with your configuration
     console.log('🔧 Twilio Configuration Test:', {
       accountSid: config.account_sid,
@@ -352,7 +352,7 @@ const SMSTestManager: React.FC = () => {
     // });
 
     // Simulate response with more realistic behavior
-    return new Promise<{success: boolean; messageId?: string; error?: string;}>((resolve) => {
+    return new Promise<{success: boolean;messageId?: string;error?: string;}>((resolve) => {
       setTimeout(() => {
         const success = Math.random() > 0.15; // 85% success rate
         if (success) {
@@ -362,12 +362,12 @@ const SMSTestManager: React.FC = () => {
           });
         } else {
           const errors = [
-            'Invalid phone number',
-            'Account insufficient funds',
-            'Message queue full',
-            'Rate limit exceeded',
-            'Network timeout'
-          ];
+          'Invalid phone number',
+          'Account insufficient funds',
+          'Message queue full',
+          'Rate limit exceeded',
+          'Network timeout'];
+
           resolve({
             success: false,
             error: errors[Math.floor(Math.random() * errors.length)]
@@ -395,10 +395,10 @@ const SMSTestManager: React.FC = () => {
   };
 
   const toggleContactSelection = (contactId: string) => {
-    setSelectedContacts(prev => 
-      prev.includes(contactId) 
-        ? prev.filter(id => id !== contactId)
-        : [...prev, contactId]
+    setSelectedContacts((prev) =>
+    prev.includes(contactId) ?
+    prev.filter((id) => id !== contactId) :
+    [...prev, contactId]
     );
   };
 
@@ -406,7 +406,7 @@ const SMSTestManager: React.FC = () => {
     if (selectedContacts.length === testContacts.length) {
       setSelectedContacts([]);
     } else {
-      setSelectedContacts(testContacts.map(c => c.id.toString()));
+      setSelectedContacts(testContacts.map((c) => c.id.toString()));
     }
   };
 
@@ -435,31 +435,31 @@ const SMSTestManager: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {config ? (
-            <div className="space-y-4">
+          {config ?
+          <div className="space-y-4">
               {/* Validation Status */}
               <Alert className={configValidation.isValid ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"}>
-                {configValidation.isValid ? (
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                ) : (
-                  <XCircle className="h-4 w-4 text-red-600" />
-                )}
+                {configValidation.isValid ?
+              <CheckCircle className="h-4 w-4 text-green-600" /> :
+
+              <XCircle className="h-4 w-4 text-red-600" />
+              }
                 <AlertDescription className={configValidation.isValid ? "text-green-800" : "text-red-800"}>
-                  {configValidation.isValid ? (
-                    <div>
+                  {configValidation.isValid ?
+                <div>
                       <strong>✅ Configuration Valid</strong>
                       <br />Your Twilio configuration is properly set up and ready for testing.
-                    </div>
-                  ) : (
-                    <div>
+                    </div> :
+
+                <div>
                       <strong>❌ Configuration Issues Detected</strong>
                       <ul className="mt-2 list-disc list-inside">
-                        {configValidation.errors.map((error, index) => (
-                          <li key={index}>{error}</li>
-                        ))}
+                        {configValidation.errors.map((error, index) =>
+                    <li key={index}>{error}</li>
+                    )}
                       </ul>
                     </div>
-                  )}
+                }
                 </AlertDescription>
               </Alert>
 
@@ -494,22 +494,22 @@ const SMSTestManager: React.FC = () => {
                     {config.current_month_count} / {config.monthly_limit} messages
                     <div className="w-full bg-muted rounded-full h-2 mt-1">
                       <div
-                        className="bg-primary h-2 rounded-full"
-                        style={{ width: `${Math.min(config.current_month_count / config.monthly_limit * 100, 100)}%` }}
-                      />
+                      className="bg-primary h-2 rounded-full"
+                      style={{ width: `${Math.min(config.current_month_count / config.monthly_limit * 100, 100)}%` }} />
+
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <Alert>
+            </div> :
+
+          <Alert>
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
                 SMS configuration not found. Please configure Twilio settings first in the SMS Service tab.
               </AlertDescription>
             </Alert>
-          )}
+          }
         </CardContent>
       </Card>
 
@@ -532,8 +532,8 @@ const SMSTestManager: React.FC = () => {
               value={testPhone}
               onChange={(e) => setTestPhone(e.target.value)}
               placeholder="+18777804236"
-              className="font-mono"
-            />
+              className="font-mono" />
+
           </div>
 
           <div className="space-y-2">
@@ -544,36 +544,36 @@ const SMSTestManager: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">Custom Message</SelectItem>
-                {templates.map((template) => (
-                  <SelectItem key={template.id} value={template.id.toString()}>
+                {templates.map((template) =>
+                <SelectItem key={template.id} value={template.id.toString()}>
                     {template.template_name}
                   </SelectItem>
-                ))}
+                )}
               </SelectContent>
             </Select>
           </div>
 
-          {selectedTemplate && Object.keys(templateVariables).length > 0 && (
-            <div className="space-y-2">
+          {selectedTemplate && Object.keys(templateVariables).length > 0 &&
+          <div className="space-y-2">
               <Label>Template Variables</Label>
               <div className="grid grid-cols-2 gap-2">
-                {Object.keys(templateVariables).map((key) => (
-                  <div key={key}>
+                {Object.keys(templateVariables).map((key) =>
+              <div key={key}>
                     <Label className="text-xs">{key}</Label>
                     <Input
-                      value={templateVariables[key]}
-                      onChange={(e) => setTemplateVariables((prev) => ({
-                        ...prev,
-                        [key]: e.target.value
-                      }))}
-                      placeholder={`Enter ${key}`}
-                      size="sm"
-                    />
+                  value={templateVariables[key]}
+                  onChange={(e) => setTemplateVariables((prev) => ({
+                    ...prev,
+                    [key]: e.target.value
+                  }))}
+                  placeholder={`Enter ${key}`}
+                  size="sm" />
+
                   </div>
-                ))}
+              )}
               </div>
             </div>
-          )}
+          }
 
           <div className="space-y-2">
             <Label htmlFor="message">Message Content</Label>
@@ -583,8 +583,8 @@ const SMSTestManager: React.FC = () => {
               onChange={(e) => setTestMessage(e.target.value)}
               placeholder="Enter your test message"
               rows={3}
-              maxLength={160}
-            />
+              maxLength={160} />
+
             <div className="text-xs text-muted-foreground">
               {testMessage.length}/160 characters
             </div>
@@ -593,19 +593,19 @@ const SMSTestManager: React.FC = () => {
           <Button
             onClick={sendTestSMS}
             disabled={loading || !configValidation.isValid || !testPhone || !testMessage}
-            className="w-full"
-          >
-            {loading ? (
-              <>
+            className="w-full">
+
+            {loading ?
+            <>
                 <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                 Sending...
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 <Send className="h-4 w-4 mr-2" />
                 Send Test SMS
               </>
-            )}
+            }
           </Button>
         </CardContent>
       </Card>
@@ -622,27 +622,27 @@ const SMSTestManager: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {testContacts.length > 0 ? (
-            <>
+          {testContacts.length > 0 ?
+          <>
               <div className="flex items-center justify-between">
                 <Label>Select Test Contacts ({selectedContacts.length} selected)</Label>
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={selectAllContacts}
-                >
+                variant="outline"
+                size="sm"
+                onClick={selectAllContacts}>
+
                   {selectedContacts.length === testContacts.length ? 'Deselect All' : 'Select All'}
                 </Button>
               </div>
 
               <div className="max-h-40 overflow-y-auto border rounded-md p-2">
-                {testContacts.map((contact) => (
-                  <div key={contact.id} className="flex items-center space-x-2 p-2 hover:bg-muted rounded">
+                {testContacts.map((contact) =>
+              <div key={contact.id} className="flex items-center space-x-2 p-2 hover:bg-muted rounded">
                     <Checkbox
-                      id={`contact-${contact.id}`}
-                      checked={selectedContacts.includes(contact.id.toString())}
-                      onCheckedChange={() => toggleContactSelection(contact.id.toString())}
-                    />
+                  id={`contact-${contact.id}`}
+                  checked={selectedContacts.includes(contact.id.toString())}
+                  onCheckedChange={() => toggleContactSelection(contact.id.toString())} />
+
                     <Label htmlFor={`contact-${contact.id}`} className="flex-1 cursor-pointer">
                       <div className="font-medium">{contact.contact_name}</div>
                       <div className="text-sm text-muted-foreground">
@@ -650,51 +650,51 @@ const SMSTestManager: React.FC = () => {
                       </div>
                     </Label>
                   </div>
-                ))}
+              )}
               </div>
 
-              {bulkTestProgress.isRunning && (
-                <div className="space-y-2">
+              {bulkTestProgress.isRunning &&
+            <div className="space-y-2">
                   <Label>Bulk Test Progress</Label>
-                  <Progress value={(bulkTestProgress.current / bulkTestProgress.total) * 100} />
+                  <Progress value={bulkTestProgress.current / bulkTestProgress.total * 100} />
                   <div className="text-sm text-muted-foreground">
                     Sending {bulkTestProgress.current} of {bulkTestProgress.total} messages...
                   </div>
                 </div>
-              )}
+            }
 
               <Button
-                onClick={sendBulkTestSMS}
-                disabled={bulkTestProgress.isRunning || !configValidation.isValid || selectedContacts.length === 0}
-                className="w-full"
-              >
-                {bulkTestProgress.isRunning ? (
-                  <>
+              onClick={sendBulkTestSMS}
+              disabled={bulkTestProgress.isRunning || !configValidation.isValid || selectedContacts.length === 0}
+              className="w-full">
+
+                {bulkTestProgress.isRunning ?
+              <>
                     <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                     Sending Bulk Test...
-                  </>
-                ) : (
-                  <>
+                  </> :
+
+              <>
                     <Zap className="h-4 w-4 mr-2" />
                     Send Bulk Test SMS ({selectedContacts.length} contacts)
                   </>
-                )}
+              }
               </Button>
-            </>
-          ) : (
-            <Alert>
+            </> :
+
+          <Alert>
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
                 No active SMS contacts found. Please add contacts in the SMS Contacts tab before bulk testing.
               </AlertDescription>
             </Alert>
-          )}
+          }
         </CardContent>
       </Card>
 
       {/* Test Results */}
-      {testResults.length > 0 && (
-        <Card>
+      {testResults.length > 0 &&
+      <Card>
           <CardHeader>
             <CardTitle>Test Results</CardTitle>
             <CardDescription>
@@ -703,15 +703,15 @@ const SMSTestManager: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {testResults.slice(0, 10).map((result, index) => (
-                <div key={index} className="border rounded-lg p-3">
+              {testResults.slice(0, 10).map((result, index) =>
+            <div key={index} className="border rounded-lg p-3">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      {result.success ? (
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <XCircle className="h-4 w-4 text-red-500" />
-                      )}
+                      {result.success ?
+                  <CheckCircle className="h-4 w-4 text-green-500" /> :
+
+                  <XCircle className="h-4 w-4 text-red-500" />
+                  }
                       <span className="font-medium">
                         {result.success ? 'Success' : 'Failed'}
                       </span>
@@ -725,29 +725,29 @@ const SMSTestManager: React.FC = () => {
                     </div>
                   </div>
                   
-                  {result.messageId && (
-                    <div className="text-xs text-muted-foreground mb-1">
+                  {result.messageId &&
+              <div className="text-xs text-muted-foreground mb-1">
                       Message ID: {result.messageId}
                     </div>
-                  )}
+              }
                   
-                  {result.error && (
-                    <div className="text-xs text-red-500 mb-1">
+                  {result.error &&
+              <div className="text-xs text-red-500 mb-1">
                       Error: {result.error}
                     </div>
-                  )}
+              }
                   
                   <div className="text-sm bg-muted p-2 rounded">
                     {result.message}
                   </div>
                 </div>
-              ))}
+            )}
             </div>
           </CardContent>
         </Card>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default SMSTestManager;
