@@ -61,7 +61,7 @@ export const useDatabaseSync = () => {
       setIsLoading(true);
       autoSyncService.initialize(syncConfig);
       setConfig(syncConfig);
-      
+
       // Store config securely (in production, use proper encryption)
       localStorage.setItem('databaseSyncConfig', JSON.stringify({
         ...syncConfig,
@@ -69,11 +69,11 @@ export const useDatabaseSync = () => {
         jwtSecret: btoa(syncConfig.jwtSecret)
       }));
 
-      setStatus(prev => ({ ...prev, isConnected: true }));
-      
+      setStatus((prev) => ({ ...prev, isConnected: true }));
+
       toast({
         title: "Configuration Saved",
-        description: "Database sync configuration has been saved successfully.",
+        description: "Database sync configuration has been saved successfully."
       });
     } catch (error) {
       toast({
@@ -90,32 +90,32 @@ export const useDatabaseSync = () => {
   const testConnection = useCallback(async (testConfig: DatabaseSyncConfig) => {
     try {
       setIsLoading(true);
-      
+
       // Simulate connection test
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       // Mock validation
       if (!testConfig.projectUrl || !testConfig.apiKey) {
         throw new Error('Missing required credentials');
       }
-      
-      setStatus(prev => ({ ...prev, isConnected: true }));
-      
+
+      setStatus((prev) => ({ ...prev, isConnected: true }));
+
       toast({
         title: "Connection Successful",
-        description: "Successfully connected to the database.",
+        description: "Successfully connected to the database."
       });
-      
+
       return true;
     } catch (error) {
-      setStatus(prev => ({ ...prev, isConnected: false }));
-      
+      setStatus((prev) => ({ ...prev, isConnected: false }));
+
       toast({
         title: "Connection Failed",
         description: "Unable to connect to the database. Please check your credentials.",
         variant: "destructive"
       });
-      
+
       return false;
     } finally {
       setIsLoading(false);
@@ -126,28 +126,28 @@ export const useDatabaseSync = () => {
   const scanStructures = useCallback(async () => {
     try {
       setIsLoading(true);
-      
+
       // Trigger scan using auto sync service
       await autoSyncService.triggerSync();
-      
+
       // Get detected structures
       const detected = autoSyncService.getDetectedStructures();
-      
+
       // Convert to our interface format
-      const formattedStructures: DetectedStructure[] = detected.map(structure => ({
+      const formattedStructures: DetectedStructure[] = detected.map((structure) => ({
         name: structure.name,
         type: structure.type,
-        fields: structure.fields.map(field => field.name),
+        fields: structure.fields.map((field) => field.name),
         status: 'new', // This would be determined by comparing with existing structures
         lastModified: structure.lastModified
       }));
-      
+
       setStructures(formattedStructures);
-      setStatus(prev => ({ ...prev, structureCount: formattedStructures.length }));
-      
+      setStatus((prev) => ({ ...prev, structureCount: formattedStructures.length }));
+
       toast({
         title: "Scan Complete",
-        description: `Found ${formattedStructures.length} structures in your application.`,
+        description: `Found ${formattedStructures.length} structures in your application.`
       });
     } catch (error) {
       toast({
@@ -164,30 +164,30 @@ export const useDatabaseSync = () => {
   const startAutoSync = useCallback(async () => {
     try {
       setIsLoading(true);
-      
+
       if (!status.isConnected) {
         throw new Error('Not connected to database');
       }
-      
+
       // Start monitoring with auto sync service
       autoSyncService.startMonitoring();
-      
+
       // Process detected structures
       for (const structure of structures) {
         if (structure.status === 'new') {
           await createTableForStructure(structure);
         }
       }
-      
-      setStatus(prev => ({ 
-        ...prev, 
+
+      setStatus((prev) => ({
+        ...prev,
         isActive: true,
-        lastSync: new Date().toISOString() 
+        lastSync: new Date().toISOString()
       }));
-      
+
       toast({
         title: "Auto-Sync Started",
-        description: "Database synchronization is now active.",
+        description: "Database synchronization is now active."
       });
     } catch (error) {
       toast({
@@ -203,11 +203,11 @@ export const useDatabaseSync = () => {
   // Stop auto-sync
   const stopAutoSync = useCallback(() => {
     autoSyncService.stopMonitoring();
-    setStatus(prev => ({ ...prev, isActive: false }));
-    
+    setStatus((prev) => ({ ...prev, isActive: false }));
+
     toast({
       title: "Auto-Sync Stopped",
-      description: "Database synchronization has been paused.",
+      description: "Database synchronization has been paused."
     });
   }, [toast]);
 
@@ -215,7 +215,7 @@ export const useDatabaseSync = () => {
   const createTableForStructure = async (structure: DetectedStructure) => {
     try {
       // This would use the CreateOrUpdateTable function
-      const fieldDefinitions = structure.fields.map(fieldName => ({
+      const fieldDefinitions = structure.fields.map((fieldName) => ({
         FieldName: fieldName,
         FieldDisplayName: formatDisplayName(fieldName),
         FieldDesc: `Auto-generated field for ${fieldName}`,
@@ -233,8 +233,8 @@ export const useDatabaseSync = () => {
       });
 
       // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
     } catch (error) {
       console.error(`Failed to create table for ${structure.name}:`, error);
       throw error;
@@ -243,10 +243,10 @@ export const useDatabaseSync = () => {
 
   // Helper functions
   const formatDisplayName = (name: string): string => {
-    return name
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+    return name.
+    split('_').
+    map((word) => word.charAt(0).toUpperCase() + word.slice(1)).
+    join(' ');
   };
 
   const getDefaultValue = (fieldName: string): string => {
@@ -281,7 +281,7 @@ export const useDatabaseSync = () => {
           apiKey: atob(parsed.apiKey || ''),
           jwtSecret: atob(parsed.jwtSecret || '')
         });
-        setStatus(prev => ({ ...prev, isConnected: true }));
+        setStatus((prev) => ({ ...prev, isConnected: true }));
       } catch (error) {
         console.error('Failed to load saved config:', error);
       }
@@ -293,7 +293,7 @@ export const useDatabaseSync = () => {
     if (status.isActive) {
       const interval = setInterval(() => {
         const serviceStatus = autoSyncService.getStatus();
-        setStatus(prev => ({
+        setStatus((prev) => ({
           ...prev,
           structureCount: serviceStatus.structureCount,
           lastSync: serviceStatus.lastSync

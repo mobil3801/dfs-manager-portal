@@ -5,13 +5,19 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { CheckCircle, ExternalLink, Copy, Database, Zap, Shield, Globe, Settings, Code, AlertCircle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { CheckCircle, ExternalLink, Copy, Database, Zap, Shield, Globe, Settings, Code, AlertCircle, FileText, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
 
 const SupabaseSetupGuide: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
+  const [supabaseUrl, setSupabaseUrl] = useState('');
+  const [supabaseKey, setSupabaseKey] = useState('');
+  const [showKey, setShowKey] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
 
   // Database schema SQL
@@ -202,6 +208,98 @@ ALTER PUBLICATION supabase_realtime ADD TABLE audit_logs;`;
     });
   };
 
+  const validateSupabaseUrl = (url: string): boolean => {
+    const urlPattern = /^https:\/\/[a-zA-Z0-9-]+\.supabase\.co$/;
+    return urlPattern.test(url.trim());
+  };
+
+  const validateSupabaseKey = (key: string): boolean => {
+    // Supabase anon keys typically start with 'eyJ' (JWT format)
+    return key.trim().length > 100 && key.trim().startsWith('eyJ');
+  };
+
+  const generateEnvFile = async () => {
+    if (!supabaseUrl.trim() || !supabaseKey.trim()) {
+      toast({
+        title: 'Missing Information',
+        description: 'Please provide both Supabase URL and API key.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    if (!validateSupabaseUrl(supabaseUrl)) {
+      toast({
+        title: 'Invalid URL',
+        description: 'Please provide a valid Supabase URL (e.g., https://your-project.supabase.co)',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    if (!validateSupabaseKey(supabaseKey)) {
+      toast({
+        title: 'Invalid API Key',
+        description: 'Please provide a valid Supabase anon public key.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+
+    try {
+      const envContent = `# Supabase Configuration
+# Generated automatically by DFS Manager Portal
+# Keep these values secure and never commit to version control
+
+VITE_SUPABASE_URL=${supabaseUrl.trim()}
+VITE_SUPABASE_ANON_KEY=${supabaseKey.trim()}
+
+# Optional: Add custom configurations below
+# VITE_APP_ENVIRONMENT=development
+# VITE_APP_VERSION=1.0.0
+`;
+
+      // Copy environment content to clipboard
+      await navigator.clipboard.writeText(envContent);
+      
+      // Trigger download of the .env.local file
+      const blob = new Blob([envContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = '.env.local';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: '✅ Environment File Ready!',
+        description: 'The .env.local file has been downloaded and copied to clipboard. Please place it in your project root directory.',
+      });
+
+      // Clear the form for security
+      setSupabaseUrl('');
+      setSupabaseKey('');
+      setShowKey(false);
+      
+      // Move to next step
+      setActiveStep(2);
+      
+    } catch (error) {
+      console.error('Error generating .env.local file:', error);
+      toast({
+        title: 'Generation Failed',
+        description: 'Could not create .env.local file. Please try again or create it manually.',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const setupSteps = [
   {
     title: 'Create Supabase Project',
@@ -227,43 +325,135 @@ ALTER PUBLICATION supabase_realtime ADD TABLE audit_logs;`;
 
   },
   {
-    title: 'Configure Environment Variables',
-    description: 'Set up your API keys and connection strings',
-    icon: Settings,
+    title: 'Auto-Generate Environment File',
+    description: 'Automatically create .env.local with your Supabase credentials',
+    icon: FileText,
     content:
     <div className="space-y-4">
           <p>1. In your Supabase project dashboard, go to Settings &gt; API</p>
-          <p>2. Copy your Project URL and anon public key:</p>
+          <p>2. Copy your Project URL and anon public key, then paste them below:</p>
           
-          <div className="bg-gray-100 p-4 rounded-lg font-mono text-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span>VITE_SUPABASE_URL=https://your-project.supabase.co</span>
-              <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => copyToClipboard('VITE_SUPABASE_URL=https://your-project.supabase.co', 'Supabase URL template')}>
-                <Copy className="h-4 w-4" />
-              </Button>
+          <div className="space-y-4 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200">
+            <div className="flex items-center gap-2 mb-4">
+              <FileText className="h-5 w-5 text-blue-600" />
+              <span className="font-semibold text-blue-800">Automatic .env.local Generator</span>
             </div>
-            <div className="flex items-center justify-between">
-              <span>VITE_SUPABASE_ANON_KEY=your-anon-key-here</span>
-              <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => copyToClipboard('VITE_SUPABASE_ANON_KEY=your-anon-key-here', 'Supabase anon key template')}>
-                <Copy className="h-4 w-4" />
-              </Button>
+            
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="supabase-url" className="text-sm font-medium">Supabase Project URL</Label>
+                <Input
+                  id="supabase-url"
+                  type="url"
+                  placeholder="https://your-project.supabase.co"
+                  value={supabaseUrl}
+                  onChange={(e) => setSupabaseUrl(e.target.value)}
+                  className="mt-1"
+                />
+                <p className="text-xs text-gray-600 mt-1">Found in Settings &gt; API &gt; Project URL</p>
+              </div>
+              
+              <div>
+                <Label htmlFor="supabase-key" className="text-sm font-medium">Supabase Anon Public Key</Label>
+                <div className="relative mt-1">
+                  <Input
+                    id="supabase-key"
+                    type={showKey ? "text" : "password"}
+                    placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    value={supabaseKey}
+                    onChange={(e) => setSupabaseKey(e.target.value)}
+                    className="pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3"
+                    onClick={() => setShowKey(!showKey)}
+                  >
+                    {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-600 mt-1">Found in Settings &gt; API &gt; anon public</p>
+              </div>
+              
+              <div className="space-y-2">
+                <Button
+                  onClick={generateEnvFile}
+                  disabled={isGenerating || !supabaseUrl.trim() || !supabaseKey.trim()}
+                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                >
+                  {isGenerating ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                      Generating Environment File...
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="h-4 w-4 mr-2" />
+                      ⚡ Auto-Generate & Download .env.local
+                    </>
+                  )}
+                </Button>
+                
+                {(supabaseUrl.trim() || supabaseKey.trim()) && (
+                  <div className="text-xs text-center text-gray-600">
+                    {!validateSupabaseUrl(supabaseUrl) && supabaseUrl.trim() && (
+                      <p className="text-red-600">⚠️ Invalid URL format</p>
+                    )}
+                    {!validateSupabaseKey(supabaseKey) && supabaseKey.trim() && (
+                      <p className="text-red-600">⚠️ Invalid API key format</p>
+                    )}
+                    {validateSupabaseUrl(supabaseUrl) && validateSupabaseKey(supabaseKey) && (
+                      <p className="text-green-600">✓ Valid credentials - ready to generate!</p>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           
-          <p>3. Create a <code>.env.local</code> file in your project root and add these variables with your actual values.</p>
+          <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-gray-700 font-medium">Generated file structure:</span>
+              <Badge variant="outline" className="text-xs">Preview</Badge>
+            </div>
+            <div className="font-mono text-xs text-gray-600 bg-white p-3 rounded border">
+              <div className="text-green-600"># Supabase Configuration</div>
+              <div className="text-green-600"># Auto-generated by DFS Manager Portal</div>
+              <div className="mt-2">
+                <span className="text-blue-600">VITE_SUPABASE_URL</span>=
+                <span className="text-purple-600">{supabaseUrl || 'your-project-url'}</span>
+              </div>
+              <div>
+                <span className="text-blue-600">VITE_SUPABASE_ANON_KEY</span>=
+                <span className="text-purple-600">{supabaseKey ? '***[HIDDEN]***' : 'your-anon-key'}</span>
+              </div>
+            </div>
+          </div>
           
-          <Alert>
-            <Shield className="h-4 w-4" />
-            <AlertDescription>
-              Never commit your actual API keys to version control. Use .env.local for local development.
-            </AlertDescription>
-          </Alert>
+          <div className="space-y-3">
+            <Alert>
+              <CheckCircle className="h-4 w-4" />
+              <AlertDescription>
+                ✨ <strong>Auto-Generation Features:</strong>
+                <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
+                  <li>Validates your Supabase URL format automatically</li>
+                  <li>Checks API key format (JWT structure)</li>
+                  <li>Downloads ready-to-use .env.local file</li>
+                  <li>Copies content to clipboard for easy pasting</li>
+                  <li>Includes helpful comments and structure</li>
+                </ul>
+              </AlertDescription>
+            </Alert>
+            
+            <Alert>
+              <Shield className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Security Notice:</strong> Place the downloaded .env.local file in your project root directory. Never commit this file to version control as it contains sensitive API keys.
+              </AlertDescription>
+            </Alert>
+          </div>
         </div>
 
   },

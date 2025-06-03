@@ -154,8 +154,8 @@ const DatabaseAutoSyncPage: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default DatabaseAutoSyncPage;

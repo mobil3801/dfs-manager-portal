@@ -10,20 +10,20 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Database, 
-  Key, 
-  Globe, 
-  Settings, 
-  CheckCircle, 
-  AlertCircle, 
+import {
+  Database,
+  Key,
+  Globe,
+  Settings,
+  CheckCircle,
+  AlertCircle,
   Loader2,
   Shield,
   RotateCcw,
   Monitor,
   Trash2,
-  Plus
-} from 'lucide-react';
+  Plus } from
+'lucide-react';
 
 interface SyncConfig {
   projectUrl: string;
@@ -72,7 +72,7 @@ const DatabaseSyncForm: React.FC = () => {
   const [detectedStructures, setDetectedStructures] = useState<any[]>([]);
 
   const handleInputChange = (field: keyof SyncConfig, value: any) => {
-    setSyncConfig(prev => ({
+    setSyncConfig((prev) => ({
       ...prev,
       [field]: value
     }));
@@ -82,27 +82,27 @@ const DatabaseSyncForm: React.FC = () => {
     setIsTesting(true);
     try {
       // Simulate connection test
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       // Mock successful connection
-      setSyncStatus(prev => ({
+      setSyncStatus((prev) => ({
         ...prev,
         isConnected: true,
         status: 'success'
       }));
-      
+
       toast({
         title: "Connection Successful",
-        description: "Successfully connected to your project database.",
+        description: "Successfully connected to your project database."
       });
     } catch (error) {
-      setSyncStatus(prev => ({
+      setSyncStatus((prev) => ({
         ...prev,
         isConnected: false,
         status: 'error',
         errors: ['Failed to connect to database']
       }));
-      
+
       toast({
         title: "Connection Failed",
         description: "Unable to connect to the database. Please check your credentials.",
@@ -117,37 +117,37 @@ const DatabaseSyncForm: React.FC = () => {
     setIsLoading(true);
     try {
       // Simulate scanning for form structures
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
       const mockStructures = [
-        {
-          name: 'user_registration_form',
-          type: 'form',
-          fields: ['email', 'password', 'firstName', 'lastName', 'phone'],
-          detected: new Date().toISOString(),
-          status: 'new'
-        },
-        {
-          name: 'product_inventory',
-          type: 'table',
-          fields: ['productName', 'sku', 'price', 'quantity', 'category'],
-          detected: new Date().toISOString(),
-          status: 'existing'
-        },
-        {
-          name: 'order_management',
-          type: 'form',
-          fields: ['orderNumber', 'customerEmail', 'items', 'totalAmount'],
-          detected: new Date().toISOString(),
-          status: 'new'
-        }
-      ];
-      
+      {
+        name: 'user_registration_form',
+        type: 'form',
+        fields: ['email', 'password', 'firstName', 'lastName', 'phone'],
+        detected: new Date().toISOString(),
+        status: 'new'
+      },
+      {
+        name: 'product_inventory',
+        type: 'table',
+        fields: ['productName', 'sku', 'price', 'quantity', 'category'],
+        detected: new Date().toISOString(),
+        status: 'existing'
+      },
+      {
+        name: 'order_management',
+        type: 'form',
+        fields: ['orderNumber', 'customerEmail', 'items', 'totalAmount'],
+        detected: new Date().toISOString(),
+        status: 'new'
+      }];
+
+
       setDetectedStructures(mockStructures);
-      
+
       toast({
         title: "Scan Complete",
-        description: `Found ${mockStructures.length} form/table structures.`,
+        description: `Found ${mockStructures.length} form/table structures.`
       });
     } catch (error) {
       toast({
@@ -164,8 +164,8 @@ const DatabaseSyncForm: React.FC = () => {
     setIsLoading(true);
     try {
       // Simulate starting auto-sync
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       // Create tables for detected structures
       for (const structure of detectedStructures) {
         if (structure.status === 'new') {
@@ -173,20 +173,20 @@ const DatabaseSyncForm: React.FC = () => {
           // Here you would call the actual table creation API
         }
       }
-      
-      setSyncStatus(prev => ({
+
+      setSyncStatus((prev) => ({
         ...prev,
         status: 'success',
         lastSync: new Date().toISOString(),
         tablesCount: detectedStructures.length,
         recordsCount: 0
       }));
-      
+
       toast({
         title: "Auto-Sync Started",
-        description: "Database synchronization is now active and monitoring for changes.",
+        description: "Database synchronization is now active and monitoring for changes."
       });
-      
+
       // Start monitoring interval
       if (syncConfig.autoSync) {
         setInterval(() => {
@@ -194,7 +194,7 @@ const DatabaseSyncForm: React.FC = () => {
           // Check for new structures and sync
         }, syncConfig.syncInterval * 1000);
       }
-      
+
     } catch (error) {
       toast({
         title: "Sync Failed",
@@ -207,14 +207,14 @@ const DatabaseSyncForm: React.FC = () => {
   };
 
   const stopAutoSync = () => {
-    setSyncStatus(prev => ({
+    setSyncStatus((prev) => ({
       ...prev,
       status: 'idle'
     }));
-    
+
     toast({
       title: "Auto-Sync Stopped",
-      description: "Database synchronization has been paused.",
+      description: "Database synchronization has been paused."
     });
   };
 
@@ -255,8 +255,8 @@ const DatabaseSyncForm: React.FC = () => {
                     placeholder="https://your-project.com"
                     value={syncConfig.projectUrl}
                     onChange={(e) => handleInputChange('projectUrl', e.target.value)}
-                    className="w-full"
-                  />
+                    className="w-full" />
+
                 </div>
 
                 <div className="space-y-2">
@@ -267,8 +267,8 @@ const DatabaseSyncForm: React.FC = () => {
                     placeholder="Your API key"
                     value={syncConfig.apiKey}
                     onChange={(e) => handleInputChange('apiKey', e.target.value)}
-                    className="w-full"
-                  />
+                    className="w-full" />
+
                 </div>
 
                 <div className="space-y-2">
@@ -279,16 +279,16 @@ const DatabaseSyncForm: React.FC = () => {
                     placeholder="Your JWT secret"
                     value={syncConfig.jwtSecret}
                     onChange={(e) => handleInputChange('jwtSecret', e.target.value)}
-                    className="w-full"
-                  />
+                    className="w-full" />
+
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="databaseType">Database Type</Label>
-                  <Select 
+                  <Select
                     value={syncConfig.databaseType}
-                    onValueChange={(value) => handleInputChange('databaseType', value)}
-                  >
+                    onValueChange={(value) => handleInputChange('databaseType', value)}>
+
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -302,16 +302,16 @@ const DatabaseSyncForm: React.FC = () => {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button 
+                  <Button
                     onClick={testConnection}
                     disabled={isTesting || !syncConfig.projectUrl || !syncConfig.apiKey}
-                    className="flex-1"
-                  >
-                    {isTesting ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <Globe className="h-4 w-4 mr-2" />
-                    )}
+                    className="flex-1">
+
+                    {isTesting ?
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" /> :
+
+                    <Globe className="h-4 w-4 mr-2" />
+                    }
                     Test Connection
                   </Button>
                 </div>
@@ -327,18 +327,18 @@ const DatabaseSyncForm: React.FC = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-2">
-                  {syncStatus.isConnected ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                  ) : (
-                    <AlertCircle className="h-5 w-5 text-red-500" />
-                  )}
+                  {syncStatus.isConnected ?
+                  <CheckCircle className="h-5 w-5 text-green-500" /> :
+
+                  <AlertCircle className="h-5 w-5 text-red-500" />
+                  }
                   <span className={syncStatus.isConnected ? 'text-green-600' : 'text-red-600'}>
                     {syncStatus.isConnected ? 'Connected' : 'Disconnected'}
                   </span>
                 </div>
 
-                {syncStatus.isConnected && (
-                  <div className="space-y-2">
+                {syncStatus.isConnected &&
+                <div className="space-y-2">
                     <div className="flex justify-between">
                       <span>Tables:</span>
                       <Badge variant="secondary">{syncStatus.tablesCount}</Badge>
@@ -354,29 +354,29 @@ const DatabaseSyncForm: React.FC = () => {
                       </span>
                     </div>
                   </div>
-                )}
+                }
 
-                {syncStatus.errors.length > 0 && (
-                  <Alert>
+                {syncStatus.errors.length > 0 &&
+                <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
                       {syncStatus.errors.join(', ')}
                     </AlertDescription>
                   </Alert>
-                )}
+                }
 
                 <div className="flex gap-2">
-                  <Button 
+                  <Button
                     onClick={scanForStructures}
                     disabled={!syncStatus.isConnected || isLoading}
                     variant="outline"
-                    className="flex-1"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <Database className="h-4 w-4 mr-2" />
-                    )}
+                    className="flex-1">
+
+                    {isLoading ?
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" /> :
+
+                    <Database className="h-4 w-4 mr-2" />
+                    }
                     Scan Structures
                   </Button>
                 </div>
@@ -397,25 +397,25 @@ const DatabaseSyncForm: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {detectedStructures.length === 0 ? (
-                <div className="text-center py-8">
+              {detectedStructures.length === 0 ?
+              <div className="text-center py-8">
                   <Database className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                   <p className="text-muted-foreground">
                     No structures detected. Click "Scan Structures" to find forms and tables.
                   </p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {detectedStructures.map((structure, index) => (
-                    <Card key={index} className="border-l-4 border-l-blue-500">
+                </div> :
+
+              <div className="space-y-4">
+                  {detectedStructures.map((structure, index) =>
+                <Card key={index} className="border-l-4 border-l-blue-500">
                       <CardContent className="pt-4">
                         <div className="flex items-center justify-between mb-2">
                           <h4 className="font-semibold flex items-center gap-2">
-                            {structure.type === 'form' ? (
-                              <Plus className="h-4 w-4" />
-                            ) : (
-                              <Database className="h-4 w-4" />
-                            )}
+                            {structure.type === 'form' ?
+                        <Plus className="h-4 w-4" /> :
+
+                        <Database className="h-4 w-4" />
+                        }
                             {structure.name}
                           </h4>
                           <Badge variant={structure.status === 'new' ? 'default' : 'secondary'}>
@@ -426,17 +426,17 @@ const DatabaseSyncForm: React.FC = () => {
                           Type: {structure.type} | Fields: {structure.fields.length}
                         </p>
                         <div className="flex flex-wrap gap-1">
-                          {structure.fields.map((field: string, fieldIndex: number) => (
-                            <Badge key={fieldIndex} variant="outline" className="text-xs">
+                          {structure.fields.map((field: string, fieldIndex: number) =>
+                      <Badge key={fieldIndex} variant="outline" className="text-xs">
                               {field}
                             </Badge>
-                          ))}
+                      )}
                         </div>
                       </CardContent>
                     </Card>
-                  ))}
+                )}
                 </div>
-              )}
+              }
             </CardContent>
           </Card>
         </TabsContent>
@@ -459,37 +459,37 @@ const DatabaseSyncForm: React.FC = () => {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button 
+                  <Button
                     onClick={startAutoSync}
                     disabled={!syncStatus.isConnected || isLoading || syncStatus.status === 'success'}
-                    className="flex-1"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <RotateCcw className="h-4 w-4 mr-2" />
-                    )}
+                    className="flex-1">
+
+                    {isLoading ?
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" /> :
+
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    }
                     Start Auto-Sync
                   </Button>
-                  <Button 
+                  <Button
                     onClick={stopAutoSync}
                     disabled={syncStatus.status !== 'success'}
                     variant="outline"
-                    className="flex-1"
-                  >
+                    className="flex-1">
+
                     <Trash2 className="h-4 w-4 mr-2" />
                     Stop Sync
                   </Button>
                 </div>
 
-                {syncStatus.status === 'success' && (
-                  <Alert>
+                {syncStatus.status === 'success' &&
+                <Alert>
                     <CheckCircle className="h-4 w-4" />
                     <AlertDescription>
                       Auto-sync is active. Database will automatically update when changes are detected.
                     </AlertDescription>
                   </Alert>
-                )}
+                }
               </CardContent>
             </Card>
 
@@ -512,9 +512,9 @@ const DatabaseSyncForm: React.FC = () => {
                 <div className="text-center">
                   <div className="text-sm text-muted-foreground">Last Sync</div>
                   <div className="font-medium">
-                    {syncStatus.lastSync ? 
-                      new Date(syncStatus.lastSync).toLocaleString() : 
-                      'Never'
+                    {syncStatus.lastSync ?
+                    new Date(syncStatus.lastSync).toLocaleString() :
+                    'Never'
                     }
                   </div>
                 </div>
@@ -542,8 +542,8 @@ const DatabaseSyncForm: React.FC = () => {
                 <Switch
                   id="autoSync"
                   checked={syncConfig.autoSync}
-                  onCheckedChange={(checked) => handleInputChange('autoSync', checked)}
-                />
+                  onCheckedChange={(checked) => handleInputChange('autoSync', checked)} />
+
               </div>
 
               <div className="space-y-2">
@@ -554,8 +554,8 @@ const DatabaseSyncForm: React.FC = () => {
                   value={syncConfig.syncInterval}
                   onChange={(e) => handleInputChange('syncInterval', parseInt(e.target.value))}
                   min="60"
-                  max="3600"
-                />
+                  max="3600" />
+
                 <p className="text-sm text-muted-foreground">
                   How often to check for changes (minimum 60 seconds)
                 </p>
@@ -571,8 +571,8 @@ const DatabaseSyncForm: React.FC = () => {
                 <Switch
                   id="backupEnabled"
                   checked={syncConfig.backupEnabled}
-                  onCheckedChange={(checked) => handleInputChange('backupEnabled', checked)}
-                />
+                  onCheckedChange={(checked) => handleInputChange('backupEnabled', checked)} />
+
               </div>
 
               <div className="flex items-center justify-between">
@@ -585,8 +585,8 @@ const DatabaseSyncForm: React.FC = () => {
                 <Switch
                   id="encryptionEnabled"
                   checked={syncConfig.encryptionEnabled}
-                  onCheckedChange={(checked) => handleInputChange('encryptionEnabled', checked)}
-                />
+                  onCheckedChange={(checked) => handleInputChange('encryptionEnabled', checked)} />
+
               </div>
 
               <div className="pt-4">
@@ -599,8 +599,8 @@ const DatabaseSyncForm: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default DatabaseSyncForm;

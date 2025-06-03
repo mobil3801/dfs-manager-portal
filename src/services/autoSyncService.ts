@@ -71,17 +71,17 @@ class AutoSyncService {
     try {
       // Scan React components for forms
       const formStructures = await this.scanReactForms();
-      
+
       // Scan for table definitions
       const tableStructures = await this.scanTableDefinitions();
-      
+
       // Merge and process structures
       const allStructures = [...formStructures, ...tableStructures];
-      
+
       for (const structure of allStructures) {
         await this.processStructure(structure);
       }
-      
+
       console.log(`Scanned ${allStructures.length} structures`);
     } catch (error) {
       console.error('Error scanning structures:', error);
@@ -91,38 +91,38 @@ class AutoSyncService {
   // Scan React components for form structures
   private async scanReactForms(): Promise<TableStructure[]> {
     const structures: TableStructure[] = [];
-    
+
     try {
       // This would scan your React components for forms
       // For demo purposes, we'll return mock data
       const mockForms = [
-        {
-          name: 'user_registration',
-          fields: [
-            { name: 'email', type: 'String' as const, defaultValue: '', required: true, description: 'User email address', componentType: 'Default' as const },
-            { name: 'password', type: 'String' as const, defaultValue: '', required: true, description: 'User password', componentType: 'Default' as const },
-            { name: 'first_name', type: 'String' as const, defaultValue: '', required: true, description: 'User first name', componentType: 'Default' as const },
-            { name: 'last_name', type: 'String' as const, defaultValue: '', required: true, description: 'User last name', componentType: 'Default' as const },
-            { name: 'phone', type: 'String' as const, defaultValue: '', required: false, description: 'User phone number', componentType: 'Default' as const },
-            { name: 'profile_image', type: 'String' as const, defaultValue: '', required: false, description: 'User profile image', componentType: 'Image' as const }
-          ],
-          type: 'form' as const,
-          source: 'React Component',
-          lastModified: new Date().toISOString()
-        },
-        {
-          name: 'contact_form',
-          fields: [
-            { name: 'name', type: 'String' as const, defaultValue: '', required: true, description: 'Contact name', componentType: 'Default' as const },
-            { name: 'email', type: 'String' as const, defaultValue: '', required: true, description: 'Contact email', componentType: 'Default' as const },
-            { name: 'message', type: 'String' as const, defaultValue: '', required: true, description: 'Contact message', componentType: 'Default' as const },
-            { name: 'attachment', type: 'String' as const, defaultValue: '', required: false, description: 'Message attachment', componentType: 'File' as const }
-          ],
-          type: 'form' as const,
-          source: 'React Component',
-          lastModified: new Date().toISOString()
-        }
-      ];
+      {
+        name: 'user_registration',
+        fields: [
+        { name: 'email', type: 'String' as const, defaultValue: '', required: true, description: 'User email address', componentType: 'Default' as const },
+        { name: 'password', type: 'String' as const, defaultValue: '', required: true, description: 'User password', componentType: 'Default' as const },
+        { name: 'first_name', type: 'String' as const, defaultValue: '', required: true, description: 'User first name', componentType: 'Default' as const },
+        { name: 'last_name', type: 'String' as const, defaultValue: '', required: true, description: 'User last name', componentType: 'Default' as const },
+        { name: 'phone', type: 'String' as const, defaultValue: '', required: false, description: 'User phone number', componentType: 'Default' as const },
+        { name: 'profile_image', type: 'String' as const, defaultValue: '', required: false, description: 'User profile image', componentType: 'Image' as const }],
+
+        type: 'form' as const,
+        source: 'React Component',
+        lastModified: new Date().toISOString()
+      },
+      {
+        name: 'contact_form',
+        fields: [
+        { name: 'name', type: 'String' as const, defaultValue: '', required: true, description: 'Contact name', componentType: 'Default' as const },
+        { name: 'email', type: 'String' as const, defaultValue: '', required: true, description: 'Contact email', componentType: 'Default' as const },
+        { name: 'message', type: 'String' as const, defaultValue: '', required: true, description: 'Contact message', componentType: 'Default' as const },
+        { name: 'attachment', type: 'String' as const, defaultValue: '', required: false, description: 'Message attachment', componentType: 'File' as const }],
+
+        type: 'form' as const,
+        source: 'React Component',
+        lastModified: new Date().toISOString()
+      }];
+
 
       structures.push(...mockForms);
     } catch (error) {
@@ -135,26 +135,26 @@ class AutoSyncService {
   // Scan for existing table definitions
   private async scanTableDefinitions(): Promise<TableStructure[]> {
     const structures: TableStructure[] = [];
-    
+
     try {
       // This would scan your existing table definitions
       // For demo purposes, we'll return mock data based on existing tables
       const mockTables = [
-        {
-          name: 'product_catalog',
-          fields: [
-            { name: 'product_name', type: 'String' as const, defaultValue: '', required: true, description: 'Product name', componentType: 'Default' as const },
-            { name: 'sku', type: 'String' as const, defaultValue: '', required: true, description: 'Product SKU', componentType: 'Default' as const },
-            { name: 'price', type: 'Number' as const, defaultValue: 0, required: true, description: 'Product price', componentType: 'Default' as const },
-            { name: 'quantity', type: 'Integer' as const, defaultValue: 0, required: true, description: 'Stock quantity', componentType: 'Default' as const },
-            { name: 'description', type: 'String' as const, defaultValue: '', required: false, description: 'Product description', componentType: 'Default' as const },
-            { name: 'image_url', type: 'String' as const, defaultValue: '', required: false, description: 'Product image', componentType: 'Image' as const }
-          ],
-          type: 'table' as const,
-          source: 'Database Schema',
-          lastModified: new Date().toISOString()
-        }
-      ];
+      {
+        name: 'product_catalog',
+        fields: [
+        { name: 'product_name', type: 'String' as const, defaultValue: '', required: true, description: 'Product name', componentType: 'Default' as const },
+        { name: 'sku', type: 'String' as const, defaultValue: '', required: true, description: 'Product SKU', componentType: 'Default' as const },
+        { name: 'price', type: 'Number' as const, defaultValue: 0, required: true, description: 'Product price', componentType: 'Default' as const },
+        { name: 'quantity', type: 'Integer' as const, defaultValue: 0, required: true, description: 'Stock quantity', componentType: 'Default' as const },
+        { name: 'description', type: 'String' as const, defaultValue: '', required: false, description: 'Product description', componentType: 'Default' as const },
+        { name: 'image_url', type: 'String' as const, defaultValue: '', required: false, description: 'Product image', componentType: 'Image' as const }],
+
+        type: 'table' as const,
+        source: 'Database Schema',
+        lastModified: new Date().toISOString()
+      }];
+
 
       structures.push(...mockTables);
     } catch (error) {
@@ -167,7 +167,7 @@ class AutoSyncService {
   // Process a detected structure
   private async processStructure(structure: TableStructure): Promise<void> {
     const existingStructure = this.detectedStructures.get(structure.name);
-    
+
     if (!existingStructure) {
       // New structure detected
       console.log(`New structure detected: ${structure.name}`);
@@ -184,18 +184,18 @@ class AutoSyncService {
   // Check if structure has changed
   private hasStructureChanged(existing: TableStructure, current: TableStructure): boolean {
     if (existing.fields.length !== current.fields.length) return true;
-    
+
     for (let i = 0; i < existing.fields.length; i++) {
       const existingField = existing.fields[i];
       const currentField = current.fields[i];
-      
+
       if (existingField.name !== currentField.name ||
-          existingField.type !== currentField.type ||
-          existingField.componentType !== currentField.componentType) {
+      existingField.type !== currentField.type ||
+      existingField.componentType !== currentField.componentType) {
         return true;
       }
     }
-    
+
     return false;
   }
 
@@ -205,14 +205,14 @@ class AutoSyncService {
 
     try {
       console.log(`Creating table: ${structure.name}`);
-      
+
       // Create backup if enabled
       if (this.config.backupEnabled) {
         await this.createBackup(structure.name);
       }
 
       // Prepare field definitions for table creation
-      const fieldDefinitions = structure.fields.map(field => ({
+      const fieldDefinitions = structure.fields.map((field) => ({
         FieldName: field.name,
         FieldDisplayName: this.formatDisplayName(field.name),
         FieldDesc: field.description,
@@ -231,10 +231,10 @@ class AutoSyncService {
 
       // This would call the actual API
       console.log('Table definition:', tableDefinition);
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       console.log(`Table ${structure.name} created successfully`);
     } catch (error) {
       console.error(`Error creating table ${structure.name}:`, error);
@@ -248,7 +248,7 @@ class AutoSyncService {
 
     try {
       console.log(`Updating table: ${current.name}`);
-      
+
       // Create backup if enabled
       if (this.config.backupEnabled) {
         await this.createBackup(current.name);
@@ -256,7 +256,7 @@ class AutoSyncService {
 
       // For updates, we recreate the entire table definition
       await this.createTable(current);
-      
+
       console.log(`Table ${current.name} updated successfully`);
     } catch (error) {
       console.error(`Error updating table ${current.name}:`, error);
@@ -270,7 +270,7 @@ class AutoSyncService {
       console.log(`Creating backup for table: ${tableName}`);
       // This would create a backup of the table data
       // Implementation depends on your backup strategy
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       console.log(`Backup created for table: ${tableName}`);
     } catch (error) {
       console.error(`Error creating backup for ${tableName}:`, error);
@@ -279,16 +279,16 @@ class AutoSyncService {
 
   // Format field/table names for display
   private formatDisplayName(name: string): string {
-    return name
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+    return name.
+    split('_').
+    map((word) => word.charAt(0).toUpperCase() + word.slice(1)).
+    join(' ');
   }
 
   // Perform periodic sync
   private async performSync(): Promise<void> {
     if (!this.isMonitoring) return;
-    
+
     try {
       console.log('Performing periodic sync...');
       await this.scanForStructures();

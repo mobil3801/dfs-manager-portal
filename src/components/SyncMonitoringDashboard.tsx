@@ -6,21 +6,21 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Activity, 
-  Database, 
-  CheckCircle, 
-  AlertCircle, 
-  Clock, 
-  RotateCcw, 
+import {
+  Activity,
+  Database,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  RotateCcw,
   BarChart3,
   FileText,
   Trash2,
   RefreshCw,
   Zap,
   Shield,
-  TrendingUp
-} from 'lucide-react';
+  TrendingUp } from
+'lucide-react';
 import autoSyncService from '@/services/autoSyncService';
 
 interface SyncLog {
@@ -52,7 +52,7 @@ const SyncMonitoringDashboard: React.FC = () => {
     avgSyncTime: 0,
     successRate: 0
   });
-  
+
   const [syncStatus, setSyncStatus] = useState({
     isActive: false,
     lastSync: '',
@@ -71,49 +71,49 @@ const SyncMonitoringDashboard: React.FC = () => {
     try {
       // Load sync logs (mock data)
       const mockLogs: SyncLog[] = [
-        {
-          id: '1',
-          timestamp: new Date().toISOString(),
-          type: 'create',
-          tableName: 'user_registration',
-          status: 'success',
-          details: 'Table created with 6 fields',
-          duration: 1200
-        },
-        {
-          id: '2',
-          timestamp: new Date(Date.now() - 300000).toISOString(),
-          type: 'update',
-          tableName: 'product_catalog',
-          status: 'success',
-          details: 'Added new field: image_url',
-          duration: 800
-        },
-        {
-          id: '3',
-          timestamp: new Date(Date.now() - 600000).toISOString(),
-          type: 'scan',
-          tableName: 'contact_form',
-          status: 'success',
-          details: 'Structure scan completed',
-          duration: 400
-        },
-        {
-          id: '4',
-          timestamp: new Date(Date.now() - 900000).toISOString(),
-          type: 'error',
-          tableName: 'order_management',
-          status: 'failed',
-          details: 'Connection timeout during sync',
-          duration: 0
-        }
-      ];
+      {
+        id: '1',
+        timestamp: new Date().toISOString(),
+        type: 'create',
+        tableName: 'user_registration',
+        status: 'success',
+        details: 'Table created with 6 fields',
+        duration: 1200
+      },
+      {
+        id: '2',
+        timestamp: new Date(Date.now() - 300000).toISOString(),
+        type: 'update',
+        tableName: 'product_catalog',
+        status: 'success',
+        details: 'Added new field: image_url',
+        duration: 800
+      },
+      {
+        id: '3',
+        timestamp: new Date(Date.now() - 600000).toISOString(),
+        type: 'scan',
+        tableName: 'contact_form',
+        status: 'success',
+        details: 'Structure scan completed',
+        duration: 400
+      },
+      {
+        id: '4',
+        timestamp: new Date(Date.now() - 900000).toISOString(),
+        type: 'error',
+        tableName: 'order_management',
+        status: 'failed',
+        details: 'Connection timeout during sync',
+        duration: 0
+      }];
+
 
       setSyncLogs(mockLogs);
 
       // Calculate metrics
-      const successfulSyncs = mockLogs.filter(log => log.status === 'success');
-      const todaysSyncs = mockLogs.filter(log => {
+      const successfulSyncs = mockLogs.filter((log) => log.status === 'success');
+      const todaysSyncs = mockLogs.filter((log) => {
         const logDate = new Date(log.timestamp);
         const today = new Date();
         return logDate.toDateString() === today.toDateString();
@@ -122,9 +122,9 @@ const SyncMonitoringDashboard: React.FC = () => {
       setMetrics({
         totalTables: 8,
         syncedToday: todaysSyncs.length,
-        errorCount: mockLogs.filter(log => log.status === 'failed').length,
+        errorCount: mockLogs.filter((log) => log.status === 'failed').length,
         avgSyncTime: successfulSyncs.reduce((acc, log) => acc + log.duration, 0) / successfulSyncs.length || 0,
-        successRate: (successfulSyncs.length / mockLogs.length) * 100
+        successRate: successfulSyncs.length / mockLogs.length * 100
       });
 
       // Update sync status
@@ -145,12 +145,12 @@ const SyncMonitoringDashboard: React.FC = () => {
     setIsLoading(true);
     try {
       await autoSyncService.triggerSync();
-      
+
       toast({
         title: "Manual Sync Triggered",
-        description: "Database synchronization has been initiated.",
+        description: "Database synchronization has been initiated."
       });
-      
+
       // Reload data after sync
       setTimeout(loadSyncData, 2000);
     } catch (error) {
@@ -168,7 +168,7 @@ const SyncMonitoringDashboard: React.FC = () => {
     setSyncLogs([]);
     toast({
       title: "Logs Cleared",
-      description: "Sync logs have been cleared.",
+      description: "Sync logs have been cleared."
     });
   };
 
@@ -211,11 +211,11 @@ const SyncMonitoringDashboard: React.FC = () => {
         </div>
         <div className="flex gap-2">
           <Button onClick={handleManualSync} disabled={isLoading}>
-            {isLoading ? (
-              <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <RotateCcw className="h-4 w-4 mr-2" />
-            )}
+            {isLoading ?
+            <RefreshCw className="h-4 w-4 animate-spin mr-2" /> :
+
+            <RotateCcw className="h-4 w-4 mr-2" />
+            }
             Manual Sync
           </Button>
         </div>
@@ -317,14 +317,14 @@ const SyncMonitoringDashboard: React.FC = () => {
                   </div>
                 </div>
 
-                {metrics.errorCount > 0 && (
-                  <Alert>
+                {metrics.errorCount > 0 &&
+                <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
                       {metrics.errorCount} sync errors detected. Check logs for details.
                     </AlertDescription>
                   </Alert>
-                )}
+                }
               </CardContent>
             </Card>
 
@@ -383,14 +383,14 @@ const SyncMonitoringDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {syncLogs.length === 0 ? (
-                  <div className="text-center py-8">
+                {syncLogs.length === 0 ?
+                <div className="text-center py-8">
                     <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                     <p className="text-muted-foreground">No sync logs available</p>
-                  </div>
-                ) : (
-                  syncLogs.map((log) => (
-                    <div key={log.id} className="flex items-center space-x-4 p-4 border rounded-lg">
+                  </div> :
+
+                syncLogs.map((log) =>
+                <div key={log.id} className="flex items-center space-x-4 p-4 border rounded-lg">
                       <div className="flex items-center space-x-2">
                         {getTypeIcon(log.type)}
                         {getStatusIcon(log.status)}
@@ -412,8 +412,8 @@ const SyncMonitoringDashboard: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                  ))
-                )}
+                )
+                }
               </div>
             </CardContent>
           </Card>
@@ -441,9 +441,9 @@ const SyncMonitoringDashboard: React.FC = () => {
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span>Performance Score</span>
-                      <span>{Math.round((100 - metrics.avgSyncTime / 10))}%</span>
+                      <span>{Math.round(100 - metrics.avgSyncTime / 10)}%</span>
                     </div>
-                    <Progress value={Math.round((100 - metrics.avgSyncTime / 10))} className="w-full" />
+                    <Progress value={Math.round(100 - metrics.avgSyncTime / 10)} className="w-full" />
                   </div>
                 </div>
               </CardContent>
@@ -481,8 +481,8 @@ const SyncMonitoringDashboard: React.FC = () => {
           </div>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SyncMonitoringDashboard;
