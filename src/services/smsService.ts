@@ -21,6 +21,7 @@ export interface TwilioConfig {
   accountSid: string;
   authToken: string;
   fromNumber: string;
+  messagingServiceSid?: string;
   testMode: boolean;
   webhookUrl?: string;
 }

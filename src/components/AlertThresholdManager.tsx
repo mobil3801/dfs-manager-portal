@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
+import {
   Settings,
   Bell,
   AlertTriangle,
@@ -20,8 +20,8 @@ import {
   TestTube,
   Mail,
   MessageSquare,
-  Clock
-} from 'lucide-react';
+  Clock } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface AlertRule {
@@ -50,63 +50,63 @@ interface NotificationChannel {
 const AlertThresholdManager = () => {
   const { toast } = useToast();
   const [alertRules, setAlertRules] = useState<AlertRule[]>([
-    {
-      id: '1',
-      name: 'High Connection Time',
-      metric: 'connection_time',
-      operator: 'greater_than',
-      threshold: 2000,
-      severity: 'high',
-      enabled: true,
-      notification_methods: ['email', 'in_app'],
-      cooldown_minutes: 15,
-      description: 'Alert when database connection time exceeds 2 seconds',
-      created_at: new Date().toISOString()
-    },
-    {
-      id: '2',
-      name: 'Critical Error Rate',
-      metric: 'error_rate',
-      operator: 'greater_than',
-      threshold: 5,
-      severity: 'critical',
-      enabled: true,
-      notification_methods: ['email', 'sms', 'in_app'],
-      cooldown_minutes: 5,
-      description: 'Alert when error rate exceeds 5%',
-      created_at: new Date().toISOString()
-    },
-    {
-      id: '3',
-      name: 'Memory Usage Warning',
-      metric: 'memory_usage',
-      operator: 'greater_than',
-      threshold: 80,
-      severity: 'medium',
-      enabled: true,
-      notification_methods: ['in_app'],
-      cooldown_minutes: 30,
-      description: 'Alert when memory usage exceeds 80%',
-      created_at: new Date().toISOString()
-    }
-  ]);
+  {
+    id: '1',
+    name: 'High Connection Time',
+    metric: 'connection_time',
+    operator: 'greater_than',
+    threshold: 2000,
+    severity: 'high',
+    enabled: true,
+    notification_methods: ['email', 'in_app'],
+    cooldown_minutes: 15,
+    description: 'Alert when database connection time exceeds 2 seconds',
+    created_at: new Date().toISOString()
+  },
+  {
+    id: '2',
+    name: 'Critical Error Rate',
+    metric: 'error_rate',
+    operator: 'greater_than',
+    threshold: 5,
+    severity: 'critical',
+    enabled: true,
+    notification_methods: ['email', 'sms', 'in_app'],
+    cooldown_minutes: 5,
+    description: 'Alert when error rate exceeds 5%',
+    created_at: new Date().toISOString()
+  },
+  {
+    id: '3',
+    name: 'Memory Usage Warning',
+    metric: 'memory_usage',
+    operator: 'greater_than',
+    threshold: 80,
+    severity: 'medium',
+    enabled: true,
+    notification_methods: ['in_app'],
+    cooldown_minutes: 30,
+    description: 'Alert when memory usage exceeds 80%',
+    created_at: new Date().toISOString()
+  }]
+  );
 
   const [notificationChannels, setNotificationChannels] = useState<NotificationChannel[]>([
-    {
-      id: '1',
-      type: 'email',
-      name: 'Admin Email',
-      configuration: { recipients: ['admin@dfsmanager.com'] },
-      enabled: true
-    },
-    {
-      id: '2',
-      type: 'sms',
-      name: 'Emergency SMS',
-      configuration: { phone_numbers: ['+1234567890'] },
-      enabled: true
-    }
-  ]);
+  {
+    id: '1',
+    type: 'email',
+    name: 'Admin Email',
+    configuration: { recipients: ['admin@dfsmanager.com'] },
+    enabled: true
+  },
+  {
+    id: '2',
+    type: 'sms',
+    name: 'Emergency SMS',
+    configuration: { phone_numbers: ['+1234567890'] },
+    enabled: true
+  }]
+  );
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingRule, setEditingRule] = useState<AlertRule | null>(null);
@@ -123,13 +123,13 @@ const AlertThresholdManager = () => {
   });
 
   const availableMetrics = [
-    { value: 'connection_time', label: 'Connection Time (ms)', unit: 'ms' },
-    { value: 'query_response_time', label: 'Query Response Time (ms)', unit: 'ms' },
-    { value: 'error_rate', label: 'Error Rate (%)', unit: '%' },
-    { value: 'memory_usage', label: 'Memory Usage (%)', unit: '%' },
-    { value: 'cpu_usage', label: 'CPU Usage (%)', unit: '%' },
-    { value: 'active_connections', label: 'Active Connections', unit: 'count' }
-  ];
+  { value: 'connection_time', label: 'Connection Time (ms)', unit: 'ms' },
+  { value: 'query_response_time', label: 'Query Response Time (ms)', unit: 'ms' },
+  { value: 'error_rate', label: 'Error Rate (%)', unit: '%' },
+  { value: 'memory_usage', label: 'Memory Usage (%)', unit: '%' },
+  { value: 'cpu_usage', label: 'CPU Usage (%)', unit: '%' },
+  { value: 'active_connections', label: 'Active Connections', unit: 'count' }];
+
 
   const handleCreateRule = () => {
     if (!newRule.name || !newRule.description) {
@@ -142,12 +142,12 @@ const AlertThresholdManager = () => {
     }
 
     const rule: AlertRule = {
-      ...newRule as AlertRule,
+      ...(newRule as AlertRule),
       id: Date.now().toString(),
       created_at: new Date().toISOString()
     };
 
-    setAlertRules(prev => [...prev, rule]);
+    setAlertRules((prev) => [...prev, rule]);
     setNewRule({
       name: '',
       metric: 'connection_time',
@@ -168,8 +168,8 @@ const AlertThresholdManager = () => {
   };
 
   const handleUpdateRule = (updatedRule: AlertRule) => {
-    setAlertRules(prev => 
-      prev.map(rule => rule.id === updatedRule.id ? updatedRule : rule)
+    setAlertRules((prev) =>
+    prev.map((rule) => rule.id === updatedRule.id ? updatedRule : rule)
     );
     setEditingRule(null);
 
@@ -180,8 +180,8 @@ const AlertThresholdManager = () => {
   };
 
   const handleDeleteRule = (ruleId: string) => {
-    const rule = alertRules.find(r => r.id === ruleId);
-    setAlertRules(prev => prev.filter(rule => rule.id !== ruleId));
+    const rule = alertRules.find((r) => r.id === ruleId);
+    setAlertRules((prev) => prev.filter((rule) => rule.id !== ruleId));
 
     toast({
       title: "Alert Rule Deleted",
@@ -190,10 +190,10 @@ const AlertThresholdManager = () => {
   };
 
   const handleToggleRule = (ruleId: string) => {
-    setAlertRules(prev => 
-      prev.map(rule => 
-        rule.id === ruleId ? { ...rule, enabled: !rule.enabled } : rule
-      )
+    setAlertRules((prev) =>
+    prev.map((rule) =>
+    rule.id === ruleId ? { ...rule, enabled: !rule.enabled } : rule
+    )
     );
   };
 
@@ -215,15 +215,15 @@ const AlertThresholdManager = () => {
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return 'destructive';
-      case 'high': return 'secondary';
-      case 'medium': return 'outline';
-      default: return 'default';
+      case 'critical':return 'destructive';
+      case 'high':return 'secondary';
+      case 'medium':return 'outline';
+      default:return 'default';
     }
   };
 
   const getMetricUnit = (metric: string) => {
-    const metricConfig = availableMetrics.find(m => m.value === metric);
+    const metricConfig = availableMetrics.find((m) => m.value === metric);
     return metricConfig?.unit || '';
   };
 
@@ -248,10 +248,10 @@ const AlertThresholdManager = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Badge variant="outline">
-                {alertRules.filter(r => r.enabled).length} Active Rules
+                {alertRules.filter((r) => r.enabled).length} Active Rules
               </Badge>
               <Badge variant="secondary">
-                {notificationChannels.filter(c => c.enabled).length} Notification Channels
+                {notificationChannels.filter((c) => c.enabled).length} Notification Channels
               </Badge>
             </div>
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -275,25 +275,25 @@ const AlertThresholdManager = () => {
                       <Input
                         id="name"
                         value={newRule.name || ''}
-                        onChange={(e) => setNewRule(prev => ({ ...prev, name: e.target.value }))}
-                        placeholder="Enter rule name"
-                      />
+                        onChange={(e) => setNewRule((prev) => ({ ...prev, name: e.target.value }))}
+                        placeholder="Enter rule name" />
+
                     </div>
                     <div>
                       <Label htmlFor="metric">Metric</Label>
-                      <Select 
-                        value={newRule.metric} 
-                        onValueChange={(value) => setNewRule(prev => ({ ...prev, metric: value }))}
-                      >
+                      <Select
+                        value={newRule.metric}
+                        onValueChange={(value) => setNewRule((prev) => ({ ...prev, metric: value }))}>
+
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {availableMetrics.map(metric => (
-                            <SelectItem key={metric.value} value={metric.value}>
+                          {availableMetrics.map((metric) =>
+                          <SelectItem key={metric.value} value={metric.value}>
                               {metric.label}
                             </SelectItem>
-                          ))}
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
@@ -302,10 +302,10 @@ const AlertThresholdManager = () => {
                   <div className="grid grid-cols-3 gap-4">
                     <div>
                       <Label htmlFor="operator">Operator</Label>
-                      <Select 
-                        value={newRule.operator} 
-                        onValueChange={(value: any) => setNewRule(prev => ({ ...prev, operator: value }))}
-                      >
+                      <Select
+                        value={newRule.operator}
+                        onValueChange={(value: any) => setNewRule((prev) => ({ ...prev, operator: value }))}>
+
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -322,16 +322,16 @@ const AlertThresholdManager = () => {
                         id="threshold"
                         type="number"
                         value={newRule.threshold || 0}
-                        onChange={(e) => setNewRule(prev => ({ ...prev, threshold: Number(e.target.value) }))}
-                        placeholder="Enter threshold value"
-                      />
+                        onChange={(e) => setNewRule((prev) => ({ ...prev, threshold: Number(e.target.value) }))}
+                        placeholder="Enter threshold value" />
+
                     </div>
                     <div>
                       <Label htmlFor="severity">Severity</Label>
-                      <Select 
-                        value={newRule.severity} 
-                        onValueChange={(value: any) => setNewRule(prev => ({ ...prev, severity: value }))}
-                      >
+                      <Select
+                        value={newRule.severity}
+                        onValueChange={(value: any) => setNewRule((prev) => ({ ...prev, severity: value }))}>
+
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -350,9 +350,9 @@ const AlertThresholdManager = () => {
                     <Input
                       id="description"
                       value={newRule.description || ''}
-                      onChange={(e) => setNewRule(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder="Describe what this alert monitors"
-                    />
+                      onChange={(e) => setNewRule((prev) => ({ ...prev, description: e.target.value }))}
+                      placeholder="Describe what this alert monitors" />
+
                   </div>
 
                   <div>
@@ -361,9 +361,9 @@ const AlertThresholdManager = () => {
                       id="cooldown"
                       type="number"
                       value={newRule.cooldown_minutes || 15}
-                      onChange={(e) => setNewRule(prev => ({ ...prev, cooldown_minutes: Number(e.target.value) }))}
-                      placeholder="Minimum time between alerts"
-                    />
+                      onChange={(e) => setNewRule((prev) => ({ ...prev, cooldown_minutes: Number(e.target.value) }))}
+                      placeholder="Minimum time between alerts" />
+
                   </div>
 
                   <div className="flex items-center justify-between pt-4">
@@ -390,8 +390,8 @@ const AlertThresholdManager = () => {
         </TabsList>
 
         <TabsContent value="rules" className="space-y-4">
-          {alertRules.length === 0 ? (
-            <Card>
+          {alertRules.length === 0 ?
+          <Card>
               <CardContent className="text-center py-8">
                 <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                 <h3 className="text-lg font-semibold mb-2">No Alert Rules Configured</h3>
@@ -402,11 +402,11 @@ const AlertThresholdManager = () => {
                   Create Alert Rule
                 </Button>
               </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              {alertRules.map((rule) => (
-                <Card key={rule.id}>
+            </Card> :
+
+          <div className="space-y-4">
+              {alertRules.map((rule) =>
+            <Card key={rule.id}>
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -420,36 +420,36 @@ const AlertThresholdManager = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => testAlertRule(rule)}
-                          className="flex items-center gap-1"
-                        >
+                      variant="outline"
+                      size="sm"
+                      onClick={() => testAlertRule(rule)}
+                      className="flex items-center gap-1">
+
                           <TestTube className="h-3 w-3" />
                           Test
                         </Button>
                         <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setEditingRule(rule)}
-                          className="flex items-center gap-1"
-                        >
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setEditingRule(rule)}
+                      className="flex items-center gap-1">
+
                           <Edit className="h-3 w-3" />
                           Edit
                         </Button>
                         <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteRule(rule.id)}
-                          className="flex items-center gap-1 text-red-600 hover:text-red-700"
-                        >
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDeleteRule(rule.id)}
+                      className="flex items-center gap-1 text-red-600 hover:text-red-700">
+
                           <Trash2 className="h-3 w-3" />
                           Delete
                         </Button>
                         <Switch
-                          checked={rule.enabled}
-                          onCheckedChange={() => handleToggleRule(rule.id)}
-                        />
+                      checked={rule.enabled}
+                      onCheckedChange={() => handleToggleRule(rule.id)} />
+
                       </div>
                     </div>
                     <CardDescription>{rule.description}</CardDescription>
@@ -459,7 +459,7 @@ const AlertThresholdManager = () => {
                       <div>
                         <Label className="text-sm text-muted-foreground">Metric</Label>
                         <div className="font-medium">
-                          {availableMetrics.find(m => m.value === rule.metric)?.label || rule.metric}
+                          {availableMetrics.find((m) => m.value === rule.metric)?.label || rule.metric}
                         </div>
                       </div>
                       <div>
@@ -486,21 +486,21 @@ const AlertThresholdManager = () => {
                     <div className="mt-4">
                       <Label className="text-sm text-muted-foreground">Notification Methods</Label>
                       <div className="flex items-center gap-2 mt-1">
-                        {rule.notification_methods.map(method => (
-                          <Badge key={method} variant="outline" className="flex items-center gap-1">
+                        {rule.notification_methods.map((method) =>
+                    <Badge key={method} variant="outline" className="flex items-center gap-1">
                             {method === 'email' && <Mail className="h-3 w-3" />}
                             {method === 'sms' && <MessageSquare className="h-3 w-3" />}
                             {method === 'in_app' && <Bell className="h-3 w-3" />}
                             {method.replace('_', ' ')}
                           </Badge>
-                        ))}
+                    )}
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+            )}
             </div>
-          )}
+          }
         </TabsContent>
 
         <TabsContent value="channels" className="space-y-4">
@@ -512,8 +512,8 @@ const AlertThresholdManager = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {notificationChannels.map((channel) => (
-                <div key={channel.id} className="flex items-center justify-between p-4 border rounded-lg">
+              {notificationChannels.map((channel) =>
+              <div key={channel.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center gap-3">
                     {channel.type === 'email' && <Mail className="h-5 w-5 text-blue-500" />}
                     {channel.type === 'sms' && <MessageSquare className="h-5 w-5 text-green-500" />}
@@ -533,7 +533,7 @@ const AlertThresholdManager = () => {
                     </Button>
                   </div>
                 </div>
-              ))}
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -601,8 +601,8 @@ const AlertThresholdManager = () => {
                     defaultValue={30}
                     className="w-20"
                     min={1}
-                    max={365}
-                  />
+                    max={365} />
+
                 </div>
               </div>
 
@@ -616,8 +616,8 @@ const AlertThresholdManager = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AlertThresholdManager;

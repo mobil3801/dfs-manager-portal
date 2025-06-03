@@ -21,6 +21,7 @@ import { smsService } from '@/services/smsService';
 import SMSSetupGuide from '@/components/SMSSetupGuide';
 import SMSServiceManager from '@/components/SMSServiceManager';
 import SMSAlertTrigger from '@/components/SMSAlertTrigger';
+import SMSTestManager from '@/components/SMSTestManager';
 import AccessDenied from '@/components/AccessDenied';
 import useAdminAccess from '@/hooks/use-admin-access';
 
@@ -769,12 +770,13 @@ const SMSAlertManagement: React.FC = () => {
       }
 
       <Tabs defaultValue="trigger" className="space-y-6" onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="trigger">Alert Triggers</TabsTrigger>
           <TabsTrigger value="settings">Alert Settings</TabsTrigger>
           <TabsTrigger value="contacts">SMS Contacts</TabsTrigger>
           <TabsTrigger value="history">SMS History</TabsTrigger>
           <TabsTrigger value="service">SMS Service</TabsTrigger>
+          <TabsTrigger value="test">SMS Test</TabsTrigger>
         </TabsList>
 
         <TabsContent value="trigger">
@@ -1159,6 +1161,10 @@ const SMSAlertManagement: React.FC = () => {
 
         <TabsContent value="service">
           <SMSServiceManager />
+        </TabsContent>
+
+        <TabsContent value="test">
+          <SMSTestManager />
         </TabsContent>
       </Tabs>
 
