@@ -28,8 +28,8 @@ const FormHeader: React.FC<FormHeaderProps> = ({ reportDate, setReportDate }) =>
               type="date"
               value={reportDate}
               onChange={(e) => setReportDate(e.target.value)}
-              className="w-32 h-8 text-xs border border-gray-300"
-            />
+              className="w-32 h-8 text-xs border border-gray-300" />
+
           </div>
         </div>
       </div>
@@ -39,8 +39,8 @@ const FormHeader: React.FC<FormHeaderProps> = ({ reportDate, setReportDate }) =>
         <div className="text-sm font-semibold">DAILY OPERATIONS REPORT</div>
         <div className="text-xs">MOBIL STATION</div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default FormHeader;

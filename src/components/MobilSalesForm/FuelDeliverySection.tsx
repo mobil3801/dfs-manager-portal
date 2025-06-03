@@ -23,8 +23,8 @@ const FuelDeliverySection: React.FC<FuelDeliverySectionProps> = ({ formData, upd
             value={formData.bolNumber || ''}
             onChange={(e) => updateFormData('bolNumber', e.target.value)}
             className="h-8 text-xs border border-gray-300"
-            placeholder="Bill of Lading #"
-          />
+            placeholder="Bill of Lading #" />
+
         </div>
 
         {/* Tank readings before delivery */}
@@ -38,8 +38,8 @@ const FuelDeliverySection: React.FC<FuelDeliverySectionProps> = ({ formData, upd
               value={formData.regularTankBefore || ''}
               onChange={(e) => updateFormData('regularTankBefore', parseFloat(e.target.value) || 0)}
               className="h-8 text-xs border border-gray-300"
-              placeholder="Gallons"
-            />
+              placeholder="Gallons" />
+
           </div>
           
           <div className="grid grid-cols-2 gap-2 items-center">
@@ -49,8 +49,8 @@ const FuelDeliverySection: React.FC<FuelDeliverySectionProps> = ({ formData, upd
               value={formData.plusTankBefore || ''}
               onChange={(e) => updateFormData('plusTankBefore', parseFloat(e.target.value) || 0)}
               className="h-8 text-xs border border-gray-300"
-              placeholder="Gallons"
-            />
+              placeholder="Gallons" />
+
           </div>
           
           <div className="grid grid-cols-2 gap-2 items-center">
@@ -60,8 +60,8 @@ const FuelDeliverySection: React.FC<FuelDeliverySectionProps> = ({ formData, upd
               value={formData.superTankBefore || ''}
               onChange={(e) => updateFormData('superTankBefore', parseFloat(e.target.value) || 0)}
               className="h-8 text-xs border border-gray-300"
-              placeholder="Gallons"
-            />
+              placeholder="Gallons" />
+
           </div>
         </div>
 
@@ -76,8 +76,8 @@ const FuelDeliverySection: React.FC<FuelDeliverySectionProps> = ({ formData, upd
               value={formData.regularDelivered || ''}
               onChange={(e) => updateFormData('regularDelivered', parseFloat(e.target.value) || 0)}
               className="h-8 text-xs border border-gray-300"
-              placeholder="Gallons"
-            />
+              placeholder="Gallons" />
+
           </div>
           
           <div className="grid grid-cols-2 gap-2 items-center">
@@ -87,8 +87,8 @@ const FuelDeliverySection: React.FC<FuelDeliverySectionProps> = ({ formData, upd
               value={formData.plusDelivered || ''}
               onChange={(e) => updateFormData('plusDelivered', parseFloat(e.target.value) || 0)}
               className="h-8 text-xs border border-gray-300"
-              placeholder="Gallons"
-            />
+              placeholder="Gallons" />
+
           </div>
           
           <div className="grid grid-cols-2 gap-2 items-center">
@@ -98,13 +98,13 @@ const FuelDeliverySection: React.FC<FuelDeliverySectionProps> = ({ formData, upd
               value={formData.superDelivered || ''}
               onChange={(e) => updateFormData('superDelivered', parseFloat(e.target.value) || 0)}
               className="h-8 text-xs border border-gray-300"
-              placeholder="Gallons"
-            />
+              placeholder="Gallons" />
+
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default FuelDeliverySection;

@@ -33,12 +33,12 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({ formData, updateFormD
   };
 
   const removeExpense = (id: string) => {
-    updateFormData('expenses', expenses.filter(expense => expense.id !== id));
+    updateFormData('expenses', expenses.filter((expense) => expense.id !== id));
   };
 
   const updateExpense = (id: string, field: keyof Expense, value: string | number) => {
-    const updatedExpenses = expenses.map(expense =>
-      expense.id === id ? { ...expense, [field]: value } : expense
+    const updatedExpenses = expenses.map((expense) =>
+    expense.id === id ? { ...expense, [field]: value } : expense
     );
     updateFormData('expenses', updatedExpenses);
   };
@@ -59,8 +59,8 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({ formData, updateFormD
               onClick={addExpense}
               size="sm"
               variant="outline"
-              className="h-6 text-xs"
-            >
+              className="h-6 text-xs">
+
               <Plus className="w-3 h-3 mr-1" />
               Add
             </Button>
@@ -68,23 +68,23 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({ formData, updateFormD
         </div>
         
         <div className="p-3">
-          {expenses.length === 0 ? (
-            <div className="text-center text-gray-500 text-xs py-4">
+          {expenses.length === 0 ?
+          <div className="text-center text-gray-500 text-xs py-4">
               No expenses recorded. Click "Add" to add expenses.
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {expenses.map((expense) => (
-                <div key={expense.id} className="border border-gray-200 rounded p-2 space-y-2">
+            </div> :
+
+          <div className="space-y-2">
+              {expenses.map((expense) =>
+            <div key={expense.id} className="border border-gray-200 rounded p-2 space-y-2">
                   <div className="flex justify-between items-center">
                     <Label className="text-xs font-medium">Expense Entry</Label>
                     <Button
-                      type="button"
-                      onClick={() => removeExpense(expense.id)}
-                      size="sm"
-                      variant="ghost"
-                      className="h-5 w-5 p-0 text-red-500 hover:text-red-700"
-                    >
+                  type="button"
+                  onClick={() => removeExpense(expense.id)}
+                  size="sm"
+                  variant="ghost"
+                  className="h-5 w-5 p-0 text-red-500 hover:text-red-700">
+
                       <Trash2 className="w-3 h-3" />
                     </Button>
                   </div>
@@ -93,23 +93,23 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({ formData, updateFormD
                     <div>
                       <Label className="text-xs">Vendor:</Label>
                       <Input
-                        type="text"
-                        value={expense.vendor}
-                        onChange={(e) => updateExpense(expense.id, 'vendor', e.target.value)}
-                        className="h-7 text-xs border border-gray-300"
-                        placeholder="Vendor name"
-                      />
+                    type="text"
+                    value={expense.vendor}
+                    onChange={(e) => updateExpense(expense.id, 'vendor', e.target.value)}
+                    className="h-7 text-xs border border-gray-300"
+                    placeholder="Vendor name" />
+
                     </div>
                     
                     <div>
                       <Label className="text-xs">Amount:</Label>
                       <Input
-                        type="number"
-                        value={expense.amount || ''}
-                        onChange={(e) => updateExpense(expense.id, 'amount', parseFloat(e.target.value) || 0)}
-                        className="h-7 text-xs border border-gray-300"
-                        placeholder="$0.00"
-                      />
+                    type="number"
+                    value={expense.amount || ''}
+                    onChange={(e) => updateExpense(expense.id, 'amount', parseFloat(e.target.value) || 0)}
+                    className="h-7 text-xs border border-gray-300"
+                    placeholder="$0.00" />
+
                     </div>
                   </div>
                   
@@ -117,10 +117,10 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({ formData, updateFormD
                     <div>
                       <Label className="text-xs">Payment Type:</Label>
                       <select
-                        value={expense.paymentType}
-                        onChange={(e) => updateExpense(expense.id, 'paymentType', e.target.value)}
-                        className="h-7 text-xs border border-gray-300 rounded px-2 w-full"
-                      >
+                    value={expense.paymentType}
+                    onChange={(e) => updateExpense(expense.id, 'paymentType', e.target.value)}
+                    className="h-7 text-xs border border-gray-300 rounded px-2 w-full">
+
                         <option value="Cash">Cash</option>
                         <option value="Credit Card">Credit Card</option>
                         <option value="Check">Check</option>
@@ -131,16 +131,16 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({ formData, updateFormD
                     <div>
                       <Label className="text-xs">Description:</Label>
                       <Input
-                        type="text"
-                        value={expense.description}
-                        onChange={(e) => updateExpense(expense.id, 'description', e.target.value)}
-                        className="h-7 text-xs border border-gray-300"
-                        placeholder="Brief description"
-                      />
+                    type="text"
+                    value={expense.description}
+                    onChange={(e) => updateExpense(expense.id, 'description', e.target.value)}
+                    className="h-7 text-xs border border-gray-300"
+                    placeholder="Brief description" />
+
                     </div>
                   </div>
                 </div>
-              ))}
+            )}
               
               <div className="border-t border-gray-300 pt-2 mt-3">
                 <div className="grid grid-cols-2 gap-2 items-center bg-gray-50">
@@ -151,7 +151,7 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({ formData, updateFormD
                 </div>
               </div>
             </div>
-          )}
+          }
         </div>
       </div>
 
@@ -166,12 +166,12 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({ formData, updateFormD
             value={formData.notes || ''}
             onChange={(e) => updateFormData('notes', e.target.value)}
             className="text-xs border border-gray-300 min-h-20"
-            placeholder="Enter any additional notes about the day's operations..."
-          />
+            placeholder="Enter any additional notes about the day's operations..." />
+
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ExpensesSection;

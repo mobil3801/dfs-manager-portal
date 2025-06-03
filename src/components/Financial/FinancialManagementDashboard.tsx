@@ -282,10 +282,10 @@ const FinancialManagementDashboard: React.FC = () => {
       } catch {
 
 
-        // Handle invalid JSON
-      }dayData.profit = dayData.revenue - dayData.expenses;
-    });
 
+
+        // Handle invalid JSON
+      }dayData.profit = dayData.revenue - dayData.expenses;});
     return Array.from(dailyData.values()).
     sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()).
     map((item) => ({
@@ -345,10 +345,10 @@ const FinancialManagementDashboard: React.FC = () => {
       } catch {
 
 
+
+
         // Handle invalid JSON
-      }});
-    return Array.from(expenseCategories.entries()).
-    map(([category, amount]) => ({ category, amount })).
+      }});return Array.from(expenseCategories.entries()).map(([category, amount]) => ({ category, amount })).
     sort((a, b) => b.amount - a.amount).
     slice(0, 10).
     map((item, index) => [
@@ -385,16 +385,16 @@ const FinancialManagementDashboard: React.FC = () => {
       } catch {
 
 
+
+
         // Handle invalid JSON
-      }});
-    // Add payroll data
-    salaryData.forEach((salary) => {
-      const month = format(new Date(salary.pay_period_start), 'yyyy-MM');
-      if (monthlyData.has(month) && salary.status === 'Paid') {
-        const data = monthlyData.get(month);
-        data.payroll += salary.gross_pay || 0;
-      }
-    });
+      }}); // Add payroll data
+    salaryData.forEach((salary) => {const month = format(new Date(salary.pay_period_start), 'yyyy-MM');
+        if (monthlyData.has(month) && salary.status === 'Paid') {
+          const data = monthlyData.get(month);
+          data.payroll += salary.gross_pay || 0;
+        }
+      });
 
     // Calculate cash flow
     monthlyData.forEach((data) => {

@@ -15,12 +15,12 @@ const CashCollectionSection: React.FC<CashCollectionSectionProps> = ({ formData,
   };
 
   const calculateTotalSales = () => {
-    return (formData.cashAmount || 0) + 
-           (formData.creditCardAmount || 0) + 
-           (formData.debitCardAmount || 0) + 
-           (formData.mobileAmount || 0) + 
-           (formData.grocerySales || 0) + 
-           (formData.ebtSales || 0);
+    return (formData.cashAmount || 0) + (
+    formData.creditCardAmount || 0) + (
+    formData.debitCardAmount || 0) + (
+    formData.mobileAmount || 0) + (
+    formData.grocerySales || 0) + (
+    formData.ebtSales || 0);
   };
 
   return (
@@ -39,16 +39,16 @@ const CashCollectionSection: React.FC<CashCollectionSectionProps> = ({ formData,
               value={formData.cashCollectionOnHand || ''}
               onChange={(e) => updateFormData('cashCollectionOnHand', parseFloat(e.target.value) || 0)}
               className="h-8 text-xs border border-gray-300"
-              placeholder="$0.00"
-            />
+              placeholder="$0.00" />
+
           </div>
           
           <div className="grid grid-cols-2 gap-2 items-center bg-yellow-50">
             <Label className="text-xs font-semibold">Short/Over:</Label>
             <div className={`text-xs font-semibold p-2 border border-gray-300 rounded ${
-              calculateTotalShortOver() < 0 ? 'bg-red-100 text-red-700' : 
-              calculateTotalShortOver() > 0 ? 'bg-green-100 text-green-700' : 'bg-gray-100'
-            }`}>
+            calculateTotalShortOver() < 0 ? 'bg-red-100 text-red-700' :
+            calculateTotalShortOver() > 0 ? 'bg-green-100 text-green-700' : 'bg-gray-100'}`
+            }>
               ${calculateTotalShortOver().toFixed(2)}
             </div>
           </div>
@@ -85,8 +85,8 @@ const CashCollectionSection: React.FC<CashCollectionSectionProps> = ({ formData,
               value={formData.employeeName || ''}
               onChange={(e) => updateFormData('employeeName', e.target.value)}
               className="h-8 text-xs border border-gray-300"
-              placeholder="Enter name"
-            />
+              placeholder="Enter name" />
+
           </div>
           
           <div className="grid grid-cols-2 gap-2 items-center">
@@ -94,8 +94,8 @@ const CashCollectionSection: React.FC<CashCollectionSectionProps> = ({ formData,
             <select
               value={formData.shift || 'DAY'}
               onChange={(e) => updateFormData('shift', e.target.value)}
-              className="h-8 text-xs border border-gray-300 rounded px-2"
-            >
+              className="h-8 text-xs border border-gray-300 rounded px-2">
+
               <option value="DAY">Day Shift</option>
               <option value="NIGHT">Night Shift</option>
             </select>
@@ -126,8 +126,8 @@ const CashCollectionSection: React.FC<CashCollectionSectionProps> = ({ formData,
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default CashCollectionSection;

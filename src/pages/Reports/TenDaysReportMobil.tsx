@@ -11,7 +11,7 @@ import ExpensesSection from '@/components/MobilSalesForm/ExpensesSection';
 interface FormData {
   // Header
   reportDate: string;
-  
+
   // Fuel Delivery
   bolNumber: string;
   regularTankBefore: number;
@@ -20,7 +20,7 @@ interface FormData {
   regularDelivered: number;
   plusDelivered: number;
   superDelivered: number;
-  
+
   // Sales Data
   cashAmount: number;
   creditCardAmount: number;
@@ -33,17 +33,17 @@ interface FormData {
   regularGallons: number;
   superGallons: number;
   dieselGallons: number;
-  
+
   // Cash Collection
   cashCollectionOnHand: number;
-  
+
   // Employee Info
   employeeName: string;
   shift: string;
-  
+
   // Expenses
   expenses: any[];
-  
+
   // Notes
   notes: string;
 }
@@ -79,7 +79,7 @@ const TenDaysReportMobil: React.FC = () => {
   const { toast } = useToast();
 
   const updateFormData = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const saveReport = async () => {
@@ -87,13 +87,13 @@ const TenDaysReportMobil: React.FC = () => {
       setLoading(true);
 
       // Calculate totals
-      const totalSales = formData.cashAmount + formData.creditCardAmount + 
-                        formData.debitCardAmount + formData.mobileAmount + 
-                        formData.grocerySales + formData.ebtSales;
+      const totalSales = formData.cashAmount + formData.creditCardAmount +
+      formData.debitCardAmount + formData.mobileAmount +
+      formData.grocerySales + formData.ebtSales;
       const totalGallons = formData.regularGallons + formData.superGallons + formData.dieselGallons;
       const lotteryTotalCash = formData.lotteryNetSales + formData.scratchOffSales;
-      const totalShortOver = formData.cashCollectionOnHand - 
-                           (formData.cashAmount + formData.lotteryNetSales + formData.scratchOffSales);
+      const totalShortOver = formData.cashCollectionOnHand - (
+      formData.cashAmount + formData.lotteryNetSales + formData.scratchOffSales);
 
       const reportData = {
         report_date: formData.reportDate,
@@ -129,7 +129,7 @@ const TenDaysReportMobil: React.FC = () => {
         title: "Success",
         description: "Daily sales report saved successfully."
       });
-      
+
       // Reset form after successful save
       setFormData({
         reportDate: new Date().toISOString().split('T')[0],
@@ -157,7 +157,7 @@ const TenDaysReportMobil: React.FC = () => {
         expenses: [],
         notes: ''
       });
-      
+
     } catch (error) {
       console.error('Error saving report:', error);
       toast({
@@ -183,7 +183,7 @@ const TenDaysReportMobil: React.FC = () => {
       });
       return false;
     }
-    
+
     if (!formData.employeeName.trim()) {
       toast({
         title: "Validation Error",
@@ -192,7 +192,7 @@ const TenDaysReportMobil: React.FC = () => {
       });
       return false;
     }
-    
+
     return true;
   };
 
@@ -211,15 +211,15 @@ const TenDaysReportMobil: React.FC = () => {
           <Button
             onClick={handleSave}
             disabled={loading}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
+            className="bg-blue-600 hover:bg-blue-700">
+
             <Save className="w-4 h-4 mr-2" />
             {loading ? 'Saving...' : 'Save Report'}
           </Button>
           <Button
             onClick={printReport}
-            variant="outline"
-          >
+            variant="outline">
+
             <Printer className="w-4 h-4 mr-2" />
             Print
           </Button>
@@ -231,8 +231,8 @@ const TenDaysReportMobil: React.FC = () => {
         {/* Header */}
         <FormHeader
           reportDate={formData.reportDate}
-          setReportDate={(date) => updateFormData('reportDate', date)}
-        />
+          setReportDate={(date) => updateFormData('reportDate', date)} />
+
         
         {/* Main Content - Two Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 border-l border-r border-gray-300">
@@ -240,16 +240,16 @@ const TenDaysReportMobil: React.FC = () => {
           <div className="border-r border-gray-300 lg:border-r-gray-300">
             <FuelDeliverySection
               formData={formData}
-              updateFormData={updateFormData}
-            />
+              updateFormData={updateFormData} />
+
           </div>
           
           {/* Right Column */}
           <div>
             <SalesDataSection
               formData={formData}
-              updateFormData={updateFormData}
-            />
+              updateFormData={updateFormData} />
+
           </div>
         </div>
         
@@ -259,16 +259,16 @@ const TenDaysReportMobil: React.FC = () => {
           <div className="border-r border-gray-300 lg:border-r-gray-300">
             <ExpensesSection
               formData={formData}
-              updateFormData={updateFormData}
-            />
+              updateFormData={updateFormData} />
+
           </div>
           
           {/* Right Column */}
           <div>
             <CashCollectionSection
               formData={formData}
-              updateFormData={updateFormData}
-            />
+              updateFormData={updateFormData} />
+
           </div>
         </div>
         
@@ -279,8 +279,8 @@ const TenDaysReportMobil: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 
 };
 

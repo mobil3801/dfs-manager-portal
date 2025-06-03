@@ -284,38 +284,7 @@ const DashboardLayout: React.FC = () => {
 
       {/* Main content - Adjusted for fixed sidebar */}
       <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
-        {/* Top bar */}
-        <div className="sticky top-0 z-10 flex items-center justify-between h-16 px-4 bg-white border-b border-gray-200 lg:px-8 flex-shrink-0">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="lg:hidden"
-            onClick={() => setSidebarOpen(true)}>
 
-            <Menu className="w-5 h-5" />
-          </Button>
-          
-          <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-semibold text-brand-900">
-              {getPageTitle()}
-            </h1>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-600 hidden lg:inline">
-              Welcome, {user.Name}
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={logout}
-              className="text-gray-600 hover:text-red-600">
-
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
-          </div>
-        </div>
 
         {/* Page content */}
         <main className="flex-1 p-4 lg:p-8 overflow-y-auto">

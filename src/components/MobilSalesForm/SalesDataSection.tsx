@@ -24,8 +24,8 @@ const SalesDataSection: React.FC<SalesDataSectionProps> = ({ formData, updateFor
               value={formData.cashAmount || ''}
               onChange={(e) => updateFormData('cashAmount', parseFloat(e.target.value) || 0)}
               className="h-8 text-xs border border-gray-300"
-              placeholder="$0.00"
-            />
+              placeholder="$0.00" />
+
           </div>
           
           <div className="grid grid-cols-2 gap-2 items-center">
@@ -35,8 +35,8 @@ const SalesDataSection: React.FC<SalesDataSectionProps> = ({ formData, updateFor
               value={formData.creditCardAmount || ''}
               onChange={(e) => updateFormData('creditCardAmount', parseFloat(e.target.value) || 0)}
               className="h-8 text-xs border border-gray-300"
-              placeholder="$0.00"
-            />
+              placeholder="$0.00" />
+
           </div>
           
           <div className="grid grid-cols-2 gap-2 items-center">
@@ -46,8 +46,8 @@ const SalesDataSection: React.FC<SalesDataSectionProps> = ({ formData, updateFor
               value={formData.debitCardAmount || ''}
               onChange={(e) => updateFormData('debitCardAmount', parseFloat(e.target.value) || 0)}
               className="h-8 text-xs border border-gray-300"
-              placeholder="$0.00"
-            />
+              placeholder="$0.00" />
+
           </div>
           
           <div className="grid grid-cols-2 gap-2 items-center">
@@ -57,8 +57,8 @@ const SalesDataSection: React.FC<SalesDataSectionProps> = ({ formData, updateFor
               value={formData.mobileAmount || ''}
               onChange={(e) => updateFormData('mobileAmount', parseFloat(e.target.value) || 0)}
               className="h-8 text-xs border border-gray-300"
-              placeholder="$0.00"
-            />
+              placeholder="$0.00" />
+
           </div>
           
           <div className="grid grid-cols-2 gap-2 items-center">
@@ -68,8 +68,8 @@ const SalesDataSection: React.FC<SalesDataSectionProps> = ({ formData, updateFor
               value={formData.grocerySales || ''}
               onChange={(e) => updateFormData('grocerySales', parseFloat(e.target.value) || 0)}
               className="h-8 text-xs border border-gray-300"
-              placeholder="$0.00"
-            />
+              placeholder="$0.00" />
+
           </div>
           
           <div className="grid grid-cols-2 gap-2 items-center">
@@ -79,8 +79,8 @@ const SalesDataSection: React.FC<SalesDataSectionProps> = ({ formData, updateFor
               value={formData.ebtSales || ''}
               onChange={(e) => updateFormData('ebtSales', parseFloat(e.target.value) || 0)}
               className="h-8 text-xs border border-gray-300"
-              placeholder="$0.00"
-            />
+              placeholder="$0.00" />
+
           </div>
         </div>
       </div>
@@ -99,8 +99,8 @@ const SalesDataSection: React.FC<SalesDataSectionProps> = ({ formData, updateFor
               value={formData.lotteryNetSales || ''}
               onChange={(e) => updateFormData('lotteryNetSales', parseFloat(e.target.value) || 0)}
               className="h-8 text-xs border border-gray-300"
-              placeholder="$0.00"
-            />
+              placeholder="$0.00" />
+
           </div>
           
           <div className="grid grid-cols-2 gap-2 items-center">
@@ -110,8 +110,8 @@ const SalesDataSection: React.FC<SalesDataSectionProps> = ({ formData, updateFor
               value={formData.scratchOffSales || ''}
               onChange={(e) => updateFormData('scratchOffSales', parseFloat(e.target.value) || 0)}
               className="h-8 text-xs border border-gray-300"
-              placeholder="$0.00"
-            />
+              placeholder="$0.00" />
+
           </div>
           
           <div className="grid grid-cols-2 gap-2 items-center bg-gray-50">
@@ -137,8 +137,8 @@ const SalesDataSection: React.FC<SalesDataSectionProps> = ({ formData, updateFor
               value={formData.regularGallons || ''}
               onChange={(e) => updateFormData('regularGallons', parseFloat(e.target.value) || 0)}
               className="h-8 text-xs border border-gray-300"
-              placeholder="0"
-            />
+              placeholder="0" />
+
           </div>
           
           <div className="grid grid-cols-2 gap-2 items-center">
@@ -148,8 +148,8 @@ const SalesDataSection: React.FC<SalesDataSectionProps> = ({ formData, updateFor
               value={formData.superGallons || ''}
               onChange={(e) => updateFormData('superGallons', parseFloat(e.target.value) || 0)}
               className="h-8 text-xs border border-gray-300"
-              placeholder="0"
-            />
+              placeholder="0" />
+
           </div>
           
           <div className="grid grid-cols-2 gap-2 items-center">
@@ -159,8 +159,8 @@ const SalesDataSection: React.FC<SalesDataSectionProps> = ({ formData, updateFor
               value={formData.dieselGallons || ''}
               onChange={(e) => updateFormData('dieselGallons', parseFloat(e.target.value) || 0)}
               className="h-8 text-xs border border-gray-300"
-              placeholder="0"
-            />
+              placeholder="0" />
+
           </div>
           
           <div className="grid grid-cols-2 gap-2 items-center bg-gray-50">
@@ -171,8 +171,8 @@ const SalesDataSection: React.FC<SalesDataSectionProps> = ({ formData, updateFor
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SalesDataSection;
