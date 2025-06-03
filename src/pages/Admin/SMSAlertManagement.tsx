@@ -23,7 +23,7 @@ import SMSServiceManager from '@/components/SMSServiceManager';
 import SMSAlertTrigger from '@/components/SMSAlertTrigger';
 import SMSTestManager from '@/components/SMSTestManager';
 import AccessDenied from '@/components/AccessDenied';
-import { useAdminAccess } from '@/hooks/use-admin-access';
+import useAdminAccess from '@/hooks/use-admin-access';
 import { ComponentErrorBoundary } from '@/components/ErrorBoundary';
 
 interface SMSAlertSetting {

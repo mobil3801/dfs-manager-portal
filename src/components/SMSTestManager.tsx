@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { MessageSquare, Send, CheckCircle, XCircle, AlertTriangle, Phone, Settings, TestTube, RefreshCw, Zap, Users } from 'lucide-react';
 
 interface TwilioConfig {
@@ -36,7 +36,6 @@ interface SMSTestResult {
 }
 
 const SMSTestManager: React.FC = () => {
-  const { toast } = useToast();
   const [config, setConfig] = useState<TwilioConfig | null>(null);
   const [loading, setLoading] = useState(false);
   const [testPhone, setTestPhone] = useState('+18777804236');
