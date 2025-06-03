@@ -36,6 +36,7 @@ import ErrorRecoveryPage from './pages/Admin/ErrorRecoveryPage';
 import MemoryMonitoring from './pages/Admin/MemoryMonitoring';
 import DatabaseMonitoring from './pages/Admin/DatabaseMonitoring';
 import AuditMonitoring from './pages/Admin/AuditMonitoring';
+import TenDaysReportMobil from './pages/Reports/TenDaysReportMobil';
 import LoginPage from './pages/LoginPage';
 import OnAuthSuccessPage from './pages/OnAuthSuccessPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
@@ -108,6 +109,9 @@ function App() {
               <Route path="delivery" element={<DeliveryList />} />
               <Route path="delivery/new" element={<DeliveryForm />} />
               <Route path="delivery/edit/:id" element={<DeliveryForm />} />
+              
+              {/* Reports routes */}
+              <Route path="reports/10-days/mobil" element={<TenDaysReportMobil />} />
               
               {/* Admin routes */}
               <Route path="admin/users" element={<UserManagement />} />
