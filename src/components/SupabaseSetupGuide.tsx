@@ -147,7 +147,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE sms_alert_history;`;
         setConnectionStatus('success');
         toast({
           title: '🎉 Connection Successful!',
-          description: 'Supabase is properly configured and ready for real-time features.',
+          description: 'Supabase is properly configured and ready for real-time features.'
         });
       }
     } catch (error) {
@@ -213,7 +213,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE sms_alert_history;`;
       // Extract project ID from URL for additional configurations
       const projectId = supabaseUrl.replace('https://', '').split('.')[0];
       const currentDate = new Date().toISOString();
-      
+
       const developmentEnvContent = `# DFS Manager Portal - Development Environment Configuration
 # Auto-generated on ${currentDate}
 # ⚠️  KEEP SECURE - Never commit to version control
@@ -498,12 +498,12 @@ or check the project documentation.
   };
 
   const setupSteps = [
-    {
-      title: 'Create Supabase Project',
-      description: 'Set up your Supabase project for real-time data',
-      icon: Database,
-      content: (
-        <div className="space-y-4">
+  {
+    title: 'Create Supabase Project',
+    description: 'Set up your Supabase project for real-time data',
+    icon: Database,
+    content:
+    <div className="space-y-4">
           <p>1. Go to <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">supabase.com</a> and create a new account or sign in.</p>
           <p>2. Click "New Project" and fill in the details:</p>
           <ul className="list-disc list-inside pl-4 space-y-1">
@@ -519,14 +519,14 @@ or check the project documentation.
             </AlertDescription>
           </Alert>
         </div>
-      )
-    },
-    {
-      title: 'Enhanced Auto-Generation',
-      description: 'Generate comprehensive environment configuration with database connections',
-      icon: Sparkles,
-      content: (
-        <div className="space-y-4">
+
+  },
+  {
+    title: 'Enhanced Auto-Generation',
+    description: 'Generate comprehensive environment configuration with database connections',
+    icon: Sparkles,
+    content:
+    <div className="space-y-4">
           <p>1. In your Supabase project dashboard, go to Settings &gt; API</p>
           <p>2. Copy your Project URL and anon public key, then configure below:</p>
           
@@ -541,13 +541,13 @@ or check the project documentation.
               <div>
                 <Label htmlFor="supabase-url" className="text-sm font-medium">Supabase Project URL</Label>
                 <Input
-                  id="supabase-url"
-                  type="url"
-                  placeholder="https://your-project.supabase.co"
-                  value={supabaseUrl}
-                  onChange={(e) => setSupabaseUrl(e.target.value)}
-                  className="mt-1"
-                />
+              id="supabase-url"
+              type="url"
+              placeholder="https://your-project.supabase.co"
+              value={supabaseUrl}
+              onChange={(e) => setSupabaseUrl(e.target.value)}
+              className="mt-1" />
+
                 <p className="text-xs text-gray-600 mt-1">Found in Settings &gt; API &gt; Project URL</p>
               </div>
               
@@ -555,20 +555,20 @@ or check the project documentation.
                 <Label htmlFor="supabase-key" className="text-sm font-medium">Supabase Anon Public Key</Label>
                 <div className="relative mt-1">
                   <Input
-                    id="supabase-key"
-                    type={showKey ? "text" : "password"}
-                    placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                    value={supabaseKey}
-                    onChange={(e) => setSupabaseKey(e.target.value)}
-                    className="pr-10"
-                  />
+                id="supabase-key"
+                type={showKey ? "text" : "password"}
+                placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                value={supabaseKey}
+                onChange={(e) => setSupabaseKey(e.target.value)}
+                className="pr-10" />
+
                   <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3"
-                    onClick={() => setShowKey(!showKey)}
-                  >
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="absolute right-0 top-0 h-full px-3"
+                onClick={() => setShowKey(!showKey)}>
+
                     {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
@@ -577,26 +577,26 @@ or check the project documentation.
 
               <div>
                 <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
-                  className="text-xs"
-                >
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+              className="text-xs">
+
                   {showAdvancedOptions ? 'Hide' : 'Show'} Advanced Options
                 </Button>
               </div>
 
-              {showAdvancedOptions && (
-                <div className="space-y-3 p-4 bg-white/50 rounded border">
+              {showAdvancedOptions &&
+          <div className="space-y-3 p-4 bg-white/50 rounded border">
                   <div>
                     <Label htmlFor="project-region" className="text-sm font-medium">Project Region</Label>
                     <select
-                      id="project-region"
-                      value={projectRegion}
-                      onChange={(e) => setProjectRegion(e.target.value)}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                    >
+                id="project-region"
+                value={projectRegion}
+                onChange={(e) => setProjectRegion(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+
                       <option value="us-east-1">US East (N. Virginia)</option>
                       <option value="us-west-1">US West (N. California)</option>
                       <option value="eu-west-1">Europe (Ireland)</option>
@@ -606,50 +606,50 @@ or check the project documentation.
                   <div>
                     <Label htmlFor="db-password" className="text-sm font-medium">Database Password (Optional)</Label>
                     <Input
-                      id="db-password"
-                      type="password"
-                      placeholder="Your database password"
-                      value={databasePassword}
-                      onChange={(e) => setDatabasePassword(e.target.value)}
-                      className="mt-1"
-                    />
+                id="db-password"
+                type="password"
+                placeholder="Your database password"
+                value={databasePassword}
+                onChange={(e) => setDatabasePassword(e.target.value)}
+                className="mt-1" />
+
                     <p className="text-xs text-gray-600 mt-1">Will be included in connection strings</p>
                   </div>
                 </div>
-              )}
+          }
               
               <div className="space-y-2">
                 <Button
-                  onClick={generateEnhancedEnvFiles}
-                  disabled={isGenerating || !supabaseUrl.trim() || !supabaseKey.trim()}
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                >
-                  {isGenerating ? (
-                    <>
+              onClick={generateEnhancedEnvFiles}
+              disabled={isGenerating || !supabaseUrl.trim() || !supabaseKey.trim()}
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+
+                  {isGenerating ?
+              <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
                       Generating Enhanced Configuration...
-                    </>
-                  ) : (
-                    <>
+                    </> :
+
+              <>
                       <Download className="h-4 w-4 mr-2" />
                       🚀 Generate Enhanced Environment Package
                     </>
-                  )}
+              }
                 </Button>
                 
-                {(supabaseUrl.trim() || supabaseKey.trim()) && (
-                  <div className="text-xs text-center text-gray-600">
-                    {!validateSupabaseUrl(supabaseUrl) && supabaseUrl.trim() && (
-                      <p className="text-red-600">⚠️ Invalid URL format</p>
-                    )}
-                    {!validateSupabaseKey(supabaseKey) && supabaseKey.trim() && (
-                      <p className="text-red-600">⚠️ Invalid API key format</p>
-                    )}
-                    {validateSupabaseUrl(supabaseUrl) && validateSupabaseKey(supabaseKey) && (
-                      <p className="text-green-600">✓ Valid credentials - ready to generate!</p>
-                    )}
+                {(supabaseUrl.trim() || supabaseKey.trim()) &&
+            <div className="text-xs text-center text-gray-600">
+                    {!validateSupabaseUrl(supabaseUrl) && supabaseUrl.trim() &&
+              <p className="text-red-600">⚠️ Invalid URL format</p>
+              }
+                    {!validateSupabaseKey(supabaseKey) && supabaseKey.trim() &&
+              <p className="text-red-600">⚠️ Invalid API key format</p>
+              }
+                    {validateSupabaseUrl(supabaseUrl) && validateSupabaseKey(supabaseKey) &&
+              <p className="text-green-600">✓ Valid credentials - ready to generate!</p>
+              }
                   </div>
-                )}
+            }
               </div>
             </div>
           </div>
@@ -673,14 +673,14 @@ or check the project documentation.
             </AlertDescription>
           </Alert>
         </div>
-      )
-    },
-    {
-      title: 'Setup Database Schema',
-      description: 'Create tables and enable Row Level Security',
-      icon: Code,
-      content: (
-        <div className="space-y-4">
+
+  },
+  {
+    title: 'Setup Database Schema',
+    description: 'Create tables and enable Row Level Security',
+    icon: Code,
+    content:
+    <div className="space-y-4">
           <p>1. Go to your Supabase project dashboard &gt; SQL Editor</p>
           <p>2. Copy and execute the following SQL to create all required tables:</p>
           
@@ -688,10 +688,10 @@ or check the project documentation.
             <div className="flex items-center justify-between mb-2">
               <span className="font-semibold">Enhanced Database Schema SQL</span>
               <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => copyToClipboard(schemaSql, 'Database schema')}
-              >
+            variant="ghost"
+            size="sm"
+            onClick={() => copyToClipboard(schemaSql, 'Database schema')}>
+
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
@@ -703,10 +703,10 @@ or check the project documentation.
             <div className="flex items-center justify-between mb-2">
               <span>Enable RLS SQL</span>
               <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => copyToClipboard(rlsSql, 'RLS setup')}
-              >
+            variant="ghost"
+            size="sm"
+            onClick={() => copyToClipboard(rlsSql, 'RLS setup')}>
+
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
@@ -720,14 +720,14 @@ or check the project documentation.
             </AlertDescription>
           </Alert>
         </div>
-      )
-    },
-    {
-      title: 'Enable Real-time Features',
-      description: 'Configure real-time subscriptions and test connection',
-      icon: Zap,
-      content: (
-        <div className="space-y-4">
+
+  },
+  {
+    title: 'Enable Real-time Features',
+    description: 'Configure real-time subscriptions and test connection',
+    icon: Zap,
+    content:
+    <div className="space-y-4">
           <p>1. In your Supabase project, go to Database &gt; Replication</p>
           <p>2. Enable real-time for all tables by adding them to the publication:</p>
           
@@ -735,10 +735,10 @@ or check the project documentation.
             <div className="flex items-center justify-between mb-2">
               <span>Enable Real-time SQL</span>
               <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => copyToClipboard(realtimeSql, 'Real-time setup')}
-              >
+            variant="ghost"
+            size="sm"
+            onClick={() => copyToClipboard(realtimeSql, 'Real-time setup')}>
+
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
@@ -748,30 +748,30 @@ or check the project documentation.
           <p>3. Test your connection:</p>
           <div className="space-y-2">
             <Button
-              onClick={testConnection}
-              disabled={connectionStatus === 'testing'}
-              className="w-full"
-            >
+          onClick={testConnection}
+          disabled={connectionStatus === 'testing'}
+          className="w-full">
+
               {connectionStatus === 'testing' ? 'Testing...' : 'Test Supabase Connection'}
             </Button>
             
-            {connectionStatus === 'success' && (
-              <Alert>
+            {connectionStatus === 'success' &&
+        <Alert>
                 <CheckCircle className="h-4 w-4" />
                 <AlertDescription className="text-green-700">
                   ✅ Supabase connection successful! Real-time features are now active.
                 </AlertDescription>
               </Alert>
-            )}
+        }
             
-            {connectionStatus === 'error' && (
-              <Alert>
+            {connectionStatus === 'error' &&
+        <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription className="text-red-700">
                   ❌ Connection failed. Please check your environment variables and try again.
                 </AlertDescription>
               </Alert>
-            )}
+        }
           </div>
           
           <Alert>
@@ -781,9 +781,9 @@ or check the project documentation.
             </AlertDescription>
           </Alert>
         </div>
-      )
-    }
-  ];
+
+  }];
+
 
   return (
     <Dialog>
@@ -807,16 +807,16 @@ or check the project documentation.
         
         <Tabs value={activeStep.toString()} onValueChange={(value) => setActiveStep(parseInt(value))}>
           <TabsList className="grid w-full grid-cols-4">
-            {setupSteps.map((step, index) => (
-              <TabsTrigger key={index} value={index.toString()} className="text-xs">
+            {setupSteps.map((step, index) =>
+            <TabsTrigger key={index} value={index.toString()} className="text-xs">
                 <step.icon className="h-4 w-4 mr-1" />
                 {step.title}
               </TabsTrigger>
-            ))}
+            )}
           </TabsList>
           
-          {setupSteps.map((step, index) => (
-            <TabsContent key={index} value={index.toString()} className="mt-6">
+          {setupSteps.map((step, index) =>
+          <TabsContent key={index} value={index.toString()} className="mt-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -830,26 +830,26 @@ or check the project documentation.
                   
                   <div className="flex justify-between mt-6">
                     <Button
-                      variant="outline"
-                      onClick={() => setActiveStep(Math.max(0, activeStep - 1))}
-                      disabled={activeStep === 0}
-                    >
+                    variant="outline"
+                    onClick={() => setActiveStep(Math.max(0, activeStep - 1))}
+                    disabled={activeStep === 0}>
+
                       Previous
                     </Button>
                     <Badge variant="outline">
                       Step {activeStep + 1} of {setupSteps.length}
                     </Badge>
                     <Button
-                      onClick={() => setActiveStep(Math.min(setupSteps.length - 1, activeStep + 1))}
-                      disabled={activeStep === setupSteps.length - 1}
-                    >
+                    onClick={() => setActiveStep(Math.min(setupSteps.length - 1, activeStep + 1))}
+                    disabled={activeStep === setupSteps.length - 1}>
+
                       Next
                     </Button>
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
-          ))}
+          )}
         </Tabs>
         
         <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
@@ -877,8 +877,8 @@ or check the project documentation.
           </div>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default SupabaseSetupGuide;
