@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
 import { SupabaseAuthProvider } from './contexts/SupabaseAuthContext';
 import { GlobalErrorBoundary } from './components/ErrorBoundary';
+import InvalidCharacterErrorBoundary from './components/ErrorBoundary/InvalidCharacterErrorBoundary';
 
 import DashboardLayout from './components/Layout/DashboardLayout';
 import Dashboard from './pages/Dashboard';
@@ -39,6 +40,7 @@ import DatabaseMonitoring from './pages/Admin/DatabaseMonitoring';
 import AuditMonitoring from './pages/Admin/AuditMonitoring';
 import DatabaseAutoSyncPage from './pages/Admin/DatabaseAutoSync';
 import SupabaseConnectionTestPage from './pages/Admin/SupabaseConnectionTest';
+import InvalidCharacterErrorDemo from './components/InvalidCharacterErrorDemo';
 import LoginPage from './pages/LoginPage';
 import OnAuthSuccessPage from './pages/OnAuthSuccessPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
@@ -49,11 +51,12 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <GlobalErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <SupabaseAuthProvider>
-          <AuthProvider>
-            <TooltipProvider>
-            <Router>
+      <InvalidCharacterErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <SupabaseAuthProvider>
+            <AuthProvider>
+              <TooltipProvider>
+              <Router>
           <Routes>
             {/* Public routes */}
             <Route path="/login" element={<LoginPage />} />
@@ -125,16 +128,18 @@ function App() {
               <Route path="admin/audit-monitoring" element={<AuditMonitoring />} />
               <Route path="admin/database-autosync" element={<DatabaseAutoSyncPage />} />
               <Route path="admin/supabase-test" element={<SupabaseConnectionTestPage />} />
+              <Route path="admin/invalid-character-demo" element={<InvalidCharacterErrorDemo />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />
           </Routes>
-            </Router>
-            <Toaster />
-            </TooltipProvider>
-          </AuthProvider>
-        </SupabaseAuthProvider>
-      </QueryClientProvider>
+              </Router>
+              <Toaster />
+              </TooltipProvider>
+            </AuthProvider>
+          </SupabaseAuthProvider>
+        </QueryClientProvider>
+      </InvalidCharacterErrorBoundary>
     </GlobalErrorBoundary>);
 
 

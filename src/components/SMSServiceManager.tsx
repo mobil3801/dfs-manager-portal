@@ -20,8 +20,8 @@ import {
   Send,
   Activity,
   Smartphone,
-  TrendingUp 
-} from 'lucide-react';
+  TrendingUp } from
+'lucide-react';
 
 interface ServiceStatus {
   available: boolean;
@@ -79,7 +79,7 @@ const SMSServiceManager: React.FC = () => {
   const checkServiceStatus = async () => {
     try {
       setLoading(true);
-      
+
       // Check if SMS provider configuration exists
       const { data, error } = await window.ezsite.apis.tablePage('12640', {
         PageNo: 1,
@@ -94,9 +94,9 @@ const SMSServiceManager: React.FC = () => {
       if (data?.List && data.List.length > 0) {
         const config = data.List[0];
         const providers = [
-          { name: 'Twilio', available: !!config.account_sid && !!config.auth_token },
-          { name: 'TextBelt (Fallback)', available: true }
-        ];
+        { name: 'Twilio', available: !!config.account_sid && !!config.auth_token },
+        { name: 'TextBelt (Fallback)', available: true }];
+
 
         setServiceStatus({
           available: true,
@@ -232,8 +232,8 @@ const SMSServiceManager: React.FC = () => {
 
   const getStatusIcon = (available: boolean) => {
     return available ?
-      <CheckCircle className="w-5 h-5 text-green-500" /> :
-      <AlertCircle className="w-5 h-5 text-red-500" />;
+    <CheckCircle className="w-5 h-5 text-green-500" /> :
+    <AlertCircle className="w-5 h-5 text-red-500" />;
   };
 
   return (
@@ -267,7 +267,7 @@ const SMSServiceManager: React.FC = () => {
         </CardHeader>
         <CardContent>
           {serviceStatus ?
-            <div className="space-y-4">
+          <div className="space-y-4">
               <div className="flex items-center space-x-3">
                 {getStatusIcon(serviceStatus.available)}
                 <span className={`font-medium ${serviceStatus.available ? 'text-green-600' : 'text-red-600'}`}>
@@ -277,24 +277,24 @@ const SMSServiceManager: React.FC = () => {
 
               {/* Provider Status */}
               {serviceStatus.providers && serviceStatus.providers.length > 0 &&
-                <div>
+            <div>
                   <h4 className="font-medium text-sm text-gray-700 mb-2">Provider Status:</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {serviceStatus.providers.map((provider, index) =>
-                      <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                         <span className="font-medium">{provider.name}</span>
                         <Badge variant={provider.available ? 'default' : 'secondary'}>
                           {provider.available ? 'Available' : 'Unavailable'}
                         </Badge>
                       </div>
-                    )}
+                )}
                   </div>
                 </div>
-              }
+            }
 
               {/* Quota Information */}
               {serviceStatus.quota &&
-                <div className="bg-blue-50 p-3 rounded">
+            <div className="bg-blue-50 p-3 rounded">
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-blue-800">Free SMS Quota</span>
                     <Badge variant="outline" className="text-blue-600">
@@ -302,9 +302,9 @@ const SMSServiceManager: React.FC = () => {
                     </Badge>
                   </div>
                 </div>
-              }
+            }
             </div> :
-            <div className="flex items-center justify-center py-8">
+          <div className="flex items-center justify-center py-8">
               <div className="text-center">
                 <Clock className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                 <p className="text-gray-500">Loading service status...</p>
@@ -333,7 +333,7 @@ const SMSServiceManager: React.FC = () => {
                 placeholder="+1234567890 or 1234567890"
                 className="mt-1" />
               {testPhone && !isValidPhoneNumber(testPhone) &&
-                <p className="text-sm text-red-500 mt-1">
+              <p className="text-sm text-red-500 mt-1">
                   Please enter a valid phone number
                 </p>
               }
@@ -363,10 +363,10 @@ const SMSServiceManager: React.FC = () => {
             </Button>
             
             {testResults.length > 0 &&
-              <Button
-                variant="outline"
-                onClick={clearTestHistory}
-                size="sm">
+            <Button
+              variant="outline"
+              onClick={clearTestHistory}
+              size="sm">
                 Clear History
               </Button>
             }
@@ -376,7 +376,7 @@ const SMSServiceManager: React.FC = () => {
 
       {/* Test Results History */}
       {testResults.length > 0 &&
-        <Card>
+      <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
               <TrendingUp className="w-5 h-5 mr-2" />
@@ -386,7 +386,7 @@ const SMSServiceManager: React.FC = () => {
           <CardContent>
             <div className="space-y-3">
               {testResults.map((result, index) =>
-                <div key={index} className="border rounded-lg p-3">
+            <div key={index} className="border rounded-lg p-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-1">
@@ -396,25 +396,25 @@ const SMSServiceManager: React.FC = () => {
                           {result.success ? 'Success' : 'Failed'}
                         </Badge>
                         {result.provider &&
-                          <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs">
                             {result.provider}
                           </Badge>
-                        }
+                    }
                       </div>
                       <p className="text-sm text-gray-600 mb-1">{result.message}</p>
                       {result.error &&
-                        <p className="text-sm text-red-600">Error: {result.error}</p>
-                      }
+                  <p className="text-sm text-red-600">Error: {result.error}</p>
+                  }
                       {result.messageId &&
-                        <p className="text-xs text-gray-500">Message ID: {result.messageId}</p>
-                      }
+                  <p className="text-xs text-gray-500">Message ID: {result.messageId}</p>
+                  }
                     </div>
                     <div className="text-right text-xs text-gray-500">
                       {formatTimestamp(result.timestamp)}
                     </div>
                   </div>
                 </div>
-              )}
+            )}
             </div>
           </CardContent>
         </Card>
@@ -460,8 +460,8 @@ const SMSServiceManager: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SMSServiceManager;
