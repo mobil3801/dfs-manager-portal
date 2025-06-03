@@ -137,10 +137,10 @@ const SupabaseConnectionTestPage = () => {
   const testQueryPerformance = async () => {
     // Run multiple test queries to measure performance
     const queries = [
-      () => window.ezsite.apis.tablePage(11725, { PageNo: 1, PageSize: 5, OrderByField: "ID", IsAsc: false, Filters: [] }),
-      () => window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 5, OrderByField: "ID", IsAsc: false, Filters: [] }),
-      () => window.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 5, OrderByField: "ID", IsAsc: false, Filters: [] })
-    ];
+    () => window.ezsite.apis.tablePage(11725, { PageNo: 1, PageSize: 5, OrderByField: "ID", IsAsc: false, Filters: [] }),
+    () => window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 5, OrderByField: "ID", IsAsc: false, Filters: [] }),
+    () => window.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 5, OrderByField: "ID", IsAsc: false, Filters: [] })];
+
 
     for (const query of queries) {
       await query();
@@ -164,31 +164,31 @@ const SupabaseConnectionTestPage = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'connected':
-      case 'healthy': return 'text-green-600';
-      case 'warning': return 'text-yellow-600';
-      case 'error': return 'text-red-600';
-      case 'checking': return 'text-blue-600';
-      default: return 'text-gray-600';
+      case 'healthy':return 'text-green-600';
+      case 'warning':return 'text-yellow-600';
+      case 'error':return 'text-red-600';
+      case 'checking':return 'text-blue-600';
+      default:return 'text-gray-600';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'connected':
-      case 'healthy': return <CheckCircle className="h-4 w-4" />;
-      case 'warning': return <Clock className="h-4 w-4" />;
-      case 'error': return <XCircle className="h-4 w-4" />;
-      case 'checking': return <Activity className="h-4 w-4 animate-spin" />;
-      default: return <Database className="h-4 w-4" />;
+      case 'healthy':return <CheckCircle className="h-4 w-4" />;
+      case 'warning':return <Clock className="h-4 w-4" />;
+      case 'error':return <XCircle className="h-4 w-4" />;
+      case 'checking':return <Activity className="h-4 w-4 animate-spin" />;
+      default:return <Database className="h-4 w-4" />;
     }
   };
 
   const getBadgeColor = (status: string) => {
     switch (status) {
-      case 'healthy': return 'default';
-      case 'warning': return 'secondary';
-      case 'error': return 'destructive';
-      default: return 'outline';
+      case 'healthy':return 'default';
+      case 'warning':return 'secondary';
+      case 'error':return 'destructive';
+      default:return 'outline';
     }
   };
 
@@ -314,7 +314,7 @@ const SupabaseConnectionTestPage = () => {
                   <span className="font-medium capitalize">{connectionStatus}</span>
                 </div>
                 {performanceMetrics &&
-                  <p className="text-sm text-muted-foreground mt-2">
+                <p className="text-sm text-muted-foreground mt-2">
                     Response: {performanceMetrics.connectionTime}ms
                   </p>
                 }
@@ -330,7 +330,7 @@ const SupabaseConnectionTestPage = () => {
               </CardHeader>
               <CardContent>
                 {performanceMetrics ?
-                  <div>
+                <div>
                     <div className="flex items-center gap-2 text-green-600">
                       <CheckCircle className="h-4 w-4" />
                       <span className="font-medium">Optimal</span>
@@ -339,7 +339,7 @@ const SupabaseConnectionTestPage = () => {
                       Query: {performanceMetrics.queryResponseTime}ms
                     </p>
                   </div> :
-                  <div className="flex items-center gap-2 text-gray-600">
+                <div className="flex items-center gap-2 text-gray-600">
                     <Clock className="h-4 w-4" />
                     <span className="font-medium">Testing...</span>
                   </div>
@@ -356,7 +356,7 @@ const SupabaseConnectionTestPage = () => {
               </CardHeader>
               <CardContent>
                 {performanceMetrics ?
-                  <div>
+                <div>
                     <div className="flex items-center gap-2 text-blue-600">
                       <Database className="h-4 w-4" />
                       <span className="font-medium">{performanceMetrics.databaseSize} MB</span>
@@ -365,7 +365,7 @@ const SupabaseConnectionTestPage = () => {
                       {performanceMetrics.activeConnections} active connections
                     </p>
                   </div> :
-                  <div className="flex items-center gap-2 text-gray-600">
+                <div className="flex items-center gap-2 text-gray-600">
                     <Activity className="h-4 w-4 animate-spin" />
                     <span className="font-medium">Loading...</span>
                   </div>
@@ -382,14 +382,14 @@ const SupabaseConnectionTestPage = () => {
               </CardHeader>
               <CardContent>
                 {performanceMetrics ?
-                  <div>
+                <div>
                     <div className="flex items-center gap-2 text-green-600">
                       <CheckCircle className="h-4 w-4" />
                       <span className="font-medium">{performanceMetrics.uptime}%</span>
                     </div>
                     <Progress value={performanceMetrics.uptime} className="mt-2" />
                   </div> :
-                  <div className="flex items-center gap-2 text-gray-600">
+                <div className="flex items-center gap-2 text-gray-600">
                     <Activity className="h-4 w-4 animate-spin" />
                     <span className="font-medium">Checking...</span>
                   </div>
@@ -404,8 +404,8 @@ const SupabaseConnectionTestPage = () => {
               disabled={isRunningTests}
               className="flex items-center gap-2">
               {isRunningTests ?
-                <Activity className="h-4 w-4 animate-spin" /> :
-                <Zap className="h-4 w-4" />
+              <Activity className="h-4 w-4 animate-spin" /> :
+              <Zap className="h-4 w-4" />
               }
               {isRunningTests ? 'Running Tests...' : 'Run Connection Test'}
             </Button>
@@ -419,7 +419,7 @@ const SupabaseConnectionTestPage = () => {
           </div>
 
           {performanceMetrics &&
-            <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Performance Metrics</CardTitle>
@@ -604,8 +604,8 @@ const SupabaseConnectionTestPage = () => {
           </div>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export { SupabaseConnectionTestPage };

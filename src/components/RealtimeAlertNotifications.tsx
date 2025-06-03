@@ -4,10 +4,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Bell, 
-  AlertTriangle, 
-  CheckCircle, 
+import {
+  Bell,
+  AlertTriangle,
+  CheckCircle,
   XCircle,
   Clock,
   Volume2,
@@ -16,8 +16,8 @@ import {
   X,
   Mail,
   MessageSquare,
-  Smartphone
-} from 'lucide-react';
+  Smartphone } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -69,11 +69,11 @@ const RealtimeAlertNotifications = () => {
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    
+
     if (isMonitoring) {
       interval = setInterval(() => {
         // Simulate random alerts for demonstration
-        if (Math.random() < 0.1) { // 10% chance every 3 seconds
+        if (Math.random() < 0.1) {// 10% chance every 3 seconds
           generateMockAlert();
         }
       }, 3000);
@@ -95,19 +95,19 @@ const RealtimeAlertNotifications = () => {
     const alertTypes = ['critical', 'high', 'medium', 'low'] as const;
     const sources = ['Database Connection', 'Query Performance', 'Memory Usage', 'CPU Usage', 'Error Rate'];
     const metrics = [
-      { name: 'Connection Time', unit: 'ms', threshold: 2000 },
-      { name: 'Query Response', unit: 'ms', threshold: 1000 },
-      { name: 'Memory Usage', unit: '%', threshold: 80 },
-      { name: 'CPU Usage', unit: '%', threshold: 90 },
-      { name: 'Error Rate', unit: '%', threshold: 5 }
-    ];
+    { name: 'Connection Time', unit: 'ms', threshold: 2000 },
+    { name: 'Query Response', unit: 'ms', threshold: 1000 },
+    { name: 'Memory Usage', unit: '%', threshold: 80 },
+    { name: 'CPU Usage', unit: '%', threshold: 90 },
+    { name: 'Error Rate', unit: '%', threshold: 5 }];
+
 
     const randomType = alertTypes[Math.floor(Math.random() * alertTypes.length)];
     const randomSource = sources[Math.floor(Math.random() * sources.length)];
     const randomMetric = metrics[Math.floor(Math.random() * metrics.length)];
-    
+
     const currentValue = randomMetric.threshold + Math.random() * 50;
-    
+
     const newAlert: AlertNotification = {
       id: Date.now().toString(),
       type: randomType,
@@ -129,8 +129,8 @@ const RealtimeAlertNotifications = () => {
   };
 
   const addNotification = (notification: AlertNotification) => {
-    setNotifications(prev => [notification, ...prev.slice(0, 49)]); // Keep last 50
-    setUnreadCount(prev => prev + 1);
+    setNotifications((prev) => [notification, ...prev.slice(0, 49)]); // Keep last 50
+    setUnreadCount((prev) => prev + 1);
 
     // Play sound if enabled
     if (settings.enableSound && !isQuietHours()) {
@@ -177,7 +177,7 @@ const RealtimeAlertNotifications = () => {
 
     oscillator.frequency.setValueAtTime(frequencies[type as keyof typeof frequencies] || 400, audioContext.currentTime);
     oscillator.type = 'sine';
-    
+
     gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
 
@@ -195,16 +195,16 @@ const RealtimeAlertNotifications = () => {
 
   const isQuietHours = () => {
     if (!settings.quietHours.enabled) return false;
-    
+
     const now = new Date();
     const currentTime = now.getHours() * 60 + now.getMinutes();
-    
+
     const [startHour, startMin] = settings.quietHours.start.split(':').map(Number);
     const [endHour, endMin] = settings.quietHours.end.split(':').map(Number);
-    
+
     const startTime = startHour * 60 + startMin;
     const endTime = endHour * 60 + endMin;
-    
+
     if (startTime <= endTime) {
       return currentTime >= startTime && currentTime <= endTime;
     } else {
@@ -213,23 +213,23 @@ const RealtimeAlertNotifications = () => {
   };
 
   const acknowledgeNotification = (id: string) => {
-    setNotifications(prev => 
-      prev.map(notif => 
-        notif.id === id ? { ...notif, acknowledged: true } : notif
-      )
+    setNotifications((prev) =>
+    prev.map((notif) =>
+    notif.id === id ? { ...notif, acknowledged: true } : notif
+    )
     );
-    setUnreadCount(prev => Math.max(0, prev - 1));
+    setUnreadCount((prev) => Math.max(0, prev - 1));
   };
 
   const acknowledgeAll = () => {
-    setNotifications(prev => 
-      prev.map(notif => ({ ...notif, acknowledged: true }))
+    setNotifications((prev) =>
+    prev.map((notif) => ({ ...notif, acknowledged: true }))
     );
     setUnreadCount(0);
   };
 
   const clearNotification = (id: string) => {
-    setNotifications(prev => prev.filter(notif => notif.id !== id));
+    setNotifications((prev) => prev.filter((notif) => notif.id !== id));
   };
 
   const clearAll = () => {
@@ -239,21 +239,21 @@ const RealtimeAlertNotifications = () => {
 
   const getSeverityColor = (type: string) => {
     switch (type) {
-      case 'critical': return 'text-red-600 border-red-200 bg-red-50';
-      case 'high': return 'text-orange-600 border-orange-200 bg-orange-50';
-      case 'medium': return 'text-yellow-600 border-yellow-200 bg-yellow-50';
-      case 'low': return 'text-blue-600 border-blue-200 bg-blue-50';
-      default: return 'text-gray-600 border-gray-200 bg-gray-50';
+      case 'critical':return 'text-red-600 border-red-200 bg-red-50';
+      case 'high':return 'text-orange-600 border-orange-200 bg-orange-50';
+      case 'medium':return 'text-yellow-600 border-yellow-200 bg-yellow-50';
+      case 'low':return 'text-blue-600 border-blue-200 bg-blue-50';
+      default:return 'text-gray-600 border-gray-200 bg-gray-50';
     }
   };
 
   const getSeverityIcon = (type: string) => {
     switch (type) {
-      case 'critical': return <XCircle className="h-4 w-4" />;
-      case 'high': return <AlertTriangle className="h-4 w-4" />;
-      case 'medium': return <Clock className="h-4 w-4" />;
-      case 'low': return <CheckCircle className="h-4 w-4" />;
-      default: return <Bell className="h-4 w-4" />;
+      case 'critical':return <XCircle className="h-4 w-4" />;
+      case 'high':return <AlertTriangle className="h-4 w-4" />;
+      case 'medium':return <Clock className="h-4 w-4" />;
+      case 'low':return <CheckCircle className="h-4 w-4" />;
+      default:return <Bell className="h-4 w-4" />;
     }
   };
 
@@ -261,7 +261,7 @@ const RealtimeAlertNotifications = () => {
     const now = new Date();
     const diff = now.getTime() - timestamp.getTime();
     const minutes = Math.floor(diff / 60000);
-    
+
     if (minutes < 1) return 'Just now';
     if (minutes < 60) return `${minutes}m ago`;
     if (minutes < 1440) return `${Math.floor(minutes / 60)}h ago`;
@@ -276,11 +276,11 @@ const RealtimeAlertNotifications = () => {
           <CardTitle className="flex items-center gap-2">
             <Bell className="h-5 w-5" />
             Real-time Alert Notifications
-            {unreadCount > 0 && (
-              <Badge variant="destructive" className="ml-2">
+            {unreadCount > 0 &&
+            <Badge variant="destructive" className="ml-2">
                 {unreadCount} unread
               </Badge>
-            )}
+            }
           </CardTitle>
           <CardDescription>
             Live monitoring alerts with configurable notification preferences
@@ -292,14 +292,14 @@ const RealtimeAlertNotifications = () => {
               <Button
                 onClick={() => setIsMonitoring(!isMonitoring)}
                 variant={isMonitoring ? "destructive" : "default"}
-                className="flex items-center gap-2"
-              >
+                className="flex items-center gap-2">
+
                 {isMonitoring ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
                 {isMonitoring ? 'Stop Monitoring' : 'Start Monitoring'}
               </Button>
               
-              {notifications.length > 0 && (
-                <div className="flex items-center gap-2">
+              {notifications.length > 0 &&
+              <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={acknowledgeAll}>
                     Mark All Read
                   </Button>
@@ -307,16 +307,16 @@ const RealtimeAlertNotifications = () => {
                     Clear All
                   </Button>
                 </div>
-              )}
+              }
             </div>
 
             <div className="flex items-center gap-2">
-              {isQuietHours() && (
-                <Badge variant="secondary" className="flex items-center gap-1">
+              {isQuietHours() &&
+              <Badge variant="secondary" className="flex items-center gap-1">
                   <VolumeX className="h-3 w-3" />
                   Quiet Hours
                 </Badge>
-              )}
+              }
               <Badge variant={isMonitoring ? 'default' : 'secondary'}>
                 {isMonitoring ? 'Active' : 'Inactive'}
               </Badge>
@@ -346,8 +346,8 @@ const RealtimeAlertNotifications = () => {
               <Button
                 variant={settings.enableSound ? "default" : "outline"}
                 size="sm"
-                onClick={() => setSettings(prev => ({ ...prev, enableSound: !prev.enableSound }))}
-              >
+                onClick={() => setSettings((prev) => ({ ...prev, enableSound: !prev.enableSound }))}>
+
                 {settings.enableSound ? 'On' : 'Off'}
               </Button>
             </div>
@@ -360,8 +360,8 @@ const RealtimeAlertNotifications = () => {
               <Button
                 variant={settings.enableDesktop ? "default" : "outline"}
                 size="sm"
-                onClick={() => setSettings(prev => ({ ...prev, enableDesktop: !prev.enableDesktop }))}
-              >
+                onClick={() => setSettings((prev) => ({ ...prev, enableDesktop: !prev.enableDesktop }))}>
+
                 {settings.enableDesktop ? 'On' : 'Off'}
               </Button>
             </div>
@@ -374,8 +374,8 @@ const RealtimeAlertNotifications = () => {
               <Button
                 variant={settings.enableEmail ? "default" : "outline"}
                 size="sm"
-                onClick={() => setSettings(prev => ({ ...prev, enableEmail: !prev.enableEmail }))}
-              >
+                onClick={() => setSettings((prev) => ({ ...prev, enableEmail: !prev.enableEmail }))}>
+
                 {settings.enableEmail ? 'On' : 'Off'}
               </Button>
             </div>
@@ -388,8 +388,8 @@ const RealtimeAlertNotifications = () => {
               <Button
                 variant={settings.enableSMS ? "default" : "outline"}
                 size="sm"
-                onClick={() => setSettings(prev => ({ ...prev, enableSMS: !prev.enableSMS }))}
-              >
+                onClick={() => setSettings((prev) => ({ ...prev, enableSMS: !prev.enableSMS }))}>
+
                 {settings.enableSMS ? 'On' : 'Off'}
               </Button>
             </div>
@@ -405,36 +405,36 @@ const RealtimeAlertNotifications = () => {
               <AlertTriangle className="h-5 w-5" />
               Live Alert Feed
             </span>
-            {notifications.length > 0 && (
-              <Badge variant="outline">
+            {notifications.length > 0 &&
+            <Badge variant="outline">
                 {notifications.length} notifications
               </Badge>
-            )}
+            }
           </CardTitle>
           <CardDescription>
             Real-time alerts and system notifications
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {notifications.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+          {notifications.length === 0 ?
+          <div className="text-center py-8 text-muted-foreground">
               <Bell className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No notifications yet</p>
               <p className="text-sm">Start monitoring to receive real-time alerts</p>
-            </div>
-          ) : (
-            <div className="space-y-3 max-h-96 overflow-y-auto">
+            </div> :
+
+          <div className="space-y-3 max-h-96 overflow-y-auto">
               <AnimatePresence>
-                {notifications.map((notification) => (
-                  <motion.div
-                    key={notification.id}
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: 300 }}
-                    className={`p-4 border rounded-lg ${getSeverityColor(notification.type)} ${
-                      notification.acknowledged ? 'opacity-60' : ''
-                    }`}
-                  >
+                {notifications.map((notification) =>
+              <motion.div
+                key={notification.id}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, x: 300 }}
+                className={`p-4 border rounded-lg ${getSeverityColor(notification.type)} ${
+                notification.acknowledged ? 'opacity-60' : ''}`
+                }>
+
                     <div className="flex items-start justify-between">
                       <div className="flex items-start gap-3 flex-1">
                         <div className="mt-0.5">
@@ -446,48 +446,48 @@ const RealtimeAlertNotifications = () => {
                             <Badge variant="outline" className="text-xs">
                               {notification.type}
                             </Badge>
-                            {!notification.acknowledged && (
-                              <Badge variant="destructive" className="text-xs">
+                            {!notification.acknowledged &&
+                        <Badge variant="destructive" className="text-xs">
                                 New
                               </Badge>
-                            )}
+                        }
                           </div>
                           <p className="text-sm text-muted-foreground mb-2">
                             {notification.message}
                           </p>
                           
-                          {notification.metrics && (
-                            <div className="text-xs text-muted-foreground mb-2">
-                              <Progress 
-                                value={(notification.metrics.currentValue / (notification.metrics.threshold * 1.5)) * 100} 
-                                className="h-1 mb-1"
-                              />
+                          {notification.metrics &&
+                      <div className="text-xs text-muted-foreground mb-2">
+                              <Progress
+                          value={notification.metrics.currentValue / (notification.metrics.threshold * 1.5) * 100}
+                          className="h-1 mb-1" />
+
                               Current: {notification.metrics.currentValue.toFixed(2)}{notification.metrics.unit} | 
                               Threshold: {notification.metrics.threshold}{notification.metrics.unit}
                             </div>
-                          )}
+                      }
                           
                           <div className="flex items-center justify-between">
                             <span className="text-xs text-muted-foreground">
                               {notification.source} • {formatTimestamp(notification.timestamp)}
                             </span>
                             <div className="flex items-center gap-1">
-                              {!notification.acknowledged && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => acknowledgeNotification(notification.id)}
-                                  className="h-6 px-2 text-xs"
-                                >
+                              {!notification.acknowledged &&
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => acknowledgeNotification(notification.id)}
+                            className="h-6 px-2 text-xs">
+
                                   Acknowledge
                                 </Button>
-                              )}
+                          }
                               <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => clearNotification(notification.id)}
-                                className="h-6 w-6 p-0"
-                              >
+                            variant="outline"
+                            size="sm"
+                            onClick={() => clearNotification(notification.id)}
+                            className="h-6 w-6 p-0">
+
                                 <X className="h-3 w-3" />
                               </Button>
                             </div>
@@ -496,25 +496,25 @@ const RealtimeAlertNotifications = () => {
                       </div>
                     </div>
                   </motion.div>
-                ))}
+              )}
               </AnimatePresence>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
       {/* Demo Alert */}
-      {isMonitoring && (
-        <Alert>
+      {isMonitoring &&
+      <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
             Monitoring is active. Demo alerts will be generated randomly to showcase the notification system.
             In production, alerts would be triggered by actual performance threshold violations.
           </AlertDescription>
         </Alert>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default RealtimeAlertNotifications;

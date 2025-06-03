@@ -5,19 +5,19 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Activity, 
-  Database, 
-  Clock, 
-  TrendingUp, 
-  AlertTriangle, 
-  CheckCircle, 
+import {
+  Activity,
+  Database,
+  Clock,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle,
   XCircle,
   Zap,
   BarChart3,
   Settings,
-  Bell
-} from 'lucide-react';
+  Bell } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import RealtimeAlertNotifications from '@/components/RealtimeAlertNotifications';
 
@@ -53,20 +53,20 @@ const DatabasePerformanceMonitor = () => {
   });
 
   const [alertThresholds, setAlertThresholds] = useState<AlertThreshold[]>([
-    { metric: 'connectionTime', threshold: 2000, enabled: true, severity: 'high' },
-    { metric: 'queryResponseTime', threshold: 1000, enabled: true, severity: 'medium' },
-    { metric: 'errorRate', threshold: 5, enabled: true, severity: 'critical' },
-    { metric: 'memoryUsage', threshold: 80, enabled: true, severity: 'high' },
-    { metric: 'cpuUsage', threshold: 90, enabled: true, severity: 'critical' }
-  ]);
+  { metric: 'connectionTime', threshold: 2000, enabled: true, severity: 'high' },
+  { metric: 'queryResponseTime', threshold: 1000, enabled: true, severity: 'medium' },
+  { metric: 'errorRate', threshold: 5, enabled: true, severity: 'critical' },
+  { metric: 'memoryUsage', threshold: 80, enabled: true, severity: 'high' },
+  { metric: 'cpuUsage', threshold: 90, enabled: true, severity: 'critical' }]
+  );
 
   const [isMonitoring, setIsMonitoring] = useState(false);
-  const [alerts, setAlerts] = useState<Array<{ id: string; message: string; severity: string; timestamp: string }>>([]);
+  const [alerts, setAlerts] = useState<Array<{id: string;message: string;severity: string;timestamp: string;}>>([]);
   const [historicalData, setHistoricalData] = useState<PerformanceMetrics[]>([]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    
+
     if (isMonitoring) {
       interval = setInterval(async () => {
         await collectMetrics();
@@ -81,7 +81,7 @@ const DatabasePerformanceMonitor = () => {
   const collectMetrics = async () => {
     try {
       const startTime = Date.now();
-      
+
       // Simulate database performance check
       const connectionTest = await testDatabaseConnection();
       const connectionTime = Date.now() - startTime;
@@ -104,9 +104,9 @@ const DatabasePerformanceMonitor = () => {
       };
 
       setMetrics(newMetrics);
-      
+
       // Add to historical data (keep last 50 readings)
-      setHistoricalData(prev => {
+      setHistoricalData((prev) => {
         const updated = [...prev, newMetrics];
         return updated.slice(-50);
       });
@@ -126,20 +126,20 @@ const DatabasePerformanceMonitor = () => {
 
   const testDatabaseConnection = async () => {
     // Simulate connection test
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(() => resolve(true), Math.random() * 500 + 100);
     });
   };
 
   const testQueryPerformance = async () => {
     // Simulate query performance test
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(() => resolve(true), Math.random() * 300 + 50);
     });
   };
 
   const checkAlertThresholds = (currentMetrics: PerformanceMetrics) => {
-    alertThresholds.forEach(threshold => {
+    alertThresholds.forEach((threshold) => {
       if (!threshold.enabled) return;
 
       const metricValue = currentMetrics[threshold.metric as keyof PerformanceMetrics] as number;
@@ -154,7 +154,7 @@ const DatabasePerformanceMonitor = () => {
           timestamp: new Date().toISOString()
         };
 
-        setAlerts(prev => [newAlert, ...prev.slice(0, 19)]); // Keep last 20 alerts
+        setAlerts((prev) => [newAlert, ...prev.slice(0, 19)]); // Keep last 20 alerts
 
         toast({
           title: `${threshold.severity.toUpperCase()} Alert`,
@@ -188,10 +188,10 @@ const DatabasePerformanceMonitor = () => {
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return 'destructive';
-      case 'high': return 'secondary';
-      case 'medium': return 'outline';
-      default: return 'default';
+      case 'critical':return 'destructive';
+      case 'high':return 'secondary';
+      case 'medium':return 'outline';
+      default:return 'default';
     }
   };
 
@@ -214,8 +214,8 @@ const DatabasePerformanceMonitor = () => {
               <Button
                 onClick={toggleMonitoring}
                 variant={isMonitoring ? "destructive" : "default"}
-                className="flex items-center gap-2"
-              >
+                className="flex items-center gap-2">
+
                 {isMonitoring ? <XCircle className="h-4 w-4" /> : <Activity className="h-4 w-4" />}
                 {isMonitoring ? 'Stop Monitoring' : 'Start Monitoring'}
               </Button>
@@ -254,10 +254,10 @@ const DatabasePerformanceMonitor = () => {
                 <p className="text-xs text-muted-foreground">
                   Database connection latency
                 </p>
-                <Progress 
-                  value={(metrics.connectionTime / 3000) * 100} 
-                  className="mt-2"
-                />
+                <Progress
+                  value={metrics.connectionTime / 3000 * 100}
+                  className="mt-2" />
+
               </CardContent>
             </Card>
 
@@ -272,10 +272,10 @@ const DatabasePerformanceMonitor = () => {
                 <p className="text-xs text-muted-foreground">
                   Average query execution time
                 </p>
-                <Progress 
-                  value={(metrics.queryResponseTime / 2000) * 100} 
-                  className="mt-2"
-                />
+                <Progress
+                  value={metrics.queryResponseTime / 2000 * 100}
+                  className="mt-2" />
+
               </CardContent>
             </Card>
 
@@ -290,10 +290,10 @@ const DatabasePerformanceMonitor = () => {
                 <p className="text-xs text-muted-foreground">
                   Current database connections
                 </p>
-                <Progress 
-                  value={(metrics.activeConnections / 25) * 100} 
-                  className="mt-2"
-                />
+                <Progress
+                  value={metrics.activeConnections / 25 * 100}
+                  className="mt-2" />
+
               </CardContent>
             </Card>
 
@@ -308,10 +308,10 @@ const DatabasePerformanceMonitor = () => {
                 <p className="text-xs text-muted-foreground">
                   Database operation failures
                 </p>
-                <Progress 
-                  value={(metrics.errorRate / 10) * 100} 
-                  className="mt-2"
-                />
+                <Progress
+                  value={metrics.errorRate / 10 * 100}
+                  className="mt-2" />
+
               </CardContent>
             </Card>
 
@@ -326,10 +326,10 @@ const DatabasePerformanceMonitor = () => {
                 <p className="text-xs text-muted-foreground">
                   Database memory utilization
                 </p>
-                <Progress 
-                  value={metrics.memoryUsage} 
-                  className="mt-2"
-                />
+                <Progress
+                  value={metrics.memoryUsage}
+                  className="mt-2" />
+
               </CardContent>
             </Card>
 
@@ -344,10 +344,10 @@ const DatabasePerformanceMonitor = () => {
                 <p className="text-xs text-muted-foreground">
                   Database CPU utilization
                 </p>
-                <Progress 
-                  value={metrics.cpuUsage} 
-                  className="mt-2"
-                />
+                <Progress
+                  value={metrics.cpuUsage}
+                  className="mt-2" />
+
               </CardContent>
             </Card>
           </div>
@@ -367,8 +367,8 @@ const DatabasePerformanceMonitor = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {alertThresholds.map((threshold, index) => (
-                  <div key={threshold.metric} className="flex items-center justify-between p-3 border rounded-lg">
+                {alertThresholds.map((threshold, index) =>
+                <div key={threshold.metric} className="flex items-center justify-between p-3 border rounded-lg">
                     <div>
                       <div className="font-medium capitalize">{threshold.metric.replace(/([A-Z])/g, ' $1')}</div>
                       <div className="text-sm text-muted-foreground">
@@ -385,7 +385,7 @@ const DatabasePerformanceMonitor = () => {
                       </Badge>
                     </div>
                   </div>
-                ))}
+                )}
               </CardContent>
             </Card>
 
@@ -401,15 +401,15 @@ const DatabasePerformanceMonitor = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {alerts.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
+                {alerts.length === 0 ?
+                <div className="text-center py-8 text-muted-foreground">
                     <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-500" />
                     No alerts detected
-                  </div>
-                ) : (
-                  <div className="space-y-3 max-h-64 overflow-y-auto">
-                    {alerts.map((alert) => (
-                      <Alert key={alert.id}>
+                  </div> :
+
+                <div className="space-y-3 max-h-64 overflow-y-auto">
+                    {alerts.map((alert) =>
+                  <Alert key={alert.id}>
                         <AlertTriangle className="h-4 w-4" />
                         <AlertDescription>
                           <div className="flex items-center justify-between">
@@ -425,9 +425,9 @@ const DatabasePerformanceMonitor = () => {
                           </div>
                         </AlertDescription>
                       </Alert>
-                    ))}
+                  )}
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
           </div>
@@ -445,12 +445,12 @@ const DatabasePerformanceMonitor = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {historicalData.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
+              {historicalData.length === 0 ?
+              <div className="text-center py-8 text-muted-foreground">
                   Start monitoring to collect historical performance data
-                </div>
-              ) : (
-                <div className="space-y-4">
+                </div> :
+
+              <div className="space-y-4">
                   <div className="text-sm text-muted-foreground">
                     Data points collected: {historicalData.length}
                   </div>
@@ -469,7 +469,7 @@ const DatabasePerformanceMonitor = () => {
                     </div>
                   </div>
                 </div>
-              )}
+              }
             </CardContent>
           </Card>
         </TabsContent>
@@ -478,8 +478,8 @@ const DatabasePerformanceMonitor = () => {
           <RealtimeAlertNotifications />
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default DatabasePerformanceMonitor;
