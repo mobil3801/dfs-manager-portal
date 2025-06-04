@@ -31,7 +31,7 @@ const SMSTestConnection: React.FC = () => {
 
       // Test SMS service connection
       const serviceStatus = await smsService.getServiceStatus();
-      
+
       if (!serviceStatus.available) {
         throw new Error(serviceStatus.message);
       }
@@ -41,9 +41,9 @@ const SMSTestConnection: React.FC = () => {
 
       setLastTestResult({
         success: result.success,
-        message: result.success 
-          ? `Test SMS sent successfully to ${testNumber}` 
-          : result.error,
+        message: result.success ?
+        `Test SMS sent successfully to ${testNumber}` :
+        result.error,
         timestamp: new Date(),
         messageId: result.messageId,
         phoneNumber: testNumber
@@ -97,8 +97,8 @@ const SMSTestConnection: React.FC = () => {
             type="tel"
             placeholder="+1234567890"
             value={testNumber}
-            onChange={(e) => setTestNumber(e.target.value)}
-          />
+            onChange={(e) => setTestNumber(e.target.value)} />
+
           <p className="text-sm text-muted-foreground">
             Enter your phone number to receive a test SMS
           </p>
@@ -107,28 +107,28 @@ const SMSTestConnection: React.FC = () => {
         <Button
           onClick={runConnectionTest}
           disabled={testing || !testNumber.trim()}
-          className="w-full"
-        >
-          {testing ? (
-            <>
+          className="w-full">
+
+          {testing ?
+          <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               Testing Connection...
-            </>
-          ) : (
-            <>
+            </> :
+
+          <>
               <Send className="w-4 h-4 mr-2" />
               Send Test SMS
             </>
-          )}
+          }
         </Button>
 
-        {lastTestResult && (
-          <Alert className={lastTestResult.success ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"}>
-            {lastTestResult.success ? (
-              <CheckCircle className="h-4 w-4 text-green-600" />
-            ) : (
-              <AlertCircle className="h-4 w-4 text-red-600" />
-            )}
+        {lastTestResult &&
+        <Alert className={lastTestResult.success ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"}>
+            {lastTestResult.success ?
+          <CheckCircle className="h-4 w-4 text-green-600" /> :
+
+          <AlertCircle className="h-4 w-4 text-red-600" />
+          }
             <AlertDescription>
               <div className={lastTestResult.success ? "text-green-800" : "text-red-800"}>
                 <div className="font-medium">
@@ -138,14 +138,14 @@ const SMSTestConnection: React.FC = () => {
                   <div><strong>Message:</strong> {lastTestResult.message}</div>
                   <div><strong>Phone:</strong> {lastTestResult.phoneNumber}</div>
                   <div><strong>Time:</strong> {lastTestResult.timestamp.toLocaleString()}</div>
-                  {lastTestResult.messageId && (
-                    <div><strong>Message ID:</strong> {lastTestResult.messageId}</div>
-                  )}
+                  {lastTestResult.messageId &&
+                <div><strong>Message ID:</strong> {lastTestResult.messageId}</div>
+                }
                 </div>
               </div>
             </AlertDescription>
           </Alert>
-        )}
+        }
 
         <div className="border-t pt-4">
           <div className="text-sm text-muted-foreground space-y-2">
@@ -159,8 +159,8 @@ const SMSTestConnection: React.FC = () => {
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default SMSTestConnection;

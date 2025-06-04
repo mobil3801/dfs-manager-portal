@@ -12,7 +12,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Send, Phone, MessageSquare, AlertCircle, CheckCircle, Loader2, User } from 'lucide-react';
 import { smsService } from '@/services/smsService';
 import SMSTestConnection from '@/components/SMSTestConnection';
-import SMSTemplateSelector from '@/components/SMSTemplateSelector';
 
 interface SMSContact {
   id: number;
@@ -92,7 +91,7 @@ const CustomSMSSendingForm: React.FC = () => {
       if (error) throw error;
       const providerList = data?.List || [];
       setProviders(providerList);
-      
+
       // Auto-select the first active provider
       if (providerList.length > 0 && !fromNumber) {
         setFromNumber(providerList[0].from_number);
@@ -133,14 +132,14 @@ const CustomSMSSendingForm: React.FC = () => {
   const isValidPhoneNumber = (phone: string): boolean => {
     // Remove all non-digit characters
     const cleaned = phone.replace(/[^\d]/g, '');
-    
+
     // Check if it's a valid length (10-15 digits)
     if (cleaned.length < 10 || cleaned.length > 15) {
       return false;
     }
 
     // US phone number validation (10 or 11 digits)
-    if (cleaned.length === 10 || (cleaned.length === 11 && cleaned.startsWith('1'))) {
+    if (cleaned.length === 10 || cleaned.length === 11 && cleaned.startsWith('1')) {
       return true;
     }
 
@@ -150,7 +149,7 @@ const CustomSMSSendingForm: React.FC = () => {
 
   const formatPhoneNumber = (phone: string): string => {
     const cleaned = phone.replace(/[^\d]/g, '');
-    
+
     // Add + prefix if not present
     if (!phone.startsWith('+')) {
       if (cleaned.length === 10) {
@@ -161,7 +160,7 @@ const CustomSMSSendingForm: React.FC = () => {
         return `+${cleaned}`;
       }
     }
-    
+
     return phone;
   };
 
@@ -192,7 +191,7 @@ const CustomSMSSendingForm: React.FC = () => {
 
       // Progress simulation
       const progressInterval = setInterval(() => {
-        setSendingProgress(prev => {
+        setSendingProgress((prev) => {
           if (prev >= 90) {
             clearInterval(progressInterval);
             return 90;
@@ -229,12 +228,12 @@ const CustomSMSSendingForm: React.FC = () => {
 
         toast({
           title: "✅ SMS Sent Successfully",
-          description: `Message sent to ${formattedPhone}`,
+          description: `Message sent to ${formattedPhone}`
         });
 
         // Clear form
         setMessage('');
-        if (!contacts.find(c => c.mobile_number === formattedPhone)) {
+        if (!contacts.find((c) => c.mobile_number === formattedPhone)) {
           setPhoneNumber('');
         }
       } else {
@@ -257,7 +256,7 @@ const CustomSMSSendingForm: React.FC = () => {
     const count = message.length;
     const smsLength = 160;
     const segments = Math.ceil(count / smsLength);
-    
+
     return {
       count,
       segments,
@@ -280,18 +279,18 @@ const CustomSMSSendingForm: React.FC = () => {
               </CardTitle>
             </CardHeader>
       <CardContent className="space-y-6">
-        {validationErrors.length > 0 && (
-          <Alert variant="destructive">
+        {validationErrors.length > 0 &&
+              <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
               <ul className="list-disc list-inside space-y-1">
-                {validationErrors.map((error, index) => (
-                  <li key={index}>{error}</li>
-                ))}
+                {validationErrors.map((error, index) =>
+                    <li key={index}>{error}</li>
+                    )}
               </ul>
             </AlertDescription>
           </Alert>
-        )}
+              }
 
         {/* Provider Selection */}
         <div className="space-y-2">
@@ -301,38 +300,38 @@ const CustomSMSSendingForm: React.FC = () => {
               <SelectValue placeholder="Select sender number" />
             </SelectTrigger>
             <SelectContent>
-              {providers.map((provider) => (
-                <SelectItem key={provider.id} value={provider.from_number}>
+              {providers.map((provider) =>
+                    <SelectItem key={provider.id} value={provider.from_number}>
                   <div className="flex items-center justify-between w-full">
                     <span>{provider.from_number}</span>
                     <div className="flex items-center space-x-2 ml-4">
                       <Badge variant={provider.test_mode ? "outline" : "default"} className="text-xs">
                         {provider.provider_name}
                       </Badge>
-                      {provider.test_mode && (
-                        <Badge variant="secondary" className="text-xs">TEST</Badge>
-                      )}
+                      {provider.test_mode &&
+                          <Badge variant="secondary" className="text-xs">TEST</Badge>
+                          }
                     </div>
                   </div>
                 </SelectItem>
-              ))}
+                    )}
             </SelectContent>
           </Select>
         </div>
 
         {/* Quick Contact Selection */}
-        {contacts.length > 0 && (
-          <div className="space-y-2">
+        {contacts.length > 0 &&
+              <div className="space-y-2">
             <Label>Quick Select Contact</Label>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-              {contacts.slice(0, 6).map((contact) => (
-                <Button
-                  key={contact.id}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => selectContact(contact)}
-                  className="justify-start text-left h-auto p-3"
-                >
+              {contacts.slice(0, 6).map((contact) =>
+                  <Button
+                    key={contact.id}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => selectContact(contact)}
+                    className="justify-start text-left h-auto p-3">
+
                   <div className="flex items-center space-x-2">
                     <User className="w-4 h-4" />
                     <div>
@@ -342,10 +341,10 @@ const CustomSMSSendingForm: React.FC = () => {
                     </div>
                   </div>
                 </Button>
-              ))}
+                  )}
             </div>
           </div>
-        )}
+              }
 
         {/* Phone Number Input */}
         <div className="space-y-2">
@@ -354,13 +353,13 @@ const CustomSMSSendingForm: React.FC = () => {
             <span className="text-red-500 ml-1">*</span>
           </Label>
           <Input
-            id="phoneNumber"
-            type="tel"
-            placeholder="+1234567890 or 1234567890"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            className={validationErrors.some(e => e.includes('Phone')) ? "border-red-500" : ""}
-          />
+                  id="phoneNumber"
+                  type="tel"
+                  placeholder="+1234567890 or 1234567890"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className={validationErrors.some((e) => e.includes('Phone')) ? "border-red-500" : ""} />
+
           <p className="text-sm text-muted-foreground">
             Enter a valid phone number (US: 1234567890, International: +1234567890)
           </p>
@@ -373,23 +372,23 @@ const CustomSMSSendingForm: React.FC = () => {
             <span className="text-red-500 ml-1">*</span>
           </Label>
           <Textarea
-            id="message"
-            placeholder="Type your custom SMS message here..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            rows={4}
-            className={validationErrors.some(e => e.includes('Message')) ? "border-red-500" : ""}
-          />
+                  id="message"
+                  placeholder="Type your custom SMS message here..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  rows={4}
+                  className={validationErrors.some((e) => e.includes('Message')) ? "border-red-500" : ""} />
+
           <div className="flex justify-between items-center text-sm">
             <span className={`${charInfo.count > 1500 ? 'text-red-500' : 'text-muted-foreground'}`}>
               {charInfo.count}/1600 characters
             </span>
             <div className="flex items-center space-x-2">
-              {charInfo.isLong && (
-                <Badge variant="outline" className="text-xs">
+              {charInfo.isLong &&
+                    <Badge variant="outline" className="text-xs">
                   {charInfo.segments} SMS segments
                 </Badge>
-              )}
+                    }
               <span className="text-muted-foreground">
                 {charInfo.remaining} remaining in current segment
               </span>
@@ -398,19 +397,19 @@ const CustomSMSSendingForm: React.FC = () => {
         </div>
 
         {/* Sending Progress */}
-        {loading && (
-          <div className="space-y-2">
+        {loading &&
+              <div className="space-y-2">
             <div className="flex items-center space-x-2">
               <Loader2 className="w-4 h-4 animate-spin" />
               <span className="text-sm">Sending SMS...</span>
             </div>
             <Progress value={sendingProgress} className="w-full" />
           </div>
-        )}
+              }
 
         {/* Last Sent Message Info */}
-        {lastSentMessage && (
-          <Alert className="border-green-200 bg-green-50">
+        {lastSentMessage &&
+              <Alert className="border-green-200 bg-green-50">
             <CheckCircle className="h-4 w-4 text-green-600" />
             <AlertDescription>
               <div className="text-green-800">
@@ -423,22 +422,22 @@ const CustomSMSSendingForm: React.FC = () => {
               </div>
             </AlertDescription>
           </Alert>
-        )}
+              }
 
         {/* Send Button */}
         <Button
-          onClick={sendCustomSMS}
-          disabled={loading || !phoneNumber || !message || !fromNumber}
-          className="w-full"
-          size="lg"
-        >
+                onClick={sendCustomSMS}
+                disabled={loading || !phoneNumber || !message || !fromNumber}
+                className="w-full"
+                size="lg">
+
           <Send className="w-4 h-4 mr-2" />
           {loading ? 'Sending...' : 'Send SMS'}
         </Button>
 
         {/* Usage Info */}
-        {providers.length > 0 && (
-          <div className="pt-4 border-t">
+        {providers.length > 0 &&
+              <div className="pt-4 border-t">
             <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
               <div>
                 <strong>Service Status:</strong>
@@ -455,18 +454,17 @@ const CustomSMSSendingForm: React.FC = () => {
               </div>
             </div>
           </div>
-        )}
+              }
       </CardContent>
     </Card>
         </div>
         
         <div className="space-y-6">
-          <SMSTemplateSelector onTemplateSelect={setMessage} />
           <SMSTestConnection />
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default CustomSMSSendingForm;

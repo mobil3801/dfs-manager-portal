@@ -437,7 +437,7 @@ class SMSService {
   }
 
   // Get available provider numbers
-  async getAvailableFromNumbers(): Promise<{number: string; provider: string; isActive: boolean; testMode: boolean}[]> {
+  async getAvailableFromNumbers(): Promise<{number: string;provider: string;isActive: boolean;testMode: boolean;}[]> {
     try {
       const { data, error } = await window.ezsite.apis.tablePage('12640', {
         PageNo: 1,
