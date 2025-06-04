@@ -19,6 +19,7 @@ import {
 'lucide-react';
 import { MemoryLeakMonitor } from '@/services/memoryLeakMonitor';
 import { useToast } from '@/hooks/use-toast';
+import { getMemoryUsage } from '../utils/memoryLeakIntegration';
 
 interface MemoryStats {
   usedJSHeapSize: number;

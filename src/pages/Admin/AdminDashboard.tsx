@@ -87,10 +87,10 @@ const AdminDashboard: React.FC = () => {
     setLoading(true);
     try {
       await Promise.all([
-        fetchDatabaseStats(),
-        fetchRecentActivities(),
-        fetchSystemAlerts()
-      ]);
+      fetchDatabaseStats(),
+      fetchRecentActivities(),
+      fetchSystemAlerts()]
+      );
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       toast({
@@ -116,7 +116,7 @@ const AdminDashboard: React.FC = () => {
   const fetchDatabaseStats = async () => {
     try {
       console.log('Fetching real-time database statistics...');
-      
+
       // Fetch user profiles count (table ID: 11725)
       const { data: userProfilesData, error: userProfilesError } = await window.ezsite.apis.tablePage(11725, {
         PageNo: 1,
@@ -125,7 +125,7 @@ const AdminDashboard: React.FC = () => {
         IsAsc: false,
         Filters: []
       });
-      const totalUsers = userProfilesError ? 0 : (userProfilesData?.VirtualCount || 0);
+      const totalUsers = userProfilesError ? 0 : userProfilesData?.VirtualCount || 0;
 
       // Fetch employees count (table ID: 11727)
       const { data: employeesData, error: employeesError } = await window.ezsite.apis.tablePage(11727, {
@@ -135,7 +135,7 @@ const AdminDashboard: React.FC = () => {
         IsAsc: false,
         Filters: []
       });
-      const totalEmployees = employeesError ? 0 : (employeesData?.VirtualCount || 0);
+      const totalEmployees = employeesError ? 0 : employeesData?.VirtualCount || 0;
 
       // Fetch products count (table ID: 11726)
       const { data: productsData, error: productsError } = await window.ezsite.apis.tablePage(11726, {
@@ -145,7 +145,7 @@ const AdminDashboard: React.FC = () => {
         IsAsc: false,
         Filters: []
       });
-      const totalProducts = productsError ? 0 : (productsData?.VirtualCount || 0);
+      const totalProducts = productsError ? 0 : productsData?.VirtualCount || 0;
 
       // Fetch sales reports count (table ID: 12356)
       const { data: salesData, error: salesError } = await window.ezsite.apis.tablePage(12356, {
@@ -155,7 +155,7 @@ const AdminDashboard: React.FC = () => {
         IsAsc: false,
         Filters: []
       });
-      const totalSales = salesError ? 0 : (salesData?.VirtualCount || 0);
+      const totalSales = salesError ? 0 : salesData?.VirtualCount || 0;
 
       // Fetch licenses count (table ID: 11731)
       const { data: licensesData, error: licensesError } = await window.ezsite.apis.tablePage(11731, {
@@ -165,7 +165,7 @@ const AdminDashboard: React.FC = () => {
         IsAsc: false,
         Filters: []
       });
-      const totalLicenses = licensesError ? 0 : (licensesData?.VirtualCount || 0);
+      const totalLicenses = licensesError ? 0 : licensesData?.VirtualCount || 0;
 
       // Fetch SMS alert history count (table ID: 12613)
       const { data: smsData, error: smsError } = await window.ezsite.apis.tablePage(12613, {
@@ -175,7 +175,7 @@ const AdminDashboard: React.FC = () => {
         IsAsc: false,
         Filters: []
       });
-      const smsAlertsSent = smsError ? 0 : (smsData?.VirtualCount || 0);
+      const smsAlertsSent = smsError ? 0 : smsData?.VirtualCount || 0;
 
       // Active sessions count (active user profiles)
       const { data: activeUsersData, error: activeUsersError } = await window.ezsite.apis.tablePage(11725, {
@@ -189,7 +189,7 @@ const AdminDashboard: React.FC = () => {
           value: true
         }]
       });
-      const activeSessions = activeUsersError ? 0 : (activeUsersData?.VirtualCount || 0);
+      const activeSessions = activeUsersError ? 0 : activeUsersData?.VirtualCount || 0;
 
       console.log('Real-time database stats loaded:', {
         totalUsers,
@@ -218,7 +218,7 @@ const AdminDashboard: React.FC = () => {
   const fetchRecentActivities = async () => {
     try {
       console.log('Fetching real-time audit activities...');
-      
+
       // Fetch recent audit logs (table ID: 12706)
       const { data: auditData, error: auditError } = await window.ezsite.apis.tablePage(12706, {
         PageNo: 1,
@@ -232,10 +232,10 @@ const AdminDashboard: React.FC = () => {
         const activities: RecentActivity[] = auditData.List.map((log: any, index: number) => {
           const timeAgo = formatTimeAgo(log.event_timestamp);
           let actionType: 'success' | 'warning' | 'error' | 'info' = 'info';
-          
-          if (log.event_status === 'Success') actionType = 'success';
-          else if (log.event_status === 'Failed') actionType = 'error';
-          else if (log.event_status === 'Blocked') actionType = 'warning';
+
+          if (log.event_status === 'Success') actionType = 'success';else
+          if (log.event_status === 'Failed') actionType = 'error';else
+          if (log.event_status === 'Blocked') actionType = 'warning';
 
           return {
             id: log.id?.toString() || index.toString(),
@@ -250,14 +250,14 @@ const AdminDashboard: React.FC = () => {
       } else {
         // Set system startup activity when no audit logs exist
         setRecentActivities([
-          {
-            id: '1',
-            action: 'System initialized and ready for production',
-            user: 'system',
-            timestamp: 'now',
-            type: 'success'
-          }
-        ]);
+        {
+          id: '1',
+          action: 'System initialized and ready for production',
+          user: 'system',
+          timestamp: 'now',
+          type: 'success'
+        }]
+        );
       }
     } catch (error) {
       console.error('Error fetching recent activities:', error);
@@ -269,11 +269,11 @@ const AdminDashboard: React.FC = () => {
     try {
       console.log('Generating real-time system alerts...');
       const alerts: SystemAlert[] = [];
-      
+
       // Check for expiring licenses
       const thirtyDaysFromNow = new Date();
       thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
-      
+
       const { data: licensesData, error: licensesError } = await window.ezsite.apis.tablePage(11731, {
         PageNo: 1,
         PageSize: 100,
@@ -290,7 +290,7 @@ const AdminDashboard: React.FC = () => {
         licensesData.List.forEach((license: any) => {
           const expiryDate = new Date(license.expiry_date);
           const daysUntilExpiry = Math.ceil((expiryDate.getTime() - new Date().getTime()) / (1000 * 3600 * 24));
-          
+
           if (daysUntilExpiry <= 30 && daysUntilExpiry > 0) {
             alerts.push({
               id: `license_${license.id}`,
@@ -351,7 +351,7 @@ const AdminDashboard: React.FC = () => {
     const now = new Date();
     const time = new Date(timestamp);
     const diffInMinutes = Math.floor((now.getTime() - time.getTime()) / (1000 * 60));
-    
+
     if (diffInMinutes < 1) return 'just now';
     if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
     if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} hours ago`;
@@ -366,60 +366,60 @@ const AdminDashboard: React.FC = () => {
     return (
       <div className="flex items-center justify-center min-h-64">
         <div className="text-lg">Loading real-time dashboard data...</div>
-      </div>
-    );
+      </div>);
+
   }
 
   const dashboardStats: DashboardStat[] = [
-    {
-      label: 'Total Users',
-      value: dbStats.totalUsers.toString(),
-      change: `${dbStats.activeSessions} active`,
-      trend: 'up',
-      icon: <Users className="w-6 h-6" />,
-      color: 'bg-blue-500'
-    },
-    {
-      label: 'Employees',
-      value: dbStats.totalEmployees.toString(),
-      change: `Across all stations`,
-      trend: 'stable',
-      icon: <Activity className="w-6 h-6" />,
-      color: 'bg-green-500'
-    },
-    {
-      label: 'Products',
-      value: dbStats.totalProducts.toString(),
-      change: `In inventory`,
-      trend: 'up',
-      icon: <Database className="w-6 h-6" />,
-      color: 'bg-purple-500'
-    },
-    {
-      label: 'SMS Alerts',
-      value: dbStats.smsAlertsSent.toString(),
-      change: `Total sent`,
-      trend: 'up',
-      icon: <MessageSquare className="w-6 h-6" />,
-      color: 'bg-orange-500'
-    },
-    {
-      label: 'Sales Reports',
-      value: dbStats.totalSales.toString(),
-      change: `Reports filed`,
-      trend: 'up',
-      icon: <BarChart3 className="w-6 h-6" />,
-      color: 'bg-teal-500'
-    },
-    {
-      label: 'Licenses',
-      value: dbStats.totalLicenses.toString(),
-      change: `Active licenses`,
-      trend: 'stable',
-      icon: <Shield className="w-6 h-6" />,
-      color: 'bg-yellow-500'
-    }
-  ];
+  {
+    label: 'Total Users',
+    value: dbStats.totalUsers.toString(),
+    change: `${dbStats.activeSessions} active`,
+    trend: 'up',
+    icon: <Users className="w-6 h-6" />,
+    color: 'bg-blue-500'
+  },
+  {
+    label: 'Employees',
+    value: dbStats.totalEmployees.toString(),
+    change: `Across all stations`,
+    trend: 'stable',
+    icon: <Activity className="w-6 h-6" />,
+    color: 'bg-green-500'
+  },
+  {
+    label: 'Products',
+    value: dbStats.totalProducts.toString(),
+    change: `In inventory`,
+    trend: 'up',
+    icon: <Database className="w-6 h-6" />,
+    color: 'bg-purple-500'
+  },
+  {
+    label: 'SMS Alerts',
+    value: dbStats.smsAlertsSent.toString(),
+    change: `Total sent`,
+    trend: 'up',
+    icon: <MessageSquare className="w-6 h-6" />,
+    color: 'bg-orange-500'
+  },
+  {
+    label: 'Sales Reports',
+    value: dbStats.totalSales.toString(),
+    change: `Reports filed`,
+    trend: 'up',
+    icon: <BarChart3 className="w-6 h-6" />,
+    color: 'bg-teal-500'
+  },
+  {
+    label: 'Licenses',
+    value: dbStats.totalLicenses.toString(),
+    change: `Active licenses`,
+    trend: 'stable',
+    icon: <Shield className="w-6 h-6" />,
+    color: 'bg-yellow-500'
+  }];
+
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
@@ -461,14 +461,14 @@ const AdminDashboard: React.FC = () => {
   const resolveAlert = async (alertId: string) => {
     try {
       // Update the alert status in the UI
-      setSystemAlerts(prev => 
-        prev.map(alert => 
-          alert.id === alertId 
-            ? { ...alert, resolved: true }
-            : alert
-        )
+      setSystemAlerts((prev) =>
+      prev.map((alert) =>
+      alert.id === alertId ?
+      { ...alert, resolved: true } :
+      alert
+      )
       );
-      
+
       toast({
         title: "Alert Resolved",
         description: "Alert has been marked as resolved."
@@ -566,13 +566,13 @@ const AdminDashboard: React.FC = () => {
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
             <div className="space-y-4">
-              {recentActivities.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
+              {recentActivities.length === 0 ?
+              <div className="text-center py-8 text-gray-500">
                   No recent activities found. System is ready for use.
-                </div>
-              ) : (
-                recentActivities.map((activity) =>
-                <div key={activity.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                </div> :
+
+              recentActivities.map((activity) =>
+              <div key={activity.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                     {getActivityIcon(activity.type)}
                     <div className="flex-1">
                       <p className="text-sm font-medium">{activity.action}</p>
@@ -587,8 +587,8 @@ const AdminDashboard: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                )
-              )}
+              )
+              }
             </div>
           </Card>
         </TabsContent>
@@ -602,13 +602,13 @@ const AdminDashboard: React.FC = () => {
               </Badge>
             </div>
             <div className="space-y-4">
-              {systemAlerts.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
+              {systemAlerts.length === 0 ?
+              <div className="text-center py-8 text-gray-500">
                   No system alerts. All systems operational.
-                </div>
-              ) : (
-                systemAlerts.map((alert) =>
-                <div
+                </div> :
+
+              systemAlerts.map((alert) =>
+              <div
                 key={alert.id}
                 className={`p-4 border-2 rounded-lg ${getAlertColor(alert.severity)} ${
                 alert.resolved ? 'opacity-60' : ''}`
@@ -619,16 +619,16 @@ const AdminDashboard: React.FC = () => {
                         <div className="flex items-center space-x-2 mb-2">
                           <h4 className="font-semibold">{alert.title}</h4>
                           <Badge
-                          variant={alert.severity === 'critical' ? 'destructive' : 'secondary'}
-                          className="text-xs">
+                        variant={alert.severity === 'critical' ? 'destructive' : 'secondary'}
+                        className="text-xs">
 
                             {alert.severity}
                           </Badge>
                           {alert.resolved &&
-                        <Badge className="text-xs bg-green-100 text-green-800">
+                      <Badge className="text-xs bg-green-100 text-green-800">
                               Resolved
                             </Badge>
-                        }
+                      }
                         </div>
                         <p className="text-sm text-gray-600 mb-2">{alert.message}</p>
                         <span className="text-xs text-gray-500 flex items-center">
@@ -637,18 +637,18 @@ const AdminDashboard: React.FC = () => {
                         </span>
                       </div>
                       {!alert.resolved &&
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => resolveAlert(alert.id)}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => resolveAlert(alert.id)}>
 
                           Resolve
                         </Button>
-                    }
+                  }
                     </div>
                   </div>
-                )
-              )}
+              )
+              }
             </div>
           </Card>
         </TabsContent>
@@ -661,8 +661,8 @@ const AdminDashboard: React.FC = () => {
           <AdminFeatureTester />
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AdminDashboard;

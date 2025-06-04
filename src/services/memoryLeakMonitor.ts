@@ -1,3 +1,5 @@
+import performanceAPI from '../utils/performanceAPIWrapper';
+
 interface MemoryStats {
   usedJSHeapSize: number;
   totalJSHeapSize: number;
@@ -52,7 +54,8 @@ export class MemoryLeakMonitor {
   }
 
   private initializeMonitoring(): void {
-    if (typeof window === 'undefined' || !window.performance) {
+    // Check if performance API is supported through our wrapper
+    if (!performanceAPI.getSupportInfo().memory) {
       console.warn('Memory monitoring not available in this environment');
       return;
     }
@@ -70,13 +73,10 @@ export class MemoryLeakMonitor {
   }
 
   private getCurrentMemoryStats(): MemoryStats | null {
-    if (typeof window === 'undefined' || !window.performance) {
-      return null;
-    }
-
     try {
-      const memory = (window.performance as any).memory;
-      if (!memory || typeof memory.usedJSHeapSize !== 'number') {
+      // Use the safe performance API wrapper
+      const memory = performanceAPI.getMemoryUsage();
+      if (!memory) {
         return null;
       }
 

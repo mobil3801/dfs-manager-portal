@@ -1,4 +1,5 @@
 import { MemoryLeakMonitor } from '@/services/memoryLeakMonitor';
+import performanceAPI from './performanceAPIWrapper';
 
 /**
  * Integration utilities for automatically applying memory leak detection
@@ -10,7 +11,7 @@ export const MEMORY_LEAK_DETECTION_ENABLED = (
 import.meta.env.VITE_ENABLE_MEMORY_LEAK_DETECTION === 'true' ||
 process.env.NODE_ENV === 'development' ||
 typeof window !== 'undefined' && window.location.search.includes('memory-debug=true')) &&
-typeof window !== 'undefined' && window.performance;
+typeof window !== 'undefined' && performanceAPI.getSupportInfo().performance;
 
 /**
  * Monkey patch common browser APIs to include memory leak warnings
@@ -116,25 +117,20 @@ export function initializeMemoryLeakDetection() {
     // Set up periodic memory monitoring with safe performance API
     setInterval(() => {
       try {
-        // Use a safe performance API wrapper instead of direct access
-        const hasPerformanceAPI = typeof window !== 'undefined' &&
-        window.performance &&
-        (window.performance as any).memory;
+        // Use the safe performance API wrapper
+        const memory = performanceAPI.getMemoryUsage();
+        
+        if (memory) {
+          const usedMB = (memory.usedJSHeapSize / 1024 / 1024).toFixed(2);
+          const totalMB = (memory.totalJSHeapSize / 1024 / 1024).toFixed(2);
+          const limitMB = (memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2);
 
-        if (hasPerformanceAPI) {
-          const memory = (window.performance as any).memory;
-          if (memory && typeof memory.usedJSHeapSize === 'number') {
-            const usedMB = (memory.usedJSHeapSize / 1024 / 1024).toFixed(2);
-            const totalMB = (memory.totalJSHeapSize / 1024 / 1024).toFixed(2);
-            const limitMB = (memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2);
+          console.log(`📊 Memory: ${usedMB}MB used, ${totalMB}MB total, ${limitMB}MB limit`);
 
-            console.log(`📊 Memory: ${usedMB}MB used, ${totalMB}MB total, ${limitMB}MB limit`);
-
-            // Check for rapid memory growth
-            const pressure = memory.usedJSHeapSize / memory.jsHeapSizeLimit;
-            if (pressure > 0.8) {
-              console.warn(`🚨 High memory pressure: ${(pressure * 100).toFixed(1)}%`);
-            }
+          // Check for rapid memory growth
+          const pressure = memory.usedJSHeapSize / memory.jsHeapSizeLimit;
+          if (pressure > 0.8) {
+            console.warn(`🚨 High memory pressure: ${(pressure * 100).toFixed(1)}%`);
           }
         }
       } catch (error) {
@@ -225,13 +221,10 @@ export function getMemoryUsage(): {
   limit: number;
   pressure: number;
 } | null {
-  if (typeof window === 'undefined' || !window.performance) {
-    return null;
-  }
-
   try {
-    const memory = (window.performance as any).memory;
-    if (!memory || typeof memory.usedJSHeapSize !== 'number') {
+    // Use the safe performance API wrapper
+    const memory = performanceAPI.getMemoryUsage();
+    if (!memory) {
       return null;
     }
 

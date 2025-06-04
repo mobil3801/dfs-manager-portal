@@ -625,6 +625,8 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
 
 
 
+
+
           // Invalid date format, ignore
         }} // Calculate profit margin
       const unitPrice = mapped.unit_price || 0;const retailPrice = mapped.retail_price || 0;const profitMargin = calculateProfitMargin(unitPrice, retailPrice); // Calculate overdue status
@@ -632,8 +634,7 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
       if (profitMargin > 0) {mapped.profit_margin = profitMargin;}mapped.overdue = isOverdue;mapped.updated_at = new Date().toISOString();mapped.last_updated_date = new Date().toISOString();const isDuplicate = isDuplicateNameInDB || isDuplicateNameInImport || isDuplicateWeightInDB || isDuplicateWeightInImport;return { original: row, mapped, isValid: errors.length === 0, isDuplicate, errors, productName: cleanProductName, weight: weight, profitMargin: profitMargin, isOverdue: isOverdue };});};const handleFileUpload = async () => {if (!file) {toast({ variant: "destructive", title: "No File Selected", description: "Please select a CSV file to upload." });return;}setIsProcessing(true);try {const text = await file.text();const parsedData = parseCSV(text);if (parsedData.length === 0) {throw new Error('No valid data found in file');} // Fetch existing products for duplicate checking
       const existing = await fetchExistingProducts(); // Validate and check for duplicates
       const validatedProducts = validateAndCheckDuplicates(parsedData, existing);if (validatedProducts.length === 0) {throw new Error('No valid products found in file');}setParsedProducts(validatedProducts);setShowPreview(true);const validCount = validatedProducts.filter((p) => p.isValid).length;const duplicateCount = validatedProducts.filter((p) => p.isDuplicate).length;const errorCount = validatedProducts.filter((p) => !p.isValid).length;toast({ title: "File Processed", description: `Found ${validatedProducts.length} products. ${validCount} valid, ${duplicateCount} duplicates, ${errorCount} errors.` });} catch (error) {console.error('File upload error:', error);toast({ variant: "destructive", title: "Import Failed", description: error instanceof Error ? error.message : "Failed to process file." });} finally {setIsProcessing(false);}};const handleConfirmImport = () => {const validProducts = parsedProducts.filter((p) => p.isValid && !p.isDuplicate);if (validProducts.length === 0) {toast({ variant: "destructive", title: "No Valid Products", description: "No valid products to import." });return;}const dataToImport = validProducts.map((p) => p.mapped);onDataImport(dataToImport); // Reset state
-    setIsOpen(false);setFile(null);setParsedProducts([]);setShowPreview(false);};const handleCloseDialog = () => {setIsOpen(false);setFile(null);setParsedProducts([]);setShowPreview(false);};const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {const selectedFile = e.target.files?.[0];if (selectedFile) {if (!selectedFile.name.endsWith('.csv')) {toast({ variant: "destructive", title: "Invalid File Type", description: "Please select a CSV file." });return;}setFile(selectedFile);}};const handleEnhancedFileSelect = (selectedFile: File) => {if (!selectedFile.name.endsWith('.csv') && !selectedFile.type.includes('image')) {toast({ variant: "destructive", title: "Invalid File Type", description: "Please select a CSV file or image." });return;}setFile(selectedFile);};return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    setIsOpen(false);setFile(null);setParsedProducts([]);setShowPreview(false);};const handleCloseDialog = () => {setIsOpen(false);setFile(null);setParsedProducts([]);setShowPreview(false);};const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {const selectedFile = e.target.files?.[0];if (selectedFile) {if (!selectedFile.name.endsWith('.csv')) {toast({ variant: "destructive", title: "Invalid File Type", description: "Please select a CSV file." });return;}setFile(selectedFile);}};const handleEnhancedFileSelect = (selectedFile: File) => {if (!selectedFile.name.endsWith('.csv') && !selectedFile.type.includes('image')) {toast({ variant: "destructive", title: "Invalid File Type", description: "Please select a CSV file or image." });return;}setFile(selectedFile);};return <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" disabled={disabled}>
           <Upload className="w-4 h-4 mr-2" />
@@ -645,29 +646,28 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
           <DialogTitle>{showPreview ? 'Import Preview' : 'Import Product Data'}</DialogTitle>
         </DialogHeader>
         
-        {!showPreview ?
-        <div className="space-y-6">
+        {!showPreview ? <div className="space-y-6">
             {/* Upload method selector */}
             <div className="flex gap-4 justify-center">
               <Button
-              variant={uploadMethod === 'enhanced' ? 'default' : 'outline'}
-              onClick={() => setUploadMethod('enhanced')}
-              className="flex items-center gap-2">
+            variant={uploadMethod === 'enhanced' ? 'default' : 'outline'}
+            onClick={() => setUploadMethod('enhanced')}
+            className="flex items-center gap-2">
                 <Upload className="h-4 w-4" />
                 Enhanced Upload
               </Button>
               <Button
-              variant={uploadMethod === 'manual' ? 'default' : 'outline'}
-              onClick={() => setUploadMethod('manual')}
-              className="flex items-center gap-2">
+            variant={uploadMethod === 'manual' ? 'default' : 'outline'}
+            onClick={() => setUploadMethod('manual')}
+            className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
                 Manual Upload
               </Button>
             </div>
 
             {uploadMethod === 'enhanced' ? (
-          /* Enhanced upload with camera option */
-          <div className="space-y-4">
+        /* Enhanced upload with camera option */
+        <div className="space-y-4">
                 {/* Compression info banner */}
                 <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <div className="flex items-center gap-2 text-blue-700">
@@ -680,38 +680,38 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
                 </div>
                 
                 <EnhancedFileUpload
-              onFileSelect={handleEnhancedFileSelect}
-              accept=".csv,image/*"
-              label="Select CSV File or Take Photo"
-              currentFile={file?.name}
-              maxSize={10}
-              allowCamera={true} />
+            onFileSelect={handleEnhancedFileSelect}
+            accept=".csv,image/*"
+            label="Select CSV File or Take Photo"
+            currentFile={file?.name}
+            maxSize={10}
+            allowCamera={true} />
 
                 {file &&
-            <div className="p-3 bg-gray-50 rounded-lg">
+          <div className="p-3 bg-gray-50 rounded-lg">
                     <p className="text-sm font-medium">Selected file:</p>
                     <p className="text-sm text-gray-600">{file.name}</p>
                     <p className="text-xs text-gray-500 mt-1">
                       {file.type.includes('image') ? 'Image file - OCR processing will be applied' : 'CSV file ready for import'}
                     </p>
                   </div>
-            }
+          }
               </div>) : (
-          /* Traditional manual upload */
-          <div className="space-y-2">
+        /* Traditional manual upload */
+        <div className="space-y-2">
                 <Label htmlFor="file">Select CSV File</Label>
                 <Input
-              id="file"
-              type="file"
-              accept=".csv"
-              onChange={handleFileChange} />
+            id="file"
+            type="file"
+            accept=".csv"
+            onChange={handleFileChange} />
                 {file &&
-            <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
                     Selected: {file.name}
                   </p>
-            }
-              </div>)
           }
+              </div>)
+        }
 
             {/* Header mapping info */}
             <div className="p-3 bg-green-50 rounded-lg border border-green-200">
@@ -727,10 +727,10 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
             <div className="space-y-2">
               <Label>Download Template</Label>
               <Button
-              type="button"
-              variant="outline"
-              onClick={downloadTemplate}
-              className="w-full">
+            type="button"
+            variant="outline"
+            onClick={downloadTemplate}
+            className="w-full">
                 <Download className="w-4 h-4 mr-2" />
                 Download CSV Template
               </Button>
@@ -741,30 +741,30 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
 
             <div className="flex space-x-2">
               <Button
-              onClick={handleFileUpload}
-              disabled={!file || isProcessing}
-              className="flex-1">
+            onClick={handleFileUpload}
+            disabled={!file || isProcessing}
+            className="flex-1">
                 {isProcessing ?
-              <>
+            <>
                     <FileText className="w-4 h-4 mr-2 animate-spin" />
                     Processing...
                   </> :
-              <>
+            <>
                     <Upload className="w-4 h-4 mr-2" />
                     Process File
                   </>
-              }
+            }
               </Button>
               <Button
-              variant="outline"
-              onClick={handleCloseDialog}>
+            variant="outline"
+            onClick={handleCloseDialog}>
                 Cancel
               </Button>
             </div>
           </div> : (
 
-        /* Preview Section */
-        <div className="space-y-6">
+      /* Preview Section */
+      <div className="space-y-6">
             {/* Summary */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Card>
@@ -818,84 +818,84 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
                 </TableHeader>
                 <TableBody>
                   {parsedProducts.map((product, index) => {
-                  // Count non-empty mapped fields (excluding product_name)
-                  const mappedFieldsCount = Object.entries(product.mapped).
-                  filter(([key, value]) => key !== 'product_name' && value !== undefined && value !== '' && value !== 0).
-                  length;
+                // Count non-empty mapped fields (excluding product_name)
+                const mappedFieldsCount = Object.entries(product.mapped).
+                filter(([key, value]) => key !== 'product_name' && value !== undefined && value !== '' && value !== 0).
+                length;
 
-                  return (
-                    <TableRow key={index}>
+                return (
+                  <TableRow key={index}>
                       <TableCell>
                         {product.isValid && !product.isDuplicate ?
-                        <Badge variant="default" className="bg-green-100 text-green-800">
+                      <Badge variant="default" className="bg-green-100 text-green-800">
                             <CheckCircle className="w-3 h-3 mr-1" />
                             Valid
                           </Badge> :
-                        product.isDuplicate ?
-                        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                      product.isDuplicate ?
+                      <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
                             <AlertTriangle className="w-3 h-3 mr-1" />
                             Duplicate
                           </Badge> :
 
-                        <Badge variant="destructive">
+                      <Badge variant="destructive">
                             <XCircle className="w-3 h-3 mr-1" />
                             Error
                           </Badge>
-                        }
+                      }
                       </TableCell>
                       <TableCell className="font-medium">{product.productName || 'N/A'}</TableCell>
                       <TableCell>
                         {product.weight > 0 ?
-                        <span className="text-sm">{product.weight} {product.mapped.weight_unit || 'lb'}</span> :
+                      <span className="text-sm">{product.weight} {product.mapped.weight_unit || 'lb'}</span> :
 
-                        <span className="text-sm text-gray-400">N/A</span>
-                        }
+                      <span className="text-sm text-gray-400">N/A</span>
+                      }
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
                           <span className="text-sm">{mappedFieldsCount} fields</span>
                           {mappedFieldsCount > 0 &&
-                          <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs">
                               {mappedFieldsCount > 5 ? 'Complete' : 'Partial'}
                             </Badge>
-                          }
+                        }
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="text-xs">
                           {product.mapped.retail_price > 0 &&
-                          <div>Retail: ${product.mapped.retail_price.toFixed(2)}</div>
-                          }
+                        <div>Retail: ${product.mapped.retail_price.toFixed(2)}</div>
+                        }
                           {product.mapped.unit_price > 0 &&
-                          <div>Unit: ${product.mapped.unit_price.toFixed(2)}</div>
-                          }
+                        <div>Unit: ${product.mapped.unit_price.toFixed(2)}</div>
+                        }
                           {product.mapped.case_price > 0 &&
-                          <div>Case: ${product.mapped.case_price.toFixed(2)}</div>
-                          }
+                        <div>Case: ${product.mapped.case_price.toFixed(2)}</div>
+                        }
                           {!product.mapped.retail_price && !product.mapped.unit_price && !product.mapped.case_price && 'N/A'}
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="text-xs">
                           {product.mapped.quantity_in_stock !== undefined ?
-                          <div>Current: {product.mapped.quantity_in_stock}</div> :
-                          null}
+                        <div>Current: {product.mapped.quantity_in_stock}</div> :
+                        null}
                           {product.mapped.minimum_stock !== undefined ?
-                          <div>Min: {product.mapped.minimum_stock}</div> :
-                          null}
+                        <div>Min: {product.mapped.minimum_stock}</div> :
+                        null}
                           {product.mapped.quantity_in_stock === undefined && product.mapped.minimum_stock === undefined && 'N/A'}
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="text-xs space-y-1">
                           {product.profitMargin > 0 &&
-                          <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1">
                               <span>Profit:</span>
                               <Badge variant={product.profitMargin > 20 ? "default" : "secondary"} className="text-xs">
                                 {product.profitMargin.toFixed(1)}%
                               </Badge>
                             </div>
-                          }
+                        }
                           <div className="flex items-center gap-1">
                             <span>Status:</span>
                             <Badge variant={product.isOverdue ? "destructive" : "default"} className="text-xs">
@@ -906,43 +906,43 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
                       </TableCell>
                       <TableCell>
                         {product.errors.length > 0 &&
-                        <div className="text-xs text-red-600">
+                      <div className="text-xs text-red-600">
                             {product.errors.join(', ')}
                           </div>
-                        }
+                      }
                       </TableCell>
                     </TableRow>);
 
-                })}
+              })}
                 </TableBody>
               </Table>
             </div>
 
             <div className="flex justify-between items-center">
               <Button
-              variant="outline"
-              onClick={() => setShowPreview(false)}>
+            variant="outline"
+            onClick={() => setShowPreview(false)}>
                 Back to Upload
               </Button>
               <div className="flex space-x-2">
                 <Button
-                variant="outline"
-                onClick={handleCloseDialog}>
+              variant="outline"
+              onClick={handleCloseDialog}>
                   Cancel
                 </Button>
                 <Button
-                onClick={handleConfirmImport}
-                disabled={parsedProducts.filter((p) => p.isValid && !p.isDuplicate).length === 0}
-                className="bg-green-600 hover:bg-green-700">
+              onClick={handleConfirmImport}
+              disabled={parsedProducts.filter((p) => p.isValid && !p.isDuplicate).length === 0}
+              className="bg-green-600 hover:bg-green-700">
                   <CheckCircle className="w-4 h-4 mr-2" />
                   Import {parsedProducts.filter((p) => p.isValid && !p.isDuplicate).length} Products
                 </Button>
               </div>
             </div>
           </div>)
-        }
+      }
       </DialogContent>
-    </Dialog>);
+    </Dialog>;
 
 };
 

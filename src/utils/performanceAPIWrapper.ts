@@ -46,7 +46,21 @@ class PerformanceAPIWrapper {
     if (!this.isPerformanceSupported) return false;
 
     try {
-      return typeof window.performance.getEntriesByType === 'function';
+      // More comprehensive check for getEntriesByType support
+      const performance = window.performance;
+      if (!performance || typeof performance !== 'object') return false;
+      
+      // Check if the method exists and is callable
+      if (typeof performance.getEntriesByType !== 'function') return false;
+      
+      // Test call to ensure it actually works
+      try {
+        const testResult = performance.getEntriesByType('navigation');
+        return Array.isArray(testResult);
+      } catch (testError) {
+        console.warn('Performance.getEntriesByType test call failed:', testError);
+        return false;
+      }
     } catch (error) {
       console.warn('Performance.getEntriesByType not available:', error);
       return false;
@@ -83,6 +97,12 @@ class PerformanceAPIWrapper {
     }
 
     try {
+      // Double-check that the method is still available
+      if (typeof window.performance.getEntriesByType !== 'function') {
+        console.warn('getEntriesByType method not available');
+        return null;
+      }
+      
       const navigationEntries = window.performance.getEntriesByType('navigation');
       return navigationEntries.length > 0 ? navigationEntries[0] as PerformanceNavigationTiming : null;
     } catch (error) {
@@ -100,6 +120,12 @@ class PerformanceAPIWrapper {
     }
 
     try {
+      // Double-check that the method is still available
+      if (typeof window.performance.getEntriesByType !== 'function') {
+        console.warn('getEntriesByType method not available for resource timing');
+        return [];
+      }
+      
       return window.performance.getEntriesByType('resource') as PerformanceResourceTiming[];
     } catch (error) {
       console.warn('Error accessing resource timing:', error);
@@ -116,6 +142,12 @@ class PerformanceAPIWrapper {
     }
 
     try {
+      // Double-check that the method is still available
+      if (typeof window.performance.getEntriesByType !== 'function') {
+        console.warn('getEntriesByType method not available for marks');
+        return [];
+      }
+      
       return window.performance.getEntriesByType('mark') as PerformanceMark[];
     } catch (error) {
       console.warn('Error accessing performance marks:', error);
@@ -132,6 +164,12 @@ class PerformanceAPIWrapper {
     }
 
     try {
+      // Double-check that the method is still available
+      if (typeof window.performance.getEntriesByType !== 'function') {
+        console.warn('getEntriesByType method not available for measures');
+        return [];
+      }
+      
       return window.performance.getEntriesByType('measure') as PerformanceMeasure[];
     } catch (error) {
       console.warn('Error accessing performance measures:', error);
