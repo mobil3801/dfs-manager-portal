@@ -468,3 +468,6 @@ class SMSService {
 }
 
 export const smsService = new SMSService();
+
+// Also export the enhanced service
+export { enhancedSmsService } from './enhancedSmsService';

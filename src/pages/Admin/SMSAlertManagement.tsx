@@ -18,6 +18,9 @@ import { useAdminAccess } from '@/hooks/use-admin-access';
 import { ComponentErrorBoundary } from '@/components/ErrorBoundary';
 import AccessDenied from '@/components/AccessDenied';
 import CustomSMSSendingForm from '@/components/CustomSMSSendingForm';
+import EnhancedSMSTestManager from '@/components/EnhancedSMSTestManager';
+import SMSConfigurationValidator from '@/components/SMSConfigurationValidator';
+import SMSTroubleshootingGuide from '@/components/SMSTroubleshootingGuide';
 
 interface SMSAlertSetting {
   id: number;
@@ -268,11 +271,19 @@ const SMSAlertManagement: React.FC = () => {
   return (
     <ComponentErrorBoundary fallback="SMS Alert Management">
       <div className="space-y-6">
-        {/* SMS Test Guide Banner */}
-        <Alert className="border-blue-200 bg-blue-50">
-          <TestTube className="h-4 w-4 text-blue-600" />
-          <AlertDescription className="text-blue-800">
-            <strong>🚨 Important:</strong> Before enabling automatic license expiry alerts, please test your SMS configuration to ensure everything is working properly.
+        {/* SMS Diagnostic Guide Banner */}
+        <Alert className="border-red-200 bg-red-50">
+          <AlertTriangle className="h-4 w-4 text-red-600" />
+          <AlertDescription className="text-red-800">
+            <div className="space-y-2">
+              <div><strong>💛 SMS Not Working? Common Fix:</strong></div>
+              <div className="text-sm space-y-1">
+                <div>• <strong>Check Test Mode:</strong> If in test mode, only verified numbers receive SMS</div>
+                <div>• <strong>Verify Phone Format:</strong> Use E.164 format (+1234567890)</div>
+                <div>• <strong>Check Twilio Balance:</strong> Insufficient funds will show "sent" but not deliver</div>
+                <div>• <strong>Use Debug Tab:</strong> Complete troubleshooting guide available in the Debug tab</div>
+              </div>
+            </div>
           </AlertDescription>
         </Alert>
 
@@ -294,12 +305,15 @@ const SMSAlertManagement: React.FC = () => {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
             <TabsTrigger value="overview">📊 Overview</TabsTrigger>
+            <TabsTrigger value="config">🔧 Config</TabsTrigger>
+            <TabsTrigger value="testing">🧪 Testing</TabsTrigger>
+            <TabsTrigger value="troubleshoot">🔍 Debug</TabsTrigger>
             <TabsTrigger value="custom">📱 Send SMS</TabsTrigger>
-            <TabsTrigger value="contacts">📞 SMS Contacts</TabsTrigger>
-            <TabsTrigger value="settings">⚙️ Alert Settings</TabsTrigger>
-            <TabsTrigger value="history">📝 SMS History</TabsTrigger>
+            <TabsTrigger value="contacts">📞 Contacts</TabsTrigger>
+            <TabsTrigger value="settings">⚙️ Settings</TabsTrigger>
+            <TabsTrigger value="history">📝 History</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview">
@@ -381,6 +395,18 @@ const SMSAlertManagement: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="config">
+            <SMSConfigurationValidator />
+          </TabsContent>
+
+          <TabsContent value="testing">
+            <EnhancedSMSTestManager />
+          </TabsContent>
+
+          <TabsContent value="troubleshoot">
+            <SMSTroubleshootingGuide />
           </TabsContent>
 
           <TabsContent value="custom">
