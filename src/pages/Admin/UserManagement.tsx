@@ -422,13 +422,13 @@ const UserManagement: React.FC = () => {
           createCount: 0
         };
       }
-      
+
       const permissions = JSON.parse(profile.detailed_permissions);
       const contentAreas = [
-        'dashboard', 'products', 'employees', 'sales_reports', 'vendors',
-        'orders', 'licenses', 'salary', 'inventory', 'delivery', 'settings',
-        'user_management', 'site_management', 'system_logs', 'security_settings'
-      ];
+      'dashboard', 'products', 'employees', 'sales_reports', 'vendors',
+      'orders', 'licenses', 'salary', 'inventory', 'delivery', 'settings',
+      'user_management', 'site_management', 'system_logs', 'security_settings'];
+
 
       const viewCount = contentAreas.filter((area) => permissions[area]?.view).length;
       const editCount = contentAreas.filter((area) => permissions[area]?.edit).length;
@@ -788,43 +788,43 @@ const UserManagement: React.FC = () => {
                   </TableHeader>
                   <TableBody>
                     {filteredProfiles.length === 0 ?
-                      <TableRow>
+                    <TableRow>
                         <TableCell colSpan={9} className="text-center py-8">
                           <div className="flex flex-col items-center space-y-3">
-                            {userProfiles.length === 0 ? (
-                              <>
+                            {userProfiles.length === 0 ?
+                          <>
                                 <Users className="w-12 h-12 text-gray-300" />
                                 <div>
                                   <p className="text-gray-500 font-medium">No User Profiles Found</p>
                                   <p className="text-sm text-gray-400">Create your first user profile to get started with the system</p>
                                 </div>
-                                <Button 
-                                  onClick={() => setIsCreateUserDialogOpen(true)}
-                                  className="bg-blue-600 hover:bg-blue-700"
-                                >
+                                <Button
+                              onClick={() => setIsCreateUserDialogOpen(true)}
+                              className="bg-blue-600 hover:bg-blue-700">
+
                                   <UserPlus className="w-4 h-4 mr-2" />
                                   Create First User
                                 </Button>
-                              </>
-                            ) : (
-                              <>
+                              </> :
+
+                          <>
                                 <Search className="w-12 h-12 text-gray-300" />
                                 <div>
                                   <p className="text-gray-500 font-medium">No Profiles Match Current Filters</p>
                                   <p className="text-sm text-gray-400">Try adjusting your search criteria or clearing filters</p>
                                 </div>
-                                <Button 
-                                  variant="outline"
-                                  onClick={() => {
-                                    setSearchTerm('');
-                                    setSelectedRole('All');
-                                    setSelectedStation('All');
-                                  }}
-                                >
+                                <Button
+                              variant="outline"
+                              onClick={() => {
+                                setSearchTerm('');
+                                setSelectedRole('All');
+                                setSelectedStation('All');
+                              }}>
+
                                   Clear All Filters
                                 </Button>
                               </>
-                            )}
+                          }
                           </div>
                         </TableCell>
                       </TableRow> :
@@ -858,19 +858,19 @@ const UserManagement: React.FC = () => {
                           </TableCell>
                           <TableCell>
                             {(() => {
-                              const permSummary = getPermissionSummary(profile);
-                              return (
-                                <div className="space-y-1">
-                                  <Badge 
-                                    variant={permSummary.hasAccess ? "default" : "secondary"}
-                                    className={permSummary.hasAccess ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}
-                                  >
+                          const permSummary = getPermissionSummary(profile);
+                          return (
+                            <div className="space-y-1">
+                                  <Badge
+                                variant={permSummary.hasAccess ? "default" : "secondary"}
+                                className={permSummary.hasAccess ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}>
+
                                     {permSummary.summary}
                                   </Badge>
                                   <p className="text-xs text-gray-500">{permSummary.details}</p>
-                                </div>
-                              );
-                            })()} 
+                                </div>);
+
+                        })()} 
                           </TableCell>
                           <TableCell>
                             <div className="flex space-x-2">
@@ -1054,19 +1054,19 @@ const UserManagement: React.FC = () => {
                           {(() => {
                             try {
                               const permissions = selectedUserProfile?.detailed_permissions ?
-                                JSON.parse(selectedUserProfile.detailed_permissions) : {};
+                              JSON.parse(selectedUserProfile.detailed_permissions) : {};
                               const areas = [
-                                'dashboard', 'products', 'employees', 'sales_reports', 'vendors', 
-                                'orders', 'licenses', 'salary', 'inventory', 'delivery'
-                              ];
+                              'dashboard', 'products', 'employees', 'sales_reports', 'vendors',
+                              'orders', 'licenses', 'salary', 'inventory', 'delivery'];
+
 
                               if (Object.keys(permissions).length === 0) {
                                 return (
                                   <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                                     <p className="text-sm text-yellow-800 font-medium">No Permissions Configured</p>
                                     <p className="text-xs text-yellow-700">Use the Permissions tab to set up access levels</p>
-                                  </div>
-                                );
+                                  </div>);
+
                               }
 
                               return areas.map((area) => {
@@ -1074,7 +1074,7 @@ const UserManagement: React.FC = () => {
                                 const hasView = areaPerms?.view;
                                 const hasEdit = areaPerms?.edit;
                                 const hasCreate = areaPerms?.create;
-                                
+
                                 return (
                                   <div key={area} className="p-2 bg-gray-50 rounded-lg">
                                     <div className="flex items-center justify-between mb-1">
@@ -1086,16 +1086,16 @@ const UserManagement: React.FC = () => {
                                         {!hasView && !hasEdit && !hasCreate && <Badge variant="secondary" className="text-xs">No Access</Badge>}
                                       </div>
                                     </div>
-                                  </div>
-                                );
+                                  </div>);
+
                               });
                             } catch {
                               return (
                                 <div className="p-3 bg-red-50 rounded-lg border border-red-200">
                                   <p className="text-sm text-red-800 font-medium">Permission Data Error</p>
                                   <p className="text-xs text-red-700">Invalid permission format detected</p>
-                                </div>
-                              );
+                                </div>);
+
                             }
                           })()
                           }

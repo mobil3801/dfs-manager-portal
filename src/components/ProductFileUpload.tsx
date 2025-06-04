@@ -653,6 +653,8 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
 
 
 
+
+
           // Invalid date format, ignore
         }} // Calculate profit margin
       const unitPrice = mapped.unit_price || 0;const retailPrice = mapped.retail_price || 0;const profitMargin = calculateProfitMargin(unitPrice, retailPrice); // Calculate overdue status
@@ -727,10 +729,8 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
 
             <div className="space-y-2">
               <Label>Download Template</Label>
-              <Button type="button"
-          variant="outline"
-          onClick={downloadTemplate}
-          className="w-full">
+              <Button type="button" variant="outline" onClick={downloadTemplate}
+            className="w-full">
                 <Download className="w-4 h-4 mr-2" />
                 Download CSV Template
               </Button>

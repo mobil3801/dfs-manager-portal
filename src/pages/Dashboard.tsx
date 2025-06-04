@@ -1,8 +1,8 @@
 import React from 'react';
-import EnhancedDashboard from '@/components/EnhancedDashboard';
+import RoleBasedDashboardV2 from '@/components/RoleBasedDashboardV2';
 
 const Dashboard: React.FC = () => {
-  return <EnhancedDashboard />;
+  return <RoleBasedDashboardV2 />;
 };
 
 export default Dashboard;
