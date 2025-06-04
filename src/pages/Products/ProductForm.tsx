@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { useErrorHandler } from '@/hooks/use-error-handler';
-import { ArrowLeft, Save, Calendar, Lock, AlertTriangle, Upload, Eye, Plus, Calculator } from 'lucide-react';
+import { ArrowLeft, Save, Calendar, Lock, AlertTriangle, Upload, Eye, Plus, Calculator, Camera, XCircle } from 'lucide-react';
 import BarcodeScanner from '@/components/BarcodeScanner';
 import ProductFileUpload from '@/components/ProductFileUpload';
 import { useAuth } from '@/contexts/AuthContext';
@@ -37,6 +37,9 @@ const ProductForm = () => {
   const [vendors, setVendors] = useState<any[]>([]);
   const [bulkUploadData, setBulkUploadData] = useState<any[]>([]);
   const [showBulkPreview, setShowBulkPreview] = useState(false);
+  const [productImageFile, setProductImageFile] = useState<File | null>(null);
+  const [productImagePreview, setProductImagePreview] = useState<string>('');
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [formData, setFormData] = useState({
     serial_number: 0,
     product_name: '',
@@ -58,32 +61,89 @@ const ProductForm = () => {
     supplier: '',
     quantity_in_stock: 0,
     minimum_stock: 0,
-    description: ''
+    description: '',
+    product_image_id: ''
   });
 
   const weightUnits = [
-    { value: 'lb', label: 'Pounds (lb)' },
-    { value: 'oz', label: 'Ounces (oz)' },
-    { value: 'ton', label: 'Tons' },
-    { value: 'fl_oz', label: 'Fluid Ounces (fl oz)' },
-    { value: 'gal', label: 'Gallons (gal)' },
-    { value: 'qt', label: 'Quarts (qt)' },
-    { value: 'pt', label: 'Pints (pt)' },
-    { value: 'cup', label: 'Cups' }
-  ];
+  { value: 'lb', label: 'Pounds (lb)' },
+  { value: 'oz', label: 'Ounces (oz)' },
+  { value: 'ton', label: 'Tons' },
+  { value: 'fl_oz', label: 'Fluid Ounces (fl oz)' },
+  { value: 'gal', label: 'Gallons (gal)' },
+  { value: 'qt', label: 'Quarts (qt)' },
+  { value: 'pt', label: 'Pints (pt)' },
+  { value: 'cup', label: 'Cups' }];
+
 
   const departments = [
-    'Convenience Store',
-    'Fuel & Oil',
-    'Automotive',
-    'Food & Beverages',
-    'Tobacco Products',
-    'Lottery & Gaming',
-    'Health & Personal Care',
-    'Electronics & Accessories',
-    'Cleaning Supplies',
-    'Office Supplies'
-  ];
+  'Convenience Store',
+  'Fuel & Oil',
+  'Automotive',
+  'Food & Beverages',
+  'Tobacco Products',
+  'Lottery & Gaming',
+  'Health & Personal Care',
+  'Electronics & Accessories',
+  'Cleaning Supplies',
+  'Office Supplies',
+  'Snacks & Candy',
+  'Hot Foods & Coffee',
+  'Cold Beverages',
+  'Energy Drinks',
+  'Beer & Wine',
+  'Ice & Frozen',
+  'Phone Cards & Prepaid',
+  'Car Accessories',
+  'Gift Cards',
+  'Pharmacy & Medicine',
+  'Household Items',
+  'Safety & Emergency',
+  'Tools & Hardware',
+  'Sporting Goods',
+  'Pet Supplies'];
+
+  const categories = [
+  'Food Items',
+  'Beverages',
+  'Tobacco',
+  'Automotive',
+  'Personal Care',
+  'Electronics',
+  'Household',
+  'Office Supplies',
+  'Health & Medicine',
+  'Fuel Products',
+  'Motor Oil',
+  'Car Care',
+  'Snacks',
+  'Candy & Gum',
+  'Energy Drinks',
+  'Soft Drinks',
+  'Water & Juice',
+  'Beer & Wine',
+  'Cigarettes',
+  'Cigars',
+  'Vaping Products',
+  'Lottery Tickets',
+  'Scratch Cards',
+  'Phone Cards',
+  'Gift Cards',
+  'Ice Products',
+  'Hot Food',
+  'Coffee & Tea',
+  'Dairy Products',
+  'Frozen Foods',
+  'Emergency Supplies',
+  'Pet Food',
+  'Cleaning Products',
+  'Paper Products',
+  'Batteries',
+  'Phone Accessories',
+  'Sunglasses',
+  'Travel Items',
+  'Maps & Guides'];
+
 
   useEffect(() => {
     fetchVendors();
@@ -97,12 +157,21 @@ const ProductForm = () => {
   // Auto-calculate profit margin when unit price or retail price changes
   useEffect(() => {
     if (formData.unit_price > 0 && formData.retail_price > 0) {
-      const margin = ((formData.retail_price - formData.unit_price) / formData.retail_price) * 100;
-      setFormData(prev => ({ ...prev, profit_margin: Math.round(margin * 100) / 100 }));
+      const margin = (formData.retail_price - formData.unit_price) / formData.retail_price * 100;
+      setFormData((prev) => ({ ...prev, profit_margin: Math.round(margin * 100) / 100 }));
     } else {
-      setFormData(prev => ({ ...prev, profit_margin: 0 }));
+      setFormData((prev) => ({ ...prev, profit_margin: 0 }));
     }
   }, [formData.unit_price, formData.retail_price]);
+
+  // Cleanup image preview on unmount
+  useEffect(() => {
+    return () => {
+      if (productImagePreview) {
+        URL.revokeObjectURL(productImagePreview);
+      }
+    };
+  }, [productImagePreview]);
 
   const fetchVendors = async () => {
     const data = await handleApiCall(
@@ -112,8 +181,8 @@ const ProductForm = () => {
         OrderByField: "vendor_name",
         IsAsc: true,
         Filters: [
-          { name: "is_active", op: "Equal", value: true }
-        ]
+        { name: "is_active", op: "Equal", value: true }]
+
       }),
       "Failed to load vendors list",
       { action: 'fetchVendors' }
@@ -154,8 +223,8 @@ const ProductForm = () => {
         OrderByField: "id",
         IsAsc: true,
         Filters: [
-          { name: "id", op: "Equal", value: parseInt(id) }
-        ]
+        { name: "id", op: "Equal", value: parseInt(id) }]
+
       });
 
       if (error) throw error;
@@ -183,10 +252,18 @@ const ProductForm = () => {
           supplier: product.supplier || '',
           quantity_in_stock: product.quantity_in_stock || 0,
           minimum_stock: product.minimum_stock || 0,
-          description: product.description || ''
+          description: product.description || '',
+          product_image_id: product.product_image_id || ''
         };
         setFormData(productData);
         setOriginalData(productData);
+        
+        // Load existing product image if available
+        if (product.product_image_id) {
+          // Note: In a real implementation, you'd fetch the image URL from the file service
+          // For now, we'll just store the image ID
+          console.log('Product has image with ID:', product.product_image_id);
+        }
       }
     } catch (error) {
       console.error('Error fetching product:', error);
@@ -203,7 +280,7 @@ const ProductForm = () => {
   // Calculate suggested retail price based on unit price
   const calculateSuggestedRetailPrice = (unitPrice: number) => {
     if (unitPrice === 0) return 0;
-    
+
     let markupPercentage = 0;
     if (unitPrice < 4) {
       markupPercentage = 65;
@@ -218,23 +295,23 @@ const ProductForm = () => {
     }
 
     const suggestedPrice = unitPrice * (1 + markupPercentage / 100);
-    
+
     // Round to closest .25, .49, .75, or .99
     const roundingTargets = [0.25, 0.49, 0.75, 0.99];
     const wholeNumber = Math.floor(suggestedPrice);
     const decimal = suggestedPrice - wholeNumber;
-    
+
     let closestRounding = 0.99;
     let minDifference = Math.abs(decimal - 0.99);
-    
-    roundingTargets.forEach(target => {
+
+    roundingTargets.forEach((target) => {
       const difference = Math.abs(decimal - target);
       if (difference < minDifference) {
         minDifference = difference;
         closestRounding = target;
       }
     });
-    
+
     return wholeNumber + closestRounding;
   };
 
@@ -247,8 +324,29 @@ const ProductForm = () => {
       });
       return;
     }
-    
+
     setFormData((prev) => ({ ...prev, [field]: value }));
+
+    // Auto-suggest category and department when product name changes
+    if (field === 'product_name' && value.trim()) {
+      const suggestedCategory = suggestCategory(value);
+      if (suggestedCategory && !formData.category) {
+        setFormData((prev) => ({ ...prev, category: suggestedCategory }));
+        
+        const suggestedDepartment = suggestDepartment(suggestedCategory);
+        if (suggestedDepartment && formData.department === 'Convenience Store') {
+          setFormData((prev) => ({ ...prev, department: suggestedDepartment }));
+        }
+      }
+    }
+
+    // Auto-suggest department when category changes
+    if (field === 'category' && value) {
+      const suggestedDepartment = suggestDepartment(value);
+      if (suggestedDepartment && formData.department === 'Convenience Store') {
+        setFormData((prev) => ({ ...prev, department: suggestedDepartment }));
+      }
+    }
 
     // Auto-calculate unit price when case price or units per case changes
     if (field === 'case_price' || field === 'unit_per_case') {
@@ -266,6 +364,126 @@ const ProductForm = () => {
     setFormData((prev) => ({ ...prev, [field]: barcode }));
   };
 
+  // Auto-suggest category based on product name
+  const suggestCategory = (productName: string): string => {
+    const name = productName.toLowerCase();
+    
+    // Beverages
+    if (name.includes('coke') || name.includes('pepsi') || name.includes('sprite') || name.includes('soda')) return 'Soft Drinks';
+    if (name.includes('water') || name.includes('juice') || name.includes('tea') || name.includes('coffee')) return 'Water & Juice';
+    if (name.includes('energy') || name.includes('red bull') || name.includes('monster')) return 'Energy Drinks';
+    if (name.includes('beer') || name.includes('wine') || name.includes('alcohol')) return 'Beer & Wine';
+    
+    // Food
+    if (name.includes('chip') || name.includes('doritos') || name.includes('lays')) return 'Snacks';
+    if (name.includes('candy') || name.includes('chocolate') || name.includes('gum')) return 'Candy & Gum';
+    if (name.includes('hot dog') || name.includes('pizza') || name.includes('sandwich')) return 'Hot Food';
+    if (name.includes('milk') || name.includes('cheese') || name.includes('yogurt')) return 'Dairy Products';
+    if (name.includes('ice cream') || name.includes('frozen')) return 'Frozen Foods';
+    
+    // Tobacco
+    if (name.includes('cigarette') || name.includes('marlboro') || name.includes('camel')) return 'Cigarettes';
+    if (name.includes('cigar') || name.includes('pipe')) return 'Cigars';
+    if (name.includes('vape') || name.includes('juul') || name.includes('e-cig')) return 'Vaping Products';
+    
+    // Automotive
+    if (name.includes('oil') || name.includes('motor') || name.includes('5w30')) return 'Motor Oil';
+    if (name.includes('gas') || name.includes('fuel') || name.includes('diesel')) return 'Fuel Products';
+    if (name.includes('tire') || name.includes('wiper') || name.includes('brake')) return 'Car Accessories';
+    
+    // Other
+    if (name.includes('lottery') || name.includes('powerball') || name.includes('mega')) return 'Lottery Tickets';
+    if (name.includes('scratch') || name.includes('instant')) return 'Scratch Cards';
+    if (name.includes('phone card') || name.includes('prepaid')) return 'Phone Cards';
+    if (name.includes('gift card')) return 'Gift Cards';
+    if (name.includes('battery') || name.includes('batteries')) return 'Batteries';
+    if (name.includes('ice') && !name.includes('ice cream')) return 'Ice Products';
+    
+    return '';
+  };
+
+  // Auto-suggest department based on category
+  const suggestDepartment = (category: string): string => {
+    const categoryToDepartment: {[key: string]: string} = {
+      'Soft Drinks': 'Cold Beverages',
+      'Water & Juice': 'Cold Beverages', 
+      'Energy Drinks': 'Energy Drinks',
+      'Beer & Wine': 'Beer & Wine',
+      'Snacks': 'Snacks & Candy',
+      'Candy & Gum': 'Snacks & Candy',
+      'Hot Food': 'Hot Foods & Coffee',
+      'Coffee & Tea': 'Hot Foods & Coffee',
+      'Dairy Products': 'Cold Beverages',
+      'Frozen Foods': 'Ice & Frozen',
+      'Cigarettes': 'Tobacco Products',
+      'Cigars': 'Tobacco Products',
+      'Vaping Products': 'Tobacco Products',
+      'Motor Oil': 'Fuel & Oil',
+      'Fuel Products': 'Fuel & Oil',
+      'Car Accessories': 'Automotive',
+      'Lottery Tickets': 'Lottery & Gaming',
+      'Scratch Cards': 'Lottery & Gaming',
+      'Phone Cards': 'Phone Cards & Prepaid',
+      'Gift Cards': 'Gift Cards',
+      'Batteries': 'Electronics & Accessories',
+      'Ice Products': 'Ice & Frozen'
+    };
+    
+    return categoryToDepartment[category] || 'Convenience Store';
+  };
+
+  // Handle product image upload
+  const handleImageUpload = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast({
+        variant: "destructive",
+        title: "Invalid File Type",
+        description: "Please select an image file."
+      });
+      return;
+    }
+
+    setIsUploadingImage(true);
+    try {
+      const { data: fileId, error } = await window.ezsite.apis.upload({
+        filename: file.name,
+        file: file
+      });
+
+      if (error) throw error;
+
+      setFormData((prev) => ({ ...prev, product_image_id: fileId }));
+      setProductImageFile(file);
+      
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setProductImagePreview(previewUrl);
+
+      toast({
+        title: "Success",
+        description: "Product image uploaded successfully."
+      });
+    } catch (error) {
+      console.error('Image upload error:', error);
+      toast({
+        variant: "destructive",
+        title: "Upload Failed",
+        description: error instanceof Error ? error.message : "Failed to upload image."
+      });
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleImageRemove = () => {
+    setFormData((prev) => ({ ...prev, product_image_id: '' }));
+    setProductImageFile(null);
+    setProductImagePreview('');
+    if (productImagePreview) {
+      URL.revokeObjectURL(productImagePreview);
+    }
+  };
+
   // Bulk upload functions
   const handleBulkFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -275,18 +493,18 @@ const ProductForm = () => {
     reader.onload = (e) => {
       try {
         const text = e.target?.result as string;
-        const lines = text.split('\n').filter(line => line.trim());
-        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-        
+        const lines = text.split('\n').filter((line) => line.trim());
+        const headers = lines[0].split(',').map((h) => h.trim().toLowerCase());
+
         const data = lines.slice(1).map((line, index) => {
           const values = line.split(',');
           const product: any = {};
-          
+
           headers.forEach((header, i) => {
             let value = values[i]?.trim() || '';
-            
+
             // Map CSV headers to database fields
-            const fieldMapping: { [key: string]: string } = {
+            const fieldMapping: {[key: string]: string;} = {
               'product name': 'product_name',
               'product_name': 'product_name',
               'weight': 'weight',
@@ -311,31 +529,31 @@ const ProductForm = () => {
             };
 
             const dbField = fieldMapping[header] || header;
-            
+
             // Convert numeric fields
             if (['weight', 'case_price', 'unit_per_case', 'unit_price', 'retail_price', 'merchant_id'].includes(dbField)) {
               value = value ? parseFloat(value) || 0 : 0;
             }
-            
+
             product[dbField] = value;
           });
-          
+
           // Auto-calculate unit price if case price and unit per case are provided
           if (product.case_price > 0 && product.unit_per_case > 0 && !product.unit_price) {
-            product.unit_price = Math.round((product.case_price / product.unit_per_case) * 100) / 100;
+            product.unit_price = Math.round(product.case_price / product.unit_per_case * 100) / 100;
           }
-          
+
           // Calculate suggested retail price if unit price is available
           if (product.unit_price > 0 && !product.retail_price) {
             product.retail_price = calculateSuggestedRetailPrice(product.unit_price);
           }
-          
+
           return product;
         });
-        
+
         setBulkUploadData(data);
         setShowBulkPreview(true);
-        
+
       } catch (error) {
         toast({
           variant: "destructive",
@@ -344,7 +562,7 @@ const ProductForm = () => {
         });
       }
     };
-    
+
     reader.readAsText(file);
   };
 
@@ -517,20 +735,20 @@ const ProductForm = () => {
       };
 
       const { error } = id ?
-        await window.ezsite.apis.tableUpdate(11726, { id: parseInt(id), ...payload }) :
-        await window.ezsite.apis.tableCreate(11726, payload);
+      await window.ezsite.apis.tableUpdate(11726, { id: parseInt(id), ...payload }) :
+      await window.ezsite.apis.tableCreate(11726, payload);
 
       if (error) throw error;
 
       // Log changes for existing products
       if (id && originalData && userProfile) {
         const fieldsToTrack = [
-          'last_shopping_date',
-          'case_price',
-          'unit_per_case',
-          'unit_price',
-          'retail_price'
-        ];
+        'last_shopping_date',
+        'case_price',
+        'unit_per_case',
+        'unit_price',
+        'retail_price'];
+
 
         for (const field of fieldsToTrack) {
           const oldValue = originalData[field];
@@ -602,39 +820,39 @@ const ProductForm = () => {
               </DialogDescription>
             </DialogHeader>
             
-            {bulkUploadData.length === 0 ? (
-              <div className="space-y-4">
+            {bulkUploadData.length === 0 ?
+            <div className="space-y-4">
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                   <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                   <div className="space-y-2">
                     <h3 className="text-lg font-medium">Upload CSV File</h3>
                     <p className="text-sm text-gray-500">Select a CSV file containing product data</p>
                     <Input
-                      type="file"
-                      accept=".csv"
-                      onChange={handleBulkFileUpload}
-                      className="max-w-xs mx-auto"
-                    />
+                    type="file"
+                    accept=".csv"
+                    onChange={handleBulkFileUpload}
+                    className="max-w-xs mx-auto" />
+
                   </div>
                 </div>
                 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h4 className="font-medium text-blue-800 mb-2">CSV Format Example:</h4>
                   <code className="text-sm text-blue-700 block">
-                    Product Name,Weight,Weight Unit,Department,Case Price,Unit Per Case,Unit Price,Retail Price<br/>
+                    Product Name,Weight,Weight Unit,Department,Case Price,Unit Per Case,Unit Price,Retail Price<br />
                     Coca Cola 12oz,12,oz,Food & Beverages,24.00,24,1.00,1.99
                   </code>
                 </div>
-              </div>
-            ) : (
-              <div className="space-y-4">
+              </div> :
+
+            <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-medium">Preview Import Data ({bulkUploadData.length} products)</h3>
                   <div className="space-x-2">
                     <Button variant="outline" onClick={() => {
-                      setBulkUploadData([]);
-                      setShowBulkPreview(false);
-                    }}>
+                    setBulkUploadData([]);
+                    setShowBulkPreview(false);
+                  }}>
                       Cancel
                     </Button>
                     <Button onClick={handleBulkSubmit} disabled={isLoading}>
@@ -658,12 +876,12 @@ const ProductForm = () => {
                     </TableHeader>
                     <TableBody>
                       {bulkUploadData.map((product, index) => {
-                        const profit = product.unit_price > 0 && product.retail_price > 0 
-                          ? ((product.retail_price - product.unit_price) / product.retail_price * 100).toFixed(1)
-                          : '0';
-                        
-                        return (
-                          <TableRow key={index}>
+                      const profit = product.unit_price > 0 && product.retail_price > 0 ?
+                      ((product.retail_price - product.unit_price) / product.retail_price * 100).toFixed(1) :
+                      '0';
+
+                      return (
+                        <TableRow key={index}>
                             <TableCell className="font-medium">{product.product_name}</TableCell>
                             <TableCell>{product.weight} {product.weight_unit}</TableCell>
                             <TableCell>{product.department}</TableCell>
@@ -675,21 +893,21 @@ const ProductForm = () => {
                                 {profit}%
                               </Badge>
                             </TableCell>
-                          </TableRow>
-                        );
-                      })}
+                          </TableRow>);
+
+                    })}
                     </TableBody>
                   </Table>
                 </div>
               </div>
-            )}
+            }
           </DialogContent>
         </Dialog>
       </div>
 
       {/* Access Warning */}
       {!canEdit &&
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
           <div className="flex items-center space-x-3">
             <AlertTriangle className="w-5 h-5 text-red-600" />
             <div className="flex-1">
@@ -739,8 +957,11 @@ const ProductForm = () => {
                   supplier: '',
                   quantity_in_stock: 0,
                   minimum_stock: 0,
-                  description: ''
+                  description: '',
+                  product_image_id: ''
                 });
+                setProductImageFile(null);
+                setProductImagePreview('');
                 generateSerialNumber();
               }
             }}>
@@ -773,13 +994,62 @@ const ProductForm = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="category">Category</Label>
-                  <Input
-                    id="category"
-                    placeholder="Enter product category"
+                  <Select
                     value={formData.category}
-                    onChange={(e) => handleInputChange('category', e.target.value)}
+                    onValueChange={(value) => handleInputChange('category', value)}
+                    disabled={!canEdit}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) =>
+                      <SelectItem key={cat} value={cat}>
+                          {cat}
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                  {formData.product_name && !formData.category && (
+                    <div className="flex items-center gap-2 text-sm text-blue-600">
+                      <Calculator className="w-4 h-4" />
+                      <span>Auto-suggestion available when you type product name</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Category and Supplier */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="supplier">Supplier</Label>
+                  <Input
+                    id="supplier"
+                    placeholder="Enter supplier name"
+                    value={formData.supplier}
+                    onChange={(e) => handleInputChange('supplier', e.target.value)}
                     disabled={!canEdit}
                     className={!canEdit ? 'bg-muted' : ''} />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="stock-info">Stock Information</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <NumberInput
+                      placeholder="Current Stock"
+                      value={formData.quantity_in_stock}
+                      onChange={(value) => handleInputChange('quantity_in_stock', value)}
+                      disabled={!canEdit}
+                      className={!canEdit ? 'bg-muted' : ''}
+                      min="0" />
+                    <NumberInput
+                      placeholder="Min Stock"
+                      value={formData.minimum_stock}
+                      onChange={(value) => handleInputChange('minimum_stock', value)}
+                      disabled={!canEdit}
+                      className={!canEdit ? 'bg-muted' : ''}
+                      min="0" />
+                  </div>
+                  <p className="text-xs text-muted-foreground">Current stock / Minimum stock level</p>
                 </div>
               </div>
 
@@ -808,7 +1078,7 @@ const ProductForm = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {weightUnits.map((unit) =>
-                        <SelectItem key={unit.value} value={unit.value}>
+                      <SelectItem key={unit.value} value={unit.value}>
                           {unit.label}
                         </SelectItem>
                       )}
@@ -827,7 +1097,7 @@ const ProductForm = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {departments.map((dept) =>
-                        <SelectItem key={dept} value={dept}>
+                      <SelectItem key={dept} value={dept}>
                           {dept}
                         </SelectItem>
                       )}
@@ -849,7 +1119,7 @@ const ProductForm = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {vendors.map((vendor) =>
-                        <SelectItem key={vendor.id} value={vendor.id.toString()}>
+                      <SelectItem key={vendor.id} value={vendor.id.toString()}>
                           {vendor.vendor_name}
                         </SelectItem>
                       )}
@@ -933,24 +1203,24 @@ const ProductForm = () => {
                     className={!canEdit ? 'bg-muted' : ''} />
                   
                   {/* Retail Price Suggestion */}
-                  {formData.unit_price > 0 && (
-                    <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  {formData.unit_price > 0 &&
+                  <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
                       <div className="flex items-center space-x-2">
                         <Calculator className="w-4 h-4 text-red-600" />
                         <span className="text-sm font-medium text-red-800">Suggested: ${suggestedRetailPrice.toFixed(2)}</span>
-                        <Button 
-                          type="button"
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleInputChange('retail_price', suggestedRetailPrice)}
-                          disabled={!canEdit}
-                          className="text-xs h-6 px-2"
-                        >
+                        <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleInputChange('retail_price', suggestedRetailPrice)}
+                        disabled={!canEdit}
+                        className="text-xs h-6 px-2">
+
                           Apply
                         </Button>
                       </div>
                     </div>
-                  )}
+                  }
                 </div>
 
                 <div className="space-y-2">
@@ -983,6 +1253,138 @@ const ProductForm = () => {
                   className={!canEdit ? 'bg-muted' : ''} />
               </div>
 
+              {/* Product Image Upload */}
+              <div className="space-y-4">
+                <Label>Product Image</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                      {productImagePreview ? (
+                        <div className="space-y-4">
+                          <img
+                            src={productImagePreview}
+                            alt="Product preview"
+                            className="mx-auto max-h-40 rounded-lg shadow-sm"
+                          />
+                          <div className="flex justify-center space-x-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={handleImageRemove}
+                              disabled={!canEdit}
+                            >
+                              <XCircle className="w-4 h-4 mr-2" />
+                              Remove
+                            </Button>
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleImageUpload(file);
+                              }}
+                              disabled={!canEdit || isUploadingImage}
+                              className="hidden"
+                              id="replace-image"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => document.getElementById('replace-image')?.click()}
+                              disabled={!canEdit || isUploadingImage}
+                            >
+                              <Upload className="w-4 h-4 mr-2" />
+                              Replace
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          <Upload className="w-12 h-12 mx-auto text-gray-400" />
+                          <div>
+                            <h3 className="text-lg font-medium text-gray-900">Upload Product Image</h3>
+                            <p className="text-sm text-gray-500 mt-1">
+                              Add a photo to help identify this product
+                            </p>
+                          </div>
+                          <div className="flex flex-col items-center space-y-2">
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleImageUpload(file);
+                              }}
+                              disabled={!canEdit || isUploadingImage}
+                              className="hidden"
+                              id="product-image"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => document.getElementById('product-image')?.click()}
+                              disabled={!canEdit || isUploadingImage}
+                            >
+                              {isUploadingImage ? (
+                                <>
+                                  <Upload className="w-4 h-4 mr-2 animate-spin" />
+                                  Uploading...
+                                </>
+                              ) : (
+                                <>
+                                  <Upload className="w-4 h-4 mr-2" />
+                                  Choose Image
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Image Guidelines */}
+                  <div className="space-y-4">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <h4 className="font-medium text-blue-800 mb-2">Image Guidelines</h4>
+                      <ul className="text-sm text-blue-700 space-y-1">
+                        <li>• Use clear, well-lit photos</li>
+                        <li>• Recommended size: 800x600 pixels</li>
+                        <li>• Supported formats: JPG, PNG, WebP</li>
+                        <li>• Maximum file size: 5MB</li>
+                        <li>• Square images work best</li>
+                      </ul>
+                    </div>
+                    
+                    {/* Camera option for mobile */}
+                    <div className="md:hidden">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => {
+                          const input = document.createElement('input');
+                          input.type = 'file';
+                          input.accept = 'image/*';
+                          input.capture = 'environment';
+                          input.onchange = (e) => {
+                            const file = (e.target as HTMLInputElement).files?.[0];
+                            if (file) handleImageUpload(file);
+                          };
+                          input.click();
+                        }}
+                        disabled={!canEdit || isUploadingImage}
+                      >
+                        <Camera className="w-4 h-4 mr-2" />
+                        Take Photo
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex items-center justify-end space-x-4">
                 <Button type="button" variant="outline" onClick={() => navigate('/products')}>
                   Cancel
@@ -996,8 +1398,8 @@ const ProductForm = () => {
           </FormErrorBoundary>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ProductForm;

@@ -382,6 +382,67 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
       } else {
         mapped.department = 'Convenience Store'; // Default department
       }
+      
+      // Validate department against allowed values
+      const validDepartments = [
+        'Convenience Store', 'Fuel & Oil', 'Automotive', 'Food & Beverages',
+        'Tobacco Products', 'Lottery & Gaming', 'Health & Personal Care',
+        'Electronics & Accessories', 'Cleaning Supplies', 'Office Supplies',
+        'Snacks & Candy', 'Hot Foods & Coffee', 'Cold Beverages', 'Energy Drinks',
+        'Beer & Wine', 'Ice & Frozen', 'Phone Cards & Prepaid', 'Car Accessories',
+        'Gift Cards', 'Pharmacy & Medicine', 'Household Items', 'Safety & Emergency',
+        'Tools & Hardware', 'Sporting Goods', 'Pet Supplies'
+      ];
+      
+      if (mapped.department && !validDepartments.includes(mapped.department)) {
+        mapped.department = 'Convenience Store'; // Reset to default if invalid
+      }
+      
+      // Validate category against allowed values
+      const validCategories = [
+        'Food Items', 'Beverages', 'Tobacco', 'Automotive', 'Personal Care',
+        'Electronics', 'Household', 'Office Supplies', 'Health & Medicine',
+        'Fuel Products', 'Motor Oil', 'Car Care', 'Snacks', 'Candy & Gum',
+        'Energy Drinks', 'Soft Drinks', 'Water & Juice', 'Beer & Wine',
+        'Cigarettes', 'Cigars', 'Vaping Products', 'Lottery Tickets',
+        'Scratch Cards', 'Phone Cards', 'Gift Cards', 'Ice Products',
+        'Hot Food', 'Coffee & Tea', 'Dairy Products', 'Frozen Foods',
+        'Emergency Supplies', 'Pet Food', 'Cleaning Products', 'Paper Products',
+        'Batteries', 'Phone Accessories', 'Sunglasses', 'Travel Items', 'Maps & Guides'
+      ];
+      
+      if (mapped.category && !validCategories.includes(mapped.category)) {
+        // Try to auto-map common category variations
+        const categoryMappings: {[key: string]: string} = {
+          'food': 'Food Items',
+          'drink': 'Beverages',
+          'drinks': 'Beverages',
+          'beverage': 'Beverages',
+          'snack': 'Snacks',
+          'candy': 'Candy & Gum',
+          'gum': 'Candy & Gum',
+          'cigarette': 'Cigarettes',
+          'cigar': 'Cigars',
+          'vape': 'Vaping Products',
+          'lottery': 'Lottery Tickets',
+          'scratch': 'Scratch Cards',
+          'phone': 'Phone Cards',
+          'gift': 'Gift Cards',
+          'ice': 'Ice Products',
+          'coffee': 'Coffee & Tea',
+          'tea': 'Coffee & Tea',
+          'dairy': 'Dairy Products',
+          'frozen': 'Frozen Foods',
+          'pet': 'Pet Food',
+          'cleaning': 'Cleaning Products',
+          'paper': 'Paper Products',
+          'battery': 'Batteries',
+          'batteries': 'Batteries'
+        };
+        
+        const lowerCategory = mapped.category.toLowerCase();
+        mapped.category = categoryMappings[lowerCategory] || mapped.category;
+      }
       if (row.bar_code_case && row.bar_code_case.trim()) {
         mapped.bar_code_case = row.bar_code_case.trim();
       }
@@ -554,6 +615,8 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
 
 
 
+
+
           // Invalid date format, ignore
         }} // Calculate profit margin
       const unitPrice = mapped.unit_price || 0;const retailPrice = mapped.retail_price || 0;const profitMargin = calculateProfitMargin(unitPrice, retailPrice); // Calculate overdue status
@@ -561,11 +624,9 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
       if (profitMargin > 0) {mapped.profit_margin = profitMargin;}mapped.overdue = isOverdue;mapped.updated_at = new Date().toISOString();mapped.last_updated_date = new Date().toISOString();const isDuplicate = isDuplicateNameInDB || isDuplicateNameInImport || isDuplicateWeightInDB || isDuplicateWeightInImport;return { original: row, mapped, isValid: errors.length === 0, isDuplicate, errors, productName: cleanProductName, weight: weight, profitMargin: profitMargin, isOverdue: isOverdue };});};const handleFileUpload = async () => {if (!file) {toast({ variant: "destructive", title: "No File Selected", description: "Please select a CSV file to upload." });return;}setIsProcessing(true);try {const text = await file.text();const parsedData = parseCSV(text);if (parsedData.length === 0) {throw new Error('No valid data found in file');} // Fetch existing products for duplicate checking
       const existing = await fetchExistingProducts(); // Validate and check for duplicates
       const validatedProducts = validateAndCheckDuplicates(parsedData, existing);if (validatedProducts.length === 0) {throw new Error('No valid products found in file');}setParsedProducts(validatedProducts);setShowPreview(true);const validCount = validatedProducts.filter((p) => p.isValid).length;const duplicateCount = validatedProducts.filter((p) => p.isDuplicate).length;const errorCount = validatedProducts.filter((p) => !p.isValid).length;toast({ title: "File Processed", description: `Found ${validatedProducts.length} products. ${validCount} valid, ${duplicateCount} duplicates, ${errorCount} errors.` });} catch (error) {console.error('File upload error:', error);toast({ variant: "destructive", title: "Import Failed", description: error instanceof Error ? error.message : "Failed to process file." });} finally {setIsProcessing(false);}};const handleConfirmImport = () => {const validProducts = parsedProducts.filter((p) => p.isValid && !p.isDuplicate);if (validProducts.length === 0) {toast({ variant: "destructive", title: "No Valid Products", description: "No valid products to import." });return;}const dataToImport = validProducts.map((p) => p.mapped);onDataImport(dataToImport); // Reset state
-    setIsOpen(false);setFile(null);setParsedProducts([]);setShowPreview(false);};const handleCloseDialog = () => {setIsOpen(false);setFile(null);setParsedProducts([]);setShowPreview(false);};const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {const selectedFile = e.target.files?.[0];if (selectedFile) {if (!selectedFile.name.endsWith('.csv')) {toast({ variant: "destructive", title: "Invalid File Type", description: "Please select a CSV file." });return;}setFile(selectedFile);}};const handleEnhancedFileSelect = (selectedFile: File) => {if (!selectedFile.name.endsWith('.csv') && !selectedFile.type.includes('image')) {toast({
-        variant: "destructive",
-        title: "Invalid File Type",
-        description: "Please select a CSV file or image."
-      });
+    setIsOpen(false);setFile(null);setParsedProducts([]);setShowPreview(false);};const handleCloseDialog = () => {setIsOpen(false);setFile(null);setParsedProducts([]);setShowPreview(false);};const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {const selectedFile = e.target.files?.[0];if (selectedFile) {if (!selectedFile.name.endsWith('.csv')) {toast({ variant: "destructive", title: "Invalid File Type", description: "Please select a CSV file." });return;}setFile(selectedFile);}};const handleEnhancedFileSelect = (selectedFile: File) => {if (!selectedFile.name.endsWith('.csv') && !selectedFile.type.includes('image')) {toast({ variant: "destructive", title: "Invalid File Type",
+          description: "Please select a CSV file or image."
+        });
       return;
     }
     setFile(selectedFile);
