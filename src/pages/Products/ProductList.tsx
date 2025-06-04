@@ -461,17 +461,12 @@ const ProductList: React.FC = () => {
               </CardDescription>
             </div>
             <Button
-              onClick={() => handleSaveProduct(null)}
-              disabled={savingProductId === -1}
+              onClick={() => navigate('/products/new')}
               className={`bg-brand-600 hover:bg-brand-700 text-white ${
               responsive.isMobile ? 'w-full' : ''}`
               }>
-              {savingProductId === -1 ?
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" /> :
-
               <Plus className="w-4 h-4 mr-2" />
-              }
-              {savingProductId === -1 ? 'Creating...' : 'Add Product'}
+              Add Product
             </Button>
           </div>
         </CardHeader>

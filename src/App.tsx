@@ -4,6 +4,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
 import { SupabaseAuthProvider } from './contexts/SupabaseAuthContext';
+import RealTimeDataProvider from '@/components/RealTimeDataProvider';
 import { GlobalErrorBoundary } from './components/ErrorBoundary';
 import InvalidCharacterErrorBoundary from './components/ErrorBoundary/InvalidCharacterErrorBoundary';
 
@@ -59,7 +60,8 @@ function App() {
         <QueryClientProvider client={queryClient}>
           <SupabaseAuthProvider>
             <AuthProvider>
-              <TooltipProvider>
+              <RealTimeDataProvider>
+                <TooltipProvider>
               <Router>
           <Routes>
             {/* Public routes */}
@@ -143,14 +145,14 @@ function App() {
           </Routes>
               </Router>
               <Toaster />
-              </TooltipProvider>
+                </TooltipProvider>
+              </RealTimeDataProvider>
             </AuthProvider>
           </SupabaseAuthProvider>
         </QueryClientProvider>
       </InvalidCharacterErrorBoundary>
-    </GlobalErrorBoundary>);
-
-
+    </GlobalErrorBoundary>
+  );
 }
 
 export default App;

@@ -10,14 +10,27 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { useErrorHandler } from '@/hooks/use-error-handler';
-import { ArrowLeft, Save, Calendar, Lock, AlertTriangle, Upload, Eye, Plus, Calculator, Camera, XCircle } from 'lucide-react';
+import { ArrowLeft, Save, Calculator, Upload, Eye, Plus, Download, FileText, AlertTriangle, DollarSign } from 'lucide-react';
 import BarcodeScanner from '@/components/BarcodeScanner';
-import ProductFileUpload from '@/components/ProductFileUpload';
 import { useAuth } from '@/contexts/AuthContext';
 import { FormErrorBoundary } from '@/components/ErrorBoundary';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+
+interface Vendor {
+  id: number;
+  vendor_name: string;
+  is_active: boolean;
+}
+
+interface ProductCategory {
+  id: number;
+  category_name: string;
+  department: string;
+  is_active: boolean;
+}
 
 const ProductForm = () => {
   const navigate = useNavigate();
@@ -29,26 +42,20 @@ const ProductForm = () => {
     severity: 'high'
   });
 
-  // Use AuthContext permission methods
-  const { canEdit: canEditProduct, canCreate: canCreateProduct } = useAuth();
-  const canEdit = canEditProduct('products');
-
+  const isEdit = !!id;
   const [isLoading, setIsLoading] = useState(false);
-  const [vendors, setVendors] = useState<any[]>([]);
+  const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [bulkUploadData, setBulkUploadData] = useState<any[]>([]);
   const [showBulkPreview, setShowBulkPreview] = useState(false);
-  const [productImageFile, setProductImageFile] = useState<File | null>(null);
-  const [productImagePreview, setProductImagePreview] = useState<string>('');
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isUploadingBulk, setIsUploadingBulk] = useState(false);
+  
   const [formData, setFormData] = useState({
-    serial_number: 0,
     product_name: '',
     weight: 0,
     weight_unit: 'lb',
     department: 'Convenience Store',
     merchant_id: '',
-    bar_code_case: '',
-    bar_code_unit: '',
     last_updated_date: new Date().toISOString().split('T')[0],
     last_shopping_date: '',
     case_price: 0,
@@ -56,159 +63,141 @@ const ProductForm = () => {
     unit_price: 0,
     retail_price: 0,
     profit_margin: 0,
-    overdue: false,
     category: '',
     supplier: '',
     quantity_in_stock: 0,
     minimum_stock: 0,
     description: '',
-    product_image_id: ''
+    bar_code_case: '',
+    bar_code_unit: '',
+    serial_number: 0,
+    overdue: false
   });
 
+  const [originalData, setOriginalData] = useState<any>(null);
+
+  // USA Weight Units
   const weightUnits = [
-  { value: 'lb', label: 'Pounds (lb)' },
-  { value: 'oz', label: 'Ounces (oz)' },
-  { value: 'ton', label: 'Tons' },
-  { value: 'fl_oz', label: 'Fluid Ounces (fl oz)' },
-  { value: 'gal', label: 'Gallons (gal)' },
-  { value: 'qt', label: 'Quarts (qt)' },
-  { value: 'pt', label: 'Pints (pt)' },
-  { value: 'cup', label: 'Cups' }];
+    { value: 'lb', label: 'Pounds (lb)' },
+    { value: 'oz', label: 'Ounces (oz)' },
+    { value: 'ton', label: 'Tons' },
+    { value: 'fl_oz', label: 'Fluid Ounces (fl oz)' },
+    { value: 'gal', label: 'Gallons (gal)' },
+    { value: 'qt', label: 'Quarts (qt)' },
+    { value: 'pt', label: 'Pints (pt)' },
+    { value: 'cup', label: 'Cups' },
+    { value: 'tbsp', label: 'Tablespoons (tbsp)' },
+    { value: 'tsp', label: 'Teaspoons (tsp)' }
+  ];
 
-
+  // Departments based on gas station categories
   const departments = [
-  'Convenience Store',
-  'Fuel & Oil',
-  'Automotive',
-  'Food & Beverages',
-  'Tobacco Products',
-  'Lottery & Gaming',
-  'Health & Personal Care',
-  'Electronics & Accessories',
-  'Cleaning Supplies',
-  'Office Supplies',
-  'Snacks & Candy',
-  'Hot Foods & Coffee',
-  'Cold Beverages',
-  'Energy Drinks',
-  'Beer & Wine',
-  'Ice & Frozen',
-  'Phone Cards & Prepaid',
-  'Car Accessories',
-  'Gift Cards',
-  'Pharmacy & Medicine',
-  'Household Items',
-  'Safety & Emergency',
-  'Tools & Hardware',
-  'Sporting Goods',
-  'Pet Supplies'];
-
-  const categories = [
-  'Food Items',
-  'Beverages',
-  'Tobacco',
-  'Automotive',
-  'Personal Care',
-  'Electronics',
-  'Household',
-  'Office Supplies',
-  'Health & Medicine',
-  'Fuel Products',
-  'Motor Oil',
-  'Car Care',
-  'Snacks',
-  'Candy & Gum',
-  'Energy Drinks',
-  'Soft Drinks',
-  'Water & Juice',
-  'Beer & Wine',
-  'Cigarettes',
-  'Cigars',
-  'Vaping Products',
-  'Lottery Tickets',
-  'Scratch Cards',
-  'Phone Cards',
-  'Gift Cards',
-  'Ice Products',
-  'Hot Food',
-  'Coffee & Tea',
-  'Dairy Products',
-  'Frozen Foods',
-  'Emergency Supplies',
-  'Pet Food',
-  'Cleaning Products',
-  'Paper Products',
-  'Batteries',
-  'Phone Accessories',
-  'Sunglasses',
-  'Travel Items',
-  'Maps & Guides'];
-
+    'Convenience Store',
+    'Fuel & Oil',
+    'Automotive',
+    'Food & Beverages',
+    'Tobacco Products',
+    'Lottery & Gaming',
+    'Health & Personal Care',
+    'Electronics & Accessories',
+    'Cleaning Supplies',
+    'Office Supplies',
+    'Snacks & Candy',
+    'Hot Foods & Coffee',
+    'Cold Beverages',
+    'Energy Drinks',
+    'Beer & Wine',
+    'Ice & Frozen',
+    'Phone Cards & Prepaid',
+    'Car Accessories',
+    'Gift Cards',
+    'Pharmacy & Medicine'
+  ];
 
   useEffect(() => {
     fetchVendors();
-    if (id) {
+    fetchCategories();
+    if (isEdit) {
       fetchProduct();
     } else {
       generateSerialNumber();
     }
   }, [id]);
 
-  // Auto-calculate profit margin when unit price or retail price changes
+  // Auto-calculate unit price when case price or unit per case changes
+  useEffect(() => {
+    if (formData.case_price > 0 && formData.unit_per_case > 0) {
+      const calculatedUnitPrice = formData.case_price / formData.unit_per_case;
+      setFormData(prev => ({ 
+        ...prev, 
+        unit_price: Math.round(calculatedUnitPrice * 100) / 100 
+      }));
+    }
+  }, [formData.case_price, formData.unit_per_case]);
+
+  // Auto-calculate profit margin
   useEffect(() => {
     if (formData.unit_price > 0 && formData.retail_price > 0) {
-      const margin = (formData.retail_price - formData.unit_price) / formData.retail_price * 100;
-      setFormData((prev) => ({ ...prev, profit_margin: Math.round(margin * 100) / 100 }));
+      const margin = ((formData.retail_price - formData.unit_price) / formData.retail_price) * 100;
+      setFormData(prev => ({ 
+        ...prev, 
+        profit_margin: Math.round(margin * 100) / 100 
+      }));
     } else {
-      setFormData((prev) => ({ ...prev, profit_margin: 0 }));
+      setFormData(prev => ({ ...prev, profit_margin: 0 }));
     }
   }, [formData.unit_price, formData.retail_price]);
 
-  // Cleanup image preview on unmount
-  useEffect(() => {
-    return () => {
-      if (productImagePreview) {
-        URL.revokeObjectURL(productImagePreview);
-      }
-    };
-  }, [productImagePreview]);
-
   const fetchVendors = async () => {
-    const data = await handleApiCall(
-      () => window.ezsite.apis.tablePage(11729, {
+    try {
+      const { data, error } = await window.ezsite.apis.tablePage('11729', {
         PageNo: 1,
         PageSize: 100,
-        OrderByField: "vendor_name",
+        OrderByField: 'vendor_name',
         IsAsc: true,
-        Filters: [
-        { name: "is_active", op: "Equal", value: true }]
+        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+      });
 
-      }),
-      "Failed to load vendors list",
-      { action: 'fetchVendors' }
-    );
+      if (error) throw error;
+      setVendors(data?.List || []);
+    } catch (error) {
+      console.error('Error fetching vendors:', error);
+    }
+  };
 
-    if (data) {
-      setVendors(data.List || []);
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await window.ezsite.apis.tablePage('14389', {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: 'category_name',
+        IsAsc: true,
+        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+      });
+
+      if (error) throw error;
+      setCategories(data?.List || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
     }
   };
 
   const generateSerialNumber = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(11726, {
+      const { data, error } = await window.ezsite.apis.tablePage('11726', {
         PageNo: 1,
         PageSize: 1,
-        OrderByField: "serial_number",
+        OrderByField: 'serial_number',
         IsAsc: false,
         Filters: []
       });
 
       if (error) throw error;
       const lastSerial = data?.List?.[0]?.serial_number || 0;
-      setFormData((prev) => ({ ...prev, serial_number: lastSerial + 1 }));
+      setFormData(prev => ({ ...prev, serial_number: lastSerial + 1 }));
     } catch (error) {
       console.error('Error generating serial number:', error);
-      setFormData((prev) => ({ ...prev, serial_number: 1 }));
+      setFormData(prev => ({ ...prev, serial_number: 1 }));
     }
   };
 
@@ -217,14 +206,12 @@ const ProductForm = () => {
 
     setIsLoading(true);
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(11726, {
+      const { data, error } = await window.ezsite.apis.tablePage('11726', {
         PageNo: 1,
         PageSize: 1,
-        OrderByField: "id",
+        OrderByField: 'id',
         IsAsc: true,
-        Filters: [
-        { name: "id", op: "Equal", value: parseInt(id) }]
-
+        Filters: [{ name: 'id', op: 'Equal', value: parseInt(id) }]
       });
 
       if (error) throw error;
@@ -232,14 +219,11 @@ const ProductForm = () => {
       if (data?.List?.[0]) {
         const product = data.List[0];
         const productData = {
-          serial_number: product.serial_number || 0,
           product_name: product.product_name || '',
           weight: product.weight || 0,
           weight_unit: product.weight_unit || 'lb',
           department: product.department || 'Convenience Store',
-          merchant_id: product.merchant_id || '',
-          bar_code_case: product.bar_code_case || '',
-          bar_code_unit: product.bar_code_unit || '',
+          merchant_id: product.merchant_id?.toString() || '',
           last_updated_date: product.last_updated_date ? product.last_updated_date.split('T')[0] : '',
           last_shopping_date: product.last_shopping_date ? product.last_shopping_date.split('T')[0] : '',
           case_price: product.case_price || 0,
@@ -247,23 +231,18 @@ const ProductForm = () => {
           unit_price: product.unit_price || 0,
           retail_price: product.retail_price || 0,
           profit_margin: 0, // Will be calculated by useEffect
-          overdue: product.overdue || false,
           category: product.category || '',
           supplier: product.supplier || '',
           quantity_in_stock: product.quantity_in_stock || 0,
           minimum_stock: product.minimum_stock || 0,
           description: product.description || '',
-          product_image_id: product.product_image_id || ''
+          bar_code_case: product.bar_code_case || '',
+          bar_code_unit: product.bar_code_unit || '',
+          serial_number: product.serial_number || 0,
+          overdue: product.overdue || false
         };
         setFormData(productData);
         setOriginalData(productData);
-
-        // Load existing product image if available
-        if (product.product_image_id) {
-          // Note: In a real implementation, you'd fetch the image URL from the file service
-          // For now, we'll just store the image ID
-          console.log('Product has image with ID:', product.product_image_id);
-        }
       }
     } catch (error) {
       console.error('Error fetching product:', error);
@@ -277,7 +256,7 @@ const ProductForm = () => {
     }
   };
 
-  // Calculate suggested retail price based on unit price
+  // Calculate suggested retail price based on unit price with specific rules
   const calculateSuggestedRetailPrice = (unitPrice: number) => {
     if (unitPrice === 0) return 0;
 
@@ -304,7 +283,7 @@ const ProductForm = () => {
     let closestRounding = 0.99;
     let minDifference = Math.abs(decimal - 0.99);
 
-    roundingTargets.forEach((target) => {
+    roundingTargets.forEach(target => {
       const difference = Math.abs(decimal - target);
       if (difference < minDifference) {
         minDifference = difference;
@@ -316,175 +295,18 @@ const ProductForm = () => {
   };
 
   const handleInputChange = (field: string, value: any) => {
-    if (!canEdit && field !== 'retail_price') {
-      toast({
-        variant: "destructive",
-        title: "Access Denied",
-        description: "Only System Administrator can edit product information."
-      });
-      return;
-    }
-
-    setFormData((prev) => ({ ...prev, [field]: value }));
-
-    // Auto-suggest category and department when product name changes
-    if (field === 'product_name' && value.trim()) {
-      const suggestedCategory = suggestCategory(value);
-      if (suggestedCategory && !formData.category) {
-        setFormData((prev) => ({ ...prev, category: suggestedCategory }));
-
-        const suggestedDepartment = suggestDepartment(suggestedCategory);
-        if (suggestedDepartment && formData.department === 'Convenience Store') {
-          setFormData((prev) => ({ ...prev, department: suggestedDepartment }));
-        }
-      }
-    }
-
-    // Auto-suggest department when category changes
-    if (field === 'category' && value) {
-      const suggestedDepartment = suggestDepartment(value);
-      if (suggestedDepartment && formData.department === 'Convenience Store') {
-        setFormData((prev) => ({ ...prev, department: suggestedDepartment }));
-      }
-    }
-
-    // Auto-calculate unit price when case price or units per case changes
-    if (field === 'case_price' || field === 'unit_per_case') {
-      const casePrice = field === 'case_price' ? value : formData.case_price;
-      const unitsPerCase = field === 'unit_per_case' ? value : formData.unit_per_case;
-
-      if (casePrice > 0 && unitsPerCase > 0) {
-        const calculatedUnitPrice = casePrice / unitsPerCase;
-        setFormData((prev) => ({ ...prev, unit_price: Math.round(calculatedUnitPrice * 100) / 100 }));
-      }
-    }
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleBarcodeScanned = (field: string, barcode: string) => {
-    setFormData((prev) => ({ ...prev, [field]: barcode }));
+    setFormData(prev => ({ ...prev, [field]: barcode }));
+    toast({
+      title: "Barcode Scanned",
+      description: `Barcode ${barcode} added to ${field.replace('_', ' ')}`
+    });
   };
 
-  // Auto-suggest category based on product name
-  const suggestCategory = (productName: string): string => {
-    const name = productName.toLowerCase();
-
-    // Beverages
-    if (name.includes('coke') || name.includes('pepsi') || name.includes('sprite') || name.includes('soda')) return 'Soft Drinks';
-    if (name.includes('water') || name.includes('juice') || name.includes('tea') || name.includes('coffee')) return 'Water & Juice';
-    if (name.includes('energy') || name.includes('red bull') || name.includes('monster')) return 'Energy Drinks';
-    if (name.includes('beer') || name.includes('wine') || name.includes('alcohol')) return 'Beer & Wine';
-
-    // Food
-    if (name.includes('chip') || name.includes('doritos') || name.includes('lays')) return 'Snacks';
-    if (name.includes('candy') || name.includes('chocolate') || name.includes('gum')) return 'Candy & Gum';
-    if (name.includes('hot dog') || name.includes('pizza') || name.includes('sandwich')) return 'Hot Food';
-    if (name.includes('milk') || name.includes('cheese') || name.includes('yogurt')) return 'Dairy Products';
-    if (name.includes('ice cream') || name.includes('frozen')) return 'Frozen Foods';
-
-    // Tobacco
-    if (name.includes('cigarette') || name.includes('marlboro') || name.includes('camel')) return 'Cigarettes';
-    if (name.includes('cigar') || name.includes('pipe')) return 'Cigars';
-    if (name.includes('vape') || name.includes('juul') || name.includes('e-cig')) return 'Vaping Products';
-
-    // Automotive
-    if (name.includes('oil') || name.includes('motor') || name.includes('5w30')) return 'Motor Oil';
-    if (name.includes('gas') || name.includes('fuel') || name.includes('diesel')) return 'Fuel Products';
-    if (name.includes('tire') || name.includes('wiper') || name.includes('brake')) return 'Car Accessories';
-
-    // Other
-    if (name.includes('lottery') || name.includes('powerball') || name.includes('mega')) return 'Lottery Tickets';
-    if (name.includes('scratch') || name.includes('instant')) return 'Scratch Cards';
-    if (name.includes('phone card') || name.includes('prepaid')) return 'Phone Cards';
-    if (name.includes('gift card')) return 'Gift Cards';
-    if (name.includes('battery') || name.includes('batteries')) return 'Batteries';
-    if (name.includes('ice') && !name.includes('ice cream')) return 'Ice Products';
-
-    return '';
-  };
-
-  // Auto-suggest department based on category
-  const suggestDepartment = (category: string): string => {
-    const categoryToDepartment: {[key: string]: string;} = {
-      'Soft Drinks': 'Cold Beverages',
-      'Water & Juice': 'Cold Beverages',
-      'Energy Drinks': 'Energy Drinks',
-      'Beer & Wine': 'Beer & Wine',
-      'Snacks': 'Snacks & Candy',
-      'Candy & Gum': 'Snacks & Candy',
-      'Hot Food': 'Hot Foods & Coffee',
-      'Coffee & Tea': 'Hot Foods & Coffee',
-      'Dairy Products': 'Cold Beverages',
-      'Frozen Foods': 'Ice & Frozen',
-      'Cigarettes': 'Tobacco Products',
-      'Cigars': 'Tobacco Products',
-      'Vaping Products': 'Tobacco Products',
-      'Motor Oil': 'Fuel & Oil',
-      'Fuel Products': 'Fuel & Oil',
-      'Car Accessories': 'Automotive',
-      'Lottery Tickets': 'Lottery & Gaming',
-      'Scratch Cards': 'Lottery & Gaming',
-      'Phone Cards': 'Phone Cards & Prepaid',
-      'Gift Cards': 'Gift Cards',
-      'Batteries': 'Electronics & Accessories',
-      'Ice Products': 'Ice & Frozen'
-    };
-
-    return categoryToDepartment[category] || 'Convenience Store';
-  };
-
-  // Handle product image upload
-  const handleImageUpload = async (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      toast({
-        variant: "destructive",
-        title: "Invalid File Type",
-        description: "Please select an image file."
-      });
-      return;
-    }
-
-    setIsUploadingImage(true);
-    try {
-      const { data: fileId, error } = await window.ezsite.apis.upload({
-        filename: file.name,
-        file: file
-      });
-
-      if (error) throw error;
-
-      setFormData((prev) => ({ ...prev, product_image_id: fileId }));
-      setProductImageFile(file);
-
-      // Create preview URL
-      const previewUrl = URL.createObjectURL(file);
-      setProductImagePreview(previewUrl);
-
-      toast({
-        title: "Success",
-        description: "Product image uploaded successfully."
-      });
-    } catch (error) {
-      console.error('Image upload error:', error);
-      toast({
-        variant: "destructive",
-        title: "Upload Failed",
-        description: error instanceof Error ? error.message : "Failed to upload image."
-      });
-    } finally {
-      setIsUploadingImage(false);
-    }
-  };
-
-  const handleImageRemove = () => {
-    setFormData((prev) => ({ ...prev, product_image_id: '' }));
-    setProductImageFile(null);
-    setProductImagePreview('');
-    if (productImagePreview) {
-      URL.revokeObjectURL(productImagePreview);
-    }
-  };
-
-  // Bulk upload functions
+  // Bulk upload functionality
   const handleBulkFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -493,8 +315,8 @@ const ProductForm = () => {
     reader.onload = (e) => {
       try {
         const text = e.target?.result as string;
-        const lines = text.split('\n').filter((line) => line.trim());
-        const headers = lines[0].split(',').map((h) => h.trim().toLowerCase());
+        const lines = text.split('\n').filter(line => line.trim());
+        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
 
         const data = lines.slice(1).map((line, index) => {
           const values = line.split(',');
@@ -504,7 +326,7 @@ const ProductForm = () => {
             let value = values[i]?.trim() || '';
 
             // Map CSV headers to database fields
-            const fieldMapping: {[key: string]: string;} = {
+            const fieldMapping: {[key: string]: string} = {
               'product name': 'product_name',
               'product_name': 'product_name',
               'weight': 'weight',
@@ -567,26 +389,26 @@ const ProductForm = () => {
   };
 
   const handleBulkSubmit = async () => {
-    if (!canCreateProduct('products')) {
+    if (!userProfile) {
       toast({
         variant: "destructive",
-        title: "Access Denied",
-        description: "You don't have permission to create products."
+        title: "Error",
+        description: "User profile not found."
       });
       return;
     }
 
-    setIsLoading(true);
+    setIsUploadingBulk(true);
     try {
       let successCount = 0;
       let errorCount = 0;
       const errors: string[] = [];
 
       // Get the latest serial number
-      const serialResponse = await window.ezsite.apis.tablePage(11726, {
+      const serialResponse = await window.ezsite.apis.tablePage('11726', {
         PageNo: 1,
         PageSize: 1,
-        OrderByField: "serial_number",
+        OrderByField: 'serial_number',
         IsAsc: false,
         Filters: []
       });
@@ -615,7 +437,12 @@ const ProductForm = () => {
             retail_price: productData.retail_price || 0,
             category: productData.category || '',
             supplier: productData.supplier || '',
-            description: productData.description || ''
+            description: productData.description || '',
+            quantity_in_stock: 0,
+            minimum_stock: 0,
+            bar_code_case: '',
+            bar_code_unit: '',
+            created_by: userProfile.user_id
           };
 
           if (productData.merchant_id) {
@@ -626,7 +453,7 @@ const ProductForm = () => {
             productPayload.last_shopping_date = new Date(productData.last_shopping_date).toISOString();
           }
 
-          const { error } = await window.ezsite.apis.tableCreate(11726, productPayload);
+          const { error } = await window.ezsite.apis.tableCreate('11726', productPayload);
 
           if (error) {
             errors.push(`${productData.product_name}: ${error}`);
@@ -671,11 +498,9 @@ const ProductForm = () => {
         description: error instanceof Error ? error.message : "Failed to import product data."
       });
     } finally {
-      setIsLoading(false);
+      setIsUploadingBulk(false);
     }
   };
-
-  const [originalData, setOriginalData] = useState<any>(null);
 
   const logFieldChange = async (productId: number, fieldName: string, oldValue: any, newValue: any, userId: number) => {
     try {
@@ -695,32 +520,23 @@ const ProductForm = () => {
     }
   };
 
-  const calculateProfitMargin = (unitPrice: number, retailPrice: number) => {
-    if (unitPrice === 0 || retailPrice === 0) return 0;
-    return (retailPrice - unitPrice) / retailPrice * 100;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!canEdit) {
-      toast({
-        variant: "destructive",
-        title: "Access Denied",
-        description: "You don't have permission to edit product information."
-      });
-      return;
-    }
-
-    processSubmit();
-  };
-
-  const processSubmit = async () => {
     if (!formData.product_name.trim()) {
       toast({
         variant: "destructive",
         title: "Validation Error",
         description: "Product name is required."
+      });
+      return;
+    }
+
+    if (!userProfile) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "User profile not found."
       });
       return;
     }
@@ -731,46 +547,48 @@ const ProductForm = () => {
         ...formData,
         last_updated_date: new Date().toISOString(),
         last_shopping_date: formData.last_shopping_date ? new Date(formData.last_shopping_date).toISOString() : null,
-        merchant_id: formData.merchant_id ? parseInt(formData.merchant_id) : null
+        merchant_id: formData.merchant_id ? parseInt(formData.merchant_id) : null,
+        created_by: userProfile.user_id
       };
 
-      const { error } = id ?
-      await window.ezsite.apis.tableUpdate(11726, { id: parseInt(id), ...payload }) :
-      await window.ezsite.apis.tableCreate(11726, payload);
+      const { error } = isEdit ?
+        await window.ezsite.apis.tableUpdate('11726', { id: parseInt(id!), ...payload }) :
+        await window.ezsite.apis.tableCreate('11726', payload);
 
       if (error) throw error;
 
       // Log changes for existing products
-      if (id && originalData && userProfile) {
+      if (isEdit && originalData && userProfile) {
         const fieldsToTrack = [
-        'last_shopping_date',
-        'case_price',
-        'unit_per_case',
-        'unit_price',
-        'retail_price'];
-
+          'last_shopping_date',
+          'case_price',
+          'unit_per_case',
+          'unit_price',
+          'retail_price'
+        ];
 
         for (const field of fieldsToTrack) {
           const oldValue = originalData[field];
           const newValue = formData[field];
 
           if (oldValue !== newValue) {
-            await logFieldChange(parseInt(id), field, oldValue, newValue, userProfile.user_id);
+            await logFieldChange(parseInt(id!), field, oldValue, newValue, userProfile.user_id);
           }
         }
 
         // Calculate and log profit margin changes
-        const oldProfitMargin = calculateProfitMargin(originalData.unit_price, originalData.retail_price);
-        const newProfitMargin = calculateProfitMargin(formData.unit_price, formData.retail_price);
+        const oldProfitMargin = originalData.unit_price > 0 && originalData.retail_price > 0 ?
+          ((originalData.retail_price - originalData.unit_price) / originalData.retail_price) * 100 : 0;
+        const newProfitMargin = formData.profit_margin;
 
         if (Math.abs(oldProfitMargin - newProfitMargin) > 0.01) {
-          await logFieldChange(parseInt(id), 'profit_margin', oldProfitMargin.toFixed(2), newProfitMargin.toFixed(2), userProfile.user_id);
+          await logFieldChange(parseInt(id!), 'profit_margin', oldProfitMargin.toFixed(2), newProfitMargin.toFixed(2), userProfile.user_id);
         }
       }
 
       toast({
         title: "Success",
-        description: `Product ${id ? 'updated' : 'created'} successfully.`
+        description: `Product ${isEdit ? 'updated' : 'created'} successfully.`
       });
 
       navigate('/products');
@@ -779,7 +597,7 @@ const ProductForm = () => {
       toast({
         variant: "destructive",
         title: "Error",
-        description: `Failed to ${id ? 'update' : 'create'} product.`
+        description: `Failed to ${isEdit ? 'update' : 'create'} product.`
       });
     } finally {
       setIsLoading(false);
@@ -788,18 +606,38 @@ const ProductForm = () => {
 
   const suggestedRetailPrice = calculateSuggestedRetailPrice(formData.unit_price);
 
+  // Download CSV template
+  const downloadTemplate = () => {
+    const csvContent = [
+      'Product Name,Weight,Weight Unit,Department,Merchant,Case Price,Unit Per Case,Unit Price,Retail Price,Category,Supplier,Description',
+      'Example Product,12,oz,Food & Beverages,,24.00,24,1.00,1.99,Soft Drinks,Example Supplier,Example description'
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = 'product_import_template.csv';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  };
+
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Button variant="outline" size="sm" onClick={() => navigate('/products')}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Products
           </Button>
           <div>
-            <h1 className="text-2xl font-bold">{id ? 'Edit Product' : 'Create New Product'}</h1>
+            <h1 className="text-2xl font-bold">{isEdit ? 'Edit Product' : 'Add New Product'}</h1>
             <p className="text-muted-foreground">
-              {id ? 'Update product information' : 'Add a new product to your inventory'}
+              {isEdit ? 'Update product information' : 'Add a new product to your inventory'}
             </p>
           </div>
         </div>
@@ -807,7 +645,7 @@ const ProductForm = () => {
         {/* Bulk Upload Dialog */}
         <Dialog open={showBulkPreview} onOpenChange={setShowBulkPreview}>
           <DialogTrigger asChild>
-            <Button variant="outline" disabled={!canEdit}>
+            <Button variant="outline">
               <Upload className="w-4 h-4 mr-2" />
               Bulk Upload
             </Button>
@@ -816,47 +654,57 @@ const ProductForm = () => {
             <DialogHeader>
               <DialogTitle>Bulk Product Upload</DialogTitle>
               <DialogDescription>
-                Upload a CSV file with product data. Required columns: Product Name. Optional: Weight, Weight Unit, Department, Merchant, Case Price, Unit Per Case, Unit Price, Retail Price, Category, Supplier, Description.
+                Upload a CSV file with product data. Click "Download Template" for the correct format.
               </DialogDescription>
             </DialogHeader>
             
-            {bulkUploadData.length === 0 ?
-            <div className="space-y-4">
+            {bulkUploadData.length === 0 ? (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-medium">Upload CSV File</h3>
+                  <Button variant="outline" onClick={downloadTemplate}>
+                    <Download className="w-4 h-4 mr-2" />
+                    Download Template
+                  </Button>
+                </div>
+                
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                   <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                   <div className="space-y-2">
                     <h3 className="text-lg font-medium">Upload CSV File</h3>
                     <p className="text-sm text-gray-500">Select a CSV file containing product data</p>
                     <Input
-                    type="file"
-                    accept=".csv"
-                    onChange={handleBulkFileUpload}
-                    className="max-w-xs mx-auto" />
-
+                      type="file"
+                      accept=".csv"
+                      onChange={handleBulkFileUpload}
+                      className="max-w-xs mx-auto"
+                    />
                   </div>
                 </div>
                 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h4 className="font-medium text-blue-800 mb-2">CSV Format Example:</h4>
-                  <code className="text-sm text-blue-700 block">
-                    Product Name,Weight,Weight Unit,Department,Case Price,Unit Per Case,Unit Price,Retail Price<br />
-                    Coca Cola 12oz,12,oz,Food & Beverages,24.00,24,1.00,1.99
-                  </code>
+                  <h4 className="font-medium text-blue-800 mb-2">Required Columns:</h4>
+                  <ul className="text-sm text-blue-700 space-y-1">
+                    <li>• Product Name (required)</li>
+                    <li>• Weight, Weight Unit, Department, Merchant</li>
+                    <li>• Case Price, Unit Per Case, Unit Price, Retail Price</li>
+                    <li>• Category, Supplier, Description</li>
+                  </ul>
                 </div>
-              </div> :
-
-            <div className="space-y-4">
+              </div>
+            ) : (
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-medium">Preview Import Data ({bulkUploadData.length} products)</h3>
                   <div className="space-x-2">
                     <Button variant="outline" onClick={() => {
-                    setBulkUploadData([]);
-                    setShowBulkPreview(false);
-                  }}>
+                      setBulkUploadData([]);
+                      setShowBulkPreview(false);
+                    }}>
                       Cancel
                     </Button>
-                    <Button onClick={handleBulkSubmit} disabled={isLoading}>
-                      {isLoading ? 'Importing...' : 'Import Products'}
+                    <Button onClick={handleBulkSubmit} disabled={isUploadingBulk}>
+                      {isUploadingBulk ? 'Importing...' : 'Import Products'}
                     </Button>
                   </div>
                 </div>
@@ -876,12 +724,12 @@ const ProductForm = () => {
                     </TableHeader>
                     <TableBody>
                       {bulkUploadData.map((product, index) => {
-                      const profit = product.unit_price > 0 && product.retail_price > 0 ?
-                      ((product.retail_price - product.unit_price) / product.retail_price * 100).toFixed(1) :
-                      '0';
+                        const profit = product.unit_price > 0 && product.retail_price > 0 ?
+                          ((product.retail_price - product.unit_price) / product.retail_price * 100).toFixed(1) :
+                          '0';
 
-                      return (
-                        <TableRow key={index}>
+                        return (
+                          <TableRow key={index}>
                             <TableCell className="font-medium">{product.product_name}</TableCell>
                             <TableCell>{product.weight} {product.weight_unit}</TableCell>
                             <TableCell>{product.department}</TableCell>
@@ -893,58 +741,40 @@ const ProductForm = () => {
                                 {profit}%
                               </Badge>
                             </TableCell>
-                          </TableRow>);
-
-                    })}
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </div>
               </div>
-            }
+            )}
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* Access Warning */}
-      {!canEdit &&
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-          <div className="flex items-center space-x-3">
-            <AlertTriangle className="w-5 h-5 text-red-600" />
-            <div className="flex-1">
-              <h3 className="text-sm font-medium text-red-800">Access Restricted</h3>
-              <p className="text-sm text-red-700 mt-1">
-                You don't have permission to edit product information.
-              </p>
-            </div>
-            <Lock className="w-5 h-5 text-red-600" />
-          </div>
-        </div>
-      }
-
+      {/* Form */}
       <Card>
         <CardHeader>
-          <CardTitle>{id ? 'Edit Product' : 'New Product'}</CardTitle>
+          <CardTitle>{isEdit ? 'Edit Product' : 'New Product'}</CardTitle>
           <CardDescription>
-            {id ? 'Update the product information below' : 'Enter the product details below'}
+            {isEdit ? 'Update the product information below' : 'Enter the product details below'}
           </CardDescription>
         </CardHeader>
-        <CardContent className="p-6 pt-0">
+        <CardContent>
           <FormErrorBoundary
             formName="Product Form"
             showDataRecovery={true}
             onFormReset={() => {
-              if (id) {
+              if (isEdit) {
                 fetchProduct();
               } else {
                 setFormData({
-                  serial_number: 0,
                   product_name: '',
                   weight: 0,
                   weight_unit: 'lb',
                   department: 'Convenience Store',
                   merchant_id: '',
-                  bar_code_case: '',
-                  bar_code_unit: '',
                   last_updated_date: new Date().toISOString().split('T')[0],
                   last_shopping_date: '',
                   case_price: 0,
@@ -952,34 +782,23 @@ const ProductForm = () => {
                   unit_price: 0,
                   retail_price: 0,
                   profit_margin: 0,
-                  overdue: false,
                   category: '',
                   supplier: '',
                   quantity_in_stock: 0,
                   minimum_stock: 0,
                   description: '',
-                  product_image_id: ''
+                  bar_code_case: '',
+                  bar_code_unit: '',
+                  serial_number: 0,
+                  overdue: false
                 });
-                setProductImageFile(null);
-                setProductImagePreview('');
                 generateSerialNumber();
               }
-            }}>
-
+            }}
+          >
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Basic Information */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="serial_number">Serial Number</Label>
-                  <NumberInput
-                    id="serial_number"
-                    value={formData.serial_number}
-                    onChange={(value) => handleInputChange('serial_number', value)}
-                    disabled
-                    className="bg-muted" />
-                  <p className="text-xs text-muted-foreground">Auto-generated</p>
-                </div>
-
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="product_name">Product Name *</Label>
                   <Input
@@ -987,9 +806,8 @@ const ProductForm = () => {
                     placeholder="Enter product name"
                     value={formData.product_name}
                     onChange={(e) => handleInputChange('product_name', e.target.value)}
-                    disabled={!canEdit}
-                    className={!canEdit ? 'bg-muted' : ''}
-                    required />
+                    required
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -997,74 +815,32 @@ const ProductForm = () => {
                   <Select
                     value={formData.category}
                     onValueChange={(value) => handleInputChange('category', value)}
-                    disabled={!canEdit}>
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
-                      {categories.map((cat) =>
-                      <SelectItem key={cat} value={cat}>
-                          {cat}
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.category_name}>
+                          {cat.category_name}
                         </SelectItem>
-                      )}
+                      ))}
                     </SelectContent>
                   </Select>
-                  {formData.product_name && !formData.category &&
-                  <div className="flex items-center gap-2 text-sm text-blue-600">
-                      <Calculator className="w-4 h-4" />
-                      <span>Auto-suggestion available when you type product name</span>
-                    </div>
-                  }
                 </div>
               </div>
 
-              {/* Category and Supplier */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="supplier">Supplier</Label>
-                  <Input
-                    id="supplier"
-                    placeholder="Enter supplier name"
-                    value={formData.supplier}
-                    onChange={(e) => handleInputChange('supplier', e.target.value)}
-                    disabled={!canEdit}
-                    className={!canEdit ? 'bg-muted' : ''} />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="stock-info">Stock Information</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <NumberInput
-                      placeholder="Current Stock"
-                      value={formData.quantity_in_stock}
-                      onChange={(value) => handleInputChange('quantity_in_stock', value)}
-                      disabled={!canEdit}
-                      className={!canEdit ? 'bg-muted' : ''}
-                      min="0" />
-                    <NumberInput
-                      placeholder="Min Stock"
-                      value={formData.minimum_stock}
-                      onChange={(value) => handleInputChange('minimum_stock', value)}
-                      disabled={!canEdit}
-                      className={!canEdit ? 'bg-muted' : ''}
-                      min="0" />
-                  </div>
-                  <p className="text-xs text-muted-foreground">Current stock / Minimum stock level</p>
-                </div>
-              </div>
-
-              {/* Weight and Department */}
+              {/* Weight and Measurement */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="weight">Weight</Label>
                   <NumberInput
                     id="weight"
-                    step="0.01"
-                    min="0"
+                    step={0.01}
+                    min={0}
                     value={formData.weight}
                     onChange={(value) => handleInputChange('weight', value)}
-                    disabled={!canEdit}
-                    className={!canEdit ? 'bg-muted' : ''} />
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -1072,18 +848,21 @@ const ProductForm = () => {
                   <Select
                     value={formData.weight_unit}
                     onValueChange={(value) => handleInputChange('weight_unit', value)}
-                    disabled={!canEdit}>
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select unit" />
                     </SelectTrigger>
                     <SelectContent>
-                      {weightUnits.map((unit) =>
-                      <SelectItem key={unit.value} value={unit.value}>
+                      {weightUnits.map((unit) => (
+                        <SelectItem key={unit.value} value={unit.value}>
                           {unit.label}
                         </SelectItem>
-                      )}
+                      ))}
                     </SelectContent>
                   </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Combined: {formData.weight} {formData.weight_unit}
+                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -1091,16 +870,16 @@ const ProductForm = () => {
                   <Select
                     value={formData.department}
                     onValueChange={(value) => handleInputChange('department', value)}
-                    disabled={!canEdit}>
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select department" />
                     </SelectTrigger>
                     <SelectContent>
-                      {departments.map((dept) =>
-                      <SelectItem key={dept} value={dept}>
+                      {departments.map((dept) => (
+                        <SelectItem key={dept} value={dept}>
                           {dept}
                         </SelectItem>
-                      )}
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -1113,16 +892,16 @@ const ProductForm = () => {
                   <Select
                     value={formData.merchant_id}
                     onValueChange={(value) => handleInputChange('merchant_id', value)}
-                    disabled={!canEdit}>
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select merchant" />
                     </SelectTrigger>
                     <SelectContent>
-                      {vendors.map((vendor) =>
-                      <SelectItem key={vendor.id} value={vendor.id.toString()}>
+                      {vendors.map((vendor) => (
+                        <SelectItem key={vendor.id} value={vendor.id.toString()}>
                           {vendor.vendor_name}
                         </SelectItem>
-                      )}
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -1134,8 +913,7 @@ const ProductForm = () => {
                     type="date"
                     value={formData.last_updated_date}
                     onChange={(e) => handleInputChange('last_updated_date', e.target.value)}
-                    disabled={!canEdit}
-                    className={!canEdit ? 'bg-muted' : ''} />
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -1145,261 +923,213 @@ const ProductForm = () => {
                     type="date"
                     value={formData.last_shopping_date}
                     onChange={(e) => handleInputChange('last_shopping_date', e.target.value)}
-                    disabled={!canEdit}
-                    className={!canEdit ? 'bg-muted' : ''} />
+                  />
                 </div>
               </div>
 
               {/* Pricing Information */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="case_price">Case Price ($)</Label>
-                  <NumberInput
-                    id="case_price"
-                    step="0.01"
-                    min="0"
-                    value={formData.case_price}
-                    onChange={(value) => handleInputChange('case_price', value)}
-                    disabled={!canEdit}
-                    className={!canEdit ? 'bg-muted' : ''} />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="unit_per_case">Unit Per Case</Label>
-                  <NumberInput
-                    id="unit_per_case"
-                    min="1"
-                    value={formData.unit_per_case}
-                    onChange={(value) => handleInputChange('unit_per_case', value)}
-                    disabled={!canEdit}
-                    className={!canEdit ? 'bg-muted' : ''} />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="unit_price">Unit Price ($)</Label>
-                  <NumberInput
-                    id="unit_price"
-                    step="0.01"
-                    min="0"
-                    value={formData.unit_price}
-                    onChange={(value) => handleInputChange('unit_price', value)}
-                    disabled={!canEdit}
-                    className={!canEdit ? 'bg-muted' : ''} />
-                  <p className="text-xs text-muted-foreground">Auto-calculated from case price</p>
-                </div>
-              </div>
-
-              {/* Retail Price and Profit Margin */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="retail_price">Retail Price ($)</Label>
-                  <NumberInput
-                    id="retail_price"
-                    step="0.01"
-                    min="0"
-                    value={formData.retail_price}
-                    onChange={(value) => handleInputChange('retail_price', value)}
-                    disabled={!canEdit}
-                    className={!canEdit ? 'bg-muted' : ''} />
-                  
-                  {/* Retail Price Suggestion */}
-                  {formData.unit_price > 0 &&
-                  <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                      <div className="flex items-center space-x-2">
-                        <Calculator className="w-4 h-4 text-red-600" />
-                        <span className="text-sm font-medium text-red-800">Suggested: ${suggestedRetailPrice.toFixed(2)}</span>
-                        <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleInputChange('retail_price', suggestedRetailPrice)}
-                        disabled={!canEdit}
-                        className="text-xs h-6 px-2">
-
-                          Apply
-                        </Button>
-                      </div>
-                    </div>
-                  }
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="profit_margin">Profit Margin (%)</Label>
-                  <div className="flex items-center space-x-2">
-                    <NumberInput
-                      id="profit_margin"
-                      step="0.01"
-                      value={formData.profit_margin}
-                      disabled
-                      className="bg-muted" />
-                    <Badge variant={formData.profit_margin > 20 ? 'default' : 'secondary'}>
-                      {formData.profit_margin > 20 ? 'Good' : 'Low'}
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground">Auto-calculated from cost and retail price</p>
-                </div>
-              </div>
-
-              {/* Description */}
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Enter product description"
-                  rows={4}
-                  value={formData.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
-                  disabled={!canEdit}
-                  className={!canEdit ? 'bg-muted' : ''} />
-              </div>
-
-              {/* Product Image Upload */}
+              <Separator />
               <div className="space-y-4">
-                <Label>Product Image</Label>
+                <h3 className="text-lg font-medium">Pricing Information</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="case_price">Case Price ($)</Label>
+                    <NumberInput
+                      id="case_price"
+                      step={0.01}
+                      min={0}
+                      value={formData.case_price}
+                      onChange={(value) => handleInputChange('case_price', value)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="unit_per_case">Unit Per Case</Label>
+                    <NumberInput
+                      id="unit_per_case"
+                      min={1}
+                      value={formData.unit_per_case}
+                      onChange={(value) => handleInputChange('unit_per_case', value)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="unit_price">Unit Price ($)</Label>
+                    <NumberInput
+                      id="unit_price"
+                      step={0.01}
+                      min={0}
+                      value={formData.unit_price}
+                      onChange={(value) => handleInputChange('unit_price', value)}
+                    />
+                    {formData.case_price > 0 && formData.unit_per_case > 0 && (
+                      <p className="text-xs text-green-600 flex items-center">
+                        <Calculator className="w-3 h-3 mr-1" />
+                        Auto-calculated from case price
+                      </p>
+                    )}
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-                      {productImagePreview ?
-                      <div className="space-y-4">
-                          <img
-                          src={productImagePreview}
-                          alt="Product preview"
-                          className="mx-auto max-h-40 rounded-lg shadow-sm" />
-
-                          <div className="flex justify-center space-x-2">
-                            <Button
+                  <div className="space-y-2">
+                    <Label htmlFor="retail_price">Retail Price ($)</Label>
+                    <NumberInput
+                      id="retail_price"
+                      step={0.01}
+                      min={0}
+                      value={formData.retail_price}
+                      onChange={(value) => handleInputChange('retail_price', value)}
+                    />
+                    
+                    {/* Pricing Suggestion */}
+                    {formData.unit_price > 0 && (
+                      <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <DollarSign className="w-4 h-4 text-red-600" />
+                            <span className="text-sm font-medium text-red-800">
+                              Suggested: ${suggestedRetailPrice.toFixed(2)}
+                            </span>
+                          </div>
+                          <Button
                             type="button"
-                            variant="outline"
                             size="sm"
-                            onClick={handleImageRemove}
-                            disabled={!canEdit}>
-
-                              <XCircle className="w-4 h-4 mr-2" />
-                              Remove
-                            </Button>
-                            <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) handleImageUpload(file);
-                            }}
-                            disabled={!canEdit || isUploadingImage}
-                            className="hidden"
-                            id="replace-image" />
-
-                            <Button
-                            type="button"
                             variant="outline"
-                            size="sm"
-                            onClick={() => document.getElementById('replace-image')?.click()}
-                            disabled={!canEdit || isUploadingImage}>
-
-                              <Upload className="w-4 h-4 mr-2" />
-                              Replace
-                            </Button>
-                          </div>
-                        </div> :
-
-                      <div className="space-y-4">
-                          <Upload className="w-12 h-12 mx-auto text-gray-400" />
-                          <div>
-                            <h3 className="text-lg font-medium text-gray-900">Upload Product Image</h3>
-                            <p className="text-sm text-gray-500 mt-1">
-                              Add a photo to help identify this product
-                            </p>
-                          </div>
-                          <div className="flex flex-col items-center space-y-2">
-                            <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) handleImageUpload(file);
-                            }}
-                            disabled={!canEdit || isUploadingImage}
-                            className="hidden"
-                            id="product-image" />
-
-                            <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => document.getElementById('product-image')?.click()}
-                            disabled={!canEdit || isUploadingImage}>
-
-                              {isUploadingImage ?
-                            <>
-                                  <Upload className="w-4 h-4 mr-2 animate-spin" />
-                                  Uploading...
-                                </> :
-
-                            <>
-                                  <Upload className="w-4 h-4 mr-2" />
-                                  Choose Image
-                                </>
-                            }
-                            </Button>
-                          </div>
+                            onClick={() => handleInputChange('retail_price', suggestedRetailPrice)}
+                            className="text-xs h-6 px-2"
+                          >
+                            Apply
+                          </Button>
                         </div>
-                      }
+                        <p className="text-xs text-red-700 mt-1">
+                          {formData.unit_price < 4 ? '+65%' : 
+                           formData.unit_price < 6 ? '+55%' : 
+                           formData.unit_price < 8 ? '+45%' : 
+                           formData.unit_price < 10 ? '+35%' : '+25%'} markup, 
+                          rounded to .25/.49/.75/.99
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="profit_margin">Profit Margin (%)</Label>
+                    <div className="flex items-center space-x-2">
+                      <NumberInput
+                        id="profit_margin"
+                        step={0.01}
+                        value={formData.profit_margin}
+                        disabled
+                        className="bg-muted"
+                      />
+                      <Badge variant={formData.profit_margin > 20 ? 'default' : 'secondary'}>
+                        {formData.profit_margin > 20 ? 'Good' : 'Low'}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Auto-calculated from unit and retail price</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Additional Information */}
+              <Separator />
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Additional Information</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="supplier">Supplier</Label>
+                    <Input
+                      id="supplier"
+                      placeholder="Enter supplier name"
+                      value={formData.supplier}
+                      onChange={(e) => handleInputChange('supplier', e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Stock Information</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <NumberInput
+                        placeholder="Current Stock"
+                        value={formData.quantity_in_stock}
+                        onChange={(value) => handleInputChange('quantity_in_stock', value)}
+                        min={0}
+                      />
+                      <NumberInput
+                        placeholder="Min Stock"
+                        value={formData.minimum_stock}
+                        onChange={(value) => handleInputChange('minimum_stock', value)}
+                        min={0}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">Current stock / Minimum stock level</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    placeholder="Enter product description"
+                    rows={4}
+                    value={formData.description}
+                    onChange={(e) => handleInputChange('description', e.target.value)}
+                  />
+                </div>
+
+                {/* Barcode Scanning */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="bar_code_case">Barcode (Case)</Label>
+                    <div className="flex space-x-2">
+                      <Input
+                        id="bar_code_case"
+                        placeholder="Scan or enter case barcode"
+                        value={formData.bar_code_case}
+                        onChange={(e) => handleInputChange('bar_code_case', e.target.value)}
+                      />
+                      <BarcodeScanner
+                        onScanned={(barcode) => handleBarcodeScanned('bar_code_case', barcode)}
+                      />
                     </div>
                   </div>
-                  
-                  {/* Image Guidelines */}
-                  <div className="space-y-4">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <h4 className="font-medium text-blue-800 mb-2">Image Guidelines</h4>
-                      <ul className="text-sm text-blue-700 space-y-1">
-                        <li>• Use clear, well-lit photos</li>
-                        <li>• Recommended size: 800x600 pixels</li>
-                        <li>• Supported formats: JPG, PNG, WebP</li>
-                        <li>• Maximum file size: 5MB</li>
-                        <li>• Square images work best</li>
-                      </ul>
-                    </div>
-                    
-                    {/* Camera option for mobile */}
-                    <div className="md:hidden">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full"
-                        onClick={() => {
-                          const input = document.createElement('input');
-                          input.type = 'file';
-                          input.accept = 'image/*';
-                          input.capture = 'environment';
-                          input.onchange = (e) => {
-                            const file = (e.target as HTMLInputElement).files?.[0];
-                            if (file) handleImageUpload(file);
-                          };
-                          input.click();
-                        }}
-                        disabled={!canEdit || isUploadingImage}>
 
-                        <Camera className="w-4 h-4 mr-2" />
-                        Take Photo
-                      </Button>
+                  <div className="space-y-2">
+                    <Label htmlFor="bar_code_unit">Barcode (Unit)</Label>
+                    <div className="flex space-x-2">
+                      <Input
+                        id="bar_code_unit"
+                        placeholder="Scan or enter unit barcode"
+                        value={formData.bar_code_unit}
+                        onChange={(e) => handleInputChange('bar_code_unit', e.target.value)}
+                      />
+                      <BarcodeScanner
+                        onScanned={(barcode) => handleBarcodeScanned('bar_code_unit', barcode)}
+                      />
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-end space-x-4">
+              {/* Form Actions */}
+              <div className="flex items-center justify-end space-x-4 pt-6">
                 <Button type="button" variant="outline" onClick={() => navigate('/products')}>
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isLoading || !canEdit}>
+                <Button type="submit" disabled={isLoading}>
                   <Save className="w-4 h-4 mr-2" />
-                  {isLoading ? 'Saving...' : id ? 'Update Product' : 'Create Product'}
+                  {isLoading ? 'Saving...' : isEdit ? 'Update Product' : 'Create Product'}
                 </Button>
               </div>
             </form>
           </FormErrorBoundary>
         </CardContent>
       </Card>
-    </div>);
-
+    </div>
+  );
 };
 
 export default ProductForm;
