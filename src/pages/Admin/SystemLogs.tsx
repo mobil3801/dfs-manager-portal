@@ -31,14 +31,22 @@ import {
 'lucide-react';
 
 interface LogEntry {
-  id: string;
-  timestamp: string;
-  level: 'INFO' | 'WARNING' | 'ERROR' | 'DEBUG';
-  category: string;
-  message: string;
-  user?: string;
-  ip_address?: string;
-  details?: any;
+  id: number;
+  event_type: string;
+  user_id: number;
+  username: string;
+  ip_address: string;
+  user_agent: string;
+  event_timestamp: string;
+  event_status: string;
+  resource_accessed: string;
+  action_performed: string;
+  failure_reason: string;
+  session_id: string;
+  risk_level: string;
+  additional_data: string;
+  station: string;
+  geo_location: string;
 }
 
 const SystemLogs: React.FC = () => {
@@ -56,8 +64,8 @@ const SystemLogs: React.FC = () => {
   // Batch selection hook
   const batchSelection = useBatchSelection<LogEntry>();
 
-  const logLevels = ['INFO', 'WARNING', 'ERROR', 'DEBUG'];
-  const categories = ['Authentication', 'Database', 'File Upload', 'Email', 'API', 'Security', 'System'];
+  const logLevels = ['Success', 'Failed', 'Blocked', 'Suspicious'];
+  const categories = ['Login', 'Logout', 'Failed Login', 'Registration', 'Password Reset', 'Data Access', 'Data Modification', 'Permission Change', 'Admin Action'];
   const dateRanges = [
   { value: 'today', label: 'Today' },
   { value: 'week', label: 'Last 7 days' },
@@ -66,107 +74,44 @@ const SystemLogs: React.FC = () => {
 
 
   useEffect(() => {
-    generateSampleLogs();
+    fetchAuditLogs();
   }, []);
 
-  const generateSampleLogs = () => {
-    const sampleLogs: LogEntry[] = [
-    {
-      id: '1',
-      timestamp: new Date().toISOString(),
-      level: 'INFO',
-      category: 'Authentication',
-      message: 'User login successful',
-      user: 'admin@dfsmanager.com',
-      ip_address: '192.168.1.100'
-    },
-    {
-      id: '2',
-      timestamp: new Date(Date.now() - 300000).toISOString(),
-      level: 'WARNING',
-      category: 'Database',
-      message: 'High database connection count detected',
-      details: { connections: 85, max: 100 }
-    },
-    {
-      id: '3',
-      timestamp: new Date(Date.now() - 600000).toISOString(),
-      level: 'ERROR',
-      category: 'File Upload',
-      message: 'File upload failed: size exceeds limit',
-      user: 'employee@dfsmanager.com',
-      details: { fileName: 'large_document.pdf', size: '15MB', limit: '10MB' }
-    },
-    {
-      id: '4',
-      timestamp: new Date(Date.now() - 900000).toISOString(),
-      level: 'INFO',
-      category: 'API',
-      message: 'Sales report created successfully',
-      user: 'manager@dfsmanager.com',
-      details: { reportId: 'SR-2024-001', station: 'MOBIL' }
-    },
-    {
-      id: '5',
-      timestamp: new Date(Date.now() - 1200000).toISOString(),
-      level: 'WARNING',
-      category: 'Security',
-      message: 'Multiple failed login attempts detected',
-      ip_address: '203.0.113.10',
-      details: { attempts: 5, timeframe: '5 minutes' }
-    },
-    {
-      id: '6',
-      timestamp: new Date(Date.now() - 1800000).toISOString(),
-      level: 'INFO',
-      category: 'Email',
-      message: 'Email notification sent successfully',
-      details: { recipient: 'manager@station.com', type: 'inventory_alert' }
-    },
-    {
-      id: '7',
-      timestamp: new Date(Date.now() - 2400000).toISOString(),
-      level: 'ERROR',
-      category: 'Database',
-      message: 'Database connection timeout',
-      details: { timeout: '30s', query: 'SELECT * FROM products' }
-    },
-    {
-      id: '8',
-      timestamp: new Date(Date.now() - 3000000).toISOString(),
-      level: 'DEBUG',
-      category: 'System',
-      message: 'Scheduled backup completed',
-      details: { backupSize: '2.3GB', duration: '45 minutes' }
-    },
-    {
-      id: '9',
-      timestamp: new Date(Date.now() - 3600000).toISOString(),
-      level: 'INFO',
-      category: 'Authentication',
-      message: 'Password reset requested',
-      user: 'employee@dfsmanager.com',
-      ip_address: '192.168.1.150'
-    },
-    {
-      id: '10',
-      timestamp: new Date(Date.now() - 4200000).toISOString(),
-      level: 'WARNING',
-      category: 'System',
-      message: 'Low disk space warning',
-      details: { available: '2.1GB', threshold: '5GB' }
-    }];
+  const fetchAuditLogs = async () => {
+    try {
+      console.log('Fetching audit logs from database...');
+      const { data, error } = await window.ezsite.apis.tablePage(12706, {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: 'event_timestamp',
+        IsAsc: false,
+        Filters: []
+      });
 
+      if (error) {
+        console.error('Error fetching audit logs:', error);
+        // Show empty state instead of fake data
+        setLogs([]);
+        return;
+      }
 
-    setLogs(sampleLogs);
+      console.log('Audit logs data received:', data);
+      setLogs(data?.List || []);
+    } catch (error) {
+      console.error('Error fetching audit logs:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch system logs",
+        variant: "destructive"
+      });
+      setLogs([]);
+    }
   };
 
   const refreshLogs = async () => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      generateSampleLogs();
+      await fetchAuditLogs();
       toast({
         title: "Logs Refreshed",
         description: "System logs have been updated"
@@ -185,22 +130,23 @@ const SystemLogs: React.FC = () => {
   const exportLogs = () => {
     const filteredLogs = getFilteredLogs();
     const csvContent = [
-    ['Timestamp', 'Level', 'Category', 'Message', 'User', 'IP Address'],
+    ['Timestamp', 'Event Type', 'Status', 'User', 'Action', 'Resource', 'IP Address', 'Station'],
     ...filteredLogs.map((log) => [
-    log.timestamp,
-    log.level,
-    log.category,
-    log.message,
-    log.user || '',
-    log.ip_address || '']
-    )].
-    map((row) => row.join(',')).join('\n');
+    log.event_timestamp,
+    log.event_type,
+    log.event_status,
+    log.username || '',
+    log.action_performed || '',
+    log.resource_accessed || '',
+    log.ip_address || '',
+    log.station || ''
+    ])].map((row) => row.join(',')).join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `system-logs-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `audit-logs-${new Date().toISOString().split('T')[0]}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -208,7 +154,7 @@ const SystemLogs: React.FC = () => {
 
     toast({
       title: "Export Complete",
-      description: "Logs have been exported to CSV file"
+      description: "Audit logs have been exported to CSV file"
     });
   };
 
@@ -258,53 +204,80 @@ const SystemLogs: React.FC = () => {
   const getFilteredLogs = () => {
     return logs.filter((log) => {
       const matchesSearch =
-      log.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.user && log.user.toLowerCase().includes(searchTerm.toLowerCase());
+      log.event_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.action_performed.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.username && log.username.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesLevel = selectedLevel === 'All' || log.level === selectedLevel;
-      const matchesCategory = selectedCategory === 'All' || log.category === selectedCategory;
+      const matchesLevel = selectedLevel === 'All' || log.event_status === selectedLevel;
+      const matchesCategory = selectedCategory === 'All' || log.event_type === selectedCategory;
 
-      // Date filtering logic would go here based on dateRange
+      // Date filtering logic based on dateRange
+      const logDate = new Date(log.event_timestamp);
+      const now = new Date();
+      let matchesDate = true;
+      
+      switch (dateRange) {
+        case 'today':
+          matchesDate = logDate.toDateString() === now.toDateString();
+          break;
+        case 'week':
+          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          matchesDate = logDate >= weekAgo;
+          break;
+        case 'month':
+          const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          matchesDate = logDate >= monthAgo;
+          break;
+        default:
+          matchesDate = true;
+      }
 
-      return matchesSearch && matchesLevel && matchesCategory;
+      return matchesSearch && matchesLevel && matchesCategory && matchesDate;
     });
   };
 
-  const getLevelIcon = (level: string) => {
-    switch (level) {
-      case 'ERROR':return <XCircle className="w-4 h-4 text-red-500" />;
-      case 'WARNING':return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
-      case 'INFO':return <Info className="w-4 h-4 text-blue-500" />;
-      case 'DEBUG':return <CheckCircle className="w-4 h-4 text-gray-500" />;
-      default:return <Info className="w-4 h-4 text-gray-500" />;
+  const getLevelIcon = (status: string) => {
+    switch (status) {
+      case 'Failed':return <XCircle className="w-4 h-4 text-red-500" />;
+      case 'Blocked':return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
+      case 'Success':return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case 'Suspicious':return <AlertTriangle className="w-4 h-4 text-orange-500" />;
+      default:return <Info className="w-4 h-4 text-blue-500" />;
     }
   };
 
-  const getLevelBadgeColor = (level: string) => {
-    switch (level) {
-      case 'ERROR':return 'bg-red-100 text-red-800';
-      case 'WARNING':return 'bg-yellow-100 text-yellow-800';
-      case 'INFO':return 'bg-blue-100 text-blue-800';
-      case 'DEBUG':return 'bg-gray-100 text-gray-800';
-      default:return 'bg-gray-100 text-gray-800';
+  const getLevelBadgeColor = (status: string) => {
+    switch (status) {
+      case 'Failed':return 'bg-red-100 text-red-800';
+      case 'Blocked':return 'bg-yellow-100 text-yellow-800';
+      case 'Success':return 'bg-green-100 text-green-800';
+      case 'Suspicious':return 'bg-orange-100 text-orange-800';
+      default:return 'bg-blue-100 text-blue-800';
     }
   };
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'Authentication':return <User className="w-4 h-4" />;
-      case 'Database':return <Database className="w-4 h-4" />;
-      case 'Security':return <Shield className="w-4 h-4" />;
-      case 'Email':return <Mail className="w-4 h-4" />;
+  const getCategoryIcon = (eventType: string) => {
+    switch (eventType) {
+      case 'Login':
+      case 'Logout':
+      case 'Failed Login':
+      case 'Registration':
+      case 'Password Reset':
+        return <User className="w-4 h-4" />;
+      case 'Data Access':
+      case 'Data Modification':
+        return <Database className="w-4 h-4" />;
+      case 'Permission Change':
+      case 'Admin Action':
+        return <Shield className="w-4 h-4" />;
       default:return <FileText className="w-4 h-4" />;
     }
   };
 
   const filteredLogs = getFilteredLogs();
-  const errorCount = logs.filter((log) => log.level === 'ERROR').length;
-  const warningCount = logs.filter((log) => log.level === 'WARNING').length;
-  const infoCount = logs.filter((log) => log.level === 'INFO').length;
+  const errorCount = logs.filter((log) => log.event_status === 'Failed').length;
+  const warningCount = logs.filter((log) => log.event_status === 'Blocked').length;
+  const infoCount = logs.filter((log) => log.event_status === 'Success').length;
 
   // Check admin access first
   if (!isAdmin) {
@@ -321,7 +294,7 @@ const SystemLogs: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <FileText className="w-8 h-8 text-blue-600" />
-          <h1 className="text-2xl font-bold text-gray-900">System Logs</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Audit Logs</h1>
         </div>
         
         <div className="flex space-x-2">
@@ -463,7 +436,7 @@ const SystemLogs: React.FC = () => {
       {/* Logs Table */}
       <Card>
         <CardHeader>
-          <CardTitle>System Logs ({filteredLogs.length})</CardTitle>
+          <CardTitle>Audit Logs ({filteredLogs.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -478,9 +451,9 @@ const SystemLogs: React.FC = () => {
 
                   </TableHead>
                   <TableHead>Time</TableHead>
-                  <TableHead>Level</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Message</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Event Type</TableHead>
+                  <TableHead>Action</TableHead>
                   <TableHead>User</TableHead>
                   <TableHead>IP Address</TableHead>
                 </TableRow>
@@ -498,43 +471,48 @@ const SystemLogs: React.FC = () => {
                     <TableCell className="font-mono text-sm">
                       <div className="flex items-center space-x-2">
                         <Clock className="w-3 h-3 text-gray-400" />
-                        <span>{new Date(log.timestamp).toLocaleString()}</span>
+                        <span>{new Date(log.event_timestamp).toLocaleString()}</span>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
-                        {getLevelIcon(log.level)}
-                        <Badge className={getLevelBadgeColor(log.level)}>
-                          {log.level}
+                        {getLevelIcon(log.event_status)}
+                        <Badge className={getLevelBadgeColor(log.event_status)}>
+                          {log.event_status}
                         </Badge>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
-                        {getCategoryIcon(log.category)}
-                        <span>{log.category}</span>
+                        {getCategoryIcon(log.event_type)}
+                        <span>{log.event_type}</span>
                       </div>
                     </TableCell>
                     <TableCell className="max-w-md">
-                      <div className="truncate" title={log.message}>
-                        {log.message}
+                      <div className="truncate" title={log.action_performed}>
+                        {log.action_performed}
                       </div>
-                      {log.details &&
+                      {log.failure_reason &&
+                        <div className="text-xs text-red-600 mt-1">
+                          Reason: {log.failure_reason}
+                        </div>
+                      }
+                      {log.additional_data && log.additional_data !== '{}' &&
                     <details className="mt-1">
                           <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700">
                             View details
                           </summary>
                           <pre className="text-xs bg-gray-50 p-2 rounded mt-1 overflow-x-auto">
-                            {JSON.stringify(log.details, null, 2)}
+                            {JSON.stringify(JSON.parse(log.additional_data), null, 2)}
                           </pre>
                         </details>
                     }
                     </TableCell>
                     <TableCell>
-                      {log.user &&
+                      {log.username &&
                     <div className="flex items-center space-x-1">
                           <User className="w-3 h-3 text-gray-400" />
-                          <span className="text-sm">{log.user}</span>
+                          <span className="text-sm">{log.username}</span>
                         </div>
                     }
                     </TableCell>

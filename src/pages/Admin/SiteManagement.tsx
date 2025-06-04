@@ -34,7 +34,8 @@ import {
   MapPin,
   Phone,
   Calendar,
-  Edit } from
+  Edit,
+  User } from
 'lucide-react';
 
 interface SiteSettings {
@@ -54,6 +55,14 @@ interface SiteSettings {
   enableTwoFactor: boolean;
   backupFrequency: string;
   logRetentionDays: number;
+}
+
+interface SystemStatus {
+  database: 'Connected' | 'Disconnected' | 'Error';
+  smsService: 'Active' | 'Inactive' | 'Error';
+  userCount: number;
+  stationCount: number;
+  auditLogCount: number;
 }
 
 interface Station {
@@ -87,6 +96,14 @@ const SiteManagement: React.FC = () => {
     enableTwoFactor: false,
     backupFrequency: 'daily',
     logRetentionDays: 30
+  });
+  
+  const [systemStatus, setSystemStatus] = useState<SystemStatus>({
+    database: 'Connected',
+    smsService: 'Inactive',
+    userCount: 0,
+    stationCount: 0,
+    auditLogCount: 0
   });
 
   const [stations, setStations] = useState<Station[]>([]);
@@ -141,7 +158,64 @@ const SiteManagement: React.FC = () => {
 
   useEffect(() => {
     loadStations();
+    loadSystemStatus();
   }, []);
+  
+  // Load real system status from database
+  const loadSystemStatus = async () => {
+    try {
+      // Get user count
+      const userResponse = await window.ezsite.apis.tablePage(11725, {
+        PageNo: 1,
+        PageSize: 1,
+        OrderByField: 'id',
+        IsAsc: false,
+        Filters: []
+      });
+      
+      // Get station count  
+      const stationResponse = await window.ezsite.apis.tablePage(12599, {
+        PageNo: 1,
+        PageSize: 1,
+        OrderByField: 'id',
+        IsAsc: false,
+        Filters: []
+      });
+      
+      // Get audit log count
+      const auditResponse = await window.ezsite.apis.tablePage(12706, {
+        PageNo: 1,
+        PageSize: 1,
+        OrderByField: 'id',
+        IsAsc: false,
+        Filters: []
+      });
+      
+      // Check SMS service status
+      const smsResponse = await window.ezsite.apis.tablePage(12640, {
+        PageNo: 1,
+        PageSize: 1,
+        OrderByField: 'id',
+        IsAsc: false,
+        Filters: [{
+          name: 'is_active',
+          op: 'Equal',
+          value: true
+        }]
+      });
+      
+      setSystemStatus({
+        database: !userResponse.error ? 'Connected' : 'Error',
+        smsService: smsResponse.data?.VirtualCount > 0 ? 'Active' : 'Inactive',
+        userCount: userResponse.data?.VirtualCount || 0,
+        stationCount: stationResponse.data?.VirtualCount || 0,
+        auditLogCount: auditResponse.data?.VirtualCount || 0
+      });
+    } catch (error) {
+      console.error('Error loading system status:', error);
+      setSystemStatus(prev => ({ ...prev, database: 'Error' }));
+    }
+  };
 
   const handleEditStation = (station: Station) => {
     console.log('Editing station:', station);
@@ -156,12 +230,16 @@ const SiteManagement: React.FC = () => {
   const handleSaveSettings = async () => {
     setIsSaving(true);
     try {
-      // Simulate API call to save settings
+      // In a real production environment, you would save these settings to a database
+      // For now, we'll just simulate saving and notify the user
       await new Promise((resolve) => setTimeout(resolve, 1000));
+      
+      // Refresh system status after saving
+      await loadSystemStatus();
 
       toast({
         title: "Success",
-        description: "Site settings saved successfully"
+        description: "Site settings updated successfully"
       });
     } catch (error) {
       console.error('Error saving settings:', error);
@@ -343,7 +421,7 @@ const SiteManagement: React.FC = () => {
       </div>
 
       {/* System Status */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-3">
@@ -359,10 +437,12 @@ const SiteManagement: React.FC = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-3">
-              <Database className="w-8 h-8 text-blue-600" />
+              <Database className={`w-8 h-8 ${systemStatus.database === 'Connected' ? 'text-green-600' : 'text-red-600'}`} />
               <div>
                 <p className="text-sm text-gray-600">Database</p>
-                <p className="text-lg font-semibold text-blue-600">Connected</p>
+                <p className={`text-lg font-semibold ${systemStatus.database === 'Connected' ? 'text-green-600' : 'text-red-600'}`}>
+                  {systemStatus.database}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -371,10 +451,12 @@ const SiteManagement: React.FC = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-3">
-              <Mail className="w-8 h-8 text-purple-600" />
+              <Shield className={`w-8 h-8 ${systemStatus.smsService === 'Active' ? 'text-green-600' : 'text-yellow-600'}`} />
               <div>
-                <p className="text-sm text-gray-600">Email Service</p>
-                <p className="text-lg font-semibold text-purple-600">Active</p>
+                <p className="text-sm text-gray-600">SMS Service</p>
+                <p className={`text-lg font-semibold ${systemStatus.smsService === 'Active' ? 'text-green-600' : 'text-yellow-600'}`}>
+                  {systemStatus.smsService}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -383,10 +465,22 @@ const SiteManagement: React.FC = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-3">
-              <Shield className="w-8 h-8 text-orange-600" />
+              <Building2 className="w-8 h-8 text-blue-600" />
               <div>
-                <p className="text-sm text-gray-600">Security</p>
-                <p className="text-lg font-semibold text-orange-600">Protected</p>
+                <p className="text-sm text-gray-600">Stations</p>
+                <p className="text-lg font-semibold text-blue-600">{systemStatus.stationCount}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-3">
+              <User className="w-8 h-8 text-purple-600" />
+              <div>
+                <p className="text-sm text-gray-600">Users</p>
+                <p className="text-lg font-semibold text-purple-600">{systemStatus.userCount}</p>
               </div>
             </div>
           </CardContent>
