@@ -641,6 +641,8 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
 
 
 
+
+
           // Invalid date format, ignore
         }} // Calculate profit margin
       const unitPrice = mapped.unit_price || 0;const retailPrice = mapped.retail_price || 0;const profitMargin = calculateProfitMargin(unitPrice, retailPrice); // Calculate overdue status
@@ -687,15 +689,13 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
                 
                 <EnhancedFileUpload onFileSelect={handleEnhancedFileSelect} accept=".csv,image/*" label="Select CSV File or Take Photo" currentFile={file?.name} maxSize={10} allowCamera={true} />
 
-                {file &&
-          <div className="p-3 bg-gray-50 rounded-lg">
+                {file && <div className="p-3 bg-gray-50 rounded-lg">
                     <p className="text-sm font-medium">Selected file:</p>
                     <p className="text-sm text-gray-600">{file.name}</p>
                     <p className="text-xs text-gray-500 mt-1">
                       {file.type.includes('image') ? 'Image file - OCR processing will be applied' : 'CSV file ready for import'}
                     </p>
-                  </div>
-          }
+                  </div>}
               </div>) : (
         /* Traditional manual upload */
         <div className="space-y-2">

@@ -87,11 +87,11 @@ const SyncMonitoringDashboard: React.FC = () => {
         } catch {
 
 
+
+
           // Table not accessible, skip
-        }}
-      return Math.max(activeTableCount, 1); // At least 1 table should be available
-    } catch {
-      return 21; // Default to total expected tables
+        }}return Math.max(activeTableCount, 1); // At least 1 table should be available
+    } catch {return 21; // Default to total expected tables
     }
   };
 
