@@ -60,8 +60,7 @@ function App() {
         <QueryClientProvider client={queryClient}>
           <SupabaseAuthProvider>
             <AuthProvider>
-              <RealTimeDataProvider>
-                <TooltipProvider>
+              <TooltipProvider>
               <Router>
           <Routes>
             {/* Public routes */}
@@ -145,14 +144,14 @@ function App() {
           </Routes>
               </Router>
               <Toaster />
-                </TooltipProvider>
-              </RealTimeDataProvider>
+              </TooltipProvider>
             </AuthProvider>
           </SupabaseAuthProvider>
         </QueryClientProvider>
       </InvalidCharacterErrorBoundary>
-    </GlobalErrorBoundary>
-  );
+    </GlobalErrorBoundary>);
+
+
 }
 
 export default App;

@@ -77,31 +77,31 @@ export const RealTimeDataProvider: React.FC<RealTimeDataProviderProps> = ({ chil
     try {
       // Fetch data from all tables concurrently
       const [
-        products,
-        employees,
-        salesReports,
-        vendors,
-        licenses,
-        orders,
-        salaryRecords,
-        deliveryRecords,
-        auditLogs,
-        stations,
-        smsAlertSettings,
-        userProfiles
-      ] = await Promise.all([
-        fetchTableData('11726'), // products
-        fetchTableData('11727'), // employees
-        fetchTableData('12356'), // daily_sales_reports_enhanced
-        fetchTableData('11729'), // vendors
-        fetchTableData('11731'), // licenses_certificates
-        fetchTableData('11730'), // orders
-        fetchTableData('11788'), // salary_records
-        fetchTableData('12196'), // delivery_records
-        fetchTableData('12706'), // audit_logs
-        fetchTableData('12599'), // stations
-        fetchTableData('12611'), // sms_alert_settings
-        fetchTableData('11725')  // user_profiles
+      products,
+      employees,
+      salesReports,
+      vendors,
+      licenses,
+      orders,
+      salaryRecords,
+      deliveryRecords,
+      auditLogs,
+      stations,
+      smsAlertSettings,
+      userProfiles] =
+      await Promise.all([
+      fetchTableData('11726'), // products
+      fetchTableData('11727'), // employees
+      fetchTableData('12356'), // daily_sales_reports_enhanced
+      fetchTableData('11729'), // vendors
+      fetchTableData('11731'), // licenses_certificates
+      fetchTableData('11730'), // orders
+      fetchTableData('11788'), // salary_records
+      fetchTableData('12196'), // delivery_records
+      fetchTableData('12706'), // audit_logs
+      fetchTableData('12599'), // stations
+      fetchTableData('12611'), // sms_alert_settings
+      fetchTableData('11725') // user_profiles
       ]);
 
       setData({
@@ -154,8 +154,8 @@ export const RealTimeDataProvider: React.FC<RealTimeDataProviderProps> = ({ chil
   return (
     <RealTimeDataContext.Provider value={value}>
       {children}
-    </RealTimeDataContext.Provider>
-  );
+    </RealTimeDataContext.Provider>);
+
 };
 
 export default RealTimeDataProvider;

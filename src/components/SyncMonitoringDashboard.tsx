@@ -91,12 +91,12 @@ const SyncMonitoringDashboard: React.FC = () => {
 
 
 
+
+
           // Table not accessible, skip
         }}return Math.max(activeTableCount, 1); // At least 1 table should be available
     } catch {return 21; // Default to total expected tables
-    }};
-  const loadSyncData = async () => {
-    try {
+    }};const loadSyncData = async () => {try {
       console.log('Loading real sync monitoring data...');
 
       // Get audit logs for database sync activities

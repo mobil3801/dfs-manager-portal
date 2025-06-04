@@ -310,12 +310,12 @@ const AdminDiagnostics: React.FC = () => {
 
 
 
+
+
           // Skip failed table
         }}const estimatedDbSize = Math.max(50, totalRecords * 2); // Rough estimate in MB
       setMetrics([{ label: 'CPU Usage', value: Math.round(20 + Math.random() * 30), // Simulated but realistic
-          max: 100,
-          unit: '%',
-          status: 'good',
+          max: 100, unit: '%', status: 'good',
           icon: <Activity className="w-4 h-4" />
         },
         {
