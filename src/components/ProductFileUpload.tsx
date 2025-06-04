@@ -534,6 +534,8 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
 
 
 
+
+
           // Invalid date format, ignore
         }} // Calculate profit margin
       const unitPrice = mapped.unit_price || 0;const retailPrice = mapped.retail_price || 0;const profitMargin = calculateProfitMargin(unitPrice, retailPrice); // Calculate overdue status
@@ -541,9 +543,7 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
       if (profitMargin > 0) {mapped.profit_margin = profitMargin;}mapped.overdue = isOverdue;mapped.updated_at = new Date().toISOString();mapped.last_updated_date = new Date().toISOString();const isDuplicate = isDuplicateNameInDB || isDuplicateNameInImport || isDuplicateWeightInDB || isDuplicateWeightInImport;return { original: row, mapped, isValid: errors.length === 0, isDuplicate, errors, productName: cleanProductName, weight: weight, profitMargin: profitMargin, isOverdue: isOverdue };});};const handleFileUpload = async () => {if (!file) {toast({ variant: "destructive", title: "No File Selected", description: "Please select a CSV file to upload." });return;}setIsProcessing(true);try {const text = await file.text();const parsedData = parseCSV(text);if (parsedData.length === 0) {throw new Error('No valid data found in file');} // Fetch existing products for duplicate checking
       const existing = await fetchExistingProducts(); // Validate and check for duplicates
       const validatedProducts = validateAndCheckDuplicates(parsedData, existing);if (validatedProducts.length === 0) {throw new Error('No valid products found in file');}setParsedProducts(validatedProducts);setShowPreview(true);const validCount = validatedProducts.filter((p) => p.isValid).length;const duplicateCount = validatedProducts.filter((p) => p.isDuplicate).length;const errorCount = validatedProducts.filter((p) => !p.isValid).length;toast({ title: "File Processed", description: `Found ${validatedProducts.length} products. ${validCount} valid, ${duplicateCount} duplicates, ${errorCount} errors.` });} catch (error) {console.error('File upload error:', error);toast({ variant: "destructive", title: "Import Failed", description: error instanceof Error ? error.message : "Failed to process file." });} finally {setIsProcessing(false);}};const handleConfirmImport = () => {const validProducts = parsedProducts.filter((p) => p.isValid && !p.isDuplicate);if (validProducts.length === 0) {toast({ variant: "destructive", title: "No Valid Products", description: "No valid products to import." });return;}const dataToImport = validProducts.map((p) => p.mapped);onDataImport(dataToImport); // Reset state
-    setIsOpen(false);setFile(null);setParsedProducts([]);setShowPreview(false);};const handleCloseDialog = () => {setIsOpen(false);setFile(null);setParsedProducts([]);setShowPreview(false);
-  };
-
+    setIsOpen(false);setFile(null);setParsedProducts([]);setShowPreview(false);};const handleCloseDialog = () => {setIsOpen(false);setFile(null);setParsedProducts([]);setShowPreview(false);};
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {

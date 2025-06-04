@@ -99,7 +99,8 @@ const DashboardLayout: React.FC = () => {
   { name: 'Database Monitoring', path: '/admin/database-monitoring', icon: <Database className="w-5 h-5" /> },
   { name: 'Audit Monitoring', path: '/admin/audit-monitoring', icon: <Shield className="w-5 h-5" /> },
   { name: 'Database Auto-Sync', path: '/admin/database-autosync', icon: <Database className="w-5 h-5" /> },
-  { name: 'Supabase Test', path: '/admin/supabase-test', icon: <CheckCircle className="w-5 h-5" /> }];
+  { name: 'Supabase Test', path: '/admin/supabase-test', icon: <CheckCircle className="w-5 h-5" /> },
+  { name: 'Dev Monitoring', path: '/admin/development-monitoring', icon: <Activity className="w-5 h-5" /> }];
 
 
   // Combine navigation items based on user role
@@ -159,6 +160,7 @@ const DashboardLayout: React.FC = () => {
     if (path.startsWith('/admin/audit-monitoring')) return 'Audit & Security Monitoring';
     if (path.startsWith('/admin/database-autosync')) return 'Database Auto-Sync';
     if (path.startsWith('/admin/supabase-test')) return 'Supabase Connection Test';
+    if (path.startsWith('/admin/development-monitoring')) return 'Development Monitoring';
     if (path.startsWith('/admin')) return 'Site & User Management';
     return 'DFS Manager';
   };

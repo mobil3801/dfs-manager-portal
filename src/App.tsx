@@ -40,6 +40,7 @@ import DatabaseMonitoring from './pages/Admin/DatabaseMonitoring';
 import AuditMonitoring from './pages/Admin/AuditMonitoring';
 import DatabaseAutoSyncPage from './pages/Admin/DatabaseAutoSync';
 import SupabaseConnectionTestPage from './pages/Admin/SupabaseConnectionTest';
+import DevelopmentMonitoringPage from './pages/Admin/DevelopmentMonitoring';
 import InvalidCharacterErrorDemo from './components/InvalidCharacterErrorDemo';
 import LoginPage from './pages/LoginPage';
 import OnAuthSuccessPage from './pages/OnAuthSuccessPage';
@@ -128,6 +129,7 @@ function App() {
               <Route path="admin/audit-monitoring" element={<AuditMonitoring />} />
               <Route path="admin/database-autosync" element={<DatabaseAutoSyncPage />} />
               <Route path="admin/supabase-test" element={<SupabaseConnectionTestPage />} />
+              <Route path="admin/development-monitoring" element={<DevelopmentMonitoringPage />} />
               <Route path="admin/invalid-character-demo" element={<InvalidCharacterErrorDemo />} />
             </Route>
             
