@@ -119,7 +119,7 @@ export function initializeMemoryLeakDetection() {
       try {
         // Use the safe performance API wrapper
         const memory = performanceAPI.getMemoryUsage();
-        
+
         if (memory) {
           const usedMB = (memory.usedJSHeapSize / 1024 / 1024).toFixed(2);
           const totalMB = (memory.totalJSHeapSize / 1024 / 1024).toFixed(2);

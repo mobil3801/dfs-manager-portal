@@ -57,14 +57,14 @@ window.onerror = (message, source, lineno, colno, error) => {
 window.addEventListener('unhandledrejection', (event) => {
   if (event.reason) {
     const reason = event.reason;
-    const reasonStr = typeof reason === 'string' ? reason : 
-                     (reason.message || reason.toString());
-    
+    const reasonStr = typeof reason === 'string' ? reason :
+    reason.message || reason.toString();
+
     if (reasonStr.includes('getEntriesByType') ||
-        reasonStr.includes('performance') ||
-        reasonStr.includes('memory') ||
-        reasonStr.includes('PerformanceEntry') ||
-        reasonStr.includes('usedJSHeapSize')) {
+    reasonStr.includes('performance') ||
+    reasonStr.includes('memory') ||
+    reasonStr.includes('PerformanceEntry') ||
+    reasonStr.includes('usedJSHeapSize')) {
       console.warn('Performance/Memory API promise rejection handled:', reason);
       event.preventDefault();
     }
