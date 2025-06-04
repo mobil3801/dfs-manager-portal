@@ -75,10 +75,10 @@ const ProductCards: React.FC<ProductCardsProps> = ({
       keywords: searchKeywords,
       allMatch,
       highlightComponent:
-        <HighlightText
-          text={text}
-          searchTerms={searchKeywords}
-          allMatch={allMatch} />
+      <HighlightText
+        text={text}
+        searchTerms={searchKeywords}
+        allMatch={allMatch} />
     };
   };
 
@@ -97,16 +97,16 @@ const ProductCards: React.FC<ProductCardsProps> = ({
     <div className="grid grid-cols-1 gap-4">
       {products.map((product) => {
         const margin = calculateMargin(product);
-        
+
         return (
           <Card key={product.ID} className="hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
                   <CardTitle className="text-lg leading-tight">
-                    {searchTerm 
-                      ? getSearchData(product.product_name).highlightComponent 
-                      : product.product_name
+                    {searchTerm ?
+                    getSearchData(product.product_name).highlightComponent :
+                    product.product_name
                     }
                   </CardTitle>
                   <div className="flex items-center gap-2 mt-1">
@@ -114,9 +114,9 @@ const ProductCards: React.FC<ProductCardsProps> = ({
                       #{product.serial_number || '-'}
                     </Badge>
                     <Badge variant="outline" className="text-xs">
-                      {searchTerm 
-                        ? getSearchData(product.department || 'Convenience Store').highlightComponent 
-                        : product.department || 'Convenience Store'
+                      {searchTerm ?
+                      getSearchData(product.department || 'Convenience Store').highlightComponent :
+                      product.department || 'Convenience Store'
                       }
                     </Badge>
                   </div>
@@ -127,8 +127,8 @@ const ProductCards: React.FC<ProductCardsProps> = ({
                     size="sm"
                     onClick={() => onViewLogs(product.ID, product.product_name)}
                     className="p-2"
-                    title="View logs"
-                  >
+                    title="View logs">
+
                     <FileText className="w-4 h-4" />
                   </Button>
                   <Button
@@ -137,11 +137,11 @@ const ProductCards: React.FC<ProductCardsProps> = ({
                     onClick={() => onSaveProduct(product.ID)}
                     disabled={savingProductId === product.ID}
                     className="p-2"
-                    title="Save product"
-                  >
-                    {savingProductId === product.ID 
-                      ? <Loader2 className="w-4 h-4 animate-spin" />
-                      : <Save className="w-4 h-4" />
+                    title="Save product">
+
+                    {savingProductId === product.ID ?
+                    <Loader2 className="w-4 h-4 animate-spin" /> :
+                    <Save className="w-4 h-4" />
                     }
                   </Button>
                   <Button
@@ -149,20 +149,20 @@ const ProductCards: React.FC<ProductCardsProps> = ({
                     size="sm"
                     onClick={() => onDeleteProduct(product.ID)}
                     className="p-2 text-red-600 hover:text-red-700"
-                    title="Delete product"
-                  >
+                    title="Delete product">
+
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
-              {product.description && (
-                <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-                  {searchTerm 
-                    ? getSearchData(product.description).highlightComponent 
-                    : product.description
-                  }
+              {product.description &&
+              <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                  {searchTerm ?
+                getSearchData(product.description).highlightComponent :
+                product.description
+                }
                 </p>
-              )}
+              }
             </CardHeader>
             <CardContent className="space-y-3">
               {/* Pricing Information */}
@@ -188,11 +188,11 @@ const ProductCards: React.FC<ProductCardsProps> = ({
                 <div>
                   <span className="text-gray-500">Profit Margin:</span>
                   <div className="font-medium">
-                    {margin ? (
-                      <Badge variant={margin.variant as any} className="text-xs">
+                    {margin ?
+                    <Badge variant={margin.variant as any} className="text-xs">
                         {margin.value.toFixed(1)}%
-                      </Badge>
-                    ) : '-'}
+                      </Badge> :
+                    '-'}
                   </div>
                 </div>
               </div>
@@ -202,18 +202,18 @@ const ProductCards: React.FC<ProductCardsProps> = ({
                 <div className="flex justify-between">
                   <span className="text-gray-500">Weight:</span>
                   <span className="font-medium">
-                    {product.weight && product.weight > 0 
-                      ? `${product.weight} ${product.weight_unit || 'lb'}` 
-                      : '-'
+                    {product.weight && product.weight > 0 ?
+                    `${product.weight} ${product.weight_unit || 'lb'}` :
+                    '-'
                     }
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Supplier:</span>
                   <span className="font-medium truncate ml-2">
-                    {searchTerm 
-                      ? getSearchData(product.supplier || '-').highlightComponent 
-                      : product.supplier || '-'
+                    {searchTerm ?
+                    getSearchData(product.supplier || '-').highlightComponent :
+                    product.supplier || '-'
                     }
                   </span>
                 </div>
@@ -231,11 +231,11 @@ const ProductCards: React.FC<ProductCardsProps> = ({
                 </div>
               </div>
             </CardContent>
-          </Card>
-        );
+          </Card>);
+
       })}
-    </div>
-  );
+    </div>);
+
 };
 
 export default ProductCards;
