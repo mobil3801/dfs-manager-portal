@@ -637,6 +637,8 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
 
 
 
+
+
           // Invalid date format, ignore
         }} // Calculate profit margin
       const unitPrice = mapped.unit_price || 0;const retailPrice = mapped.retail_price || 0;const profitMargin = calculateProfitMargin(unitPrice, retailPrice); // Calculate overdue status
@@ -681,9 +683,7 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
                   </p>
                 </div>
                 
-                <EnhancedFileUpload onFileSelect={handleEnhancedFileSelect} accept=".csv,image/*"
-            label="Select CSV File or Take Photo"
-            currentFile={file?.name}
+                <EnhancedFileUpload onFileSelect={handleEnhancedFileSelect} accept=".csv,image/*" label="Select CSV File or Take Photo" currentFile={file?.name}
             maxSize={10}
             allowCamera={true} />
 

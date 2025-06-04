@@ -22,7 +22,8 @@ import {
   RotateCcw,
   Monitor,
   Trash2,
-  Plus } from
+  Plus,
+  RefreshCw } from
 'lucide-react';
 
 interface SyncConfig {
@@ -446,7 +447,7 @@ const DatabaseSyncForm: React.FC = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Sync className="h-5 w-5" />
+                  <RefreshCw className="h-5 w-5" />
                   Auto-Sync Control
                 </CardTitle>
               </CardHeader>
