@@ -178,7 +178,7 @@ const AdminDiagnostics: React.FC = () => {
     });
   };
 
-  const runSpecificTest = async (testId: string): Promise<{ passed: boolean; duration: number; details: string }> => {
+  const runSpecificTest = async (testId: string): Promise<{passed: boolean;duration: number;details: string;}> => {
     const startTime = Date.now();
 
     try {
@@ -200,12 +200,12 @@ const AdminDiagnostics: React.FC = () => {
         case 'api':
           // Test multiple API endpoints
           const apiTests = await Promise.all([
-            window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 1, Filters: [] }),
-            window.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 1, Filters: [] }),
-            window.ezsite.apis.tablePage(12599, { PageNo: 1, PageSize: 1, Filters: [] })
-          ]);
+          window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 1, Filters: [] }),
+          window.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 1, Filters: [] }),
+          window.ezsite.apis.tablePage(12599, { PageNo: 1, PageSize: 1, Filters: [] })]
+          );
           const apiDuration = Date.now() - startTime;
-          const failedApis = apiTests.filter(result => result.error).length;
+          const failedApis = apiTests.filter((result) => result.error).length;
           return {
             passed: failedApis === 0,
             duration: apiDuration,
@@ -248,8 +248,8 @@ const AdminDiagnostics: React.FC = () => {
           return {
             passed: !permError && hasRoles,
             duration: permDuration,
-            details: permError ? 'Permission system test failed' : 
-                     hasRoles ? `Role-based permissions active (${permDuration}ms)` : 'No role data found in user profiles'
+            details: permError ? 'Permission system test failed' :
+            hasRoles ? `Role-based permissions active (${permDuration}ms)` : 'No role data found in user profiles'
           };
 
         case 'backup':
@@ -304,45 +304,45 @@ const AdminDiagnostics: React.FC = () => {
           });
           totalRecords += data?.VirtualCount || 0;
         } catch {
+
+
           // Skip failed table
-        }
-      }
-      const estimatedDbSize = Math.max(50, totalRecords * 2); // Rough estimate in MB
+        }}const estimatedDbSize = Math.max(50, totalRecords * 2); // Rough estimate in MB
 
       setMetrics([
-        {
-          label: 'CPU Usage',
-          value: Math.round(20 + Math.random() * 30), // Simulated but realistic
-          max: 100,
-          unit: '%',
-          status: 'good',
-          icon: <Activity className="w-4 h-4" />
-        },
-        {
-          label: 'Memory',
-          value: Math.round((1.5 + Math.random() * 2) * 10) / 10, // Simulated but realistic
-          max: 8,
-          unit: 'GB',
-          status: 'good',
-          icon: <Server className="w-4 h-4" />
-        },
-        {
-          label: 'Database Size',
-          value: estimatedDbSize,
-          max: 1000,
-          unit: 'MB',
-          status: 'good',
-          icon: <Database className="w-4 h-4" />
-        },
-        {
-          label: 'Active Sessions',
-          value: activeSessions,
-          max: 100,
-          unit: 'users',
-          status: activeSessions > 50 ? 'warning' : 'good',
-          icon: <Users className="w-4 h-4" />
-        }
-      ]);
+      {
+        label: 'CPU Usage',
+        value: Math.round(20 + Math.random() * 30), // Simulated but realistic
+        max: 100,
+        unit: '%',
+        status: 'good',
+        icon: <Activity className="w-4 h-4" />
+      },
+      {
+        label: 'Memory',
+        value: Math.round((1.5 + Math.random() * 2) * 10) / 10, // Simulated but realistic
+        max: 8,
+        unit: 'GB',
+        status: 'good',
+        icon: <Server className="w-4 h-4" />
+      },
+      {
+        label: 'Database Size',
+        value: estimatedDbSize,
+        max: 1000,
+        unit: 'MB',
+        status: 'good',
+        icon: <Database className="w-4 h-4" />
+      },
+      {
+        label: 'Active Sessions',
+        value: activeSessions,
+        max: 100,
+        unit: 'users',
+        status: activeSessions > 50 ? 'warning' : 'good',
+        icon: <Users className="w-4 h-4" />
+      }]
+      );
     } catch (error) {
       console.error('Error updating real metrics:', error);
     }

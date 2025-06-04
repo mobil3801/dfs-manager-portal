@@ -72,7 +72,7 @@ const SyncMonitoringDashboard: React.FC = () => {
       // Count actual tables by checking table definitions available
       const tableIds = [11725, 11726, 11727, 11728, 11729, 11730, 11731, 11756, 11788, 12196, 12331, 12356, 12599, 12611, 12612, 12613, 12640, 12641, 12642, 12706, 14389];
       let activeTableCount = 0;
-      
+
       // Check each table to see if it's accessible/active
       for (const tableId of tableIds) {
         try {
@@ -85,10 +85,10 @@ const SyncMonitoringDashboard: React.FC = () => {
             activeTableCount++;
           }
         } catch {
+
+
           // Table not accessible, skip
-        }
-      }
-      
+        }}
       return Math.max(activeTableCount, 1); // At least 1 table should be available
     } catch {
       return 21; // Default to total expected tables
@@ -98,7 +98,7 @@ const SyncMonitoringDashboard: React.FC = () => {
   const loadSyncData = async () => {
     try {
       console.log('Loading real sync monitoring data...');
-      
+
       // Get audit logs for database sync activities
       const { data: auditData, error: auditError } = await window.ezsite.apis.tablePage(12706, {
         PageNo: 1,
@@ -106,8 +106,8 @@ const SyncMonitoringDashboard: React.FC = () => {
         OrderByField: 'event_timestamp',
         IsAsc: false,
         Filters: [
-          { name: 'action_performed', op: 'StringContains', value: 'sync' }
-        ]
+        { name: 'action_performed', op: 'StringContains', value: 'sync' }]
+
       });
 
       let realLogs: SyncLog[] = [];
@@ -115,13 +115,13 @@ const SyncMonitoringDashboard: React.FC = () => {
         realLogs = auditData.List.map((audit: any, index: number) => ({
           id: audit.id?.toString() || index.toString(),
           timestamp: audit.event_timestamp || new Date().toISOString(),
-          type: audit.action_performed?.includes('create') ? 'create' : 
-                audit.action_performed?.includes('update') ? 'update' : 
-                audit.action_performed?.includes('delete') ? 'delete' : 
-                audit.event_status === 'Failed' ? 'error' : 'scan',
+          type: audit.action_performed?.includes('create') ? 'create' :
+          audit.action_performed?.includes('update') ? 'update' :
+          audit.action_performed?.includes('delete') ? 'delete' :
+          audit.event_status === 'Failed' ? 'error' : 'scan',
           tableName: audit.resource_accessed || 'system',
-          status: audit.event_status === 'Success' ? 'success' : 
-                  audit.event_status === 'Failed' ? 'failed' : 'pending',
+          status: audit.event_status === 'Success' ? 'success' :
+          audit.event_status === 'Failed' ? 'failed' : 'pending',
           details: audit.additional_data || audit.failure_reason || 'Database sync operation',
           duration: Math.floor(Math.random() * 2000) + 500 // Estimated duration
         }));
@@ -130,16 +130,16 @@ const SyncMonitoringDashboard: React.FC = () => {
       // If no audit logs, create minimal real status logs
       if (realLogs.length === 0) {
         realLogs = [
-          {
-            id: '1',
-            timestamp: new Date().toISOString(),
-            type: 'scan',
-            tableName: 'system',
-            status: 'success',
-            details: 'Database connection verified',
-            duration: 250
-          }
-        ];
+        {
+          id: '1',
+          timestamp: new Date().toISOString(),
+          type: 'scan',
+          tableName: 'system',
+          status: 'success',
+          details: 'Database connection verified',
+          duration: 250
+        }];
+
       }
 
       setSyncLogs(realLogs);
@@ -159,9 +159,9 @@ const SyncMonitoringDashboard: React.FC = () => {
         totalTables: tableCount,
         syncedToday: todaysSyncs.length,
         errorCount: realLogs.filter((log) => log.status === 'failed').length,
-        avgSyncTime: successfulSyncs.length > 0 ? 
-          successfulSyncs.reduce((acc, log) => acc + log.duration, 0) / successfulSyncs.length : 0,
-        successRate: realLogs.length > 0 ? (successfulSyncs.length / realLogs.length * 100) : 100
+        avgSyncTime: successfulSyncs.length > 0 ?
+        successfulSyncs.reduce((acc, log) => acc + log.duration, 0) / successfulSyncs.length : 0,
+        successRate: realLogs.length > 0 ? successfulSyncs.length / realLogs.length * 100 : 100
       });
 
       // Update sync status with real data
