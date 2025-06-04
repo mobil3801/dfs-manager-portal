@@ -65,10 +65,10 @@ const SMSAlertManagement: React.FC = () => {
       try {
         setLoading(true);
         await Promise.allSettled([
-          loadSettings(),
-          loadContacts(),
-          loadHistory()
-        ]);
+        loadSettings(),
+        loadContacts(),
+        loadHistory()]
+        );
       } catch (error) {
         console.error('Error initializing SMS Alert Management:', error);
         setError('Failed to initialize SMS Alert Management');
@@ -237,8 +237,8 @@ const SMSAlertManagement: React.FC = () => {
     return (
       <AccessDenied
         feature="SMS Alert Management"
-        requiredRole="Administrator" />
-    );
+        requiredRole="Administrator" />);
+
   }
 
   if (error) {
@@ -260,8 +260,8 @@ const SMSAlertManagement: React.FC = () => {
             Retry
           </Button>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -311,7 +311,7 @@ const SMSAlertManagement: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-blue-600">
-                    {contacts.filter(c => c.is_active).length}
+                    {contacts.filter((c) => c.is_active).length}
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Out of {contacts.length} total contacts
@@ -328,7 +328,7 @@ const SMSAlertManagement: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-green-600">
-                    {settings.filter(s => s.is_active).length}
+                    {settings.filter((s) => s.is_active).length}
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Active alert configurations
@@ -396,8 +396,8 @@ const SMSAlertManagement: React.FC = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                {contacts.length > 0 ? (
-                  <Table>
+                {contacts.length > 0 ?
+                <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Name</TableHead>
@@ -409,8 +409,8 @@ const SMSAlertManagement: React.FC = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {contacts.map((contact) => (
-                        <TableRow key={contact.id}>
+                      {contacts.map((contact) =>
+                    <TableRow key={contact.id}>
                           <TableCell className="font-medium">{contact.contact_name}</TableCell>
                           <TableCell>{contact.mobile_number}</TableCell>
                           <TableCell>{contact.station}</TableCell>
@@ -431,11 +431,11 @@ const SMSAlertManagement: React.FC = () => {
                             </div>
                           </TableCell>
                         </TableRow>
-                      ))}
+                    )}
                     </TableBody>
-                  </Table>
-                ) : (
-                  <div className="text-center py-8">
+                  </Table> :
+
+                <div className="text-center py-8">
                     <Phone className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                     <h3 className="text-lg font-semibold mb-2">No SMS Contacts</h3>
                     <p className="text-muted-foreground mb-4">
@@ -446,7 +446,7 @@ const SMSAlertManagement: React.FC = () => {
                       Add Your First Contact
                     </Button>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
           </TabsContent>
@@ -466,8 +466,8 @@ const SMSAlertManagement: React.FC = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                {settings.length > 0 ? (
-                  <Table>
+                {settings.length > 0 ?
+                <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Setting Name</TableHead>
@@ -478,8 +478,8 @@ const SMSAlertManagement: React.FC = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {settings.map((setting) => (
-                        <TableRow key={setting.id}>
+                      {settings.map((setting) =>
+                    <TableRow key={setting.id}>
                           <TableCell className="font-medium">{setting.setting_name}</TableCell>
                           <TableCell>{setting.days_before_expiry} days</TableCell>
                           <TableCell>Every {setting.alert_frequency_days} days</TableCell>
@@ -499,11 +499,11 @@ const SMSAlertManagement: React.FC = () => {
                             </div>
                           </TableCell>
                         </TableRow>
-                      ))}
+                    )}
                     </TableBody>
-                  </Table>
-                ) : (
-                  <div className="text-center py-8">
+                  </Table> :
+
+                <div className="text-center py-8">
                     <Settings className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                     <h3 className="text-lg font-semibold mb-2">No Alert Settings</h3>
                     <p className="text-muted-foreground mb-4">
@@ -514,7 +514,7 @@ const SMSAlertManagement: React.FC = () => {
                       Create First Setting
                     </Button>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
           </TabsContent>
@@ -528,8 +528,8 @@ const SMSAlertManagement: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {history.length > 0 ? (
-                  <Table>
+                {history.length > 0 ?
+                <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Date Sent</TableHead>
@@ -540,8 +540,8 @@ const SMSAlertManagement: React.FC = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {history.map((record) => (
-                        <TableRow key={record.id}>
+                      {history.map((record) =>
+                    <TableRow key={record.id}>
                           <TableCell>
                             {new Date(record.sent_date).toLocaleDateString()}
                           </TableCell>
@@ -554,17 +554,17 @@ const SMSAlertManagement: React.FC = () => {
                           </TableCell>
                           <TableCell>
                             <Badge
-                              variant={record.delivery_status === 'Sent' || record.delivery_status === 'Test Sent' ?
-                                'default' : 'destructive'}>
+                          variant={record.delivery_status === 'Sent' || record.delivery_status === 'Test Sent' ?
+                          'default' : 'destructive'}>
                               {record.delivery_status}
                             </Badge>
                           </TableCell>
                         </TableRow>
-                      ))}
+                    )}
                     </TableBody>
-                  </Table>
-                ) : (
-                  <div className="text-center py-8">
+                  </Table> :
+
+                <div className="text-center py-8">
                     <History className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                     <h3 className="text-lg font-semibold mb-2">No SMS History</h3>
                     <p className="text-muted-foreground mb-4">
@@ -575,14 +575,14 @@ const SMSAlertManagement: React.FC = () => {
                       Send Test SMS
                     </Button>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
-    </ComponentErrorBoundary>
-  );
+    </ComponentErrorBoundary>);
+
 };
 
 export default SMSAlertManagement;
