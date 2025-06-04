@@ -403,12 +403,26 @@ class SMSService {
   }
 
   // Wrapper method for sending SMS with simplified interface
-  async sendSimpleSMS(phoneNumber: string, message: string): Promise<SMSResponse> {
-    return this.sendSMS({
-      to: phoneNumber,
-      message: message,
-      type: 'test'
-    });
+  async sendSimpleSMS(phoneNumber: string, message: string, fromNumber?: string): Promise<SMSResponse> {
+    // If fromNumber is provided, temporarily use it
+    const originalConfig = this.config;
+    if (fromNumber && this.config) {
+      this.config = { ...this.config, fromNumber };
+    }
+
+    try {
+      const result = await this.sendSMS({
+        to: phoneNumber,
+        message: message,
+        type: 'custom'
+      });
+      return result;
+    } finally {
+      // Restore original configuration
+      if (originalConfig) {
+        this.config = originalConfig;
+      }
+    }
   }
 
   // Phone number validation helper
@@ -420,6 +434,36 @@ class SMSService {
       console.error('Error validating phone number:', error);
       return false;
     }
+  }
+
+  // Get available provider numbers
+  async getAvailableFromNumbers(): Promise<{number: string; provider: string; isActive: boolean; testMode: boolean}[]> {
+    try {
+      const { data, error } = await window.ezsite.apis.tablePage('12640', {
+        PageNo: 1,
+        PageSize: 10,
+        OrderByField: 'id',
+        IsAsc: false,
+        Filters: []
+      });
+
+      if (error) throw new Error(error);
+
+      return (data?.List || []).map((provider: any) => ({
+        number: provider.from_number,
+        provider: provider.provider_name,
+        isActive: provider.is_active,
+        testMode: provider.test_mode
+      }));
+    } catch (error) {
+      console.error('Error getting available from numbers:', error);
+      return [];
+    }
+  }
+
+  // Send custom SMS with specific from number
+  async sendCustomSMS(phoneNumber: string, message: string, fromNumber: string): Promise<SMSResponse> {
+    return this.sendSimpleSMS(phoneNumber, message, fromNumber);
   }
 }
 

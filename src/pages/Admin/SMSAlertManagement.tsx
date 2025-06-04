@@ -17,6 +17,8 @@ import { MessageSquare, Phone, Settings, History, Plus, Edit, Trash2, Send, Chec
 import { useAdminAccess } from '@/hooks/use-admin-access';
 import { ComponentErrorBoundary } from '@/components/ErrorBoundary';
 import AccessDenied from '@/components/AccessDenied';
+import CustomSMSSendingForm from '@/components/CustomSMSSendingForm';
+import SMSHistoryViewer from '@/components/SMSHistoryViewer';
 
 interface SMSAlertSetting {
   id: number;
@@ -293,8 +295,9 @@ const SMSAlertManagement: React.FC = () => {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">📊 Overview</TabsTrigger>
+            <TabsTrigger value="custom">📱 Send SMS</TabsTrigger>
             <TabsTrigger value="contacts">📞 SMS Contacts</TabsTrigger>
             <TabsTrigger value="settings">⚙️ Alert Settings</TabsTrigger>
             <TabsTrigger value="history">📝 SMS History</TabsTrigger>
@@ -379,6 +382,10 @@ const SMSAlertManagement: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="custom">
+            <CustomSMSSendingForm />
           </TabsContent>
 
           <TabsContent value="contacts">
@@ -520,64 +527,7 @@ const SMSAlertManagement: React.FC = () => {
           </TabsContent>
 
           <TabsContent value="history">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <History className="w-5 h-5 mr-2" />
-                  SMS Alert History
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {history.length > 0 ?
-                <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Date Sent</TableHead>
-                        <TableHead>Mobile Number</TableHead>
-                        <TableHead>Message</TableHead>
-                        <TableHead>Days Before Expiry</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {history.map((record) =>
-                    <TableRow key={record.id}>
-                          <TableCell>
-                            {new Date(record.sent_date).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>{record.mobile_number}</TableCell>
-                          <TableCell className="max-w-xs truncate">
-                            {record.message_content}
-                          </TableCell>
-                          <TableCell>
-                            {record.days_before_expiry === 0 ? 'Test' : `${record.days_before_expiry} days`}
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                          variant={record.delivery_status === 'Sent' || record.delivery_status === 'Test Sent' ?
-                          'default' : 'destructive'}>
-                              {record.delivery_status}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                    )}
-                    </TableBody>
-                  </Table> :
-
-                <div className="text-center py-8">
-                    <History className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No SMS History</h3>
-                    <p className="text-muted-foreground mb-4">
-                      SMS delivery history will appear here once you start sending alerts
-                    </p>
-                    <Button onClick={sendTestSMS} disabled={loading}>
-                      <Send className="w-4 h-4 mr-2" />
-                      Send Test SMS
-                    </Button>
-                  </div>
-                }
-              </CardContent>
-            </Card>
+            <SMSHistoryViewer />
           </TabsContent>
         </Tabs>
       </div>
