@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { Loader2, Eye, EyeOff, Mail, Lock, UserPlus, LogIn, AlertCircle, CheckCircle2 } from 'lucide-react';
 import Logo from '@/components/Logo';
 import { useToast } from '@/hooks/use-toast';
+import DreamFrameBanner from '@/components/DreamFrameBanner';
 
 type AuthMode = 'login' | 'register' | 'forgot-password';
 
@@ -174,8 +175,12 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      {/* Dream Frame Service Banner */}
+      <DreamFrameBanner />
+      
+      <div className="flex items-center justify-center p-4 -mt-12">
+        <div className="w-full max-w-md">
         {/* Logo and Company Name */}
         <div className="text-center mb-8">
           <div className="flex flex-col items-center">
@@ -367,12 +372,14 @@ const LoginPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Footer */}
-        <div className="text-center mt-6 text-sm text-slate-500">
-          <p>&copy; 2024 DFS Management Systems. All rights reserved.</p>
+          {/* Footer */}
+          <div className="text-center mt-6 text-sm text-slate-500">
+            <p>&copy; 2024 DFS Management Systems. All rights reserved.</p>
+          </div>
         </div>
       </div>
-    </div>);
+    </div>
+  );
 
 };
 

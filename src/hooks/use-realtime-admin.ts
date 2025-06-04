@@ -9,9 +9,9 @@ interface RealtimeAdminConfig {
 }
 
 export const useRealtimeAdmin = (
-  fetchFunction: () => Promise<void>,
-  config: RealtimeAdminConfig = {}
-) => {
+fetchFunction: () => Promise<void>,
+config: RealtimeAdminConfig = {}) =>
+{
   const {
     enableAutoRefresh = true,
     refreshInterval = 30000, // 30 seconds
@@ -26,16 +26,16 @@ export const useRealtimeAdmin = (
 
   const refresh = async () => {
     if (isRefreshing) return;
-    
+
     setIsRefreshing(true);
     try {
       await fetchFunction();
       setLastUpdated(new Date());
-      
+
       if (onDataUpdate) {
         onDataUpdate({ timestamp: new Date() });
       }
-      
+
       if (enableNotifications) {
         console.log('Admin data refreshed at:', new Date().toLocaleTimeString());
       }
@@ -57,7 +57,7 @@ export const useRealtimeAdmin = (
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
-    
+
     if (enableAutoRefresh) {
       intervalRef.current = setInterval(refresh, refreshInterval);
     }
@@ -72,7 +72,7 @@ export const useRealtimeAdmin = (
 
   useEffect(() => {
     startAutoRefresh();
-    
+
     return () => {
       stopAutoRefresh();
     };
@@ -87,11 +87,11 @@ export const useRealtimeAdmin = (
   };
 };
 
-export const useRealtimeData = <T>(
-  tableName: string,
-  tableId: number,
-  config: RealtimeAdminConfig = {}
-) => {
+export const useRealtimeData = <T,>(
+tableName: string,
+tableId: number,
+config: RealtimeAdminConfig = {}) =>
+{
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
