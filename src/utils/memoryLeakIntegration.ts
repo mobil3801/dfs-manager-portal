@@ -7,10 +7,10 @@ import { MemoryLeakMonitor } from '@/services/memoryLeakMonitor';
 
 // Global flag to enable/disable automatic memory leak detection
 export const MEMORY_LEAK_DETECTION_ENABLED = (
-  import.meta.env.VITE_ENABLE_MEMORY_LEAK_DETECTION === 'true' ||
-  process.env.NODE_ENV === 'development' ||
-  (typeof window !== 'undefined' && window.location.search.includes('memory-debug=true'))
-) && typeof window !== 'undefined' && window.performance;
+import.meta.env.VITE_ENABLE_MEMORY_LEAK_DETECTION === 'true' ||
+process.env.NODE_ENV === 'development' ||
+typeof window !== 'undefined' && window.location.search.includes('memory-debug=true')) &&
+typeof window !== 'undefined' && window.performance;
 
 /**
  * Monkey patch common browser APIs to include memory leak warnings
@@ -117,10 +117,10 @@ export function initializeMemoryLeakDetection() {
     setInterval(() => {
       try {
         // Use a safe performance API wrapper instead of direct access
-        const hasPerformanceAPI = typeof window !== 'undefined' && 
-                                 window.performance && 
-                                 (window.performance as any).memory;
-        
+        const hasPerformanceAPI = typeof window !== 'undefined' &&
+        window.performance &&
+        (window.performance as any).memory;
+
         if (hasPerformanceAPI) {
           const memory = (window.performance as any).memory;
           if (memory && typeof memory.usedJSHeapSize === 'number') {
@@ -234,7 +234,7 @@ export function getMemoryUsage(): {
     if (!memory || typeof memory.usedJSHeapSize !== 'number') {
       return null;
     }
-    
+
     return {
       used: memory.usedJSHeapSize,
       total: memory.totalJSHeapSize,

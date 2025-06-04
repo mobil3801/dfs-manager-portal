@@ -25,18 +25,18 @@ class PerformanceAPIWrapper {
   }
 
   private checkPerformanceSupport(): boolean {
-    return typeof window !== 'undefined' && 
-           typeof window.performance !== 'undefined' && 
-           window.performance !== null;
+    return typeof window !== 'undefined' &&
+    typeof window.performance !== 'undefined' &&
+    window.performance !== null;
   }
 
   private checkMemorySupport(): boolean {
     if (!this.isPerformanceSupported) return false;
-    
+
     try {
       const performance = window.performance as any;
-      return performance.memory && 
-             typeof performance.memory.usedJSHeapSize === 'number';
+      return performance.memory &&
+      typeof performance.memory.usedJSHeapSize === 'number';
     } catch (error) {
       return false;
     }
@@ -44,7 +44,7 @@ class PerformanceAPIWrapper {
 
   private checkNavigationTimingSupport(): boolean {
     if (!this.isPerformanceSupported) return false;
-    
+
     try {
       return typeof window.performance.getEntriesByType === 'function';
     } catch (error) {
@@ -214,9 +214,9 @@ class PerformanceAPIWrapper {
    * Check if all required APIs are supported
    */
   isFullySupported(): boolean {
-    return this.isPerformanceSupported && 
-           this.isMemorySupported && 
-           this.isNavigationTimingSupported;
+    return this.isPerformanceSupported &&
+    this.isMemorySupported &&
+    this.isNavigationTimingSupported;
   }
 }
 
@@ -231,5 +231,5 @@ export const getNavigationTiming = () => performanceAPI.getNavigationTiming();
 export const getSupportInfo = () => performanceAPI.getSupportInfo();
 export const safePerformanceNow = () => performanceAPI.now();
 export const safePerformanceMark = (name: string) => performanceAPI.mark(name);
-export const safePerformanceMeasure = (name: string, startMark?: string, endMark?: string) => 
-  performanceAPI.measure(name, startMark, endMark);
+export const safePerformanceMeasure = (name: string, startMark?: string, endMark?: string) =>
+performanceAPI.measure(name, startMark, endMark);

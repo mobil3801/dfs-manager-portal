@@ -79,7 +79,7 @@ export class MemoryLeakMonitor {
       if (!memory || typeof memory.usedJSHeapSize !== 'number') {
         return null;
       }
-      
+
       return {
         usedJSHeapSize: memory.usedJSHeapSize,
         totalJSHeapSize: memory.totalJSHeapSize,
