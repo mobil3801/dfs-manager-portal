@@ -51,17 +51,17 @@ class EnhancedSMSService {
 
   async configure(config: TwilioConfig) {
     this.config = config;
-    
+
     try {
       // Validate Twilio credentials with real API call
       const isValid = await this.validateCredentials();
       if (!isValid) {
         throw new Error('Invalid Twilio credentials');
       }
-      
+
       this.isConfigured = true;
       this.log('Twilio SMS service configured successfully');
-      
+
       return { success: true };
     } catch (error) {
       this.log('Failed to configure Twilio:', error);
@@ -138,7 +138,7 @@ class EnhancedSMSService {
     this.log(`Making API call to: ${url}`, { method, data });
 
     const response = await fetch(url, options);
-    
+
     this.log(`API response status: ${response.status}`, {
       headers: Object.fromEntries(response.headers.entries())
     });
@@ -227,11 +227,11 @@ class EnhancedSMSService {
       this.log('Sending SMS to Twilio:', messageData);
 
       const response = await this.makeApiCall('/Messages.json', 'POST', messageData);
-      
+
       if (response.ok) {
         const result = await response.json();
         this.log('Twilio response:', result);
-        
+
         return {
           success: true,
           messageId: result.sid,
@@ -243,7 +243,7 @@ class EnhancedSMSService {
       } else {
         const errorData = await response.json();
         this.log('Twilio error response:', errorData);
-        
+
         return {
           success: false,
           error: errorData.message || 'Failed to send SMS',
@@ -265,7 +265,7 @@ class EnhancedSMSService {
   private formatPhoneNumber(phoneNumber: string): string | null {
     // Remove all non-digit characters
     const cleaned = phoneNumber.replace(/\D/g, '');
-    
+
     // Handle different phone number formats
     if (cleaned.length === 10) {
       // US number without country code
@@ -277,7 +277,7 @@ class EnhancedSMSService {
       // International number
       return `+${cleaned}`;
     }
-    
+
     return null;
   }
 
@@ -292,11 +292,11 @@ class EnhancedSMSService {
 
     try {
       const response = await this.makeApiCall(`/Messages/${messageId}.json`, 'GET');
-      
+
       if (response.ok) {
         const result = await response.json();
         this.log('Delivery status from Twilio:', result);
-        
+
         return {
           messageId: result.sid,
           status: result.status,
@@ -333,10 +333,10 @@ class EnhancedSMSService {
   }> {
     // Test configuration first
     const configStatus = await this.getServiceStatus();
-    
+
     // Send test SMS
     const response = await this.testSMS(phoneNumber);
-    
+
     let deliveryStatus;
     if (response.success && response.messageId) {
       // Wait a bit and check delivery status
@@ -370,7 +370,7 @@ class EnhancedSMSService {
   async removeTestNumber(phoneNumber: string): Promise<void> {
     const formatted = this.formatPhoneNumber(phoneNumber);
     if (formatted) {
-      this.testNumbers = this.testNumbers.filter(num => num !== formatted);
+      this.testNumbers = this.testNumbers.filter((num) => num !== formatted);
       this.log(`Removed test number: ${formatted}`);
     }
   }
@@ -397,7 +397,7 @@ class EnhancedSMSService {
 
       // Test Twilio API connection
       const isValid = await this.validateCredentials();
-      
+
       if (!isValid) {
         return {
           available: false,
@@ -407,15 +407,15 @@ class EnhancedSMSService {
 
       // Get account information
       const accountInfo = await this.getAccountInfo();
-      
+
       const providers = [
-        { 
-          name: 'Twilio', 
-          available: this.isConfigured,
-          configured: true,
-          testMode: this.config?.testMode || false
-        }
-      ];
+      {
+        name: 'Twilio',
+        available: this.isConfigured,
+        configured: true,
+        testMode: this.config?.testMode || false
+      }];
+
 
       const quota = {
         quotaRemaining: accountInfo?.balance || 'Unknown'

@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
-import { MessageSquare, Phone, Settings, History, Plus, Edit, Trash2, Send, CheckCircle, AlertCircle, TestTube } from 'lucide-react';
+import { MessageSquare, Phone, Settings, History, Plus, Edit, Trash2, Send, CheckCircle, AlertCircle, TestTube, AlertTriangle } from 'lucide-react';
 import { useAdminAccess } from '@/hooks/use-admin-access';
 import { ComponentErrorBoundary } from '@/components/ErrorBoundary';
 import AccessDenied from '@/components/AccessDenied';

@@ -9,21 +9,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Settings, 
-  CheckCircle, 
-  AlertCircle, 
-  Loader2, 
-  Key, 
-  Phone, 
+import {
+  Settings,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  Key,
+  Phone,
   Shield,
   AlertTriangle,
   RefreshCw,
   ExternalLink,
   Copy,
   Eye,
-  EyeOff
-} from 'lucide-react';
+  EyeOff } from
+'lucide-react';
 
 interface ValidationResult {
   field: string;
@@ -47,7 +47,7 @@ const SMSConfigurationValidator: React.FC = () => {
     testMode: true,
     webhookUrl: ''
   });
-  
+
   const [validation, setValidation] = useState<ConfigValidation | null>(null);
   const [validating, setValidating] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -89,7 +89,7 @@ const SMSConfigurationValidator: React.FC = () => {
 
   const validateConfiguration = async () => {
     setValidating(true);
-    
+
     try {
       const issues: ValidationResult[] = [];
       let score = 0;
@@ -258,11 +258,11 @@ const SMSConfigurationValidator: React.FC = () => {
     }
   };
 
-  const testTwilioConnection = async (): Promise<{ success: boolean; error?: string }> => {
+  const testTwilioConnection = async (): Promise<{success: boolean;error?: string;}> => {
     try {
       // Test with a simple API call to get account info
       const baseUrl = `https://api.twilio.com/2010-04-01/Accounts/${config.accountSid}.json`;
-      
+
       const response = await fetch(baseUrl, {
         method: 'GET',
         headers: {
@@ -275,15 +275,15 @@ const SMSConfigurationValidator: React.FC = () => {
         return { success: true };
       } else {
         const errorData = await response.json();
-        return { 
-          success: false, 
-          error: errorData.message || `HTTP ${response.status}: ${response.statusText}` 
+        return {
+          success: false,
+          error: errorData.message || `HTTP ${response.status}: ${response.statusText}`
         };
       }
     } catch (error) {
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Network error' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Network error'
       };
     }
   };
@@ -299,7 +299,7 @@ const SMSConfigurationValidator: React.FC = () => {
     }
 
     setSaving(true);
-    
+
     try {
       const configData = {
         provider_name: 'Twilio',
@@ -393,14 +393,14 @@ const SMSConfigurationValidator: React.FC = () => {
                     id="accountSid"
                     placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
                     value={config.accountSid}
-                    onChange={(e) => setConfig(prev => ({ ...prev, accountSid: e.target.value }))}
-                  />
+                    onChange={(e) => setConfig((prev) => ({ ...prev, accountSid: e.target.value }))} />
+
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => copyToClipboard(config.accountSid)}
-                    disabled={!config.accountSid}
-                  >
+                    disabled={!config.accountSid}>
+
                     <Copy className="w-4 h-4" />
                   </Button>
                 </div>
@@ -417,13 +417,13 @@ const SMSConfigurationValidator: React.FC = () => {
                     type={showAuthToken ? "text" : "password"}
                     placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
                     value={config.authToken}
-                    onChange={(e) => setConfig(prev => ({ ...prev, authToken: e.target.value }))}
-                  />
+                    onChange={(e) => setConfig((prev) => ({ ...prev, authToken: e.target.value }))} />
+
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setShowAuthToken(!showAuthToken)}
-                  >
+                    onClick={() => setShowAuthToken(!showAuthToken)}>
+
                     {showAuthToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </Button>
                 </div>
@@ -438,8 +438,8 @@ const SMSConfigurationValidator: React.FC = () => {
                   id="fromNumber"
                   placeholder="+1234567890"
                   value={config.fromNumber}
-                  onChange={(e) => setConfig(prev => ({ ...prev, fromNumber: e.target.value }))}
-                />
+                  onChange={(e) => setConfig((prev) => ({ ...prev, fromNumber: e.target.value }))} />
+
               </div>
 
               <div className="space-y-2">
@@ -448,16 +448,16 @@ const SMSConfigurationValidator: React.FC = () => {
                   id="webhookUrl"
                   placeholder="https://your-app.com/webhooks/sms"
                   value={config.webhookUrl}
-                  onChange={(e) => setConfig(prev => ({ ...prev, webhookUrl: e.target.value }))}
-                />
+                  onChange={(e) => setConfig((prev) => ({ ...prev, webhookUrl: e.target.value }))} />
+
               </div>
             </div>
 
             <div className="flex items-center space-x-2">
               <Switch
                 checked={config.testMode}
-                onCheckedChange={(checked) => setConfig(prev => ({ ...prev, testMode: checked }))}
-              />
+                onCheckedChange={(checked) => setConfig((prev) => ({ ...prev, testMode: checked }))} />
+
               <Label>Test Mode (Only verified numbers can receive SMS)</Label>
             </div>
 
@@ -465,41 +465,41 @@ const SMSConfigurationValidator: React.FC = () => {
               <Button
                 onClick={validateConfiguration}
                 disabled={validating}
-                className="flex-1"
-              >
-                {validating ? (
-                  <>
+                className="flex-1">
+
+                {validating ?
+                <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Validating...
-                  </>
-                ) : (
-                  <>
+                  </> :
+
+                <>
                     <CheckCircle className="w-4 h-4 mr-2" />
                     Validate Configuration
                   </>
-                )}
+                }
               </Button>
 
               <Button
                 onClick={saveConfiguration}
                 disabled={saving || !validation?.overall}
-                variant="default"
-              >
-                {saving ? (
-                  <>
+                variant="default">
+
+                {saving ?
+                <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Saving...
-                  </>
-                ) : (
-                  "Save Configuration"
-                )}
+                  </> :
+
+                "Save Configuration"
+                }
               </Button>
             </div>
           </TabsContent>
 
           <TabsContent value="validation" className="space-y-4">
-            {validation ? (
-              <div className="space-y-4">
+            {validation ?
+            <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-medium">Validation Results</h3>
                   <div className="flex items-center space-x-2">
@@ -511,20 +511,20 @@ const SMSConfigurationValidator: React.FC = () => {
                 </div>
 
                 <Alert className={validation.overall ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"}>
-                  {validation.overall ? 
-                    <CheckCircle className="h-4 w-4 text-green-600" /> :
-                    <AlertCircle className="h-4 w-4 text-red-600" />
-                  }
+                  {validation.overall ?
+                <CheckCircle className="h-4 w-4 text-green-600" /> :
+                <AlertCircle className="h-4 w-4 text-red-600" />
+                }
                   <AlertDescription>
                     <div className={validation.overall ? "text-green-800" : "text-red-800"}>
                       <div className="font-medium">
                         {validation.overall ? "✅ Configuration Valid" : "❌ Configuration Issues Found"}
                       </div>
                       <div className="mt-1">
-                        {validation.overall 
-                          ? "Your SMS configuration is valid and ready to use."
-                          : "Please fix the issues below before proceeding."
-                        }
+                        {validation.overall ?
+                      "Your SMS configuration is valid and ready to use." :
+                      "Please fix the issues below before proceeding."
+                      }
                       </div>
                     </div>
                   </AlertDescription>
@@ -532,50 +532,50 @@ const SMSConfigurationValidator: React.FC = () => {
 
                 <div className="space-y-3">
                   <h4 className="font-medium">Validation Details</h4>
-                  {validation.issues.map((issue, index) => (
-                    <Card key={index} className={issue.valid ? "border-green-200" : "border-red-200"}>
+                  {validation.issues.map((issue, index) =>
+                <Card key={index} className={issue.valid ? "border-green-200" : "border-red-200"}>
                       <CardContent className="pt-4">
                         <div className="flex items-start space-x-2">
-                          {issue.valid ? 
-                            <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" /> :
-                            <AlertCircle className="w-4 h-4 text-red-600 mt-0.5" />
-                          }
+                          {issue.valid ?
+                      <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" /> :
+                      <AlertCircle className="w-4 h-4 text-red-600 mt-0.5" />
+                      }
                           <div className="flex-1">
                             <div className="font-medium capitalize">{issue.field}</div>
                             <div className={`text-sm ${issue.valid ? 'text-green-800' : 'text-red-800'}`}>
                               {issue.message}
                             </div>
-                            {issue.suggestion && (
-                              <div className="text-sm text-muted-foreground mt-1">
+                            {issue.suggestion &&
+                        <div className="text-sm text-muted-foreground mt-1">
                                 💡 {issue.suggestion}
                               </div>
-                            )}
+                        }
                           </div>
                         </div>
                       </CardContent>
                     </Card>
-                  ))}
+                )}
                 </div>
 
-                {validation.recommendations.length > 0 && (
-                  <div className="space-y-2">
+                {validation.recommendations.length > 0 &&
+              <div className="space-y-2">
                     <h4 className="font-medium">Recommendations</h4>
                     <ul className="space-y-1">
-                      {validation.recommendations.map((rec, index) => (
-                        <li key={index} className="text-sm text-muted-foreground flex items-start">
+                      {validation.recommendations.map((rec, index) =>
+                  <li key={index} className="text-sm text-muted-foreground flex items-start">
                           <span className="mr-2">•</span>
                           {rec}
                         </li>
-                      ))}
+                  )}
                     </ul>
                   </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
+              }
+              </div> :
+
+            <div className="text-center py-8 text-muted-foreground">
                 Click "Validate Configuration" to check your SMS settings.
               </div>
-            )}
+            }
           </TabsContent>
 
           <TabsContent value="help" className="space-y-4">
@@ -633,8 +633,8 @@ const SMSConfigurationValidator: React.FC = () => {
           </TabsContent>
         </Tabs>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default SMSConfigurationValidator;
