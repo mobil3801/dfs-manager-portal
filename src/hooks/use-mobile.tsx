@@ -58,7 +58,7 @@ export function useDeviceDetection(): DeviceInfo {
     const updateDeviceInfo = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
-      
+
       setDeviceInfo({
         isMobile: width < MOBILE_BREAKPOINT,
         isTablet: width >= MOBILE_BREAKPOINT && width < TABLET_BREAKPOINT,
@@ -97,7 +97,7 @@ export function useDeviceDetection(): DeviceInfo {
 // Hook for responsive layout decisions
 export function useResponsiveLayout() {
   const device = useDeviceDetection();
-  
+
   return {
     ...device,
     showSidebar: device.isDesktop,

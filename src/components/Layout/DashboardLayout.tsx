@@ -51,11 +51,11 @@ const DashboardLayout: React.FC = () => {
   const location = useLocation();
   const { user, loading, logout, isAdmin } = useAuth();
   const responsive = useResponsiveLayout();
-  
+
   // Responsive state management
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(responsive.isMobile);
-  
+
   // Auto-adjust sidebar based on device
   useEffect(() => {
     if (responsive.isMobile) {
@@ -187,24 +187,24 @@ const DashboardLayout: React.FC = () => {
     <div className="min-h-screen bg-gray-50 flex">
       {/* Device indicator (development helper) */}
       <div className="fixed top-2 right-2 z-[100] bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1 text-xs font-medium shadow-lg border flex items-center space-x-2">
-        {responsive.isMobile && (
-          <>
+        {responsive.isMobile &&
+        <>
             <Smartphone className="w-3 h-3 text-blue-600" />
             <span className="text-blue-600">Mobile</span>
           </>
-        )}
-        {responsive.isTablet && (
-          <>
+        }
+        {responsive.isTablet &&
+        <>
             <Monitor className="w-3 h-3 text-green-600" />
             <span className="text-green-600">Tablet</span>
           </>
-        )}
-        {responsive.isDesktop && (
-          <>
+        }
+        {responsive.isDesktop &&
+        <>
             <Monitor className="w-3 h-3 text-purple-600" />
             <span className="text-purple-600">Desktop</span>
           </>
-        )}
+        }
         <span className="text-gray-500">•</span>
         <span className="text-gray-600">{responsive.screenWidth}px</span>
       </div>
@@ -218,12 +218,12 @@ const DashboardLayout: React.FC = () => {
 
       {/* Sidebar - Fully responsive */}
       <div className={`fixed inset-y-0 left-0 z-50 bg-white shadow-xl transform transition-all duration-300 ease-in-out ${
-        responsive.isMobile 
-          ? (sidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64')
-          : 'translate-x-0'
-      } ${
-        !responsive.isMobile && sidebarCollapsed ? 'w-16' : !responsive.isMobile ? 'w-64' : ''
-      }`
+      responsive.isMobile ?
+      sidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64' :
+      'translate-x-0'} ${
+
+      !responsive.isMobile && sidebarCollapsed ? 'w-16' : !responsive.isMobile ? 'w-64' : ''}`
+
       }>
         <div className="flex items-center justify-between h-16 px-4 sm:px-6 border-b border-gray-200 flex-shrink-0">
           <Logo
@@ -233,69 +233,69 @@ const DashboardLayout: React.FC = () => {
 
           <div className="flex items-center space-x-2">
             {/* Minimize/Expand button for desktop/tablet */}
-            {!responsive.isMobile && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                title={sidebarCollapsed ? 'Expand sidebar' : 'Minimize sidebar'}>
+            {!responsive.isMobile &&
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              title={sidebarCollapsed ? 'Expand sidebar' : 'Minimize sidebar'}>
                 {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
               </Button>
-            )}
+            }
             {/* Close button for mobile */}
-            {responsive.isMobile && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSidebarOpen(false)}>
+            {responsive.isMobile &&
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSidebarOpen(false)}>
                 <X className="w-5 h-5" />
               </Button>
-            )}
+            }
           </div>
         </div>
 
-        <nav className="flex-1 px-2 sm:px-4 py-4 sm:py-6 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400" 
-             style={{ height: 'calc(100vh - 4rem)' }}>
+        <nav className="flex-1 px-2 sm:px-4 py-4 sm:py-6 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400"
+        style={{ height: 'calc(100vh - 4rem)' }}>
           {navigationItems.map((item) => renderNavigationItem(item))}
         </nav>
       </div>
 
       {/* Main content - Responsive margin adjustment */}
       <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${
-        responsive.isMobile 
-          ? 'ml-0' 
-          : sidebarCollapsed 
-            ? 'ml-16' 
-            : 'ml-64'
-      }`}>
+      responsive.isMobile ?
+      'ml-0' :
+      sidebarCollapsed ?
+      'ml-16' :
+      'ml-64'}`
+      }>
         {/* Top bar - Responsive */}
         <div className="sticky top-0 z-10 flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8 bg-white border-b border-gray-200 flex-shrink-0">
           {/* Mobile menu button */}
-          {responsive.isMobile && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSidebarOpen(true)}>
+          {responsive.isMobile &&
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSidebarOpen(true)}>
               <Menu className="w-5 h-5" />
             </Button>
-          )}
+          }
           
           {/* Page title - Responsive */}
           <div className={`flex items-center ${responsive.isMobile ? 'flex-1 justify-center' : 'space-x-4'}`}>
             <h1 className={`font-semibold text-brand-900 ${
-              responsive.isMobile ? 'text-lg' : 'text-xl'
-            }`}>
+            responsive.isMobile ? 'text-lg' : 'text-xl'}`
+            }>
               {responsive.isMobile ? getPageTitle().split(' ')[0] : getPageTitle()}
             </h1>
           </div>
 
           {/* User menu - Responsive */}
           <div className="flex items-center space-x-2 sm:space-x-4">
-            {!responsive.isMobile && (
-              <span className="text-sm text-gray-600">
+            {!responsive.isMobile &&
+            <span className="text-sm text-gray-600">
                 Welcome, {user.Name}
               </span>
-            )}
+            }
             <Button
               variant="ghost"
               size="sm"
@@ -309,15 +309,15 @@ const DashboardLayout: React.FC = () => {
 
         {/* Page content - Responsive padding */}
         <main className={`flex-1 overflow-y-auto ${
-          responsive.isMobile 
-            ? 'p-3' 
-            : responsive.isTablet 
-              ? 'p-4' 
-              : 'p-6 lg:p-8'
-        }`}>
+        responsive.isMobile ?
+        'p-3' :
+        responsive.isTablet ?
+        'p-4' :
+        'p-6 lg:p-8'}`
+        }>
           <div className={`space-y-4 sm:space-y-6 max-w-full ${
-            responsive.isDesktop ? 'container mx-auto' : ''
-          }`}>
+          responsive.isDesktop ? 'container mx-auto' : ''}`
+          }>
             <PageErrorBoundary pageName={getPageTitle()}>
               <Outlet />
             </PageErrorBoundary>

@@ -44,7 +44,7 @@ const ProductList: React.FC = () => {
   const navigate = useNavigate();
   const { userProfile } = useAuth();
   const responsive = useResponsiveLayout();
-  
+
   const [products, setProducts] = useState<Product[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -449,8 +449,8 @@ const ProductList: React.FC = () => {
       <Card>
         <CardHeader>
           <div className={`flex items-center ${
-            responsive.isMobile ? 'flex-col space-y-4' : 'justify-between'
-          }`}>
+          responsive.isMobile ? 'flex-col space-y-4' : 'justify-between'}`
+          }>
             <div className={responsive.isMobile ? 'text-center' : ''}>
               <CardTitle className="flex items-center space-x-2">
                 <Package className="w-6 h-6" />
@@ -464,8 +464,8 @@ const ProductList: React.FC = () => {
               onClick={() => handleSaveProduct(null)}
               disabled={savingProductId === -1}
               className={`bg-brand-600 hover:bg-brand-700 text-white ${
-                responsive.isMobile ? 'w-full' : ''
-              }`}>
+              responsive.isMobile ? 'w-full' : ''}`
+              }>
               {savingProductId === -1 ?
               <Loader2 className="w-4 h-4 mr-2 animate-spin" /> :
 
@@ -478,11 +478,11 @@ const ProductList: React.FC = () => {
         <CardContent>
           {/* Search */}
           <div className={`flex items-center mb-6 ${
-            responsive.isMobile ? 'flex-col space-y-3' : 'space-x-2'
-          }`}>
+          responsive.isMobile ? 'flex-col space-y-3' : 'space-x-2'}`
+          }>
             <div className={`relative ${
-              responsive.isMobile ? 'w-full' : 'flex-1 max-w-sm'
-            }`}>
+            responsive.isMobile ? 'w-full' : 'flex-1 max-w-sm'}`
+            }>
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               {searchTerm &&
               <button
@@ -494,9 +494,9 @@ const ProductList: React.FC = () => {
                 </button>
               }
               <Input
-                placeholder={responsive.isMobile 
-                  ? "Search products..." 
-                  : "Search products by name, description, category, supplier, barcode..."
+                placeholder={responsive.isMobile ?
+                "Search products..." :
+                "Search products by name, description, category, supplier, barcode..."
                 }
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -504,8 +504,8 @@ const ProductList: React.FC = () => {
             </div>
             {debouncedSearchTerm &&
             <div className={`flex items-center space-x-2 ${
-              responsive.isMobile ? 'w-full justify-center' : ''
-            }`}>
+            responsive.isMobile ? 'w-full justify-center' : ''}`
+            }>
                 <Badge variant="secondary">
                   {totalCount} result{totalCount !== 1 ? 's' : ''} found
                 </Badge>
@@ -524,8 +524,8 @@ const ProductList: React.FC = () => {
           <div className="space-y-4">
               {[...Array(5)].map((_, i) =>
             <div key={i} className={`bg-gray-100 rounded animate-pulse ${
-              responsive.isMobile ? 'h-32' : 'h-16'
-            }`}></div>
+            responsive.isMobile ? 'h-32' : 'h-16'}`
+            }></div>
             )}
             </div> :
           products.length === 0 ?
@@ -542,17 +542,17 @@ const ProductList: React.FC = () => {
               </Button>
             </div> :
 
-          responsive.isMobile ? (
-            <ProductCards
-              products={products}
-              searchTerm={debouncedSearchTerm}
-              onViewLogs={handleViewLogs}
-              onSaveProduct={handleSaveProduct}
-              onDeleteProduct={handleDelete}
-              savingProductId={savingProductId}
-            />
-          ) : (
-            <ResponsiveTable className="border rounded-lg overflow-hidden">
+          responsive.isMobile ?
+          <ProductCards
+            products={products}
+            searchTerm={debouncedSearchTerm}
+            onViewLogs={handleViewLogs}
+            onSaveProduct={handleSaveProduct}
+            onDeleteProduct={handleDelete}
+            savingProductId={savingProductId} /> :
+
+
+          <ResponsiveTable className="border rounded-lg overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -694,7 +694,6 @@ const ProductList: React.FC = () => {
                 </TableBody>
               </Table>
             </ResponsiveTable>
-          )}
           }
 
           {/* Loading Status and Infinite Scroll */}

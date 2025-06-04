@@ -18,7 +18,7 @@ export const ResponsiveWrapper: React.FC<ResponsiveWrapperProps> = ({
   desktopClassName = ''
 }) => {
   const responsive = useResponsiveLayout();
-  
+
   const responsiveClass = cn(
     className,
     responsive.isMobile && mobileClassName,
@@ -29,8 +29,8 @@ export const ResponsiveWrapper: React.FC<ResponsiveWrapperProps> = ({
   return (
     <div className={responsiveClass}>
       {children}
-    </div>
-  );
+    </div>);
+
 };
 
 interface ResponsiveGridProps {
@@ -43,7 +43,7 @@ export const ResponsiveGrid: React.FC<ResponsiveGridProps> = ({
   className = ''
 }) => {
   const responsive = useResponsiveLayout();
-  
+
   const gridClass = cn(
     'grid gap-4',
     responsive.isMobile && 'grid-cols-1',
@@ -55,8 +55,8 @@ export const ResponsiveGrid: React.FC<ResponsiveGridProps> = ({
   return (
     <div className={gridClass}>
       {children}
-    </div>
-  );
+    </div>);
+
 };
 
 interface ResponsiveTableProps {
@@ -71,7 +71,7 @@ export const ResponsiveTable: React.FC<ResponsiveTableProps> = ({
   fallbackComponent
 }) => {
   const responsive = useResponsiveLayout();
-  
+
   if (responsive.isMobile && fallbackComponent) {
     return <>{fallbackComponent}</>;
   }
@@ -83,8 +83,8 @@ export const ResponsiveTable: React.FC<ResponsiveTableProps> = ({
       className
     )}>
       {children}
-    </div>
-  );
+    </div>);
+
 };
 
 interface ResponsiveCardGridProps {
@@ -97,7 +97,7 @@ export const ResponsiveCardGrid: React.FC<ResponsiveCardGridProps> = ({
   className = ''
 }) => {
   const responsive = useResponsiveLayout();
-  
+
   const gridClass = cn(
     'grid gap-4 sm:gap-6',
     responsive.isMobile && 'grid-cols-1',
@@ -109,8 +109,8 @@ export const ResponsiveCardGrid: React.FC<ResponsiveCardGridProps> = ({
   return (
     <div className={gridClass}>
       {children}
-    </div>
-  );
+    </div>);
+
 };
 
 interface ResponsiveStackProps {
@@ -125,13 +125,13 @@ export const ResponsiveStack: React.FC<ResponsiveStackProps> = ({
   spacing = 'md'
 }) => {
   const responsive = useResponsiveLayout();
-  
+
   const spacingClass = {
     sm: 'space-y-2 sm:space-y-3',
     md: 'space-y-4 sm:space-y-6',
     lg: 'space-y-6 sm:space-y-8'
   }[spacing];
-  
+
   const stackClass = cn(
     'flex flex-col',
     spacingClass,
@@ -142,8 +142,8 @@ export const ResponsiveStack: React.FC<ResponsiveStackProps> = ({
   return (
     <div className={stackClass}>
       {children}
-    </div>
-  );
+    </div>);
+
 };
 
 export default ResponsiveWrapper;
