@@ -107,19 +107,7 @@ const DashboardLayout: React.FC = () => {
 
   // Admin-only navigation items
   const adminNavigationItems: NavigationItem[] = [
-  { name: 'User Management', path: '/admin/user-management', icon: <UserCheck className="w-5 h-5" /> },
-  { name: 'Site Management', path: '/admin/site-management', icon: <Globe className="w-5 h-5" /> },
-  { name: 'SMS Alerts', path: '/admin/sms-alert-management', icon: <MessageSquare className="w-5 h-5" /> },
-  { name: 'System Logs', path: '/admin/system-logs', icon: <Database className="w-5 h-5" /> },
-  { name: 'Security Settings', path: '/admin/security-settings', icon: <Shield className="w-5 h-5" /> },
-  { name: 'Error Recovery', path: '/admin/error-recovery', icon: <AlertTriangle className="w-5 h-5" /> },
-  { name: 'Memory Monitoring', path: '/admin/memory-monitoring', icon: <Activity className="w-5 h-5" /> },
-  { name: 'Database Monitoring', path: '/admin/database-monitoring', icon: <Database className="w-5 h-5" /> },
-  { name: 'Audit Monitoring', path: '/admin/audit-monitoring', icon: <Shield className="w-5 h-5" /> },
-  { name: 'Database Auto-Sync', path: '/admin/database-autosync', icon: <Database className="w-5 h-5" /> },
-  { name: 'Supabase Test', path: '/admin/supabase-test', icon: <CheckCircle className="w-5 h-5" /> },
-  { name: 'Dev Monitoring', path: '/admin/development-monitoring', icon: <Activity className="w-5 h-5" /> },
-  { name: 'Role Testing', path: '/admin/role-testing', icon: <User className="w-5 h-5" /> }];
+  { name: 'Admin Panel', path: '/admin', icon: <Settings className="w-5 h-5" /> }];
 
 
   // Combine navigation items based on user role
@@ -168,6 +156,7 @@ const DashboardLayout: React.FC = () => {
     if (path.startsWith('/vendors')) return 'Vendors';
     if (path.startsWith('/orders')) return 'Orders';
     if (path.startsWith('/licenses')) return 'Licenses & Certificates';
+    if (path === '/admin') return 'Admin Panel';
     if (path.startsWith('/admin/user-management')) return 'User Management';
     if (path.startsWith('/admin/site-management')) return 'Site Management';
     if (path.startsWith('/admin/sms-alert-management')) return 'SMS Alert Management';

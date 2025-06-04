@@ -29,6 +29,7 @@ import GasDeliveryInventory from './pages/Inventory/GasDeliveryInventory';
 import DeliveryList from './pages/Delivery/DeliveryList';
 import DeliveryForm from './pages/Delivery/DeliveryForm';
 import AppSettings from './pages/Settings/AppSettings';
+import AdminPanel from './pages/Admin/AdminPanel';
 import UserManagement from './pages/Admin/UserManagement';
 import SiteManagement from './pages/Admin/SiteManagement';
 import SystemLogs from './pages/Admin/SystemLogs';
@@ -119,11 +120,12 @@ function App() {
               <Route path="delivery/edit/:id" element={<DeliveryForm />} />
               
               {/* Admin routes */}
-              <Route path="admin/users" element={<UserManagement />} />
-              <Route path="admin/site" element={<SiteManagement />} />
-              <Route path="admin/logs" element={<SystemLogs />} />
-              <Route path="admin/security" element={<SecuritySettings />} />
-              <Route path="admin/sms-alerts" element={<SMSAlertManagement />} />
+              <Route path="admin" element={<AdminPanel />} />
+              <Route path="admin/user-management" element={<UserManagement />} />
+              <Route path="admin/site-management" element={<SiteManagement />} />
+              <Route path="admin/system-logs" element={<SystemLogs />} />
+              <Route path="admin/security-settings" element={<SecuritySettings />} />
+              <Route path="admin/sms-alert-management" element={<SMSAlertManagement />} />
               <Route path="admin/error-recovery" element={<ErrorRecoveryPage />} />
               <Route path="admin/memory-monitoring" element={<MemoryMonitoring />} />
               <Route path="admin/database-monitoring" element={<DatabaseMonitoring />} />
