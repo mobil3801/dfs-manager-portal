@@ -629,6 +629,8 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
 
 
 
+
+
           // Invalid date format, ignore
         }} // Calculate profit margin
       const unitPrice = mapped.unit_price || 0;const retailPrice = mapped.retail_price || 0;const profitMargin = calculateProfitMargin(unitPrice, retailPrice); // Calculate overdue status
@@ -651,15 +653,13 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
         {!showPreview ? <div className="space-y-6">
             {/* Upload method selector */}
             <div className="flex gap-4 justify-center">
-              <Button variant={uploadMethod === 'enhanced' ? 'default' : 'outline'} onClick={() => setUploadMethod('enhanced')}
-            className="flex items-center gap-2">
+              <Button variant={uploadMethod === 'enhanced' ? 'default' : 'outline'} onClick={() => setUploadMethod('enhanced')} className="flex items-center gap-2">
                 <Upload className="h-4 w-4" />
                 Enhanced Upload
               </Button>
-              <Button
-            variant={uploadMethod === 'manual' ? 'default' : 'outline'}
-            onClick={() => setUploadMethod('manual')}
-            className="flex items-center gap-2">
+              <Button variant={uploadMethod === 'manual' ? 'default' : 'outline'}
+          onClick={() => setUploadMethod('manual')}
+          className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
                 Manual Upload
               </Button>

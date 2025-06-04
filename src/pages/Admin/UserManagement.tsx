@@ -21,9 +21,11 @@ import EnhancedUserPermissionManager from '@/components/EnhancedUserPermissionMa
 import ComprehensivePermissionDialog from '@/components/ComprehensivePermissionDialog';
 import AccessDenied from '@/components/AccessDenied';
 import useAdminAccess from '@/hooks/use-admin-access';
+import CreateUserDialog from '@/components/CreateUserDialog';
 import {
   Users,
   Plus,
+  UserPlus,
   Edit3,
   Trash2,
   Search,
@@ -77,6 +79,7 @@ const UserManagement: React.FC = () => {
   const [isBatchDeleteDialogOpen, setIsBatchDeleteDialogOpen] = useState(false);
   const [selectedUserProfile, setSelectedUserProfile] = useState<UserProfile | null>(null);
   const [batchActionLoading, setBatchActionLoading] = useState(false);
+  const [isCreateUserDialogOpen, setIsCreateUserDialogOpen] = useState(false);
   const { toast } = useToast();
 
   // Batch selection hook
@@ -477,8 +480,16 @@ const UserManagement: React.FC = () => {
         </TabsList>
 
         <TabsContent value="profiles" className="space-y-6">
-          {/* Add User Profile Button */}
-          <div className="flex items-center justify-end">
+          {/* User Action Buttons */}
+          <div className="flex items-center justify-end space-x-3">
+            <Button
+              onClick={() => setIsCreateUserDialogOpen(true)}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <UserPlus className="w-4 h-4 mr-2" />
+              Create New User
+            </Button>
+            
             <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
               if (open) {
                 // Generate new random user ID when opening dialog
@@ -488,9 +499,9 @@ const UserManagement: React.FC = () => {
               setIsAddDialogOpen(open);
             }}>
               <DialogTrigger asChild>
-                <Button className="bg-blue-600 hover:bg-blue-700">
+                <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
                   <Plus className="w-4 h-4 mr-2" />
-                  Add User Profile
+                  Add User Profile Only
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-lg max-h-[85vh]">
@@ -1135,6 +1146,19 @@ const UserManagement: React.FC = () => {
           id: profile.id,
           name: `${profile.employee_id} - ${profile.role}`
         }))} />
+
+      {/* Create New User Dialog */}
+      <CreateUserDialog
+        isOpen={isCreateUserDialogOpen}
+        onClose={() => setIsCreateUserDialogOpen(false)}
+        onUserCreated={() => {
+          fetchData(); // Refresh both users and profiles
+          toast({
+            title: "Success",
+            description: "New user account and profile created successfully"
+          });
+        }}
+      />
 
     </div>);
 

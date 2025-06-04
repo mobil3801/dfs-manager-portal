@@ -63,16 +63,16 @@ const AuditLogDashboard: React.FC = () => {
 
       // Calculate statistics from real data
       const totalEvents = logs.length;
-      const failedAttempts = logs.filter((log: AuditLogEntry) => 
-        log.event_status === 'Failed' || log.event_status === 'Blocked'
+      const failedAttempts = logs.filter((log: AuditLogEntry) =>
+      log.event_status === 'Failed' || log.event_status === 'Blocked'
       ).length;
-      const suspiciousActivity = logs.filter((log: AuditLogEntry) => 
-        log.risk_level === 'High' || log.risk_level === 'Critical'
+      const suspiciousActivity = logs.filter((log: AuditLogEntry) =>
+      log.risk_level === 'High' || log.risk_level === 'Critical'
       ).length;
-      
+
       // Calculate security score based on success rate
       const successfulEvents = logs.filter((log: AuditLogEntry) => log.event_status === 'Success').length;
-      const securityScore = totalEvents > 0 ? Math.round((successfulEvents / totalEvents) * 100) : 100;
+      const securityScore = totalEvents > 0 ? Math.round(successfulEvents / totalEvents * 100) : 100;
 
       setAuditStats({
         totalEvents,
@@ -91,7 +91,7 @@ const AuditLogDashboard: React.FC = () => {
         description: "Failed to fetch audit log information. Please try again.",
         variant: "destructive"
       });
-      
+
       // Set default values if fetch fails
       setAuditStats({
         totalEvents: 0,
@@ -165,8 +165,8 @@ const AuditLogDashboard: React.FC = () => {
           <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4" />
           <p className="text-sm text-muted-foreground">Loading real-time audit data...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -183,8 +183,8 @@ const AuditLogDashboard: React.FC = () => {
           onClick={refreshData}
           disabled={refreshing}
           variant="outline"
-          size="sm"
-        >
+          size="sm">
+
           <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
@@ -217,9 +217,9 @@ const AuditLogDashboard: React.FC = () => {
               <AlertTriangle className="h-8 w-8 text-red-600" />
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              {auditStats.totalEvents > 0 ? 
-                `${((auditStats.failedAttempts / auditStats.totalEvents) * 100).toFixed(1)}% of total events` : 
-                'No events recorded'
+              {auditStats.totalEvents > 0 ?
+              `${(auditStats.failedAttempts / auditStats.totalEvents * 100).toFixed(1)}% of total events` :
+              'No events recorded'
               }
             </p>
           </CardContent>
@@ -246,14 +246,14 @@ const AuditLogDashboard: React.FC = () => {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Security Score</p>
                 <p className={`text-3xl font-bold ${
-                  auditStats.securityScore >= 95 ? 'text-green-600' :
-                  auditStats.securityScore >= 80 ? 'text-yellow-600' : 'text-red-600'
-                }`}>{auditStats.securityScore}%</p>
+                auditStats.securityScore >= 95 ? 'text-green-600' :
+                auditStats.securityScore >= 80 ? 'text-yellow-600' : 'text-red-600'}`
+                }>{auditStats.securityScore}%</p>
               </div>
               <TrendingUp className={`h-8 w-8 ${
-                auditStats.securityScore >= 95 ? 'text-green-600' :
-                auditStats.securityScore >= 80 ? 'text-yellow-600' : 'text-red-600'
-              }`} />
+              auditStats.securityScore >= 95 ? 'text-green-600' :
+              auditStats.securityScore >= 80 ? 'text-yellow-600' : 'text-red-600'}`
+              } />
             </div>
             <p className="text-xs text-muted-foreground mt-2">
               Based on security events
@@ -263,25 +263,25 @@ const AuditLogDashboard: React.FC = () => {
       </div>
 
       {/* Security Alerts */}
-      {auditStats.suspiciousActivity > 0 && (
-        <Alert className="border-orange-500 bg-orange-50">
+      {auditStats.suspiciousActivity > 0 &&
+      <Alert className="border-orange-500 bg-orange-50">
           <AlertTriangle className="h-4 w-4 text-orange-600" />
           <AlertDescription>
             <strong>Security Alert:</strong> {auditStats.suspiciousActivity} suspicious activities detected. 
             Review the recent events below for more details.
           </AlertDescription>
         </Alert>
-      )}
+      }
 
-      {auditStats.securityScore < 80 && (
-        <Alert className="border-red-500 bg-red-50">
+      {auditStats.securityScore < 80 &&
+      <Alert className="border-red-500 bg-red-50">
           <AlertTriangle className="h-4 w-4 text-red-600" />
           <AlertDescription>
             <strong>Low Security Score:</strong> Your system security score is {auditStats.securityScore}%. 
             This indicates a high number of failed or blocked events that require investigation.
           </AlertDescription>
         </Alert>
-      )}
+      }
 
       {/* Recent Activity */}
       <Card>
@@ -289,16 +289,16 @@ const AuditLogDashboard: React.FC = () => {
           <CardTitle>Recent Security Events</CardTitle>
         </CardHeader>
         <CardContent>
-          {recentEvents.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+          {recentEvents.length === 0 ?
+          <div className="text-center py-8 text-gray-500">
               <Shield className="h-12 w-12 mx-auto mb-4 text-gray-400" />
               <p>No audit events recorded yet.</p>
               <p className="text-sm mt-1">Security events will appear here as they occur.</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {recentEvents.map((event) => (
-                <div key={event.id} className="flex items-center justify-between p-3 border rounded-lg">
+            </div> :
+
+          <div className="space-y-3">
+              {recentEvents.map((event) =>
+            <div key={event.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center space-x-3">
                     <Badge className={getEventStatusColor(event.event_status)}>
                       {getEventIcon(event.event_type)}
@@ -320,23 +320,23 @@ const AuditLogDashboard: React.FC = () => {
                       <Clock className="w-3 h-3 mr-1" />
                       {formatTimeAgo(event.event_timestamp)}
                     </span>
-                    {event.risk_level && event.risk_level !== 'Low' && (
-                      <Badge 
-                        variant={event.risk_level === 'Critical' ? 'destructive' : 'secondary'}
-                        className="mt-1 text-xs"
-                      >
+                    {event.risk_level && event.risk_level !== 'Low' &&
+                <Badge
+                  variant={event.risk_level === 'Critical' ? 'destructive' : 'secondary'}
+                  className="mt-1 text-xs">
+
                         {event.risk_level} Risk
                       </Badge>
-                    )}
+                }
                   </div>
                 </div>
-              ))}
+            )}
             </div>
-          )}
+          }
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AuditLogDashboard;
