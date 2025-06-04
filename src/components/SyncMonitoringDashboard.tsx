@@ -93,12 +93,12 @@ const SyncMonitoringDashboard: React.FC = () => {
 
 
 
+
+
           // Table not accessible, skip
         }}return Math.max(activeTableCount, 1); // At least 1 table should be available
     } catch {return 21; // Default to total expected tables
-    }};const loadSyncData = async () => {try {
-      console.log('Loading real sync monitoring data...');
-
+    }};const loadSyncData = async () => {try {console.log('Loading real sync monitoring data...');
       // Get audit logs for database sync activities
       const { data: auditData, error: auditError } = await window.ezsite.apis.tablePage(12706, {
         PageNo: 1,
