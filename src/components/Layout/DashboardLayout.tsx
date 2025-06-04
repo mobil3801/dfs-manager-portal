@@ -29,9 +29,7 @@ import {
   MessageSquare,
   Activity,
   LogOut,
-  User,
-  Monitor,
-  Smartphone } from
+  User } from
 'lucide-react';
 
 import Logo from '@/components/Logo';
@@ -176,29 +174,6 @@ const DashboardLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Device indicator (development helper) */}
-      <div className="fixed top-2 right-2 z-[100] bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1 text-xs font-medium shadow-lg border flex items-center space-x-2">
-        {responsive.isMobile &&
-        <>
-            <Smartphone className="w-3 h-3 text-blue-600" />
-            <span className="text-blue-600">Mobile</span>
-          </>
-        }
-        {responsive.isTablet &&
-        <>
-            <Monitor className="w-3 h-3 text-green-600" />
-            <span className="text-green-600">Tablet</span>
-          </>
-        }
-        {responsive.isDesktop &&
-        <>
-            <Monitor className="w-3 h-3 text-purple-600" />
-            <span className="text-purple-600">Desktop</span>
-          </>
-        }
-        <span className="text-gray-500">•</span>
-        <span className="text-gray-600">{responsive.screenWidth}px</span>
-      </div>
 
       {/* Mobile sidebar overlay */}
       {sidebarOpen && responsive.isMobile &&

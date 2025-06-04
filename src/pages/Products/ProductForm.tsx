@@ -257,7 +257,7 @@ const ProductForm = () => {
         };
         setFormData(productData);
         setOriginalData(productData);
-        
+
         // Load existing product image if available
         if (product.product_image_id) {
           // Note: In a real implementation, you'd fetch the image URL from the file service
@@ -332,7 +332,7 @@ const ProductForm = () => {
       const suggestedCategory = suggestCategory(value);
       if (suggestedCategory && !formData.category) {
         setFormData((prev) => ({ ...prev, category: suggestedCategory }));
-        
+
         const suggestedDepartment = suggestDepartment(suggestedCategory);
         if (suggestedDepartment && formData.department === 'Convenience Store') {
           setFormData((prev) => ({ ...prev, department: suggestedDepartment }));
@@ -367,30 +367,30 @@ const ProductForm = () => {
   // Auto-suggest category based on product name
   const suggestCategory = (productName: string): string => {
     const name = productName.toLowerCase();
-    
+
     // Beverages
     if (name.includes('coke') || name.includes('pepsi') || name.includes('sprite') || name.includes('soda')) return 'Soft Drinks';
     if (name.includes('water') || name.includes('juice') || name.includes('tea') || name.includes('coffee')) return 'Water & Juice';
     if (name.includes('energy') || name.includes('red bull') || name.includes('monster')) return 'Energy Drinks';
     if (name.includes('beer') || name.includes('wine') || name.includes('alcohol')) return 'Beer & Wine';
-    
+
     // Food
     if (name.includes('chip') || name.includes('doritos') || name.includes('lays')) return 'Snacks';
     if (name.includes('candy') || name.includes('chocolate') || name.includes('gum')) return 'Candy & Gum';
     if (name.includes('hot dog') || name.includes('pizza') || name.includes('sandwich')) return 'Hot Food';
     if (name.includes('milk') || name.includes('cheese') || name.includes('yogurt')) return 'Dairy Products';
     if (name.includes('ice cream') || name.includes('frozen')) return 'Frozen Foods';
-    
+
     // Tobacco
     if (name.includes('cigarette') || name.includes('marlboro') || name.includes('camel')) return 'Cigarettes';
     if (name.includes('cigar') || name.includes('pipe')) return 'Cigars';
     if (name.includes('vape') || name.includes('juul') || name.includes('e-cig')) return 'Vaping Products';
-    
+
     // Automotive
     if (name.includes('oil') || name.includes('motor') || name.includes('5w30')) return 'Motor Oil';
     if (name.includes('gas') || name.includes('fuel') || name.includes('diesel')) return 'Fuel Products';
     if (name.includes('tire') || name.includes('wiper') || name.includes('brake')) return 'Car Accessories';
-    
+
     // Other
     if (name.includes('lottery') || name.includes('powerball') || name.includes('mega')) return 'Lottery Tickets';
     if (name.includes('scratch') || name.includes('instant')) return 'Scratch Cards';
@@ -398,15 +398,15 @@ const ProductForm = () => {
     if (name.includes('gift card')) return 'Gift Cards';
     if (name.includes('battery') || name.includes('batteries')) return 'Batteries';
     if (name.includes('ice') && !name.includes('ice cream')) return 'Ice Products';
-    
+
     return '';
   };
 
   // Auto-suggest department based on category
   const suggestDepartment = (category: string): string => {
-    const categoryToDepartment: {[key: string]: string} = {
+    const categoryToDepartment: {[key: string]: string;} = {
       'Soft Drinks': 'Cold Beverages',
-      'Water & Juice': 'Cold Beverages', 
+      'Water & Juice': 'Cold Beverages',
       'Energy Drinks': 'Energy Drinks',
       'Beer & Wine': 'Beer & Wine',
       'Snacks': 'Snacks & Candy',
@@ -428,7 +428,7 @@ const ProductForm = () => {
       'Batteries': 'Electronics & Accessories',
       'Ice Products': 'Ice & Frozen'
     };
-    
+
     return categoryToDepartment[category] || 'Convenience Store';
   };
 
@@ -454,7 +454,7 @@ const ProductForm = () => {
 
       setFormData((prev) => ({ ...prev, product_image_id: fileId }));
       setProductImageFile(file);
-      
+
       // Create preview URL
       const previewUrl = URL.createObjectURL(file);
       setProductImagePreview(previewUrl);
@@ -1009,12 +1009,12 @@ const ProductForm = () => {
                       )}
                     </SelectContent>
                   </Select>
-                  {formData.product_name && !formData.category && (
-                    <div className="flex items-center gap-2 text-sm text-blue-600">
+                  {formData.product_name && !formData.category &&
+                  <div className="flex items-center gap-2 text-sm text-blue-600">
                       <Calculator className="w-4 h-4" />
                       <span>Auto-suggestion available when you type product name</span>
                     </div>
-                  )}
+                  }
                 </div>
               </div>
 
@@ -1259,49 +1259,49 @@ const ProductForm = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-                      {productImagePreview ? (
-                        <div className="space-y-4">
+                      {productImagePreview ?
+                      <div className="space-y-4">
                           <img
-                            src={productImagePreview}
-                            alt="Product preview"
-                            className="mx-auto max-h-40 rounded-lg shadow-sm"
-                          />
+                          src={productImagePreview}
+                          alt="Product preview"
+                          className="mx-auto max-h-40 rounded-lg shadow-sm" />
+
                           <div className="flex justify-center space-x-2">
                             <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={handleImageRemove}
-                              disabled={!canEdit}
-                            >
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={handleImageRemove}
+                            disabled={!canEdit}>
+
                               <XCircle className="w-4 h-4 mr-2" />
                               Remove
                             </Button>
                             <Input
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) handleImageUpload(file);
-                              }}
-                              disabled={!canEdit || isUploadingImage}
-                              className="hidden"
-                              id="replace-image"
-                            />
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleImageUpload(file);
+                            }}
+                            disabled={!canEdit || isUploadingImage}
+                            className="hidden"
+                            id="replace-image" />
+
                             <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => document.getElementById('replace-image')?.click()}
-                              disabled={!canEdit || isUploadingImage}
-                            >
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => document.getElementById('replace-image')?.click()}
+                            disabled={!canEdit || isUploadingImage}>
+
                               <Upload className="w-4 h-4 mr-2" />
                               Replace
                             </Button>
                           </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
+                        </div> :
+
+                      <div className="space-y-4">
                           <Upload className="w-12 h-12 mx-auto text-gray-400" />
                           <div>
                             <h3 className="text-lg font-medium text-gray-900">Upload Product Image</h3>
@@ -1311,37 +1311,37 @@ const ProductForm = () => {
                           </div>
                           <div className="flex flex-col items-center space-y-2">
                             <Input
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) handleImageUpload(file);
-                              }}
-                              disabled={!canEdit || isUploadingImage}
-                              className="hidden"
-                              id="product-image"
-                            />
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleImageUpload(file);
+                            }}
+                            disabled={!canEdit || isUploadingImage}
+                            className="hidden"
+                            id="product-image" />
+
                             <Button
-                              type="button"
-                              variant="outline"
-                              onClick={() => document.getElementById('product-image')?.click()}
-                              disabled={!canEdit || isUploadingImage}
-                            >
-                              {isUploadingImage ? (
-                                <>
+                            type="button"
+                            variant="outline"
+                            onClick={() => document.getElementById('product-image')?.click()}
+                            disabled={!canEdit || isUploadingImage}>
+
+                              {isUploadingImage ?
+                            <>
                                   <Upload className="w-4 h-4 mr-2 animate-spin" />
                                   Uploading...
-                                </>
-                              ) : (
-                                <>
+                                </> :
+
+                            <>
                                   <Upload className="w-4 h-4 mr-2" />
                                   Choose Image
                                 </>
-                              )}
+                            }
                             </Button>
                           </div>
                         </div>
-                      )}
+                      }
                     </div>
                   </div>
                   
@@ -1375,8 +1375,8 @@ const ProductForm = () => {
                           };
                           input.click();
                         }}
-                        disabled={!canEdit || isUploadingImage}
-                      >
+                        disabled={!canEdit || isUploadingImage}>
+
                         <Camera className="w-4 h-4 mr-2" />
                         Take Photo
                       </Button>

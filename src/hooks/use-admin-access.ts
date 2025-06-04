@@ -2,6 +2,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export interface AdminAccessResult {
   isAdmin: boolean;
+  hasAdminAccess: boolean;
   hasMonitoringAccess: boolean;
   checkAdminAccess: () => boolean;
   requireAdminAccess: () => void;
@@ -25,6 +26,7 @@ export const useAdminAccess = (): AdminAccessResult => {
 
   return {
     isAdmin,
+    hasAdminAccess: isAdmin,
     hasMonitoringAccess,
     checkAdminAccess,
     requireAdminAccess
