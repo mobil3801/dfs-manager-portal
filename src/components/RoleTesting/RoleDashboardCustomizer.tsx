@@ -8,11 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { 
-  User, Users, Settings, Shield, Eye, Edit, Plus, Trash2, 
-  Download, Upload, BarChart3, Monitor, AlertTriangle, 
-  CheckCircle, XCircle, Layout, FileText
-} from 'lucide-react';
+import {
+  User, Users, Settings, Shield, Eye, Edit, Plus, Trash2,
+  Download, Upload, BarChart3, Monitor, AlertTriangle,
+  CheckCircle, XCircle, Layout, FileText } from
+'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEnhancedRoleAccess } from '@/hooks/use-enhanced-role-access';
 import { toast } from '@/hooks/use-toast';
@@ -29,107 +29,107 @@ interface DashboardWidget {
 }
 
 const DEFAULT_WIDGETS: DashboardWidget[] = [
-  {
-    id: 'sales-summary',
-    name: 'Sales Summary',
-    description: 'Daily sales overview and metrics',
-    category: 'summary',
-    requiredRole: 'Any',
-    requiredPermissions: ['sales.canView'],
-    isEnabled: true,
-    position: 1
-  },
-  {
-    id: 'station-status',
-    name: 'Station Status',
-    description: 'Real-time station operational status',
-    category: 'summary',
-    requiredRole: 'Any',
-    requiredPermissions: ['dashboard.canView'],
-    isEnabled: true,
-    position: 2
-  },
-  {
-    id: 'inventory-alerts',
-    name: 'Inventory Alerts',
-    description: 'Low stock and inventory warnings',
-    category: 'summary',
-    requiredRole: 'Management',
-    requiredPermissions: ['inventory.canView'],
-    isEnabled: true,
-    position: 3
-  },
-  {
-    id: 'employee-management',
-    name: 'Employee Management',
-    description: 'Quick access to employee operations',
-    category: 'management',
-    requiredRole: 'Management',
-    requiredPermissions: ['employees.canView', 'employees.canEdit'],
-    isEnabled: true,
-    position: 4
-  },
-  {
-    id: 'financial-reports',
-    name: 'Financial Reports',
-    description: 'Revenue and expense reporting',
-    category: 'reports',
-    requiredRole: 'Management',
-    requiredPermissions: ['sales.canViewReports'],
-    isEnabled: true,
-    position: 5
-  },
-  {
-    id: 'user-management',
-    name: 'User Management',
-    description: 'System user administration',
-    category: 'management',
-    requiredRole: 'Administrator',
-    requiredPermissions: ['admin.canManageUsers'],
-    isEnabled: true,
-    position: 6
-  },
-  {
-    id: 'system-monitoring',
-    name: 'System Monitoring',
-    description: 'Application health and performance',
-    category: 'monitoring',
-    requiredRole: 'Administrator',
-    requiredPermissions: ['monitoring.canAccessMonitoring'],
-    isEnabled: true,
-    position: 7
-  },
-  {
-    id: 'audit-logs',
-    name: 'Audit Logs',
-    description: 'Security and access logging',
-    category: 'monitoring',
-    requiredRole: 'Administrator',
-    requiredPermissions: ['admin.canViewLogs'],
-    isEnabled: true,
-    position: 8
-  },
-  {
-    id: 'license-tracking',
-    name: 'License Tracking',
-    description: 'License expiration and renewal alerts',
-    category: 'summary',
-    requiredRole: 'Management',
-    requiredPermissions: ['licenses.canView'],
-    isEnabled: true,
-    position: 9
-  },
-  {
-    id: 'task-management',
-    name: 'Task Management',
-    description: 'Daily tasks and shift assignments',
-    category: 'summary',
-    requiredRole: 'Employee',
-    requiredPermissions: ['dashboard.canView'],
-    isEnabled: true,
-    position: 10
-  }
-];
+{
+  id: 'sales-summary',
+  name: 'Sales Summary',
+  description: 'Daily sales overview and metrics',
+  category: 'summary',
+  requiredRole: 'Any',
+  requiredPermissions: ['sales.canView'],
+  isEnabled: true,
+  position: 1
+},
+{
+  id: 'station-status',
+  name: 'Station Status',
+  description: 'Real-time station operational status',
+  category: 'summary',
+  requiredRole: 'Any',
+  requiredPermissions: ['dashboard.canView'],
+  isEnabled: true,
+  position: 2
+},
+{
+  id: 'inventory-alerts',
+  name: 'Inventory Alerts',
+  description: 'Low stock and inventory warnings',
+  category: 'summary',
+  requiredRole: 'Management',
+  requiredPermissions: ['inventory.canView'],
+  isEnabled: true,
+  position: 3
+},
+{
+  id: 'employee-management',
+  name: 'Employee Management',
+  description: 'Quick access to employee operations',
+  category: 'management',
+  requiredRole: 'Management',
+  requiredPermissions: ['employees.canView', 'employees.canEdit'],
+  isEnabled: true,
+  position: 4
+},
+{
+  id: 'financial-reports',
+  name: 'Financial Reports',
+  description: 'Revenue and expense reporting',
+  category: 'reports',
+  requiredRole: 'Management',
+  requiredPermissions: ['sales.canViewReports'],
+  isEnabled: true,
+  position: 5
+},
+{
+  id: 'user-management',
+  name: 'User Management',
+  description: 'System user administration',
+  category: 'management',
+  requiredRole: 'Administrator',
+  requiredPermissions: ['admin.canManageUsers'],
+  isEnabled: true,
+  position: 6
+},
+{
+  id: 'system-monitoring',
+  name: 'System Monitoring',
+  description: 'Application health and performance',
+  category: 'monitoring',
+  requiredRole: 'Administrator',
+  requiredPermissions: ['monitoring.canAccessMonitoring'],
+  isEnabled: true,
+  position: 7
+},
+{
+  id: 'audit-logs',
+  name: 'Audit Logs',
+  description: 'Security and access logging',
+  category: 'monitoring',
+  requiredRole: 'Administrator',
+  requiredPermissions: ['admin.canViewLogs'],
+  isEnabled: true,
+  position: 8
+},
+{
+  id: 'license-tracking',
+  name: 'License Tracking',
+  description: 'License expiration and renewal alerts',
+  category: 'summary',
+  requiredRole: 'Management',
+  requiredPermissions: ['licenses.canView'],
+  isEnabled: true,
+  position: 9
+},
+{
+  id: 'task-management',
+  name: 'Task Management',
+  description: 'Daily tasks and shift assignments',
+  category: 'summary',
+  requiredRole: 'Employee',
+  requiredPermissions: ['dashboard.canView'],
+  isEnabled: true,
+  position: 10
+}];
+
 
 const RoleDashboardCustomizer: React.FC = () => {
   const { userProfile } = useAuth();
@@ -141,19 +141,19 @@ const RoleDashboardCustomizer: React.FC = () => {
 
   const canAccessWidget = (widget: DashboardWidget, forRole?: string): boolean => {
     const targetRole = forRole || roleAccess.userRole;
-    
+
     // Check role requirement
     if (widget.requiredRole !== 'Any') {
       if (targetRole === 'Employee' && widget.requiredRole !== 'Employee') return false;
       if (targetRole === 'Management' && widget.requiredRole === 'Administrator') return false;
     }
-    
+
     // Check permissions (simplified for preview)
     return true;
   };
 
   const getAvailableWidgetsForRole = (role: string) => {
-    return widgets.filter(widget => canAccessWidget(widget, role) && widget.isEnabled);
+    return widgets.filter((widget) => canAccessWidget(widget, role) && widget.isEnabled);
   };
 
   const toggleWidget = (widgetId: string) => {
@@ -166,15 +166,15 @@ const RoleDashboardCustomizer: React.FC = () => {
       return;
     }
 
-    setWidgets(prev => prev.map(widget => 
-      widget.id === widgetId 
-        ? { ...widget, isEnabled: !widget.isEnabled }
-        : widget
+    setWidgets((prev) => prev.map((widget) =>
+    widget.id === widgetId ?
+    { ...widget, isEnabled: !widget.isEnabled } :
+    widget
     ));
 
     toast({
       title: 'Widget Updated',
-      description: 'Dashboard layout has been modified.',
+      description: 'Dashboard layout has been modified.'
     });
   };
 
@@ -188,10 +188,10 @@ const RoleDashboardCustomizer: React.FC = () => {
       return;
     }
 
-    setWidgets(prev => prev.map(widget => 
-      widget.id === widgetId 
-        ? { ...widget, position: newPosition }
-        : widget
+    setWidgets((prev) => prev.map((widget) =>
+    widget.id === widgetId ?
+    { ...widget, position: newPosition } :
+    widget
     ));
   };
 
@@ -208,7 +208,7 @@ const RoleDashboardCustomizer: React.FC = () => {
     setWidgets(DEFAULT_WIDGETS);
     toast({
       title: 'Reset Complete',
-      description: 'Dashboard layout has been reset to defaults.',
+      description: 'Dashboard layout has been reset to defaults.'
     });
   };
 
@@ -229,7 +229,7 @@ const RoleDashboardCustomizer: React.FC = () => {
 
     toast({
       title: 'Configuration Exported',
-      description: 'Dashboard configuration has been downloaded.',
+      description: 'Dashboard configuration has been downloaded.'
     });
   };
 
@@ -320,8 +320,8 @@ const RoleDashboardCustomizer: React.FC = () => {
         </TabsList>
 
         <TabsContent value="widgets" className="space-y-4">
-          {categories.map(category => (
-            <Card key={category}>
+          {categories.map((category) =>
+          <Card key={category}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 capitalize">
                   {getCategoryIcon(category)}
@@ -330,49 +330,49 @@ const RoleDashboardCustomizer: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {widgets.filter(w => w.category === category).map(widget => (
-                    <div key={widget.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  {widgets.filter((w) => w.category === category).map((widget) =>
+                <div key={widget.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <span className="font-medium">{widget.name}</span>
                           <Badge variant="outline" className="text-xs">
                             {widget.requiredRole}
                           </Badge>
-                          {widget.isEnabled ? (
-                            <CheckCircle className="h-4 w-4 text-green-500" />
-                          ) : (
-                            <XCircle className="h-4 w-4 text-red-500" />
-                          )}
+                          {widget.isEnabled ?
+                      <CheckCircle className="h-4 w-4 text-green-500" /> :
+
+                      <XCircle className="h-4 w-4 text-red-500" />
+                      }
                         </div>
                         <p className="text-sm text-gray-600 mt-1">{widget.description}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Label className="text-xs">Position:</Label>
-                        <Select 
-                          value={widget.position.toString()} 
-                          onValueChange={(value) => updateWidgetPosition(widget.id, parseInt(value))}
-                        >
+                        <Select
+                      value={widget.position.toString()}
+                      onValueChange={(value) => updateWidgetPosition(widget.id, parseInt(value))}>
+
                           <SelectTrigger className="w-16">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {Array.from({length: 10}, (_, i) => (
-                              <SelectItem key={i+1} value={(i+1).toString()}>{i+1}</SelectItem>
-                            ))}
+                            {Array.from({ length: 10 }, (_, i) =>
+                        <SelectItem key={i + 1} value={(i + 1).toString()}>{i + 1}</SelectItem>
+                        )}
                           </SelectContent>
                         </Select>
-                        <Switch 
-                          checked={widget.isEnabled}
-                          onCheckedChange={() => toggleWidget(widget.id)}
-                          disabled={!roleAccess.canAccessAdminArea}
-                        />
+                        <Switch
+                      checked={widget.isEnabled}
+                      onCheckedChange={() => toggleWidget(widget.id)}
+                      disabled={!roleAccess.canAccessAdminArea} />
+
                       </div>
                     </div>
-                  ))}
+                )}
                 </div>
               </CardContent>
             </Card>
-          ))}
+          )}
         </TabsContent>
 
         <TabsContent value="preview" className="space-y-4">
@@ -385,10 +385,10 @@ const RoleDashboardCustomizer: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {getAvailableWidgetsForRole(previewRole)
-                  .sort((a, b) => a.position - b.position)
-                  .map(widget => (
-                  <div key={widget.id} className="border rounded-lg p-4 bg-gray-50">
+                {getAvailableWidgetsForRole(previewRole).
+                sort((a, b) => a.position - b.position).
+                map((widget) =>
+                <div key={widget.id} className="border rounded-lg p-4 bg-gray-50">
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-medium text-sm">{widget.name}</span>
                       <Badge variant="outline" className="text-xs">
@@ -401,16 +401,16 @@ const RoleDashboardCustomizer: React.FC = () => {
                       <span className="text-xs capitalize">{widget.category}</span>
                     </div>
                   </div>
-                ))}
+                )}
               </div>
-              {getAvailableWidgetsForRole(previewRole).length === 0 && (
-                <Alert>
+              {getAvailableWidgetsForRole(previewRole).length === 0 &&
+              <Alert>
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
                     No widgets are available for the {previewRole} role with current configuration.
                   </AlertDescription>
                 </Alert>
-              )}
+              }
             </CardContent>
           </Card>
         </TabsContent>
@@ -433,10 +433,10 @@ const RoleDashboardCustomizer: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {['Administrator', 'Management', 'Employee'].map(role => {
+                  {['Administrator', 'Management', 'Employee'].map((role) => {
                     const availableWidgets = getAvailableWidgetsForRole(role);
                     const byCategory = categories.reduce((acc, cat) => {
-                      acc[cat] = availableWidgets.filter(w => w.category === cat).length;
+                      acc[cat] = availableWidgets.filter((w) => w.category === cat).length;
                       return acc;
                     }, {} as Record<string, number>);
 
@@ -460,8 +460,8 @@ const RoleDashboardCustomizer: React.FC = () => {
                         <TableCell>
                           <Badge variant="outline">{byCategory.monitoring}</Badge>
                         </TableCell>
-                      </TableRow>
-                    );
+                      </TableRow>);
+
                   })}
                 </TableBody>
               </Table>
@@ -477,8 +477,8 @@ const RoleDashboardCustomizer: React.FC = () => {
           Changes affect all users with the respective roles across all stations.
         </AlertDescription>
       </Alert>
-    </div>
-  );
+    </div>);
+
 };
 
 export default RoleDashboardCustomizer;

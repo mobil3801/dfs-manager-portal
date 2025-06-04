@@ -410,13 +410,25 @@ const SiteManagement: React.FC = () => {
               <Building2 className="w-5 h-5" />
               <span>Station Information</span>
             </div>
-            {stations.length > 0 &&
-            <Checkbox
-              checked={stations.length > 0 && batchSelection.selectedCount === stations.length}
-              onCheckedChange={() => batchSelection.toggleSelectAll(stations, (station) => station.id)}
-              aria-label="Select all stations" />
-
-            }
+            <div className="flex items-center gap-2">
+              {stations.length === 0 && (
+                <Button
+                  onClick={() => window.open('/dashboard?tab=setup', '_blank')}
+                  variant="outline"
+                  size="sm"
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  Setup Guide
+                </Button>
+              )}
+              {stations.length > 0 && (
+                <Checkbox
+                  checked={stations.length > 0 && batchSelection.selectedCount === stations.length}
+                  onCheckedChange={() => batchSelection.toggleSelectAll(stations, (station) => station.id)}
+                  aria-label="Select all stations"
+                />
+              )}
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -436,6 +448,22 @@ const SiteManagement: React.FC = () => {
                   </CardContent>
                 </Card>
             )}
+            </div> : stations.length === 0 ?
+            <div className="text-center py-12">
+              <Building2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                No Stations Configured
+              </h3>
+              <p className="text-gray-500 mb-4">
+                Set up your gas stations (MOBIL, AMOCO ROSEDALE, AMOCO BROOKLYN) to get started.
+              </p>
+              <Button
+                onClick={() => window.open('/dashboard?tab=setup', '_blank')}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Go to Setup Guide
+              </Button>
             </div> :
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

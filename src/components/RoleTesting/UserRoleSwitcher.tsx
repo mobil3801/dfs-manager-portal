@@ -8,10 +8,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { 
-  Users, Shield, User, Plus, Edit, Trash2, 
-  CheckCircle, XCircle, AlertTriangle, RefreshCw 
-} from 'lucide-react';
+import {
+  Users, Shield, User, Plus, Edit, Trash2,
+  CheckCircle, XCircle, AlertTriangle, RefreshCw } from
+'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEnhancedRoleAccess } from '@/hooks/use-enhanced-role-access';
 import { toast } from '@/hooks/use-toast';
@@ -27,52 +27,52 @@ interface DemoUser {
 }
 
 const DEMO_USERS: DemoUser[] = [
-  {
-    id: '1',
-    name: 'Admin User',
-    email: 'admin@dfsmanager.com',
-    role: 'Administrator',
-    station: 'ALL',
-    isActive: true,
-    employeeId: 'EMP001'
-  },
-  {
-    id: '2',
-    name: 'Manager Smith',
-    email: 'manager@dfsmanager.com',
-    role: 'Management',
-    station: 'MOBIL',
-    isActive: true,
-    employeeId: 'EMP002'
-  },
-  {
-    id: '3',
-    name: 'Employee Jones',
-    email: 'employee@dfsmanager.com',
-    role: 'Employee',
-    station: 'AMOCO ROSEDALE',
-    isActive: true,
-    employeeId: 'EMP003'
-  },
-  {
-    id: '4',
-    name: 'Manager Davis',
-    email: 'manager2@dfsmanager.com',
-    role: 'Management',
-    station: 'AMOCO BROOKLYN',
-    isActive: true,
-    employeeId: 'EMP004'
-  },
-  {
-    id: '5',
-    name: 'Employee Wilson',
-    email: 'employee2@dfsmanager.com',
-    role: 'Employee',
-    station: 'MOBIL',
-    isActive: false,
-    employeeId: 'EMP005'
-  }
-];
+{
+  id: '1',
+  name: 'Admin User',
+  email: 'admin@dfsmanager.com',
+  role: 'Administrator',
+  station: 'ALL',
+  isActive: true,
+  employeeId: 'EMP001'
+},
+{
+  id: '2',
+  name: 'Manager Smith',
+  email: 'manager@dfsmanager.com',
+  role: 'Management',
+  station: 'MOBIL',
+  isActive: true,
+  employeeId: 'EMP002'
+},
+{
+  id: '3',
+  name: 'Employee Jones',
+  email: 'employee@dfsmanager.com',
+  role: 'Employee',
+  station: 'AMOCO ROSEDALE',
+  isActive: true,
+  employeeId: 'EMP003'
+},
+{
+  id: '4',
+  name: 'Manager Davis',
+  email: 'manager2@dfsmanager.com',
+  role: 'Management',
+  station: 'AMOCO BROOKLYN',
+  isActive: true,
+  employeeId: 'EMP004'
+},
+{
+  id: '5',
+  name: 'Employee Wilson',
+  email: 'employee2@dfsmanager.com',
+  role: 'Employee',
+  station: 'MOBIL',
+  isActive: false,
+  employeeId: 'EMP005'
+}];
+
 
 const UserRoleSwitcher: React.FC = () => {
   const { userProfile } = useAuth();
@@ -102,13 +102,13 @@ const UserRoleSwitcher: React.FC = () => {
     try {
       // In a real application, this would call the API
       // For demo purposes, we'll simulate the API call
-      setUsers(prev => prev.map(user => 
-        user.id === userId ? { ...user, role: newRole } : user
+      setUsers((prev) => prev.map((user) =>
+      user.id === userId ? { ...user, role: newRole } : user
       ));
 
       toast({
         title: 'Role Updated',
-        description: `User role has been changed to ${newRole}.`,
+        description: `User role has been changed to ${newRole}.`
       });
     } catch (error) {
       toast({
@@ -129,14 +129,14 @@ const UserRoleSwitcher: React.FC = () => {
       return;
     }
 
-    setUsers(prev => prev.map(user => 
-      user.id === userId ? { ...user, isActive: !user.isActive } : user
+    setUsers((prev) => prev.map((user) =>
+    user.id === userId ? { ...user, isActive: !user.isActive } : user
     ));
 
-    const user = users.find(u => u.id === userId);
+    const user = users.find((u) => u.id === userId);
     toast({
       title: 'Status Updated',
-      description: `User has been ${user?.isActive ? 'deactivated' : 'activated'}.`,
+      description: `User has been ${user?.isActive ? 'deactivated' : 'activated'}.`
     });
   };
 
@@ -169,7 +169,7 @@ const UserRoleSwitcher: React.FC = () => {
       employeeId: newUser.employeeId!
     };
 
-    setUsers(prev => [...prev, user]);
+    setUsers((prev) => [...prev, user]);
     setNewUser({
       name: '',
       email: '',
@@ -182,12 +182,12 @@ const UserRoleSwitcher: React.FC = () => {
 
     toast({
       title: 'User Created',
-      description: `New ${user.role.toLowerCase()} user has been created.`,
+      description: `New ${user.role.toLowerCase()} user has been created.`
     });
   };
 
   const simulateRoleSwitch = (targetUserId: string) => {
-    const targetUser = users.find(u => u.id === targetUserId);
+    const targetUser = users.find((u) => u.id === targetUserId);
     if (!targetUser) return;
 
     toast({
@@ -264,11 +264,11 @@ const UserRoleSwitcher: React.FC = () => {
           <CardTitle>Demo User Accounts</CardTitle>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 className="flex items-center gap-2"
-                disabled={!roleAccess.canAccessAdminArea}
-              >
+                disabled={!roleAccess.canAccessAdminArea}>
+
                 <Plus className="h-4 w-4" />
                 Add User
               </Button>
@@ -283,9 +283,9 @@ const UserRoleSwitcher: React.FC = () => {
                   <Input
                     id="name"
                     value={newUser.name || ''}
-                    onChange={(e) => setNewUser(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="Enter full name"
-                  />
+                    onChange={(e) => setNewUser((prev) => ({ ...prev, name: e.target.value }))}
+                    placeholder="Enter full name" />
+
                 </div>
                 <div>
                   <Label htmlFor="email">Email</Label>
@@ -293,25 +293,25 @@ const UserRoleSwitcher: React.FC = () => {
                     id="email"
                     type="email"
                     value={newUser.email || ''}
-                    onChange={(e) => setNewUser(prev => ({ ...prev, email: e.target.value }))}
-                    placeholder="Enter email address"
-                  />
+                    onChange={(e) => setNewUser((prev) => ({ ...prev, email: e.target.value }))}
+                    placeholder="Enter email address" />
+
                 </div>
                 <div>
                   <Label htmlFor="employeeId">Employee ID</Label>
                   <Input
                     id="employeeId"
                     value={newUser.employeeId || ''}
-                    onChange={(e) => setNewUser(prev => ({ ...prev, employeeId: e.target.value }))}
-                    placeholder="Enter employee ID"
-                  />
+                    onChange={(e) => setNewUser((prev) => ({ ...prev, employeeId: e.target.value }))}
+                    placeholder="Enter employee ID" />
+
                 </div>
                 <div>
                   <Label htmlFor="role">Role</Label>
-                  <Select 
-                    value={newUser.role} 
-                    onValueChange={(value: any) => setNewUser(prev => ({ ...prev, role: value }))}
-                  >
+                  <Select
+                    value={newUser.role}
+                    onValueChange={(value: any) => setNewUser((prev) => ({ ...prev, role: value }))}>
+
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -324,10 +324,10 @@ const UserRoleSwitcher: React.FC = () => {
                 </div>
                 <div>
                   <Label htmlFor="station">Station</Label>
-                  <Select 
-                    value={newUser.station} 
-                    onValueChange={(value) => setNewUser(prev => ({ ...prev, station: value }))}
-                  >
+                  <Select
+                    value={newUser.station}
+                    onValueChange={(value) => setNewUser((prev) => ({ ...prev, station: value }))}>
+
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -343,11 +343,11 @@ const UserRoleSwitcher: React.FC = () => {
                   <Button onClick={handleCreateUser} className="flex-1">
                     Create User
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => setIsCreateDialogOpen(false)}
-                    className="flex-1"
-                  >
+                    className="flex-1">
+
                     Cancel
                   </Button>
                 </div>
@@ -368,8 +368,8 @@ const UserRoleSwitcher: React.FC = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
+              {users.map((user) =>
+              <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
@@ -381,25 +381,25 @@ const UserRoleSwitcher: React.FC = () => {
                     <Badge variant="outline">{user.station}</Badge>
                   </TableCell>
                   <TableCell>
-                    {user.isActive ? (
-                      <Badge variant="default" className="bg-green-600">
+                    {user.isActive ?
+                  <Badge variant="default" className="bg-green-600">
                         <CheckCircle className="h-3 w-3 mr-1" />
                         Active
-                      </Badge>
-                    ) : (
-                      <Badge variant="destructive">
+                      </Badge> :
+
+                  <Badge variant="destructive">
                         <XCircle className="h-3 w-3 mr-1" />
                         Inactive
                       </Badge>
-                    )}
+                  }
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Select 
-                        value={user.role} 
-                        onValueChange={(newRole: any) => handleUserRoleUpdate(user.id, newRole)}
-                        disabled={!roleAccess.canAccessAdminArea}
-                      >
+                      <Select
+                      value={user.role}
+                      onValueChange={(newRole: any) => handleUserRoleUpdate(user.id, newRole)}
+                      disabled={!roleAccess.canAccessAdminArea}>
+
                         <SelectTrigger className="w-32">
                           <SelectValue />
                         </SelectTrigger>
@@ -410,25 +410,25 @@ const UserRoleSwitcher: React.FC = () => {
                         </SelectContent>
                       </Select>
                       <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleUserStatusToggle(user.id)}
-                        disabled={!roleAccess.canAccessAdminArea}
-                      >
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleUserStatusToggle(user.id)}
+                      disabled={!roleAccess.canAccessAdminArea}>
+
                         {user.isActive ? 'Deactivate' : 'Activate'}
                       </Button>
                       <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => simulateRoleSwitch(user.id)}
-                        title="Simulate login as this user"
-                      >
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => simulateRoleSwitch(user.id)}
+                      title="Simulate login as this user">
+
                         <RefreshCw className="h-4 w-4" />
                       </Button>
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -442,8 +442,8 @@ const UserRoleSwitcher: React.FC = () => {
           The "Simulate Role Switch" button shows what access each role would have.
         </AlertDescription>
       </Alert>
-    </div>
-  );
+    </div>);
+
 };
 
 export default UserRoleSwitcher;

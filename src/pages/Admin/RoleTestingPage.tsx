@@ -28,8 +28,8 @@ const RoleTestingPage: React.FC = () => {
             Above is your role-based dashboard view.
           </AlertDescription>
         </Alert>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -46,9 +46,9 @@ const RoleTestingPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Current Role:</span>
               <Badge className={`${
-                roleAccess.userRole === 'Administrator' ? 'bg-red-500' :
-                roleAccess.userRole === 'Management' ? 'bg-blue-500' : 'bg-green-500'
-              }`}>
+              roleAccess.userRole === 'Administrator' ? 'bg-red-500' :
+              roleAccess.userRole === 'Management' ? 'bg-blue-500' : 'bg-green-500'}`
+              }>
                 {roleAccess.userRole}
               </Badge>
             </div>
@@ -190,8 +190,8 @@ const RoleTestingPage: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default RoleTestingPage;

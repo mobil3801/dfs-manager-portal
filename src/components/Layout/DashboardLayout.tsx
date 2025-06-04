@@ -107,11 +107,11 @@ const DashboardLayout: React.FC = () => {
 
   // Admin-only navigation items
   const adminNavigationItems: NavigationItem[] = [
-  { name: 'User Management', path: '/admin/users', icon: <UserCheck className="w-5 h-5" /> },
-  { name: 'Site Management', path: '/admin/site', icon: <Globe className="w-5 h-5" /> },
-  { name: 'SMS Alerts', path: '/admin/sms-alerts', icon: <MessageSquare className="w-5 h-5" /> },
-  { name: 'System Logs', path: '/admin/logs', icon: <Database className="w-5 h-5" /> },
-  { name: 'Security Settings', path: '/admin/security', icon: <Shield className="w-5 h-5" /> },
+  { name: 'User Management', path: '/admin/user-management', icon: <UserCheck className="w-5 h-5" /> },
+  { name: 'Site Management', path: '/admin/site-management', icon: <Globe className="w-5 h-5" /> },
+  { name: 'SMS Alerts', path: '/admin/sms-alert-management', icon: <MessageSquare className="w-5 h-5" /> },
+  { name: 'System Logs', path: '/admin/system-logs', icon: <Database className="w-5 h-5" /> },
+  { name: 'Security Settings', path: '/admin/security-settings', icon: <Shield className="w-5 h-5" /> },
   { name: 'Error Recovery', path: '/admin/error-recovery', icon: <AlertTriangle className="w-5 h-5" /> },
   { name: 'Memory Monitoring', path: '/admin/memory-monitoring', icon: <Activity className="w-5 h-5" /> },
   { name: 'Database Monitoring', path: '/admin/database-monitoring', icon: <Database className="w-5 h-5" /> },
@@ -168,11 +168,11 @@ const DashboardLayout: React.FC = () => {
     if (path.startsWith('/vendors')) return 'Vendors';
     if (path.startsWith('/orders')) return 'Orders';
     if (path.startsWith('/licenses')) return 'Licenses & Certificates';
-    if (path.startsWith('/admin/users')) return 'User Management';
-    if (path.startsWith('/admin/site')) return 'Site Management';
-    if (path.startsWith('/admin/sms-alerts')) return 'SMS Alert Management';
-    if (path.startsWith('/admin/logs')) return 'System Logs';
-    if (path.startsWith('/admin/security')) return 'Security Settings';
+    if (path.startsWith('/admin/user-management')) return 'User Management';
+    if (path.startsWith('/admin/site-management')) return 'Site Management';
+    if (path.startsWith('/admin/sms-alert-management')) return 'SMS Alert Management';
+    if (path.startsWith('/admin/system-logs')) return 'System Logs';
+    if (path.startsWith('/admin/security-settings')) return 'Security Settings';
     if (path.startsWith('/admin/error-recovery')) return 'Error Recovery Center';
     if (path.startsWith('/admin/memory-monitoring')) return 'Memory Leak Monitoring';
     if (path.startsWith('/admin/database-monitoring')) return 'Database Connection Monitoring';

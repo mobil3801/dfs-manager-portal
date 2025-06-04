@@ -24,79 +24,79 @@ interface RoleTestScenario {
 }
 
 const TEST_SCENARIOS: RoleTestScenario[] = [
-  {
-    id: '1',
-    name: 'Admin Dashboard Access',
-    description: 'Administrator accessing admin dashboard',
-    feature: 'admin',
-    action: 'canView',
-    expectedResult: 'allow',
-    role: 'Administrator'
-  },
-  {
-    id: '2',
-    name: 'Employee Admin Restriction',
-    description: 'Employee trying to access admin area',
-    feature: 'admin',
-    action: 'canView',
-    expectedResult: 'deny',
-    role: 'Employee'
-  },
-  {
-    id: '3',
-    name: 'Management User Management',
-    description: 'Management trying to manage users',
-    feature: 'employees',
-    action: 'canManageUsers',
-    expectedResult: 'deny',
-    role: 'Management'
-  },
-  {
-    id: '4',
-    name: 'Employee Product Creation',
-    description: 'Employee trying to create products',
-    feature: 'products',
-    action: 'canCreate',
-    expectedResult: 'deny',
-    role: 'Employee'
-  },
-  {
-    id: '5',
-    name: 'Management Sales Report',
-    description: 'Management viewing sales reports',
-    feature: 'sales',
-    action: 'canViewReports',
-    expectedResult: 'allow',
-    role: 'Management'
-  },
-  {
-    id: '6',
-    name: 'Employee Salary Access',
-    description: 'Employee trying to view salary information',
-    feature: 'salary',
-    action: 'canView',
-    expectedResult: 'deny',
-    role: 'Employee'
-  },
-  {
-    id: '7',
-    name: 'Admin Monitoring Access',
-    description: 'Administrator accessing monitoring features',
-    feature: 'monitoring',
-    action: 'canAccessMonitoring',
-    expectedResult: 'allow',
-    role: 'Administrator'
-  },
-  {
-    id: '8',
-    name: 'Management Delete Restriction',
-    description: 'Management trying to delete records',
-    feature: 'products',
-    action: 'canDelete',
-    expectedResult: 'deny',
-    role: 'Management'
-  }
-];
+{
+  id: '1',
+  name: 'Admin Dashboard Access',
+  description: 'Administrator accessing admin dashboard',
+  feature: 'admin',
+  action: 'canView',
+  expectedResult: 'allow',
+  role: 'Administrator'
+},
+{
+  id: '2',
+  name: 'Employee Admin Restriction',
+  description: 'Employee trying to access admin area',
+  feature: 'admin',
+  action: 'canView',
+  expectedResult: 'deny',
+  role: 'Employee'
+},
+{
+  id: '3',
+  name: 'Management User Management',
+  description: 'Management trying to manage users',
+  feature: 'employees',
+  action: 'canManageUsers',
+  expectedResult: 'deny',
+  role: 'Management'
+},
+{
+  id: '4',
+  name: 'Employee Product Creation',
+  description: 'Employee trying to create products',
+  feature: 'products',
+  action: 'canCreate',
+  expectedResult: 'deny',
+  role: 'Employee'
+},
+{
+  id: '5',
+  name: 'Management Sales Report',
+  description: 'Management viewing sales reports',
+  feature: 'sales',
+  action: 'canViewReports',
+  expectedResult: 'allow',
+  role: 'Management'
+},
+{
+  id: '6',
+  name: 'Employee Salary Access',
+  description: 'Employee trying to view salary information',
+  feature: 'salary',
+  action: 'canView',
+  expectedResult: 'deny',
+  role: 'Employee'
+},
+{
+  id: '7',
+  name: 'Admin Monitoring Access',
+  description: 'Administrator accessing monitoring features',
+  feature: 'monitoring',
+  action: 'canAccessMonitoring',
+  expectedResult: 'allow',
+  role: 'Administrator'
+},
+{
+  id: '8',
+  name: 'Management Delete Restriction',
+  description: 'Management trying to delete records',
+  feature: 'products',
+  action: 'canDelete',
+  expectedResult: 'deny',
+  role: 'Management'
+}];
+
 
 const RoleTestingDashboard: React.FC = () => {
   const { userProfile } = useAuth();
@@ -110,12 +110,12 @@ const RoleTestingDashboard: React.FC = () => {
       scenario.feature as any,
       scenario.action as any
     );
-    
-    const result = (scenario.expectedResult === 'allow' && hasAccess) || 
-                   (scenario.expectedResult === 'deny' && !hasAccess) ? 'pass' : 'fail';
-    
-    setTestResults(prev => ({ ...prev, [scenario.id]: result }));
-    
+
+    const result = scenario.expectedResult === 'allow' && hasAccess ||
+    scenario.expectedResult === 'deny' && !hasAccess ? 'pass' : 'fail';
+
+    setTestResults((prev) => ({ ...prev, [scenario.id]: result }));
+
     toast({
       title: result === 'pass' ? 'Test Passed' : 'Test Failed',
       description: `${scenario.name}: ${result === 'pass' ? 'Behaving as expected' : 'Unexpected behavior'}`,
@@ -128,19 +128,19 @@ const RoleTestingDashboard: React.FC = () => {
   const runAllTests = async () => {
     setIsRunningTests(true);
     setTestResults({});
-    
+
     for (const scenario of TEST_SCENARIOS) {
       if (scenario.role === roleAccess.userRole) {
-        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate test delay
+        await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate test delay
         runRoleTest(scenario);
       }
     }
-    
+
     setIsRunningTests(false);
-    
-    const passedTests = Object.values(testResults).filter(result => result === 'pass').length;
+
+    const passedTests = Object.values(testResults).filter((result) => result === 'pass').length;
     const totalTests = Object.keys(testResults).length;
-    
+
     toast({
       title: 'Test Suite Complete',
       description: `${passedTests}/${totalTests} tests passed`,
@@ -151,8 +151,8 @@ const RoleTestingDashboard: React.FC = () => {
   const getFeatureMatrix = () => {
     const features = ['dashboard', 'products', 'employees', 'sales', 'vendors', 'orders', 'licenses', 'salary', 'inventory', 'delivery', 'settings', 'admin', 'monitoring'];
     const actions = ['canView', 'canEdit', 'canCreate', 'canDelete', 'canExport', 'canManageUsers', 'canViewReports', 'canAccessMonitoring'];
-    
-    return features.map(feature => ({
+
+    return features.map((feature) => ({
       feature,
       permissions: actions.reduce((acc, action) => {
         acc[action] = roleAccess.hasFeatureAccess(feature as any, action as any);
@@ -185,7 +185,7 @@ const RoleTestingDashboard: React.FC = () => {
     }
   };
 
-  const currentRoleScenarios = TEST_SCENARIOS.filter(scenario => scenario.role === roleAccess.userRole);
+  const currentRoleScenarios = TEST_SCENARIOS.filter((scenario) => scenario.role === roleAccess.userRole);
 
   return (
     <div className="space-y-6">
@@ -247,8 +247,8 @@ const RoleTestingDashboard: React.FC = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {getFeatureMatrix().map(({ feature, permissions }) => (
-                      <TableRow key={feature}>
+                    {getFeatureMatrix().map(({ feature, permissions }) =>
+                    <TableRow key={feature}>
                         <TableCell className="font-medium capitalize">{feature}</TableCell>
                         <TableCell>
                           <Badge variant={permissions.canView ? 'default' : 'destructive'}>
@@ -291,7 +291,7 @@ const RoleTestingDashboard: React.FC = () => {
                           </Badge>
                         </TableCell>
                       </TableRow>
-                    ))}
+                    )}
                   </TableBody>
                 </Table>
               </div>
@@ -304,11 +304,11 @@ const RoleTestingDashboard: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 Automated Role Tests
-                <Button 
-                  onClick={runAllTests} 
+                <Button
+                  onClick={runAllTests}
                   disabled={isRunningTests}
-                  className="flex items-center gap-2"
-                >
+                  className="flex items-center gap-2">
+
                   <BarChart3 className="h-4 w-4" />
                   {isRunningTests ? 'Running Tests...' : 'Run All Tests'}
                 </Button>
@@ -316,8 +316,8 @@ const RoleTestingDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {currentRoleScenarios.map(scenario => (
-                  <div key={scenario.id} className="flex items-center justify-between p-3 border rounded-lg">
+                {currentRoleScenarios.map((scenario) =>
+                <div key={scenario.id} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         {getTestResultIcon(testResults[scenario.id] || 'pending')}
@@ -328,16 +328,16 @@ const RoleTestingDashboard: React.FC = () => {
                       </div>
                       <p className="text-sm text-gray-600 mt-1">{scenario.description}</p>
                     </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => runRoleTest(scenario)}
-                      disabled={isRunningTests}
-                    >
+                    <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => runRoleTest(scenario)}
+                    disabled={isRunningTests}>
+
                       Test
                     </Button>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -350,17 +350,17 @@ const RoleTestingDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {['Administrator', 'Management', 'Employee'].map(role => (
-                  <div key={role} className="border rounded-lg p-4">
+                {['Administrator', 'Management', 'Employee'].map((role) =>
+                <div key={role} className="border rounded-lg p-4">
                     <div className="flex items-center gap-2 mb-3">
                       <Badge className={getRoleColor(role)}>{role}</Badge>
                       <span className="text-sm text-gray-600">
-                        ({TEST_SCENARIOS.filter(s => s.role === role).length} scenarios)
+                        ({TEST_SCENARIOS.filter((s) => s.role === role).length} scenarios)
                       </span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {TEST_SCENARIOS.filter(s => s.role === role).map(scenario => (
-                        <div key={scenario.id} className="text-sm p-2 bg-gray-50 rounded">
+                      {TEST_SCENARIOS.filter((s) => s.role === role).map((scenario) =>
+                    <div key={scenario.id} className="text-sm p-2 bg-gray-50 rounded">
                           <div className="font-medium">{scenario.name}</div>
                           <div className="text-gray-600">{scenario.description}</div>
                           <div className="flex items-center gap-2 mt-1">
@@ -372,10 +372,10 @@ const RoleTestingDashboard: React.FC = () => {
                             </Badge>
                           </div>
                         </div>
-                      ))}
+                    )}
                     </div>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -390,8 +390,8 @@ const RoleTestingDashboard: React.FC = () => {
           To test different roles, ask an administrator to temporarily change your role or use different user accounts.
         </AlertDescription>
       </Alert>
-    </div>
-  );
+    </div>);
+
 };
 
 export default RoleTestingDashboard;

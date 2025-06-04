@@ -57,7 +57,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: true,
       canViewLogs: true,
-      canAccessMonitoring: true,
+      canAccessMonitoring: true
     },
     products: {
       canView: true,
@@ -70,7 +70,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: true,
       canViewLogs: true,
-      canAccessMonitoring: true,
+      canAccessMonitoring: true
     },
     employees: {
       canView: true,
@@ -83,7 +83,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: true,
       canViewLogs: true,
-      canAccessMonitoring: true,
+      canAccessMonitoring: true
     },
     sales: {
       canView: true,
@@ -96,7 +96,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: true,
       canViewLogs: true,
-      canAccessMonitoring: true,
+      canAccessMonitoring: true
     },
     vendors: {
       canView: true,
@@ -109,7 +109,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: true,
       canViewLogs: true,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     orders: {
       canView: true,
@@ -122,7 +122,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: false,
       canViewLogs: true,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     licenses: {
       canView: true,
@@ -135,7 +135,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: true,
       canViewLogs: true,
-      canAccessMonitoring: true,
+      canAccessMonitoring: true
     },
     salary: {
       canView: true,
@@ -148,7 +148,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: true,
       canViewLogs: true,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     inventory: {
       canView: true,
@@ -161,7 +161,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: true,
       canViewLogs: true,
-      canAccessMonitoring: true,
+      canAccessMonitoring: true
     },
     delivery: {
       canView: true,
@@ -174,7 +174,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: false,
       canViewLogs: true,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     settings: {
       canView: true,
@@ -187,7 +187,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: true,
       canViewLogs: true,
-      canAccessMonitoring: true,
+      canAccessMonitoring: true
     },
     admin: {
       canView: true,
@@ -200,7 +200,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: true,
       canViewLogs: true,
-      canAccessMonitoring: true,
+      canAccessMonitoring: true
     },
     monitoring: {
       canView: true,
@@ -213,8 +213,8 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: true,
       canViewLogs: true,
-      canAccessMonitoring: true,
-    },
+      canAccessMonitoring: true
+    }
   },
   Management: {
     dashboard: {
@@ -228,7 +228,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: false,
       canViewLogs: true,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     products: {
       canView: true,
@@ -241,7 +241,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     employees: {
       canView: true,
@@ -254,7 +254,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     sales: {
       canView: true,
@@ -267,7 +267,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     vendors: {
       canView: true,
@@ -280,7 +280,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     orders: {
       canView: true,
@@ -293,7 +293,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     licenses: {
       canView: true,
@@ -306,7 +306,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     salary: {
       canView: true,
@@ -319,7 +319,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     inventory: {
       canView: true,
@@ -332,7 +332,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     delivery: {
       canView: true,
@@ -345,7 +345,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     settings: {
       canView: true,
@@ -358,7 +358,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: true,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     admin: {
       canView: false,
@@ -371,7 +371,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: false,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     monitoring: {
       canView: false,
@@ -384,8 +384,8 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: false,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
-    },
+      canAccessMonitoring: false
+    }
   },
   Employee: {
     dashboard: {
@@ -399,7 +399,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: false,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     products: {
       canView: true,
@@ -412,7 +412,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: false,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     employees: {
       canView: false,
@@ -425,7 +425,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: false,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     sales: {
       canView: true,
@@ -438,7 +438,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: false,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     vendors: {
       canView: true,
@@ -451,7 +451,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: false,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     orders: {
       canView: true,
@@ -464,7 +464,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: false,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     licenses: {
       canView: false,
@@ -477,7 +477,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: false,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     salary: {
       canView: false,
@@ -490,7 +490,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: false,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     inventory: {
       canView: true,
@@ -503,7 +503,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: false,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     delivery: {
       canView: true,
@@ -516,7 +516,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: false,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     settings: {
       canView: false,
@@ -529,7 +529,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: false,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     admin: {
       canView: false,
@@ -542,7 +542,7 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: false,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
+      canAccessMonitoring: false
     },
     monitoring: {
       canView: false,
@@ -555,9 +555,9 @@ const ROLE_PERMISSIONS: Record<'Administrator' | 'Management' | 'Employee', Role
       canViewReports: false,
       canManageSettings: false,
       canViewLogs: false,
-      canAccessMonitoring: false,
-    },
-  },
+      canAccessMonitoring: false
+    }
+  }
 };
 
 export const useEnhancedRoleAccess = (): EnhancedRoleAccess => {
@@ -566,19 +566,19 @@ export const useEnhancedRoleAccess = (): EnhancedRoleAccess => {
   const roleData = useMemo(() => {
     const userRole = userProfile?.role || null;
     const stationAccess = userProfile?.station || 'ALL';
-    
+
     // Get capabilities based on role, default to Employee permissions if no role
     const capabilities = userRole ? ROLE_PERMISSIONS[userRole] : ROLE_PERMISSIONS.Employee;
-    
+
     const canAccessAdminArea = userRole === 'Administrator';
     const canAccessMonitoringArea = userRole === 'Administrator';
     const canManageOtherUsers = userRole === 'Administrator';
     const isFullyRestricted = userRole === 'Employee';
 
     const hasFeatureAccess = (
-      feature: keyof RoleCapabilities,
-      permission: keyof PermissionConfig
-    ): boolean => {
+    feature: keyof RoleCapabilities,
+    permission: keyof PermissionConfig)
+    : boolean => {
       if (!userRole) return false;
       return capabilities[feature][permission];
     };
@@ -605,7 +605,7 @@ export const useEnhancedRoleAccess = (): EnhancedRoleAccess => {
       canManageOtherUsers,
       stationAccess,
       getRestrictedMessage,
-      isFullyRestricted,
+      isFullyRestricted
     };
   }, [userProfile]);
 
