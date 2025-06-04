@@ -633,6 +633,8 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
 
 
 
+
+
           // Invalid date format, ignore
         }} // Calculate profit margin
       const unitPrice = mapped.unit_price || 0;const retailPrice = mapped.retail_price || 0;const profitMargin = calculateProfitMargin(unitPrice, retailPrice); // Calculate overdue status
@@ -665,9 +667,7 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
               </Button>
             </div>
 
-            {uploadMethod === 'enhanced' ? (
-        /* Enhanced upload with camera option */
-        <div className="space-y-4">
+            {uploadMethod === 'enhanced' ? (/* Enhanced upload with camera option */<div className="space-y-4">
                 {/* Compression info banner */}
                 <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                   <div className="flex items-center gap-2 text-blue-700">

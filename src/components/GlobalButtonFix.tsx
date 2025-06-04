@@ -21,19 +21,19 @@ export const useButtonFix = (options: ButtonFixOptions = {}) => {
 
   // Enhanced delete handler with proper confirmation and error handling
   const handleDelete = async (
-    itemId: number,
-    itemName: string,
-    tableId: string,
-    onSuccess?: () => void,
-    customConfirmMessage?: string
-  ) => {
+  itemId: number,
+  itemName: string,
+  tableId: string,
+  onSuccess?: () => void,
+  customConfirmMessage?: string) =>
+  {
     if (logActions) {
       console.log(`Delete action triggered for ${itemName} (ID: ${itemId})`);
     }
 
     if (confirmDeletion) {
       const confirmed = confirm(
-        customConfirmMessage || 
+        customConfirmMessage ||
         `Are you sure you want to delete "${itemName}"? This action cannot be undone.`
       );
       if (!confirmed) {
@@ -50,7 +50,7 @@ export const useButtonFix = (options: ButtonFixOptions = {}) => {
       }
 
       const { error } = await window.ezsite.apis.tableDelete(tableId, { ID: itemId });
-      
+
       if (error) {
         console.error('API returned error:', error);
         throw error;
@@ -68,7 +68,7 @@ export const useButtonFix = (options: ButtonFixOptions = {}) => {
       if (onSuccess) {
         onSuccess();
       }
-      
+
       return true;
     } catch (error) {
       console.error(`Error deleting ${itemName}:`, error);
@@ -83,13 +83,13 @@ export const useButtonFix = (options: ButtonFixOptions = {}) => {
 
   // Enhanced save handler with proper validation and error handling
   const handleSave = async (
-    data: any,
-    tableId: string,
-    isEditing: boolean,
-    itemId?: number,
-    onSuccess?: () => void,
-    customValidation?: (data: any) => string | null
-  ) => {
+  data: any,
+  tableId: string,
+  isEditing: boolean,
+  itemId?: number,
+  onSuccess?: () => void,
+  customValidation?: (data: any) => string | null) =>
+  {
     if (logActions) {
       console.log(`Save action triggered for table ${tableId}:`, { isEditing, itemId, data });
     }
@@ -109,7 +109,7 @@ export const useButtonFix = (options: ButtonFixOptions = {}) => {
 
     try {
       let result;
-      
+
       if (isEditing && itemId) {
         if (logActions) {
           console.log(`Updating record in table ${tableId}:`, { ID: itemId, ...data });
@@ -139,7 +139,7 @@ export const useButtonFix = (options: ButtonFixOptions = {}) => {
       if (onSuccess) {
         onSuccess();
       }
-      
+
       return true;
     } catch (error) {
       console.error(`Error ${isEditing ? 'updating' : 'creating'} record:`, error);
@@ -157,7 +157,7 @@ export const useButtonFix = (options: ButtonFixOptions = {}) => {
     if (logActions) {
       console.log(`Navigation triggered to: ${path}`, params);
     }
-    
+
     try {
       navigate(path, params);
       return true;
@@ -175,7 +175,7 @@ export const useButtonFix = (options: ButtonFixOptions = {}) => {
   // Enhanced form validation
   const validateForm = (data: any, requiredFields: string[]): string | null => {
     for (const field of requiredFields) {
-      if (!data[field] || (typeof data[field] === 'string' && data[field].trim() === '')) {
+      if (!data[field] || typeof data[field] === 'string' && data[field].trim() === '') {
         return `${field.replace(/_/g, ' ')} is required`;
       }
     }
@@ -184,9 +184,9 @@ export const useButtonFix = (options: ButtonFixOptions = {}) => {
 
   // Enhanced API call wrapper
   const safeApiCall = async (
-    apiCall: () => Promise<any>,
-    errorMessage: string = "API operation failed"
-  ) => {
+  apiCall: () => Promise<any>,
+  errorMessage: string = "API operation failed") =>
+  {
     try {
       const result = await apiCall();
       if (result.error) {
@@ -229,7 +229,7 @@ export const ButtonTestComponent: React.FC = () => {
       category: "Test Category",
       price: 10.99
     };
-    
+
     await handleSave(testData, "11726", false, undefined, () => {
       console.log("Save test completed successfully");
     });
@@ -251,8 +251,8 @@ export const ButtonTestComponent: React.FC = () => {
   return (
     <div className="hidden">
       {/* This component is for testing purposes only */}
-    </div>
-  );
+    </div>);
+
 };
 
 export default useButtonFix;
