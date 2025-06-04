@@ -9,9 +9,9 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import {
-  Building, MapPin, Phone, Clock, User, CheckCircle, 
-  Plus, Edit, Trash2, AlertTriangle, Save, Loader2
-} from 'lucide-react';
+  Building, MapPin, Phone, Clock, User, CheckCircle,
+  Plus, Edit, Trash2, AlertTriangle, Save, Loader2 } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Station {
@@ -34,31 +34,31 @@ const InitialStationSetup: React.FC = () => {
   const [isCreating, setIsCreating] = useState(false);
 
   const defaultStations = [
-    {
-      station_name: 'MOBIL',
-      address: '',
-      phone: '',
-      operating_hours: '24/7',
-      manager_name: '',
-      status: 'Active'
-    },
-    {
-      station_name: 'AMOCO ROSEDALE',
-      address: '',
-      phone: '',
-      operating_hours: '24/7',
-      manager_name: '',
-      status: 'Active'
-    },
-    {
-      station_name: 'AMOCO BROOKLYN',
-      address: '',
-      phone: '',
-      operating_hours: '24/7',
-      manager_name: '',
-      status: 'Active'
-    }
-  ];
+  {
+    station_name: 'MOBIL',
+    address: '',
+    phone: '',
+    operating_hours: '24/7',
+    manager_name: '',
+    status: 'Active'
+  },
+  {
+    station_name: 'AMOCO ROSEDALE',
+    address: '',
+    phone: '',
+    operating_hours: '24/7',
+    manager_name: '',
+    status: 'Active'
+  },
+  {
+    station_name: 'AMOCO BROOKLYN',
+    address: '',
+    phone: '',
+    operating_hours: '24/7',
+    manager_name: '',
+    status: 'Active'
+  }];
+
 
   useEffect(() => {
     loadStations();
@@ -96,7 +96,7 @@ const InitialStationSetup: React.FC = () => {
   const setupDefaultStations = async () => {
     try {
       setLoading(true);
-      
+
       for (const station of defaultStations) {
         const { error } = await window.ezsite.apis.tableCreate(12599, {
           ...station,
@@ -111,7 +111,7 @@ const InitialStationSetup: React.FC = () => {
 
       toast({
         title: "Success!",
-        description: "Default stations created successfully. Please update their details.",
+        description: "Default stations created successfully. Please update their details."
       });
 
       await loadStations();
@@ -130,7 +130,7 @@ const InitialStationSetup: React.FC = () => {
   const saveStation = async (station: Station) => {
     try {
       setLoading(true);
-      
+
       const stationData = {
         ...station,
         last_updated: new Date().toISOString(),
@@ -152,7 +152,7 @@ const InitialStationSetup: React.FC = () => {
 
       toast({
         title: "Success!",
-        description: `Station ${station.station_name} ${station.id ? 'updated' : 'created'} successfully.`,
+        description: `Station ${station.station_name} ${station.id ? 'updated' : 'created'} successfully.`
       });
 
       setEditingStation(null);
@@ -181,7 +181,7 @@ const InitialStationSetup: React.FC = () => {
 
       toast({
         title: "Success!",
-        description: "Station deleted successfully.",
+        description: "Station deleted successfully."
       });
 
       await loadStations();
@@ -197,7 +197,7 @@ const InitialStationSetup: React.FC = () => {
     }
   };
 
-  const StationForm: React.FC<{ station: Station; onSave: (station: Station) => void; onCancel: () => void }> = ({
+  const StationForm: React.FC<{station: Station;onSave: (station: Station) => void;onCancel: () => void;}> = ({
     station,
     onSave,
     onCancel
@@ -227,8 +227,8 @@ const InitialStationSetup: React.FC = () => {
                   value={formData.station_name}
                   onChange={(e) => setFormData({ ...formData, station_name: e.target.value })}
                   placeholder="e.g., MOBIL, AMOCO ROSEDALE"
-                  required
-                />
+                  required />
+
               </div>
               
               <div className="space-y-2">
@@ -237,8 +237,8 @@ const InitialStationSetup: React.FC = () => {
                   id="manager_name"
                   value={formData.manager_name}
                   onChange={(e) => setFormData({ ...formData, manager_name: e.target.value })}
-                  placeholder="Station manager name"
-                />
+                  placeholder="Station manager name" />
+
               </div>
             </div>
 
@@ -249,8 +249,8 @@ const InitialStationSetup: React.FC = () => {
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 placeholder="Complete station address"
-                rows={2}
-              />
+                rows={2} />
+
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -260,16 +260,16 @@ const InitialStationSetup: React.FC = () => {
                   id="phone"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="(555) 123-4567"
-                />
+                  placeholder="(555) 123-4567" />
+
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="operating_hours">Operating Hours</Label>
                 <Select
                   value={formData.operating_hours}
-                  onValueChange={(value) => setFormData({ ...formData, operating_hours: value })}
-                >
+                  onValueChange={(value) => setFormData({ ...formData, operating_hours: value })}>
+
                   <SelectTrigger>
                     <SelectValue placeholder="Select operating hours" />
                   </SelectTrigger>
@@ -288,8 +288,8 @@ const InitialStationSetup: React.FC = () => {
               <Label htmlFor="status">Status</Label>
               <Select
                 value={formData.status}
-                onValueChange={(value) => setFormData({ ...formData, status: value })}
-              >
+                onValueChange={(value) => setFormData({ ...formData, status: value })}>
+
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
@@ -304,32 +304,32 @@ const InitialStationSetup: React.FC = () => {
             <Separator />
 
             <div className="flex gap-2">
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={loading}
-                className="flex items-center gap-2"
-              >
-                {loading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Save className="h-4 w-4" />
-                )}
+                className="flex items-center gap-2">
+
+                {loading ?
+                <Loader2 className="h-4 w-4 animate-spin" /> :
+
+                <Save className="h-4 w-4" />
+                }
                 {station.id ? 'Update Station' : 'Create Station'}
               </Button>
               
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={onCancel}
-                disabled={loading}
-              >
+                disabled={loading}>
+
                 Cancel
               </Button>
             </div>
           </form>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   };
 
   if (loading && stations.length === 0) {
@@ -341,8 +341,8 @@ const InitialStationSetup: React.FC = () => {
             <span className="ml-2">Loading stations...</span>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -356,12 +356,12 @@ const InitialStationSetup: React.FC = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          {stations.length === 0 && (
-            <Button onClick={setupDefaultStations} disabled={loading}>
+          {stations.length === 0 &&
+          <Button onClick={setupDefaultStations} disabled={loading}>
               <Plus className="h-4 w-4 mr-2" />
               Setup Default Stations
             </Button>
-          )}
+          }
           <Button onClick={() => setIsCreating(true)} disabled={loading}>
             <Plus className="h-4 w-4 mr-2" />
             Add Station
@@ -370,135 +370,135 @@ const InitialStationSetup: React.FC = () => {
       </div>
 
       {/* Setup Instructions */}
-      {stations.length === 0 && (
-        <Alert>
+      {stations.length === 0 &&
+      <Alert>
           <Building className="h-4 w-4" />
           <AlertDescription>
             <strong>Get Started:</strong> Click "Setup Default Stations" to create the three main stations 
             (MOBIL, AMOCO ROSEDALE, AMOCO BROOKLYN), then update their details with your specific information.
           </AlertDescription>
         </Alert>
-      )}
+      }
 
       {/* Station Form */}
-      {(editingStation || isCreating) && (
-        <StationForm
-          station={editingStation || {
-            station_name: '',
-            address: '',
-            phone: '',
-            operating_hours: '24/7',
-            manager_name: '',
-            status: 'Active'
-          }}
-          onSave={saveStation}
-          onCancel={() => {
-            setEditingStation(null);
-            setIsCreating(false);
-          }}
-        />
-      )}
+      {(editingStation || isCreating) &&
+      <StationForm
+        station={editingStation || {
+          station_name: '',
+          address: '',
+          phone: '',
+          operating_hours: '24/7',
+          manager_name: '',
+          status: 'Active'
+        }}
+        onSave={saveStation}
+        onCancel={() => {
+          setEditingStation(null);
+          setIsCreating(false);
+        }} />
+
+      }
 
       {/* Stations List */}
-      {stations.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {stations.map((station) => (
-            <Card key={station.id} className="hover:shadow-lg transition-shadow">
+      {stations.length > 0 &&
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {stations.map((station) =>
+        <Card key={station.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2">
                     <Building className="h-5 w-5" />
                     {station.station_name}
                   </CardTitle>
-                  <Badge 
-                    className={
-                      station.status === 'Active' ? 'bg-green-100 text-green-800' :
-                      station.status === 'Inactive' ? 'bg-red-100 text-red-800' :
-                      'bg-yellow-100 text-yellow-800'
-                    }
-                  >
+                  <Badge
+                className={
+                station.status === 'Active' ? 'bg-green-100 text-green-800' :
+                station.status === 'Inactive' ? 'bg-red-100 text-red-800' :
+                'bg-yellow-100 text-yellow-800'
+                }>
+
                     {station.status}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {station.address && (
-                    <div className="flex items-start gap-2 text-sm">
+                  {station.address &&
+              <div className="flex items-start gap-2 text-sm">
                       <MapPin className="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" />
                       <span className="text-gray-600">{station.address}</span>
                     </div>
-                  )}
+              }
                   
-                  {station.phone && (
-                    <div className="flex items-center gap-2 text-sm">
+                  {station.phone &&
+              <div className="flex items-center gap-2 text-sm">
                       <Phone className="h-4 w-4 text-gray-500" />
                       <span className="text-gray-600">{station.phone}</span>
                     </div>
-                  )}
+              }
                   
                   <div className="flex items-center gap-2 text-sm">
                     <Clock className="h-4 w-4 text-gray-500" />
                     <span className="text-gray-600">{station.operating_hours}</span>
                   </div>
                   
-                  {station.manager_name && (
-                    <div className="flex items-center gap-2 text-sm">
+                  {station.manager_name &&
+              <div className="flex items-center gap-2 text-sm">
                       <User className="h-4 w-4 text-gray-500" />
                       <span className="text-gray-600">{station.manager_name}</span>
                     </div>
-                  )}
+              }
 
-                  {!station.address || !station.phone || !station.manager_name ? (
-                    <Alert className="mt-3">
+                  {!station.address || !station.phone || !station.manager_name ?
+              <Alert className="mt-3">
                       <AlertTriangle className="h-4 w-4" />
                       <AlertDescription className="text-xs">
                         Some information is missing. Please complete the station details.
                       </AlertDescription>
-                    </Alert>
-                  ) : (
-                    <div className="flex items-center gap-2 text-sm text-green-600 mt-3">
+                    </Alert> :
+
+              <div className="flex items-center gap-2 text-sm text-green-600 mt-3">
                       <CheckCircle className="h-4 w-4" />
                       <span>Setup complete</span>
                     </div>
-                  )}
+              }
                 </div>
 
                 <div className="flex gap-2 mt-4">
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setEditingStation(station)}
-                    disabled={loading}
-                  >
+                variant="outline"
+                size="sm"
+                onClick={() => setEditingStation(station)}
+                disabled={loading}>
+
                     <Edit className="h-4 w-4 mr-1" />
                     Edit
                   </Button>
                   
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      if (confirm(`Are you sure you want to delete ${station.station_name}?`)) {
-                        deleteStation(station.id!);
-                      }
-                    }}
-                    disabled={loading}
-                    className="text-red-600 hover:text-red-700"
-                  >
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (confirm(`Are you sure you want to delete ${station.station_name}?`)) {
+                    deleteStation(station.id!);
+                  }
+                }}
+                disabled={loading}
+                className="text-red-600 hover:text-red-700">
+
                     <Trash2 className="h-4 w-4 mr-1" />
                     Delete
                   </Button>
                 </div>
               </CardContent>
             </Card>
-          ))}
+        )}
         </div>
-      )}
+      }
 
       {/* Setup Progress Summary */}
-      {stations.length > 0 && (
-        <Card>
+      {stations.length > 0 &&
+      <Card>
           <CardHeader>
             <CardTitle>Setup Progress</CardTitle>
           </CardHeader>
@@ -510,22 +510,22 @@ const InitialStationSetup: React.FC = () => {
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">
-                  {stations.filter(s => s.address && s.phone && s.manager_name).length}
+                  {stations.filter((s) => s.address && s.phone && s.manager_name).length}
                 </div>
                 <p className="text-sm text-gray-600">Fully Configured</p>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-yellow-600">
-                  {stations.filter(s => s.status === 'Active').length}
+                  {stations.filter((s) => s.status === 'Active').length}
                 </div>
                 <p className="text-sm text-gray-600">Active Stations</p>
               </div>
             </div>
           </CardContent>
         </Card>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default InitialStationSetup;

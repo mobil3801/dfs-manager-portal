@@ -5,10 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Play, CheckCircle, Clock, ArrowRight, Users, Building, 
+  Play, CheckCircle, Clock, ArrowRight, Users, Building,
   MessageSquare, Package, FileText, Shield, Zap, Database,
-  Rocket, Target, Calendar, Book
-} from 'lucide-react';
+  Rocket, Target, Calendar, Book } from
+'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
@@ -31,151 +31,151 @@ const QuickStartGuide: React.FC = () => {
   const [completedTasks, setCompletedTasks] = useState<string[]>([]);
 
   const quickStartTasks: QuickStartTask[] = [
-    {
-      id: 'create-admin',
-      title: 'Create Your First Admin Account',
-      description: 'Set up an administrator account to manage your gas station system',
-      icon: <Users className="h-5 w-5" />,
-      duration: '5 min',
-      difficulty: 'easy',
-      category: 'essential',
-      actionPath: '/admin/user-management',
-      actionLabel: 'Create Admin',
-      benefits: [
-        'Full system access and control',
-        'Ability to manage other users',
-        'Access to all administrative features'
-      ]
-    },
-    {
-      id: 'setup-stations',
-      title: 'Configure Your Gas Stations',
-      description: 'Add information for MOBIL, AMOCO ROSEDALE, and AMOCO BROOKLYN',
-      icon: <Building className="h-5 w-5" />,
-      duration: '10 min',
-      difficulty: 'easy',
-      category: 'essential',
-      actionPath: '/admin/site-management',
-      actionLabel: 'Setup Stations',
-      benefits: [
-        'Organize operations by location',
-        'Track station-specific performance',
-        'Manage location-based permissions'
-      ]
-    },
-    {
-      id: 'configure-sms',
-      title: 'Enable SMS Alerts',
-      description: 'Set up automatic notifications for license renewals and critical alerts',
-      icon: <MessageSquare className="h-5 w-5" />,
-      duration: '15 min',
-      difficulty: 'medium',
-      category: 'essential',
-      actionPath: '/admin/sms-alert-management',
-      actionLabel: 'Setup SMS',
-      benefits: [
-        'Never miss license renewal deadlines',
-        'Instant alerts for critical issues',
-        'Automated compliance notifications'
-      ]
-    },
-    {
-      id: 'add-employees',
-      title: 'Add Your Team Members',
-      description: 'Create employee profiles and assign appropriate access levels',
-      icon: <Users className="h-5 w-5" />,
-      duration: '20 min',
-      difficulty: 'easy',
-      category: 'recommended',
-      actionPath: '/employees',
-      actionLabel: 'Add Employees',
-      benefits: [
-        'Track employee information',
-        'Manage payroll and schedules',
-        'Control system access by role'
-      ]
-    },
-    {
-      id: 'upload-licenses',
-      title: 'Upload Business Licenses',
-      description: 'Add all required licenses and certificates with expiry tracking',
-      icon: <FileText className="h-5 w-5" />,
-      duration: '25 min',
-      difficulty: 'medium',
-      category: 'essential',
-      actionPath: '/licenses',
-      actionLabel: 'Upload Licenses',
-      benefits: [
-        'Automatic expiry notifications',
-        'Compliance tracking',
-        'Digital document storage'
-      ]
-    },
-    {
-      id: 'import-products',
-      title: 'Add Your Product Inventory',
-      description: 'Import existing products or start adding items with barcode scanning',
-      icon: <Package className="h-5 w-5" />,
-      duration: '30 min',
-      difficulty: 'medium',
-      category: 'recommended',
-      actionPath: '/products',
-      actionLabel: 'Manage Inventory',
-      benefits: [
-        'Track stock levels automatically',
-        'Monitor profit margins',
-        'Automate reorder alerts'
-      ]
-    },
-    {
-      id: 'test-visual-editing',
-      title: 'Test Visual Editing Features',
-      description: 'Try the visual editing tools to customize your interface',
-      icon: <Zap className="h-5 w-5" />,
-      duration: '10 min',
-      difficulty: 'easy',
-      category: 'optional',
-      actionPath: '/',
-      actionLabel: 'Test Editing',
-      benefits: [
-        'Customize interface without coding',
-        'Update content in real-time',
-        'Personalize user experience'
-      ]
-    },
-    {
-      id: 'setup-security',
-      title: 'Configure Security Settings',
-      description: 'Enable audit logging and set up access controls',
-      icon: <Shield className="h-5 w-5" />,
-      duration: '15 min',
-      difficulty: 'advanced',
-      category: 'recommended',
-      actionPath: '/admin/security',
-      actionLabel: 'Setup Security',
-      benefits: [
-        'Track all user actions',
-        'Prevent unauthorized access',
-        'Meet compliance requirements'
-      ]
-    },
-    {
-      id: 'monitor-database',
-      title: 'Enable System Monitoring',
-      description: 'Set up performance monitoring and automated alerts',
-      icon: <Database className="h-5 w-5" />,
-      duration: '10 min',
-      difficulty: 'advanced',
-      category: 'optional',
-      actionPath: '/admin/database-monitoring',
-      actionLabel: 'Setup Monitoring',
-      benefits: [
-        'Proactive issue detection',
-        'Performance optimization',
-        'System health insights'
-      ]
-    }
-  ];
+  {
+    id: 'create-admin',
+    title: 'Create Your First Admin Account',
+    description: 'Set up an administrator account to manage your gas station system',
+    icon: <Users className="h-5 w-5" />,
+    duration: '5 min',
+    difficulty: 'easy',
+    category: 'essential',
+    actionPath: '/admin/user-management',
+    actionLabel: 'Create Admin',
+    benefits: [
+    'Full system access and control',
+    'Ability to manage other users',
+    'Access to all administrative features']
+
+  },
+  {
+    id: 'setup-stations',
+    title: 'Configure Your Gas Stations',
+    description: 'Add information for MOBIL, AMOCO ROSEDALE, and AMOCO BROOKLYN',
+    icon: <Building className="h-5 w-5" />,
+    duration: '10 min',
+    difficulty: 'easy',
+    category: 'essential',
+    actionPath: '/admin/site-management',
+    actionLabel: 'Setup Stations',
+    benefits: [
+    'Organize operations by location',
+    'Track station-specific performance',
+    'Manage location-based permissions']
+
+  },
+  {
+    id: 'configure-sms',
+    title: 'Enable SMS Alerts',
+    description: 'Set up automatic notifications for license renewals and critical alerts',
+    icon: <MessageSquare className="h-5 w-5" />,
+    duration: '15 min',
+    difficulty: 'medium',
+    category: 'essential',
+    actionPath: '/admin/sms-alert-management',
+    actionLabel: 'Setup SMS',
+    benefits: [
+    'Never miss license renewal deadlines',
+    'Instant alerts for critical issues',
+    'Automated compliance notifications']
+
+  },
+  {
+    id: 'add-employees',
+    title: 'Add Your Team Members',
+    description: 'Create employee profiles and assign appropriate access levels',
+    icon: <Users className="h-5 w-5" />,
+    duration: '20 min',
+    difficulty: 'easy',
+    category: 'recommended',
+    actionPath: '/employees',
+    actionLabel: 'Add Employees',
+    benefits: [
+    'Track employee information',
+    'Manage payroll and schedules',
+    'Control system access by role']
+
+  },
+  {
+    id: 'upload-licenses',
+    title: 'Upload Business Licenses',
+    description: 'Add all required licenses and certificates with expiry tracking',
+    icon: <FileText className="h-5 w-5" />,
+    duration: '25 min',
+    difficulty: 'medium',
+    category: 'essential',
+    actionPath: '/licenses',
+    actionLabel: 'Upload Licenses',
+    benefits: [
+    'Automatic expiry notifications',
+    'Compliance tracking',
+    'Digital document storage']
+
+  },
+  {
+    id: 'import-products',
+    title: 'Add Your Product Inventory',
+    description: 'Import existing products or start adding items with barcode scanning',
+    icon: <Package className="h-5 w-5" />,
+    duration: '30 min',
+    difficulty: 'medium',
+    category: 'recommended',
+    actionPath: '/products',
+    actionLabel: 'Manage Inventory',
+    benefits: [
+    'Track stock levels automatically',
+    'Monitor profit margins',
+    'Automate reorder alerts']
+
+  },
+  {
+    id: 'test-visual-editing',
+    title: 'Test Visual Editing Features',
+    description: 'Try the visual editing tools to customize your interface',
+    icon: <Zap className="h-5 w-5" />,
+    duration: '10 min',
+    difficulty: 'easy',
+    category: 'optional',
+    actionPath: '/',
+    actionLabel: 'Test Editing',
+    benefits: [
+    'Customize interface without coding',
+    'Update content in real-time',
+    'Personalize user experience']
+
+  },
+  {
+    id: 'setup-security',
+    title: 'Configure Security Settings',
+    description: 'Enable audit logging and set up access controls',
+    icon: <Shield className="h-5 w-5" />,
+    duration: '15 min',
+    difficulty: 'advanced',
+    category: 'recommended',
+    actionPath: '/admin/security',
+    actionLabel: 'Setup Security',
+    benefits: [
+    'Track all user actions',
+    'Prevent unauthorized access',
+    'Meet compliance requirements']
+
+  },
+  {
+    id: 'monitor-database',
+    title: 'Enable System Monitoring',
+    description: 'Set up performance monitoring and automated alerts',
+    icon: <Database className="h-5 w-5" />,
+    duration: '10 min',
+    difficulty: 'advanced',
+    category: 'optional',
+    actionPath: '/admin/database-monitoring',
+    actionLabel: 'Setup Monitoring',
+    benefits: [
+    'Proactive issue detection',
+    'Performance optimization',
+    'System health insights']
+
+  }];
+
 
   const getDifficultyBadge = (difficulty: QuickStartTask['difficulty']) => {
     const config = {
@@ -199,7 +199,7 @@ const QuickStartGuide: React.FC = () => {
     navigate(task.actionPath);
     toast({
       title: "Starting Setup Task",
-      description: `Opening ${task.title} configuration...`,
+      description: `Opening ${task.title} configuration...`
     });
   };
 
@@ -208,20 +208,20 @@ const QuickStartGuide: React.FC = () => {
       setCompletedTasks([...completedTasks, taskId]);
       toast({
         title: "Task Completed!",
-        description: "Great job! You're making excellent progress.",
+        description: "Great job! You're making excellent progress."
       });
     }
   };
 
   const getTasksByCategory = (category: string) => {
-    return quickStartTasks.filter(task => task.category === category);
+    return quickStartTasks.filter((task) => task.category === category);
   };
 
   const essentialTasks = getTasksByCategory('essential');
   const recommendedTasks = getTasksByCategory('recommended');
   const optionalTasks = getTasksByCategory('optional');
 
-  const completionPercentage = Math.round((completedTasks.length / quickStartTasks.length) * 100);
+  const completionPercentage = Math.round(completedTasks.length / quickStartTasks.length * 100);
 
   return (
     <div className="space-y-6">
@@ -295,16 +295,16 @@ const QuickStartGuide: React.FC = () => {
                 </AlertDescription>
               </Alert>
               
-              {essentialTasks.map((task, index) => (
-                <div key={task.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-gray-50">
+              {essentialTasks.map((task, index) =>
+              <div key={task.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-gray-50">
                   <div className="flex-shrink-0">
-                    {completedTasks.includes(task.id) ? (
-                      <CheckCircle className="h-8 w-8 text-green-500" />
-                    ) : (
-                      <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600">
+                    {completedTasks.includes(task.id) ?
+                  <CheckCircle className="h-8 w-8 text-green-500" /> :
+
+                  <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600">
                         {index + 1}
                       </div>
-                    )}
+                  }
                   </div>
                   
                   <div className="flex-1">
@@ -323,23 +323,23 @@ const QuickStartGuide: React.FC = () => {
                   </div>
                   
                   <div className="flex gap-2">
-                    {!completedTasks.includes(task.id) && (
-                      <Button onClick={() => handleTaskAction(task)}>
+                    {!completedTasks.includes(task.id) &&
+                  <Button onClick={() => handleTaskAction(task)}>
                         {task.actionLabel}
                         <ArrowRight className="h-4 w-4 ml-2" />
                       </Button>
-                    )}
+                  }
                     <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => markTaskCompleted(task.id)}
-                      disabled={completedTasks.includes(task.id)}
-                    >
+                    variant="outline"
+                    size="sm"
+                    onClick={() => markTaskCompleted(task.id)}
+                    disabled={completedTasks.includes(task.id)}>
+
                       {completedTasks.includes(task.id) ? 'Completed' : 'Mark Done'}
                     </Button>
                   </div>
                 </div>
-              ))}
+              )}
             </TabsContent>
 
             <TabsContent value="recommended" className="space-y-4">
@@ -350,8 +350,8 @@ const QuickStartGuide: React.FC = () => {
                 </AlertDescription>
               </Alert>
               
-              {recommendedTasks.map((task, index) => (
-                <div key={task.id} className="p-4 border rounded-lg">
+              {recommendedTasks.map((task, index) =>
+              <div key={task.id} className="p-4 border rounded-lg">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-blue-100 rounded-lg">
@@ -376,12 +376,12 @@ const QuickStartGuide: React.FC = () => {
                     <div className="p-3 bg-green-50 rounded-lg">
                       <h5 className="text-sm font-medium text-green-800 mb-2">Benefits:</h5>
                       <ul className="text-sm text-green-700 space-y-1">
-                        {task.benefits.map((benefit, i) => (
-                          <li key={i} className="flex items-start gap-2">
+                        {task.benefits.map((benefit, i) =>
+                      <li key={i} className="flex items-start gap-2">
                             <span className="text-green-500 mt-1">•</span>
                             {benefit}
                           </li>
-                        ))}
+                      )}
                       </ul>
                     </div>
                     
@@ -390,16 +390,16 @@ const QuickStartGuide: React.FC = () => {
                         {task.actionLabel}
                       </Button>
                       <Button
-                        variant="outline"
-                        onClick={() => markTaskCompleted(task.id)}
-                        disabled={completedTasks.includes(task.id)}
-                      >
+                      variant="outline"
+                      onClick={() => markTaskCompleted(task.id)}
+                      disabled={completedTasks.includes(task.id)}>
+
                         {completedTasks.includes(task.id) ? 'Completed' : 'Mark Done'}
                       </Button>
                     </div>
                   </div>
                 </div>
-              ))}
+              )}
             </TabsContent>
 
             <TabsContent value="optional" className="space-y-4">
@@ -410,8 +410,8 @@ const QuickStartGuide: React.FC = () => {
                 </AlertDescription>
               </Alert>
               
-              {optionalTasks.map((task) => (
-                <div key={task.id} className="p-4 border rounded-lg">
+              {optionalTasks.map((task) =>
+              <div key={task.id} className="p-4 border rounded-lg">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-purple-100 rounded-lg">
@@ -437,24 +437,24 @@ const QuickStartGuide: React.FC = () => {
                       {task.actionLabel}
                     </Button>
                     <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => markTaskCompleted(task.id)}
-                      disabled={completedTasks.includes(task.id)}
-                    >
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => markTaskCompleted(task.id)}
+                    disabled={completedTasks.includes(task.id)}>
+
                       {completedTasks.includes(task.id) ? '✓ Done' : 'Mark Done'}
                     </Button>
                   </div>
                 </div>
-              ))}
+              )}
             </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
 
       {/* Success Message */}
-      {completionPercentage === 100 && (
-        <Card className="border-green-500 bg-green-50">
+      {completionPercentage === 100 &&
+      <Card className="border-green-500 bg-green-50">
           <CardContent className="pt-6">
             <div className="text-center">
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
@@ -464,18 +464,18 @@ const QuickStartGuide: React.FC = () => {
               <p className="text-green-700 mb-4">
                 You've completed the quick start guide. Your DFS Manager Portal is ready to use!
               </p>
-              <Button 
-                className="bg-green-600 hover:bg-green-700"
-                onClick={() => navigate('/dashboard')}
-              >
+              <Button
+              className="bg-green-600 hover:bg-green-700"
+              onClick={() => navigate('/dashboard')}>
+
                 Go to Full Dashboard
               </Button>
             </div>
           </CardContent>
         </Card>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default QuickStartGuide;

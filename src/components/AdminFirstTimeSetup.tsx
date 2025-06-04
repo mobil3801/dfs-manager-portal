@@ -8,9 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import {
-  UserPlus, Building, MessageSquare, Shield, CheckCircle, 
-  ArrowRight, Loader2, AlertTriangle, Info
-} from 'lucide-react';
+  UserPlus, Building, MessageSquare, Shield, CheckCircle,
+  ArrowRight, Loader2, AlertTriangle, Info } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -41,35 +41,35 @@ const AdminFirstTimeSetup: React.FC = () => {
 
   // Setup steps
   const [steps, setSteps] = useState<SetupStep[]>([
-    {
-      id: 'admin-account',
-      title: 'Create Admin Account',
-      description: 'Set up your first administrator account',
-      completed: false,
-      inProgress: false
-    },
-    {
-      id: 'station-setup',
-      title: 'Configure Stations',
-      description: 'Set up your gas station information',
-      completed: false,
-      inProgress: false
-    },
-    {
-      id: 'sms-config',
-      title: 'SMS Configuration',
-      description: 'Configure SMS alerts for license notifications',
-      completed: false,
-      inProgress: false
-    },
-    {
-      id: 'security-setup',
-      title: 'Security Settings',
-      description: 'Configure basic security and access controls',
-      completed: false,
-      inProgress: false
-    }
-  ]);
+  {
+    id: 'admin-account',
+    title: 'Create Admin Account',
+    description: 'Set up your first administrator account',
+    completed: false,
+    inProgress: false
+  },
+  {
+    id: 'station-setup',
+    title: 'Configure Stations',
+    description: 'Set up your gas station information',
+    completed: false,
+    inProgress: false
+  },
+  {
+    id: 'sms-config',
+    title: 'SMS Configuration',
+    description: 'Configure SMS alerts for license notifications',
+    completed: false,
+    inProgress: false
+  },
+  {
+    id: 'security-setup',
+    title: 'Security Settings',
+    description: 'Configure basic security and access controls',
+    completed: false,
+    inProgress: false
+  }]
+  );
 
   useEffect(() => {
     checkSetupProgress();
@@ -124,10 +124,10 @@ const AdminFirstTimeSetup: React.FC = () => {
       completedCount++;
 
       setSteps(updatedSteps);
-      setSetupProgress((completedCount / steps.length) * 100);
+      setSetupProgress(completedCount / steps.length * 100);
 
       // Find next incomplete step
-      const nextIncompleteStep = updatedSteps.findIndex(step => !step.completed);
+      const nextIncompleteStep = updatedSteps.findIndex((step) => !step.completed);
       if (nextIncompleteStep !== -1) {
         setCurrentStep(nextIncompleteStep);
       }
@@ -157,7 +157,7 @@ const AdminFirstTimeSetup: React.FC = () => {
 
     try {
       setLoading(true);
-      
+
       // Create user profile record
       const { error } = await window.ezsite.apis.tableCreate(11725, {
         user_id: 1, // Mock user ID - in real app this would come from auth system
@@ -192,12 +192,12 @@ const AdminFirstTimeSetup: React.FC = () => {
 
       toast({
         title: "Success!",
-        description: "Admin account created successfully",
+        description: "Admin account created successfully"
       });
 
       // Move to next step
       setCurrentStep(1);
-      
+
     } catch (error) {
       console.error('Error creating admin user:', error);
       toast({
@@ -215,31 +215,31 @@ const AdminFirstTimeSetup: React.FC = () => {
       setLoading(true);
 
       const defaultStations = [
-        {
-          station_name: 'MOBIL',
-          address: 'Please update with actual address',
-          phone: 'Please update with phone number',
-          operating_hours: '24/7',
-          manager_name: 'Please update manager name',
-          status: 'Active'
-        },
-        {
-          station_name: 'AMOCO ROSEDALE',
-          address: 'Please update with actual address',
-          phone: 'Please update with phone number',
-          operating_hours: '24/7',
-          manager_name: 'Please update manager name',
-          status: 'Active'
-        },
-        {
-          station_name: 'AMOCO BROOKLYN',
-          address: 'Please update with actual address',
-          phone: 'Please update with phone number',
-          operating_hours: '24/7',
-          manager_name: 'Please update manager name',
-          status: 'Active'
-        }
-      ];
+      {
+        station_name: 'MOBIL',
+        address: 'Please update with actual address',
+        phone: 'Please update with phone number',
+        operating_hours: '24/7',
+        manager_name: 'Please update manager name',
+        status: 'Active'
+      },
+      {
+        station_name: 'AMOCO ROSEDALE',
+        address: 'Please update with actual address',
+        phone: 'Please update with phone number',
+        operating_hours: '24/7',
+        manager_name: 'Please update manager name',
+        status: 'Active'
+      },
+      {
+        station_name: 'AMOCO BROOKLYN',
+        address: 'Please update with actual address',
+        phone: 'Please update with phone number',
+        operating_hours: '24/7',
+        manager_name: 'Please update manager name',
+        status: 'Active'
+      }];
+
 
       for (const station of defaultStations) {
         const { error } = await window.ezsite.apis.tableCreate(12599, {
@@ -260,7 +260,7 @@ const AdminFirstTimeSetup: React.FC = () => {
 
       toast({
         title: "Success!",
-        description: "Default stations created. Please update their details in Site Management.",
+        description: "Default stations created. Please update their details in Site Management."
       });
 
       // Move to next step
@@ -286,7 +286,7 @@ const AdminFirstTimeSetup: React.FC = () => {
 
     toast({
       title: "SMS Configuration",
-      description: "SMS setup can be completed later in Admin Settings",
+      description: "SMS setup can be completed later in Admin Settings"
     });
 
     // Move to next step
@@ -301,7 +301,7 @@ const AdminFirstTimeSetup: React.FC = () => {
 
     toast({
       title: "Setup Complete!",
-      description: "Your DFS Manager Portal is ready to use",
+      description: "Your DFS Manager Portal is ready to use"
     });
 
     // Update progress
@@ -314,8 +314,8 @@ const AdminFirstTimeSetup: React.FC = () => {
     return <div className="h-5 w-5 rounded-full border-2 border-gray-300" />;
   };
 
-  const completedSteps = steps.filter(step => step.completed).length;
-  const progressPercentage = (completedSteps / steps.length) * 100;
+  const completedSteps = steps.filter((step) => step.completed).length;
+  const progressPercentage = completedSteps / steps.length * 100;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -348,8 +348,8 @@ const AdminFirstTimeSetup: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {steps.map((step, index) => (
-              <div key={step.id} className="flex items-center gap-4 p-3 rounded-lg border">
+            {steps.map((step, index) =>
+            <div key={step.id} className="flex items-center gap-4 p-3 rounded-lg border">
                 {getStepIcon(step, index)}
                 <div className="flex-1">
                   <h4 className="font-semibold">{step.title}</h4>
@@ -357,22 +357,22 @@ const AdminFirstTimeSetup: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   {step.completed && <Badge className="bg-green-100 text-green-800">Complete</Badge>}
-                  {index === currentStep && !step.completed && (
-                    <Badge className="bg-blue-100 text-blue-800">Current</Badge>
-                  )}
-                  {index > currentStep && !step.completed && (
-                    <Badge variant="outline">Pending</Badge>
-                  )}
+                  {index === currentStep && !step.completed &&
+                <Badge className="bg-blue-100 text-blue-800">Current</Badge>
+                }
+                  {index > currentStep && !step.completed &&
+                <Badge variant="outline">Pending</Badge>
+                }
                 </div>
               </div>
-            ))}
+            )}
           </div>
         </CardContent>
       </Card>
 
       {/* Current Step Details */}
-      {currentStep === 0 && !steps[0].completed && (
-        <Card>
+      {currentStep === 0 && !steps[0].completed &&
+      <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <UserPlus className="h-6 w-6" />
@@ -392,72 +392,72 @@ const AdminFirstTimeSetup: React.FC = () => {
               <div className="space-y-2">
                 <Label htmlFor="username">Username</Label>
                 <Input
-                  id="username"
-                  value={adminForm.username}
-                  onChange={(e) => setAdminForm({...adminForm, username: e.target.value})}
-                  placeholder="admin"
-                />
+                id="username"
+                value={adminForm.username}
+                onChange={(e) => setAdminForm({ ...adminForm, username: e.target.value })}
+                placeholder="admin" />
+
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  value={adminForm.email}
-                  onChange={(e) => setAdminForm({...adminForm, email: e.target.value})}
-                  placeholder="admin@yourcompany.com"
-                />
+                id="email"
+                type="email"
+                value={adminForm.email}
+                onChange={(e) => setAdminForm({ ...adminForm, email: e.target.value })}
+                placeholder="admin@yourcompany.com" />
+
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
-                  id="password"
-                  type="password"
-                  value={adminForm.password}
-                  onChange={(e) => setAdminForm({...adminForm, password: e.target.value})}
-                  placeholder="Minimum 8 characters"
-                />
+                id="password"
+                type="password"
+                value={adminForm.password}
+                onChange={(e) => setAdminForm({ ...adminForm, password: e.target.value })}
+                placeholder="Minimum 8 characters" />
+
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
                 <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={adminForm.confirmPassword}
-                  onChange={(e) => setAdminForm({...adminForm, confirmPassword: e.target.value})}
-                  placeholder="Confirm your password"
-                />
+                id="confirmPassword"
+                type="password"
+                value={adminForm.confirmPassword}
+                onChange={(e) => setAdminForm({ ...adminForm, confirmPassword: e.target.value })}
+                placeholder="Confirm your password" />
+
               </div>
             </div>
 
             <div className="mt-6">
-              <Button 
-                onClick={createAdminUser} 
-                disabled={loading || !adminForm.username || !adminForm.email || !adminForm.password}
-                className="w-full md:w-auto"
-              >
-                {loading ? (
-                  <>
+              <Button
+              onClick={createAdminUser}
+              disabled={loading || !adminForm.username || !adminForm.email || !adminForm.password}
+              className="w-full md:w-auto">
+
+                {loading ?
+              <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     Creating Account...
-                  </>
-                ) : (
-                  <>
+                  </> :
+
+              <>
                     Create Admin Account
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </>
-                )}
+              }
               </Button>
             </div>
           </CardContent>
         </Card>
-      )}
+      }
 
-      {currentStep === 1 && !steps[1].completed && (
-        <Card>
+      {currentStep === 1 && !steps[1].completed &&
+      <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Building className="h-6 w-6" />
@@ -489,30 +489,30 @@ const AdminFirstTimeSetup: React.FC = () => {
                 </div>
               </div>
 
-              <Button 
-                onClick={setupDefaultStations} 
-                disabled={loading}
-                className="w-full md:w-auto"
-              >
-                {loading ? (
-                  <>
+              <Button
+              onClick={setupDefaultStations}
+              disabled={loading}
+              className="w-full md:w-auto">
+
+                {loading ?
+              <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     Setting up stations...
-                  </>
-                ) : (
-                  <>
+                  </> :
+
+              <>
                     Setup Default Stations
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </>
-                )}
+              }
               </Button>
             </div>
           </CardContent>
         </Card>
-      )}
+      }
 
-      {currentStep === 2 && !steps[2].completed && (
-        <Card>
+      {currentStep === 2 && !steps[2].completed &&
+      <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MessageSquare className="h-6 w-6" />
@@ -535,28 +535,28 @@ const AdminFirstTimeSetup: React.FC = () => {
               </p>
 
               <div className="flex gap-2">
-                <Button 
-                  onClick={configureSMSPlaceholder}
-                  variant="outline"
-                  className="flex-1"
-                >
+                <Button
+                onClick={configureSMSPlaceholder}
+                variant="outline"
+                className="flex-1">
+
                   Skip for Now
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
-                <Button 
-                  onClick={() => window.open('/admin/sms-alert-management', '_blank')}
-                  className="flex-1"
-                >
+                <Button
+                onClick={() => window.open('/admin/sms-alert-management', '_blank')}
+                className="flex-1">
+
                   Configure SMS Now
                 </Button>
               </div>
             </div>
           </CardContent>
         </Card>
-      )}
+      }
 
-      {currentStep === 3 && !steps[3].completed && (
-        <Card>
+      {currentStep === 3 && !steps[3].completed &&
+      <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shield className="h-6 w-6" />
@@ -584,21 +584,21 @@ const AdminFirstTimeSetup: React.FC = () => {
                 </div>
               </div>
 
-              <Button 
-                onClick={completeSecuritySetup}
-                className="w-full md:w-auto"
-              >
+              <Button
+              onClick={completeSecuritySetup}
+              className="w-full md:w-auto">
+
                 Complete Setup
                 <CheckCircle className="h-4 w-4 ml-2" />
               </Button>
             </div>
           </CardContent>
         </Card>
-      )}
+      }
 
       {/* Setup Complete */}
-      {progressPercentage === 100 && (
-        <Card className="border-green-500 bg-green-50">
+      {progressPercentage === 100 &&
+      <Card className="border-green-500 bg-green-50">
           <CardContent className="pt-6">
             <div className="text-center">
               <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
@@ -609,25 +609,25 @@ const AdminFirstTimeSetup: React.FC = () => {
                 Your DFS Manager Portal is ready to use. You can now start managing your gas stations.
               </p>
               <div className="flex gap-2 justify-center">
-                <Button 
-                  onClick={() => window.location.href = '/dashboard'}
-                  className="bg-green-600 hover:bg-green-700"
-                >
+                <Button
+                onClick={() => window.location.href = '/dashboard'}
+                className="bg-green-600 hover:bg-green-700">
+
                   Go to Dashboard
                 </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => window.open('/dashboard?tab=setup', '_blank')}
-                >
+                <Button
+                variant="outline"
+                onClick={() => window.open('/dashboard?tab=setup', '_blank')}>
+
                   View Setup Guide
                 </Button>
               </div>
             </div>
           </CardContent>
         </Card>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default AdminFirstTimeSetup;
