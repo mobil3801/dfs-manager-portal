@@ -14,6 +14,8 @@ import RealtimeNotifications from '@/components/RealtimeNotifications';
 import SupabaseSetupGuide from '@/components/SupabaseSetupGuide';
 import { useRealtimeData } from '@/hooks/use-realtime';
 import { SupabaseService } from '@/services/supabaseService';
+import { ResponsiveCardGrid, ResponsiveStack } from '@/components/ResponsiveWrapper';
+import { useResponsiveLayout } from '@/hooks/use-mobile';
 import {
   Package,
   Users,
@@ -71,6 +73,7 @@ interface Notification {
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
+  const responsive = useResponsiveLayout();
   const [stats, setStats] = useState<DashboardStats>({
     totalProducts: 0,
     lowStockProducts: 0,
@@ -631,34 +634,44 @@ const Dashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <ResponsiveStack spacing="lg">
+        <ResponsiveCardGrid>
           {[1, 2, 3, 4].map((i) =>
           <Card key={i} className="animate-pulse">
-              <CardContent className="p-6">
+              <CardContent className={responsive.isMobile ? "p-4" : "p-6"}>
                 <div className="h-16 bg-gray-200 rounded"></div>
               </CardContent>
             </Card>
           )}
-        </div>
-      </div>);
+        </ResponsiveCardGrid>
+      </ResponsiveStack>);
 
   }
 
   return (
-    <div className="space-y-6">
+    <ResponsiveStack spacing="lg">
       {/* Database Connection Alert */}
-      <DatabaseConnectionAlert connections={85} max={100} className="mb-6" />
+      <DatabaseConnectionAlert connections={85} max={100} />
 
       {/* Welcome Section with Real-time Status */}
-      <div className="bg-gradient-to-r from-brand-800 to-brand-900 rounded-lg p-6 text-white">
-        <div className="flex items-center justify-between">
-          <div className="text-center flex-1">
-            <h1 className="text-4xl font-bold mb-2">
+      <div className={`bg-gradient-to-r from-brand-800 to-brand-900 rounded-lg text-white ${
+        responsive.isMobile ? 'p-4' : 'p-6'
+      }`}>
+        <div className={`flex items-center ${
+          responsive.isMobile ? 'flex-col space-y-4' : 'justify-between'
+        }`}>
+          <div className={`text-center ${
+            responsive.isMobile ? 'w-full' : 'flex-1'
+          }`}>
+            <h1 className={`font-bold mb-2 ${
+              responsive.isMobile ? 'text-2xl' : responsive.isTablet ? 'text-3xl' : 'text-4xl'
+            }`}>
               DFS Manager Portal
             </h1>
             <p className="text-brand-200">Real-time Gas Station Management System</p>
-            <div className="mt-3 flex items-center justify-center gap-4">
+            <div className={`mt-3 flex items-center justify-center ${
+              responsive.isMobile ? 'flex-col space-y-2' : 'gap-4'
+            }`}>
               <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200">
                 ✅ Full Visual Editing Enabled
               </Badge>
@@ -667,16 +680,20 @@ const Dashboard: React.FC = () => {
               </Badge>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className={`flex items-center ${
+            responsive.isMobile ? 'flex-col space-y-3 w-full' : 'gap-4'
+          }`}>
             <RealtimeStatusIndicator
               isConnected={realtimeConnected}
               lastUpdate={lastUpdate}
               className="text-white" />
 
-            <RealtimeNotifications
-              tables={realtimeTables}
-              maxNotifications={15}
-              autoRemoveAfter={15000} />
+            {!responsive.isMobile && (
+              <RealtimeNotifications
+                tables={realtimeTables}
+                maxNotifications={15}
+                autoRemoveAfter={15000} />
+            )}
 
             <div className="bg-white/10 p-2 rounded-lg">
               <SupabaseSetupGuide />
@@ -712,7 +729,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Key Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <ResponsiveCardGrid>
         {/* Products */}
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

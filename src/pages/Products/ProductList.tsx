@@ -10,6 +10,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import ProductLogs from '@/components/ProductLogs';
 import HighlightText from '@/components/HighlightText';
+import { ResponsiveTable, ResponsiveStack } from '@/components/ResponsiveWrapper';
+import { useResponsiveLayout } from '@/hooks/use-mobile';
+import ProductCards from '@/components/ProductCards';
 
 
 interface Product {
@@ -38,6 +41,10 @@ interface Product {
 }
 
 const ProductList: React.FC = () => {
+  const navigate = useNavigate();
+  const { userProfile } = useAuth();
+  const responsive = useResponsiveLayout();
+  
   const [products, setProducts] = useState<Product[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -50,8 +57,6 @@ const ProductList: React.FC = () => {
   const [hasMoreProducts, setHasMoreProducts] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [savingProductId, setSavingProductId] = useState<number | null>(null);
-  const navigate = useNavigate();
-  const { userProfile } = useAuth();
 
   const pageSize = 50; // Load more products per batch
   const [loadedProductsCount, setLoadedProductsCount] = useState(pageSize);
@@ -440,23 +445,27 @@ const ProductList: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <ResponsiveStack spacing="lg">
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
+          <div className={`flex items-center ${
+            responsive.isMobile ? 'flex-col space-y-4' : 'justify-between'
+          }`}>
+            <div className={responsive.isMobile ? 'text-center' : ''}>
               <CardTitle className="flex items-center space-x-2">
                 <Package className="w-6 h-6" />
                 <span>Products</span>
               </CardTitle>
-              <CardDescription>
+              <CardDescription className={responsive.isMobile ? 'text-center mt-2' : ''}>
                 Manage your product inventory - Search across all product fields for similar items
               </CardDescription>
             </div>
             <Button
               onClick={() => handleSaveProduct(null)}
               disabled={savingProductId === -1}
-              className="bg-brand-600 hover:bg-brand-700 text-white">
+              className={`bg-brand-600 hover:bg-brand-700 text-white ${
+                responsive.isMobile ? 'w-full' : ''
+              }`}>
               {savingProductId === -1 ?
               <Loader2 className="w-4 h-4 mr-2 animate-spin" /> :
 
@@ -468,8 +477,12 @@ const ProductList: React.FC = () => {
         </CardHeader>
         <CardContent>
           {/* Search */}
-          <div className="flex items-center space-x-2 mb-6">
-            <div className="relative flex-1 max-w-sm">
+          <div className={`flex items-center mb-6 ${
+            responsive.isMobile ? 'flex-col space-y-3' : 'space-x-2'
+          }`}>
+            <div className={`relative ${
+              responsive.isMobile ? 'w-full' : 'flex-1 max-w-sm'
+            }`}>
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               {searchTerm &&
               <button
@@ -481,13 +494,18 @@ const ProductList: React.FC = () => {
                 </button>
               }
               <Input
-                placeholder="Search products by name, description, category, supplier, barcode..."
+                placeholder={responsive.isMobile 
+                  ? "Search products..." 
+                  : "Search products by name, description, category, supplier, barcode..."
+                }
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className={`pl-10 ${searchTerm ? 'pr-10' : 'pr-3'}`} />
             </div>
             {debouncedSearchTerm &&
-            <div className="flex items-center space-x-2">
+            <div className={`flex items-center space-x-2 ${
+              responsive.isMobile ? 'w-full justify-center' : ''
+            }`}>
                 <Badge variant="secondary">
                   {totalCount} result{totalCount !== 1 ? 's' : ''} found
                 </Badge>
@@ -501,11 +519,13 @@ const ProductList: React.FC = () => {
             }
           </div>
 
-          {/* Products Table */}
+          {/* Products Display */}
           {loading ?
           <div className="space-y-4">
               {[...Array(5)].map((_, i) =>
-            <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
+            <div key={i} className={`bg-gray-100 rounded animate-pulse ${
+              responsive.isMobile ? 'h-32' : 'h-16'
+            }`}></div>
             )}
             </div> :
           products.length === 0 ?
@@ -522,7 +542,17 @@ const ProductList: React.FC = () => {
               </Button>
             </div> :
 
-          <div className="border rounded-lg overflow-hidden">
+          responsive.isMobile ? (
+            <ProductCards
+              products={products}
+              searchTerm={debouncedSearchTerm}
+              onViewLogs={handleViewLogs}
+              onSaveProduct={handleSaveProduct}
+              onDeleteProduct={handleDelete}
+              savingProductId={savingProductId}
+            />
+          ) : (
+            <ResponsiveTable className="border rounded-lg overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -663,7 +693,8 @@ const ProductList: React.FC = () => {
                 })}
                 </TableBody>
               </Table>
-            </div>
+            </ResponsiveTable>
+          )}
           }
 
           {/* Loading Status and Infinite Scroll */}
@@ -713,7 +744,7 @@ const ProductList: React.FC = () => {
         productId={selectedProduct.id}
         productName={selectedProduct.name} />
       }
-    </div>);
+    </ResponsiveStack>);
 };
 
 export default ProductList;
