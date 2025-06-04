@@ -139,8 +139,8 @@ const SystemLogs: React.FC = () => {
     log.action_performed || '',
     log.resource_accessed || '',
     log.ip_address || '',
-    log.station || ''
-    ])].map((row) => row.join(',')).join('\n');
+    log.station || '']
+    )].map((row) => row.join(',')).join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -215,7 +215,7 @@ const SystemLogs: React.FC = () => {
       const logDate = new Date(log.event_timestamp);
       const now = new Date();
       let matchesDate = true;
-      
+
       switch (dateRange) {
         case 'today':
           matchesDate = logDate.toDateString() === now.toDateString();
@@ -493,10 +493,10 @@ const SystemLogs: React.FC = () => {
                         {log.action_performed}
                       </div>
                       {log.failure_reason &&
-                        <div className="text-xs text-red-600 mt-1">
+                    <div className="text-xs text-red-600 mt-1">
                           Reason: {log.failure_reason}
                         </div>
-                      }
+                    }
                       {log.additional_data && log.additional_data !== '{}' &&
                     <details className="mt-1">
                           <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700">

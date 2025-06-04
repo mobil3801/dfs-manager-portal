@@ -52,26 +52,43 @@ export class MemoryLeakMonitor {
   }
 
   private initializeMonitoring(): void {
-    if (typeof window === 'undefined' || !window.performance?.memory) {
+    if (typeof window === 'undefined' || !window.performance) {
       console.warn('Memory monitoring not available in this environment');
       return;
     }
 
-    this.baselineMemory = this.getCurrentMemoryStats();
-    this.startMonitoring();
+    try {
+      this.baselineMemory = this.getCurrentMemoryStats();
+      if (this.baselineMemory) {
+        this.startMonitoring();
+      } else {
+        console.warn('Performance memory API not available in this browser');
+      }
+    } catch (error) {
+      console.warn('Error initializing memory monitoring:', error);
+    }
   }
 
   private getCurrentMemoryStats(): MemoryStats | null {
-    if (typeof window === 'undefined' || !window.performance?.memory) {
+    if (typeof window === 'undefined' || !window.performance) {
       return null;
     }
 
-    const memory = (window.performance as any).memory;
-    return {
-      usedJSHeapSize: memory.usedJSHeapSize,
-      totalJSHeapSize: memory.totalJSHeapSize,
-      jsHeapSizeLimit: memory.jsHeapSizeLimit
-    };
+    try {
+      const memory = (window.performance as any).memory;
+      if (!memory || typeof memory.usedJSHeapSize !== 'number') {
+        return null;
+      }
+      
+      return {
+        usedJSHeapSize: memory.usedJSHeapSize,
+        totalJSHeapSize: memory.totalJSHeapSize,
+        jsHeapSizeLimit: memory.jsHeapSizeLimit
+      };
+    } catch (error) {
+      console.warn('Error accessing performance.memory:', error);
+      return null;
+    }
   }
 
   private startMonitoring(): void {

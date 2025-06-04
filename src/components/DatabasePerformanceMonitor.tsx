@@ -125,9 +125,14 @@ const DatabasePerformanceMonitor = () => {
   };
 
   const testDatabaseConnection = async () => {
-    // Simulate connection test
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(true), Math.random() * 500 + 100);
+    // Simulate connection test with error handling
+    return new Promise((resolve, reject) => {
+      try {
+        setTimeout(() => resolve(true), Math.random() * 500 + 100);
+      } catch (error) {
+        console.warn('Database connection test error:', error);
+        reject(error);
+      }
     });
   };
 

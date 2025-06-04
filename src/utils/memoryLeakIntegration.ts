@@ -6,127 +6,148 @@ import { MemoryLeakMonitor } from '@/services/memoryLeakMonitor';
  */
 
 // Global flag to enable/disable automatic memory leak detection
-export const MEMORY_LEAK_DETECTION_ENABLED = process.env.NODE_ENV === 'development' ||
-typeof window !== 'undefined' && window.location.search.includes('memory-debug=true');
+export const MEMORY_LEAK_DETECTION_ENABLED = (
+  import.meta.env.VITE_ENABLE_MEMORY_LEAK_DETECTION === 'true' ||
+  process.env.NODE_ENV === 'development' ||
+  (typeof window !== 'undefined' && window.location.search.includes('memory-debug=true'))
+) && typeof window !== 'undefined' && window.performance;
 
 /**
  * Monkey patch common browser APIs to include memory leak warnings
  */
 export function initializeMemoryLeakDetection() {
   if (!MEMORY_LEAK_DETECTION_ENABLED || typeof window === 'undefined') {
+    console.log('🔍 Memory leak detection disabled (not supported or disabled in environment)');
     return;
   }
 
-  console.log('🔍 Memory leak detection initialized');
+  try {
+    console.log('🔍 Memory leak detection initialized');
 
-  // Track global timer usage
-  const originalSetTimeout = window.setTimeout;
-  const originalSetInterval = window.setInterval;
-  const originalClearTimeout = window.clearTimeout;
-  const originalClearInterval = window.clearInterval;
+    // Track global timer usage
+    const originalSetTimeout = window.setTimeout;
+    const originalSetInterval = window.setInterval;
+    const originalClearTimeout = window.clearTimeout;
+    const originalClearInterval = window.clearInterval;
 
-  const activeTimers = new Set<number>();
-  const activeIntervals = new Set<number>();
+    const activeTimers = new Set<number>();
+    const activeIntervals = new Set<number>();
 
-  window.setTimeout = function (callback: Function, delay?: number, ...args: any[]) {
-    const id = originalSetTimeout.call(window, (...callbackArgs) => {
-      activeTimers.delete(id);
-      return callback(...callbackArgs);
-    }, delay, ...args);
+    window.setTimeout = function (callback: Function, delay?: number, ...args: any[]) {
+      const id = originalSetTimeout.call(window, (...callbackArgs) => {
+        activeTimers.delete(id);
+        return callback(...callbackArgs);
+      }, delay, ...args);
 
-    activeTimers.add(id);
+      activeTimers.add(id);
 
-    if (activeTimers.size > 50) {
-      console.warn(`🚨 High number of active timers detected: ${activeTimers.size}`);
-    }
-
-    return id;
-  };
-
-  window.setInterval = function (callback: Function, delay?: number, ...args: any[]) {
-    const id = originalSetInterval.call(window, callback, delay, ...args);
-    activeIntervals.add(id);
-
-    if (activeIntervals.size > 20) {
-      console.warn(`🚨 High number of active intervals detected: ${activeIntervals.size}`);
-    }
-
-    return id;
-  };
-
-  window.clearTimeout = function (id?: number) {
-    if (id) {
-      activeTimers.delete(id);
-    }
-    return originalClearTimeout.call(window, id);
-  };
-
-  window.clearInterval = function (id?: number) {
-    if (id) {
-      activeIntervals.delete(id);
-    }
-    return originalClearInterval.call(window, id);
-  };
-
-  // Track fetch requests
-  const originalFetch = window.fetch;
-  const activeRequests = new Set<string>();
-
-  window.fetch = function (input: RequestInfo | URL, init?: RequestInit) {
-    const url = typeof input === 'string' ? input : input.toString();
-    const requestId = `${Date.now()}-${Math.random()}`;
-
-    activeRequests.add(requestId);
-
-    if (activeRequests.size > 100) {
-      console.warn(`🚨 High number of active fetch requests: ${activeRequests.size}`);
-    }
-
-    return originalFetch.call(window, input, init).finally(() => {
-      activeRequests.delete(requestId);
-    });
-  };
-
-  // Monitor page unload to detect potential leaks
-  window.addEventListener('beforeunload', () => {
-    const leaks = [];
-
-    if (activeTimers.size > 0) {
-      leaks.push(`${activeTimers.size} active timers`);
-    }
-
-    if (activeIntervals.size > 0) {
-      leaks.push(`${activeIntervals.size} active intervals`);
-    }
-
-    if (activeRequests.size > 0) {
-      leaks.push(`${activeRequests.size} active requests`);
-    }
-
-    if (leaks.length > 0) {
-      console.warn('🚨 Potential memory leaks detected on page unload:', leaks.join(', '));
-    }
-  });
-
-  // Set up periodic memory monitoring
-  setInterval(() => {
-    if (window.performance?.memory) {
-      const memory = (window.performance as any).memory;
-      const usedMB = (memory.usedJSHeapSize / 1024 / 1024).toFixed(2);
-      const totalMB = (memory.totalJSHeapSize / 1024 / 1024).toFixed(2);
-      const limitMB = (memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2);
-
-      console.log(`📊 Memory: ${usedMB}MB used, ${totalMB}MB total, ${limitMB}MB limit`);
-
-      // Check for rapid memory growth
-      const pressure = memory.usedJSHeapSize / memory.jsHeapSizeLimit;
-      if (pressure > 0.8) {
-        console.warn(`🚨 High memory pressure: ${(pressure * 100).toFixed(1)}%`);
+      if (activeTimers.size > 50) {
+        console.warn(`🚨 High number of active timers detected: ${activeTimers.size}`);
       }
-    }
-  }, 30000); // Check every 30 seconds
 
-  console.log('✅ Memory leak detection patches applied');
+      return id;
+    };
+
+    window.setInterval = function (callback: Function, delay?: number, ...args: any[]) {
+      const id = originalSetInterval.call(window, callback, delay, ...args);
+      activeIntervals.add(id);
+
+      if (activeIntervals.size > 20) {
+        console.warn(`🚨 High number of active intervals detected: ${activeIntervals.size}`);
+      }
+
+      return id;
+    };
+
+    window.clearTimeout = function (id?: number) {
+      if (id) {
+        activeTimers.delete(id);
+      }
+      return originalClearTimeout.call(window, id);
+    };
+
+    window.clearInterval = function (id?: number) {
+      if (id) {
+        activeIntervals.delete(id);
+      }
+      return originalClearInterval.call(window, id);
+    };
+
+    // Track fetch requests
+    const originalFetch = window.fetch;
+    const activeRequests = new Set<string>();
+
+    window.fetch = function (input: RequestInfo | URL, init?: RequestInit) {
+      const url = typeof input === 'string' ? input : input.toString();
+      const requestId = `${Date.now()}-${Math.random()}`;
+
+      activeRequests.add(requestId);
+
+      if (activeRequests.size > 100) {
+        console.warn(`🚨 High number of active fetch requests: ${activeRequests.size}`);
+      }
+
+      return originalFetch.call(window, input, init).finally(() => {
+        activeRequests.delete(requestId);
+      });
+    };
+
+    // Monitor page unload to detect potential leaks
+    window.addEventListener('beforeunload', () => {
+      const leaks = [];
+
+      if (activeTimers.size > 0) {
+        leaks.push(`${activeTimers.size} active timers`);
+      }
+
+      if (activeIntervals.size > 0) {
+        leaks.push(`${activeIntervals.size} active intervals`);
+      }
+
+      if (activeRequests.size > 0) {
+        leaks.push(`${activeRequests.size} active requests`);
+      }
+
+      if (leaks.length > 0) {
+        console.warn('🚨 Potential memory leaks detected on page unload:', leaks.join(', '));
+      }
+    });
+
+    // Set up periodic memory monitoring with safe performance API
+    setInterval(() => {
+      try {
+        // Use a safe performance API wrapper instead of direct access
+        const hasPerformanceAPI = typeof window !== 'undefined' && 
+                                 window.performance && 
+                                 (window.performance as any).memory;
+        
+        if (hasPerformanceAPI) {
+          const memory = (window.performance as any).memory;
+          if (memory && typeof memory.usedJSHeapSize === 'number') {
+            const usedMB = (memory.usedJSHeapSize / 1024 / 1024).toFixed(2);
+            const totalMB = (memory.totalJSHeapSize / 1024 / 1024).toFixed(2);
+            const limitMB = (memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2);
+
+            console.log(`📊 Memory: ${usedMB}MB used, ${totalMB}MB total, ${limitMB}MB limit`);
+
+            // Check for rapid memory growth
+            const pressure = memory.usedJSHeapSize / memory.jsHeapSizeLimit;
+            if (pressure > 0.8) {
+              console.warn(`🚨 High memory pressure: ${(pressure * 100).toFixed(1)}%`);
+            }
+          }
+        }
+      } catch (error) {
+        // Silently handle performance API errors to prevent crashes
+        console.warn('Performance monitoring error (non-critical):', error.message);
+      }
+    }, 30000); // Check every 30 seconds
+
+    console.log('✅ Memory leak detection patches applied');
+  } catch (error) {
+    console.warn('⚠️ Memory leak detection initialization failed:', error);
+    // Continue without memory leak detection
+  }
 }
 
 /**
@@ -204,17 +225,26 @@ export function getMemoryUsage(): {
   limit: number;
   pressure: number;
 } | null {
-  if (typeof window === 'undefined' || !window.performance?.memory) {
+  if (typeof window === 'undefined' || !window.performance) {
     return null;
   }
 
-  const memory = (window.performance as any).memory;
-  return {
-    used: memory.usedJSHeapSize,
-    total: memory.totalJSHeapSize,
-    limit: memory.jsHeapSizeLimit,
-    pressure: memory.usedJSHeapSize / memory.jsHeapSizeLimit
-  };
+  try {
+    const memory = (window.performance as any).memory;
+    if (!memory || typeof memory.usedJSHeapSize !== 'number') {
+      return null;
+    }
+    
+    return {
+      used: memory.usedJSHeapSize,
+      total: memory.totalJSHeapSize,
+      limit: memory.jsHeapSizeLimit,
+      pressure: memory.usedJSHeapSize / memory.jsHeapSizeLimit
+    };
+  } catch (error) {
+    console.warn('Error accessing performance.memory:', error);
+    return null;
+  }
 }
 
 // Import React for the HOC

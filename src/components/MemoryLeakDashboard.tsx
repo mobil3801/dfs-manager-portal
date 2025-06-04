@@ -45,13 +45,31 @@ const MemoryLeakDashboard: React.FC = () => {
   const monitor = MemoryLeakMonitor.getInstance();
 
   const refreshData = () => {
-    const info = monitor.getCurrentMemoryInfo();
-    const componentStats = monitor.getComponentStats() as ComponentTracker[];
-    const history = monitor.getMemoryHistory();
+    try {
+      const info = monitor.getCurrentMemoryInfo();
+      const componentStats = monitor.getComponentStats() as ComponentTracker[];
+      const history = monitor.getMemoryHistory();
 
-    setMemoryInfo(info);
-    setComponents(Array.isArray(componentStats) ? componentStats : []);
-    setMemoryHistory(history);
+      setMemoryInfo(info);
+      setComponents(Array.isArray(componentStats) ? componentStats : []);
+      setMemoryHistory(history);
+    } catch (error) {
+      console.warn('Error refreshing memory data:', error);
+      // Set safe fallback values
+      setMemoryInfo({
+        current: null,
+        baseline: null,
+        growth: 0,
+        pressure: 0,
+        componentsTracked: 0,
+        totalLeakReports: 0,
+        leakOccurrences: 0,
+        isCriticalLeakDetected: false,
+        nextAlertTime: 0
+      });
+      setComponents([]);
+      setMemoryHistory([]);
+    }
   };
 
   useEffect(() => {
