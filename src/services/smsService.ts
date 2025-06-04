@@ -425,16 +425,7 @@ class SMSService {
     }
   }
 
-  // Phone number validation helper
-  isValidPhoneNumber(phoneNumber: string): boolean {
-    try {
-      const cleaned = phoneNumber.replace(/[^\d]/g, '');
-      return cleaned.length >= 10 && cleaned.length <= 15;
-    } catch (error) {
-      console.error('Error validating phone number:', error);
-      return false;
-    }
-  }
+
 
   // Get available provider numbers
   async getAvailableFromNumbers(): Promise<{number: string;provider: string;isActive: boolean;testMode: boolean;}[]> {

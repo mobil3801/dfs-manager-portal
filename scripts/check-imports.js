@@ -22,11 +22,11 @@ class ImportChecker {
 
   scanDirectory(dirPath = this.srcPath) {
     const files = fs.readdirSync(dirPath);
-    
-    files.forEach(file => {
+
+    files.forEach((file) => {
       const filePath = path.join(dirPath, file);
       const stat = fs.statSync(filePath);
-      
+
       if (stat.isDirectory() && !['node_modules', 'dist', '.git'].includes(file)) {
         this.scanDirectory(filePath);
       } else if (file.match(/\.(ts|tsx)$/)) {
@@ -59,10 +59,10 @@ class ImportChecker {
 
   checkImportSyntax(content, filePath) {
     const lines = content.split('\n');
-    
+
     lines.forEach((line, index) => {
       const lineNumber = index + 1;
-      
+
       // Check for incomplete import statements
       if (line.trim().startsWith('import') && !line.includes(';') && !line.includes('from')) {
         this.errors.push({
@@ -77,17 +77,17 @@ class ImportChecker {
       const importMatch = line.match(/from ['"`]([^'"`]+)['"`]/);
       if (importMatch) {
         const importPath = importMatch[1];
-        
+
         // Check for missing file extensions in relative imports
         if (importPath.startsWith('./') || importPath.startsWith('../')) {
           if (!importPath.match(/\.(ts|tsx|js|jsx|css|scss)$/)) {
             // Check if the file exists without extension
             const resolvedPath = path.resolve(path.dirname(filePath), importPath);
             const possibleExtensions = ['.ts', '.tsx', '.js', '.jsx'];
-            const existsWithExtension = possibleExtensions.some(ext => 
-              fs.existsSync(resolvedPath + ext)
+            const existsWithExtension = possibleExtensions.some((ext) =>
+            fs.existsSync(resolvedPath + ext)
             );
-            
+
             if (!existsWithExtension && !fs.existsSync(resolvedPath + '/index.ts') && !fs.existsSync(resolvedPath + '/index.tsx')) {
               this.warnings.push({
                 file: filePath,
@@ -105,13 +105,13 @@ class ImportChecker {
   checkMissingImports(content, filePath) {
     // Check for common patterns that might indicate missing imports
     const patterns = [
-      { pattern: /React\./g, import: 'react' },
-      { pattern: /useState|useEffect|useMemo|useCallback/g, import: 'react' },
-      { pattern: /motion\./g, import: 'motion/react' },
-      { pattern: /toast\(/g, import: '@/hooks/use-toast' },
-      { pattern: /cn\(/g, import: '@/lib/utils' },
-      { pattern: /Button|Card|Input|Label/g, import: '@/components/ui/*' }
-    ];
+    { pattern: /React\./g, import: 'react' },
+    { pattern: /useState|useEffect|useMemo|useCallback/g, import: 'react' },
+    { pattern: /motion\./g, import: 'motion/react' },
+    { pattern: /toast\(/g, import: '@/hooks/use-toast' },
+    { pattern: /cn\(/g, import: '@/lib/utils' },
+    { pattern: /Button|Card|Input|Label/g, import: '@/components/ui/*' }];
+
 
     patterns.forEach(({ pattern, import: expectedImport }) => {
       if (pattern.test(content) && !content.includes(`from "${expectedImport}"`)) {
@@ -126,18 +126,18 @@ class ImportChecker {
 
   checkUnusedImports(content, filePath) {
     const importMatches = content.match(/import\s+{([^}]+)}\s+from/g);
-    
+
     if (importMatches) {
-      importMatches.forEach(importStatement => {
-        const namedImports = importStatement.match(/{([^}]+)}/)[1]
-          .split(',')
-          .map(imp => imp.trim().split(' as ')[0].trim());
-        
-        namedImports.forEach(importName => {
+      importMatches.forEach((importStatement) => {
+        const namedImports = importStatement.match(/{([^}]+)}/)[1].
+        split(',').
+        map((imp) => imp.trim().split(' as ')[0].trim());
+
+        namedImports.forEach((importName) => {
           // Simple check - could be enhanced with AST parsing
           const usagePattern = new RegExp(`\\b${importName}\\b`, 'g');
           const matches = content.match(usagePattern);
-          
+
           // If only found in import statement (should be at least 2 occurrences)
           if (matches && matches.length < 2) {
             this.warnings.push({
@@ -156,15 +156,15 @@ class ImportChecker {
     // For now, just flag potential issues
     const importPaths = [];
     const importMatches = content.match(/from ['"`]([^'"`]+)['"`]/g);
-    
+
     if (importMatches) {
-      importMatches.forEach(match => {
+      importMatches.forEach((match) => {
         const path = match.match(/from ['"`]([^'"`]+)['"`]/)[1];
         if (path.startsWith('./') || path.startsWith('../')) {
           importPaths.push(path);
         }
       });
-      
+
       // Simple heuristic: warn if there are many relative imports
       if (importPaths.length > 10) {
         this.warnings.push({
@@ -178,9 +178,9 @@ class ImportChecker {
 
   checkDeprecatedImports(content, filePath) {
     const deprecatedPatterns = [
-      { pattern: /from ['"`]react-router['"`]/, message: 'Use react-router-dom instead of react-router' },
-      { pattern: /import.*\*.*as React.*from ['"`]react['"`]/, message: 'Consider using named imports for better tree-shaking' }
-    ];
+    { pattern: /from ['"`]react-router['"`]/, message: 'Use react-router-dom instead of react-router' },
+    { pattern: /import.*\*.*as React.*from ['"`]react['"`]/, message: 'Consider using named imports for better tree-shaking' }];
+
 
     deprecatedPatterns.forEach(({ pattern, message }) => {
       if (pattern.test(content)) {
@@ -196,9 +196,9 @@ class ImportChecker {
   generateReport() {
     console.log('\n🔍 Import Checker Report');
     console.log('========================\n');
-    
+
     console.log(`📊 Scanned ${this.scannedFiles} files\n`);
-    
+
     if (this.errors.length === 0 && this.warnings.length === 0) {
       console.log('✅ No import issues found!\n');
       return true;
@@ -206,7 +206,7 @@ class ImportChecker {
 
     if (this.errors.length > 0) {
       console.log(`❌ Errors (${this.errors.length}):`);
-      this.errors.forEach(error => {
+      this.errors.forEach((error) => {
         console.log(`  ${error.file}${error.line ? `:${error.line}` : ''}`);
         console.log(`    ${error.type}: ${error.message}\n`);
       });
@@ -214,7 +214,7 @@ class ImportChecker {
 
     if (this.warnings.length > 0) {
       console.log(`⚠️  Warnings (${this.warnings.length}):`);
-      this.warnings.forEach(warning => {
+      this.warnings.forEach((warning) => {
         console.log(`  ${warning.file}${warning.line ? `:${warning.line}` : ''}`);
         console.log(`    ${warning.type}: ${warning.message}\n`);
       });

@@ -29,26 +29,26 @@ export default tseslint.config(
       // React Rules
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": [
-        "warn",
-        { allowConstantExport: true }
-      ],
+      "warn",
+      { allowConstantExport: true }],
+
       // Basic JSX validation
-      
+
       // Import/Export Rules
       "no-unused-vars": "off", // Let TypeScript handle this
       "@typescript-eslint/no-unused-vars": [
-        "warn",
-        {
-          "argsIgnorePattern": "^_",
-          "varsIgnorePattern": "^_",
-          "caughtErrorsIgnorePattern": "^_"
-        }
-      ],
+      "warn",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }],
+
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-non-null-assertion": "warn",
       "@typescript-eslint/prefer-optional-chain": "warn",
       "@typescript-eslint/prefer-nullish-coalescing": "warn",
-      
+
       // General Code Quality
       "no-console": ["warn", { "allow": ["warn", "error"] }],
       "no-debugger": "warn",
@@ -59,9 +59,9 @@ export default tseslint.config(
       "object-shorthand": "warn",
       "no-duplicate-imports": "error",
       "no-undef": "error",
-      
+
       // Basic accessibility
-      
+
       // Performance
       "react-hooks/exhaustive-deps": "warn"
     }

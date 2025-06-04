@@ -5,19 +5,19 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { 
-  AlertTriangle, 
-  CheckCircle, 
-  Code, 
-  FileText, 
-  GitBranch, 
+import {
+  AlertTriangle,
+  CheckCircle,
+  Code,
+  FileText,
+  GitBranch,
   Monitor,
   Package,
   RefreshCw,
   Settings,
   Shield,
-  Zap
-} from 'lucide-react';
+  Zap } from
+'lucide-react';
 
 interface CodeQualityMetrics {
   totalFiles: number;
@@ -77,12 +77,12 @@ const DevelopmentMonitor: React.FC = () => {
     // Get basic performance metrics
     const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
     const loadTime = navigation ? navigation.loadEventEnd - navigation.loadEventStart : 0;
-    
+
     setPerformance({
       bundleSize: '2.1 MB',
       loadTime: Math.round(loadTime),
-      memoryUsage: (performance as any).memory ? 
-        Math.round((performance as any).memory.usedJSHeapSize / 1024 / 1024 * 100) / 100 : 0,
+      memoryUsage: (performance as any).memory ?
+      Math.round((performance as any).memory.usedJSHeapSize / 1024 / 1024 * 100) / 100 : 0,
       lastBuild: new Date()
     });
   };
@@ -90,26 +90,26 @@ const DevelopmentMonitor: React.FC = () => {
   const runCodeQualityCheck = async () => {
     setIsScanning(true);
     // Simulate running checks
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
     loadCodeQualityMetrics();
     setIsScanning(false);
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'good': return 'text-green-600';
-      case 'warning': return 'text-yellow-600';
-      case 'error': return 'text-red-600';
-      default: return 'text-gray-600';
+      case 'good':return 'text-green-600';
+      case 'warning':return 'text-yellow-600';
+      case 'error':return 'text-red-600';
+      default:return 'text-gray-600';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'good': return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'warning': return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
-      case 'error': return <AlertTriangle className="h-4 w-4 text-red-600" />;
-      default: return <Monitor className="h-4 w-4 text-gray-600" />;
+      case 'good':return <CheckCircle className="h-4 w-4 text-green-600" />;
+      case 'warning':return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
+      case 'error':return <AlertTriangle className="h-4 w-4 text-red-600" />;
+      default:return <Monitor className="h-4 w-4 text-gray-600" />;
     }
   };
 
@@ -120,11 +120,11 @@ const DevelopmentMonitor: React.FC = () => {
           <h2 className="text-2xl font-bold">Development Monitor</h2>
           <p className="text-muted-foreground">Real-time code quality and performance monitoring</p>
         </div>
-        <Button 
-          onClick={runCodeQualityCheck} 
+        <Button
+          onClick={runCodeQualityCheck}
           disabled={isScanning}
-          className="flex items-center gap-2"
-        >
+          className="flex items-center gap-2">
+
           <RefreshCw className={`h-4 w-4 ${isScanning ? 'animate-spin' : ''}`} />
           {isScanning ? 'Scanning...' : 'Run Check'}
         </Button>
@@ -195,24 +195,24 @@ const DevelopmentMonitor: React.FC = () => {
             </Card>
           </div>
 
-          {codeQuality.status === 'warning' && (
-            <Alert>
+          {codeQuality.status === 'warning' &&
+          <Alert>
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
                 Found {codeQuality.warnings} warnings in your codebase. 
                 Run <code>npm run lint:fix</code> to auto-fix some issues.
               </AlertDescription>
             </Alert>
-          )}
+          }
 
-          {codeQuality.status === 'error' && (
-            <Alert variant="destructive">
+          {codeQuality.status === 'error' &&
+          <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
                 Found {codeQuality.errors} critical errors that need immediate attention.
               </AlertDescription>
             </Alert>
-          )}
+          }
         </TabsContent>
 
         <TabsContent value="imports" className="space-y-4">
@@ -305,9 +305,9 @@ const DevelopmentMonitor: React.FC = () => {
                 <div className="flex justify-between">
                   <span>Last Build</span>
                   <span>
-                    {performance.lastBuild ? 
-                      performance.lastBuild.toLocaleTimeString() : 
-                      'Unknown'
+                    {performance.lastBuild ?
+                    performance.lastBuild.toLocaleTimeString() :
+                    'Unknown'
                     }
                   </span>
                 </div>
@@ -373,8 +373,8 @@ const DevelopmentMonitor: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default DevelopmentMonitor;

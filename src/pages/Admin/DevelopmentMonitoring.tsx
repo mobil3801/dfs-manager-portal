@@ -3,18 +3,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AccessDenied } from '@/components/AccessDenied';
+import AccessDenied from '@/components/AccessDenied';
 import { useAdminAccess } from '@/hooks/use-admin-access';
 import DevelopmentMonitor from '@/components/DevelopmentMonitor';
-import { 
-  Code2, 
-  FileText, 
-  GitBranch, 
+import {
+  Code2,
+  FileText,
+  GitBranch,
   Monitor,
   Settings,
   Terminal,
-  Wrench
-} from 'lucide-react';
+  Wrench } from
+'lucide-react';
 
 const DevelopmentMonitoringPage: React.FC = () => {
   const { hasAdminAccess } = useAdminAccess();
@@ -24,58 +24,58 @@ const DevelopmentMonitoringPage: React.FC = () => {
   }
 
   const quickActions = [
-    {
-      title: 'Run Lint Check',
-      description: 'Check code for linting issues',
-      command: 'npm run lint:check',
-      icon: <Code2 className="h-4 w-4" />,
-      color: 'blue'
-    },
-    {
-      title: 'Fix Lint Issues',
-      description: 'Auto-fix linting problems',
-      command: 'npm run lint:fix',
-      icon: <Wrench className="h-4 w-4" />,
-      color: 'green'
-    },
-    {
-      title: 'Check Imports',
-      description: 'Analyze import statements',
-      command: 'npm run check-imports',
-      icon: <GitBranch className="h-4 w-4" />,
-      color: 'purple'
-    },
-    {
-      title: 'Type Check',
-      description: 'Run TypeScript validation',
-      command: 'npm run type-check',
-      icon: <FileText className="h-4 w-4" />,
-      color: 'orange'
-    },
-    {
-      title: 'Quality Check',
-      description: 'Complete quality analysis',
-      command: 'npm run quality-check',
-      icon: <Monitor className="h-4 w-4" />,
-      color: 'red'
-    },
-    {
-      title: 'Setup Git Hooks',
-      description: 'Install development hooks',
-      command: 'npm run setup-hooks',
-      icon: <Settings className="h-4 w-4" />,
-      color: 'gray'
-    }
-  ];
+  {
+    title: 'Run Lint Check',
+    description: 'Check code for linting issues',
+    command: 'npm run lint:check',
+    icon: <Code2 className="h-4 w-4" />,
+    color: 'blue'
+  },
+  {
+    title: 'Fix Lint Issues',
+    description: 'Auto-fix linting problems',
+    command: 'npm run lint:fix',
+    icon: <Wrench className="h-4 w-4" />,
+    color: 'green'
+  },
+  {
+    title: 'Check Imports',
+    description: 'Analyze import statements',
+    command: 'npm run check-imports',
+    icon: <GitBranch className="h-4 w-4" />,
+    color: 'purple'
+  },
+  {
+    title: 'Type Check',
+    description: 'Run TypeScript validation',
+    command: 'npm run type-check',
+    icon: <FileText className="h-4 w-4" />,
+    color: 'orange'
+  },
+  {
+    title: 'Quality Check',
+    description: 'Complete quality analysis',
+    command: 'npm run quality-check',
+    icon: <Monitor className="h-4 w-4" />,
+    color: 'red'
+  },
+  {
+    title: 'Setup Git Hooks',
+    description: 'Install development hooks',
+    command: 'npm run setup-hooks',
+    icon: <Settings className="h-4 w-4" />,
+    color: 'gray'
+  }];
+
 
   const getColorClasses = (color: string) => {
     switch (color) {
-      case 'blue': return 'border-blue-200 bg-blue-50 hover:bg-blue-100';
-      case 'green': return 'border-green-200 bg-green-50 hover:bg-green-100';
-      case 'purple': return 'border-purple-200 bg-purple-50 hover:bg-purple-100';
-      case 'orange': return 'border-orange-200 bg-orange-50 hover:bg-orange-100';
-      case 'red': return 'border-red-200 bg-red-50 hover:bg-red-100';
-      default: return 'border-gray-200 bg-gray-50 hover:bg-gray-100';
+      case 'blue':return 'border-blue-200 bg-blue-50 hover:bg-blue-100';
+      case 'green':return 'border-green-200 bg-green-50 hover:bg-green-100';
+      case 'purple':return 'border-purple-200 bg-purple-50 hover:bg-purple-100';
+      case 'orange':return 'border-orange-200 bg-orange-50 hover:bg-orange-100';
+      case 'red':return 'border-red-200 bg-red-50 hover:bg-red-100';
+      default:return 'border-gray-200 bg-gray-50 hover:bg-gray-100';
     }
   };
 
@@ -114,15 +114,15 @@ const DevelopmentMonitoringPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {quickActions.map((action, index) => (
-                  <Card 
-                    key={index} 
-                    className={`cursor-pointer transition-colors ${getColorClasses(action.color)}`}
-                    onClick={() => {
-                      navigator.clipboard.writeText(action.command);
-                      // You could add a toast notification here
-                    }}
-                  >
+                {quickActions.map((action, index) =>
+                <Card
+                  key={index}
+                  className={`cursor-pointer transition-colors ${getColorClasses(action.color)}`}
+                  onClick={() => {
+                    navigator.clipboard.writeText(action.command);
+                    // You could add a toast notification here
+                  }}>
+
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
                         <div className="mt-1">
@@ -142,7 +142,7 @@ const DevelopmentMonitoringPage: React.FC = () => {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                )}
               </div>
               <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="text-sm text-blue-800">
@@ -265,8 +265,8 @@ const DevelopmentMonitoringPage: React.FC = () => {
           </div>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export { DevelopmentMonitoringPage };
