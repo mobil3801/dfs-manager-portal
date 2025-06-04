@@ -168,6 +168,7 @@ const DashboardLayout: React.FC = () => {
     if (path.startsWith('/admin/supabase-test')) return 'Supabase Connection Test';
     if (path.startsWith('/admin/development-monitoring')) return 'Development Monitoring';
     if (path.startsWith('/admin/role-testing')) return 'Role Testing & Customization';
+    if (path.startsWith('/admin/user-creation-testing')) return 'User Creation Testing Suite';
     if (path.startsWith('/admin')) return 'Site & User Management';
     return 'DFS Manager';
   };

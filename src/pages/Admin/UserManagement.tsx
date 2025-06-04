@@ -484,8 +484,8 @@ const UserManagement: React.FC = () => {
           <div className="flex items-center justify-end space-x-3">
             <Button
               onClick={() => setIsCreateUserDialogOpen(true)}
-              className="bg-green-600 hover:bg-green-700"
-            >
+              className="bg-green-600 hover:bg-green-700">
+
               <UserPlus className="w-4 h-4 mr-2" />
               Create New User
             </Button>
@@ -1157,8 +1157,8 @@ const UserManagement: React.FC = () => {
             title: "Success",
             description: "New user account and profile created successfully"
           });
-        }}
-      />
+        }} />
+
 
     </div>);
 

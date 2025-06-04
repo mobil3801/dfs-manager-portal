@@ -64,7 +64,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
   };
 
   const handleInputChange = (field: keyof UserFormData, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [field]: value
     }));
@@ -136,13 +136,13 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
           }
           retryCount++;
           if (retryCount < maxRetries) {
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+            await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second before retry
           }
         } catch (error) {
           console.log(`Retry ${retryCount + 1} failed:`, error);
           retryCount++;
           if (retryCount < maxRetries) {
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise((resolve) => setTimeout(resolve, 1000));
           }
         }
       }
@@ -192,45 +192,171 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
 
       console.log('User profile created successfully');
 
-      // Step 4: Send welcome email (optional)
+      // Step 4: Send role-specific welcome email
       try {
-        const emailContent = `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #1f2937;">Welcome to DFS Manager Portal</h2>
-            <p>Hello ${formData.firstName} ${formData.lastName},</p>
-            <p>Your account has been successfully created for the DFS Manager Portal.</p>
-            
-            <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #374151; margin-top: 0;">Account Details:</h3>
-              <p><strong>Email:</strong> ${formData.email}</p>
-              <p><strong>Employee ID:</strong> ${formData.employee_id}</p>
-              <p><strong>Role:</strong> ${formData.role}</p>
-              <p><strong>Station:</strong> ${formData.station}</p>
-              <p><strong>Hire Date:</strong> ${new Date(formData.hire_date).toLocaleDateString()}</p>
-            </div>
-            
-            <div style="background-color: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b;">
-              <h4 style="color: #92400e; margin-top: 0;">Login Information:</h4>
-              <p style="color: #92400e; margin-bottom: 0;"><strong>Temporary Password:</strong> ${formData.password}</p>
-              <p style="color: #92400e; font-size: 14px;"><em>Please change your password after your first login for security purposes.</em></p>
-            </div>
-            
-            <p>You can access the portal at: <a href="${window.location.origin}" style="color: #2563eb;">${window.location.origin}</a></p>
-            
-            <p>If you have any questions or need assistance, please contact your administrator.</p>
-            
-            <p>Best regards,<br>DFS Manager Portal Team</p>
-          </div>
-        `;
+        const emailTemplates = {
+          Administrator: {
+            subject: 'Welcome to DFS Manager Portal - Administrator Access',
+            content: `
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="text-align: center; margin-bottom: 30px;">
+    <h1 style="color: #dc2626; margin: 0;">DFS Manager Portal</h1>
+    <h2 style="color: #374151; margin-top: 10px;">Administrator Access Granted</h2>
+  </div>
+  
+  <div style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+    <h3 style="margin: 0 0 10px 0;">Welcome, ${formData.firstName} ${formData.lastName}!</h3>
+    <p style="margin: 0; opacity: 0.9;">You now have full administrative access to the DFS Manager Portal.</p>
+  </div>
 
-        await window.ezsite.apis.sendEmail({
-          from: 'support@ezsite.ai',
-          to: [formData.email],
-          subject: 'Welcome to DFS Manager Portal - Account Created',
-          html: emailContent
-        });
+  <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+    <h3 style="color: #374151; margin-top: 0;">Account Details:</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr><td style="padding: 8px 0; font-weight: bold;">Email:</td><td>${formData.email}</td></tr>
+      <tr><td style="padding: 8px 0; font-weight: bold;">Employee ID:</td><td>${formData.employee_id}</td></tr>
+      <tr><td style="padding: 8px 0; font-weight: bold;">Role:</td><td style="color: #dc2626; font-weight: bold;">${formData.role}</td></tr>
+      <tr><td style="padding: 8px 0; font-weight: bold;">Station:</td><td>${formData.station}</td></tr>
+    </table>
+  </div>
 
-        console.log('Welcome email sent successfully');
+  <div style="background-color: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 20px 0;">
+    <h4 style="color: #92400e; margin-top: 0;">Login Information:</h4>
+    <p style="color: #92400e; margin-bottom: 0;"><strong>Temporary Password:</strong> ${formData.password}</p>
+    <p style="color: #92400e; font-size: 14px;"><em>Please change your password after your first login for security purposes.</em></p>
+  </div>
+
+  <div style="background-color: #fee2e2; padding: 15px; border-radius: 8px; border-left: 4px solid #dc2626; margin: 20px 0;">
+    <h4 style="color: #991b1b; margin-top: 0;">Administrator Responsibilities:</h4>
+    <ul style="color: #991b1b; margin-bottom: 0; padding-left: 20px;">
+      <li>Full system access and user management</li>
+      <li>System configuration and security settings</li>
+      <li>Data backup and recovery oversight</li>
+      <li>Training and supporting other users</li>
+    </ul>
+  </div>
+
+  <div style="text-align: center; margin: 30px 0;">
+    <a href="${window.location.origin}" style="background-color: #dc2626; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">Access Portal</a>
+  </div>
+
+  <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; margin-top: 30px; text-align: center; color: #6b7280; font-size: 14px;">
+    <p>Best regards,<br>DFS Manager Portal Team</p>
+  </div>
+</div>`
+          },
+          Management: {
+            subject: 'Welcome to DFS Manager Portal - Management Access',
+            content: `
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="text-align: center; margin-bottom: 30px;">
+    <h1 style="color: #2563eb; margin: 0;">DFS Manager Portal</h1>
+    <h2 style="color: #374151; margin-top: 10px;">Management Access Granted</h2>
+  </div>
+  
+  <div style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+    <h3 style="margin: 0 0 10px 0;">Welcome, ${formData.firstName} ${formData.lastName}!</h3>
+    <p style="margin: 0; opacity: 0.9;">You now have management-level access to the DFS Manager Portal.</p>
+  </div>
+
+  <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+    <h3 style="color: #374151; margin-top: 0;">Account Details:</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr><td style="padding: 8px 0; font-weight: bold;">Email:</td><td>${formData.email}</td></tr>
+      <tr><td style="padding: 8px 0; font-weight: bold;">Employee ID:</td><td>${formData.employee_id}</td></tr>
+      <tr><td style="padding: 8px 0; font-weight: bold;">Role:</td><td style="color: #2563eb; font-weight: bold;">${formData.role}</td></tr>
+      <tr><td style="padding: 8px 0; font-weight: bold;">Station:</td><td>${formData.station}</td></tr>
+    </table>
+  </div>
+
+  <div style="background-color: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 20px 0;">
+    <h4 style="color: #92400e; margin-top: 0;">Login Information:</h4>
+    <p style="color: #92400e; margin-bottom: 0;"><strong>Temporary Password:</strong> ${formData.password}</p>
+    <p style="color: #92400e; font-size: 14px;"><em>Please change your password after your first login for security purposes.</em></p>
+  </div>
+
+  <div style="background-color: #dbeafe; padding: 15px; border-radius: 8px; border-left: 4px solid #2563eb; margin: 20px 0;">
+    <h4 style="color: #1e40af; margin-top: 0;">Management Features:</h4>
+    <ul style="color: #1e40af; margin-bottom: 0; padding-left: 20px;">
+      <li>Sales reports and analytics</li>
+      <li>Inventory management and ordering</li>
+      <li>Employee scheduling and oversight</li>
+      <li>Financial reporting and reconciliation</li>
+    </ul>
+  </div>
+
+  <div style="text-align: center; margin: 30px 0;">
+    <a href="${window.location.origin}" style="background-color: #2563eb; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">Access Portal</a>
+  </div>
+
+  <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; margin-top: 30px; text-align: center; color: #6b7280; font-size: 14px;">
+    <p>Best regards,<br>DFS Manager Portal Team</p>
+  </div>
+</div>`
+          },
+          Employee: {
+            subject: 'Welcome to DFS Manager Portal - Employee Access',
+            content: `
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="text-align: center; margin-bottom: 30px;">
+    <h1 style="color: #059669; margin: 0;">DFS Manager Portal</h1>
+    <h2 style="color: #374151; margin-top: 10px;">Employee Access</h2>
+  </div>
+  
+  <div style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+    <h3 style="margin: 0 0 10px 0;">Welcome to the team, ${formData.firstName}!</h3>
+    <p style="margin: 0; opacity: 0.9;">Your account has been created for the DFS Manager Portal.</p>
+  </div>
+
+  <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+    <h3 style="color: #374151; margin-top: 0;">Account Details:</h3>
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr><td style="padding: 8px 0; font-weight: bold;">Email:</td><td>${formData.email}</td></tr>
+      <tr><td style="padding: 8px 0; font-weight: bold;">Employee ID:</td><td>${formData.employee_id}</td></tr>
+      <tr><td style="padding: 8px 0; font-weight: bold;">Role:</td><td style="color: #059669; font-weight: bold;">${formData.role}</td></tr>
+      <tr><td style="padding: 8px 0; font-weight: bold;">Station:</td><td>${formData.station}</td></tr>
+    </table>
+  </div>
+
+  <div style="background-color: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 20px 0;">
+    <h4 style="color: #92400e; margin-top: 0;">Login Information:</h4>
+    <p style="color: #92400e; margin-bottom: 0;"><strong>Temporary Password:</strong> ${formData.password}</p>
+    <p style="color: #92400e; font-size: 14px;"><em>Please change your password after your first login for security purposes.</em></p>
+  </div>
+
+  <div style="background-color: #d1fae5; padding: 15px; border-radius: 8px; border-left: 4px solid #059669; margin: 20px 0;">
+    <h4 style="color: #065f46; margin-top: 0;">What You Can Do:</h4>
+    <ul style="color: #065f46; margin-bottom: 0; padding-left: 20px;">
+      <li>View daily sales reports for your station</li>
+      <li>Access shift schedules and assignments</li>
+      <li>Submit daily operational reports</li>
+      <li>View inventory levels and alerts</li>
+    </ul>
+  </div>
+
+  <div style="text-align: center; margin: 30px 0;">
+    <a href="${window.location.origin}" style="background-color: #059669; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">Access Portal</a>
+  </div>
+
+  <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; margin-top: 30px; text-align: center; color: #6b7280; font-size: 14px;">
+    <p>Best regards,<br>DFS Manager Portal Team</p>
+  </div>
+</div>`
+          }
+        };
+
+        const template = emailTemplates[formData.role as keyof typeof emailTemplates];
+        
+        if (template) {
+          await window.ezsite.apis.sendEmail({
+            from: 'support@ezsite.ai',
+            to: [formData.email],
+            subject: template.subject,
+            html: template.content
+          });
+          console.log(`Role-specific welcome email sent for ${formData.role}`);
+        } else {
+          console.warn(`No email template found for role: ${formData.role}`);
+        }
       } catch (emailError) {
         console.warn('Failed to send welcome email:', emailError);
         // Don't fail the entire process if email fails
@@ -304,8 +430,8 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     placeholder="user@example.com"
                     required
-                    disabled={loading}
-                  />
+                    disabled={loading} />
+
                 </div>
                 
                 <div>
@@ -318,16 +444,16 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
                       onChange={(e) => handleInputChange('password', e.target.value)}
                       placeholder="Enter password"
                       required
-                      disabled={loading}
-                    />
+                      disabled={loading} />
+
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                       onClick={() => setShowPassword(!showPassword)}
-                      disabled={loading}
-                    >
+                      disabled={loading}>
+
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </Button>
                   </div>
@@ -337,8 +463,8 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
                       variant="outline"
                       size="sm"
                       onClick={() => handleInputChange('password', generatePassword())}
-                      disabled={loading}
-                    >
+                      disabled={loading}>
+
                       Generate Password
                     </Button>
                   </div>
@@ -364,8 +490,8 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
                     onChange={(e) => handleInputChange('firstName', e.target.value)}
                     placeholder="John"
                     required
-                    disabled={loading}
-                  />
+                    disabled={loading} />
+
                 </div>
                 
                 <div>
@@ -376,8 +502,8 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
                     onChange={(e) => handleInputChange('lastName', e.target.value)}
                     placeholder="Doe"
                     required
-                    disabled={loading}
-                  />
+                    disabled={loading} />
+
                 </div>
                 
                 <div>
@@ -389,8 +515,8 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
                     onChange={(e) => handleInputChange('phone', e.target.value)}
                     placeholder="(555) 123-4567"
                     required
-                    disabled={loading}
-                  />
+                    disabled={loading} />
+
                 </div>
                 
                 <div>
@@ -400,8 +526,8 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
                     type="date"
                     value={formData.hire_date}
                     onChange={(e) => handleInputChange('hire_date', e.target.value)}
-                    disabled={loading}
-                  />
+                    disabled={loading} />
+
                 </div>
               </div>
             </CardContent>
@@ -418,46 +544,46 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="role">Role *</Label>
-                  <Select 
-                    value={formData.role} 
+                  <Select
+                    value={formData.role}
                     onValueChange={(value) => handleInputChange('role', value)}
-                    disabled={loading}
-                  >
+                    disabled={loading}>
+
                     <SelectTrigger>
                       <SelectValue placeholder="Select role" />
                     </SelectTrigger>
                     <SelectContent>
-                      {roles.map((role) => (
-                        <SelectItem key={role} value={role}>
+                      {roles.map((role) =>
+                      <SelectItem key={role} value={role}>
                           <div className="flex items-center space-x-2">
                             <Shield className="w-4 h-4" />
                             <span>{role}</span>
                           </div>
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
                 
                 <div>
                   <Label htmlFor="station">Station *</Label>
-                  <Select 
-                    value={formData.station} 
+                  <Select
+                    value={formData.station}
                     onValueChange={(value) => handleInputChange('station', value)}
-                    disabled={loading}
-                  >
+                    disabled={loading}>
+
                     <SelectTrigger>
                       <SelectValue placeholder="Select station" />
                     </SelectTrigger>
                     <SelectContent>
-                      {stations.map((station) => (
-                        <SelectItem key={station} value={station}>
+                      {stations.map((station) =>
+                      <SelectItem key={station} value={station}>
                           <div className="flex items-center space-x-2">
                             <Building2 className="w-4 h-4" />
                             <span>{station}</span>
                           </div>
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -471,14 +597,14 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
                       onChange={(e) => handleInputChange('employee_id', e.target.value)}
                       placeholder="EMP-123456"
                       required
-                      disabled={loading}
-                    />
+                      disabled={loading} />
+
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => handleInputChange('employee_id', generateEmployeeId())}
-                      disabled={loading}
-                    >
+                      disabled={loading}>
+
                       Generate
                     </Button>
                   </div>
@@ -533,32 +659,32 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
             <Button
               variant="outline"
               onClick={handleClose}
-              disabled={loading}
-            >
+              disabled={loading}>
+
               Cancel
             </Button>
             <Button
               onClick={handleCreateUser}
               disabled={loading}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              {loading ? (
-                <>
+              className="bg-blue-600 hover:bg-blue-700">
+
+              {loading ?
+              <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   Creating User...
-                </>
-              ) : (
-                <>
+                </> :
+
+              <>
                   <User className="w-4 h-4 mr-2" />
                   Create User Account
                 </>
-              )}
+              }
             </Button>
           </div>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default CreateUserDialog;
