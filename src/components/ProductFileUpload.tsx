@@ -669,6 +669,8 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
 
 
 
+
+
           // Invalid date format, ignore
         }} // Calculate profit margin
       const unitPrice = mapped.unit_price || 0;const retailPrice = mapped.retail_price || 0;const profitMargin = calculateProfitMargin(unitPrice, retailPrice); // Calculate overdue status
@@ -820,9 +822,7 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
                 </TableHeader>
                 <TableBody>
                   {parsedProducts.map((product, index) => {// Count non-empty mapped fields (excluding product_name)
-                  const mappedFieldsCount = Object.entries(product.mapped).filter(([key, value]) => key !== 'product_name' && value !== undefined && value !== '' && value !== 0).
-                  length;
-
+                  const mappedFieldsCount = Object.entries(product.mapped).filter(([key, value]) => key !== 'product_name' && value !== undefined && value !== '' && value !== 0).length;
                   return (
                     <TableRow key={index}>
                       <TableCell>

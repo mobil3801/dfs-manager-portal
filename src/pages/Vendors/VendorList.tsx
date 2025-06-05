@@ -111,19 +111,19 @@ const VendorList: React.FC = () => {
 
   const handleExport = () => {
     if (!selectedVendor) return;
-    
+
     const csvContent = [
-      'Field,Value',
-      `Vendor Name,${selectedVendor.vendor_name}`,
-      `Contact Person,${selectedVendor.contact_person}`,
-      `Email,${selectedVendor.email}`,
-      `Phone,${selectedVendor.phone}`,
-      `Address,${selectedVendor.address}`,
-      `Category,${selectedVendor.category}`,
-      `Payment Terms,${selectedVendor.payment_terms}`,
-      `Status,${selectedVendor.is_active ? 'Active' : 'Inactive'}`
-    ].join('\n');
-    
+    'Field,Value',
+    `Vendor Name,${selectedVendor.vendor_name}`,
+    `Contact Person,${selectedVendor.contact_person}`,
+    `Email,${selectedVendor.email}`,
+    `Phone,${selectedVendor.phone}`,
+    `Address,${selectedVendor.address}`,
+    `Category,${selectedVendor.category}`,
+    `Payment Terms,${selectedVendor.payment_terms}`,
+    `Status,${selectedVendor.is_active ? 'Active' : 'Inactive'}`].
+    join('\n');
+
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -131,7 +131,7 @@ const VendorList: React.FC = () => {
     a.download = `vendor_${selectedVendor.vendor_name.replace(/\s+/g, '_')}_details.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
-    
+
     toast({
       title: "Success",
       description: "Vendor details exported successfully"
@@ -142,7 +142,7 @@ const VendorList: React.FC = () => {
   useListKeyboardShortcuts(
     selectedVendorId,
     (id) => {
-      const vendor = vendors.find(v => v.ID === id);
+      const vendor = vendors.find((v) => v.ID === id);
       if (vendor) handleView(vendor);
     },
     handleEdit,
@@ -166,58 +166,58 @@ const VendorList: React.FC = () => {
 
   // Define view modal fields
   const getViewModalFields = (vendor: Vendor) => [
-    {
-      key: 'vendor_name',
-      label: 'Vendor Name',
-      value: vendor.vendor_name,
-      type: 'text' as const,
-      icon: Building2
-    },
-    {
-      key: 'contact_person',
-      label: 'Contact Person',
-      value: vendor.contact_person,
-      type: 'text' as const
-    },
-    {
-      key: 'email',
-      label: 'Email',
-      value: vendor.email,
-      type: 'email' as const
-    },
-    {
-      key: 'phone',
-      label: 'Phone',
-      value: vendor.phone,
-      type: 'phone' as const
-    },
-    {
-      key: 'address',
-      label: 'Address',
-      value: vendor.address,
-      type: 'text' as const,
-      icon: MapPin
-    },
-    {
-      key: 'category',
-      label: 'Category',
-      value: vendor.category,
-      type: 'badge' as const,
-      badgeColor: getCategoryBadgeColor(vendor.category)
-    },
-    {
-      key: 'payment_terms',
-      label: 'Payment Terms',
-      value: vendor.payment_terms,
-      type: 'text' as const
-    },
-    {
-      key: 'is_active',
-      label: 'Status',
-      value: vendor.is_active,
-      type: 'boolean' as const
-    }
-  ];
+  {
+    key: 'vendor_name',
+    label: 'Vendor Name',
+    value: vendor.vendor_name,
+    type: 'text' as const,
+    icon: Building2
+  },
+  {
+    key: 'contact_person',
+    label: 'Contact Person',
+    value: vendor.contact_person,
+    type: 'text' as const
+  },
+  {
+    key: 'email',
+    label: 'Email',
+    value: vendor.email,
+    type: 'email' as const
+  },
+  {
+    key: 'phone',
+    label: 'Phone',
+    value: vendor.phone,
+    type: 'phone' as const
+  },
+  {
+    key: 'address',
+    label: 'Address',
+    value: vendor.address,
+    type: 'text' as const,
+    icon: MapPin
+  },
+  {
+    key: 'category',
+    label: 'Category',
+    value: vendor.category,
+    type: 'badge' as const,
+    badgeColor: getCategoryBadgeColor(vendor.category)
+  },
+  {
+    key: 'payment_terms',
+    label: 'Payment Terms',
+    value: vendor.payment_terms,
+    type: 'text' as const
+  },
+  {
+    key: 'is_active',
+    label: 'Status',
+    value: vendor.is_active,
+    type: 'boolean' as const
+  }];
+
 
   return (
     <div className="space-y-6">
@@ -304,10 +304,10 @@ const VendorList: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                   className={`border-b hover:bg-gray-50 transition-colors cursor-pointer ${
-                    selectedVendorId === vendor.ID ? 'bg-blue-50 border-blue-200' : ''
-                  }`}
-                  onClick={() => setSelectedVendorId(vendor.ID)}
-                >
+                  selectedVendorId === vendor.ID ? 'bg-blue-50 border-blue-200' : ''}`
+                  }
+                  onClick={() => setSelectedVendorId(vendor.ID)}>
+
                       <TableCell>
                         <div>
                           <p className="font-medium">{vendor.vendor_name}</p>
@@ -354,35 +354,35 @@ const VendorList: React.FC = () => {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleView(vendor);
-                            }}
-                            className="text-blue-600 hover:text-blue-700"
-                          >
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleView(vendor);
+                        }}
+                        className="text-blue-600 hover:text-blue-700">
+
                             <Eye className="w-4 h-4" />
                           </Button>
                           <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEdit(vendor.ID);
-                            }}
-                          >
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(vendor.ID);
+                        }}>
+
                             <Edit className="w-4 h-4" />
                           </Button>
                           <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(vendor.ID);
-                            }}
-                            className="text-red-600 hover:text-red-700"
-                          >
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(vendor.ID);
+                        }}
+                        className="text-red-600 hover:text-red-700">
+
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -427,29 +427,29 @@ const VendorList: React.FC = () => {
       </Card>
       
       {/* View Modal */}
-      {selectedVendor && (
-        <ViewModal
-          isOpen={viewModalOpen}
-          onClose={() => {
-            setViewModalOpen(false);
-            setSelectedVendor(null);
-            setSelectedVendorId(null);
-          }}
-          title={selectedVendor.vendor_name}
-          subtitle={`Contact: ${selectedVendor.contact_person} • ${selectedVendor.category}`}
-          data={selectedVendor}
-          fields={getViewModalFields(selectedVendor)}
-          onEdit={() => {
-            setViewModalOpen(false);
-            handleEdit(selectedVendor.ID);
-          }}
-          onDelete={() => handleDelete(selectedVendor.ID)}
-          onExport={handleExport}
-          canEdit={true}
-          canDelete={true}
-          canExport={true}
-        />
-      )}
+      {selectedVendor &&
+      <ViewModal
+        isOpen={viewModalOpen}
+        onClose={() => {
+          setViewModalOpen(false);
+          setSelectedVendor(null);
+          setSelectedVendorId(null);
+        }}
+        title={selectedVendor.vendor_name}
+        subtitle={`Contact: ${selectedVendor.contact_person} • ${selectedVendor.category}`}
+        data={selectedVendor}
+        fields={getViewModalFields(selectedVendor)}
+        onEdit={() => {
+          setViewModalOpen(false);
+          handleEdit(selectedVendor.ID);
+        }}
+        onDelete={() => handleDelete(selectedVendor.ID)}
+        onExport={handleExport}
+        canEdit={true}
+        canDelete={true}
+        canExport={true} />
+
+      }
     </div>);
 
 };

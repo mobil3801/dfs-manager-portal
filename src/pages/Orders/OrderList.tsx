@@ -111,19 +111,19 @@ const OrderList: React.FC = () => {
 
   const handleExport = () => {
     if (!selectedOrder) return;
-    
+
     const csvContent = [
-      'Field,Value',
-      `Order Number,${selectedOrder.order_number}`,
-      `Vendor ID,${selectedOrder.vendor_id}`,
-      `Order Date,${selectedOrder.order_date}`,
-      `Expected Delivery,${selectedOrder.expected_delivery}`,
-      `Station,${selectedOrder.station}`,
-      `Total Amount,${selectedOrder.total_amount}`,
-      `Status,${selectedOrder.status}`,
-      `Notes,${selectedOrder.notes}`
-    ].join('\n');
-    
+    'Field,Value',
+    `Order Number,${selectedOrder.order_number}`,
+    `Vendor ID,${selectedOrder.vendor_id}`,
+    `Order Date,${selectedOrder.order_date}`,
+    `Expected Delivery,${selectedOrder.expected_delivery}`,
+    `Station,${selectedOrder.station}`,
+    `Total Amount,${selectedOrder.total_amount}`,
+    `Status,${selectedOrder.status}`,
+    `Notes,${selectedOrder.notes}`].
+    join('\n');
+
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -131,7 +131,7 @@ const OrderList: React.FC = () => {
     a.download = `order_${selectedOrder.order_number}_details.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
-    
+
     toast({
       title: "Success",
       description: "Order details exported successfully"
@@ -142,7 +142,7 @@ const OrderList: React.FC = () => {
   useListKeyboardShortcuts(
     selectedOrderId,
     (id) => {
-      const order = orders.find(o => o.ID === id);
+      const order = orders.find((o) => o.ID === id);
       if (order) handleView(order);
     },
     handleEdit,
@@ -207,58 +207,58 @@ const OrderList: React.FC = () => {
 
   // Define view modal fields
   const getViewModalFields = (order: Order) => [
-    {
-      key: 'order_number',
-      label: 'Order Number',
-      value: order.order_number,
-      type: 'text' as const,
-      icon: FileText
-    },
-    {
-      key: 'vendor_id',
-      label: 'Vendor ID',
-      value: order.vendor_id,
-      type: 'number' as const
-    },
-    {
-      key: 'order_date',
-      label: 'Order Date',
-      value: order.order_date,
-      type: 'date' as const
-    },
-    {
-      key: 'expected_delivery',
-      label: 'Expected Delivery',
-      value: order.expected_delivery,
-      type: 'date' as const
-    },
-    {
-      key: 'station',
-      label: 'Station',
-      value: order.station,
-      type: 'badge' as const,
-      badgeColor: getStationBadgeColor(order.station)
-    },
-    {
-      key: 'total_amount',
-      label: 'Total Amount',
-      value: order.total_amount,
-      type: 'currency' as const
-    },
-    {
-      key: 'status',
-      label: 'Status',
-      value: order.status,
-      type: 'badge' as const,
-      badgeColor: getStatusBadgeColor(order.status)
-    },
-    {
-      key: 'notes',
-      label: 'Notes',
-      value: order.notes,
-      type: 'text' as const
-    }
-  ];
+  {
+    key: 'order_number',
+    label: 'Order Number',
+    value: order.order_number,
+    type: 'text' as const,
+    icon: FileText
+  },
+  {
+    key: 'vendor_id',
+    label: 'Vendor ID',
+    value: order.vendor_id,
+    type: 'number' as const
+  },
+  {
+    key: 'order_date',
+    label: 'Order Date',
+    value: order.order_date,
+    type: 'date' as const
+  },
+  {
+    key: 'expected_delivery',
+    label: 'Expected Delivery',
+    value: order.expected_delivery,
+    type: 'date' as const
+  },
+  {
+    key: 'station',
+    label: 'Station',
+    value: order.station,
+    type: 'badge' as const,
+    badgeColor: getStationBadgeColor(order.station)
+  },
+  {
+    key: 'total_amount',
+    label: 'Total Amount',
+    value: order.total_amount,
+    type: 'currency' as const
+  },
+  {
+    key: 'status',
+    label: 'Status',
+    value: order.status,
+    type: 'badge' as const,
+    badgeColor: getStatusBadgeColor(order.status)
+  },
+  {
+    key: 'notes',
+    label: 'Notes',
+    value: order.notes,
+    type: 'text' as const
+  }];
+
 
   return (
     <div className="space-y-6">
@@ -384,10 +384,10 @@ const OrderList: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                   className={`border-b hover:bg-gray-50 transition-colors cursor-pointer ${
-                    selectedOrderId === order.ID ? 'bg-blue-50 border-blue-200' : ''
-                  }`}
-                  onClick={() => setSelectedOrderId(order.ID)}
-                >
+                  selectedOrderId === order.ID ? 'bg-blue-50 border-blue-200' : ''}`
+                  }
+                  onClick={() => setSelectedOrderId(order.ID)}>
+
                       <TableCell className="font-medium">
                         {order.order_number}
                         {order.notes &&
@@ -414,35 +414,35 @@ const OrderList: React.FC = () => {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleView(order);
-                            }}
-                            className="text-blue-600 hover:text-blue-700"
-                          >
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleView(order);
+                        }}
+                        className="text-blue-600 hover:text-blue-700">
+
                             <Eye className="w-4 h-4" />
                           </Button>
                           <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEdit(order.ID);
-                            }}
-                          >
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(order.ID);
+                        }}>
+
                             <Edit className="w-4 h-4" />
                           </Button>
                           <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(order.ID);
-                            }}
-                            className="text-red-600 hover:text-red-700"
-                          >
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(order.ID);
+                        }}
+                        className="text-red-600 hover:text-red-700">
+
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -487,29 +487,29 @@ const OrderList: React.FC = () => {
       </Card>
       
       {/* View Modal */}
-      {selectedOrder && (
-        <ViewModal
-          isOpen={viewModalOpen}
-          onClose={() => {
-            setViewModalOpen(false);
-            setSelectedOrder(null);
-            setSelectedOrderId(null);
-          }}
-          title={`Order #${selectedOrder.order_number}`}
-          subtitle={`${selectedOrder.station} • ${formatCurrency(selectedOrder.total_amount)} • ${selectedOrder.status}`}
-          data={selectedOrder}
-          fields={getViewModalFields(selectedOrder)}
-          onEdit={() => {
-            setViewModalOpen(false);
-            handleEdit(selectedOrder.ID);
-          }}
-          onDelete={() => handleDelete(selectedOrder.ID)}
-          onExport={handleExport}
-          canEdit={true}
-          canDelete={true}
-          canExport={true}
-        />
-      )}
+      {selectedOrder &&
+      <ViewModal
+        isOpen={viewModalOpen}
+        onClose={() => {
+          setViewModalOpen(false);
+          setSelectedOrder(null);
+          setSelectedOrderId(null);
+        }}
+        title={`Order #${selectedOrder.order_number}`}
+        subtitle={`${selectedOrder.station} • ${formatCurrency(selectedOrder.total_amount)} • ${selectedOrder.status}`}
+        data={selectedOrder}
+        fields={getViewModalFields(selectedOrder)}
+        onEdit={() => {
+          setViewModalOpen(false);
+          handleEdit(selectedOrder.ID);
+        }}
+        onDelete={() => handleDelete(selectedOrder.ID)}
+        onExport={handleExport}
+        canEdit={true}
+        canDelete={true}
+        canExport={true} />
+
+      }
     </div>);
 
 };

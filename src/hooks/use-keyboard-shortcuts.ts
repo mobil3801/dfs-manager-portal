@@ -17,15 +17,15 @@ export const useKeyboardShortcuts = (shortcuts: KeyboardShortcut[]) => {
       return;
     }
 
-    const activeShortcut = shortcuts.find(shortcut => {
+    const activeShortcut = shortcuts.find((shortcut) => {
       if (shortcut.disabled) return false;
-      
+
       return (
         event.key.toLowerCase() === shortcut.key.toLowerCase() &&
         Boolean(event.ctrlKey) === Boolean(shortcut.ctrlKey) &&
         Boolean(event.altKey) === Boolean(shortcut.altKey) &&
-        Boolean(event.shiftKey) === Boolean(shortcut.shiftKey)
-      );
+        Boolean(event.shiftKey) === Boolean(shortcut.shiftKey));
+
     });
 
     if (activeShortcut) {
@@ -43,34 +43,34 @@ export const useKeyboardShortcuts = (shortcuts: KeyboardShortcut[]) => {
 };
 
 export const useListKeyboardShortcuts = (
-  selectedId: number | null,
-  onView: (id: number) => void,
-  onEdit: (id: number) => void,
-  onDelete: (id: number) => void,
-  onCreate: () => void
-) => {
+selectedId: number | null,
+onView: (id: number) => void,
+onEdit: (id: number) => void,
+onDelete: (id: number) => void,
+onCreate: () => void) =>
+{
   const shortcuts: KeyboardShortcut[] = [
-    {
-      key: 'v',
-      callback: () => selectedId && onView(selectedId),
-      disabled: !selectedId
-    },
-    {
-      key: 'e',
-      callback: () => selectedId && onEdit(selectedId),
-      disabled: !selectedId
-    },
-    {
-      key: 'd',
-      callback: () => selectedId && onDelete(selectedId),
-      disabled: !selectedId
-    },
-    {
-      key: 'n',
-      ctrlKey: true,
-      callback: onCreate
-    }
-  ];
+  {
+    key: 'v',
+    callback: () => selectedId && onView(selectedId),
+    disabled: !selectedId
+  },
+  {
+    key: 'e',
+    callback: () => selectedId && onEdit(selectedId),
+    disabled: !selectedId
+  },
+  {
+    key: 'd',
+    callback: () => selectedId && onDelete(selectedId),
+    disabled: !selectedId
+  },
+  {
+    key: 'n',
+    ctrlKey: true,
+    callback: onCreate
+  }];
+
 
   useKeyboardShortcuts(shortcuts);
 };
