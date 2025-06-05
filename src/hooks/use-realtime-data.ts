@@ -29,9 +29,9 @@ interface OptimisticOperation {
   timestamp: Date;
 }
 
-export function useRealtimeData<T extends { id: number }>(
-  options: UseRealtimeDataOptions
-) {
+export function useRealtimeData<T extends {id: number;}>(
+options: UseRealtimeDataOptions)
+{
   const { toast } = useToast();
   const [state, setState] = useState<RealtimeDataState<T>>({
     data: options.initialData || [],
@@ -50,7 +50,7 @@ export function useRealtimeData<T extends { id: number }>(
   // Connection status monitoring
   useEffect(() => {
     const unsubscribe = realtimeService.onConnectionChange((status: ConnectionStatus) => {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         connected: status.connected
       }));
@@ -77,18 +77,18 @@ export function useRealtimeData<T extends { id: number }>(
   const handleRealtimeUpdate = useCallback((payload: RealtimePostgresChangesPayload<T>) => {
     const { eventType, new: newRecord, old: oldRecord } = payload;
 
-    setState(prev => {
+    setState((prev) => {
       let newData = [...prev.data];
       const optimisticKey = `${eventType}_${newRecord?.id || oldRecord?.id}`;
-      
+
       // Check if this is resolving an optimistic update
       const wasOptimistic = prev.optimisticUpdates.has(optimisticKey);
-      
+
       switch (eventType) {
         case 'INSERT':
           if (newRecord) {
             // Check for conflicts with optimistic updates
-            const existingIndex = newData.findIndex(item => item.id === newRecord.id);
+            const existingIndex = newData.findIndex((item) => item.id === newRecord.id);
             if (existingIndex >= 0 && !wasOptimistic) {
               // Conflict detected
               handleConflict(optimisticKey, newData[existingIndex], newRecord);
@@ -102,7 +102,7 @@ export function useRealtimeData<T extends { id: number }>(
 
         case 'UPDATE':
           if (newRecord) {
-            const index = newData.findIndex(item => item.id === newRecord.id);
+            const index = newData.findIndex((item) => item.id === newRecord.id);
             if (index >= 0) {
               // Check for conflicts
               if (!wasOptimistic && hasConflict(newData[index], newRecord)) {
@@ -116,7 +116,7 @@ export function useRealtimeData<T extends { id: number }>(
 
         case 'DELETE':
           if (oldRecord) {
-            newData = newData.filter(item => item.id !== oldRecord.id);
+            newData = newData.filter((item) => item.id !== oldRecord.id);
           }
           break;
       }
@@ -147,7 +147,7 @@ export function useRealtimeData<T extends { id: number }>(
       return;
     } else {
       // Prompt user for resolution
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         conflicts: new Map(prev.conflicts).set(key, { local: localData, server: serverData })
       }));
@@ -172,35 +172,35 @@ export function useRealtimeData<T extends { id: number }>(
 
   // Resolve conflicts
   const resolveConflict = useCallback((key: string, resolution: 'local' | 'server') => {
-    setState(prev => {
+    setState((prev) => {
       const conflicts = new Map(prev.conflicts);
       const conflict = conflicts.get(key);
-      
+
       if (conflict) {
         const data = [...prev.data];
         const resolvedData = resolution === 'local' ? conflict.local : conflict.server;
-        const index = data.findIndex(item => item.id === resolvedData.id);
-        
+        const index = data.findIndex((item) => item.id === resolvedData.id);
+
         if (index >= 0) {
           data[index] = resolvedData;
         }
-        
+
         conflicts.delete(key);
-        
+
         // Clear timeout
         const timeout = conflictTimeoutRef.current.get(key);
         if (timeout) {
           clearTimeout(timeout);
           conflictTimeoutRef.current.delete(key);
         }
-        
+
         return {
           ...prev,
           data,
           conflicts
         };
       }
-      
+
       return prev;
     });
   }, []);
@@ -213,7 +213,7 @@ export function useRealtimeData<T extends { id: number }>(
     const optimisticData = { ...newData, id: tempId } as T;
     const operationKey = `INSERT_${tempId}`;
 
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       data: [...prev.data, optimisticData],
       optimisticUpdates: new Set(prev.optimisticUpdates).add(operationKey)
@@ -229,10 +229,10 @@ export function useRealtimeData<T extends { id: number }>(
     // Remove optimistic update after timeout if not confirmed
     setTimeout(() => {
       if (optimisticOperationsRef.current.has(operationKey)) {
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
-          data: prev.data.filter(item => item.id !== tempId),
-          optimisticUpdates: new Set([...prev.optimisticUpdates].filter(key => key !== operationKey))
+          data: prev.data.filter((item) => item.id !== tempId),
+          optimisticUpdates: new Set([...prev.optimisticUpdates].filter((key) => key !== operationKey))
         }));
         optimisticOperationsRef.current.delete(operationKey);
       }
@@ -244,14 +244,14 @@ export function useRealtimeData<T extends { id: number }>(
 
     const operationKey = `UPDATE_${id}`;
 
-    setState(prev => {
+    setState((prev) => {
       const data = [...prev.data];
-      const index = data.findIndex(item => item.id === id);
-      
+      const index = data.findIndex((item) => item.id === id);
+
       if (index >= 0) {
         data[index] = { ...data[index], ...updates };
       }
-      
+
       return {
         ...prev,
         data,
@@ -272,9 +272,9 @@ export function useRealtimeData<T extends { id: number }>(
 
     const operationKey = `DELETE_${id}`;
 
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      data: prev.data.filter(item => item.id !== id),
+      data: prev.data.filter((item) => item.id !== id),
       optimisticUpdates: new Set(prev.optimisticUpdates).add(operationKey)
     }));
 
@@ -289,7 +289,7 @@ export function useRealtimeData<T extends { id: number }>(
   // Subscribe to real-time updates
   const subscribe = useCallback(() => {
     try {
-      setState(prev => ({ ...prev, loading: true, error: null }));
+      setState((prev) => ({ ...prev, loading: true, error: null }));
 
       const subscriptionKey = realtimeService.subscribe(
         options.table,
@@ -300,11 +300,11 @@ export function useRealtimeData<T extends { id: number }>(
 
       subscriptionKeysRef.current.push(subscriptionKey);
 
-      setState(prev => ({ ...prev, loading: false }));
-      
+      setState((prev) => ({ ...prev, loading: false }));
+
       return subscriptionKey;
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         loading: false,
         error: error instanceof Error ? error.message : 'Failed to subscribe to real-time updates'
@@ -315,7 +315,7 @@ export function useRealtimeData<T extends { id: number }>(
 
   // Unsubscribe from real-time updates
   const unsubscribe = useCallback(() => {
-    subscriptionKeysRef.current.forEach(key => {
+    subscriptionKeysRef.current.forEach((key) => {
       realtimeService.unsubscribe(key);
     });
     subscriptionKeysRef.current = [];
@@ -330,13 +330,13 @@ export function useRealtimeData<T extends { id: number }>(
     return () => {
       unsubscribe();
       // Clear all timeouts
-      conflictTimeoutRef.current.forEach(timeout => clearTimeout(timeout));
+      conflictTimeoutRef.current.forEach((timeout) => clearTimeout(timeout));
     };
   }, [subscribe, unsubscribe, options.autoSubscribe]);
 
   // Update data externally
   const updateData = useCallback((newData: T[]) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       data: newData,
       lastUpdate: new Date()

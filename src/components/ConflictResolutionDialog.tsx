@@ -6,17 +6,17 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  AlertTriangle, 
-  Clock, 
-  User, 
-  Server, 
-  GitMerge, 
-  Check, 
+import {
+  AlertTriangle,
+  Clock,
+  User,
+  Server,
+  GitMerge,
+  Check,
   X,
   Eye,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw } from
+'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { format } from 'date-fns';
 
@@ -50,11 +50,11 @@ const ConflictResolutionDialog: React.FC<ConflictResolutionDialogProps> = ({
   const [showDetails, setShowDetails] = useState<string | null>(null);
   const [mergeData, setMergeData] = useState<any>({});
 
-  const unresolvedConflicts = conflicts.filter(c => !c.resolved);
-  const resolvedConflicts = conflicts.filter(c => c.resolved);
+  const unresolvedConflicts = conflicts.filter((c) => !c.resolved);
+  const resolvedConflicts = conflicts.filter((c) => c.resolved);
 
   const handleResolve = (conflictId: string, resolution: 'local' | 'server' | 'merge') => {
-    const conflict = conflicts.find(c => c.id === conflictId);
+    const conflict = conflicts.find((c) => c.id === conflictId);
     if (!conflict) return;
 
     if (resolution === 'merge') {
@@ -64,7 +64,7 @@ const ConflictResolutionDialog: React.FC<ConflictResolutionDialogProps> = ({
       onResolve(conflictId, resolution);
     }
 
-    setMergeData(prev => {
+    setMergeData((prev) => {
       const { [conflictId]: removed, ...rest } = prev;
       return rest;
     });
@@ -86,7 +86,7 @@ const ConflictResolutionDialog: React.FC<ConflictResolutionDialogProps> = ({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              {Array.from(allKeys).map(key => {
+              {Array.from(allKeys).map((key) => {
                 const localValue = localData[key];
                 const serverValue = serverData[key];
                 const hasConflict = localValue !== serverValue;
@@ -97,8 +97,8 @@ const ConflictResolutionDialog: React.FC<ConflictResolutionDialogProps> = ({
                     <div className="text-sm font-mono">
                       {localValue !== undefined ? String(localValue) : <span className="text-gray-400">undefined</span>}
                     </div>
-                  </div>
-                );
+                  </div>);
+
               })}
             </CardContent>
           </Card>
@@ -111,7 +111,7 @@ const ConflictResolutionDialog: React.FC<ConflictResolutionDialogProps> = ({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              {Array.from(allKeys).map(key => {
+              {Array.from(allKeys).map((key) => {
                 const localValue = localData[key];
                 const serverValue = serverData[key];
                 const hasConflict = localValue !== serverValue;
@@ -122,8 +122,8 @@ const ConflictResolutionDialog: React.FC<ConflictResolutionDialogProps> = ({
                     <div className="text-sm font-mono">
                       {serverValue !== undefined ? String(serverValue) : <span className="text-gray-400">undefined</span>}
                     </div>
-                  </div>
-                );
+                  </div>);
+
               })}
             </CardContent>
           </Card>
@@ -133,8 +133,8 @@ const ConflictResolutionDialog: React.FC<ConflictResolutionDialogProps> = ({
           <Button
             variant="outline"
             onClick={() => handleResolve(conflict.id, 'local')}
-            className="flex items-center gap-2"
-          >
+            className="flex items-center gap-2">
+
             <User className="w-4 h-4" />
             Keep Your Changes
           </Button>
@@ -142,8 +142,8 @@ const ConflictResolutionDialog: React.FC<ConflictResolutionDialogProps> = ({
           <Button
             variant="outline"
             onClick={() => handleResolve(conflict.id, 'server')}
-            className="flex items-center gap-2"
-          >
+            className="flex items-center gap-2">
+
             <Server className="w-4 h-4" />
             Accept Server Changes
           </Button>
@@ -151,15 +151,15 @@ const ConflictResolutionDialog: React.FC<ConflictResolutionDialogProps> = ({
           <Button
             variant="default"
             onClick={() => setShowDetails(conflict.id)}
-            className="flex items-center gap-2"
-          >
+            className="flex items-center gap-2">
+
             <GitMerge className="w-4 h-4" />
             Custom Merge
           </Button>
         </div>
 
-        {showDetails === conflict.id && (
-          <Card className="border-dashed">
+        {showDetails === conflict.id &&
+        <Card className="border-dashed">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm flex items-center gap-2">
                 <GitMerge className="w-4 h-4" />
@@ -167,34 +167,34 @@ const ConflictResolutionDialog: React.FC<ConflictResolutionDialogProps> = ({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {Array.from(allKeys).map(key => {
-                const localValue = localData[key];
-                const serverValue = serverData[key];
-                const hasConflict = localValue !== serverValue;
+              {Array.from(allKeys).map((key) => {
+              const localValue = localData[key];
+              const serverValue = serverData[key];
+              const hasConflict = localValue !== serverValue;
 
-                if (!hasConflict) {
-                  return (
-                    <div key={key} className="p-2 bg-gray-50 rounded">
+              if (!hasConflict) {
+                return (
+                  <div key={key} className="p-2 bg-gray-50 rounded">
                       <div className="font-medium text-xs text-gray-600 mb-1">{key}</div>
                       <div className="text-sm font-mono">{String(localValue)}</div>
                       <div className="text-xs text-gray-500">No conflict - keeping existing value</div>
-                    </div>
-                  );
-                }
+                    </div>);
 
-                return (
-                  <div key={key} className="space-y-2">
+              }
+
+              return (
+                <div key={key} className="space-y-2">
                     <div className="font-medium text-sm">{key}</div>
                     <div className="grid grid-cols-2 gap-2">
                       <Button
-                        variant={mergeData[conflict.id]?.[key] === localValue ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setMergeData(prev => ({
-                          ...prev,
-                          [conflict.id]: { ...prev[conflict.id], [key]: localValue }
-                        }))}
-                        className="justify-start text-left h-auto p-2"
-                      >
+                      variant={mergeData[conflict.id]?.[key] === localValue ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setMergeData((prev) => ({
+                        ...prev,
+                        [conflict.id]: { ...prev[conflict.id], [key]: localValue }
+                      }))}
+                      className="justify-start text-left h-auto p-2">
+
                         <div>
                           <div className="text-xs text-gray-500 mb-1">Your version</div>
                           <div className="font-mono text-sm">{String(localValue)}</div>
@@ -202,48 +202,48 @@ const ConflictResolutionDialog: React.FC<ConflictResolutionDialogProps> = ({
                       </Button>
                       
                       <Button
-                        variant={mergeData[conflict.id]?.[key] === serverValue ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setMergeData(prev => ({
-                          ...prev,
-                          [conflict.id]: { ...prev[conflict.id], [key]: serverValue }
-                        }))}
-                        className="justify-start text-left h-auto p-2"
-                      >
+                      variant={mergeData[conflict.id]?.[key] === serverValue ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setMergeData((prev) => ({
+                        ...prev,
+                        [conflict.id]: { ...prev[conflict.id], [key]: serverValue }
+                      }))}
+                      className="justify-start text-left h-auto p-2">
+
                         <div>
                           <div className="text-xs text-gray-500 mb-1">Server version</div>
                           <div className="font-mono text-sm">{String(serverValue)}</div>
                         </div>
                       </Button>
                     </div>
-                  </div>
-                );
-              })}
+                  </div>);
+
+            })}
               
               <div className="flex items-center justify-end gap-2 pt-2 border-t">
                 <Button
-                  variant="outline"
-                  onClick={() => setShowDetails(null)}
-                >
+                variant="outline"
+                onClick={() => setShowDetails(null)}>
+
                   Cancel
                 </Button>
                 <Button
-                  onClick={() => {
-                    handleResolve(conflict.id, 'merge');
-                    setShowDetails(null);
-                  }}
-                  disabled={!mergeData[conflict.id]}
-                  className="flex items-center gap-2"
-                >
+                onClick={() => {
+                  handleResolve(conflict.id, 'merge');
+                  setShowDetails(null);
+                }}
+                disabled={!mergeData[conflict.id]}
+                className="flex items-center gap-2">
+
                   <Check className="w-4 h-4" />
                   Apply Merge
                 </Button>
               </div>
             </CardContent>
           </Card>
-        )}
-      </div>
-    );
+        }
+      </div>);
+
   };
 
   return (
@@ -255,28 +255,28 @@ const ConflictResolutionDialog: React.FC<ConflictResolutionDialogProps> = ({
               <AlertTriangle className="w-5 h-5 text-yellow-500" />
               Data Conflicts Detected
             </span>
-            {unresolvedConflicts.length > 1 && (
-              <div className="flex items-center gap-2">
+            {unresolvedConflicts.length > 1 &&
+            <div className="flex items-center gap-2">
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onResolveAll('local')}
-                  className="flex items-center gap-1"
-                >
+                variant="outline"
+                size="sm"
+                onClick={() => onResolveAll('local')}
+                className="flex items-center gap-1">
+
                   <User className="w-3 h-3" />
                   Keep All Local
                 </Button>
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onResolveAll('server')}
-                  className="flex items-center gap-1"
-                >
+                variant="outline"
+                size="sm"
+                onClick={() => onResolveAll('server')}
+                className="flex items-center gap-1">
+
                   <Server className="w-3 h-3" />
                   Accept All Server
                 </Button>
               </div>
-            )}
+            }
           </DialogTitle>
         </DialogHeader>
 
@@ -303,21 +303,21 @@ const ConflictResolutionDialog: React.FC<ConflictResolutionDialogProps> = ({
           <TabsContent value="unresolved">
             <ScrollArea className="h-96">
               <AnimatePresence>
-                {unresolvedConflicts.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
+                {unresolvedConflicts.length === 0 ?
+                <div className="text-center py-8 text-muted-foreground">
                     <Check className="w-8 h-8 mx-auto mb-2 text-green-500" />
                     <p>All conflicts have been resolved!</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {unresolvedConflicts.map((conflict) => (
-                      <motion.div
-                        key={conflict.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, x: -300 }}
-                        transition={{ duration: 0.2 }}
-                      >
+                  </div> :
+
+                <div className="space-y-4">
+                    {unresolvedConflicts.map((conflict) =>
+                  <motion.div
+                    key={conflict.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -300 }}
+                    transition={{ duration: 0.2 }}>
+
                         <Card className="border-yellow-200 bg-yellow-50/50">
                           <CardHeader className="pb-3">
                             <div className="flex items-center justify-between">
@@ -334,56 +334,56 @@ const ConflictResolutionDialog: React.FC<ConflictResolutionDialogProps> = ({
                             </div>
                           </CardHeader>
                           <CardContent>
-                            {selectedConflict === conflict.id ? (
-                              <div className="space-y-4">
+                            {selectedConflict === conflict.id ?
+                        <div className="space-y-4">
                                 {renderDataComparison(conflict)}
                                 <div className="flex justify-end">
                                   <Button
-                                    variant="ghost"
-                                    onClick={() => setSelectedConflict(null)}
-                                    className="flex items-center gap-2"
-                                  >
+                              variant="ghost"
+                              onClick={() => setSelectedConflict(null)}
+                              className="flex items-center gap-2">
+
                                     <Eye className="w-4 h-4" />
                                     Hide Details
                                   </Button>
                                 </div>
-                              </div>
-                            ) : (
-                              <div className="flex items-center justify-between">
+                              </div> :
+
+                        <div className="flex items-center justify-between">
                                 <div className="text-sm text-muted-foreground">
                                   Field: <span className="font-medium">{conflict.field}</span>
                                 </div>
                                 <Button
-                                  variant="outline"
-                                  onClick={() => setSelectedConflict(conflict.id)}
-                                  className="flex items-center gap-2"
-                                >
+                            variant="outline"
+                            onClick={() => setSelectedConflict(conflict.id)}
+                            className="flex items-center gap-2">
+
                                   <Eye className="w-4 h-4" />
                                   View Details
                                 </Button>
                               </div>
-                            )}
+                        }
                           </CardContent>
                         </Card>
                       </motion.div>
-                    ))}
+                  )}
                   </div>
-                )}
+                }
               </AnimatePresence>
             </ScrollArea>
           </TabsContent>
 
           <TabsContent value="resolved">
             <ScrollArea className="h-96">
-              {resolvedConflicts.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
+              {resolvedConflicts.length === 0 ?
+              <div className="text-center py-8 text-muted-foreground">
                   <AlertTriangle className="w-8 h-8 mx-auto mb-2 opacity-50" />
                   <p>No resolved conflicts yet</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {resolvedConflicts.map((conflict) => (
-                    <Card key={conflict.id} className="border-green-200 bg-green-50/50">
+                </div> :
+
+              <div className="space-y-2">
+                  {resolvedConflicts.map((conflict) =>
+                <Card key={conflict.id} className="border-green-200 bg-green-50/50">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
@@ -401,9 +401,9 @@ const ConflictResolutionDialog: React.FC<ConflictResolutionDialogProps> = ({
                         </div>
                       </CardContent>
                     </Card>
-                  ))}
+                )}
                 </div>
-              )}
+              }
             </ScrollArea>
           </TabsContent>
         </Tabs>
@@ -412,14 +412,14 @@ const ConflictResolutionDialog: React.FC<ConflictResolutionDialogProps> = ({
           <Button
             variant="outline"
             onClick={onClose}
-            disabled={unresolvedConflicts.length > 0}
-          >
+            disabled={unresolvedConflicts.length > 0}>
+
             {unresolvedConflicts.length > 0 ? 'Resolve All Conflicts First' : 'Close'}
           </Button>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default ConflictResolutionDialog;

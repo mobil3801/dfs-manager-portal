@@ -6,12 +6,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Activity, 
-  Users, 
-  Database, 
-  Zap, 
-  TrendingUp, 
+import {
+  Activity,
+  Users,
+  Database,
+  Zap,
+  TrendingUp,
   AlertTriangle,
   RefreshCw,
   Eye,
@@ -20,8 +20,8 @@ import {
   Wifi,
   BarChart3,
   Shield,
-  Bell
-} from 'lucide-react';
+  Bell } from
+'lucide-react';
 import { motion } from 'motion/react';
 import { realtimeService, ConnectionStatus } from '@/services/supabaseRealtimeService';
 import useRealtimeData from '@/hooks/use-realtime-data';
@@ -119,7 +119,7 @@ const AdminRealtimeMonitor: React.FC = () => {
   useEffect(() => {
     const unsubscribe = realtimeService.onConnectionChange((status) => {
       setConnectionStatus(status);
-      
+
       // Add system event
       const event: SystemEvent = {
         id: `${Date.now()}_${Math.random()}`,
@@ -129,8 +129,8 @@ const AdminRealtimeMonitor: React.FC = () => {
         severity: status.connected ? 'low' : 'high',
         metadata: status
       };
-      
-      setSystemEvents(prev => [event, ...prev.slice(0, 99)]);
+
+      setSystemEvents((prev) => [event, ...prev.slice(0, 99)]);
     });
 
     return unsubscribe;
@@ -141,7 +141,7 @@ const AdminRealtimeMonitor: React.FC = () => {
     if (!isMonitoring) return;
 
     const interval = setInterval(() => {
-      setMetrics(prev => ({
+      setMetrics((prev) => ({
         ...prev,
         activeConnections: connectionStatus.connected ? 1 : 0,
         totalSubscriptions: connectionStatus.subscriptionCount,
@@ -156,39 +156,39 @@ const AdminRealtimeMonitor: React.FC = () => {
   // Simulate table activities based on real-time data
   useEffect(() => {
     const activities: TableActivity[] = [
-      {
-        table: 'daily_sales_reports_enhanced',
-        inserts: salesReports.data.length,
-        updates: 0,
-        deletes: 0,
-        lastActivity: salesReports.lastUpdate || new Date(),
-        activeSubscriptions: 1
-      },
-      {
-        table: 'audit_logs',
-        inserts: auditLogs.data.length,
-        updates: 0,
-        deletes: 0,
-        lastActivity: auditLogs.lastUpdate || new Date(),
-        activeSubscriptions: 1
-      },
-      {
-        table: 'employees',
-        inserts: employees.data.length,
-        updates: 0,
-        deletes: 0,
-        lastActivity: employees.lastUpdate || new Date(),
-        activeSubscriptions: 1
-      },
-      {
-        table: 'products',
-        inserts: products.data.length,
-        updates: 0,
-        deletes: 0,
-        lastActivity: products.lastUpdate || new Date(),
-        activeSubscriptions: 1
-      }
-    ];
+    {
+      table: 'daily_sales_reports_enhanced',
+      inserts: salesReports.data.length,
+      updates: 0,
+      deletes: 0,
+      lastActivity: salesReports.lastUpdate || new Date(),
+      activeSubscriptions: 1
+    },
+    {
+      table: 'audit_logs',
+      inserts: auditLogs.data.length,
+      updates: 0,
+      deletes: 0,
+      lastActivity: auditLogs.lastUpdate || new Date(),
+      activeSubscriptions: 1
+    },
+    {
+      table: 'employees',
+      inserts: employees.data.length,
+      updates: 0,
+      deletes: 0,
+      lastActivity: employees.lastUpdate || new Date(),
+      activeSubscriptions: 1
+    },
+    {
+      table: 'products',
+      inserts: products.data.length,
+      updates: 0,
+      deletes: 0,
+      lastActivity: products.lastUpdate || new Date(),
+      activeSubscriptions: 1
+    }];
+
 
     setTableActivities(activities);
   }, [salesReports, auditLogs, employees, products]);
@@ -196,30 +196,30 @@ const AdminRealtimeMonitor: React.FC = () => {
   // Simulate user activities
   useEffect(() => {
     const userActivitiesData: UserActivity[] = [
-      {
-        userId: 1,
-        userName: 'Admin User',
-        lastSeen: new Date(),
-        activeSubscriptions: 4,
-        actionsCount: 25,
-        station: 'ALL'
-      },
-      {
-        userId: 2,
-        userName: 'Manager',
-        lastSeen: new Date(Date.now() - 5 * 60 * 1000),
-        activeSubscriptions: 2,
-        actionsCount: 12,
-        station: 'MOBIL'
-      }
-    ];
+    {
+      userId: 1,
+      userName: 'Admin User',
+      lastSeen: new Date(),
+      activeSubscriptions: 4,
+      actionsCount: 25,
+      station: 'ALL'
+    },
+    {
+      userId: 2,
+      userName: 'Manager',
+      lastSeen: new Date(Date.now() - 5 * 60 * 1000),
+      activeSubscriptions: 2,
+      actionsCount: 12,
+      station: 'MOBIL'
+    }];
+
 
     setUserActivities(userActivitiesData);
   }, []);
 
   const toggleMonitoring = () => {
     setIsMonitoring(!isMonitoring);
-    
+
     const event: SystemEvent = {
       id: `${Date.now()}_${Math.random()}`,
       type: 'system',
@@ -227,9 +227,9 @@ const AdminRealtimeMonitor: React.FC = () => {
       timestamp: new Date(),
       severity: 'medium'
     };
-    
-    setSystemEvents(prev => [event, ...prev.slice(0, 99)]);
-    
+
+    setSystemEvents((prev) => [event, ...prev.slice(0, 99)]);
+
     toast({
       title: isMonitoring ? 'Monitoring Paused' : 'Monitoring Resumed',
       description: isMonitoring ? 'Real-time monitoring has been paused' : 'Real-time monitoring is now active'
@@ -243,16 +243,16 @@ const AdminRealtimeMonitor: React.FC = () => {
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return 'text-red-500';
-      case 'high': return 'text-orange-500';
-      case 'medium': return 'text-yellow-500';
-      default: return 'text-blue-500';
+      case 'critical':return 'text-red-500';
+      case 'high':return 'text-orange-500';
+      case 'medium':return 'text-yellow-500';
+      default:return 'text-blue-500';
     }
   };
 
   const formatUptime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
+    const minutes = Math.floor(seconds % 3600 / 60);
     const secs = seconds % 60;
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
@@ -266,42 +266,42 @@ const AdminRealtimeMonitor: React.FC = () => {
           <p className="text-muted-foreground">Monitor real-time data flows and system health</p>
         </div>
         <div className="flex items-center gap-2">
-          <Badge 
+          <Badge
             variant={connectionStatus.connected ? 'success' : 'destructive'}
-            className={connectionStatus.connected ? 'bg-green-500 text-white' : ''}
-          >
+            className={connectionStatus.connected ? 'bg-green-500 text-white' : ''}>
+
             <Wifi className="w-3 h-3 mr-1" />
             {connectionStatus.connected ? 'Connected' : 'Disconnected'}
           </Badge>
           <Button
             variant={isMonitoring ? 'destructive' : 'default'}
             onClick={toggleMonitoring}
-            className="flex items-center gap-2"
-          >
-            {isMonitoring ? (
-              <>
+            className="flex items-center gap-2">
+
+            {isMonitoring ?
+            <>
                 <Eye className="w-4 h-4" />
                 Pause Monitoring
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 <Activity className="w-4 h-4" />
                 Resume Monitoring
               </>
-            )}
+            }
           </Button>
         </div>
       </div>
 
       {/* Alert for disconnection */}
-      {!connectionStatus.connected && (
-        <Alert>
+      {!connectionStatus.connected &&
+      <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
             Real-time connection is currently offline. Data may not be up to date.
           </AlertDescription>
         </Alert>
-      )}
+      }
 
       {/* Metrics Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -373,13 +373,13 @@ const AdminRealtimeMonitor: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {tableActivities.map((activity) => (
-                  <motion.div
-                    key={activity.table}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-4 border rounded-lg"
-                  >
+                {tableActivities.map((activity) =>
+                <motion.div
+                  key={activity.table}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 border rounded-lg">
+
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{activity.table}</span>
@@ -407,7 +407,7 @@ const AdminRealtimeMonitor: React.FC = () => {
                       </div>
                     </div>
                   </motion.div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -423,13 +423,13 @@ const AdminRealtimeMonitor: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {userActivities.map((user) => (
-                  <motion.div
-                    key={user.userId}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-4 border rounded-lg"
-                  >
+                {userActivities.map((user) =>
+                <motion.div
+                  key={user.userId}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 border rounded-lg">
+
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{user.userName}</span>
@@ -445,7 +445,7 @@ const AdminRealtimeMonitor: React.FC = () => {
                       <div>Actions today: {user.actionsCount}</div>
                     </div>
                   </motion.div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -462,13 +462,13 @@ const AdminRealtimeMonitor: React.FC = () => {
             <CardContent>
               <ScrollArea className="h-96">
                 <div className="space-y-2">
-                  {systemEvents.map((event) => (
-                    <motion.div
-                      key={event.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="p-3 border rounded-lg flex items-center justify-between"
-                    >
+                  {systemEvents.map((event) =>
+                  <motion.div
+                    key={event.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="p-3 border rounded-lg flex items-center justify-between">
+
                       <div className="flex items-center gap-3">
                         <div className={`w-2 h-2 rounded-full ${getSeverityColor(event.severity).replace('text-', 'bg-')}`}></div>
                         <div>
@@ -480,7 +480,7 @@ const AdminRealtimeMonitor: React.FC = () => {
                         {format(event.timestamp, 'HH:mm:ss')}
                       </div>
                     </motion.div>
-                  ))}
+                  )}
                 </div>
               </ScrollArea>
             </CardContent>
@@ -554,8 +554,8 @@ const AdminRealtimeMonitor: React.FC = () => {
           </div>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AdminRealtimeMonitor;

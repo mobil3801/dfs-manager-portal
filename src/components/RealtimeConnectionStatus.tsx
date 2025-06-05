@@ -4,16 +4,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { 
-  Wifi, 
-  WifiOff, 
-  RefreshCw, 
-  AlertTriangle, 
+import {
+  Wifi,
+  WifiOff,
+  RefreshCw,
+  AlertTriangle,
   CheckCircle,
   Clock,
   Activity,
-  Database
-} from 'lucide-react';
+  Database } from
+'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { realtimeService, ConnectionStatus } from '@/services/supabaseRealtimeService';
 import { useToast } from '@/hooks/use-toast';
@@ -85,8 +85,8 @@ const RealtimeConnectionStatus: React.FC<RealtimeConnectionStatusProps> = ({
         <Badge variant="secondary" className="animate-pulse">
           <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
           Refreshing
-        </Badge>
-      );
+        </Badge>);
+
     }
 
     if (status.reconnecting) {
@@ -94,8 +94,8 @@ const RealtimeConnectionStatus: React.FC<RealtimeConnectionStatusProps> = ({
         <Badge variant="secondary" className="animate-pulse">
           <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
           Reconnecting
-        </Badge>
-      );
+        </Badge>);
+
     }
 
     if (status.connected) {
@@ -103,16 +103,16 @@ const RealtimeConnectionStatus: React.FC<RealtimeConnectionStatusProps> = ({
         <Badge variant="success" className="bg-green-500 text-white">
           <CheckCircle className="w-3 h-3 mr-1" />
           Connected
-        </Badge>
-      );
+        </Badge>);
+
     }
 
     return (
       <Badge variant="destructive">
         <AlertTriangle className="w-3 h-3 mr-1" />
         Disconnected
-      </Badge>
-    );
+      </Badge>);
+
   };
 
   const getStatusIcon = () => {
@@ -138,29 +138,29 @@ const RealtimeConnectionStatus: React.FC<RealtimeConnectionStatusProps> = ({
           <TooltipTrigger asChild>
             <div className={`flex items-center gap-2 ${className}`}>
               <motion.div
-                animate={{ 
+                animate={{
                   scale: status.connected ? [1, 1.1, 1] : 1,
                   rotate: isRefreshing ? 360 : 0
                 }}
-                transition={{ 
+                transition={{
                   scale: { repeat: Infinity, duration: 2 },
                   rotate: { duration: 1, ease: "linear" }
-                }}
-              >
+                }}>
+
                 {getStatusIcon()}
               </motion.div>
               {getStatusBadge()}
-              {showRefreshButton && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleRefresh}
-                  disabled={isRefreshing}
-                  className="h-6 w-6 p-0"
-                >
+              {showRefreshButton &&
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="h-6 w-6 p-0">
+
                   <RefreshCw className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
                 </Button>
-              )}
+              }
             </div>
           </TooltipTrigger>
           <TooltipContent>
@@ -168,14 +168,14 @@ const RealtimeConnectionStatus: React.FC<RealtimeConnectionStatusProps> = ({
               <p className="font-medium">Real-time Status</p>
               <p>Active Subscriptions: {status.subscriptionCount}</p>
               <p>Connections: {status.connectionCount}</p>
-              {status.lastConnected && (
-                <p>Last Connected: {status.lastConnected.toLocaleTimeString()}</p>
-              )}
+              {status.lastConnected &&
+              <p>Last Connected: {status.lastConnected.toLocaleTimeString()}</p>
+              }
             </div>
           </TooltipContent>
         </Tooltip>
-      </TooltipProvider>
-    );
+      </TooltipProvider>);
+
   }
 
   return (
@@ -186,17 +186,17 @@ const RealtimeConnectionStatus: React.FC<RealtimeConnectionStatusProps> = ({
             <Database className="w-4 h-4" />
             Real-time Connection
           </span>
-          {showRefreshButton && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              className="h-6 w-6 p-0"
-            >
+          {showRefreshButton &&
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="h-6 w-6 p-0">
+
               <RefreshCw className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
             </Button>
-          )}
+          }
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -209,20 +209,20 @@ const RealtimeConnectionStatus: React.FC<RealtimeConnectionStatusProps> = ({
         </div>
 
         <AnimatePresence>
-          {status.reconnecting && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="space-y-2"
-            >
+          {status.reconnecting &&
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="space-y-2">
+
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <RefreshCw className="w-3 h-3 animate-spin" />
                 Attempting to reconnect...
               </div>
               <Progress value={66} className="h-2" />
             </motion.div>
-          )}
+          }
         </AnimatePresence>
 
         <div className="grid grid-cols-2 gap-4 text-sm">
@@ -243,8 +243,8 @@ const RealtimeConnectionStatus: React.FC<RealtimeConnectionStatusProps> = ({
           </div>
         </div>
 
-        {status.lastConnected && (
-          <div className="text-sm">
+        {status.lastConnected &&
+        <div className="text-sm">
             <div className="flex items-center gap-1 text-muted-foreground mb-1">
               <Clock className="w-3 h-3" />
               Last Connected
@@ -253,7 +253,7 @@ const RealtimeConnectionStatus: React.FC<RealtimeConnectionStatusProps> = ({
               {status.lastConnected.toLocaleString()}
             </div>
           </div>
-        )}
+        }
 
         <div className="pt-2 border-t">
           <div className="text-xs text-muted-foreground">
@@ -261,8 +261,8 @@ const RealtimeConnectionStatus: React.FC<RealtimeConnectionStatusProps> = ({
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default RealtimeConnectionStatus;

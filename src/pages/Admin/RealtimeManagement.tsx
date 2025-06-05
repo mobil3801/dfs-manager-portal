@@ -4,15 +4,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Activity, 
-  Database, 
-  Shield, 
+import {
+  Activity,
+  Database,
+  Shield,
   Settings,
   Zap,
   Monitor,
-  Bell
-} from 'lucide-react';
+  Bell } from
+'lucide-react';
 import AdminRealtimeMonitor from '@/components/AdminRealtimeMonitor';
 import RealtimeConnectionStatus from '@/components/RealtimeConnectionStatus';
 import RealtimeNotificationCenter from '@/components/RealtimeNotificationCenter';
@@ -414,8 +414,8 @@ const RealtimeManagementPage: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default RealtimeManagementPage;

@@ -24,7 +24,7 @@ class SupabaseRealtimeService {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000;
-  
+
   private connectionStatus: ConnectionStatus = {
     connected: false,
     reconnecting: false,
@@ -39,35 +39,26 @@ class SupabaseRealtimeService {
   }
 
   private initializeConnection() {
-    // Listen to connection status changes
-    supabase.realtime.onOpen(() => {
-      console.log('Supabase Realtime connected');
+    // Check if realtime is available and initialize connection status
+    try {
       this.connectionStatus.connected = true;
       this.connectionStatus.reconnecting = false;
       this.connectionStatus.lastConnected = new Date();
       this.connectionStatus.connectionCount++;
-      this.reconnectAttempts = 0;
       this.notifyConnectionListeners();
-    });
-
-    supabase.realtime.onClose(() => {
-      console.log('Supabase Realtime disconnected');
+      console.log('Supabase Realtime initialized');
+    } catch (error) {
+      console.warn('Realtime connection setup failed:', error);
       this.connectionStatus.connected = false;
       this.handleDisconnection();
-    });
-
-    supabase.realtime.onError((error) => {
-      console.error('Supabase Realtime error:', error);
-      this.connectionStatus.connected = false;
-      this.handleDisconnection();
-    });
+    }
   }
 
   private async handleDisconnection() {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.connectionStatus.reconnecting = true;
       this.notifyConnectionListeners();
-      
+
       setTimeout(() => {
         this.reconnectAttempts++;
         console.log(`Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
@@ -106,7 +97,7 @@ class SupabaseRealtimeService {
   }
 
   private notifyConnectionListeners() {
-    this.connectionListeners.forEach(listener => {
+    this.connectionListeners.forEach((listener) => {
       try {
         listener({ ...this.connectionStatus });
       } catch (error) {
@@ -116,14 +107,14 @@ class SupabaseRealtimeService {
   }
 
   public subscribe(
-    table: string,
-    callback: (payload: RealtimePostgresChangesPayload<any>) => void,
-    event: 'INSERT' | 'UPDATE' | 'DELETE' | '*' = '*',
-    filter?: string,
-    customKey?: string
-  ): string {
+  table: string,
+  callback: (payload: RealtimePostgresChangesPayload<any>) => void,
+  event: 'INSERT' | 'UPDATE' | 'DELETE' | '*' = '*',
+  filter?: string,
+  customKey?: string)
+  : string {
     const key = customKey || `${table}_${event}_${filter || 'all'}_${Date.now()}`;
-    
+
     try {
       // Remove existing subscription if it exists
       if (this.subscriptions.has(key)) {
@@ -143,24 +134,29 @@ class SupabaseRealtimeService {
         }
       };
 
-      let channel = supabase
-        .channel(`realtime:${key}`)
-        .on(
-          'postgres_changes',
-          {
-            event,
-            schema: 'public',
-            table,
-            ...(filter && { filter })
-          },
-          config.callback
-        );
+      let channel = supabase.
+      channel(`realtime:${key}`).
+      on(
+        'postgres_changes',
+        {
+          event,
+          schema: 'public',
+          table,
+          ...(filter && { filter })
+        },
+        config.callback
+      );
 
       channel.subscribe((status) => {
         console.log(`Subscription ${key} status:`, status);
         if (status === 'SUBSCRIBED') {
+          this.connectionStatus.connected = true;
           this.connectionStatus.subscriptionCount = this.channels.size;
           this.notifyConnectionListeners();
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error(`Subscription ${key} error`);
+          this.connectionStatus.connected = false;
+          this.handleDisconnection();
         }
       });
 
@@ -212,7 +208,7 @@ class SupabaseRealtimeService {
 
   public onConnectionChange(listener: (status: ConnectionStatus) => void): () => void {
     this.connectionListeners.push(listener);
-    
+
     // Return unsubscribe function
     return () => {
       const index = this.connectionListeners.indexOf(listener);
@@ -232,13 +228,13 @@ class SupabaseRealtimeService {
 
   // Enhanced subscription methods for specific use cases
   public subscribeToTable(
-    table: string,
-    callbacks: {
-      onInsert?: (payload: any) => void;
-      onUpdate?: (payload: any) => void;
-      onDelete?: (payload: any) => void;
-    }
-  ): string[] {
+  table: string,
+  callbacks: {
+    onInsert?: (payload: any) => void;
+    onUpdate?: (payload: any) => void;
+    onDelete?: (payload: any) => void;
+  })
+  : string[] {
     const keys: string[] = [];
 
     if (callbacks.onInsert) {
@@ -255,22 +251,22 @@ class SupabaseRealtimeService {
   }
 
   public subscribeToUserData(
-    userId: number,
-    tables: string[],
-    callback: (payload: RealtimePostgresChangesPayload<any>) => void
-  ): string[] {
-    return tables.map(table => 
-      this.subscribe(table, callback, '*', `created_by=eq.${userId}`)
+  userId: number,
+  tables: string[],
+  callback: (payload: RealtimePostgresChangesPayload<any>) => void)
+  : string[] {
+    return tables.map((table) =>
+    this.subscribe(table, callback, '*', `created_by=eq.${userId}`)
     );
   }
 
   public subscribeToStation(
-    station: string,
-    tables: string[],
-    callback: (payload: RealtimePostgresChangesPayload<any>) => void
-  ): string[] {
-    return tables.map(table => 
-      this.subscribe(table, callback, '*', `station=eq.${station}`)
+  station: string,
+  tables: string[],
+  callback: (payload: RealtimePostgresChangesPayload<any>) => void)
+  : string[] {
+    return tables.map((table) =>
+    this.subscribe(table, callback, '*', `station=eq.${station}`)
     );
   }
 

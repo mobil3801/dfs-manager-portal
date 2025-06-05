@@ -62,100 +62,104 @@ function App() {
         <QueryClientProvider client={queryClient}>
           <SupabaseAuthProvider>
             <AuthProvider>
-              <TooltipProvider>
-              <Router>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
-            <Route path="/resetpassword" element={<ResetPasswordPage />} />
-            
-            {/* Protected routes */}
-            <Route path="/" element={<DashboardLayout />}>
-              <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              
-              {/* Products routes */}
-              <Route path="products" element={<ProductList />} />
-              <Route path="products/new" element={<ProductForm />} />
-              <Route path="products/edit/:id" element={<ProductForm />} />
-              
-              {/* Employees routes */}
-              <Route path="employees" element={<EmployeeList />} />
-              <Route path="employees/new" element={<EmployeeForm />} />
-              <Route path="employees/edit/:id" element={<EmployeeForm />} />
-              
-              {/* Sales routes */}
-              <Route path="sales" element={<SalesReportList />} />
-              <Route path="sales/new" element={<SalesReportForm />} />
-              <Route path="sales/edit/:id" element={<SalesReportForm />} />
-              
-              {/* Vendors routes */}
-              <Route path="vendors" element={<VendorList />} />
-              <Route path="vendors/new" element={<VendorForm />} />
-              <Route path="vendors/edit/:id" element={<VendorForm />} />
-              
-              {/* Orders routes */}
-              <Route path="orders" element={<OrderList />} />
-              <Route path="orders/new" element={<OrderForm />} />
-              <Route path="orders/edit/:id" element={<OrderForm />} />
-              
-              {/* Licenses routes */}
-              <Route path="licenses" element={<LicenseList />} />
-              <Route path="licenses/new" element={<LicenseForm />} />
-              <Route path="licenses/edit/:id" element={<LicenseForm />} />
-              
-              {/* Salary routes */}
-              <Route path="salary" element={<SalaryList />} />
-              <Route path="salary/new" element={<SalaryForm />} />
-              <Route path="salary/:id" element={<SalaryForm />} />
-              <Route path="salary/:id/edit" element={<SalaryForm />} />
-              
-              {/* Inventory routes */}
-              <Route path="inventory/alerts" element={<InventoryAlerts />} />
-              <Route path="inventory/settings" element={<AppSettings />} />
-              
-              {/* Gas Delivery routes */}
-              <Route path="gas-delivery" element={<GasDeliveryInventory />} />
-              
-              {/* Delivery routes */}
-              <Route path="delivery" element={<DeliveryList />} />
-              <Route path="delivery/new" element={<DeliveryForm />} />
-              <Route path="delivery/edit/:id" element={<DeliveryForm />} />
-              
-              {/* Admin routes */}
-              <Route path="admin" element={<AdminPanel />} />
-              <Route path="admin/dashboard" element={<AdminDashboard />} />
-              <Route path="admin/user-management" element={<UserManagement />} />
-              <Route path="admin/site-management" element={<SiteManagement />} />
-              <Route path="admin/system-logs" element={<SystemLogs />} />
-              <Route path="admin/security-settings" element={<SecuritySettings />} />
-              <Route path="admin/sms-alert-management" element={<SMSAlertManagement />} />
-              <Route path="admin/error-recovery" element={<ErrorRecoveryPage />} />
-              <Route path="admin/memory-monitoring" element={<MemoryMonitoring />} />
-              <Route path="admin/database-monitoring" element={<DatabaseMonitoring />} />
-              <Route path="admin/audit-monitoring" element={<AuditMonitoring />} />
-              <Route path="admin/database-autosync" element={<DatabaseAutoSyncPage />} />
-              <Route path="admin/supabase-test" element={<SupabaseConnectionTestPage />} />
-              <Route path="admin/development-monitoring" element={<DevelopmentMonitoringPage />} />
-              <Route path="admin/role-testing" element={<RoleTestingPage />} />
-              <Route path="admin/advanced-realtime" element={<AdvancedRealTimeFeatures />} />
-              <Route path="admin/realtime-management" element={<RealtimeManagement />} />
-              <Route path="admin/invalid-character-demo" element={<InvalidCharacterErrorDemo />} />
-            </Route>
-            
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-              </Router>
-              <Toaster />
-              </TooltipProvider>
+              <RealTimeDataProvider>
+                <TooltipProvider>
+                  <Router>
+                    <Routes>
+                      {/* Public routes */}
+                      <Route path="/login" element={<LoginPage />} />
+                      <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
+                      <Route path="/resetpassword" element={<ResetPasswordPage />} />
+                      
+                      {/* Protected routes */}
+                      <Route path="/" element={<DashboardLayout />}>
+                        <Route index element={<Navigate to="/dashboard" replace />} />
+                        <Route path="dashboard" element={<Dashboard />} />
+                        
+                        {/* Products routes */}
+                        <Route path="products" element={<ProductList />} />
+                        <Route path="products/new" element={<ProductForm />} />
+                        <Route path="products/edit/:id" element={<ProductForm />} />
+                        
+                        {/* Employees routes */}
+                        <Route path="employees" element={<EmployeeList />} />
+                        <Route path="employees/new" element={<EmployeeForm />} />
+                        <Route path="employees/edit/:id" element={<EmployeeForm />} />
+                        
+                        {/* Sales routes */}
+                        <Route path="sales" element={<SalesReportList />} />
+                        <Route path="sales/new" element={<SalesReportForm />} />
+                        <Route path="sales/edit/:id" element={<SalesReportForm />} />
+                        
+                        {/* Vendors routes */}
+                        <Route path="vendors" element={<VendorList />} />
+                        <Route path="vendors/new" element={<VendorForm />} />
+                        <Route path="vendors/edit/:id" element={<VendorForm />} />
+                        
+                        {/* Orders routes */}
+                        <Route path="orders" element={<OrderList />} />
+                        <Route path="orders/new" element={<OrderForm />} />
+                        <Route path="orders/edit/:id" element={<OrderForm />} />
+                        
+                        {/* Licenses routes */}
+                        <Route path="licenses" element={<LicenseList />} />
+                        <Route path="licenses/new" element={<LicenseForm />} />
+                        <Route path="licenses/edit/:id" element={<LicenseForm />} />
+                        
+                        {/* Salary routes */}
+                        <Route path="salary" element={<SalaryList />} />
+                        <Route path="salary/new" element={<SalaryForm />} />
+                        <Route path="salary/:id" element={<SalaryForm />} />
+                        <Route path="salary/:id/edit" element={<SalaryForm />} />
+                        
+                        {/* Inventory routes */}
+                        <Route path="inventory/alerts" element={<InventoryAlerts />} />
+                        <Route path="inventory/settings" element={<AlertSettings />} />
+                        
+                        {/* Gas Delivery routes */}
+                        <Route path="gas-delivery" element={<GasDeliveryInventory />} />
+                        
+                        {/* Delivery routes */}
+                        <Route path="delivery" element={<DeliveryList />} />
+                        <Route path="delivery/new" element={<DeliveryForm />} />
+                        <Route path="delivery/edit/:id" element={<DeliveryForm />} />
+                        
+                        {/* Settings routes */}
+                        <Route path="settings" element={<AppSettings />} />
+                        
+                        {/* Admin routes */}
+                        <Route path="admin" element={<AdminPanel />} />
+                        <Route path="admin/dashboard" element={<AdminDashboard />} />
+                        <Route path="admin/user-management" element={<UserManagement />} />
+                        <Route path="admin/site-management" element={<SiteManagement />} />
+                        <Route path="admin/system-logs" element={<SystemLogs />} />
+                        <Route path="admin/security-settings" element={<SecuritySettings />} />
+                        <Route path="admin/sms-alert-management" element={<SMSAlertManagement />} />
+                        <Route path="admin/error-recovery" element={<ErrorRecoveryPage />} />
+                        <Route path="admin/memory-monitoring" element={<MemoryMonitoring />} />
+                        <Route path="admin/database-monitoring" element={<DatabaseMonitoring />} />
+                        <Route path="admin/audit-monitoring" element={<AuditMonitoring />} />
+                        <Route path="admin/database-autosync" element={<DatabaseAutoSyncPage />} />
+                        <Route path="admin/supabase-test" element={<SupabaseConnectionTestPage />} />
+                        <Route path="admin/development-monitoring" element={<DevelopmentMonitoringPage />} />
+                        <Route path="admin/role-testing" element={<RoleTestingPage />} />
+                        <Route path="admin/advanced-realtime" element={<AdvancedRealTimeFeatures />} />
+                        <Route path="admin/realtime-management" element={<RealtimeManagement />} />
+                        <Route path="admin/invalid-character-demo" element={<InvalidCharacterErrorDemo />} />
+                      </Route>
+                      
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Router>
+                  <Toaster />
+                </TooltipProvider>
+              </RealTimeDataProvider>
             </AuthProvider>
           </SupabaseAuthProvider>
         </QueryClientProvider>
       </InvalidCharacterErrorBoundary>
-    </GlobalErrorBoundary>);
-
-
+    </GlobalErrorBoundary>
+  );
 }
 
 export default App;
