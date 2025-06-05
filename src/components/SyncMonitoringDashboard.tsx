@@ -111,13 +111,13 @@ const SyncMonitoringDashboard: React.FC = () => {
 
 
 
+
+
           // Table not accessible, skip
         }}return Math.max(activeTableCount, 1); // At least 1 table should be available
     } catch {return 21; // Default to total expected tables
     }};const loadSyncData = async () => {try {console.log('Loading real sync monitoring data...'); // Get audit logs for database sync activities
-      const { data: auditData, error: auditError } = await window.ezsite.apis.tablePage(12706, { PageNo: 1, PageSize: 50, OrderByField: 'event_timestamp', IsAsc: false, Filters: [{ name: 'action_performed', op: 'StringContains', value: 'sync' }] });let realLogs: SyncLog[] = [];if (!auditError && auditData?.List) {realLogs = auditData.List.map((audit: any, index: number) => ({ id: audit.id?.toString() || index.toString(), timestamp: audit.event_timestamp || new Date().toISOString(), type: audit.action_performed?.includes('create') ? 'create' :
-            audit.action_performed?.includes('update') ? 'update' :
-            audit.action_performed?.includes('delete') ? 'delete' :
+      const { data: auditData, error: auditError } = await window.ezsite.apis.tablePage(12706, { PageNo: 1, PageSize: 50, OrderByField: 'event_timestamp', IsAsc: false, Filters: [{ name: 'action_performed', op: 'StringContains', value: 'sync' }] });let realLogs: SyncLog[] = [];if (!auditError && auditData?.List) {realLogs = auditData.List.map((audit: any, index: number) => ({ id: audit.id?.toString() || index.toString(), timestamp: audit.event_timestamp || new Date().toISOString(), type: audit.action_performed?.includes('create') ? 'create' : audit.action_performed?.includes('update') ? 'update' : audit.action_performed?.includes('delete') ? 'delete' :
             audit.event_status === 'Failed' ? 'error' : 'scan',
             tableName: audit.resource_accessed || 'system',
             status: audit.event_status === 'Success' ? 'success' :
