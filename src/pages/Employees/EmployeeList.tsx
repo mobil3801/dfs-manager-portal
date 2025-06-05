@@ -6,9 +6,11 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Search, Edit, Trash2, Users, Mail, Phone, Plus } from 'lucide-react';
+import { Search, Edit, Trash2, Users, Mail, Phone, Plus, Eye, Download, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
+import ViewModal from '@/components/ViewModal';
+import { useListKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
+import { motion } from 'motion/react';
 
 interface Employee {
   ID: number;
@@ -32,6 +34,9 @@ const EmployeeList: React.FC = () => {
   const [selectedStation, setSelectedStation] = useState<string>('ALL');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const navigate = useNavigate();
 
   const pageSize = 10;
@@ -77,6 +82,16 @@ const EmployeeList: React.FC = () => {
     }
   };
 
+  const handleView = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    setSelectedEmployeeId(employee.ID);
+    setViewModalOpen(true);
+  };
+
+  const handleEdit = (employeeId: number) => {
+    navigate(`/employees/edit/${employeeId}`);
+  };
+
   const handleDelete = async (employeeId: number) => {
     if (!confirm('Are you sure you want to delete this employee?')) {
       return;
@@ -91,6 +106,7 @@ const EmployeeList: React.FC = () => {
         description: "Employee deleted successfully"
       });
       loadEmployees();
+      setViewModalOpen(false);
     } catch (error) {
       console.error('Error deleting employee:', error);
       toast({
@@ -100,6 +116,48 @@ const EmployeeList: React.FC = () => {
       });
     }
   };
+
+  const handleExport = () => {
+    if (!selectedEmployee) return;
+    
+    const csvContent = [
+      'Field,Value',
+      `Employee ID,${selectedEmployee.employee_id}`,
+      `Name,${selectedEmployee.first_name} ${selectedEmployee.last_name}`,
+      `Email,${selectedEmployee.email}`,
+      `Phone,${selectedEmployee.phone}`,
+      `Position,${selectedEmployee.position}`,
+      `Station,${selectedEmployee.station}`,
+      `Hire Date,${selectedEmployee.hire_date}`,
+      `Salary,${selectedEmployee.salary}`,
+      `Status,${selectedEmployee.is_active ? 'Active' : 'Inactive'}`
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `employee_${selectedEmployee.employee_id}_details.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Success",
+      description: "Employee details exported successfully"
+    });
+  };
+
+  // Keyboard shortcuts
+  useListKeyboardShortcuts(
+    selectedEmployeeId,
+    (id) => {
+      const employee = employees.find(emp => emp.ID === id);
+      if (employee) handleView(employee);
+    },
+    handleEdit,
+    handleDelete,
+    () => navigate('/employees/new')
+  );
 
   const getStationBadgeColor = (station: string) => {
     switch (station.toUpperCase()) {
@@ -120,6 +178,67 @@ const EmployeeList: React.FC = () => {
   };
 
   const totalPages = Math.ceil(totalCount / pageSize);
+
+  // Define view modal fields
+  const getViewModalFields = (employee: Employee) => [
+    {
+      key: 'employee_id',
+      label: 'Employee ID',
+      value: employee.employee_id,
+      type: 'text' as const,
+      icon: User
+    },
+    {
+      key: 'name',
+      label: 'Full Name',
+      value: `${employee.first_name} ${employee.last_name}`,
+      type: 'text' as const,
+      icon: User
+    },
+    {
+      key: 'email',
+      label: 'Email',
+      value: employee.email,
+      type: 'email' as const
+    },
+    {
+      key: 'phone',
+      label: 'Phone',
+      value: employee.phone,
+      type: 'phone' as const
+    },
+    {
+      key: 'position',
+      label: 'Position',
+      value: employee.position,
+      type: 'text' as const
+    },
+    {
+      key: 'station',
+      label: 'Station',
+      value: employee.station,
+      type: 'badge' as const,
+      badgeColor: getStationBadgeColor(employee.station)
+    },
+    {
+      key: 'hire_date',
+      label: 'Hire Date',
+      value: employee.hire_date,
+      type: 'date' as const
+    },
+    {
+      key: 'salary',
+      label: 'Salary',
+      value: employee.salary,
+      type: 'currency' as const
+    },
+    {
+      key: 'is_active',
+      label: 'Status',
+      value: employee.is_active,
+      type: 'boolean' as const
+    }
+  ];
 
   return (
     <div className="space-y-6">
@@ -170,6 +289,16 @@ const EmployeeList: React.FC = () => {
             </div>
           </div>
 
+          {/* Keyboard shortcuts hint */}
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-700">
+              <strong>Keyboard shortcuts:</strong> Select a row, then press <kbd className="px-1 py-0.5 bg-blue-100 rounded text-xs">V</kbd> to view, 
+              <kbd className="px-1 py-0.5 bg-blue-100 rounded text-xs ml-1">E</kbd> to edit, 
+              <kbd className="px-1 py-0.5 bg-blue-100 rounded text-xs ml-1">D</kbd> to delete, or 
+              <kbd className="px-1 py-0.5 bg-blue-100 rounded text-xs ml-1">Ctrl+N</kbd> to create new
+            </p>
+          </div>
+
           {/* Employees Table */}
           {loading ?
           <div className="space-y-4">
@@ -198,8 +327,17 @@ const EmployeeList: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {employees.map((employee) =>
-                <TableRow key={employee.ID}>
+                  {employees.map((employee, index) =>
+                <motion.tr
+                  key={employee.ID}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className={`border-b hover:bg-gray-50 transition-colors cursor-pointer ${
+                    selectedEmployeeId === employee.ID ? 'bg-blue-50 border-blue-200' : ''
+                  }`}
+                  onClick={() => setSelectedEmployeeId(employee.ID)}
+                >
                       <TableCell className="font-medium">{employee.employee_id}</TableCell>
                       <TableCell>
                         <div>
@@ -238,23 +376,40 @@ const EmployeeList: React.FC = () => {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigate(`/employees/edit/${employee.ID}`)}>
-
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleView(employee);
+                            }}
+                            className="text-blue-600 hover:text-blue-700"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEdit(employee.ID);
+                            }}
+                          >
                             <Edit className="w-4 h-4" />
                           </Button>
                           <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(employee.ID)}
-                        className="text-red-600 hover:text-red-700">
-
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(employee.ID);
+                            }}
+                            className="text-red-600 hover:text-red-700"
+                          >
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       </TableCell>
-                    </TableRow>
+                    </motion.tr>
                 )}
                 </TableBody>
               </Table>
@@ -292,6 +447,31 @@ const EmployeeList: React.FC = () => {
           }
         </CardContent>
       </Card>
+      
+      {/* View Modal */}
+      {selectedEmployee && (
+        <ViewModal
+          isOpen={viewModalOpen}
+          onClose={() => {
+            setViewModalOpen(false);
+            setSelectedEmployee(null);
+            setSelectedEmployeeId(null);
+          }}
+          title={`${selectedEmployee.first_name} ${selectedEmployee.last_name}`}
+          subtitle={`Employee ID: ${selectedEmployee.employee_id} • ${selectedEmployee.position}`}
+          data={selectedEmployee}
+          fields={getViewModalFields(selectedEmployee)}
+          onEdit={() => {
+            setViewModalOpen(false);
+            handleEdit(selectedEmployee.ID);
+          }}
+          onDelete={() => handleDelete(selectedEmployee.ID)}
+          onExport={handleExport}
+          canEdit={true}
+          canDelete={true}
+          canExport={true}
+        />
+      )}
     </div>);
 
 };

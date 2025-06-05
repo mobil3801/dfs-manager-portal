@@ -5,8 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Search, Edit, Trash2, ShoppingCart, Calendar, DollarSign } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, ShoppingCart, Calendar, DollarSign, Eye, Download, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import ViewModal from '@/components/ViewModal';
+import { useListKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
+import { motion } from 'motion/react';
 
 interface Order {
   ID: number;
@@ -27,6 +30,9 @@ const OrderList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const navigate = useNavigate();
 
   const pageSize = 10;
@@ -68,6 +74,16 @@ const OrderList: React.FC = () => {
     }
   };
 
+  const handleView = (order: Order) => {
+    setSelectedOrder(order);
+    setSelectedOrderId(order.ID);
+    setViewModalOpen(true);
+  };
+
+  const handleEdit = (orderId: number) => {
+    navigate(`/orders/edit/${orderId}`);
+  };
+
   const handleDelete = async (orderId: number) => {
     if (!confirm('Are you sure you want to delete this order?')) {
       return;
@@ -82,6 +98,7 @@ const OrderList: React.FC = () => {
         description: "Order deleted successfully"
       });
       loadOrders();
+      setViewModalOpen(false);
     } catch (error) {
       console.error('Error deleting order:', error);
       toast({
@@ -91,6 +108,47 @@ const OrderList: React.FC = () => {
       });
     }
   };
+
+  const handleExport = () => {
+    if (!selectedOrder) return;
+    
+    const csvContent = [
+      'Field,Value',
+      `Order Number,${selectedOrder.order_number}`,
+      `Vendor ID,${selectedOrder.vendor_id}`,
+      `Order Date,${selectedOrder.order_date}`,
+      `Expected Delivery,${selectedOrder.expected_delivery}`,
+      `Station,${selectedOrder.station}`,
+      `Total Amount,${selectedOrder.total_amount}`,
+      `Status,${selectedOrder.status}`,
+      `Notes,${selectedOrder.notes}`
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `order_${selectedOrder.order_number}_details.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Success",
+      description: "Order details exported successfully"
+    });
+  };
+
+  // Keyboard shortcuts
+  useListKeyboardShortcuts(
+    selectedOrderId,
+    (id) => {
+      const order = orders.find(o => o.ID === id);
+      if (order) handleView(order);
+    },
+    handleEdit,
+    handleDelete,
+    () => navigate('/orders/new')
+  );
 
   const getStatusBadgeColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -146,6 +204,61 @@ const OrderList: React.FC = () => {
     pending_orders: 0,
     delivered_orders: 0
   });
+
+  // Define view modal fields
+  const getViewModalFields = (order: Order) => [
+    {
+      key: 'order_number',
+      label: 'Order Number',
+      value: order.order_number,
+      type: 'text' as const,
+      icon: FileText
+    },
+    {
+      key: 'vendor_id',
+      label: 'Vendor ID',
+      value: order.vendor_id,
+      type: 'number' as const
+    },
+    {
+      key: 'order_date',
+      label: 'Order Date',
+      value: order.order_date,
+      type: 'date' as const
+    },
+    {
+      key: 'expected_delivery',
+      label: 'Expected Delivery',
+      value: order.expected_delivery,
+      type: 'date' as const
+    },
+    {
+      key: 'station',
+      label: 'Station',
+      value: order.station,
+      type: 'badge' as const,
+      badgeColor: getStationBadgeColor(order.station)
+    },
+    {
+      key: 'total_amount',
+      label: 'Total Amount',
+      value: order.total_amount,
+      type: 'currency' as const
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      value: order.status,
+      type: 'badge' as const,
+      badgeColor: getStatusBadgeColor(order.status)
+    },
+    {
+      key: 'notes',
+      label: 'Notes',
+      value: order.notes,
+      type: 'text' as const
+    }
+  ];
 
   return (
     <div className="space-y-6">
@@ -220,6 +333,16 @@ const OrderList: React.FC = () => {
             </div>
           </div>
 
+          {/* Keyboard shortcuts hint */}
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-700">
+              <strong>Keyboard shortcuts:</strong> Select a row, then press <kbd className="px-1 py-0.5 bg-blue-100 rounded text-xs">V</kbd> to view, 
+              <kbd className="px-1 py-0.5 bg-blue-100 rounded text-xs ml-1">E</kbd> to edit, 
+              <kbd className="px-1 py-0.5 bg-blue-100 rounded text-xs ml-1">D</kbd> to delete, or 
+              <kbd className="px-1 py-0.5 bg-blue-100 rounded text-xs ml-1">Ctrl+N</kbd> to create new
+            </p>
+          </div>
+
           {/* Orders Table */}
           {loading ?
           <div className="space-y-4">
@@ -254,8 +377,17 @@ const OrderList: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {orders.map((order) =>
-                <TableRow key={order.ID}>
+                  {orders.map((order, index) =>
+                <motion.tr
+                  key={order.ID}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className={`border-b hover:bg-gray-50 transition-colors cursor-pointer ${
+                    selectedOrderId === order.ID ? 'bg-blue-50 border-blue-200' : ''
+                  }`}
+                  onClick={() => setSelectedOrderId(order.ID)}
+                >
                       <TableCell className="font-medium">
                         {order.order_number}
                         {order.notes &&
@@ -282,23 +414,40 @@ const OrderList: React.FC = () => {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigate(`/orders/edit/${order.ID}`)}>
-
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleView(order);
+                            }}
+                            className="text-blue-600 hover:text-blue-700"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEdit(order.ID);
+                            }}
+                          >
                             <Edit className="w-4 h-4" />
                           </Button>
                           <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(order.ID)}
-                        className="text-red-600 hover:text-red-700">
-
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(order.ID);
+                            }}
+                            className="text-red-600 hover:text-red-700"
+                          >
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       </TableCell>
-                    </TableRow>
+                    </motion.tr>
                 )}
                 </TableBody>
               </Table>
@@ -336,6 +485,31 @@ const OrderList: React.FC = () => {
           }
         </CardContent>
       </Card>
+      
+      {/* View Modal */}
+      {selectedOrder && (
+        <ViewModal
+          isOpen={viewModalOpen}
+          onClose={() => {
+            setViewModalOpen(false);
+            setSelectedOrder(null);
+            setSelectedOrderId(null);
+          }}
+          title={`Order #${selectedOrder.order_number}`}
+          subtitle={`${selectedOrder.station} • ${formatCurrency(selectedOrder.total_amount)} • ${selectedOrder.status}`}
+          data={selectedOrder}
+          fields={getViewModalFields(selectedOrder)}
+          onEdit={() => {
+            setViewModalOpen(false);
+            handleEdit(selectedOrder.ID);
+          }}
+          onDelete={() => handleDelete(selectedOrder.ID)}
+          onExport={handleExport}
+          canEdit={true}
+          canDelete={true}
+          canExport={true}
+        />
+      )}
     </div>);
 
 };
