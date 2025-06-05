@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Search, Eye, Edit, Trash2, Download, DollarSign, Calendar, Users, RefreshCw, FileText, AlertCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 
 interface SalaryRecord {
@@ -63,48 +63,105 @@ const SalaryList: React.FC = () => {
   const [totalRecords, setTotalRecords] = useState(0);
   const [selectedRecord, setSelectedRecord] = useState<SalaryRecord | null>(null);
   const [showViewDialog, setShowViewDialog] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [retryCount, setRetryCount] = useState(0);
+  const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const pageSize = 10;
   const SALARY_TABLE_ID = '11788';
   const EMPLOYEES_TABLE_ID = '11727';
+
+  // Monitor online status for real-time functionality
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      handleRefresh(true); // Silent refresh when coming back online
+      toast({
+        title: 'Back Online',
+        description: 'Real-time data synchronization resumed',
+        variant: 'default'
+      });
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      toast({
+        title: 'Offline',
+        description: 'Real-time updates paused',
+        variant: 'destructive'
+      });
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   useEffect(() => {
     fetchEmployees();
     fetchSalaryRecords();
   }, [currentPage, statusFilter, stationFilter, searchTerm]);
 
-  // Set up real-time refresh every 30 seconds
+  // Enhanced real-time refresh with better error handling
   useEffect(() => {
+    if (!isOnline) return;
+
     const interval = setInterval(() => {
-      handleRefresh(true); // Silent refresh
-    }, 30000);
+      if (document.visibilityState === 'visible') {
+        handleRefresh(true); // Silent refresh only when tab is visible
+      }
+    }, 15000); // Increased frequency to 15 seconds for real-time feel
 
     return () => clearInterval(interval);
-  }, [currentPage, statusFilter, stationFilter, searchTerm]);
+  }, [currentPage, statusFilter, stationFilter, searchTerm, isOnline]);
 
-  const fetchEmployees = async () => {
+  // Refresh when page becomes visible (user returns to tab)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && isOnline) {
+        handleRefresh(true);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [isOnline]);
+
+  const fetchEmployees = useCallback(async () => {
     try {
+      console.log('👥 Fetching employees data...');
+
       const { data, error } = await window.ezsite.apis.tablePage(EMPLOYEES_TABLE_ID, {
         PageNo: 1,
         PageSize: 1000,
         OrderByField: 'first_name',
-        IsAsc: true
+        IsAsc: true,
+        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
       });
 
       if (error) throw error;
-      setEmployees(data?.List || []);
+
+      const employees = data?.List || [];
+      console.log('✅ Employees fetched successfully:', employees.length);
+
+      setEmployees(employees);
     } catch (error) {
-      console.error('Error fetching employees:', error);
+      console.error('❌ Error fetching employees:', error);
       toast({
         title: 'Error',
         description: 'Failed to fetch employee data',
         variant: 'destructive'
       });
     }
-  };
+  }, [toast]);
 
-  const fetchSalaryRecords = async (silent = false) => {
+  const fetchSalaryRecords = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     try {
       const filters = [];
@@ -121,6 +178,14 @@ const SalaryList: React.FC = () => {
         filters.push({ name: 'employee_id', op: 'StringContains', value: searchTerm });
       }
 
+      console.log('🔄 Fetching salary records - Real-time update:', {
+        currentPage,
+        pageSize,
+        filters,
+        silent,
+        timestamp: new Date().toISOString()
+      });
+
       const { data, error } = await window.ezsite.apis.tablePage(SALARY_TABLE_ID, {
         PageNo: currentPage,
         PageSize: pageSize,
@@ -131,73 +196,120 @@ const SalaryList: React.FC = () => {
 
       if (error) throw error;
 
-      setSalaryRecords(data?.List || []);
-      setTotalRecords(data?.VirtualCount || 0);
+      const records = data?.List || [];
+      const totalCount = data?.VirtualCount || 0;
+
+      console.log('✅ Salary records fetched successfully:', {
+        recordsCount: records.length,
+        totalCount,
+        timestamp: new Date().toISOString()
+      });
+
+      setSalaryRecords(records);
+      setTotalRecords(totalCount);
+      setLastUpdateTime(new Date());
+      setRetryCount(0); // Reset retry count on successful fetch
     } catch (error) {
-      console.error('Error fetching salary records:', error);
+      console.error('❌ Error fetching salary records:', error);
+      setRetryCount((prev) => prev + 1);
+
       if (!silent) {
         toast({
           title: 'Error',
-          description: 'Failed to fetch salary records',
+          description: `Failed to fetch salary records. ${retryCount < 3 ? 'Retrying...' : 'Please check your connection.'}`,
           variant: 'destructive'
         });
+
+        // Auto-retry up to 3 times with exponential backoff
+        if (retryCount < 3) {
+          setTimeout(() => {
+            console.log(`🔄 Auto-retrying... Attempt ${retryCount + 1}/3`);
+            fetchSalaryRecords(true);
+          }, Math.pow(2, retryCount) * 1000); // 1s, 2s, 4s delays
+        }
       }
     } finally {
       if (!silent) setLoading(false);
     }
-  };
+  }, [currentPage, pageSize, statusFilter, stationFilter, searchTerm, toast]);
 
-  const handleRefresh = async (silent = false) => {
+  const handleRefresh = useCallback(async (silent = false) => {
     if (!silent) setRefreshing(true);
     try {
+      console.log('🔄 Starting data refresh...', { silent, timestamp: new Date().toISOString() });
+
       await Promise.all([
-        fetchEmployees(),
-        fetchSalaryRecords(silent)
-      ]);
+      fetchEmployees(),
+      fetchSalaryRecords(silent)]
+      );
+
+      console.log('✅ Data refresh completed successfully');
+
       if (!silent) {
         toast({
           title: 'Success',
-          description: 'Data refreshed successfully'
+          description: '🔄 Data refreshed successfully',
+          variant: 'default'
         });
       }
     } catch (error) {
-      console.error('Error refreshing data:', error);
+      console.error('❌ Error refreshing data:', error);
       if (!silent) {
         toast({
           title: 'Error',
-          description: 'Failed to refresh data',
+          description: '❌ Failed to refresh data. Please try again.',
           variant: 'destructive'
         });
       }
     } finally {
       if (!silent) setRefreshing(false);
     }
-  };
+  }, [fetchEmployees, fetchSalaryRecords, toast]);
 
   const handleViewRecord = (record: SalaryRecord) => {
     setSelectedRecord(record);
     setShowViewDialog(true);
   };
 
+  const handleEditRecord = (record: SalaryRecord) => {
+    const employeeName = getEmployeeName(record.employee_id);
+    console.log('📝 Navigating to edit salary record:', { id: record.id, employee: employeeName });
+
+    toast({
+      title: 'Opening Editor',
+      description: `📝 Loading salary record for ${employeeName}...`,
+      variant: 'default'
+    });
+
+    navigate(`/salary/${record.id}/edit`);
+  };
+
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this salary record?')) return;
+    const record = salaryRecords.find((r) => r.id === id);
+    const employeeName = record ? getEmployeeName(record.employee_id) : 'Unknown';
+
+    if (!confirm(`Are you sure you want to delete the salary record for ${employeeName}?\n\nThis action cannot be undone.`)) return;
 
     try {
+      console.log('🗑️ Deleting salary record:', id);
+
       const { error } = await window.ezsite.apis.tableDelete(SALARY_TABLE_ID, { ID: id });
       if (error) throw error;
 
+      console.log('✅ Salary record deleted successfully');
+
       toast({
         title: 'Success',
-        description: 'Salary record deleted successfully'
+        description: `🗑️ Salary record for ${employeeName} deleted successfully`
       });
 
-      // Refresh the data to show real-time updates
+      // Immediate real-time update
       await fetchSalaryRecords();
     } catch (error) {
-      console.error('Error deleting salary record:', error);
+      console.error('❌ Error deleting salary record:', error);
       toast({
         title: 'Error',
-        description: 'Failed to delete salary record',
+        description: `❌ Failed to delete salary record for ${employeeName}`,
         variant: 'destructive'
       });
     }
@@ -205,8 +317,11 @@ const SalaryList: React.FC = () => {
 
   const handleStatusUpdate = async (id: number, newStatus: string) => {
     try {
-      const record = salaryRecords.find(r => r.id === id);
+      const record = salaryRecords.find((r) => r.id === id);
       if (!record) return;
+
+      const employeeName = getEmployeeName(record.employee_id);
+      console.log('🔄 Updating salary record status:', { id, newStatus, employeeName });
 
       const { error } = await window.ezsite.apis.tableUpdate(SALARY_TABLE_ID, {
         ID: id,
@@ -219,18 +334,20 @@ const SalaryList: React.FC = () => {
 
       if (error) throw error;
 
+      console.log('✅ Status updated successfully');
+
       toast({
         title: 'Success',
-        description: `Salary record status updated to ${newStatus}`
+        description: `📋 ${employeeName}'s salary status updated to ${newStatus}`
       });
 
-      // Refresh the data to show real-time updates
+      // Immediate real-time update
       await fetchSalaryRecords();
     } catch (error) {
-      console.error('Error updating status:', error);
+      console.error('❌ Error updating status:', error);
       toast({
         title: 'Error',
-        description: 'Failed to update status',
+        description: '❌ Failed to update status. Please try again.',
         variant: 'destructive'
       });
     }
@@ -243,11 +360,11 @@ const SalaryList: React.FC = () => {
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'paid': return 'default';
-      case 'processed': return 'secondary';
-      case 'pending': return 'outline';
-      case 'cancelled': return 'destructive';
-      default: return 'outline';
+      case 'paid':return 'default';
+      case 'processed':return 'secondary';
+      case 'pending':return 'outline';
+      case 'cancelled':return 'destructive';
+      default:return 'outline';
     }
   };
 
@@ -349,13 +466,22 @@ const SalaryList: React.FC = () => {
           <p className="text-muted-foreground">Manage employee salary records and payroll</p>
         </div>
         <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            <Badge variant={isOnline ? 'default' : 'destructive'} className="text-xs">
+              {isOnline ? '🟢 Live' : '🔴 Offline'}
+            </Badge>
+            {refreshing &&
+            <Badge variant="secondary" className="text-xs animate-pulse">
+                🔄 Syncing...
+              </Badge>
+            }
+          </div>
           <Button
             variant="outline"
             onClick={() => handleRefresh(false)}
-            disabled={refreshing}
-          >
+            disabled={refreshing}>
             <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            Refresh
+            {refreshing ? 'Refreshing...' : 'Refresh'}
           </Button>
           <Link to="/salary/new">
             <Button>
@@ -420,8 +546,8 @@ const SalaryList: React.FC = () => {
                   placeholder="Search by employee ID..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8"
-                />
+                  className="pl-8" />
+
               </div>
             </div>
             
@@ -459,16 +585,21 @@ const SalaryList: React.FC = () => {
           <CardTitle>Salary Records</CardTitle>
           <CardDescription>
             Showing {salaryRecords.length} of {totalRecords} salary records
-            {refreshing && <span className="text-blue-600 ml-2">(Refreshing...)</span>}
+            {refreshing && <span className="text-blue-600 ml-2">(🔄 Real-time sync active...)</span>}
+            {!isOnline && <span className="text-red-600 ml-2">(🔴 Offline mode)</span>}
+            <div className="text-xs text-muted-foreground mt-1">
+              Last updated: {format(lastUpdateTime, 'MMM dd, yyyy · h:mm:ss a')}
+              {retryCount > 0 && <span className="text-orange-600 ml-2">(🔄 Retry {retryCount}/3)</span>}
+            </div>
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {loading ? (
-            <div className="flex justify-center py-8">
+          {loading ?
+          <div className="flex justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
+            </div> :
+
+          <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -484,8 +615,8 @@ const SalaryList: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {salaryRecords.map((record) => (
-                    <TableRow key={record.id}>
+                  {salaryRecords.map((record) =>
+                <TableRow key={record.id}>
                       <TableCell className="font-medium">
                         {getEmployeeName(record.employee_id)}
                         <div className="text-xs text-muted-foreground">ID: {record.employee_id}</div>
@@ -501,10 +632,10 @@ const SalaryList: React.FC = () => {
                       <TableCell className="font-medium text-green-600">${record.net_pay?.toLocaleString() || '0'}</TableCell>
                       <TableCell>{record.station}</TableCell>
                       <TableCell>
-                        <Select 
-                          value={record.status} 
-                          onValueChange={(value) => handleStatusUpdate(record.id, value)}
-                        >
+                        <Select
+                      value={record.status}
+                      onValueChange={(value) => handleStatusUpdate(record.id, value)}>
+
                           <SelectTrigger className="w-auto h-auto p-0 border-none">
                             <Badge variant={getStatusBadgeVariant(record.status)}>
                               {record.status}
@@ -520,83 +651,82 @@ const SalaryList: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => handleViewRecord(record)}
-                            title="View Details"
-                          >
+                          <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleViewRecord(record)}
+                        title="View Details">
+
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Link to={`/salary/${record.id}/edit`}>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              title="Edit Record"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </Link>
                           <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => exportToPDF(record)}
-                            title="Export PDF"
-                          >
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditRecord(record)}
+                        title="Edit Record">
+
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => exportToPDF(record)}
+                        title="Export PDF">
+
                             <FileText className="h-4 w-4" />
                           </Button>
                           <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(record.id)}
-                            className="text-destructive hover:text-destructive"
-                            title="Delete Record"
-                          >
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(record.id)}
+                        className="text-destructive hover:text-destructive"
+                        title="Delete Record">
+
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                )}
                 </TableBody>
               </Table>
               
-              {salaryRecords.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
+              {salaryRecords.length === 0 &&
+            <div className="text-center py-8 text-muted-foreground">
                   <AlertCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
                   <p>No salary records found.</p>
                   <Link to="/salary/new" className="text-primary hover:underline">
                     Create your first salary record
                   </Link>
                 </div>
-              )}
+            }
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center gap-2">
+      {totalPages > 1 &&
+      <div className="flex justify-center gap-2">
           <Button
-            variant="outline"
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
+          variant="outline"
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}>
+
             Previous
           </Button>
           <span className="flex items-center px-4">
             Page {currentPage} of {totalPages}
           </span>
           <Button
-            variant="outline"
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
+          variant="outline"
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}>
+
             Next
           </Button>
         </div>
-      )}
+      }
 
       {/* View Record Dialog */}
       <Dialog open={showViewDialog} onOpenChange={setShowViewDialog}>
@@ -608,8 +738,8 @@ const SalaryList: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           
-          {selectedRecord && (
-            <div className="space-y-6">
+          {selectedRecord &&
+          <div className="space-y-6">
               {/* Basic Info */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -725,35 +855,38 @@ const SalaryList: React.FC = () => {
               </div>
 
               {/* Notes */}
-              {selectedRecord.notes && (
-                <div>
+              {selectedRecord.notes &&
+            <div>
                   <label className="text-sm font-medium text-muted-foreground">Notes</label>
                   <p className="mt-1 p-3 bg-muted rounded-md">{selectedRecord.notes}</p>
                 </div>
-              )}
+            }
 
               {/* Actions */}
               <div className="flex justify-end gap-2 pt-4 border-t">
                 <Button
-                  variant="outline"
-                  onClick={() => exportToPDF(selectedRecord)}
-                >
+                variant="outline"
+                onClick={() => exportToPDF(selectedRecord)}>
+
                   <Download className="h-4 w-4 mr-2" />
                   Export PDF
                 </Button>
-                <Link to={`/salary/${selectedRecord.id}/edit`}>
-                  <Button onClick={() => setShowViewDialog(false)}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Record
-                  </Button>
-                </Link>
+                <Button
+                onClick={() => {
+                  setShowViewDialog(false);
+                  handleEditRecord(selectedRecord);
+                }}>
+
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Record
+                </Button>
               </div>
             </div>
-          )}
+          }
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SalaryList;
