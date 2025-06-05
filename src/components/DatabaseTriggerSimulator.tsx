@@ -83,64 +83,64 @@ const DatabaseTriggerSimulator: React.FC = () => {
   // Initialize with sample triggers
   useEffect(() => {
     const sampleTriggers: DatabaseTrigger[] = [
-      {
-        id: 'trigger_1',
-        name: 'License Expiry Alert',
-        table: 'licenses_certificates',
-        event: 'UPDATE',
-        condition: 'expiry_date <= CURRENT_DATE + INTERVAL \'30 days\'',
-        action: 'EXECUTE send_license_alert_notification(NEW.id, NEW.license_name, NEW.expiry_date)',
-        priority: 1,
-        isActive: true,
-        executionCount: 15,
-        averageExecutionTime: 250,
-        errorCount: 0,
-        description: 'Automatically sends SMS alerts when licenses are approaching expiration'
-      },
-      {
-        id: 'trigger_2',
-        name: 'Inventory Low Stock Alert',
-        table: 'products',
-        event: 'UPDATE',
-        condition: 'NEW.quantity_in_stock <= NEW.minimum_stock AND OLD.quantity_in_stock > OLD.minimum_stock',
-        action: 'INSERT INTO inventory_alerts (product_id, alert_type, message) VALUES (NEW.id, \'LOW_STOCK\', CONCAT(\'Product \', NEW.product_name, \' is running low\'))',
-        priority: 2,
-        isActive: true,
-        executionCount: 8,
-        averageExecutionTime: 180,
-        errorCount: 1,
-        description: 'Creates alerts when product inventory falls below minimum stock level'
-      },
-      {
-        id: 'trigger_3',
-        name: 'Sales Report Auto-Calculation',
-        table: 'daily_sales_reports_enhanced',
-        event: 'INSERT',
-        condition: '',
-        action: 'UPDATE daily_sales_reports_enhanced SET total_sales = (grocery_sales + lottery_total_cash + (regular_gallons + super_gallons + diesel_gallons) * 3.50) WHERE id = NEW.id',
-        priority: 3,
-        isActive: true,
-        executionCount: 22,
-        averageExecutionTime: 120,
-        errorCount: 0,
-        description: 'Automatically calculates total sales when a new daily report is created'
-      },
-      {
-        id: 'trigger_4',
-        name: 'Employee Audit Trail',
-        table: 'employees',
-        event: 'UPDATE',
-        condition: '',
-        action: 'INSERT INTO audit_logs (event_type, user_id, resource_accessed, action_performed, additional_data) VALUES (\'Data Modification\', USER_ID(), \'employees\', \'update\', JSON_OBJECT(\'employee_id\', NEW.employee_id, \'changes\', JSON_OBJECT()))',
-        priority: 5,
-        isActive: true,
-        executionCount: 12,
-        averageExecutionTime: 95,
-        errorCount: 0,
-        description: 'Maintains audit trail for all employee record modifications'
-      }
-    ];
-    
+    {
+      id: 'trigger_1',
+      name: 'License Expiry Alert',
+      table: 'licenses_certificates',
+      event: 'UPDATE',
+      condition: 'expiry_date <= CURRENT_DATE + INTERVAL \'30 days\'',
+      action: 'EXECUTE send_license_alert_notification(NEW.id, NEW.license_name, NEW.expiry_date)',
+      priority: 1,
+      isActive: true,
+      executionCount: 15,
+      averageExecutionTime: 250,
+      errorCount: 0,
+      description: 'Automatically sends SMS alerts when licenses are approaching expiration'
+    },
+    {
+      id: 'trigger_2',
+      name: 'Inventory Low Stock Alert',
+      table: 'products',
+      event: 'UPDATE',
+      condition: 'NEW.quantity_in_stock <= NEW.minimum_stock AND OLD.quantity_in_stock > OLD.minimum_stock',
+      action: 'INSERT INTO inventory_alerts (product_id, alert_type, message) VALUES (NEW.id, \'LOW_STOCK\', CONCAT(\'Product \', NEW.product_name, \' is running low\'))',
+      priority: 2,
+      isActive: true,
+      executionCount: 8,
+      averageExecutionTime: 180,
+      errorCount: 1,
+      description: 'Creates alerts when product inventory falls below minimum stock level'
+    },
+    {
+      id: 'trigger_3',
+      name: 'Sales Report Auto-Calculation',
+      table: 'daily_sales_reports_enhanced',
+      event: 'INSERT',
+      condition: '',
+      action: 'UPDATE daily_sales_reports_enhanced SET total_sales = (grocery_sales + lottery_total_cash + (regular_gallons + super_gallons + diesel_gallons) * 3.50) WHERE id = NEW.id',
+      priority: 3,
+      isActive: true,
+      executionCount: 22,
+      averageExecutionTime: 120,
+      errorCount: 0,
+      description: 'Automatically calculates total sales when a new daily report is created'
+    },
+    {
+      id: 'trigger_4',
+      name: 'Employee Audit Trail',
+      table: 'employees',
+      event: 'UPDATE',
+      condition: '',
+      action: 'INSERT INTO audit_logs (event_type, user_id, resource_accessed, action_performed, additional_data) VALUES (\'Data Modification\', USER_ID(), \'employees\', \'update\', JSON_OBJECT(\'employee_id\', NEW.employee_id, \'changes\', JSON_OBJECT()))',
+      priority: 5,
+      isActive: true,
+      executionCount: 12,
+      averageExecutionTime: 95,
+      errorCount: 0,
+      description: 'Maintains audit trail for all employee record modifications'
+    }];
+
+
     setTriggers(sampleTriggers);
   }, []);
 
@@ -158,7 +158,7 @@ const DatabaseTriggerSimulator: React.FC = () => {
 
   const simulateDataChanges = useCallback(() => {
     // Simulate random database changes that might trigger our triggers
-    const activeTriggersArray = triggers.filter(t => t.isActive);
+    const activeTriggersArray = triggers.filter((t) => t.isActive);
     if (activeTriggersArray.length === 0) return;
 
     const shouldTrigger = Math.random() < 0.3; // 30% chance
@@ -170,14 +170,14 @@ const DatabaseTriggerSimulator: React.FC = () => {
 
   const executeTrigger = async (trigger: DatabaseTrigger) => {
     const startTime = performance.now();
-    
+
     try {
       // Simulate trigger execution
-      await new Promise(resolve => setTimeout(resolve, Math.random() * 500 + 100));
-      
+      await new Promise((resolve) => setTimeout(resolve, Math.random() * 500 + 100));
+
       const executionTime = performance.now() - startTime;
       const isSuccess = Math.random() > 0.05; // 95% success rate
-      
+
       const execution: TriggerExecution = {
         id: `exec_${Date.now()}_${Math.random()}`,
         triggerId: trigger.id,
@@ -192,19 +192,19 @@ const DatabaseTriggerSimulator: React.FC = () => {
         errorMessage: isSuccess ? undefined : 'Simulated execution error'
       };
 
-      setExecutions(prev => [execution, ...prev.slice(0, 99)]); // Keep last 100 executions
+      setExecutions((prev) => [execution, ...prev.slice(0, 99)]); // Keep last 100 executions
 
       // Update trigger statistics
-      setTriggers(prev => prev.map(t => 
-        t.id === trigger.id
-          ? {
-              ...t,
-              lastExecuted: new Date(),
-              executionCount: t.executionCount + 1,
-              averageExecutionTime: (t.averageExecutionTime * t.executionCount + executionTime) / (t.executionCount + 1),
-              errorCount: isSuccess ? t.errorCount : t.errorCount + 1
-            }
-          : t
+      setTriggers((prev) => prev.map((t) =>
+      t.id === trigger.id ?
+      {
+        ...t,
+        lastExecuted: new Date(),
+        executionCount: t.executionCount + 1,
+        averageExecutionTime: (t.averageExecutionTime * t.executionCount + executionTime) / (t.executionCount + 1),
+        errorCount: isSuccess ? t.errorCount : t.errorCount + 1
+      } :
+      t
       ));
 
       if (isSuccess) {
@@ -233,21 +233,21 @@ const DatabaseTriggerSimulator: React.FC = () => {
       daily_sales_reports_enhanced: { id: 1, station: 'MOBIL', total_sales: 1250.00 },
       employees: { id: 1, employee_id: 'EMP001', first_name: 'John', last_name: 'Doe' }
     };
-    
+
     return mockData[table as keyof typeof mockData] || { id: 1, data: 'sample' };
   };
 
   const updateStats = () => {
-    const activeTriggersCount = triggers.filter(t => t.isActive).length;
+    const activeTriggersCount = triggers.filter((t) => t.isActive).length;
     const totalExecutions = executions.length;
-    const successfulExecutions = executions.filter(e => e.status === 'success').length;
-    const successRate = totalExecutions > 0 ? (successfulExecutions / totalExecutions) * 100 : 0;
-    const avgExecutionTime = executions.length > 0 
-      ? executions.reduce((sum, e) => sum + e.executionTime, 0) / executions.length 
-      : 0;
-    
+    const successfulExecutions = executions.filter((e) => e.status === 'success').length;
+    const successRate = totalExecutions > 0 ? successfulExecutions / totalExecutions * 100 : 0;
+    const avgExecutionTime = executions.length > 0 ?
+    executions.reduce((sum, e) => sum + e.executionTime, 0) / executions.length :
+    0;
+
     const today = new Date().toDateString();
-    const triggersToday = executions.filter(e => e.timestamp.toDateString() === today).length;
+    const triggersToday = executions.filter((e) => e.timestamp.toDateString() === today).length;
 
     setStats({
       totalTriggers: triggers.length,
@@ -284,7 +284,7 @@ const DatabaseTriggerSimulator: React.FC = () => {
       description: newTrigger.description || ''
     };
 
-    setTriggers(prev => [...prev, trigger]);
+    setTriggers((prev) => [...prev, trigger]);
     setNewTrigger({
       name: '',
       table: '',
@@ -304,13 +304,13 @@ const DatabaseTriggerSimulator: React.FC = () => {
   };
 
   const toggleTrigger = (triggerId: string) => {
-    setTriggers(prev => prev.map(t => 
-      t.id === triggerId ? { ...t, isActive: !t.isActive } : t
+    setTriggers((prev) => prev.map((t) =>
+    t.id === triggerId ? { ...t, isActive: !t.isActive } : t
     ));
   };
 
   const deleteTrigger = (triggerId: string) => {
-    setTriggers(prev => prev.filter(t => t.id !== triggerId));
+    setTriggers((prev) => prev.filter((t) => t.id !== triggerId));
     toast({
       title: "Trigger Deleted",
       description: "Trigger has been removed successfully"
@@ -331,20 +331,20 @@ const DatabaseTriggerSimulator: React.FC = () => {
 
   const getEventColor = (event: string) => {
     switch (event) {
-      case 'INSERT': return 'bg-green-500';
-      case 'UPDATE': return 'bg-blue-500';
-      case 'DELETE': return 'bg-red-500';
-      case 'SELECT': return 'bg-purple-500';
-      default: return 'bg-gray-500';
+      case 'INSERT':return 'bg-green-500';
+      case 'UPDATE':return 'bg-blue-500';
+      case 'DELETE':return 'bg-red-500';
+      case 'SELECT':return 'bg-purple-500';
+      default:return 'bg-gray-500';
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'success': return 'text-green-600 bg-green-50';
-      case 'error': return 'text-red-600 bg-red-50';
-      case 'warning': return 'text-yellow-600 bg-yellow-50';
-      default: return 'text-gray-600 bg-gray-50';
+      case 'success':return 'text-green-600 bg-green-50';
+      case 'error':return 'text-red-600 bg-red-50';
+      case 'warning':return 'text-yellow-600 bg-yellow-50';
+      default:return 'text-gray-600 bg-gray-50';
     }
   };
 
@@ -371,15 +371,15 @@ const DatabaseTriggerSimulator: React.FC = () => {
               <Button
                 onClick={() => setIsMonitoring(!isMonitoring)}
                 variant={isMonitoring ? "destructive" : "default"}
-                size="sm"
-              >
+                size="sm">
+
                 {isMonitoring ? <Pause className="h-4 w-4 mr-1" /> : <Play className="h-4 w-4 mr-1" />}
                 {isMonitoring ? "Pause" : "Start"}
               </Button>
               <Button
                 onClick={() => setShowCreateDialog(true)}
-                size="sm"
-              >
+                size="sm">
+
                 <Plus className="h-4 w-4 mr-1" />
                 New Trigger
               </Button>
@@ -425,8 +425,8 @@ const DatabaseTriggerSimulator: React.FC = () => {
 
         <TabsContent value="triggers" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {triggers.map((trigger) => (
-              <Card key={trigger.id} className="relative">
+            {triggers.map((trigger) =>
+            <Card key={trigger.id} className="relative">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -443,10 +443,10 @@ const DatabaseTriggerSimulator: React.FC = () => {
                         {getPriorityLabel(trigger.priority)}
                       </Badge>
                       <Switch
-                        checked={trigger.isActive}
-                        onCheckedChange={() => toggleTrigger(trigger.id)}
-                        size="sm"
-                      />
+                      checked={trigger.isActive}
+                      onCheckedChange={() => toggleTrigger(trigger.id)}
+                      size="sm" />
+
                     </div>
                   </div>
                 </CardHeader>
@@ -491,33 +491,33 @@ const DatabaseTriggerSimulator: React.FC = () => {
 
                   <div className="flex gap-2 pt-2">
                     <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => manualExecuteTrigger(trigger)}
-                      disabled={!trigger.isActive}
-                    >
+                    size="sm"
+                    variant="outline"
+                    onClick={() => manualExecuteTrigger(trigger)}
+                    disabled={!trigger.isActive}>
+
                       <Play className="h-3 w-3 mr-1" />
                       Execute
                     </Button>
                     <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setSelectedTrigger(trigger)}
-                    >
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setSelectedTrigger(trigger)}>
+
                       <Settings className="h-3 w-3 mr-1" />
                       Edit
                     </Button>
                     <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => deleteTrigger(trigger.id)}
-                    >
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => deleteTrigger(trigger.id)}>
+
                       Delete
                     </Button>
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            )}
           </div>
         </TabsContent>
 
@@ -525,14 +525,14 @@ const DatabaseTriggerSimulator: React.FC = () => {
           <ScrollArea className="h-96">
             <div className="space-y-3">
               <AnimatePresence>
-                {executions.map((execution, index) => (
-                  <motion.div
-                    key={execution.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ delay: index * 0.02 }}
-                  >
+                {executions.map((execution, index) =>
+                <motion.div
+                  key={execution.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ delay: index * 0.02 }}>
+
                     <Card>
                       <CardContent className="pt-4">
                         <div className="flex items-center justify-between mb-3">
@@ -570,18 +570,18 @@ const DatabaseTriggerSimulator: React.FC = () => {
                             <p className="font-medium">Result:</p>
                             <p className={`mt-1 p-2 rounded text-xs ${getStatusColor(execution.status)}`}>
                               {execution.result}
-                              {execution.errorMessage && (
-                                <span className="block mt-1 text-red-600">
+                              {execution.errorMessage &&
+                            <span className="block mt-1 text-red-600">
                                   Error: {execution.errorMessage}
                                 </span>
-                              )}
+                            }
                             </p>
                           </div>
                         </div>
                       </CardContent>
                     </Card>
                   </motion.div>
-                ))}
+                )}
               </AnimatePresence>
             </div>
           </ScrollArea>
@@ -597,36 +597,36 @@ const DatabaseTriggerSimulator: React.FC = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
-              {
-                name: 'Audit Log Trigger',
-                description: 'Automatically log all changes to sensitive tables',
-                template: `INSERT INTO audit_logs (event_type, table_name, record_id, old_data, new_data, timestamp) 
+            {
+              name: 'Audit Log Trigger',
+              description: 'Automatically log all changes to sensitive tables',
+              template: `INSERT INTO audit_logs (event_type, table_name, record_id, old_data, new_data, timestamp) 
 VALUES ('${newTrigger.event}', '${newTrigger.table}', NEW.id, OLD, NEW, NOW())`
-              },
-              {
-                name: 'Status Update Notification',
-                description: 'Send notifications when status fields change',
-                template: `IF NEW.status != OLD.status THEN
+            },
+            {
+              name: 'Status Update Notification',
+              description: 'Send notifications when status fields change',
+              template: `IF NEW.status != OLD.status THEN
   INSERT INTO notifications (user_id, message, type) 
   VALUES (NEW.user_id, CONCAT('Status changed to ', NEW.status), 'status_update');
 END IF`
-              },
-              {
-                name: 'Calculated Field Update',
-                description: 'Automatically update calculated fields',
-                template: `UPDATE ${newTrigger.table} 
+            },
+            {
+              name: 'Calculated Field Update',
+              description: 'Automatically update calculated fields',
+              template: `UPDATE ${newTrigger.table} 
 SET calculated_field = (field1 + field2) * 0.1 
 WHERE id = NEW.id`
-              },
-              {
-                name: 'Cascade Delete Safety',
-                description: 'Prevent accidental cascade deletions',
-                template: `IF (SELECT COUNT(*) FROM related_table WHERE parent_id = OLD.id) > 0 THEN
+            },
+            {
+              name: 'Cascade Delete Safety',
+              description: 'Prevent accidental cascade deletions',
+              template: `IF (SELECT COUNT(*) FROM related_table WHERE parent_id = OLD.id) > 0 THEN
   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot delete record with dependencies';
 END IF`
-              }
-            ].map((template, index) => (
-              <Card key={index} className="cursor-pointer hover:shadow-md transition-shadow">
+            }].
+            map((template, index) =>
+            <Card key={index} className="cursor-pointer hover:shadow-md transition-shadow">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
@@ -634,12 +634,12 @@ END IF`
                       <p className="text-sm text-gray-600">{template.description}</p>
                     </div>
                     <Button
-                      size="sm"
-                      onClick={() => {
-                        setNewTrigger(prev => ({ ...prev, action: template.template }));
-                        setShowCreateDialog(true);
-                      }}
-                    >
+                    size="sm"
+                    onClick={() => {
+                      setNewTrigger((prev) => ({ ...prev, action: template.template }));
+                      setShowCreateDialog(true);
+                    }}>
+
                       Use Template
                     </Button>
                   </div>
@@ -650,7 +650,7 @@ END IF`
                   </code>
                 </CardContent>
               </Card>
-            ))}
+            )}
           </div>
         </TabsContent>
       </Tabs>
@@ -668,13 +668,13 @@ END IF`
                 <Label>Trigger Name</Label>
                 <Input
                   value={newTrigger.name}
-                  onChange={(e) => setNewTrigger(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Enter trigger name"
-                />
+                  onChange={(e) => setNewTrigger((prev) => ({ ...prev, name: e.target.value }))}
+                  placeholder="Enter trigger name" />
+
               </div>
               <div className="space-y-2">
                 <Label>Table</Label>
-                <Select value={newTrigger.table} onValueChange={(value) => setNewTrigger(prev => ({ ...prev, table: value }))}>
+                <Select value={newTrigger.table} onValueChange={(value) => setNewTrigger((prev) => ({ ...prev, table: value }))}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select table" />
                   </SelectTrigger>
@@ -693,7 +693,7 @@ END IF`
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Event</Label>
-                <Select value={newTrigger.event} onValueChange={(value: any) => setNewTrigger(prev => ({ ...prev, event: value }))}>
+                <Select value={newTrigger.event} onValueChange={(value: any) => setNewTrigger((prev) => ({ ...prev, event: value }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -712,8 +712,8 @@ END IF`
                   min="1"
                   max="10"
                   value={newTrigger.priority}
-                  onChange={(e) => setNewTrigger(prev => ({ ...prev, priority: Number(e.target.value) }))}
-                />
+                  onChange={(e) => setNewTrigger((prev) => ({ ...prev, priority: Number(e.target.value) }))} />
+
               </div>
             </div>
 
@@ -721,35 +721,35 @@ END IF`
               <Label>Condition (Optional)</Label>
               <Input
                 value={newTrigger.condition}
-                onChange={(e) => setNewTrigger(prev => ({ ...prev, condition: e.target.value }))}
-                placeholder="e.g., NEW.status != OLD.status"
-              />
+                onChange={(e) => setNewTrigger((prev) => ({ ...prev, condition: e.target.value }))}
+                placeholder="e.g., NEW.status != OLD.status" />
+
             </div>
 
             <div className="space-y-2">
               <Label>Action (SQL Code)</Label>
               <Textarea
                 value={newTrigger.action}
-                onChange={(e) => setNewTrigger(prev => ({ ...prev, action: e.target.value }))}
+                onChange={(e) => setNewTrigger((prev) => ({ ...prev, action: e.target.value }))}
                 placeholder="Enter the SQL action to execute"
-                rows={4}
-              />
+                rows={4} />
+
             </div>
 
             <div className="space-y-2">
               <Label>Description</Label>
               <Input
                 value={newTrigger.description}
-                onChange={(e) => setNewTrigger(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Describe what this trigger does"
-              />
+                onChange={(e) => setNewTrigger((prev) => ({ ...prev, description: e.target.value }))}
+                placeholder="Describe what this trigger does" />
+
             </div>
 
             <div className="flex items-center space-x-2">
               <Switch
                 checked={newTrigger.isActive}
-                onCheckedChange={(checked) => setNewTrigger(prev => ({ ...prev, isActive: checked }))}
-              />
+                onCheckedChange={(checked) => setNewTrigger((prev) => ({ ...prev, isActive: checked }))} />
+
               <Label>Active</Label>
             </div>
 
@@ -764,8 +764,8 @@ END IF`
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 };
 
 export default DatabaseTriggerSimulator;

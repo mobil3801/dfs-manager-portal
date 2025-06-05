@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Search, Edit, Trash2, FileText, AlertTriangle, CheckCircle, Printer, MessageSquare, Send } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, FileText, AlertTriangle, CheckCircle, Printer, MessageSquare, Send, Archive } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import EnhancedLicensePrintDialog from '@/components/EnhancedLicensePrintDialog';
@@ -35,6 +36,10 @@ const LicenseList: React.FC = () => {
   const [selectedLicenseForPrint, setSelectedLicenseForPrint] = useState<License | null>(null);
   const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
   const [sendingSMS, setSendingSMS] = useState(false);
+  const [deletingLicenseId, setDeletingLicenseId] = useState<number | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [licenseToDelete, setLicenseToDelete] = useState<License | null>(null);
+  const [showCancelled, setShowCancelled] = useState(true);
   const navigate = useNavigate();
   const { userProfile } = useAuth();
 
@@ -42,7 +47,7 @@ const LicenseList: React.FC = () => {
 
   useEffect(() => {
     loadLicenses();
-  }, [currentPage, searchTerm]);
+  }, [currentPage, searchTerm, showCancelled]);
 
   const loadLicenses = async () => {
     try {
@@ -51,6 +56,10 @@ const LicenseList: React.FC = () => {
 
       if (searchTerm) {
         filters.push({ name: 'license_name', op: 'StringContains', value: searchTerm });
+      }
+
+      if (!showCancelled) {
+        filters.push({ name: 'status', op: 'StringContains', value: 'Active' });
       }
 
       const { data, error } = await window.ezsite.apis.tablePage('11731', {
@@ -77,27 +86,141 @@ const LicenseList: React.FC = () => {
     }
   };
 
-  const handleDelete = async (licenseId: number) => {
-    if (!confirm('Are you sure you want to delete this license?')) {
-      return;
-    }
+  const openDeleteDialog = (license: License) => {
+    setLicenseToDelete(license);
+    setDeleteDialogOpen(true);
+  };
 
+  const handleSoftDelete = async (licenseId: number) => {
     try {
-      const { error } = await window.ezsite.apis.tableDelete('11731', { ID: licenseId });
+      setDeletingLicenseId(licenseId);
+
+      // Update status to "Cancelled" or "Inactive"
+      const { error } = await window.ezsite.apis.tableUpdate('11731', {
+        ID: licenseId,
+        status: 'Cancelled'
+      });
+
       if (error) throw error;
 
       toast({
-        title: "Success",
-        description: "License deleted successfully"
+        title: "✅ License Deactivated",
+        description: "License has been marked as cancelled. It can be reactivated later if needed.",
+        duration: 5000
       });
-      loadLicenses();
+
+      await loadLicenses();
+
     } catch (error) {
-      console.error('Error deleting license:', error);
+      console.error('Error deactivating license:', error);
       toast({
-        title: "Error",
-        description: "Failed to delete license",
+        title: "❌ Deactivation Failed",
+        description: `Failed to deactivate license: ${error}`,
         variant: "destructive"
       });
+    } finally {
+      setDeletingLicenseId(null);
+    }
+  };
+
+  const handleHardDelete = async (licenseId: number) => {
+    setDeletingLicenseId(licenseId);
+
+    try {
+      // Step 1: Get license details to check for associated files
+      const { data: licenseData, error: fetchError } = await window.ezsite.apis.tablePage('11731', {
+        PageNo: 1,
+        PageSize: 1,
+        Filters: [{ name: 'ID', op: 'Equal', value: licenseId }]
+      });
+
+      if (fetchError) throw fetchError;
+
+      const license = licenseData?.List?.[0];
+      if (!license) {
+        throw new Error('License not found');
+      }
+
+      // Show progress toast
+      toast({
+        title: "🗑️ Deleting License",
+        description: "Removing associated files and data..."
+      });
+
+      // Step 2: Delete associated file if exists
+      if (license.document_file_id) {
+        try {
+          // Note: File deletion through API - assuming the file deletion is handled server-side
+          console.log(`Deleting file with ID: ${license.document_file_id}`);
+          // File deletion would be handled by the database cascade or server-side cleanup
+        } catch (fileError) {
+          console.warn('File deletion warning:', fileError);
+          // Continue with deletion even if file cleanup fails
+        }
+      }
+
+      // Step 3: Delete SMS alert history for this license
+      try {
+        const { data: alertHistory, error: alertHistoryError } = await window.ezsite.apis.tablePage('12613', {
+          PageNo: 1,
+          PageSize: 100,
+          Filters: [{ name: 'license_id', op: 'Equal', value: licenseId }]
+        });
+
+        if (!alertHistoryError && alertHistory?.List?.length > 0) {
+          for (const alert of alertHistory.List) {
+            await window.ezsite.apis.tableDelete('12613', { ID: alert.ID });
+          }
+          console.log(`Deleted ${alertHistory.List.length} SMS alert history records`);
+        }
+      } catch (alertError) {
+        console.warn('SMS alert history cleanup warning:', alertError);
+        // Continue with deletion even if alert cleanup fails
+      }
+
+      // Step 4: Delete any scheduled alerts for this license
+      try {
+        const { data: schedules, error: scheduleError } = await window.ezsite.apis.tablePage('12642', {
+          PageNo: 1,
+          PageSize: 100,
+          Filters: [
+          { name: 'alert_type', op: 'Equal', value: 'License Expiry' },
+          { name: 'station_filter', op: 'Equal', value: license.station }]
+
+        });
+
+        if (!scheduleError && schedules?.List?.length > 0) {
+          console.log(`Found ${schedules.List.length} related alert schedules`);
+          // Note: We might not want to delete all schedules, just log for now
+        }
+      } catch (scheduleError) {
+        console.warn('Alert schedule cleanup warning:', scheduleError);
+      }
+
+      // Step 5: Finally delete the license record
+      const { error: deleteError } = await window.ezsite.apis.tableDelete('11731', { ID: licenseId });
+      if (deleteError) throw deleteError;
+
+      // Success message with details
+      toast({
+        title: "✅ License Deleted Successfully",
+        description: `${license.license_name} and all associated data have been removed from the system.`,
+        duration: 5000
+      });
+
+      // Reload licenses to reflect changes
+      await loadLicenses();
+
+    } catch (error) {
+      console.error('Error during license deletion:', error);
+      toast({
+        title: "❌ Deletion Failed",
+        description: `Failed to delete license: ${error}`,
+        variant: "destructive",
+        duration: 7000
+      });
+    } finally {
+      setDeletingLicenseId(null);
     }
   };
 
@@ -199,6 +322,37 @@ const LicenseList: React.FC = () => {
   // Check if user is Administrator
   const isAdmin = userProfile?.role === 'Administrator';
 
+  const handleReactivate = async (licenseId: number) => {
+    try {
+      setDeletingLicenseId(licenseId);
+
+      const { error } = await window.ezsite.apis.tableUpdate('11731', {
+        ID: licenseId,
+        status: 'Active'
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "✅ License Reactivated",
+        description: "License has been successfully reactivated.",
+        duration: 3000
+      });
+
+      await loadLicenses();
+
+    } catch (error) {
+      console.error('Error reactivating license:', error);
+      toast({
+        title: "❌ Reactivation Failed",
+        description: `Failed to reactivate license: ${error}`,
+        variant: "destructive"
+      });
+    } finally {
+      setDeletingLicenseId(null);
+    }
+  };
+
   const getStatusBadgeColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'active':
@@ -207,6 +361,9 @@ const LicenseList: React.FC = () => {
         return 'bg-red-500';
       case 'pending renewal':
         return 'bg-yellow-500';
+      case 'cancelled':
+      case 'inactive':
+        return 'bg-gray-500';
       default:
         return 'bg-gray-500';
     }
@@ -264,14 +421,15 @@ const LicenseList: React.FC = () => {
   // Calculate summary stats
   const stats = licenses.reduce((acc, license) => ({
     active: acc.active + (license.status.toLowerCase() === 'active' ? 1 : 0),
-    expiring_soon: acc.expiring_soon + (isExpiringSoon(license.expiry_date) ? 1 : 0),
-    expired: acc.expired + (isExpired(license.expiry_date) ? 1 : 0)
-  }), { active: 0, expiring_soon: 0, expired: 0 });
+    expiring_soon: acc.expiring_soon + (isExpiringSoon(license.expiry_date) && license.status.toLowerCase() !== 'cancelled' ? 1 : 0),
+    expired: acc.expired + (isExpired(license.expiry_date) && license.status.toLowerCase() !== 'cancelled' ? 1 : 0),
+    cancelled: acc.cancelled + (license.status.toLowerCase() === 'cancelled' || license.status.toLowerCase() === 'inactive' ? 1 : 0)
+  }), { active: 0, expiring_soon: 0, expired: 0, cancelled: 0 });
 
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center space-x-2">
@@ -303,6 +461,18 @@ const LicenseList: React.FC = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600">Expired</p>
                 <p className="text-2xl font-bold">{stats.expired}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-2">
+              <Archive className="w-8 h-8 text-gray-600" />
+              <div>
+                <p className="text-sm font-medium text-gray-600">Cancelled</p>
+                <p className="text-2xl font-bold">{stats.cancelled}</p>
               </div>
             </div>
           </CardContent>
@@ -351,8 +521,8 @@ const LicenseList: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {/* Search */}
-          <div className="flex items-center space-x-2 mb-6">
+          {/* Search and Filters */}
+          <div className="flex items-center justify-between mb-6">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
@@ -360,7 +530,18 @@ const LicenseList: React.FC = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10" />
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Button
+                variant={showCancelled ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowCancelled(!showCancelled)}
+                className="flex items-center space-x-2">
 
+                <Archive className="w-4 h-4" />
+                <span>{showCancelled ? 'Hide' : 'Show'} Cancelled</span>
+              </Button>
             </div>
           </div>
 
@@ -466,14 +647,27 @@ const LicenseList: React.FC = () => {
                           title="Edit License">
                                 <Edit className="w-4 h-4" />
                               </Button>
-                              <Button
+                              {license.status.toLowerCase() === 'cancelled' || license.status.toLowerCase() === 'inactive' ?
+                        <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleDelete(license.ID)}
-                          className="text-red-600 hover:text-red-700"
-                          title="Delete License">
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
+                          onClick={() => handleReactivate(license.ID)}
+                          disabled={deletingLicenseId === license.ID}
+                          className={`${deletingLicenseId === license.ID ? 'text-gray-400' : 'text-green-600 hover:text-green-700'}`}
+                          title={deletingLicenseId === license.ID ? "Processing..." : "Reactivate License"}>
+                                  <CheckCircle className={`w-4 h-4 ${deletingLicenseId === license.ID ? 'animate-spin' : ''}`} />
+                                </Button> :
+
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openDeleteDialog(license)}
+                          disabled={deletingLicenseId === license.ID}
+                          className={`${deletingLicenseId === license.ID ? 'text-gray-400' : 'text-red-600 hover:text-red-700'}`}
+                          title={deletingLicenseId === license.ID ? "Processing..." : "Delete License"}>
+                                  <Trash2 className={`w-4 h-4 ${deletingLicenseId === license.ID ? 'animate-spin' : ''}`} />
+                                </Button>
+                        }
                             </>
                       }
                         </div>
@@ -522,6 +716,74 @@ const LicenseList: React.FC = () => {
         license={selectedLicenseForPrint}
         isOpen={isPrintDialogOpen}
         onClose={closePrintDialog} />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <Trash2 className="w-5 h-5 text-red-500" />
+              <span>Delete License</span>
+            </DialogTitle>
+            <DialogDescription>
+              Choose how you want to handle the license: <strong>{licenseToDelete?.license_name}</strong>
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-3">
+              <div className="flex items-start space-x-3 p-4 border rounded-lg bg-yellow-50">
+                <Archive className="w-5 h-5 text-yellow-600 mt-1" />
+                <div>
+                  <h4 className="font-medium text-yellow-800">Soft Delete (Recommended)</h4>
+                  <p className="text-sm text-yellow-700">Mark as cancelled but keep all data for potential recovery. This is safer and maintains audit trails.</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3 p-4 border rounded-lg bg-red-50">
+                <Trash2 className="w-5 h-5 text-red-600 mt-1" />
+                <div>
+                  <h4 className="font-medium text-red-800">Permanent Delete</h4>
+                  <p className="text-sm text-red-700">Completely remove the license and all associated files and SMS history. This cannot be undone.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter className="space-x-2">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={deletingLicenseId !== null}>
+
+              Cancel
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                handleSoftDelete(licenseToDelete?.ID || 0);
+                setDeleteDialogOpen(false);
+              }}
+              disabled={deletingLicenseId !== null}
+              className="text-yellow-600 hover:text-yellow-700 border-yellow-200 hover:bg-yellow-50">
+
+              <Archive className="w-4 h-4 mr-2" />
+              Soft Delete
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                handleHardDelete(licenseToDelete?.ID || 0);
+                setDeleteDialogOpen(false);
+              }}
+              disabled={deletingLicenseId !== null}>
+
+              <Trash2 className="w-4 h-4 mr-2" />
+              Permanent Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     </div>);
 

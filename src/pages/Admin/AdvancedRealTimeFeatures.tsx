@@ -31,79 +31,79 @@ const AdvancedRealTimeFeatures: React.FC = () => {
   const { hasAdminAccess } = useAdminAccess();
   const [activeTab, setActiveTab] = useState('overview');
   const [features, setFeatures] = useState<FeatureStatus[]>([
-    {
-      id: 'conflict_resolver',
-      name: 'Real-Time Conflict Resolution',
-      description: 'Detects and resolves concurrent user edit conflicts automatically',
-      isEnabled: true,
-      performance: 95.2,
-      lastActivity: new Date(),
-      icon: <GitMerge className="h-5 w-5" />
-    },
-    {
-      id: 'optimistic_updates',
-      name: 'Optimistic Update Manager',
-      description: 'Provides instant UI feedback with background synchronization',
-      isEnabled: true,
-      performance: 98.7,
-      lastActivity: new Date(Date.now() - 30000),
-      icon: <Zap className="h-5 w-5" />
-    },
-    {
-      id: 'intelligent_cache',
-      name: 'Intelligent Cache Management',
-      description: 'Advanced caching with TTL, LRU eviction, and prefetching',
-      isEnabled: true,
-      performance: 87.4,
-      lastActivity: new Date(Date.now() - 60000),
-      icon: <Database className="h-5 w-5" />
-    },
-    {
-      id: 'database_triggers',
-      name: 'Database Trigger Simulator',
-      description: 'API-level database triggers for automated business logic',
-      isEnabled: true,
-      performance: 92.1,
-      lastActivity: new Date(Date.now() - 120000),
-      icon: <Activity className="h-5 w-5" />
-    },
-    {
-      id: 'audit_trail',
-      name: 'Enhanced Audit Trail',
-      description: 'Comprehensive audit logging with compliance reporting',
-      isEnabled: true,
-      performance: 99.1,
-      lastActivity: new Date(Date.now() - 45000),
-      icon: <Shield className="h-5 w-5" />
-    },
-    {
-      id: 'notification_center',
-      name: 'Real-Time Notification Center',
-      description: 'Centralized real-time notifications with multiple channels',
-      isEnabled: true,
-      performance: 94.8,
-      lastActivity: new Date(Date.now() - 15000),
-      icon: <Bell className="h-5 w-5" />
-    }
-  ]);
+  {
+    id: 'conflict_resolver',
+    name: 'Real-Time Conflict Resolution',
+    description: 'Detects and resolves concurrent user edit conflicts automatically',
+    isEnabled: true,
+    performance: 95.2,
+    lastActivity: new Date(),
+    icon: <GitMerge className="h-5 w-5" />
+  },
+  {
+    id: 'optimistic_updates',
+    name: 'Optimistic Update Manager',
+    description: 'Provides instant UI feedback with background synchronization',
+    isEnabled: true,
+    performance: 98.7,
+    lastActivity: new Date(Date.now() - 30000),
+    icon: <Zap className="h-5 w-5" />
+  },
+  {
+    id: 'intelligent_cache',
+    name: 'Intelligent Cache Management',
+    description: 'Advanced caching with TTL, LRU eviction, and prefetching',
+    isEnabled: true,
+    performance: 87.4,
+    lastActivity: new Date(Date.now() - 60000),
+    icon: <Database className="h-5 w-5" />
+  },
+  {
+    id: 'database_triggers',
+    name: 'Database Trigger Simulator',
+    description: 'API-level database triggers for automated business logic',
+    isEnabled: true,
+    performance: 92.1,
+    lastActivity: new Date(Date.now() - 120000),
+    icon: <Activity className="h-5 w-5" />
+  },
+  {
+    id: 'audit_trail',
+    name: 'Enhanced Audit Trail',
+    description: 'Comprehensive audit logging with compliance reporting',
+    isEnabled: true,
+    performance: 99.1,
+    lastActivity: new Date(Date.now() - 45000),
+    icon: <Shield className="h-5 w-5" />
+  },
+  {
+    id: 'notification_center',
+    name: 'Real-Time Notification Center',
+    description: 'Centralized real-time notifications with multiple channels',
+    isEnabled: true,
+    performance: 94.8,
+    lastActivity: new Date(Date.now() - 15000),
+    icon: <Bell className="h-5 w-5" />
+  }]
+  );
 
   if (!hasAdminAccess) {
     return <AccessDenied />;
   }
 
   const toggleFeature = (featureId: string) => {
-    setFeatures(prev => prev.map(feature => 
-      feature.id === featureId 
-        ? { ...feature, isEnabled: !feature.isEnabled }
-        : feature
+    setFeatures((prev) => prev.map((feature) =>
+    feature.id === featureId ?
+    { ...feature, isEnabled: !feature.isEnabled } :
+    feature
     ));
   };
 
   const getSystemStats = () => {
-    const enabledFeatures = features.filter(f => f.isEnabled).length;
+    const enabledFeatures = features.filter((f) => f.isEnabled).length;
     const averagePerformance = features.reduce((sum, f) => sum + f.performance, 0) / features.length;
-    const recentActivity = features.filter(f => 
-      Date.now() - f.lastActivity.getTime() < 300000 // 5 minutes
+    const recentActivity = features.filter((f) =>
+    Date.now() - f.lastActivity.getTime() < 300000 // 5 minutes
     ).length;
 
     return {
@@ -150,7 +150,7 @@ const AdvancedRealTimeFeatures: React.FC = () => {
             <div className="text-center">
               <div className="text-3xl font-bold text-blue-600">{stats.enabledFeatures}/{stats.totalFeatures}</div>
               <div className="text-sm text-gray-600">Features Active</div>
-              <Progress value={(stats.enabledFeatures / stats.totalFeatures) * 100} className="mt-2 h-2" />
+              <Progress value={stats.enabledFeatures / stats.totalFeatures * 100} className="mt-2 h-2" />
             </div>
             <div className="text-center">
               <div className={`text-3xl font-bold ${getPerformanceColor(Number(stats.averagePerformance))}`}>
@@ -162,7 +162,7 @@ const AdvancedRealTimeFeatures: React.FC = () => {
             <div className="text-center">
               <div className="text-3xl font-bold text-green-600">{stats.recentActivity}</div>
               <div className="text-sm text-gray-600">Recent Activity</div>
-              <Progress value={(stats.recentActivity / stats.totalFeatures) * 100} className="mt-2 h-2" />
+              <Progress value={stats.recentActivity / stats.totalFeatures * 100} className="mt-2 h-2" />
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-purple-600">Real-Time</div>
@@ -177,16 +177,16 @@ const AdvancedRealTimeFeatures: React.FC = () => {
 
       {/* Feature Status Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {features.map((feature) => (
-          <Card key={feature.id} className={`transition-all duration-200 ${
-            feature.isEnabled ? 'border-green-200 bg-green-50/30' : 'border-gray-200'
-          }`}>
+        {features.map((feature) =>
+        <Card key={feature.id} className={`transition-all duration-200 ${
+        feature.isEnabled ? 'border-green-200 bg-green-50/30' : 'border-gray-200'}`
+        }>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className={`p-2 rounded-lg ${
-                    feature.isEnabled ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
-                  }`}>
+                feature.isEnabled ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`
+                }>
                     {feature.icon}
                   </div>
                   <div>
@@ -197,9 +197,9 @@ const AdvancedRealTimeFeatures: React.FC = () => {
                   </div>
                 </div>
                 <Switch
-                  checked={feature.isEnabled}
-                  onCheckedChange={() => toggleFeature(feature.id)}
-                />
+                checked={feature.isEnabled}
+                onCheckedChange={() => toggleFeature(feature.id)} />
+
               </div>
             </CardHeader>
             <CardContent className="pt-0">
@@ -221,7 +221,7 @@ const AdvancedRealTimeFeatures: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-        ))}
+        )}
       </div>
 
       {/* Feature Tabs */}
@@ -260,8 +260,8 @@ const AdvancedRealTimeFeatures: React.FC = () => {
                   </Alert>
                   
                   <div className="space-y-3">
-                    {features.map((feature) => (
-                      <div key={feature.id} className="flex items-center justify-between p-2 rounded border">
+                    {features.map((feature) =>
+                    <div key={feature.id} className="flex items-center justify-between p-2 rounded border">
                         <div className="flex items-center gap-2">
                           {feature.icon}
                           <span className="text-sm font-medium">{feature.name.split(' ')[0]}</span>
@@ -273,7 +273,7 @@ const AdvancedRealTimeFeatures: React.FC = () => {
                           </span>
                         </div>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -303,17 +303,17 @@ const AdvancedRealTimeFeatures: React.FC = () => {
       </Tabs>
 
       {/* System Health Alert */}
-      {Number(stats.averagePerformance) < 85 && (
-        <Alert className="border-yellow-200 bg-yellow-50">
+      {Number(stats.averagePerformance) < 85 &&
+      <Alert className="border-yellow-200 bg-yellow-50">
           <Settings className="h-4 w-4" />
           <AlertDescription>
             System performance is below optimal levels ({stats.averagePerformance}%). 
             Consider reviewing feature configurations and resource allocation.
           </AlertDescription>
         </Alert>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default AdvancedRealTimeFeatures;

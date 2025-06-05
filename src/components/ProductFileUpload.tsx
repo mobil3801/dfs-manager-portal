@@ -671,6 +671,8 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
 
 
 
+
+
           // Invalid date format, ignore
         }} // Calculate profit margin
       const unitPrice = mapped.unit_price || 0;const retailPrice = mapped.retail_price || 0;const profitMargin = calculateProfitMargin(unitPrice, retailPrice); // Calculate overdue status
@@ -822,80 +824,78 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
                 </TableHeader>
                 <TableBody>
                   {parsedProducts.map((product, index) => {// Count non-empty mapped fields (excluding product_name)
-                  const mappedFieldsCount = Object.entries(product.mapped).filter(([key, value]) => key !== 'product_name' && value !== undefined && value !== '' && value !== 0).length;
-                  return (
-                    <TableRow key={index}>
+                  const mappedFieldsCount = Object.entries(product.mapped).filter(([key, value]) => key !== 'product_name' && value !== undefined && value !== '' && value !== 0).length;return <TableRow key={index}>
                       <TableCell>
                         {product.isValid && !product.isDuplicate ?
-                        <Badge variant="default" className="bg-green-100 text-green-800">
+                      <Badge variant="default" className="bg-green-100 text-green-800">
                             <CheckCircle className="w-3 h-3 mr-1" />
                             Valid
                           </Badge> :
-                        product.isDuplicate ?
-                        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                      product.isDuplicate ?
+                      <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
                             <AlertTriangle className="w-3 h-3 mr-1" />
                             Duplicate
                           </Badge> :
 
-                        <Badge variant="destructive">
+                      <Badge variant="destructive">
                             <XCircle className="w-3 h-3 mr-1" />
                             Error
                           </Badge>
-                        }
+                      }
                       </TableCell>
                       <TableCell className="font-medium">{product.productName || 'N/A'}</TableCell>
                       <TableCell>
                         {product.weight > 0 ?
-                        <span className="text-sm">{product.weight} {product.mapped.weight_unit || 'lb'}</span> :
+                      <span className="text-sm">{product.weight} {product.mapped.weight_unit || 'lb'}</span> :
 
-                        <span className="text-sm text-gray-400">N/A</span>
-                        }
+                      <span className="text-sm text-gray-400">N/A</span>
+                      }
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
                           <span className="text-sm">{mappedFieldsCount} fields</span>
                           {mappedFieldsCount > 0 &&
-                          <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs">
                               {mappedFieldsCount > 5 ? 'Complete' : 'Partial'}
                             </Badge>
-                          }
+                        }
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="text-xs">
                           {product.mapped.retail_price > 0 &&
-                          <div>Retail: ${product.mapped.retail_price.toFixed(2)}</div>
-                          }
+                        <div>Retail: ${product.mapped.retail_price.toFixed(2)}</div>
+                        }
                           {product.mapped.unit_price > 0 &&
-                          <div>Unit: ${product.mapped.unit_price.toFixed(2)}</div>
-                          }
+                        <div>Unit: ${product.mapped.unit_price.toFixed(2)}</div>
+                        }
                           {product.mapped.case_price > 0 &&
-                          <div>Case: ${product.mapped.case_price.toFixed(2)}</div>
-                          }
+                        <div>Case: ${product.mapped.case_price.toFixed(2)}</div>
+                        }
                           {!product.mapped.retail_price && !product.mapped.unit_price && !product.mapped.case_price && 'N/A'}
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="text-xs">
                           {product.mapped.quantity_in_stock !== undefined ?
-                          <div>Current: {product.mapped.quantity_in_stock}</div> :
-                          null}
+                        <div>Current: {product.mapped.quantity_in_stock}</div> :
+                        null}
                           {product.mapped.minimum_stock !== undefined ?
-                          <div>Min: {product.mapped.minimum_stock}</div> :
-                          null}
+                        <div>Min: {product.mapped.minimum_stock}</div> :
+                        null}
                           {product.mapped.quantity_in_stock === undefined && product.mapped.minimum_stock === undefined && 'N/A'}
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="text-xs space-y-1">
                           {product.profitMargin > 0 &&
-                          <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1">
                               <span>Profit:</span>
                               <Badge variant={product.profitMargin > 20 ? "default" : "secondary"} className="text-xs">
                                 {product.profitMargin.toFixed(1)}%
                               </Badge>
                             </div>
-                          }
+                        }
                           <div className="flex items-center gap-1">
                             <span>Status:</span>
                             <Badge variant={product.isOverdue ? "destructive" : "default"} className="text-xs">
@@ -906,12 +906,12 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
                       </TableCell>
                       <TableCell>
                         {product.errors.length > 0 &&
-                        <div className="text-xs text-red-600">
+                      <div className="text-xs text-red-600">
                             {product.errors.join(', ')}
                           </div>
-                        }
+                      }
                       </TableCell>
-                    </TableRow>);
+                    </TableRow>;
 
                 })}
                 </TableBody>

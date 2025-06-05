@@ -72,15 +72,15 @@ const RealTimeConflictResolver: React.FC = () => {
     try {
       // Simulate conflict detection by checking for concurrent edits
       const simulatedConflicts = generateSimulatedConflicts();
-      
-      const newConflicts = simulatedConflicts.filter(conflict => 
-        !conflicts.some(existing => existing.id === conflict.id)
+
+      const newConflicts = simulatedConflicts.filter((conflict) =>
+      !conflicts.some((existing) => existing.id === conflict.id)
       );
 
       if (newConflicts.length > 0) {
-        setConflicts(prev => [...prev, ...newConflicts]);
-        
-        newConflicts.forEach(conflict => {
+        setConflicts((prev) => [...prev, ...newConflicts]);
+
+        newConflicts.forEach((conflict) => {
           if (autoResolveEnabled && conflict.severity !== 'critical') {
             resolveConflictAutomatically(conflict);
           } else {
@@ -123,23 +123,23 @@ const RealTimeConflictResolver: React.FC = () => {
   const updateActiveUsers = useCallback(() => {
     // Simulate active users tracking
     const simulatedUsers: ActiveUser[] = [
-      {
-        userId: 1,
-        userName: 'John Smith',
-        currentTable: 'products',
-        currentRecord: 123,
-        lastActivity: new Date(),
-        activeFields: ['name', 'price']
-      },
-      {
-        userId: 2,
-        userName: 'Sarah Johnson',
-        currentTable: 'employees',
-        currentRecord: 45,
-        lastActivity: new Date(Date.now() - 30000),
-        activeFields: ['salary', 'position']
-      }
-    ];
+    {
+      userId: 1,
+      userName: 'John Smith',
+      currentTable: 'products',
+      currentRecord: 123,
+      lastActivity: new Date(),
+      activeFields: ['name', 'price']
+    },
+    {
+      userId: 2,
+      userName: 'Sarah Johnson',
+      currentTable: 'employees',
+      currentRecord: 45,
+      lastActivity: new Date(Date.now() - 30000),
+      activeFields: ['salary', 'position']
+    }];
+
 
     setActiveUsers(simulatedUsers);
   }, []);
@@ -214,30 +214,30 @@ const RealTimeConflictResolver: React.FC = () => {
   const applyResolution = async (conflict: ConflictData, resolution: ConflictResolution) => {
     // Simulate API call to apply resolution
     console.log('Applying resolution:', { conflict, resolution });
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   };
 
   const removeConflict = (conflictId: string) => {
-    setConflicts(prev => prev.filter(c => c.id !== conflictId));
+    setConflicts((prev) => prev.filter((c) => c.id !== conflictId));
   };
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'low': return 'bg-green-500';
-      case 'medium': return 'bg-yellow-500';
-      case 'high': return 'bg-orange-500';
-      case 'critical': return 'bg-red-500';
-      default: return 'bg-gray-500';
+      case 'low':return 'bg-green-500';
+      case 'medium':return 'bg-yellow-500';
+      case 'high':return 'bg-orange-500';
+      case 'critical':return 'bg-red-500';
+      default:return 'bg-gray-500';
     }
   };
 
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
-      case 'low': return <CheckCircle className="h-4 w-4" />;
-      case 'medium': return <Clock className="h-4 w-4" />;
-      case 'high': return <AlertTriangle className="h-4 w-4" />;
-      case 'critical': return <XCircle className="h-4 w-4" />;
-      default: return <AlertTriangle className="h-4 w-4" />;
+      case 'low':return <CheckCircle className="h-4 w-4" />;
+      case 'medium':return <Clock className="h-4 w-4" />;
+      case 'high':return <AlertTriangle className="h-4 w-4" />;
+      case 'critical':return <XCircle className="h-4 w-4" />;
+      default:return <AlertTriangle className="h-4 w-4" />;
     }
   };
 
@@ -258,8 +258,8 @@ const RealTimeConflictResolver: React.FC = () => {
               <Button
                 onClick={() => setIsMonitoring(!isMonitoring)}
                 variant={isMonitoring ? "destructive" : "default"}
-                size="sm"
-              >
+                size="sm">
+
                 {isMonitoring ? "Stop" : "Start"} Monitoring
               </Button>
             </div>
@@ -295,23 +295,23 @@ const RealTimeConflictResolver: React.FC = () => {
         </TabsList>
 
         <TabsContent value="conflicts" className="space-y-4">
-          {conflicts.length === 0 ? (
-            <Alert>
+          {conflicts.length === 0 ?
+          <Alert>
               <CheckCircle className="h-4 w-4" />
               <AlertDescription>
                 No active conflicts detected. All users are working in harmony!
               </AlertDescription>
-            </Alert>
-          ) : (
-            <div className="space-y-3">
+            </Alert> :
+
+          <div className="space-y-3">
               <AnimatePresence>
-                {conflicts.map((conflict) => (
-                  <motion.div
-                    key={conflict.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                  >
+                {conflicts.map((conflict) =>
+              <motion.div
+                key={conflict.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}>
+
                     <Card className="border-l-4" style={{ borderLeftColor: getSeverityColor(conflict.severity).replace('bg-', '#') }}>
                       <CardContent className="pt-4">
                         <div className="flex items-center justify-between">
@@ -335,9 +335,9 @@ const RealTimeConflictResolver: React.FC = () => {
                               {new Date(conflict.timestamp).toLocaleTimeString()}
                             </Badge>
                             <Button
-                              size="sm"
-                              onClick={() => setSelectedConflict(conflict)}
-                            >
+                          size="sm"
+                          onClick={() => setSelectedConflict(conflict)}>
+
                               Resolve
                             </Button>
                           </div>
@@ -356,20 +356,20 @@ const RealTimeConflictResolver: React.FC = () => {
                       </CardContent>
                     </Card>
                   </motion.div>
-                ))}
+              )}
               </AnimatePresence>
             </div>
-          )}
+          }
         </TabsContent>
 
         <TabsContent value="users" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {activeUsers.map((user) => (
-              <Card key={user.userId}>
+            {activeUsers.map((user) =>
+            <Card key={user.userId}>
                 <CardContent className="pt-4">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                      {user.userName.split(' ').map(n => n[0]).join('')}
+                      {user.userName.split(' ').map((n) => n[0]).join('')}
                     </div>
                     <div>
                       <p className="font-medium">{user.userName}</p>
@@ -393,17 +393,17 @@ const RealTimeConflictResolver: React.FC = () => {
                     <div>
                       <span>Active Fields:</span>
                       <div className="flex flex-wrap gap-1 mt-1">
-                        {user.activeFields.map((field) => (
-                          <Badge key={field} variant="secondary" className="text-xs">
+                        {user.activeFields.map((field) =>
+                      <Badge key={field} variant="secondary" className="text-xs">
                             {field}
                           </Badge>
-                        ))}
+                      )}
                       </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            )}
           </div>
         </TabsContent>
 
@@ -420,8 +420,8 @@ const RealTimeConflictResolver: React.FC = () => {
                 </div>
                 <Button
                   variant={autoResolveEnabled ? "default" : "outline"}
-                  onClick={() => setAutoResolveEnabled(!autoResolveEnabled)}
-                >
+                  onClick={() => setAutoResolveEnabled(!autoResolveEnabled)}>
+
                   {autoResolveEnabled ? "Enabled" : "Disabled"}
                 </Button>
               </div>
@@ -446,8 +446,8 @@ const RealTimeConflictResolver: React.FC = () => {
             <DialogTitle>Resolve Edit Conflict</DialogTitle>
           </DialogHeader>
           
-          {selectedConflict && (
-            <div className="space-y-4">
+          {selectedConflict &&
+          <div className="space-y-4">
               <Alert>
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
@@ -478,48 +478,48 @@ const RealTimeConflictResolver: React.FC = () => {
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 <Button
-                  variant="outline"
-                  onClick={() => resolveConflictManually(selectedConflict, {
-                    strategy: 'user_wins',
-                    resolvedValue: selectedConflict.userValue,
-                    reasoning: 'User chose to keep their changes'
-                  })}
-                >
+                variant="outline"
+                onClick={() => resolveConflictManually(selectedConflict, {
+                  strategy: 'user_wins',
+                  resolvedValue: selectedConflict.userValue,
+                  reasoning: 'User chose to keep their changes'
+                })}>
+
                   Keep Mine
                 </Button>
                 <Button
-                  variant="outline"
-                  onClick={() => resolveConflictManually(selectedConflict, {
-                    strategy: 'other_wins',
-                    resolvedValue: selectedConflict.otherUserValue,
-                    reasoning: 'User chose to accept other user\'s changes'
-                  })}
-                >
+                variant="outline"
+                onClick={() => resolveConflictManually(selectedConflict, {
+                  strategy: 'other_wins',
+                  resolvedValue: selectedConflict.otherUserValue,
+                  reasoning: 'User chose to accept other user\'s changes'
+                })}>
+
                   Accept Theirs
                 </Button>
                 <Button
-                  variant="outline"
-                  onClick={() => resolveConflictManually(selectedConflict, {
-                    strategy: 'merge',
-                    resolvedValue: `${selectedConflict.userValue} | ${selectedConflict.otherUserValue}`,
-                    reasoning: 'User chose to merge both values'
-                  })}
-                >
+                variant="outline"
+                onClick={() => resolveConflictManually(selectedConflict, {
+                  strategy: 'merge',
+                  resolvedValue: `${selectedConflict.userValue} | ${selectedConflict.otherUserValue}`,
+                  reasoning: 'User chose to merge both values'
+                })}>
+
                   Merge Both
                 </Button>
                 <Button
-                  variant="outline"
-                  onClick={() => setSelectedConflict(null)}
-                >
+                variant="outline"
+                onClick={() => setSelectedConflict(null)}>
+
                   Cancel
                 </Button>
               </div>
             </div>
-          )}
+          }
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 };
 
 export default RealTimeConflictResolver;

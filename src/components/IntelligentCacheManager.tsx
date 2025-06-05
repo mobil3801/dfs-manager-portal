@@ -96,7 +96,7 @@ const IntelligentCacheManager: React.FC = () => {
     if (Math.random() < 0.3) {
       addCacheEntry();
     }
-    
+
     if (Math.random() < 0.5 && cacheEntries.length > 0) {
       accessRandomEntry();
     }
@@ -111,7 +111,7 @@ const IntelligentCacheManager: React.FC = () => {
     const operations = ['list', 'detail', 'search', 'filter'];
     const table = tables[Math.floor(Math.random() * tables.length)];
     const operation = operations[Math.floor(Math.random() * operations.length)];
-    
+
     const entry: CacheEntry = {
       key: `${table}_${operation}_${Date.now()}`,
       data: generateMockData(table),
@@ -125,7 +125,7 @@ const IntelligentCacheManager: React.FC = () => {
       source: 'api'
     };
 
-    setCacheEntries(prev => {
+    setCacheEntries((prev) => {
       const newEntries = [entry, ...prev];
       // Apply eviction policy if needed
       return applyEvictionPolicy(newEntries);
@@ -140,22 +140,22 @@ const IntelligentCacheManager: React.FC = () => {
       orders: { id: 1, status: 'pending', amount: 75.50 },
       licenses: { id: 1, name: 'Business License', expiry: '2024-12-31' }
     };
-    
+
     return mockData[table as keyof typeof mockData] || { id: 1, data: 'sample' };
   };
 
   const accessRandomEntry = () => {
     const randomIndex = Math.floor(Math.random() * cacheEntries.length);
     const entry = cacheEntries[randomIndex];
-    
-    setCacheEntries(prev => prev.map((e, index) => 
-      index === randomIndex
-        ? {
-            ...e,
-            lastAccessed: new Date(),
-            accessCount: e.accessCount + 1
-          }
-        : e
+
+    setCacheEntries((prev) => prev.map((e, index) =>
+    index === randomIndex ?
+    {
+      ...e,
+      lastAccessed: new Date(),
+      accessCount: e.accessCount + 1
+    } :
+    e
     ));
   };
 
@@ -165,7 +165,7 @@ const IntelligentCacheManager: React.FC = () => {
     // Simulate prefetching related data
     const relatedTables = ['vendors', 'categories', 'reports'];
     const table = relatedTables[Math.floor(Math.random() * relatedTables.length)];
-    
+
     const prefetchEntry: CacheEntry = {
       key: `prefetch_${table}_${Date.now()}`,
       data: generateMockData(table),
@@ -179,14 +179,14 @@ const IntelligentCacheManager: React.FC = () => {
       source: 'prefetch'
     };
 
-    setCacheEntries(prev => [prefetchEntry, ...prev]);
+    setCacheEntries((prev) => [prefetchEntry, ...prev]);
   };
 
   const applyEvictionPolicy = (entries: CacheEntry[]): CacheEntry[] => {
     if (entries.length <= config.maxSize) return entries;
 
     let sortedEntries = [...entries];
-    
+
     switch (config.evictionPolicy) {
       case 'lru':
         sortedEntries.sort((a, b) => a.lastAccessed.getTime() - b.lastAccessed.getTime());
@@ -195,7 +195,7 @@ const IntelligentCacheManager: React.FC = () => {
         sortedEntries.sort((a, b) => a.accessCount - b.accessCount);
         break;
       case 'ttl':
-        sortedEntries.sort((a, b) => (a.timestamp.getTime() + a.ttl) - (b.timestamp.getTime() + b.ttl));
+        sortedEntries.sort((a, b) => a.timestamp.getTime() + a.ttl - (b.timestamp.getTime() + b.ttl));
         break;
       case 'priority':
         const priorityOrder = { low: 0, medium: 1, high: 2, critical: 3 };
@@ -204,29 +204,29 @@ const IntelligentCacheManager: React.FC = () => {
     }
 
     const evicted = sortedEntries.slice(0, sortedEntries.length - config.maxSize);
-    setCacheStats(prev => ({ ...prev, evictionCount: prev.evictionCount + evicted.length }));
+    setCacheStats((prev) => ({ ...prev, evictionCount: prev.evictionCount + evicted.length }));
 
     return sortedEntries.slice(sortedEntries.length - config.maxSize);
   };
 
   const performMaintenance = () => {
     const now = new Date();
-    
+
     // Remove expired entries
-    setCacheEntries(prev => {
-      const validEntries = prev.filter(entry => {
-        const isExpired = (now.getTime() - entry.timestamp.getTime()) > entry.ttl;
+    setCacheEntries((prev) => {
+      const validEntries = prev.filter((entry) => {
+        const isExpired = now.getTime() - entry.timestamp.getTime() > entry.ttl;
         return !isExpired;
       });
-      
+
       const expiredCount = prev.length - validEntries.length;
       if (expiredCount > 0) {
-        setCacheStats(prevStats => ({ 
-          ...prevStats, 
-          evictionCount: prevStats.evictionCount + expiredCount 
+        setCacheStats((prevStats) => ({
+          ...prevStats,
+          evictionCount: prevStats.evictionCount + expiredCount
         }));
       }
-      
+
       return validEntries;
     });
   };
@@ -234,23 +234,23 @@ const IntelligentCacheManager: React.FC = () => {
   const updateCacheStats = () => {
     const totalSize = cacheEntries.reduce((sum, entry) => sum + entry.size, 0);
     const totalAccess = cacheEntries.reduce((sum, entry) => sum + entry.accessCount, 0);
-    const prefetchHits = cacheEntries.filter(e => e.source === 'prefetch' && e.accessCount > 0).length;
-    
-    setCacheStats(prev => ({
+    const prefetchHits = cacheEntries.filter((e) => e.source === 'prefetch' && e.accessCount > 0).length;
+
+    setCacheStats((prev) => ({
       ...prev,
       totalEntries: cacheEntries.length,
       totalSize,
       hitRate: Math.random() * 20 + 80, // Simulate 80-100% hit rate
       missRate: Math.random() * 20, // Simulate 0-20% miss rate
       prefetchHits,
-      memoryUsage: (totalSize / 1024 / 1024), // Convert to MB
+      memoryUsage: totalSize / 1024 / 1024, // Convert to MB
       averageAccessTime: Math.random() * 50 + 10 // 10-60ms
     }));
   };
 
   const clearCache = () => {
     setCacheEntries([]);
-    setCacheStats(prev => ({ ...prev, evictionCount: prev.evictionCount + prev.totalEntries }));
+    setCacheStats((prev) => ({ ...prev, evictionCount: prev.evictionCount + prev.totalEntries }));
     toast({
       title: "Cache Cleared",
       description: "All cache entries have been removed"
@@ -259,9 +259,9 @@ const IntelligentCacheManager: React.FC = () => {
 
   const invalidateTag = (tag: string) => {
     const before = cacheEntries.length;
-    setCacheEntries(prev => prev.filter(entry => !entry.tags.includes(tag)));
-    const after = cacheEntries.filter(entry => !entry.tags.includes(tag)).length;
-    
+    setCacheEntries((prev) => prev.filter((entry) => !entry.tags.includes(tag)));
+    const after = cacheEntries.filter((entry) => !entry.tags.includes(tag)).length;
+
     toast({
       title: "Tag Invalidated",
       description: `Removed ${before - after} entries with tag "${tag}"`
@@ -269,17 +269,17 @@ const IntelligentCacheManager: React.FC = () => {
   };
 
   const refreshEntry = async (key: string) => {
-    setCacheEntries(prev => prev.map(entry => 
-      entry.key === key
-        ? {
-            ...entry,
-            timestamp: new Date(),
-            lastAccessed: new Date(),
-            accessCount: entry.accessCount + 1
-          }
-        : entry
+    setCacheEntries((prev) => prev.map((entry) =>
+    entry.key === key ?
+    {
+      ...entry,
+      timestamp: new Date(),
+      lastAccessed: new Date(),
+      accessCount: entry.accessCount + 1
+    } :
+    entry
     ));
-    
+
     toast({
       title: "Entry Refreshed",
       description: `Updated cache entry: ${key}`
@@ -288,13 +288,13 @@ const IntelligentCacheManager: React.FC = () => {
 
   const getFilteredEntries = () => {
     let filtered = cacheEntries;
-    
+
     if (filterTag) {
-      filtered = filtered.filter(entry => 
-        entry.tags.some(tag => tag.toLowerCase().includes(filterTag.toLowerCase()))
+      filtered = filtered.filter((entry) =>
+      entry.tags.some((tag) => tag.toLowerCase().includes(filterTag.toLowerCase()))
       );
     }
-    
+
     // Sort entries
     filtered.sort((a, b) => {
       switch (sortBy) {
@@ -310,7 +310,7 @@ const IntelligentCacheManager: React.FC = () => {
           return 0;
       }
     });
-    
+
     return filtered;
   };
 
@@ -322,11 +322,11 @@ const IntelligentCacheManager: React.FC = () => {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'low': return 'bg-gray-500';
-      case 'medium': return 'bg-blue-500';
-      case 'high': return 'bg-orange-500';
-      case 'critical': return 'bg-red-500';
-      default: return 'bg-gray-500';
+      case 'low':return 'bg-gray-500';
+      case 'medium':return 'bg-blue-500';
+      case 'high':return 'bg-orange-500';
+      case 'critical':return 'bg-red-500';
+      default:return 'bg-gray-500';
     }
   };
 
@@ -347,8 +347,8 @@ const IntelligentCacheManager: React.FC = () => {
               <Button
                 onClick={() => setIsMonitoring(!isMonitoring)}
                 variant={isMonitoring ? "destructive" : "default"}
-                size="sm"
-              >
+                size="sm">
+
                 {isMonitoring ? "Pause" : "Start"}
               </Button>
             </div>
@@ -406,13 +406,13 @@ const IntelligentCacheManager: React.FC = () => {
                 placeholder="Filter by tag..."
                 value={filterTag}
                 onChange={(e) => setFilterTag(e.target.value)}
-                className="w-48"
-              />
+                className="w-48" />
+
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="px-3 py-2 border rounded-md"
-              >
+                className="px-3 py-2 border rounded-md">
+
                 <option value="accessed">Last Accessed</option>
                 <option value="timestamp">Created</option>
                 <option value="count">Access Count</option>
@@ -433,14 +433,14 @@ const IntelligentCacheManager: React.FC = () => {
           <ScrollArea className="h-96">
             <div className="space-y-3">
               <AnimatePresence>
-                {getFilteredEntries().map((entry, index) => (
-                  <motion.div
-                    key={entry.key}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ delay: index * 0.02 }}
-                  >
+                {getFilteredEntries().map((entry, index) =>
+                <motion.div
+                  key={entry.key}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ delay: index * 0.02 }}>
+
                     <Card className="border-l-4" style={{ borderLeftColor: getPriorityColor(entry.priority).replace('bg-', '#') }}>
                       <CardContent className="pt-4">
                         <div className="flex items-center justify-between mb-3">
@@ -461,10 +461,10 @@ const IntelligentCacheManager: React.FC = () => {
                               {entry.priority}
                             </Badge>
                             <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => refreshEntry(entry.key)}
-                            >
+                            size="sm"
+                            variant="outline"
+                            onClick={() => refreshEntry(entry.key)}>
+
                               <RefreshCw className="h-3 w-3" />
                             </Button>
                           </div>
@@ -486,11 +486,11 @@ const IntelligentCacheManager: React.FC = () => {
                           <div>
                             <p className="font-medium">Tags:</p>
                             <div className="flex gap-1 mt-1">
-                              {entry.tags.map((tag) => (
-                                <Badge key={tag} variant="secondary" className="text-xs">
+                              {entry.tags.map((tag) =>
+                            <Badge key={tag} variant="secondary" className="text-xs">
                                   {tag}
                                 </Badge>
-                              ))}
+                            )}
                             </div>
                           </div>
                         </div>
@@ -500,15 +500,15 @@ const IntelligentCacheManager: React.FC = () => {
                             <span>TTL Progress</span>
                             <span>{Math.round((Date.now() - entry.timestamp.getTime()) / entry.ttl * 100)}%</span>
                           </div>
-                          <Progress 
-                            value={(Date.now() - entry.timestamp.getTime()) / entry.ttl * 100}
-                            className="h-1"
-                          />
+                          <Progress
+                          value={(Date.now() - entry.timestamp.getTime()) / entry.ttl * 100}
+                          className="h-1" />
+
                         </div>
                       </CardContent>
                     </Card>
                   </motion.div>
-                ))}
+                )}
               </AnimatePresence>
             </div>
           </ScrollArea>
@@ -537,14 +537,14 @@ const IntelligentCacheManager: React.FC = () => {
                       <span>Memory Usage</span>
                       <span>{cacheStats.memoryUsage.toFixed(1)} / {config.maxMemoryUsage} MB</span>
                     </div>
-                    <Progress value={(cacheStats.memoryUsage / config.maxMemoryUsage) * 100} className="h-3" />
+                    <Progress value={cacheStats.memoryUsage / config.maxMemoryUsage * 100} className="h-3" />
                   </div>
                   <div>
                     <div className="flex justify-between mb-2">
                       <span>Cache Utilization</span>
                       <span>{cacheStats.totalEntries} / {config.maxSize}</span>
                     </div>
-                    <Progress value={(cacheStats.totalEntries / config.maxSize) * 100} className="h-3" />
+                    <Progress value={cacheStats.totalEntries / config.maxSize * 100} className="h-3" />
                   </div>
                 </div>
               </CardContent>
@@ -598,9 +598,9 @@ const IntelligentCacheManager: React.FC = () => {
                     max="5000"
                     step="100"
                     value={config.maxSize}
-                    onChange={(e) => setConfig(prev => ({ ...prev, maxSize: Number(e.target.value) }))}
-                    className="w-full"
-                  />
+                    onChange={(e) => setConfig((prev) => ({ ...prev, maxSize: Number(e.target.value) }))}
+                    className="w-full" />
+
                 </div>
 
                 <div className="space-y-2">
@@ -611,9 +611,9 @@ const IntelligentCacheManager: React.FC = () => {
                     max="3600"
                     step="30"
                     value={config.defaultTTL / 1000}
-                    onChange={(e) => setConfig(prev => ({ ...prev, defaultTTL: Number(e.target.value) * 1000 }))}
-                    className="w-full"
-                  />
+                    onChange={(e) => setConfig((prev) => ({ ...prev, defaultTTL: Number(e.target.value) * 1000 }))}
+                    className="w-full" />
+
                 </div>
 
                 <div className="space-y-2">
@@ -624,18 +624,18 @@ const IntelligentCacheManager: React.FC = () => {
                     max="1000"
                     step="50"
                     value={config.maxMemoryUsage}
-                    onChange={(e) => setConfig(prev => ({ ...prev, maxMemoryUsage: Number(e.target.value) }))}
-                    className="w-full"
-                  />
+                    onChange={(e) => setConfig((prev) => ({ ...prev, maxMemoryUsage: Number(e.target.value) }))}
+                    className="w-full" />
+
                 </div>
 
                 <div className="space-y-2">
                   <Label>Eviction Policy</Label>
                   <select
                     value={config.evictionPolicy}
-                    onChange={(e) => setConfig(prev => ({ ...prev, evictionPolicy: e.target.value as any }))}
-                    className="w-full px-3 py-2 border rounded-md"
-                  >
+                    onChange={(e) => setConfig((prev) => ({ ...prev, evictionPolicy: e.target.value as any }))}
+                    className="w-full px-3 py-2 border rounded-md">
+
                     <option value="lru">Least Recently Used (LRU)</option>
                     <option value="lfu">Least Frequently Used (LFU)</option>
                     <option value="ttl">Time To Live (TTL)</option>
@@ -657,8 +657,8 @@ const IntelligentCacheManager: React.FC = () => {
                   </div>
                   <Switch
                     checked={config.prefetchEnabled}
-                    onCheckedChange={(checked) => setConfig(prev => ({ ...prev, prefetchEnabled: checked }))}
-                  />
+                    onCheckedChange={(checked) => setConfig((prev) => ({ ...prev, prefetchEnabled: checked }))} />
+
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -668,8 +668,8 @@ const IntelligentCacheManager: React.FC = () => {
                   </div>
                   <Switch
                     checked={config.compressionEnabled}
-                    onCheckedChange={(checked) => setConfig(prev => ({ ...prev, compressionEnabled: checked }))}
-                  />
+                    onCheckedChange={(checked) => setConfig((prev) => ({ ...prev, compressionEnabled: checked }))} />
+
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -679,8 +679,8 @@ const IntelligentCacheManager: React.FC = () => {
                   </div>
                   <Switch
                     checked={config.persistToDisk}
-                    onCheckedChange={(checked) => setConfig(prev => ({ ...prev, persistToDisk: checked }))}
-                  />
+                    onCheckedChange={(checked) => setConfig((prev) => ({ ...prev, persistToDisk: checked }))} />
+
                 </div>
 
                 <Alert>
@@ -695,8 +695,8 @@ const IntelligentCacheManager: React.FC = () => {
           </div>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default IntelligentCacheManager;

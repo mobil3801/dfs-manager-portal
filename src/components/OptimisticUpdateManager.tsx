@@ -76,13 +76,13 @@ const OptimisticUpdateManager: React.FC = () => {
 
   // Create an optimistic update
   const createOptimisticUpdate = useCallback(async (
-    tableId: string,
-    operation: 'create' | 'update' | 'delete',
-    localData: any,
-    originalData?: any
-  ): Promise<string> => {
+  tableId: string,
+  operation: 'create' | 'update' | 'delete',
+  localData: any,
+  originalData?: any)
+  : Promise<string> => {
     const updateId = `opt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+
     const optimisticUpdate: OptimisticUpdate = {
       id: updateId,
       tableId,
@@ -97,7 +97,7 @@ const OptimisticUpdateManager: React.FC = () => {
       syncAttempts: []
     };
 
-    setOptimisticUpdates(prev => [...prev, optimisticUpdate]);
+    setOptimisticUpdates((prev) => [...prev, optimisticUpdate]);
 
     // Immediate UI update
     updateLocalState(optimisticUpdate);
@@ -128,10 +128,10 @@ const OptimisticUpdateManager: React.FC = () => {
   // Process pending updates
   const processPendingUpdates = useCallback(async () => {
     if (isProcessing) return;
-    
+
     setIsProcessing(true);
-    const pendingUpdates = optimisticUpdates.filter(u => u.status === 'pending');
-    
+    const pendingUpdates = optimisticUpdates.filter((u) => u.status === 'pending');
+
     if (pendingUpdates.length === 0) {
       setIsProcessing(false);
       return;
@@ -142,7 +142,7 @@ const OptimisticUpdateManager: React.FC = () => {
       const batchSize = 5;
       for (let i = 0; i < pendingUpdates.length; i += batchSize) {
         const batch = pendingUpdates.slice(i, i + batchSize);
-        await Promise.all(batch.map(update => syncUpdate(update)));
+        await Promise.all(batch.map((update) => syncUpdate(update)));
       }
     } catch (error) {
       console.error('Error processing updates:', error);
@@ -154,20 +154,20 @@ const OptimisticUpdateManager: React.FC = () => {
 
   const syncUpdate = async (update: OptimisticUpdate): Promise<void> => {
     const startTime = performance.now();
-    
+
     try {
       // Simulate API call
       const success = await simulateApiCall(update);
       const duration = performance.now() - startTime;
-      
-      setOptimisticUpdates(prev => prev.map(u => 
-        u.id === update.id
-          ? {
-              ...u,
-              status: success ? 'confirmed' : 'failed',
-              syncAttempts: [...u.syncAttempts, duration]
-            }
-          : u
+
+      setOptimisticUpdates((prev) => prev.map((u) =>
+      u.id === update.id ?
+      {
+        ...u,
+        status: success ? 'confirmed' : 'failed',
+        syncAttempts: [...u.syncAttempts, duration]
+      } :
+      u
       ));
 
       if (success) {
@@ -187,24 +187,24 @@ const OptimisticUpdateManager: React.FC = () => {
 
   const simulateApiCall = async (update: OptimisticUpdate): Promise<boolean> => {
     // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500));
-    
+    await new Promise((resolve) => setTimeout(resolve, Math.random() * 1000 + 500));
+
     // Simulate success/failure (95% success rate)
     return Math.random() > 0.05;
   };
 
   const handleFailedUpdate = async (update: OptimisticUpdate) => {
     const newRetryCount = update.retryCount + 1;
-    
+
     if (newRetryCount <= maxRetries) {
       // Retry with exponential backoff
       const delay = Math.pow(2, newRetryCount) * 1000;
-      
+
       setTimeout(() => {
-        setOptimisticUpdates(prev => prev.map(u => 
-          u.id === update.id
-            ? { ...u, retryCount: newRetryCount, status: 'pending' }
-            : u
+        setOptimisticUpdates((prev) => prev.map((u) =>
+        u.id === update.id ?
+        { ...u, retryCount: newRetryCount, status: 'pending' } :
+        u
         ));
       }, delay);
 
@@ -220,10 +220,10 @@ const OptimisticUpdateManager: React.FC = () => {
   };
 
   const rollbackUpdate = async (update: OptimisticUpdate) => {
-    setOptimisticUpdates(prev => prev.map(u => 
-      u.id === update.id
-        ? { ...u, status: 'rolled_back' }
-        : u
+    setOptimisticUpdates((prev) => prev.map((u) =>
+    u.id === update.id ?
+    { ...u, status: 'rolled_back' } :
+    u
     ));
 
     // Restore original state
@@ -243,13 +243,13 @@ const OptimisticUpdateManager: React.FC = () => {
   };
 
   const manualRetry = async (updateId: string) => {
-    const update = optimisticUpdates.find(u => u.id === updateId);
+    const update = optimisticUpdates.find((u) => u.id === updateId);
     if (!update) return;
 
-    setOptimisticUpdates(prev => prev.map(u => 
-      u.id === updateId
-        ? { ...u, status: 'pending', retryCount: 0 }
-        : u
+    setOptimisticUpdates((prev) => prev.map((u) =>
+    u.id === updateId ?
+    { ...u, status: 'pending', retryCount: 0 } :
+    u
     ));
 
     toast({
@@ -259,17 +259,17 @@ const OptimisticUpdateManager: React.FC = () => {
   };
 
   const forceRollback = async (updateId: string) => {
-    const update = optimisticUpdates.find(u => u.id === updateId);
+    const update = optimisticUpdates.find((u) => u.id === updateId);
     if (update) {
       await rollbackUpdate(update);
     }
   };
 
   const clearCompletedUpdates = () => {
-    setOptimisticUpdates(prev => prev.filter(u => 
-      u.status === 'pending' || u.status === 'failed'
+    setOptimisticUpdates((prev) => prev.filter((u) =>
+    u.status === 'pending' || u.status === 'failed'
     ));
-    
+
     toast({
       title: "Cleared",
       description: "Removed completed and rolled back updates"
@@ -277,21 +277,21 @@ const OptimisticUpdateManager: React.FC = () => {
   };
 
   const updatePerformanceMetrics = () => {
-    const completed = optimisticUpdates.filter(u => 
-      u.status === 'confirmed' || u.status === 'failed' || u.status === 'rolled_back'
+    const completed = optimisticUpdates.filter((u) =>
+    u.status === 'confirmed' || u.status === 'failed' || u.status === 'rolled_back'
     );
-    const successful = optimisticUpdates.filter(u => u.status === 'confirmed');
-    const pending = optimisticUpdates.filter(u => u.status === 'pending');
-    const rolledBack = optimisticUpdates.filter(u => u.status === 'rolled_back');
+    const successful = optimisticUpdates.filter((u) => u.status === 'confirmed');
+    const pending = optimisticUpdates.filter((u) => u.status === 'pending');
+    const rolledBack = optimisticUpdates.filter((u) => u.status === 'rolled_back');
 
-    const totalSyncTimes = completed.flatMap(u => u.syncAttempts);
-    const averageResponseTime = totalSyncTimes.length > 0
-      ? totalSyncTimes.reduce((a, b) => a + b, 0) / totalSyncTimes.length
-      : 0;
+    const totalSyncTimes = completed.flatMap((u) => u.syncAttempts);
+    const averageResponseTime = totalSyncTimes.length > 0 ?
+    totalSyncTimes.reduce((a, b) => a + b, 0) / totalSyncTimes.length :
+    0;
 
     setPerformanceMetrics({
       averageResponseTime: Math.round(averageResponseTime),
-      successRate: completed.length > 0 ? (successful.length / completed.length) * 100 : 0,
+      successRate: completed.length > 0 ? successful.length / completed.length * 100 : 0,
       totalOperations: optimisticUpdates.length,
       pendingOperations: pending.length,
       rolledBackOperations: rolledBack.length,
@@ -301,21 +301,21 @@ const OptimisticUpdateManager: React.FC = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending': return <Clock className="h-4 w-4 text-yellow-500" />;
-      case 'confirmed': return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'failed': return <XCircle className="h-4 w-4 text-red-500" />;
-      case 'rolled_back': return <RotateCcw className="h-4 w-4 text-orange-500" />;
-      default: return <AlertTriangle className="h-4 w-4 text-gray-500" />;
+      case 'pending':return <Clock className="h-4 w-4 text-yellow-500" />;
+      case 'confirmed':return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'failed':return <XCircle className="h-4 w-4 text-red-500" />;
+      case 'rolled_back':return <RotateCcw className="h-4 w-4 text-orange-500" />;
+      default:return <AlertTriangle className="h-4 w-4 text-gray-500" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'border-yellow-500';
-      case 'confirmed': return 'border-green-500';
-      case 'failed': return 'border-red-500';
-      case 'rolled_back': return 'border-orange-500';
-      default: return 'border-gray-500';
+      case 'pending':return 'border-yellow-500';
+      case 'confirmed':return 'border-green-500';
+      case 'failed':return 'border-red-500';
+      case 'rolled_back':return 'border-orange-500';
+      default:return 'border-gray-500';
     }
   };
 
@@ -336,8 +336,8 @@ const OptimisticUpdateManager: React.FC = () => {
               <Button
                 onClick={() => setIsEnabled(!isEnabled)}
                 variant={isEnabled ? "destructive" : "default"}
-                size="sm"
-              >
+                size="sm">
+
                 {isEnabled ? "Disable" : "Enable"}
               </Button>
             </div>
@@ -387,15 +387,15 @@ const OptimisticUpdateManager: React.FC = () => {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={clearCompletedUpdates}
-              >
+                onClick={clearCompletedUpdates}>
+
                 Clear Completed
               </Button>
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => createOptimisticUpdate('products', 'create', { name: 'Test Product', price: 9.99 })}
-              >
+                onClick={() => createOptimisticUpdate('products', 'create', { name: 'Test Product', price: 9.99 })}>
+
                 Test Update
               </Button>
             </div>
@@ -404,13 +404,13 @@ const OptimisticUpdateManager: React.FC = () => {
           <ScrollArea className="h-96">
             <div className="space-y-3">
               <AnimatePresence>
-                {optimisticUpdates.map((update) => (
-                  <motion.div
-                    key={update.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                  >
+                {optimisticUpdates.map((update) =>
+                <motion.div
+                  key={update.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}>
+
                     <Card className={`border-l-4 ${getStatusColor(update.status)}`}>
                       <CardContent className="pt-4">
                         <div className="flex items-center justify-between mb-3">
@@ -429,39 +429,39 @@ const OptimisticUpdateManager: React.FC = () => {
                             <Badge variant="outline">
                               {update.status.replace('_', ' ').toUpperCase()}
                             </Badge>
-                            {update.status === 'failed' && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => manualRetry(update.id)}
-                              >
+                            {update.status === 'failed' &&
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => manualRetry(update.id)}>
+
                                 Retry
                               </Button>
-                            )}
-                            {update.status === 'pending' && (
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => forceRollback(update.id)}
-                              >
+                          }
+                            {update.status === 'pending' &&
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => forceRollback(update.id)}>
+
                                 Rollback
                               </Button>
-                            )}
+                          }
                           </div>
                         </div>
 
-                        {update.status === 'pending' && (
-                          <div className="mb-3">
+                        {update.status === 'pending' &&
+                      <div className="mb-3">
                             <div className="flex justify-between text-sm mb-1">
                               <span>Syncing...</span>
                               <span>{update.retryCount}/{maxRetries} attempts</span>
                             </div>
-                            <Progress 
-                              value={(Date.now() - update.timestamp.getTime()) / update.estimatedDuration * 100}
-                              className="h-2"
-                            />
+                            <Progress
+                          value={(Date.now() - update.timestamp.getTime()) / update.estimatedDuration * 100}
+                          className="h-2" />
+
                           </div>
-                        )}
+                      }
 
                         <div className="text-sm space-y-2">
                           <div>
@@ -471,23 +471,23 @@ const OptimisticUpdateManager: React.FC = () => {
                             </div>
                           </div>
                           
-                          {update.syncAttempts.length > 0 && (
-                            <div>
+                          {update.syncAttempts.length > 0 &&
+                        <div>
                               <p className="font-medium">Sync Attempts:</p>
                               <div className="flex gap-1">
-                                {update.syncAttempts.map((duration, index) => (
-                                  <Badge key={index} variant="secondary" className="text-xs">
+                                {update.syncAttempts.map((duration, index) =>
+                            <Badge key={index} variant="secondary" className="text-xs">
                                     {Math.round(duration)}ms
                                   </Badge>
-                                ))}
+                            )}
                               </div>
                             </div>
-                          )}
+                        }
                         </div>
                       </CardContent>
                     </Card>
                   </motion.div>
-                ))}
+                )}
               </AnimatePresence>
             </div>
           </ScrollArea>
@@ -512,14 +512,14 @@ const OptimisticUpdateManager: React.FC = () => {
                     <span>Target:</span>
                     <Badge variant="outline">{'<500ms'}</Badge>
                   </div>
-                  <Progress 
-                    value={Math.min((500 / Math.max(performanceMetrics.averageResponseTime, 1)) * 100, 100)}
-                    className="h-3"
-                  />
+                  <Progress
+                    value={Math.min(500 / Math.max(performanceMetrics.averageResponseTime, 1) * 100, 100)}
+                    className="h-3" />
+
                   <p className="text-sm text-gray-600">
-                    {performanceMetrics.averageResponseTime <= 500 
-                      ? "✅ Performance target met" 
-                      : "⚠️ Performance below target"}
+                    {performanceMetrics.averageResponseTime <= 500 ?
+                    "✅ Performance target met" :
+                    "⚠️ Performance below target"}
                   </p>
                 </div>
               </CardContent>
@@ -537,26 +537,26 @@ const OptimisticUpdateManager: React.FC = () => {
                     </div>
                     <p className="text-sm text-gray-600">Overall Success Rate</p>
                   </div>
-                  <Progress 
+                  <Progress
                     value={performanceMetrics.successRate}
-                    className="h-3"
-                  />
+                    className="h-3" />
+
                   <div className="grid grid-cols-3 gap-2 text-xs text-center">
                     <div>
                       <div className="font-medium text-green-600">
-                        {optimisticUpdates.filter(u => u.status === 'confirmed').length}
+                        {optimisticUpdates.filter((u) => u.status === 'confirmed').length}
                       </div>
                       <div>Confirmed</div>
                     </div>
                     <div>
                       <div className="font-medium text-red-600">
-                        {optimisticUpdates.filter(u => u.status === 'failed').length}
+                        {optimisticUpdates.filter((u) => u.status === 'failed').length}
                       </div>
                       <div>Failed</div>
                     </div>
                     <div>
                       <div className="font-medium text-orange-600">
-                        {optimisticUpdates.filter(u => u.status === 'rolled_back').length}
+                        {optimisticUpdates.filter((u) => u.status === 'rolled_back').length}
                       </div>
                       <div>Rolled Back</div>
                     </div>
@@ -585,8 +585,8 @@ const OptimisticUpdateManager: React.FC = () => {
                     step="500"
                     value={syncInterval}
                     onChange={(e) => setSyncInterval(Number(e.target.value))}
-                    className="w-full"
-                  />
+                    className="w-full" />
+
                   <div className="flex justify-between text-xs text-gray-600 mt-1">
                     <span>500ms (Fast)</span>
                     <span>5000ms (Slow)</span>
@@ -604,8 +604,8 @@ const OptimisticUpdateManager: React.FC = () => {
                     step="1"
                     value={maxRetries}
                     onChange={(e) => setMaxRetries(Number(e.target.value))}
-                    className="w-full"
-                  />
+                    className="w-full" />
+
                   <div className="flex justify-between text-xs text-gray-600 mt-1">
                     <span>1 (Quick Fail)</span>
                     <span>10 (Persistent)</span>
@@ -624,8 +624,8 @@ const OptimisticUpdateManager: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default OptimisticUpdateManager;

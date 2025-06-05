@@ -53,7 +53,7 @@ interface AuditMetrics {
 }
 
 interface AuditFilter {
-  dateRange: { from: Date | null; to: Date | null };
+  dateRange: {from: Date | null;to: Date | null;};
   eventType: string;
   riskLevel: string;
   status: string;
@@ -107,88 +107,88 @@ const EnhancedAuditTrail: React.FC = () => {
 
   const generateSampleAuditData = () => {
     const sampleEvents: AuditEvent[] = [
-      {
-        id: 'audit_1',
-        timestamp: new Date(Date.now() - 300000),
-        eventType: 'Login',
-        userId: 1,
-        userName: 'john.doe@gasstation.com',
-        userRole: 'Administrator',
-        ipAddress: '192.168.1.100',
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        resourceAccessed: '/admin/dashboard',
-        actionPerformed: 'login',
-        eventStatus: 'Success',
-        riskLevel: 'Low',
-        sessionId: 'sess_' + Math.random().toString(36).substr(2, 9),
-        geoLocation: 'New York, NY, USA',
-        station: 'MOBIL',
-        additionalData: { loginMethod: 'password', rememberMe: true }
-      },
-      {
-        id: 'audit_2',
-        timestamp: new Date(Date.now() - 240000),
-        eventType: 'Data Modification',
-        userId: 2,
-        userName: 'sarah.manager@gasstation.com',
-        userRole: 'Management',
-        ipAddress: '192.168.1.101',
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        resourceAccessed: 'products',
-        actionPerformed: 'update',
-        eventStatus: 'Success',
-        riskLevel: 'Medium',
-        sessionId: 'sess_' + Math.random().toString(36).substr(2, 9),
-        geoLocation: 'Brooklyn, NY, USA',
-        station: 'AMOCO BROOKLYN',
-        additionalData: { recordId: 123 },
-        dataChanges: {
-          before: { price: 9.99, quantity: 50 },
-          after: { price: 10.99, quantity: 45 },
-          fieldsChanged: ['price', 'quantity']
-        }
-      },
-      {
-        id: 'audit_3',
-        timestamp: new Date(Date.now() - 180000),
-        eventType: 'Failed Login',
-        userId: 0,
-        userName: 'unknown@attacker.com',
-        userRole: 'Unknown',
-        ipAddress: '45.123.45.67',
-        userAgent: 'curl/7.68.0',
-        resourceAccessed: '/login',
-        actionPerformed: 'login_attempt',
-        eventStatus: 'Failed',
-        riskLevel: 'High',
-        sessionId: '',
-        geoLocation: 'Unknown Location',
-        station: '',
-        additionalData: { attempts: 5, blocked: true },
-        failureReason: 'Invalid credentials - multiple attempts detected'
-      },
-      {
-        id: 'audit_4',
-        timestamp: new Date(Date.now() - 120000),
-        eventType: 'Permission Change',
-        userId: 1,
-        userName: 'john.doe@gasstation.com',
-        userRole: 'Administrator',
-        ipAddress: '192.168.1.100',
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        resourceAccessed: 'user_management',
-        actionPerformed: 'permission_update',
-        eventStatus: 'Success',
-        riskLevel: 'Critical',
-        sessionId: 'sess_' + Math.random().toString(36).substr(2, 9),
-        geoLocation: 'New York, NY, USA',
-        station: 'ALL',
-        additionalData: { 
-          targetUserId: 3, 
-          permissionChanges: ['added_admin_access', 'removed_station_restriction'] 
-        }
+    {
+      id: 'audit_1',
+      timestamp: new Date(Date.now() - 300000),
+      eventType: 'Login',
+      userId: 1,
+      userName: 'john.doe@gasstation.com',
+      userRole: 'Administrator',
+      ipAddress: '192.168.1.100',
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      resourceAccessed: '/admin/dashboard',
+      actionPerformed: 'login',
+      eventStatus: 'Success',
+      riskLevel: 'Low',
+      sessionId: 'sess_' + Math.random().toString(36).substr(2, 9),
+      geoLocation: 'New York, NY, USA',
+      station: 'MOBIL',
+      additionalData: { loginMethod: 'password', rememberMe: true }
+    },
+    {
+      id: 'audit_2',
+      timestamp: new Date(Date.now() - 240000),
+      eventType: 'Data Modification',
+      userId: 2,
+      userName: 'sarah.manager@gasstation.com',
+      userRole: 'Management',
+      ipAddress: '192.168.1.101',
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      resourceAccessed: 'products',
+      actionPerformed: 'update',
+      eventStatus: 'Success',
+      riskLevel: 'Medium',
+      sessionId: 'sess_' + Math.random().toString(36).substr(2, 9),
+      geoLocation: 'Brooklyn, NY, USA',
+      station: 'AMOCO BROOKLYN',
+      additionalData: { recordId: 123 },
+      dataChanges: {
+        before: { price: 9.99, quantity: 50 },
+        after: { price: 10.99, quantity: 45 },
+        fieldsChanged: ['price', 'quantity']
       }
-    ];
+    },
+    {
+      id: 'audit_3',
+      timestamp: new Date(Date.now() - 180000),
+      eventType: 'Failed Login',
+      userId: 0,
+      userName: 'unknown@attacker.com',
+      userRole: 'Unknown',
+      ipAddress: '45.123.45.67',
+      userAgent: 'curl/7.68.0',
+      resourceAccessed: '/login',
+      actionPerformed: 'login_attempt',
+      eventStatus: 'Failed',
+      riskLevel: 'High',
+      sessionId: '',
+      geoLocation: 'Unknown Location',
+      station: '',
+      additionalData: { attempts: 5, blocked: true },
+      failureReason: 'Invalid credentials - multiple attempts detected'
+    },
+    {
+      id: 'audit_4',
+      timestamp: new Date(Date.now() - 120000),
+      eventType: 'Permission Change',
+      userId: 1,
+      userName: 'john.doe@gasstation.com',
+      userRole: 'Administrator',
+      ipAddress: '192.168.1.100',
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      resourceAccessed: 'user_management',
+      actionPerformed: 'permission_update',
+      eventStatus: 'Success',
+      riskLevel: 'Critical',
+      sessionId: 'sess_' + Math.random().toString(36).substr(2, 9),
+      geoLocation: 'New York, NY, USA',
+      station: 'ALL',
+      additionalData: {
+        targetUserId: 3,
+        permissionChanges: ['added_admin_access', 'removed_station_restriction']
+      }
+    }];
+
 
     setAuditEvents(sampleEvents);
   };
@@ -196,10 +196,10 @@ const EnhancedAuditTrail: React.FC = () => {
   const generateRandomAuditEvent = useCallback(() => {
     const eventTypes = ['Login', 'Logout', 'Data Access', 'Data Modification', 'Failed Login', 'Permission Change', 'Admin Action'];
     const users = [
-      { id: 1, name: 'john.doe@gasstation.com', role: 'Administrator' },
-      { id: 2, name: 'sarah.manager@gasstation.com', role: 'Management' },
-      { id: 3, name: 'mike.employee@gasstation.com', role: 'Employee' }
-    ];
+    { id: 1, name: 'john.doe@gasstation.com', role: 'Administrator' },
+    { id: 2, name: 'sarah.manager@gasstation.com', role: 'Management' },
+    { id: 3, name: 'mike.employee@gasstation.com', role: 'Employee' }];
+
     const stations = ['MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN', 'ALL'];
     const resources = ['products', 'employees', 'sales_reports', 'licenses', 'orders', 'vendors'];
     const statuses: ('Success' | 'Failed' | 'Blocked' | 'Suspicious')[] = ['Success', 'Failed', 'Blocked', 'Suspicious'];
@@ -224,7 +224,7 @@ const EnhancedAuditTrail: React.FC = () => {
       resourceAccessed: resources[Math.floor(Math.random() * resources.length)],
       actionPerformed: isFailedAttempt ? 'unauthorized_access_attempt' : ['view', 'create', 'update', 'delete'][Math.floor(Math.random() * 4)],
       eventStatus: isFailedAttempt ? statuses[Math.floor(Math.random() * 3) + 1] : 'Success',
-      riskLevel: isFailedAttempt ? (Math.random() < 0.5 ? 'High' : 'Critical') : riskLevels[Math.floor(Math.random() * 2)],
+      riskLevel: isFailedAttempt ? Math.random() < 0.5 ? 'High' : 'Critical' : riskLevels[Math.floor(Math.random() * 2)],
       sessionId: isFailedAttempt ? '' : 'sess_' + Math.random().toString(36).substr(2, 9),
       geoLocation: isFailedAttempt ? 'Unknown Location' : 'New York, NY, USA',
       station: stations[Math.floor(Math.random() * stations.length)],
@@ -235,28 +235,28 @@ const EnhancedAuditTrail: React.FC = () => {
       failureReason: isFailedAttempt ? 'Unauthorized access attempt detected' : undefined
     };
 
-    setAuditEvents(prev => [newEvent, ...prev.slice(0, 99)]); // Keep last 100 events
+    setAuditEvents((prev) => [newEvent, ...prev.slice(0, 99)]); // Keep last 100 events
   }, []);
 
   const updateMetrics = useCallback(() => {
     const today = new Date().toDateString();
-    const eventsToday = auditEvents.filter(e => e.timestamp.toDateString() === today).length;
-    const successfulEvents = auditEvents.filter(e => e.eventStatus === 'Success').length;
-    const highRiskEvents = auditEvents.filter(e => e.riskLevel === 'High' || e.riskLevel === 'Critical').length;
-    const failedLogins = auditEvents.filter(e => e.eventType === 'Failed Login').length;
-    const suspiciousActivity = auditEvents.filter(e => e.eventStatus === 'Suspicious' || e.eventStatus === 'Blocked').length;
+    const eventsToday = auditEvents.filter((e) => e.timestamp.toDateString() === today).length;
+    const successfulEvents = auditEvents.filter((e) => e.eventStatus === 'Success').length;
+    const highRiskEvents = auditEvents.filter((e) => e.riskLevel === 'High' || e.riskLevel === 'Critical').length;
+    const failedLogins = auditEvents.filter((e) => e.eventType === 'Failed Login').length;
+    const suspiciousActivity = auditEvents.filter((e) => e.eventStatus === 'Suspicious' || e.eventStatus === 'Blocked').length;
 
     // Calculate most active user
     const userActivity = auditEvents.reduce((acc, event) => {
       acc[event.userName] = (acc[event.userName] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
-    const mostActiveUser = Object.entries(userActivity).sort(([,a], [,b]) => b - a)[0]?.[0] || 'N/A';
+    const mostActiveUser = Object.entries(userActivity).sort(([, a], [, b]) => b - a)[0]?.[0] || 'N/A';
 
     setMetrics({
       totalEvents: auditEvents.length,
       eventsToday,
-      successRate: auditEvents.length > 0 ? (successfulEvents / auditEvents.length) * 100 : 0,
+      successRate: auditEvents.length > 0 ? successfulEvents / auditEvents.length * 100 : 0,
       highRiskEvents,
       failedLogins,
       suspiciousActivity,
@@ -266,7 +266,7 @@ const EnhancedAuditTrail: React.FC = () => {
   }, [auditEvents]);
 
   const getFilteredEvents = (): AuditEvent[] => {
-    return auditEvents.filter(event => {
+    return auditEvents.filter((event) => {
       // Date range filter
       if (filters.dateRange.from && event.timestamp < filters.dateRange.from) return false;
       if (filters.dateRange.to && event.timestamp > filters.dateRange.to) return false;
@@ -285,8 +285,8 @@ const EnhancedAuditTrail: React.FC = () => {
           event.userName.toLowerCase().includes(searchLower) ||
           event.resourceAccessed.toLowerCase().includes(searchLower) ||
           event.actionPerformed.toLowerCase().includes(searchLower) ||
-          event.ipAddress.includes(searchLower)
-        );
+          event.ipAddress.includes(searchLower));
+
       }
 
       return true;
@@ -295,14 +295,14 @@ const EnhancedAuditTrail: React.FC = () => {
 
   const exportAuditData = () => {
     const filteredEvents = getFilteredEvents();
-    
+
     if (exportFormat === 'json') {
       const dataStr = JSON.stringify(filteredEvents, null, 2);
       downloadFile(dataStr, 'audit-trail.json', 'application/json');
     } else if (exportFormat === 'csv') {
       const csvHeaders = 'Timestamp,Event Type,User,IP Address,Resource,Action,Status,Risk Level,Station,Details\n';
-      const csvData = filteredEvents.map(event => 
-        `${event.timestamp.toISOString()},${event.eventType},${event.userName},${event.ipAddress},${event.resourceAccessed},${event.actionPerformed},${event.eventStatus},${event.riskLevel},${event.station},"${JSON.stringify(event.additionalData).replace(/"/g, '""')}"`
+      const csvData = filteredEvents.map((event) =>
+      `${event.timestamp.toISOString()},${event.eventType},${event.userName},${event.ipAddress},${event.resourceAccessed},${event.actionPerformed},${event.eventStatus},${event.riskLevel},${event.station},"${JSON.stringify(event.additionalData).replace(/"/g, '""')}"`
       ).join('\n');
       downloadFile(csvHeaders + csvData, 'audit-trail.csv', 'text/csv');
     }
@@ -327,21 +327,21 @@ const EnhancedAuditTrail: React.FC = () => {
 
   const getRiskLevelColor = (riskLevel: string) => {
     switch (riskLevel) {
-      case 'Low': return 'bg-green-500 text-white';
-      case 'Medium': return 'bg-yellow-500 text-white';
-      case 'High': return 'bg-orange-500 text-white';
-      case 'Critical': return 'bg-red-500 text-white';
-      default: return 'bg-gray-500 text-white';
+      case 'Low':return 'bg-green-500 text-white';
+      case 'Medium':return 'bg-yellow-500 text-white';
+      case 'High':return 'bg-orange-500 text-white';
+      case 'Critical':return 'bg-red-500 text-white';
+      default:return 'bg-gray-500 text-white';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'Success': return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'Failed': return <AlertTriangle className="h-4 w-4 text-red-500" />;
-      case 'Blocked': return <Shield className="h-4 w-4 text-orange-500" />;
-      case 'Suspicious': return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
-      default: return <Clock className="h-4 w-4 text-gray-500" />;
+      case 'Success':return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'Failed':return <AlertTriangle className="h-4 w-4 text-red-500" />;
+      case 'Blocked':return <Shield className="h-4 w-4 text-orange-500" />;
+      case 'Suspicious':return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+      default:return <Clock className="h-4 w-4 text-gray-500" />;
     }
   };
 
@@ -374,8 +374,8 @@ const EnhancedAuditTrail: React.FC = () => {
               <Button
                 onClick={() => setIsRealTimeEnabled(!isRealTimeEnabled)}
                 variant={isRealTimeEnabled ? "destructive" : "default"}
-                size="sm"
-              >
+                size="sm">
+
                 {isRealTimeEnabled ? "Pause" : "Start"} Logging
               </Button>
             </div>
@@ -438,15 +438,15 @@ const EnhancedAuditTrail: React.FC = () => {
                     <Input
                       placeholder="Search events..."
                       value={filters.searchTerm}
-                      onChange={(e) => setFilters(prev => ({ ...prev, searchTerm: e.target.value }))}
-                      className="pl-8"
-                    />
+                      onChange={(e) => setFilters((prev) => ({ ...prev, searchTerm: e.target.value }))}
+                      className="pl-8" />
+
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Event Type</label>
-                  <Select value={filters.eventType} onValueChange={(value) => setFilters(prev => ({ ...prev, eventType: value }))}>
+                  <Select value={filters.eventType} onValueChange={(value) => setFilters((prev) => ({ ...prev, eventType: value }))}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -464,7 +464,7 @@ const EnhancedAuditTrail: React.FC = () => {
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Risk Level</label>
-                  <Select value={filters.riskLevel} onValueChange={(value) => setFilters(prev => ({ ...prev, riskLevel: value }))}>
+                  <Select value={filters.riskLevel} onValueChange={(value) => setFilters((prev) => ({ ...prev, riskLevel: value }))}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -480,7 +480,7 @@ const EnhancedAuditTrail: React.FC = () => {
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Status</label>
-                  <Select value={filters.status} onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}>
+                  <Select value={filters.status} onValueChange={(value) => setFilters((prev) => ({ ...prev, status: value }))}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -496,7 +496,7 @@ const EnhancedAuditTrail: React.FC = () => {
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Station</label>
-                  <Select value={filters.station} onValueChange={(value) => setFilters(prev => ({ ...prev, station: value }))}>
+                  <Select value={filters.station} onValueChange={(value) => setFilters((prev) => ({ ...prev, station: value }))}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -537,16 +537,16 @@ const EnhancedAuditTrail: React.FC = () => {
           <ScrollArea className="h-96">
             <div className="space-y-2">
               <AnimatePresence>
-                {getFilteredEvents().map((event, index) => (
-                  <motion.div
-                    key={event.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ delay: index * 0.02 }}
-                  >
+                {getFilteredEvents().map((event, index) =>
+                <motion.div
+                  key={event.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ delay: index * 0.02 }}>
+
                     <Card className="hover:shadow-md transition-shadow cursor-pointer"
-                          onClick={() => setSelectedEvent(event)}>
+                  onClick={() => setSelectedEvent(event)}>
                       <CardContent className="pt-4">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-3">
@@ -587,18 +587,18 @@ const EnhancedAuditTrail: React.FC = () => {
                           </div>
                         </div>
 
-                        {event.failureReason && (
-                          <Alert className="mt-2">
+                        {event.failureReason &&
+                      <Alert className="mt-2">
                             <AlertTriangle className="h-4 w-4" />
                             <AlertDescription className="text-xs">
                               {event.failureReason}
                             </AlertDescription>
                           </Alert>
-                        )}
+                      }
                       </CardContent>
                     </Card>
                   </motion.div>
-                ))}
+                )}
               </AnimatePresence>
             </div>
           </ScrollArea>
@@ -625,16 +625,16 @@ const EnhancedAuditTrail: React.FC = () => {
                   <div>
                     <div className="flex justify-between mb-2">
                       <span>Risk Level Distribution</span>
-                      <span>{((metrics.highRiskEvents / metrics.totalEvents) * 100).toFixed(1)}% High/Critical</span>
+                      <span>{(metrics.highRiskEvents / metrics.totalEvents * 100).toFixed(1)}% High/Critical</span>
                     </div>
-                    <Progress value={(metrics.highRiskEvents / metrics.totalEvents) * 100} className="h-3" />
+                    <Progress value={metrics.highRiskEvents / metrics.totalEvents * 100} className="h-3" />
                   </div>
                   <div>
                     <div className="flex justify-between mb-2">
                       <span>Security Incident Rate</span>
-                      <span>{((metrics.suspiciousActivity / metrics.totalEvents) * 100).toFixed(1)}%</span>
+                      <span>{(metrics.suspiciousActivity / metrics.totalEvents * 100).toFixed(1)}%</span>
                     </div>
-                    <Progress value={(metrics.suspiciousActivity / metrics.totalEvents) * 100} className="h-3" />
+                    <Progress value={metrics.suspiciousActivity / metrics.totalEvents * 100} className="h-3" />
                   </div>
                 </div>
               </CardContent>
@@ -754,8 +754,8 @@ const EnhancedAuditTrail: React.FC = () => {
             <DialogTitle>Audit Event Details</DialogTitle>
           </DialogHeader>
           
-          {selectedEvent && (
-            <div className="space-y-4">
+          {selectedEvent &&
+          <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <h4 className="font-medium">Event Information</h4>
@@ -796,8 +796,8 @@ const EnhancedAuditTrail: React.FC = () => {
                 </div>
               </div>
 
-              {selectedEvent.dataChanges && (
-                <div className="space-y-2">
+              {selectedEvent.dataChanges &&
+            <div className="space-y-2">
                   <h4 className="font-medium">Data Changes</h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -816,15 +816,15 @@ const EnhancedAuditTrail: React.FC = () => {
                   <div>
                     <p className="text-sm font-medium">Fields Changed:</p>
                     <div className="flex gap-1 mt-1">
-                      {selectedEvent.dataChanges.fieldsChanged.map((field) => (
-                        <Badge key={field} variant="outline" className="text-xs">
+                      {selectedEvent.dataChanges.fieldsChanged.map((field) =>
+                  <Badge key={field} variant="outline" className="text-xs">
                           {field}
                         </Badge>
-                      ))}
+                  )}
                     </div>
                   </div>
                 </div>
-              )}
+            }
 
               <div className="space-y-2">
                 <h4 className="font-medium">Additional Data</h4>
@@ -833,21 +833,21 @@ const EnhancedAuditTrail: React.FC = () => {
                 </code>
               </div>
 
-              {selectedEvent.failureReason && (
-                <Alert className="border-red-200">
+              {selectedEvent.failureReason &&
+            <Alert className="border-red-200">
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
                     <span className="font-medium">Failure Reason: </span>
                     {selectedEvent.failureReason}
                   </AlertDescription>
                 </Alert>
-              )}
+            }
             </div>
-          )}
+          }
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 };
 
 export default EnhancedAuditTrail;

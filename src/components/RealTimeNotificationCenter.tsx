@@ -62,10 +62,10 @@ const RealTimeNotificationCenter: React.FC = () => {
     maxNotifications: 100,
     autoAcknowledge: false,
     channels: [
-      { id: 'browser', name: 'Browser Notifications', type: 'browser', isEnabled: true, config: {} },
-      { id: 'email', name: 'Email Alerts', type: 'email', isEnabled: true, config: { email: 'admin@gasstation.com' } },
-      { id: 'sms', name: 'SMS Alerts', type: 'sms', isEnabled: false, config: { phone: '+1234567890' } }
-    ],
+    { id: 'browser', name: 'Browser Notifications', type: 'browser', isEnabled: true, config: {} },
+    { id: 'email', name: 'Email Alerts', type: 'email', isEnabled: true, config: { email: 'admin@gasstation.com' } },
+    { id: 'sms', name: 'SMS Alerts', type: 'sms', isEnabled: false, config: { phone: '+1234567890' } }],
+
     filters: {
       types: ['conflict', 'sync', 'audit', 'system', 'security', 'performance'],
       priorities: ['low', 'medium', 'high', 'critical'],
@@ -107,72 +107,72 @@ const RealTimeNotificationCenter: React.FC = () => {
 
   const generateSampleNotifications = () => {
     const sampleNotifications: Notification[] = [
-      {
-        id: 'notif_1',
-        type: 'conflict',
-        priority: 'high',
-        title: 'Edit Conflict Detected',
-        message: 'Sarah Johnson is editing the same product record as you',
-        timestamp: new Date(Date.now() - 300000),
-        source: 'Conflict Resolver',
-        isRead: false,
-        isAcknowledged: false,
-        actionRequired: true,
-        relatedData: { tableId: 'products', recordId: 123 }
-      },
-      {
-        id: 'notif_2',
-        type: 'sync',
-        priority: 'medium',
-        title: 'Optimistic Update Confirmed',
-        message: 'Product price update has been successfully synchronized',
-        timestamp: new Date(Date.now() - 240000),
-        source: 'Optimistic Update Manager',
-        isRead: true,
-        isAcknowledged: true,
-        actionRequired: false,
-        relatedData: { operation: 'update', tableId: 'products' }
-      },
-      {
-        id: 'notif_3',
-        type: 'security',
-        priority: 'critical',
-        title: 'Failed Login Attempts',
-        message: 'Multiple failed login attempts detected from IP 45.123.45.67',
-        timestamp: new Date(Date.now() - 180000),
-        source: 'Audit Trail',
-        isRead: false,
-        isAcknowledged: false,
-        actionRequired: true,
-        relatedData: { ipAddress: '45.123.45.67', attempts: 5 }
-      },
-      {
-        id: 'notif_4',
-        type: 'performance',
-        priority: 'medium',
-        title: 'Cache Hit Rate Declining',
-        message: 'Cache performance has dropped below 85% in the last hour',
-        timestamp: new Date(Date.now() - 120000),
-        source: 'Cache Manager',
-        isRead: false,
-        isAcknowledged: false,
-        actionRequired: false,
-        relatedData: { hitRate: 83.2, threshold: 85 }
-      },
-      {
-        id: 'notif_5',
-        type: 'system',
-        priority: 'low',
-        title: 'Database Trigger Executed',
-        message: 'License expiry alert trigger completed successfully',
-        timestamp: new Date(Date.now() - 60000),
-        source: 'Database Triggers',
-        isRead: false,
-        isAcknowledged: false,
-        actionRequired: false,
-        relatedData: { triggerId: 'license_alert', executionTime: 250 }
-      }
-    ];
+    {
+      id: 'notif_1',
+      type: 'conflict',
+      priority: 'high',
+      title: 'Edit Conflict Detected',
+      message: 'Sarah Johnson is editing the same product record as you',
+      timestamp: new Date(Date.now() - 300000),
+      source: 'Conflict Resolver',
+      isRead: false,
+      isAcknowledged: false,
+      actionRequired: true,
+      relatedData: { tableId: 'products', recordId: 123 }
+    },
+    {
+      id: 'notif_2',
+      type: 'sync',
+      priority: 'medium',
+      title: 'Optimistic Update Confirmed',
+      message: 'Product price update has been successfully synchronized',
+      timestamp: new Date(Date.now() - 240000),
+      source: 'Optimistic Update Manager',
+      isRead: true,
+      isAcknowledged: true,
+      actionRequired: false,
+      relatedData: { operation: 'update', tableId: 'products' }
+    },
+    {
+      id: 'notif_3',
+      type: 'security',
+      priority: 'critical',
+      title: 'Failed Login Attempts',
+      message: 'Multiple failed login attempts detected from IP 45.123.45.67',
+      timestamp: new Date(Date.now() - 180000),
+      source: 'Audit Trail',
+      isRead: false,
+      isAcknowledged: false,
+      actionRequired: true,
+      relatedData: { ipAddress: '45.123.45.67', attempts: 5 }
+    },
+    {
+      id: 'notif_4',
+      type: 'performance',
+      priority: 'medium',
+      title: 'Cache Hit Rate Declining',
+      message: 'Cache performance has dropped below 85% in the last hour',
+      timestamp: new Date(Date.now() - 120000),
+      source: 'Cache Manager',
+      isRead: false,
+      isAcknowledged: false,
+      actionRequired: false,
+      relatedData: { hitRate: 83.2, threshold: 85 }
+    },
+    {
+      id: 'notif_5',
+      type: 'system',
+      priority: 'low',
+      title: 'Database Trigger Executed',
+      message: 'License expiry alert trigger completed successfully',
+      timestamp: new Date(Date.now() - 60000),
+      source: 'Database Triggers',
+      isRead: false,
+      isAcknowledged: false,
+      actionRequired: false,
+      relatedData: { triggerId: 'license_alert', executionTime: 250 }
+    }];
+
 
     setNotifications(sampleNotifications);
   };
@@ -184,29 +184,29 @@ const RealTimeNotificationCenter: React.FC = () => {
 
     const templates = {
       conflict: [
-        { title: 'Edit Conflict Detected', message: 'Multiple users editing the same record' },
-        { title: 'Concurrent Modification', message: 'Simultaneous changes detected on employee record' }
-      ],
+      { title: 'Edit Conflict Detected', message: 'Multiple users editing the same record' },
+      { title: 'Concurrent Modification', message: 'Simultaneous changes detected on employee record' }],
+
       sync: [
-        { title: 'Sync Completed', message: 'All pending updates synchronized successfully' },
-        { title: 'Sync Failed', message: 'Unable to synchronize changes, retrying...' }
-      ],
+      { title: 'Sync Completed', message: 'All pending updates synchronized successfully' },
+      { title: 'Sync Failed', message: 'Unable to synchronize changes, retrying...' }],
+
       audit: [
-        { title: 'Suspicious Activity', message: 'Unusual access pattern detected' },
-        { title: 'Compliance Alert', message: 'Audit requirement threshold reached' }
-      ],
+      { title: 'Suspicious Activity', message: 'Unusual access pattern detected' },
+      { title: 'Compliance Alert', message: 'Audit requirement threshold reached' }],
+
       system: [
-        { title: 'System Update', message: 'Background maintenance completed' },
-        { title: 'Configuration Change', message: 'System settings updated' }
-      ],
+      { title: 'System Update', message: 'Background maintenance completed' },
+      { title: 'Configuration Change', message: 'System settings updated' }],
+
       security: [
-        { title: 'Security Alert', message: 'Potential security threat detected' },
-        { title: 'Access Violation', message: 'Unauthorized access attempt blocked' }
-      ],
+      { title: 'Security Alert', message: 'Potential security threat detected' },
+      { title: 'Access Violation', message: 'Unauthorized access attempt blocked' }],
+
       performance: [
-        { title: 'Performance Warning', message: 'System performance degraded' },
-        { title: 'Resource Alert', message: 'Memory usage approaching limit' }
-      ]
+      { title: 'Performance Warning', message: 'System performance degraded' },
+      { title: 'Resource Alert', message: 'Memory usage approaching limit' }]
+
     };
 
     const shouldGenerate = Math.random() < 0.4; // 40% chance
@@ -232,7 +232,7 @@ const RealTimeNotificationCenter: React.FC = () => {
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
     };
 
-    setNotifications(prev => [newNotification, ...prev.slice(0, settings.maxNotifications - 1)]);
+    setNotifications((prev) => [newNotification, ...prev.slice(0, settings.maxNotifications - 1)]);
 
     // Show notification based on settings
     showNotification(newNotification);
@@ -246,7 +246,7 @@ const RealTimeNotificationCenter: React.FC = () => {
     if (!settings.filters.priorities.includes(notification.priority)) return;
 
     // Browser notification
-    if (settings.desktopEnabled && settings.channels.find(c => c.id === 'browser')?.isEnabled) {
+    if (settings.desktopEnabled && settings.channels.find((c) => c.id === 'browser')?.isEnabled) {
       if ('Notification' in window && Notification.permission === 'granted') {
         new Notification(notification.title, {
           body: notification.message,
@@ -272,30 +272,30 @@ const RealTimeNotificationCenter: React.FC = () => {
   };
 
   const updateStats = () => {
-    const unread = notifications.filter(n => !n.isRead).length;
-    const acknowledged = notifications.filter(n => n.isAcknowledged).length;
-    const actionRequired = notifications.filter(n => n.actionRequired && !n.isAcknowledged).length;
-    const last24Hours = notifications.filter(n => 
-      Date.now() - n.timestamp.getTime() < 24 * 60 * 60 * 1000
+    const unread = notifications.filter((n) => !n.isRead).length;
+    const acknowledged = notifications.filter((n) => n.isAcknowledged).length;
+    const actionRequired = notifications.filter((n) => n.actionRequired && !n.isAcknowledged).length;
+    const last24Hours = notifications.filter((n) =>
+    Date.now() - n.timestamp.getTime() < 24 * 60 * 60 * 1000
     ).length;
 
     setStats({ unread, acknowledged, actionRequired, last24Hours });
   };
 
   const markAsRead = (notificationId: string) => {
-    setNotifications(prev => prev.map(n => 
-      n.id === notificationId ? { ...n, isRead: true } : n
+    setNotifications((prev) => prev.map((n) =>
+    n.id === notificationId ? { ...n, isRead: true } : n
     ));
   };
 
   const markAsAcknowledged = (notificationId: string) => {
-    setNotifications(prev => prev.map(n => 
-      n.id === notificationId ? { ...n, isAcknowledged: true, isRead: true } : n
+    setNotifications((prev) => prev.map((n) =>
+    n.id === notificationId ? { ...n, isAcknowledged: true, isRead: true } : n
     ));
   };
 
   const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
   };
 
   const clearNotifications = () => {
@@ -319,7 +319,7 @@ const RealTimeNotificationCenter: React.FC = () => {
   };
 
   const getFilteredNotifications = () => {
-    return notifications.filter(notification => {
+    return notifications.filter((notification) => {
       if (filterType !== 'all' && notification.type !== filterType) return false;
       if (filterPriority !== 'all' && notification.priority !== filterPriority) return false;
       return true;
@@ -328,35 +328,35 @@ const RealTimeNotificationCenter: React.FC = () => {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'low': return 'bg-gray-500 text-white';
-      case 'medium': return 'bg-blue-500 text-white';
-      case 'high': return 'bg-orange-500 text-white';
-      case 'critical': return 'bg-red-500 text-white';
-      default: return 'bg-gray-500 text-white';
+      case 'low':return 'bg-gray-500 text-white';
+      case 'medium':return 'bg-blue-500 text-white';
+      case 'high':return 'bg-orange-500 text-white';
+      case 'critical':return 'bg-red-500 text-white';
+      default:return 'bg-gray-500 text-white';
     }
   };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'conflict': return <AlertTriangle className="h-4 w-4" />;
-      case 'sync': return <CheckCircle className="h-4 w-4" />;
-      case 'audit': return <User className="h-4 w-4" />;
-      case 'system': return <Database className="h-4 w-4" />;
-      case 'security': return <AlertTriangle className="h-4 w-4" />;
-      case 'performance': return <Zap className="h-4 w-4" />;
-      default: return <Bell className="h-4 w-4" />;
+      case 'conflict':return <AlertTriangle className="h-4 w-4" />;
+      case 'sync':return <CheckCircle className="h-4 w-4" />;
+      case 'audit':return <User className="h-4 w-4" />;
+      case 'system':return <Database className="h-4 w-4" />;
+      case 'security':return <AlertTriangle className="h-4 w-4" />;
+      case 'performance':return <Zap className="h-4 w-4" />;
+      default:return <Bell className="h-4 w-4" />;
     }
   };
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'conflict': return 'text-orange-600 bg-orange-50';
-      case 'sync': return 'text-green-600 bg-green-50';
-      case 'audit': return 'text-blue-600 bg-blue-50';
-      case 'system': return 'text-purple-600 bg-purple-50';
-      case 'security': return 'text-red-600 bg-red-50';
-      case 'performance': return 'text-yellow-600 bg-yellow-50';
-      default: return 'text-gray-600 bg-gray-50';
+      case 'conflict':return 'text-orange-600 bg-orange-50';
+      case 'sync':return 'text-green-600 bg-green-50';
+      case 'audit':return 'text-blue-600 bg-blue-50';
+      case 'system':return 'text-purple-600 bg-purple-50';
+      case 'security':return 'text-red-600 bg-red-50';
+      case 'performance':return 'text-yellow-600 bg-yellow-50';
+      default:return 'text-gray-600 bg-gray-50';
     }
   };
 
@@ -375,17 +375,17 @@ const RealTimeNotificationCenter: React.FC = () => {
                 {settings.globalEnabled ? "Active" : "Paused"}
               </Badge>
               <Button
-                onClick={() => setSettings(prev => ({ ...prev, globalEnabled: !prev.globalEnabled }))}
+                onClick={() => setSettings((prev) => ({ ...prev, globalEnabled: !prev.globalEnabled }))}
                 variant={settings.globalEnabled ? "destructive" : "default"}
-                size="sm"
-              >
+                size="sm">
+
                 {settings.globalEnabled ? "Disable" : "Enable"}
               </Button>
               <Button
                 onClick={() => setShowSettings(true)}
                 variant="outline"
-                size="sm"
-              >
+                size="sm">
+
                 <Settings className="h-4 w-4 mr-1" />
                 Settings
               </Button>
@@ -471,23 +471,23 @@ const RealTimeNotificationCenter: React.FC = () => {
           <ScrollArea className="h-96">
             <div className="space-y-3">
               <AnimatePresence>
-                {getFilteredNotifications().map((notification, index) => (
-                  <motion.div
-                    key={notification.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ delay: index * 0.02 }}
-                  >
-                    <Card 
-                      className={`cursor-pointer hover:shadow-md transition-shadow ${
-                        !notification.isRead ? 'border-l-4 border-l-blue-500' : ''
-                      }`}
-                      onClick={() => {
-                        setSelectedNotification(notification);
-                        markAsRead(notification.id);
-                      }}
-                    >
+                {getFilteredNotifications().map((notification, index) =>
+                <motion.div
+                  key={notification.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ delay: index * 0.02 }}>
+
+                    <Card
+                    className={`cursor-pointer hover:shadow-md transition-shadow ${
+                    !notification.isRead ? 'border-l-4 border-l-blue-500' : ''}`
+                    }
+                    onClick={() => {
+                      setSelectedNotification(notification);
+                      markAsRead(notification.id);
+                    }}>
+
                       <CardContent className="pt-4">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-3">
@@ -505,44 +505,44 @@ const RealTimeNotificationCenter: React.FC = () => {
                             <Badge className={getPriorityColor(notification.priority)}>
                               {notification.priority.toUpperCase()}
                             </Badge>
-                            {notification.actionRequired && !notification.isAcknowledged && (
-                              <Badge variant="destructive">Action Required</Badge>
-                            )}
-                            {notification.isAcknowledged && (
-                              <CheckCircle className="h-4 w-4 text-green-500" />
-                            )}
+                            {notification.actionRequired && !notification.isAcknowledged &&
+                          <Badge variant="destructive">Action Required</Badge>
+                          }
+                            {notification.isAcknowledged &&
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          }
                           </div>
                         </div>
 
                         <p className="text-sm text-gray-700 mb-3">{notification.message}</p>
 
-                        {notification.actionRequired && !notification.isAcknowledged && (
-                          <div className="flex gap-2">
+                        {notification.actionRequired && !notification.isAcknowledged &&
+                      <div className="flex gap-2">
                             <Button
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                markAsAcknowledged(notification.id);
-                              }}
-                            >
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            markAsAcknowledged(notification.id);
+                          }}>
+
                               Acknowledge
                             </Button>
                             <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedNotification(notification);
-                              }}
-                            >
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedNotification(notification);
+                          }}>
+
                               View Details
                             </Button>
                           </div>
-                        )}
+                      }
                       </CardContent>
                     </Card>
                   </motion.div>
-                ))}
+                )}
               </AnimatePresence>
             </div>
           </ScrollArea>
@@ -550,37 +550,37 @@ const RealTimeNotificationCenter: React.FC = () => {
 
         <TabsContent value="channels" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {settings.channels.map((channel) => (
-              <Card key={channel.id}>
+            {settings.channels.map((channel) =>
+            <Card key={channel.id}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{channel.name}</CardTitle>
                     <Switch
-                      checked={channel.isEnabled}
-                      onCheckedChange={(checked) => {
-                        setSettings(prev => ({
-                          ...prev,
-                          channels: prev.channels.map(c => 
-                            c.id === channel.id ? { ...c, isEnabled: checked } : c
-                          )
-                        }));
-                      }}
-                    />
+                    checked={channel.isEnabled}
+                    onCheckedChange={(checked) => {
+                      setSettings((prev) => ({
+                        ...prev,
+                        channels: prev.channels.map((c) =>
+                        c.id === channel.id ? { ...c, isEnabled: checked } : c
+                        )
+                      }));
+                    }} />
+
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
                     <Badge variant="outline">{channel.type}</Badge>
-                    {channel.type === 'email' && (
-                      <p className="text-sm text-gray-600">
+                    {channel.type === 'email' &&
+                  <p className="text-sm text-gray-600">
                         Email: {channel.config.email}
                       </p>
-                    )}
-                    {channel.type === 'sms' && (
-                      <p className="text-sm text-gray-600">
+                  }
+                    {channel.type === 'sms' &&
+                  <p className="text-sm text-gray-600">
                         Phone: {channel.config.phone}
                       </p>
-                    )}
+                  }
                     <div className="flex gap-2 pt-2">
                       <Button size="sm" variant="outline">
                         Configure
@@ -592,7 +592,7 @@ const RealTimeNotificationCenter: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            )}
           </div>
         </TabsContent>
 
@@ -629,16 +629,16 @@ const RealTimeNotificationCenter: React.FC = () => {
                   <div>
                     <div className="flex justify-between mb-2">
                       <span>Acknowledgment Rate:</span>
-                      <span>{((stats.acknowledged / notifications.length) * 100).toFixed(1)}%</span>
+                      <span>{(stats.acknowledged / notifications.length * 100).toFixed(1)}%</span>
                     </div>
-                    <Progress value={(stats.acknowledged / notifications.length) * 100} className="h-2" />
+                    <Progress value={stats.acknowledged / notifications.length * 100} className="h-2" />
                   </div>
                   <div>
                     <div className="flex justify-between mb-2">
                       <span>Action Required Rate:</span>
-                      <span>{((stats.actionRequired / notifications.length) * 100).toFixed(1)}%</span>
+                      <span>{(stats.actionRequired / notifications.length * 100).toFixed(1)}%</span>
                     </div>
-                    <Progress value={(stats.actionRequired / notifications.length) * 100} className="h-2" />
+                    <Progress value={stats.actionRequired / notifications.length * 100} className="h-2" />
                   </div>
                 </div>
               </CardContent>
@@ -675,8 +675,8 @@ const RealTimeNotificationCenter: React.FC = () => {
                   {settings.soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
                   <Switch
                     checked={settings.soundEnabled}
-                    onCheckedChange={(checked) => setSettings(prev => ({ ...prev, soundEnabled: checked }))}
-                  />
+                    onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, soundEnabled: checked }))} />
+
                 </div>
               </div>
 
@@ -687,8 +687,8 @@ const RealTimeNotificationCenter: React.FC = () => {
                 </div>
                 <Switch
                   checked={settings.desktopEnabled}
-                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, desktopEnabled: checked }))}
-                />
+                  onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, desktopEnabled: checked }))} />
+
               </div>
 
               <div className="flex items-center justify-between">
@@ -698,8 +698,8 @@ const RealTimeNotificationCenter: React.FC = () => {
                 </div>
                 <Switch
                   checked={settings.autoAcknowledge}
-                  onCheckedChange={(checked) => setSettings(prev => ({ ...prev, autoAcknowledge: checked }))}
-                />
+                  onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, autoAcknowledge: checked }))} />
+
               </div>
             </div>
 
@@ -714,9 +714,9 @@ const RealTimeNotificationCenter: React.FC = () => {
                   max="10000"
                   step="500"
                   value={settings.batchDelay}
-                  onChange={(e) => setSettings(prev => ({ ...prev, batchDelay: Number(e.target.value) }))}
-                  className="w-full"
-                />
+                  onChange={(e) => setSettings((prev) => ({ ...prev, batchDelay: Number(e.target.value) }))}
+                  className="w-full" />
+
                 <div className="flex justify-between text-xs text-gray-600">
                   <span>1s (Immediate)</span>
                   <span>10s (Batched)</span>
@@ -731,9 +731,9 @@ const RealTimeNotificationCenter: React.FC = () => {
                   max="500"
                   step="25"
                   value={settings.maxNotifications}
-                  onChange={(e) => setSettings(prev => ({ ...prev, maxNotifications: Number(e.target.value) }))}
-                  className="w-full"
-                />
+                  onChange={(e) => setSettings((prev) => ({ ...prev, maxNotifications: Number(e.target.value) }))}
+                  className="w-full" />
+
                 <div className="flex justify-between text-xs text-gray-600">
                   <span>50 (Minimal)</span>
                   <span>500 (Maximum)</span>
@@ -760,8 +760,8 @@ const RealTimeNotificationCenter: React.FC = () => {
             <DialogTitle>Notification Details</DialogTitle>
           </DialogHeader>
           
-          {selectedNotification && (
-            <div className="space-y-4">
+          {selectedNotification &&
+          <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <div className={`p-2 rounded ${getTypeColor(selectedNotification.type)}`}>
                   {getTypeIcon(selectedNotification.type)}
@@ -799,39 +799,39 @@ const RealTimeNotificationCenter: React.FC = () => {
                 <p className="mt-1 p-3 bg-gray-50 rounded">{selectedNotification.message}</p>
               </div>
 
-              {selectedNotification.relatedData && (
-                <div>
+              {selectedNotification.relatedData &&
+            <div>
                   <span className="font-medium">Related Data:</span>
                   <code className="block mt-1 p-3 bg-gray-100 rounded text-xs">
                     {JSON.stringify(selectedNotification.relatedData, null, 2)}
                   </code>
                 </div>
-              )}
+            }
 
-              {selectedNotification.actionRequired && !selectedNotification.isAcknowledged && (
-                <div className="flex gap-2 pt-4">
+              {selectedNotification.actionRequired && !selectedNotification.isAcknowledged &&
+            <div className="flex gap-2 pt-4">
                   <Button
-                    onClick={() => {
-                      markAsAcknowledged(selectedNotification.id);
-                      setSelectedNotification(null);
-                    }}
-                  >
+                onClick={() => {
+                  markAsAcknowledged(selectedNotification.id);
+                  setSelectedNotification(null);
+                }}>
+
                     Acknowledge
                   </Button>
                   <Button
-                    variant="outline"
-                    onClick={() => setSelectedNotification(null)}
-                  >
+                variant="outline"
+                onClick={() => setSelectedNotification(null)}>
+
                     Close
                   </Button>
                 </div>
-              )}
+            }
             </div>
-          )}
+          }
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 };
 
 export default RealTimeNotificationCenter;
