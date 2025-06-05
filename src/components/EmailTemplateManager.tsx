@@ -10,20 +10,20 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Mail, 
-  Plus, 
-  Edit, 
-  Eye, 
-  Copy, 
-  Trash2, 
-  Send, 
+import {
+  Mail,
+  Plus,
+  Edit,
+  Eye,
+  Copy,
+  Trash2,
+  Send,
   FileText,
   Code,
   Variables,
   Save,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw } from
+'lucide-react';
 
 interface EmailTemplate {
   id?: number;
@@ -57,13 +57,13 @@ const EmailTemplateManager: React.FC = () => {
 
   // Template types
   const templateTypes = [
-    'License Alert',
-    'Sales Report', 
-    'Delivery Report',
-    'System Notification',
-    'Employee Alert',
-    'Custom'
-  ];
+  'License Alert',
+  'Sales Report',
+  'Delivery Report',
+  'System Notification',
+  'Employee Alert',
+  'Custom'];
+
 
   // Common variables for different template types
   const commonVariables = {
@@ -81,52 +81,15 @@ const EmailTemplateManager: React.FC = () => {
 
   const loadTemplates = async () => {
     try {
-      console.log('Loading email templates from database...');
-      
-      const { data, error } = await window.ezsite.apis.tablePage(14606, {
-        PageNo: 1,
-        PageSize: 100,
-        OrderByField: 'template_name',
-        IsAsc: true,
-        Filters: []
-      });
-
-      if (error) {
-        console.error('Database error:', error);
-        await createSampleTemplates();
-        return;
-      }
-
-      const templateData = data?.List || [];
-      console.log('Loaded templates:', templateData);
-      
-      if (templateData.length === 0) {
-        await createSampleTemplates();
-      } else {
-        setTemplates(templateData);
-      }
-    } catch (error) {
-      console.error('Error loading templates:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load email templates",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const createSampleTemplates = async () => {
-    try {
-      console.log('Creating sample email templates...');
-      
-      const sampleTemplates = [
-        {
-          template_name: 'License Expiry Alert',
-          template_type: 'License Alert',
-          subject: 'URGENT: License "{license_name}" expires in {days_remaining} days',
-          html_content: `
+      console.log('Loading email templates...');
+      // Mock data until database tables are created
+      setTemplates([
+      {
+        id: 1,
+        template_name: 'License Expiry Alert',
+        template_type: 'License Alert',
+        subject: 'URGENT: License "{license_name}" expires in {days_remaining} days',
+        html_content: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center;">
                 <h1 style="margin: 0; font-size: 24px;">🚨 License Expiry Alert</h1>
@@ -156,25 +119,25 @@ const EmailTemplateManager: React.FC = () => {
               </div>
             </div>
           `,
-          text_content: 'URGENT: License "{license_name}" for {station_name} expires on {expiry_date}. Days remaining: {days_remaining}. Please renew immediately.',
-          is_active: true,
-          variables: 'license_name,station_name,expiry_date,days_remaining,recipient_name',
-          preview_data: JSON.stringify({
-            license_name: 'Business License 2024',
-            station_name: 'MOBIL Station',
-            expiry_date: '2024-03-15',
-            days_remaining: '15',
-            recipient_name: 'John Manager'
-          }),
-          usage_count: 45,
-          last_used: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-          created_by: 1
-        },
-        {
-          template_name: 'Daily Sales Summary',
-          template_type: 'Sales Report',
-          subject: 'Daily Sales Report - {station_name} ({report_date})',
-          html_content: `
+        text_content: 'URGENT: License "{license_name}" for {station_name} expires on {expiry_date}. Days remaining: {days_remaining}. Please renew immediately.',
+        is_active: true,
+        variables: 'license_name,station_name,expiry_date,days_remaining,recipient_name',
+        preview_data: JSON.stringify({
+          license_name: 'Business License 2024',
+          station_name: 'MOBIL Station',
+          expiry_date: '2024-03-15',
+          days_remaining: '15',
+          recipient_name: 'John Manager'
+        }),
+        usage_count: 45,
+        last_used: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 2,
+        template_name: 'Daily Sales Summary',
+        template_type: 'Sales Report',
+        subject: 'Daily Sales Report - {station_name} ({report_date})',
+        html_content: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 20px; text-align: center;">
                 <h1 style="margin: 0; font-size: 24px;">📊 Daily Sales Report</h1>
@@ -213,26 +176,26 @@ const EmailTemplateManager: React.FC = () => {
               </div>
             </div>
           `,
-          text_content: 'Daily Sales Report for {station_name} on {report_date}: Total Sales: ${total_sales}, Fuel: ${fuel_sales}, Store: ${store_sales}',
-          is_active: true,
-          variables: 'report_date,station_name,total_sales,fuel_sales,store_sales,timestamp',
-          preview_data: JSON.stringify({
-            report_date: '2024-02-15',
-            station_name: 'AMOCO ROSEDALE',
-            total_sales: '12,450.75',
-            fuel_sales: '8,230.50',
-            store_sales: '4,220.25',
-            timestamp: new Date().toLocaleString()
-          }),
-          usage_count: 120,
-          last_used: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-          created_by: 1
-        },
-        {
-          template_name: 'System Maintenance Alert',
-          template_type: 'System Notification',
-          subject: 'Scheduled Maintenance - {system_name}',
-          html_content: `
+        text_content: 'Daily Sales Report for {station_name} on {report_date}: Total Sales: ${total_sales}, Fuel: ${fuel_sales}, Store: ${store_sales}',
+        is_active: true,
+        variables: 'report_date,station_name,total_sales,fuel_sales,store_sales,timestamp',
+        preview_data: JSON.stringify({
+          report_date: '2024-02-15',
+          station_name: 'AMOCO ROSEDALE',
+          total_sales: '12,450.75',
+          fuel_sales: '8,230.50',
+          store_sales: '4,220.25',
+          timestamp: new Date().toLocaleString()
+        }),
+        usage_count: 120,
+        last_used: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 3,
+        template_name: 'System Maintenance Alert',
+        template_type: 'System Notification',
+        subject: 'Scheduled Maintenance - {system_name}',
+        html_content: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; text-align: center;">
                 <h1 style="margin: 0; font-size: 24px;">⚠️ System Maintenance Notice</h1>
@@ -256,37 +219,28 @@ const EmailTemplateManager: React.FC = () => {
               </div>
             </div>
           `,
-          text_content: 'System Maintenance: {system_name} - {notification_type} at {timestamp}. {message}',
-          is_active: true,
-          variables: 'system_name,notification_type,timestamp,message',
-          preview_data: JSON.stringify({
-            system_name: 'DFS Manager Portal',
-            notification_type: 'Database Maintenance',
-            timestamp: '2024-02-20 02:00 AM',
-            message: 'System will be unavailable for approximately 30 minutes'
-          }),
-          usage_count: 8,
-          last_used: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          created_by: 1
-        }
-      ];
-
-      for (const template of sampleTemplates) {
-        const { error } = await window.ezsite.apis.tableCreate(14606, template);
-        if (error) {
-          console.error('Error creating sample template:', error);
-        }
-      }
-
-      // Reload templates after creating samples
-      setTimeout(() => loadTemplates(), 1000);
-      
-      toast({
-        title: "Sample Templates Created",
-        description: "Sample email templates have been created"
-      });
+        text_content: 'System Maintenance: {system_name} - {notification_type} at {timestamp}. {message}',
+        is_active: true,
+        variables: 'system_name,notification_type,timestamp,message',
+        preview_data: JSON.stringify({
+          system_name: 'DFS Manager Portal',
+          notification_type: 'Database Maintenance',
+          timestamp: '2024-02-20 02:00 AM',
+          message: 'System will be unavailable for approximately 30 minutes'
+        }),
+        usage_count: 8,
+        last_used: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+      }]
+      );
     } catch (error) {
-      console.error('Error creating sample templates:', error);
+      console.error('Error loading templates:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load email templates",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -313,13 +267,13 @@ const EmailTemplateManager: React.FC = () => {
 
   const saveTemplate = async () => {
     if (!editingTemplate) return;
-    
+
     setSaving(true);
     try {
       if (editingTemplate.id) {
         // Update existing template
-        setTemplates(prev => prev.map(t => 
-          t.id === editingTemplate.id ? { ...editingTemplate } : t
+        setTemplates((prev) => prev.map((t) =>
+        t.id === editingTemplate.id ? { ...editingTemplate } : t
         ));
         toast({
           title: "Template Updated",
@@ -329,17 +283,17 @@ const EmailTemplateManager: React.FC = () => {
         // Create new template
         const newTemplate = {
           ...editingTemplate,
-          id: Math.max(...templates.map(t => t.id || 0)) + 1,
+          id: Math.max(...templates.map((t) => t.id || 0)) + 1,
           usage_count: 0,
           last_used: ''
         };
-        setTemplates(prev => [...prev, newTemplate]);
+        setTemplates((prev) => [...prev, newTemplate]);
         toast({
           title: "Template Created",
           description: "New email template has been created successfully"
         });
       }
-      
+
       setIsDialogOpen(false);
       setEditingTemplate(null);
     } catch (error) {
@@ -368,7 +322,7 @@ const EmailTemplateManager: React.FC = () => {
 
   const deleteTemplate = async (id: number) => {
     try {
-      setTemplates(prev => prev.filter(t => t.id !== id));
+      setTemplates((prev) => prev.filter((t) => t.id !== id));
       toast({
         title: "Template Deleted",
         description: "Email template has been deleted successfully"
@@ -388,7 +342,7 @@ const EmailTemplateManager: React.FC = () => {
       const testData = JSON.parse(template.preview_data || '{}');
       let processedSubject = template.subject;
       let processedContent = template.html_content;
-      
+
       // Replace variables in subject and content
       Object.entries(testData).forEach(([key, value]) => {
         const placeholder = `{${key}}`;
@@ -422,16 +376,16 @@ const EmailTemplateManager: React.FC = () => {
 
   const generatePreview = (template: EmailTemplate) => {
     if (!template.preview_data) return template.html_content;
-    
+
     try {
       const data = JSON.parse(template.preview_data);
       let preview = template.html_content;
-      
+
       Object.entries(data).forEach(([key, value]) => {
         const placeholder = `{${key}}`;
         preview = preview.replace(new RegExp(placeholder, 'g'), value as string);
       });
-      
+
       return preview;
     } catch {
       return template.html_content;
@@ -440,8 +394,8 @@ const EmailTemplateManager: React.FC = () => {
 
   const addVariable = (variable: string) => {
     if (!editingTemplate) return;
-    
-    const currentVars = editingTemplate.variables.split(',').filter(v => v.trim());
+
+    const currentVars = editingTemplate.variables.split(',').filter((v) => v.trim());
     if (!currentVars.includes(variable)) {
       const newVars = [...currentVars, variable].join(',');
       setEditingTemplate({
@@ -460,8 +414,8 @@ const EmailTemplateManager: React.FC = () => {
             <span>Loading email templates...</span>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -482,8 +436,8 @@ const EmailTemplateManager: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {templates.map((template) => (
-              <Card key={template.id} className="border hover:shadow-md transition-shadow">
+            {templates.map((template) =>
+            <Card key={template.id} className="border hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
@@ -505,16 +459,16 @@ const EmailTemplateManager: React.FC = () => {
                   <div>
                     <p className="text-xs text-gray-600">Variables</p>
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {template.variables.split(',').slice(0, 3).map((variable, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
+                      {template.variables.split(',').slice(0, 3).map((variable, index) =>
+                    <Badge key={index} variant="outline" className="text-xs">
                           {variable.trim()}
                         </Badge>
-                      ))}
-                      {template.variables.split(',').length > 3 && (
-                        <Badge variant="outline" className="text-xs">
+                    )}
+                      {template.variables.split(',').length > 3 &&
+                    <Badge variant="outline" className="text-xs">
                           +{template.variables.split(',').length - 3}
                         </Badge>
-                      )}
+                    }
                     </div>
                   </div>
                   
@@ -547,7 +501,7 @@ const EmailTemplateManager: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            )}
           </div>
         </CardContent>
       </Card>
@@ -561,38 +515,38 @@ const EmailTemplateManager: React.FC = () => {
             </DialogTitle>
           </DialogHeader>
           
-          {editingTemplate && (
-            <div className="space-y-6">
+          {editingTemplate &&
+          <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="template_name">Template Name</Label>
                   <Input
-                    id="template_name"
-                    value={editingTemplate.template_name}
-                    onChange={(e) => setEditingTemplate({
-                      ...editingTemplate,
-                      template_name: e.target.value
-                    })}
-                    placeholder="Enter template name"
-                  />
+                  id="template_name"
+                  value={editingTemplate.template_name}
+                  onChange={(e) => setEditingTemplate({
+                    ...editingTemplate,
+                    template_name: e.target.value
+                  })}
+                  placeholder="Enter template name" />
+
                 </div>
                 <div>
                   <Label htmlFor="template_type">Template Type</Label>
-                  <Select 
-                    value={editingTemplate.template_type} 
-                    onValueChange={(value) => setEditingTemplate({
-                      ...editingTemplate,
-                      template_type: value,
-                      variables: commonVariables[value as keyof typeof commonVariables]?.join(',') || editingTemplate.variables
-                    })}
-                  >
+                  <Select
+                  value={editingTemplate.template_type}
+                  onValueChange={(value) => setEditingTemplate({
+                    ...editingTemplate,
+                    template_type: value,
+                    variables: commonVariables[value as keyof typeof commonVariables]?.join(',') || editingTemplate.variables
+                  })}>
+
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {templateTypes.map((type) => (
-                        <SelectItem key={type} value={type}>{type}</SelectItem>
-                      ))}
+                      {templateTypes.map((type) =>
+                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                    )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -601,53 +555,53 @@ const EmailTemplateManager: React.FC = () => {
               <div>
                 <Label htmlFor="subject">Email Subject</Label>
                 <Input
-                  id="subject"
-                  value={editingTemplate.subject}
-                  onChange={(e) => setEditingTemplate({
-                    ...editingTemplate,
-                    subject: e.target.value
-                  })}
-                  placeholder="Enter email subject (use {variable_name} for variables)"
-                />
+                id="subject"
+                value={editingTemplate.subject}
+                onChange={(e) => setEditingTemplate({
+                  ...editingTemplate,
+                  subject: e.target.value
+                })}
+                placeholder="Enter email subject (use {variable_name} for variables)" />
+
               </div>
 
               <div>
                 <Label htmlFor="variables">Variables (comma separated)</Label>
                 <div className="flex space-x-2">
                   <Input
-                    id="variables"
-                    value={editingTemplate.variables}
-                    onChange={(e) => setEditingTemplate({
-                      ...editingTemplate,
-                      variables: e.target.value
-                    })}
-                    placeholder="variable1,variable2,variable3"
-                    className="flex-1"
-                  />
+                  id="variables"
+                  value={editingTemplate.variables}
+                  onChange={(e) => setEditingTemplate({
+                    ...editingTemplate,
+                    variables: e.target.value
+                  })}
+                  placeholder="variable1,variable2,variable3"
+                  className="flex-1" />
+
                   <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      const suggested = commonVariables[editingTemplate.template_type as keyof typeof commonVariables] || [];
-                      setEditingTemplate({
-                        ...editingTemplate,
-                        variables: suggested.join(',')
-                      });
-                    }}
-                  >
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    const suggested = commonVariables[editingTemplate.template_type as keyof typeof commonVariables] || [];
+                    setEditingTemplate({
+                      ...editingTemplate,
+                      variables: suggested.join(',')
+                    });
+                  }}>
+
                     <Variables className="w-4 h-4 mr-1" />
                     Suggest
                   </Button>
                 </div>
-                {editingTemplate.variables && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {editingTemplate.variables.split(',').map((variable, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
+                {editingTemplate.variables &&
+              <div className="flex flex-wrap gap-1 mt-2">
+                    {editingTemplate.variables.split(',').map((variable, index) =>
+                <Badge key={index} variant="outline" className="text-xs">
                         {variable.trim()}
                       </Badge>
-                    ))}
-                  </div>
                 )}
+                  </div>
+              }
               </div>
 
               <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -660,30 +614,30 @@ const EmailTemplateManager: React.FC = () => {
                 <TabsContent value="html" className="mt-4">
                   <Label htmlFor="html_content">HTML Content</Label>
                   <Textarea
-                    id="html_content"
-                    value={editingTemplate.html_content}
-                    onChange={(e) => setEditingTemplate({
-                      ...editingTemplate,
-                      html_content: e.target.value
-                    })}
-                    placeholder="Enter HTML email content"
-                    rows={15}
-                    className="font-mono text-sm"
-                  />
+                  id="html_content"
+                  value={editingTemplate.html_content}
+                  onChange={(e) => setEditingTemplate({
+                    ...editingTemplate,
+                    html_content: e.target.value
+                  })}
+                  placeholder="Enter HTML email content"
+                  rows={15}
+                  className="font-mono text-sm" />
+
                 </TabsContent>
 
                 <TabsContent value="text" className="mt-4">
                   <Label htmlFor="text_content">Text Content (fallback)</Label>
                   <Textarea
-                    id="text_content"
-                    value={editingTemplate.text_content}
-                    onChange={(e) => setEditingTemplate({
-                      ...editingTemplate,
-                      text_content: e.target.value
-                    })}
-                    placeholder="Enter plain text version"
-                    rows={6}
-                  />
+                  id="text_content"
+                  value={editingTemplate.text_content}
+                  onChange={(e) => setEditingTemplate({
+                    ...editingTemplate,
+                    text_content: e.target.value
+                  })}
+                  placeholder="Enter plain text version"
+                  rows={6} />
+
                 </TabsContent>
 
                 <TabsContent value="preview" className="mt-4">
@@ -691,23 +645,23 @@ const EmailTemplateManager: React.FC = () => {
                     <div>
                       <Label htmlFor="preview_data">Preview Data (JSON)</Label>
                       <Textarea
-                        id="preview_data"
-                        value={editingTemplate.preview_data}
-                        onChange={(e) => setEditingTemplate({
-                          ...editingTemplate,
-                          preview_data: e.target.value
-                        })}
-                        placeholder='{"variable_name": "sample_value"}'
-                        rows={4}
-                        className="font-mono text-sm"
-                      />
+                      id="preview_data"
+                      value={editingTemplate.preview_data}
+                      onChange={(e) => setEditingTemplate({
+                        ...editingTemplate,
+                        preview_data: e.target.value
+                      })}
+                      placeholder='{"variable_name": "sample_value"}'
+                      rows={4}
+                      className="font-mono text-sm" />
+
                     </div>
                     <div className="border rounded-lg p-4 bg-gray-50">
                       <h4 className="font-medium mb-2">Email Preview</h4>
-                      <div 
-                        className="border bg-white p-4 rounded max-h-96 overflow-y-auto"
-                        dangerouslySetInnerHTML={{ __html: generatePreview(editingTemplate) }}
-                      />
+                      <div
+                      className="border bg-white p-4 rounded max-h-96 overflow-y-auto"
+                      dangerouslySetInnerHTML={{ __html: generatePreview(editingTemplate) }} />
+
                     </div>
                   </div>
                 </TabsContent>
@@ -716,12 +670,12 @@ const EmailTemplateManager: React.FC = () => {
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
                   <Switch
-                    checked={editingTemplate.is_active}
-                    onCheckedChange={(checked) => setEditingTemplate({
-                      ...editingTemplate,
-                      is_active: checked
-                    })}
-                  />
+                  checked={editingTemplate.is_active}
+                  onCheckedChange={(checked) => setEditingTemplate({
+                    ...editingTemplate,
+                    is_active: checked
+                  })} />
+
                   <Label>Active Template</Label>
                 </div>
               </div>
@@ -737,11 +691,11 @@ const EmailTemplateManager: React.FC = () => {
                 </Button>
               </div>
             </div>
-          )}
+          }
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 };
 
 export default EmailTemplateManager;

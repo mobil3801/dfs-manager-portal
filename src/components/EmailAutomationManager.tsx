@@ -11,14 +11,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Mail, 
-  Send, 
-  Settings, 
-  Calendar, 
-  Users, 
-  CheckCircle, 
-  AlertCircle, 
+import {
+  Mail,
+  Send,
+  Settings,
+  Calendar,
+  Users,
+  CheckCircle,
+  AlertCircle,
   Clock,
   Zap,
   BarChart3,
@@ -28,8 +28,8 @@ import {
   Trash2,
   Play,
   Pause,
-  Eye
-} from 'lucide-react';
+  Eye } from
+'lucide-react';
 
 interface EmailAutomationConfig {
   id?: number;
@@ -98,32 +98,43 @@ const EmailAutomationManager: React.FC = () => {
 
   const loadAutomations = async () => {
     try {
-      console.log('Loading email automations from database...');
-      
-      const { data, error } = await window.ezsite.apis.tablePage(14605, {
-        PageNo: 1,
-        PageSize: 100,
-        OrderByField: 'automation_name',
-        IsAsc: true,
-        Filters: []
-      });
-
-      if (error) {
-        console.error('Database error:', error);
-        // Fall back to creating sample data if no data exists
-        await createSampleAutomations();
-        return;
-      }
-
-      const automationData = data?.List || [];
-      console.log('Loaded automations:', automationData);
-      
-      if (automationData.length === 0) {
-        // Create sample data if none exists
-        await createSampleAutomations();
-      } else {
-        setAutomations(automationData);
-      }
+      // Since email automation tables don't exist yet, we'll create them first
+      console.log('Loading email automations...');
+      // For now, use mock data until tables are created
+      setAutomations([
+      {
+        id: 1,
+        automation_name: 'License Expiry Alerts',
+        email_type: 'License Alert',
+        is_active: true,
+        from_email: 'alerts@dfsmanager.com',
+        from_name: 'DFS Manager Alerts',
+        trigger_condition: 'days_before_expiry',
+        trigger_value: 30,
+        frequency_hours: 24,
+        recipient_groups: 'station_managers,admin',
+        total_sent: 45,
+        success_rate: 98.5,
+        last_run: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        next_run: new Date(Date.now() + 22 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: 2,
+        automation_name: 'Daily Sales Reports',
+        email_type: 'Sales Report',
+        is_active: true,
+        from_email: 'reports@dfsmanager.com',
+        from_name: 'DFS Manager Reports',
+        trigger_condition: 'daily_schedule',
+        trigger_value: 8,
+        frequency_hours: 24,
+        recipient_groups: 'management',
+        total_sent: 120,
+        success_rate: 99.2,
+        last_run: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+        next_run: new Date(Date.now() + 18 * 60 * 60 * 1000).toISOString()
+      }]
+      );
     } catch (error) {
       console.error('Error loading automations:', error);
       toast({
@@ -134,91 +145,17 @@ const EmailAutomationManager: React.FC = () => {
     }
   };
 
-  const createSampleAutomations = async () => {
-    try {
-      console.log('Creating sample email automations...');
-      
-      const sampleAutomations = [
-        {
-          automation_name: 'License Expiry Alerts',
-          email_type: 'License Alert',
-          is_active: true,
-          from_email: 'alerts@dfsmanager.com',
-          from_name: 'DFS Manager Alerts',
-          trigger_condition: 'days_before_expiry',
-          trigger_value: 30,
-          frequency_hours: 24,
-          recipient_groups: 'station_managers,admin',
-          total_sent: 45,
-          success_rate: 98.5,
-          last_run: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          next_run: new Date(Date.now() + 22 * 60 * 60 * 1000).toISOString(),
-          created_by: 1
-        },
-        {
-          automation_name: 'Daily Sales Reports',
-          email_type: 'Sales Report',
-          is_active: true,
-          from_email: 'reports@dfsmanager.com',
-          from_name: 'DFS Manager Reports',
-          trigger_condition: 'daily_schedule',
-          trigger_value: 8,
-          frequency_hours: 24,
-          recipient_groups: 'management',
-          total_sent: 120,
-          success_rate: 99.2,
-          last_run: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-          next_run: new Date(Date.now() + 18 * 60 * 60 * 1000).toISOString(),
-          created_by: 1
-        },
-        {
-          automation_name: 'System Maintenance Alerts',
-          email_type: 'System Notification',
-          is_active: true,
-          from_email: 'system@dfsmanager.com',
-          from_name: 'DFS Manager System',
-          trigger_condition: 'custom_event',
-          trigger_value: 0,
-          frequency_hours: 168,
-          recipient_groups: 'admin,station_managers',
-          total_sent: 12,
-          success_rate: 100,
-          last_run: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          next_run: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-          created_by: 1
-        }
-      ];
-
-      for (const automation of sampleAutomations) {
-        const { error } = await window.ezsite.apis.tableCreate(14605, automation);
-        if (error) {
-          console.error('Error creating sample automation:', error);
-        }
-      }
-
-      // Reload automations after creating samples
-      setTimeout(() => loadAutomations(), 1000);
-      
-      toast({
-        title: "Sample Data Created",
-        description: "Sample email automations have been created"
-      });
-    } catch (error) {
-      console.error('Error creating sample automations:', error);
-    }
-  };
-
   const loadTemplates = async () => {
     try {
       console.log('Loading email templates...');
       // Mock template data
       setTemplates([
-        {
-          id: 1,
-          template_name: 'License Expiry Alert',
-          template_type: 'License Alert',
-          subject: 'License Expiring Soon - {license_name}',
-          html_content: `
+      {
+        id: 1,
+        template_name: 'License Expiry Alert',
+        template_type: 'License Alert',
+        subject: 'License Expiring Soon - {license_name}',
+        html_content: `
             <h2>License Expiry Alert</h2>
             <p>Dear {recipient_name},</p>
             <p>This is a reminder that the license <strong>{license_name}</strong> for station <strong>{station_name}</strong> will expire on <strong>{expiry_date}</strong>.</p>
@@ -227,16 +164,16 @@ const EmailAutomationManager: React.FC = () => {
             <hr>
             <p>DFS Manager System</p>
           `,
-          text_content: 'License {license_name} for {station_name} expires on {expiry_date}. Days remaining: {days_remaining}',
-          is_active: true,
-          variables: 'license_name,station_name,expiry_date,days_remaining,recipient_name',
-        },
-        {
-          id: 2,
-          template_name: 'Daily Sales Summary',
-          template_type: 'Sales Report',
-          subject: 'Daily Sales Report - {report_date}',
-          html_content: `
+        text_content: 'License {license_name} for {station_name} expires on {expiry_date}. Days remaining: {days_remaining}',
+        is_active: true,
+        variables: 'license_name,station_name,expiry_date,days_remaining,recipient_name'
+      },
+      {
+        id: 2,
+        template_name: 'Daily Sales Summary',
+        template_type: 'Sales Report',
+        subject: 'Daily Sales Report - {report_date}',
+        html_content: `
             <h2>Daily Sales Report</h2>
             <p>Sales summary for {report_date}</p>
             <table border="1" style="border-collapse: collapse; width: 100%;">
@@ -245,11 +182,11 @@ const EmailAutomationManager: React.FC = () => {
             </table>
             <p>Generated automatically by DFS Manager</p>
           `,
-          text_content: 'Daily sales for {report_date}: Total: ${total_sales}, Fuel: ${fuel_sales}, Store: ${store_sales}',
-          is_active: true,
-          variables: 'report_date,station_name,total_sales,fuel_sales,store_sales',
-        }
-      ]);
+        text_content: 'Daily sales for {report_date}: Total: ${total_sales}, Fuel: ${fuel_sales}, Store: ${store_sales}',
+        is_active: true,
+        variables: 'report_date,station_name,total_sales,fuel_sales,store_sales'
+      }]
+      );
     } catch (error) {
       console.error('Error loading templates:', error);
       toast({
@@ -264,10 +201,10 @@ const EmailAutomationManager: React.FC = () => {
     try {
       // Calculate stats from automations
       const totalSent = automations.reduce((sum, auto) => sum + auto.total_sent, 0);
-      const avgSuccessRate = automations.length > 0 
-        ? automations.reduce((sum, auto) => sum + auto.success_rate, 0) / automations.length 
-        : 0;
-      
+      const avgSuccessRate = automations.length > 0 ?
+      automations.reduce((sum, auto) => sum + auto.success_rate, 0) / automations.length :
+      0;
+
       setStats({
         totalSent,
         successRate: avgSuccessRate,
@@ -286,7 +223,7 @@ const EmailAutomationManager: React.FC = () => {
   const handleTestEmail = async (automationId: number) => {
     setTestEmailSending(automationId);
     try {
-      const automation = automations.find(a => a.id === automationId);
+      const automation = automations.find((a) => a.id === automationId);
       if (!automation) return;
 
       const { error } = await window.ezsite.apis.sendEmail({
@@ -310,7 +247,7 @@ const EmailAutomationManager: React.FC = () => {
 
       toast({
         title: "Test Email Sent",
-        description: `Test email sent successfully for ${automation.automation_name}`,
+        description: `Test email sent successfully for ${automation.automation_name}`
       });
     } catch (error) {
       console.error('Error sending test email:', error);
@@ -326,13 +263,13 @@ const EmailAutomationManager: React.FC = () => {
 
   const toggleAutomation = async (id: number, active: boolean) => {
     try {
-      setAutomations(prev => prev.map(auto => 
-        auto.id === id ? { ...auto, is_active: active } : auto
+      setAutomations((prev) => prev.map((auto) =>
+      auto.id === id ? { ...auto, is_active: active } : auto
       ));
 
       toast({
         title: active ? "Automation Enabled" : "Automation Disabled",
-        description: `Email automation has been ${active ? 'enabled' : 'disabled'}`,
+        description: `Email automation has been ${active ? 'enabled' : 'disabled'}`
       });
     } catch (error) {
       console.error('Error toggling automation:', error);
@@ -350,8 +287,8 @@ const EmailAutomationManager: React.FC = () => {
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    
+    const minutes = Math.floor(diff % (1000 * 60 * 60) / (1000 * 60));
+
     if (hours > 0) return `${hours}h ${minutes}m ago`;
     return `${minutes}m ago`;
   };
@@ -362,8 +299,8 @@ const EmailAutomationManager: React.FC = () => {
     const now = new Date();
     const diff = date.getTime() - now.getTime();
     const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    
+    const minutes = Math.floor(diff % (1000 * 60 * 60) / (1000 * 60));
+
     if (diff < 0) return 'Overdue';
     if (hours > 0) return `in ${hours}h ${minutes}m`;
     return `in ${minutes}m`;
@@ -378,8 +315,8 @@ const EmailAutomationManager: React.FC = () => {
             <span>Loading email automation...</span>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -450,13 +387,13 @@ const EmailAutomationManager: React.FC = () => {
               <CardTitle className="flex items-center space-x-2">
                 <Zap className="w-5 h-5" />
                 <span>Active Automations</span>
-                <Badge variant="secondary">{automations.filter(a => a.is_active).length} Active</Badge>
+                <Badge variant="secondary">{automations.filter((a) => a.is_active).length} Active</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {automations.filter(a => a.is_active).map((automation) => (
-                  <div key={automation.id} className="flex items-center justify-between p-3 border rounded-lg">
+                {automations.filter((a) => a.is_active).map((automation) =>
+                <div key={automation.id} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center space-x-3">
                       <Mail className="w-5 h-5 text-blue-600" />
                       <div>
@@ -472,20 +409,20 @@ const EmailAutomationManager: React.FC = () => {
                         {automation.success_rate}% success
                       </Badge>
                       <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleTestEmail(automation.id!)}
-                        disabled={testEmailSending === automation.id}
-                      >
-                        {testEmailSending === automation.id ? (
-                          <RefreshCw className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Send className="w-4 h-4" />
-                        )}
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleTestEmail(automation.id!)}
+                      disabled={testEmailSending === automation.id}>
+
+                        {testEmailSending === automation.id ?
+                      <RefreshCw className="w-4 h-4 animate-spin" /> :
+
+                      <Send className="w-4 h-4" />
+                      }
                       </Button>
                     </div>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -507,16 +444,16 @@ const EmailAutomationManager: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {automations.map((automation) => (
-                  <Card key={automation.id} className="border">
+                {automations.map((automation) =>
+                <Card key={automation.id} className="border">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
                           <div className="flex items-center space-x-3">
                             <Switch
-                              checked={automation.is_active}
-                              onCheckedChange={(checked) => toggleAutomation(automation.id!, checked)}
-                            />
+                            checked={automation.is_active}
+                            onCheckedChange={(checked) => toggleAutomation(automation.id!, checked)} />
+
                             <div>
                               <h3 className="font-semibold">{automation.automation_name}</h3>
                               <p className="text-sm text-gray-600">{automation.email_type}</p>
@@ -565,7 +502,7 @@ const EmailAutomationManager: React.FC = () => {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -587,8 +524,8 @@ const EmailAutomationManager: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {templates.map((template) => (
-                  <Card key={template.id} className="border">
+                {templates.map((template) =>
+                <Card key={template.id} className="border">
                     <CardHeader className="pb-3">
                       <div className="flex items-center justify-between">
                         <CardTitle className="text-lg">{template.template_name}</CardTitle>
@@ -610,11 +547,11 @@ const EmailAutomationManager: React.FC = () => {
                         <div>
                           <p className="text-sm text-gray-600">Variables</p>
                           <div className="flex flex-wrap gap-1 mt-1">
-                            {template.variables.split(',').map((variable, index) => (
-                              <Badge key={index} variant="outline" className="text-xs">
+                            {template.variables.split(',').map((variable, index) =>
+                          <Badge key={index} variant="outline" className="text-xs">
                                 {variable.trim()}
                               </Badge>
-                            ))}
+                          )}
                           </div>
                         </div>
                         <div className="flex space-x-2 pt-2">
@@ -630,7 +567,7 @@ const EmailAutomationManager: React.FC = () => {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -675,8 +612,8 @@ const EmailAutomationManager: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {automations.slice(0, 5).map((automation) => (
-                    <div key={automation.id} className="flex items-center justify-between">
+                  {automations.slice(0, 5).map((automation) =>
+                  <div key={automation.id} className="flex items-center justify-between">
                       <div>
                         <p className="font-medium text-sm">{automation.automation_name}</p>
                         <p className="text-xs text-gray-600">
@@ -687,15 +624,15 @@ const EmailAutomationManager: React.FC = () => {
                         Sent
                       </Badge>
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
           </div>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default EmailAutomationManager;
