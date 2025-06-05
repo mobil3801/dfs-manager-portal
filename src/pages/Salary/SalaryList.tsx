@@ -7,9 +7,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Search, Eye, Edit, Trash2, Download, DollarSign, Calendar, Users, RefreshCw, FileText, AlertCircle } from 'lucide-react';
+import { Plus, Search, Eye, Edit, Trash2, Download, DollarSign, Calendar, Users, RefreshCw, FileText, AlertCircle, Wifi, WifiOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
+import { useRealtime, useRealtimeData } from '@/hooks/use-realtime';
 
 interface SalaryRecord {
   id: number;
@@ -66,6 +67,7 @@ const SalaryList: React.FC = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [retryCount, setRetryCount] = useState(0);
   const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
+  const [realtimeUpdates, setRealtimeUpdates] = useState(0);
   const { toast } = useToast();
   const navigate = useNavigate();
 
