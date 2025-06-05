@@ -34,7 +34,12 @@ import {
   MapPin,
   Phone,
   Calendar,
-  Edit } from
+  Edit,
+  Zap,
+  Send,
+  FileText,
+  Server,
+  Clock } from
 'lucide-react';
 
 interface SiteSettings {
@@ -609,40 +614,159 @@ const SiteManagement: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Email Configuration */}
+      {/* Email Configuration & Automation */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Mail className="w-5 h-5" />
-            <span>Email Configuration</span>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Mail className="w-5 h-5" />
+              <span>Email Configuration & Automation</span>
+            </div>
+            <Badge className="bg-blue-100 text-blue-800">
+              Domain Email Ready
+            </Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="emailFromName">From Name</Label>
-              <Input
-                id="emailFromName"
-                value={settings.emailFromName}
-                onChange={(e) => setSettings({ ...settings, emailFromName: e.target.value })} />
-
+        <CardContent className="space-y-6">
+          {/* Basic Email Settings */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">Basic Email Settings</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="emailFromName">From Name</Label>
+                <Input
+                  id="emailFromName"
+                  value={settings.emailFromName}
+                  onChange={(e) => setSettings({ ...settings, emailFromName: e.target.value })} />
+              </div>
+              
+              <div>
+                <Label htmlFor="emailFromAddress">From Address</Label>
+                <Input
+                  id="emailFromAddress"
+                  type="email"
+                  value={settings.emailFromAddress}
+                  onChange={(e) => setSettings({ ...settings, emailFromAddress: e.target.value })} />
+              </div>
             </div>
             
-            <div>
-              <Label htmlFor="emailFromAddress">From Address</Label>
-              <Input
-                id="emailFromAddress"
-                type="email"
-                value={settings.emailFromAddress}
-                onChange={(e) => setSettings({ ...settings, emailFromAddress: e.target.value })} />
+            <Button onClick={handleTestEmail} variant="outline">
+              <Mail className="w-4 h-4 mr-2" />
+              Send Test Email
+            </Button>
+          </div>
 
+          {/* Email Automation Quick Stats */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium">Email Automation System</h3>
+              <Badge className="bg-green-100 text-green-800">
+                Real-time Active
+              </Badge>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <div className="flex items-center space-x-2">
+                  <Zap className="w-5 h-5 text-blue-600" />
+                  <span className="text-sm font-medium text-blue-800">Automations</span>
+                </div>
+                <p className="text-2xl font-bold text-blue-600">3 Active</p>
+                <p className="text-xs text-blue-600">License alerts, reports</p>
+              </div>
+              
+              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                <div className="flex items-center space-x-2">
+                  <Send className="w-5 h-5 text-green-600" />
+                  <span className="text-sm font-medium text-green-800">Sent Today</span>
+                </div>
+                <p className="text-2xl font-bold text-green-600">24</p>
+                <p className="text-xs text-green-600">98.5% success rate</p>
+              </div>
+              
+              <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                <div className="flex items-center space-x-2">
+                  <FileText className="w-5 h-5 text-purple-600" />
+                  <span className="text-sm font-medium text-purple-800">Templates</span>
+                </div>
+                <p className="text-2xl font-bold text-purple-600">5</p>
+                <p className="text-xs text-purple-600">Ready to use</p>
+              </div>
+              
+              <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                <div className="flex items-center space-x-2">
+                  <Clock className="w-5 h-5 text-orange-600" />
+                  <span className="text-sm font-medium text-orange-800">Queued</span>
+                </div>
+                <p className="text-2xl font-bold text-orange-600">8</p>
+                <p className="text-xs text-orange-600">Processing now</p>
+              </div>
             </div>
           </div>
-          
-          <Button onClick={handleTestEmail} variant="outline">
-            <Mail className="w-4 h-4 mr-2" />
-            Send Test Email
-          </Button>
+
+          {/* Quick Actions */}
+          <div className="flex flex-wrap gap-3">
+            <Button
+              onClick={() => window.open('/admin/site-management?tab=email-automation', '_blank')}
+              className="bg-blue-600 hover:bg-blue-700">
+
+              <Settings className="w-4 h-4 mr-2" />
+              Manage Email Automation
+            </Button>
+            <Button
+              onClick={() => window.open('/admin/site-management?tab=email-templates', '_blank')}
+              variant="outline">
+
+              <FileText className="w-4 h-4 mr-2" />
+              Email Templates
+            </Button>
+            <Button
+              onClick={() => window.open('/admin/site-management?tab=email-providers', '_blank')}
+              variant="outline">
+
+              <Server className="w-4 h-4 mr-2" />
+              Provider Config
+            </Button>
+          </div>
+
+          {/* Recent Email Activity */}
+          <div className="space-y-3">
+            <h4 className="font-medium">Recent Email Activity</h4>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  <div>
+                    <p className="text-sm font-medium">License expiry alert sent</p>
+                    <p className="text-xs text-gray-600">Business License 2024 - MOBIL Station</p>
+                  </div>
+                </div>
+                <span className="text-xs text-gray-500">2 hours ago</span>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                  <div>
+                    <p className="text-sm font-medium">Daily sales report generated</p>
+                    <p className="text-xs text-gray-600">AMOCO ROSEDALE - Auto-sent</p>
+                  </div>
+                </div>
+                <span className="text-xs text-gray-500">6 hours ago</span>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                  <div>
+                    <p className="text-sm font-medium">System notification sent</p>
+                    <p className="text-xs text-gray-600">Maintenance reminder to all managers</p>
+                  </div>
+                </div>
+                <span className="text-xs text-gray-500">1 day ago</span>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 

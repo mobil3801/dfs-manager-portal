@@ -10,10 +10,10 @@ import {
   BarChart3, Users, Package, FileText, Truck, Settings,
   DollarSign, AlertTriangle, CheckCircle, Clock, TrendingUp,
   Shield, Eye, Plus, Edit, Download, Bell, Zap, Calendar,
-  Rocket, Target, Info, ChevronRight, X, RefreshCw, 
+  Rocket, Target, Info, ChevronRight, X, RefreshCw,
   Building2, Gas, Receipt, CreditCard, Banknote, Fuel,
-  Database, Activity, Server, Wifi, HardDrive, MemoryStick
-} from 'lucide-react';
+  Database, Activity, Server, Wifi, HardDrive, MemoryStick } from
+'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEnhancedRoleAccess } from '@/hooks/use-enhanced-role-access';
 import { useNavigate } from 'react-router-dom';
@@ -63,7 +63,7 @@ const AdminRealTimeDashboard: React.FC = () => {
   const roleAccess = useEnhancedRoleAccess();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   const [loading, setLoading] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [metrics, setMetrics] = useState<AdminMetrics>({
@@ -101,85 +101,85 @@ const AdminRealTimeDashboard: React.FC = () => {
   const fetchAdminMetrics = useCallback(async () => {
     try {
       console.log('🔄 Fetching admin dashboard metrics...');
-      
+
       const today = new Date().toISOString().split('T')[0];
       const thisMonth = new Date().toISOString().slice(0, 7);
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
       // Fetch all data in parallel
       const [
-        usersData,
-        employeesData,
-        activeEmployeesData,
-        stationsData,
-        allSalesData,
-        todaySalesData,
-        monthSalesData,
-        productsData,
-        ordersData,
-        pendingOrdersData,
-        licensesData,
-        activeLicensesData,
-        smsConfigData,
-        auditLogsData,
-        salaryData,
-        deliveryData
-      ] = await Promise.all([
-        // Users
-        window.ezsite.apis.tablePage(11725, { PageNo: 1, PageSize: 1 }),
-        // All employees
-        window.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 1 }),
-        // Active employees
-        window.ezsite.apis.tablePage(11727, {
-          PageNo: 1, PageSize: 1,
-          Filters: [{ name: 'is_active', op: 'Equal', value: true }]
-        }),
-        // Stations
-        window.ezsite.apis.tablePage(12599, { PageNo: 1, PageSize: 10 }),
-        // All sales reports
-        window.ezsite.apis.tablePage(12356, { PageNo: 1, PageSize: 1 }),
-        // Today's sales
-        window.ezsite.apis.tablePage(12356, {
-          PageNo: 1, PageSize: 100,
-          Filters: [{ name: 'report_date', op: 'StringContains', value: today }]
-        }),
-        // This month's sales
-        window.ezsite.apis.tablePage(12356, {
-          PageNo: 1, PageSize: 500,
-          Filters: [{ name: 'report_date', op: 'StringContains', value: thisMonth }]
-        }),
-        // Products
-        window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 500 }),
-        // All orders
-        window.ezsite.apis.tablePage(11730, { PageNo: 1, PageSize: 1 }),
-        // Pending orders
-        window.ezsite.apis.tablePage(11730, {
-          PageNo: 1, PageSize: 1,
-          Filters: [{ name: 'status', op: 'Equal', value: 'Pending' }]
-        }),
-        // All licenses
-        window.ezsite.apis.tablePage(11731, { PageNo: 1, PageSize: 100 }),
-        // Active licenses
-        window.ezsite.apis.tablePage(11731, {
-          PageNo: 1, PageSize: 100,
-          Filters: [{ name: 'status', op: 'Equal', value: 'Active' }]
-        }),
-        // SMS configuration
-        window.ezsite.apis.tablePage(12640, {
-          PageNo: 1, PageSize: 1,
-          Filters: [{ name: 'is_active', op: 'Equal', value: true }]
-        }),
-        // Recent audit logs for activity
-        window.ezsite.apis.tablePage(12706, {
-          PageNo: 1, PageSize: 100,
-          OrderByField: 'event_timestamp', IsAsc: false,
-          Filters: [{ name: 'event_timestamp', op: 'GreaterThan', value: thirtyDaysAgo }]
-        }),
-        // Salary records
-        window.ezsite.apis.tablePage(11788, { PageNo: 1, PageSize: 1 }),
-        // Delivery records
-        window.ezsite.apis.tablePage(12196, { PageNo: 1, PageSize: 1 })
-      ]);
+      usersData,
+      employeesData,
+      activeEmployeesData,
+      stationsData,
+      allSalesData,
+      todaySalesData,
+      monthSalesData,
+      productsData,
+      ordersData,
+      pendingOrdersData,
+      licensesData,
+      activeLicensesData,
+      smsConfigData,
+      auditLogsData,
+      salaryData,
+      deliveryData] =
+      await Promise.all([
+      // Users
+      window.ezsite.apis.tablePage(11725, { PageNo: 1, PageSize: 1 }),
+      // All employees
+      window.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 1 }),
+      // Active employees
+      window.ezsite.apis.tablePage(11727, {
+        PageNo: 1, PageSize: 1,
+        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+      }),
+      // Stations
+      window.ezsite.apis.tablePage(12599, { PageNo: 1, PageSize: 10 }),
+      // All sales reports
+      window.ezsite.apis.tablePage(12356, { PageNo: 1, PageSize: 1 }),
+      // Today's sales
+      window.ezsite.apis.tablePage(12356, {
+        PageNo: 1, PageSize: 100,
+        Filters: [{ name: 'report_date', op: 'StringContains', value: today }]
+      }),
+      // This month's sales
+      window.ezsite.apis.tablePage(12356, {
+        PageNo: 1, PageSize: 500,
+        Filters: [{ name: 'report_date', op: 'StringContains', value: thisMonth }]
+      }),
+      // Products
+      window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 500 }),
+      // All orders
+      window.ezsite.apis.tablePage(11730, { PageNo: 1, PageSize: 1 }),
+      // Pending orders
+      window.ezsite.apis.tablePage(11730, {
+        PageNo: 1, PageSize: 1,
+        Filters: [{ name: 'status', op: 'Equal', value: 'Pending' }]
+      }),
+      // All licenses
+      window.ezsite.apis.tablePage(11731, { PageNo: 1, PageSize: 100 }),
+      // Active licenses
+      window.ezsite.apis.tablePage(11731, {
+        PageNo: 1, PageSize: 100,
+        Filters: [{ name: 'status', op: 'Equal', value: 'Active' }]
+      }),
+      // SMS configuration
+      window.ezsite.apis.tablePage(12640, {
+        PageNo: 1, PageSize: 1,
+        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+      }),
+      // Recent audit logs for activity
+      window.ezsite.apis.tablePage(12706, {
+        PageNo: 1, PageSize: 100,
+        OrderByField: 'event_timestamp', IsAsc: false,
+        Filters: [{ name: 'event_timestamp', op: 'GreaterThan', value: thirtyDaysAgo }]
+      }),
+      // Salary records
+      window.ezsite.apis.tablePage(11788, { PageNo: 1, PageSize: 1 }),
+      // Delivery records
+      window.ezsite.apis.tablePage(12196, { PageNo: 1, PageSize: 1 })]
+      );
 
       // Process metrics
       const totalUsers = usersData.data?.VirtualCount || 0;
@@ -216,7 +216,7 @@ const AdminRealTimeDashboard: React.FC = () => {
       let lowStockProducts = 0;
       if (productsData.data?.List) {
         lowStockProducts = productsData.data.List.filter((product: any) =>
-          product.quantity_in_stock <= product.minimum_stock && product.minimum_stock > 0
+        product.quantity_in_stock <= product.minimum_stock && product.minimum_stock > 0
         ).length;
       }
 
@@ -238,15 +238,15 @@ const AdminRealTimeDashboard: React.FC = () => {
       }
 
       // Calculate active users from audit logs
-      const activeUsers = auditLogsData.data?.List ? 
-        new Set(auditLogsData.data.List.map((log: any) => log.user_id).filter(Boolean)).size : 0;
+      const activeUsers = auditLogsData.data?.List ?
+      new Set(auditLogsData.data.List.map((log: any) => log.user_id).filter(Boolean)).size : 0;
 
       // SMS setup check
       const smsAlertsSetup = smsConfigData.data?.List?.length > 0;
 
       // Calculate critical alerts and pending tasks
       const criticalAlerts = expiredLicenses + (lowStockProducts > 5 ? 1 : 0) + (pendingOrders > 10 ? 1 : 0);
-      const pendingTasks = (todaySalesReports < (totalStations * 2) ? 1 : 0) + (pendingOrders > 0 ? 1 : 0);
+      const pendingTasks = (todaySalesReports < totalStations * 2 ? 1 : 0) + (pendingOrders > 0 ? 1 : 0);
 
       const newMetrics: AdminMetrics = {
         totalUsers,
@@ -326,7 +326,7 @@ const AdminRealTimeDashboard: React.FC = () => {
         });
       }
 
-      if (todaySalesReports < (totalStations * 2)) {
+      if (todaySalesReports < totalStations * 2) {
         alerts.push({
           id: 'missing-reports',
           type: 'warning',
@@ -355,7 +355,7 @@ const AdminRealTimeDashboard: React.FC = () => {
   // Auto-refresh every 60 seconds for admin dashboard
   useEffect(() => {
     fetchAdminMetrics();
-    
+
     if (autoRefresh) {
       const interval = setInterval(fetchAdminMetrics, 60000);
       return () => clearInterval(interval);
@@ -369,8 +369,8 @@ const AdminRealTimeDashboard: React.FC = () => {
         <AlertDescription>
           Access denied. Administrator privileges required to view this dashboard.
         </AlertDescription>
-      </Alert>
-    );
+      </Alert>);
+
   }
 
   if (loading) {
@@ -380,8 +380,8 @@ const AdminRealTimeDashboard: React.FC = () => {
           <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-500" />
           <p className="text-gray-600">Loading admin dashboard...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -405,16 +405,16 @@ const AdminRealTimeDashboard: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={() => setAutoRefresh(!autoRefresh)}
-            className={autoRefresh ? 'text-green-600' : 'text-gray-600'}
-          >
+            className={autoRefresh ? 'text-green-600' : 'text-gray-600'}>
+
             <RefreshCw className={`h-4 w-4 mr-1 ${autoRefresh ? 'animate-spin' : ''}`} />
             Auto-refresh
           </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={fetchAdminMetrics}
-          >
+            onClick={fetchAdminMetrics}>
+
             <RefreshCw className="h-4 w-4 mr-1" />
             Refresh Now
           </Button>
@@ -479,43 +479,43 @@ const AdminRealTimeDashboard: React.FC = () => {
       </div>
 
       {/* Critical Alerts */}
-      {systemAlerts.length > 0 && (
-        <div className="space-y-3">
+      {systemAlerts.length > 0 &&
+      <div className="space-y-3">
           <h2 className="text-lg font-semibold flex items-center">
             <Bell className="h-5 w-5 mr-2 text-red-500" />
             System Alerts
           </h2>
-          {systemAlerts.map((alert) => (
-            <Alert 
-              key={alert.id} 
-              className={
-                alert.type === 'critical' ? 'border-red-500 bg-red-50' :
-                alert.type === 'warning' ? 'border-orange-500 bg-orange-50' :
-                'border-blue-500 bg-blue-50'
-              }
-            >
+          {systemAlerts.map((alert) =>
+        <Alert
+          key={alert.id}
+          className={
+          alert.type === 'critical' ? 'border-red-500 bg-red-50' :
+          alert.type === 'warning' ? 'border-orange-500 bg-orange-50' :
+          'border-blue-500 bg-blue-50'
+          }>
+
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription className="flex items-center justify-between">
                 <div>
                   <strong>{alert.title}:</strong> {alert.message}
-                  {alert.actionPath && alert.actionLabel && (
-                    <Button
-                      variant="link"
-                      className="p-0 h-auto font-semibold text-blue-600 ml-1"
-                      onClick={() => navigate(alert.actionPath!)}
-                    >
+                  {alert.actionPath && alert.actionLabel &&
+              <Button
+                variant="link"
+                className="p-0 h-auto font-semibold text-blue-600 ml-1"
+                onClick={() => navigate(alert.actionPath!)}>
+
                       {alert.actionLabel} →
                     </Button>
-                  )}
+              }
                 </div>
                 <Badge variant={alert.type === 'critical' ? 'destructive' : 'secondary'}>
                   {alert.type.toUpperCase()}
                 </Badge>
               </AlertDescription>
             </Alert>
-          ))}
+        )}
         </div>
-      )}
+      }
 
       {/* Main Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -540,8 +540,8 @@ const AdminRealTimeDashboard: React.FC = () => {
               variant="outline"
               size="sm"
               className="w-full"
-              onClick={() => navigate('/sales')}
-            >
+              onClick={() => navigate('/sales')}>
+
               View Sales Reports
             </Button>
           </CardContent>
@@ -572,8 +572,8 @@ const AdminRealTimeDashboard: React.FC = () => {
               variant="outline"
               size="sm"
               className="w-full"
-              onClick={() => navigate('/admin/user-management')}
-            >
+              onClick={() => navigate('/admin/user-management')}>
+
               Manage Users
             </Button>
           </CardContent>
@@ -604,8 +604,8 @@ const AdminRealTimeDashboard: React.FC = () => {
               variant="outline"
               size="sm"
               className="w-full"
-              onClick={() => navigate('/admin/site-management')}
-            >
+              onClick={() => navigate('/admin/site-management')}>
+
               Manage Stations
             </Button>
           </CardContent>
@@ -638,8 +638,8 @@ const AdminRealTimeDashboard: React.FC = () => {
               variant="outline"
               size="sm"
               className="w-full"
-              onClick={() => navigate('/inventory/alerts')}
-            >
+              onClick={() => navigate('/inventory/alerts')}>
+
               Check Inventory
             </Button>
           </CardContent>
@@ -668,18 +668,18 @@ const AdminRealTimeDashboard: React.FC = () => {
                 {metrics.expiringLicenses}
               </span>
             </div>
-            {metrics.expiredLicenses > 0 && (
-              <div className="flex justify-between">
+            {metrics.expiredLicenses > 0 &&
+            <div className="flex justify-between">
                 <span className="text-sm text-gray-600">Expired:</span>
                 <span className="font-semibold text-red-600">{metrics.expiredLicenses}</span>
               </div>
-            )}
+            }
             <Button
               variant="outline"
               size="sm"
               className="w-full"
-              onClick={() => navigate('/licenses')}
-            >
+              onClick={() => navigate('/licenses')}>
+
               Manage Licenses
             </Button>
           </CardContent>
@@ -710,8 +710,8 @@ const AdminRealTimeDashboard: React.FC = () => {
               variant="outline"
               size="sm"
               className="w-full"
-              onClick={() => navigate('/admin/system-logs')}
-            >
+              onClick={() => navigate('/admin/system-logs')}>
+
               System Settings
             </Button>
           </CardContent>
@@ -731,8 +731,8 @@ const AdminRealTimeDashboard: React.FC = () => {
             <Button
               variant="outline"
               className="flex items-center gap-2"
-              onClick={() => navigate('/admin/user-management')}
-            >
+              onClick={() => navigate('/admin/user-management')}>
+
               <Users className="h-4 w-4" />
               Add User
             </Button>
@@ -740,8 +740,8 @@ const AdminRealTimeDashboard: React.FC = () => {
             <Button
               variant="outline"
               className="flex items-center gap-2"
-              onClick={() => navigate('/admin/site-management')}
-            >
+              onClick={() => navigate('/admin/site-management')}>
+
               <Building2 className="h-4 w-4" />
               Add Station
             </Button>
@@ -749,8 +749,8 @@ const AdminRealTimeDashboard: React.FC = () => {
             <Button
               variant="outline"
               className="flex items-center gap-2"
-              onClick={() => navigate('/admin/sms-alert-management')}
-            >
+              onClick={() => navigate('/admin/sms-alert-management')}>
+
               <Bell className="h-4 w-4" />
               Setup SMS
             </Button>
@@ -758,8 +758,8 @@ const AdminRealTimeDashboard: React.FC = () => {
             <Button
               variant="outline"
               className="flex items-center gap-2"
-              onClick={() => navigate('/admin/system-logs')}
-            >
+              onClick={() => navigate('/admin/system-logs')}>
+
               <FileText className="h-4 w-4" />
               View Logs
             </Button>
@@ -772,8 +772,8 @@ const AdminRealTimeDashboard: React.FC = () => {
         <span>Last updated: {metrics.lastUpdated.toLocaleTimeString()}</span>
         <span>Auto-refresh: {autoRefresh ? 'Every 60 seconds' : 'Disabled'}</span>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AdminRealTimeDashboard;

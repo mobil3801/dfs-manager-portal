@@ -10,9 +10,9 @@ import {
   BarChart3, Users, Package, FileText, Truck, Settings,
   DollarSign, AlertTriangle, CheckCircle, Clock, TrendingUp,
   Shield, Eye, Plus, Edit, Download, Bell, Zap, Calendar,
-  Rocket, Target, Info, ChevronRight, X, RefreshCw, 
-  Building2, Gas, Receipt, CreditCard, Banknote, Fuel
-} from 'lucide-react';
+  Rocket, Target, Info, ChevronRight, X, RefreshCw,
+  Building2, Gas, Receipt, CreditCard, Banknote, Fuel } from
+'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEnhancedRoleAccess } from '@/hooks/use-enhanced-role-access';
 import { useNavigate } from 'react-router-dom';
@@ -57,7 +57,7 @@ const RoleBasedDashboardV2: React.FC = () => {
   const roleAccess = useEnhancedRoleAccess();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
   const [realTimeData, setRealTimeData] = useState<RealTimeData>({
@@ -85,70 +85,70 @@ const RoleBasedDashboardV2: React.FC = () => {
   const fetchRealTimeData = useCallback(async () => {
     try {
       console.log('🔄 Fetching real-time dashboard data...');
-      
+
       const today = new Date().toISOString().split('T')[0];
       const thisMonth = new Date().toISOString().slice(0, 7);
       const currentUser = userProfile?.station || '';
 
       // Fetch data from multiple tables in parallel
       const [
-        employeesData,
-        stationsData,
-        salesData,
-        todaySalesData,
-        monthSalesData,
-        productsData,
-        ordersData,
-        licensesData,
-        userStationSalesData
-      ] = await Promise.all([
-        // Employees count
-        window.ezsite.apis.tablePage(11727, {
-          PageNo: 1, PageSize: 1,
-          Filters: [{ name: 'is_active', op: 'Equal', value: true }]
-        }),
-        // Stations count
-        window.ezsite.apis.tablePage(12599, {
-          PageNo: 1, PageSize: 10
-        }),
-        // All sales data
-        window.ezsite.apis.tablePage(12356, {
-          PageNo: 1, PageSize: 100,
-          OrderByField: 'report_date', IsAsc: false
-        }),
-        // Today's sales
-        window.ezsite.apis.tablePage(12356, {
-          PageNo: 1, PageSize: 50,
-          Filters: [{ name: 'report_date', op: 'StringContains', value: today }]
-        }),
-        // This month's sales
-        window.ezsite.apis.tablePage(12356, {
-          PageNo: 1, PageSize: 100,
-          Filters: [{ name: 'report_date', op: 'StringContains', value: thisMonth }]
-        }),
-        // Products for inventory
-        window.ezsite.apis.tablePage(11726, {
-          PageNo: 1, PageSize: 200
-        }),
-        // Active orders
-        window.ezsite.apis.tablePage(11730, {
-          PageNo: 1, PageSize: 1,
-          Filters: [{ name: 'status', op: 'Equal', value: 'Pending' }]
-        }),
-        // Licenses for expiry check
-        window.ezsite.apis.tablePage(11731, {
-          PageNo: 1, PageSize: 50,
-          Filters: [{ name: 'status', op: 'Equal', value: 'Active' }]
-        }),
-        // User station specific sales
-        currentUser && currentUser !== 'ALL' ? window.ezsite.apis.tablePage(12356, {
-          PageNo: 1, PageSize: 50,
-          Filters: [
-            { name: 'station', op: 'Equal', value: currentUser },
-            { name: 'report_date', op: 'StringContains', value: today }
-          ]
-        }) : Promise.resolve({ data: null, error: null })
-      ]);
+      employeesData,
+      stationsData,
+      salesData,
+      todaySalesData,
+      monthSalesData,
+      productsData,
+      ordersData,
+      licensesData,
+      userStationSalesData] =
+      await Promise.all([
+      // Employees count
+      window.ezsite.apis.tablePage(11727, {
+        PageNo: 1, PageSize: 1,
+        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+      }),
+      // Stations count
+      window.ezsite.apis.tablePage(12599, {
+        PageNo: 1, PageSize: 10
+      }),
+      // All sales data
+      window.ezsite.apis.tablePage(12356, {
+        PageNo: 1, PageSize: 100,
+        OrderByField: 'report_date', IsAsc: false
+      }),
+      // Today's sales
+      window.ezsite.apis.tablePage(12356, {
+        PageNo: 1, PageSize: 50,
+        Filters: [{ name: 'report_date', op: 'StringContains', value: today }]
+      }),
+      // This month's sales
+      window.ezsite.apis.tablePage(12356, {
+        PageNo: 1, PageSize: 100,
+        Filters: [{ name: 'report_date', op: 'StringContains', value: thisMonth }]
+      }),
+      // Products for inventory
+      window.ezsite.apis.tablePage(11726, {
+        PageNo: 1, PageSize: 200
+      }),
+      // Active orders
+      window.ezsite.apis.tablePage(11730, {
+        PageNo: 1, PageSize: 1,
+        Filters: [{ name: 'status', op: 'Equal', value: 'Pending' }]
+      }),
+      // Licenses for expiry check
+      window.ezsite.apis.tablePage(11731, {
+        PageNo: 1, PageSize: 50,
+        Filters: [{ name: 'status', op: 'Equal', value: 'Active' }]
+      }),
+      // User station specific sales
+      currentUser && currentUser !== 'ALL' ? window.ezsite.apis.tablePage(12356, {
+        PageNo: 1, PageSize: 50,
+        Filters: [
+        { name: 'station', op: 'Equal', value: currentUser },
+        { name: 'report_date', op: 'StringContains', value: today }]
+
+      }) : Promise.resolve({ data: null, error: null })]
+      );
 
       // Process the data
       const employeeCount = employeesData.data?.VirtualCount || 0;
@@ -202,7 +202,7 @@ const RoleBasedDashboardV2: React.FC = () => {
       let lowStockItems = 0;
       if (productsData.data?.List) {
         lowStockItems = productsData.data.List.filter((product: any) =>
-          product.quantity_in_stock <= product.minimum_stock && product.minimum_stock > 0
+        product.quantity_in_stock <= product.minimum_stock && product.minimum_stock > 0
         ).length;
       }
 
@@ -253,7 +253,7 @@ const RoleBasedDashboardV2: React.FC = () => {
       });
 
       console.log('✅ Real-time dashboard data updated successfully');
-      
+
       if (expiringLicenses > 0) {
         toast({
           title: "License Alert",
@@ -277,7 +277,7 @@ const RoleBasedDashboardV2: React.FC = () => {
   // Auto-refresh data every 30 seconds
   useEffect(() => {
     fetchRealTimeData();
-    
+
     if (autoRefresh) {
       const interval = setInterval(fetchRealTimeData, 30000);
       return () => clearInterval(interval);
@@ -286,137 +286,137 @@ const RoleBasedDashboardV2: React.FC = () => {
 
   // Management Role Dashboard Widgets
   const getManagementWidgets = (): DashboardWidget[] => [
-    {
-      id: 'daily-revenue',
-      title: "Today's Revenue",
-      description: 'Total revenue across all stations',
-      icon: <DollarSign className="h-6 w-6" />,
-      value: `$${realTimeData.todaySales.toLocaleString()}`,
-      change: `vs ${((realTimeData.todaySales / (realTimeData.thisMonthSales / new Date().getDate() || 1) - 1) * 100).toFixed(1)}% daily avg`,
-      trend: realTimeData.todaySales > (realTimeData.thisMonthSales / new Date().getDate() || 0) ? 'up' : 'down',
-      color: 'bg-green-500',
-      actionPath: '/sales',
-      actionLabel: 'View Sales',
-      priority: 'high'
-    },
-    {
-      id: 'fuel-sales',
-      title: 'Fuel Gallons Sold',
-      description: 'Total fuel gallons sold today',
-      icon: <Fuel className="h-6 w-6" />,
-      value: realTimeData.fuelGallonsToday.toLocaleString(),
-      change: 'gallons today',
-      trend: 'neutral',
-      color: 'bg-blue-500',
-      actionPath: '/inventory/gas-delivery',
-      actionLabel: 'Check Tanks',
-      priority: 'high'
-    },
-    {
-      id: 'convenience-sales',
-      title: 'Convenience Store',
-      description: 'Store sales excluding fuel',
-      icon: <Building2 className="h-6 w-6" />,
-      value: `$${realTimeData.convenienceSalesToday.toLocaleString()}`,
-      change: 'store sales today',
-      trend: 'up',
-      color: 'bg-purple-500',
-      actionPath: '/products',
-      actionLabel: 'View Products',
-      priority: 'medium'
-    },
-    {
-      id: 'active-employees',
-      title: 'Active Employees',
-      description: 'Currently active staff members',
-      icon: <Users className="h-6 w-6" />,
-      value: realTimeData.employeeCount.toString(),
-      change: 'total employees',
-      trend: 'neutral',
-      color: 'bg-indigo-500',
-      actionPath: '/employees',
-      actionLabel: 'Manage Staff',
-      priority: 'medium'
-    },
-    {
-      id: 'inventory-alerts',
-      title: 'Inventory Alerts',
-      description: 'Items requiring attention',
-      icon: <Package className="h-6 w-6" />,
-      value: realTimeData.lowStockItems.toString(),
-      change: realTimeData.lowStockItems > 0 ? 'items low stock' : 'all stocked',
-      trend: realTimeData.lowStockItems > 0 ? 'down' : 'up',
-      color: realTimeData.lowStockItems > 0 ? 'bg-red-500' : 'bg-green-500',
-      actionPath: '/inventory/alerts',
-      actionLabel: 'Check Inventory',
-      priority: realTimeData.lowStockItems > 0 ? 'high' : 'low'
-    },
-    {
-      id: 'pending-reports',
-      title: 'Pending Reports',
-      description: 'Reports awaiting submission',
-      icon: <FileText className="h-6 w-6" />,
-      value: realTimeData.pendingReports.toString(),
-      change: 'reports pending',
-      trend: realTimeData.pendingReports > 0 ? 'down' : 'up',
-      color: realTimeData.pendingReports > 0 ? 'bg-orange-500' : 'bg-green-500',
-      actionPath: '/sales',
-      actionLabel: 'Review Reports',
-      priority: realTimeData.pendingReports > 0 ? 'high' : 'low'
-    }
-  ];
+  {
+    id: 'daily-revenue',
+    title: "Today's Revenue",
+    description: 'Total revenue across all stations',
+    icon: <DollarSign className="h-6 w-6" />,
+    value: `$${realTimeData.todaySales.toLocaleString()}`,
+    change: `vs ${((realTimeData.todaySales / (realTimeData.thisMonthSales / new Date().getDate() || 1) - 1) * 100).toFixed(1)}% daily avg`,
+    trend: realTimeData.todaySales > (realTimeData.thisMonthSales / new Date().getDate() || 0) ? 'up' : 'down',
+    color: 'bg-green-500',
+    actionPath: '/sales',
+    actionLabel: 'View Sales',
+    priority: 'high'
+  },
+  {
+    id: 'fuel-sales',
+    title: 'Fuel Gallons Sold',
+    description: 'Total fuel gallons sold today',
+    icon: <Fuel className="h-6 w-6" />,
+    value: realTimeData.fuelGallonsToday.toLocaleString(),
+    change: 'gallons today',
+    trend: 'neutral',
+    color: 'bg-blue-500',
+    actionPath: '/inventory/gas-delivery',
+    actionLabel: 'Check Tanks',
+    priority: 'high'
+  },
+  {
+    id: 'convenience-sales',
+    title: 'Convenience Store',
+    description: 'Store sales excluding fuel',
+    icon: <Building2 className="h-6 w-6" />,
+    value: `$${realTimeData.convenienceSalesToday.toLocaleString()}`,
+    change: 'store sales today',
+    trend: 'up',
+    color: 'bg-purple-500',
+    actionPath: '/products',
+    actionLabel: 'View Products',
+    priority: 'medium'
+  },
+  {
+    id: 'active-employees',
+    title: 'Active Employees',
+    description: 'Currently active staff members',
+    icon: <Users className="h-6 w-6" />,
+    value: realTimeData.employeeCount.toString(),
+    change: 'total employees',
+    trend: 'neutral',
+    color: 'bg-indigo-500',
+    actionPath: '/employees',
+    actionLabel: 'Manage Staff',
+    priority: 'medium'
+  },
+  {
+    id: 'inventory-alerts',
+    title: 'Inventory Alerts',
+    description: 'Items requiring attention',
+    icon: <Package className="h-6 w-6" />,
+    value: realTimeData.lowStockItems.toString(),
+    change: realTimeData.lowStockItems > 0 ? 'items low stock' : 'all stocked',
+    trend: realTimeData.lowStockItems > 0 ? 'down' : 'up',
+    color: realTimeData.lowStockItems > 0 ? 'bg-red-500' : 'bg-green-500',
+    actionPath: '/inventory/alerts',
+    actionLabel: 'Check Inventory',
+    priority: realTimeData.lowStockItems > 0 ? 'high' : 'low'
+  },
+  {
+    id: 'pending-reports',
+    title: 'Pending Reports',
+    description: 'Reports awaiting submission',
+    icon: <FileText className="h-6 w-6" />,
+    value: realTimeData.pendingReports.toString(),
+    change: 'reports pending',
+    trend: realTimeData.pendingReports > 0 ? 'down' : 'up',
+    color: realTimeData.pendingReports > 0 ? 'bg-orange-500' : 'bg-green-500',
+    actionPath: '/sales',
+    actionLabel: 'Review Reports',
+    priority: realTimeData.pendingReports > 0 ? 'high' : 'low'
+  }];
+
 
   // Employee Role Dashboard Widgets
   const getEmployeeWidgets = (): DashboardWidget[] => [
-    {
-      id: 'my-shift-sales',
-      title: 'My Shift Sales',
-      description: 'Sales during my current shift',
-      icon: <Receipt className="h-6 w-6" />,
-      value: `$${realTimeData.myShiftSales.toLocaleString()}`,
-      change: 'shift total',
-      trend: 'up',
-      color: 'bg-green-500',
-      actionPath: '/sales/new',
-      actionLabel: 'New Sale Report',
-      priority: 'high'
-    },
-    {
-      id: 'station-status',
-      title: 'My Station',
-      description: 'Station performance today',
-      icon: <Building2 className="h-6 w-6" />,
-      value: userProfile?.station || 'N/A',
-      change: `$${realTimeData.myStationSales.toLocaleString()} today`,
-      trend: 'neutral',
-      color: 'bg-blue-500',
-      priority: 'high'
-    },
-    {
-      id: 'payment-breakdown',
-      title: 'Payment Methods',
-      description: 'Today\'s payment distribution',
-      icon: <CreditCard className="h-6 w-6" />,
-      value: `${Math.round((realTimeData.creditCardSales / (realTimeData.todaySales || 1)) * 100)}%`,
-      change: 'card vs cash',
-      trend: 'neutral',
-      color: 'bg-purple-500',
-      priority: 'medium'
-    },
-    {
-      id: 'my-tasks',
-      title: 'Today\'s Tasks',
-      description: 'Assigned tasks and duties',
-      icon: <CheckCircle className="h-6 w-6" />,
-      value: 'Ready',
-      change: 'operational status',
-      trend: 'up',
-      color: 'bg-green-500',
-      actionPath: '/products',
-      actionLabel: 'Check Products',
-      priority: 'medium'
-    }
-  ];
+  {
+    id: 'my-shift-sales',
+    title: 'My Shift Sales',
+    description: 'Sales during my current shift',
+    icon: <Receipt className="h-6 w-6" />,
+    value: `$${realTimeData.myShiftSales.toLocaleString()}`,
+    change: 'shift total',
+    trend: 'up',
+    color: 'bg-green-500',
+    actionPath: '/sales/new',
+    actionLabel: 'New Sale Report',
+    priority: 'high'
+  },
+  {
+    id: 'station-status',
+    title: 'My Station',
+    description: 'Station performance today',
+    icon: <Building2 className="h-6 w-6" />,
+    value: userProfile?.station || 'N/A',
+    change: `$${realTimeData.myStationSales.toLocaleString()} today`,
+    trend: 'neutral',
+    color: 'bg-blue-500',
+    priority: 'high'
+  },
+  {
+    id: 'payment-breakdown',
+    title: 'Payment Methods',
+    description: 'Today\'s payment distribution',
+    icon: <CreditCard className="h-6 w-6" />,
+    value: `${Math.round(realTimeData.creditCardSales / (realTimeData.todaySales || 1) * 100)}%`,
+    change: 'card vs cash',
+    trend: 'neutral',
+    color: 'bg-purple-500',
+    priority: 'medium'
+  },
+  {
+    id: 'my-tasks',
+    title: 'Today\'s Tasks',
+    description: 'Assigned tasks and duties',
+    icon: <CheckCircle className="h-6 w-6" />,
+    value: 'Ready',
+    change: 'operational status',
+    trend: 'up',
+    color: 'bg-green-500',
+    actionPath: '/products',
+    actionLabel: 'Check Products',
+    priority: 'medium'
+  }];
+
 
   const getCurrentUserWidgets = (): DashboardWidget[] => {
     switch (roleAccess.userRole) {
@@ -447,8 +447,8 @@ const RoleBasedDashboardV2: React.FC = () => {
   };
 
   const widgets = getCurrentUserWidgets();
-  const highPriorityWidgets = widgets.filter(w => w.priority === 'high');
-  const mediumPriorityWidgets = widgets.filter(w => w.priority === 'medium');
+  const highPriorityWidgets = widgets.filter((w) => w.priority === 'high');
+  const mediumPriorityWidgets = widgets.filter((w) => w.priority === 'medium');
 
   if (!roleAccess.userRole || loading) {
     return (
@@ -457,8 +457,8 @@ const RoleBasedDashboardV2: React.FC = () => {
           <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-500" />
           <p className="text-gray-600">Loading dashboard data...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -484,16 +484,16 @@ const RoleBasedDashboardV2: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={() => setAutoRefresh(!autoRefresh)}
-            className={autoRefresh ? 'text-green-600' : 'text-gray-600'}
-          >
+            className={autoRefresh ? 'text-green-600' : 'text-gray-600'}>
+
             <RefreshCw className={`h-4 w-4 mr-1 ${autoRefresh ? 'animate-spin' : ''}`} />
             Auto-refresh
           </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={fetchRealTimeData}
-          >
+            onClick={fetchRealTimeData}>
+
             <RefreshCw className="h-4 w-4 mr-1" />
             Refresh Now
           </Button>
@@ -501,48 +501,48 @@ const RoleBasedDashboardV2: React.FC = () => {
       </div>
 
       {/* Alerts */}
-      {realTimeData.expiringLicenses > 0 && (
-        <Alert className="border-red-500 bg-red-50">
+      {realTimeData.expiringLicenses > 0 &&
+      <Alert className="border-red-500 bg-red-50">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
             <strong>License Alert:</strong> {realTimeData.expiringLicenses} license(s) expiring within 30 days.
             <Button
-              variant="link"
-              className="p-0 h-auto font-semibold text-red-600 ml-1"
-              onClick={() => navigate('/licenses')}
-            >
+            variant="link"
+            className="p-0 h-auto font-semibold text-red-600 ml-1"
+            onClick={() => navigate('/licenses')}>
+
               Review licenses →
             </Button>
           </AlertDescription>
         </Alert>
-      )}
+      }
 
-      {realTimeData.lowStockItems > 0 && (
-        <Alert className="border-orange-500 bg-orange-50">
+      {realTimeData.lowStockItems > 0 &&
+      <Alert className="border-orange-500 bg-orange-50">
           <Package className="h-4 w-4" />
           <AlertDescription>
             <strong>Inventory Alert:</strong> {realTimeData.lowStockItems} item(s) need restocking.
             <Button
-              variant="link"
-              className="p-0 h-auto font-semibold text-orange-600 ml-1"
-              onClick={() => navigate('/inventory/alerts')}
-            >
+            variant="link"
+            className="p-0 h-auto font-semibold text-orange-600 ml-1"
+            onClick={() => navigate('/inventory/alerts')}>
+
               Check inventory →
             </Button>
           </AlertDescription>
         </Alert>
-      )}
+      }
 
       {/* High Priority Widgets */}
-      {highPriorityWidgets.length > 0 && (
-        <div>
+      {highPriorityWidgets.length > 0 &&
+      <div>
           <h2 className="text-lg font-semibold mb-3 flex items-center">
             <Target className="h-5 w-5 mr-2 text-red-500" />
             Priority Metrics
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {highPriorityWidgets.map((widget) => (
-              <Card key={widget.id} className="hover:shadow-lg transition-shadow border-l-4 border-l-red-500">
+            {highPriorityWidgets.map((widget) =>
+          <Card key={widget.id} className="hover:shadow-lg transition-shadow border-l-4 border-l-red-500">
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <div className={`p-2 rounded-lg ${widget.color} text-white`}>
@@ -557,38 +557,38 @@ const RoleBasedDashboardV2: React.FC = () => {
                     <p className="text-sm text-gray-600">{widget.description}</p>
                     <div className="flex items-baseline gap-2">
                       <span className="text-2xl font-bold">{widget.value}</span>
-                      {widget.change && (
-                        <span className="text-sm text-gray-600">{widget.change}</span>
-                      )}
+                      {widget.change &&
+                  <span className="text-sm text-gray-600">{widget.change}</span>
+                  }
                     </div>
-                    {widget.actionPath && widget.actionLabel && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="mt-3 w-full"
-                        onClick={() => handleWidgetAction(widget.actionPath)}
-                      >
+                    {widget.actionPath && widget.actionLabel &&
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-3 w-full"
+                  onClick={() => handleWidgetAction(widget.actionPath)}>
+
                         {widget.actionLabel}
                       </Button>
-                    )}
+                }
                   </div>
                 </CardContent>
               </Card>
-            ))}
+          )}
           </div>
         </div>
-      )}
+      }
 
       {/* Medium Priority Widgets */}
-      {mediumPriorityWidgets.length > 0 && (
-        <div>
+      {mediumPriorityWidgets.length > 0 &&
+      <div>
           <h2 className="text-lg font-semibold mb-3 flex items-center">
             <BarChart3 className="h-5 w-5 mr-2 text-blue-500" />
             Additional Metrics
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mediumPriorityWidgets.map((widget) => (
-              <Card key={widget.id} className="hover:shadow-lg transition-shadow">
+            {mediumPriorityWidgets.map((widget) =>
+          <Card key={widget.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <div className={`p-2 rounded-lg ${widget.color} text-white`}>
@@ -603,27 +603,27 @@ const RoleBasedDashboardV2: React.FC = () => {
                     <p className="text-sm text-gray-600">{widget.description}</p>
                     <div className="flex items-baseline gap-2">
                       <span className="text-2xl font-bold">{widget.value}</span>
-                      {widget.change && (
-                        <span className="text-sm text-gray-600">{widget.change}</span>
-                      )}
+                      {widget.change &&
+                  <span className="text-sm text-gray-600">{widget.change}</span>
+                  }
                     </div>
-                    {widget.actionPath && widget.actionLabel && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="mt-3 w-full"
-                        onClick={() => handleWidgetAction(widget.actionPath)}
-                      >
+                    {widget.actionPath && widget.actionLabel &&
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-3 w-full"
+                  onClick={() => handleWidgetAction(widget.actionPath)}>
+
                         {widget.actionLabel}
                       </Button>
-                    )}
+                }
                   </div>
                 </CardContent>
               </Card>
-            ))}
+          )}
           </div>
         </div>
-      )}
+      }
 
       {/* Quick Actions */}
       <Card>
@@ -635,49 +635,49 @@ const RoleBasedDashboardV2: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {roleAccess.hasFeatureAccess('sales', 'canCreate') && (
-              <Button
-                variant="outline"
-                className="flex items-center gap-2"
-                onClick={() => navigate('/sales/new')}
-              >
+            {roleAccess.hasFeatureAccess('sales', 'canCreate') &&
+            <Button
+              variant="outline"
+              className="flex items-center gap-2"
+              onClick={() => navigate('/sales/new')}>
+
                 <Plus className="h-4 w-4" />
                 New Sale Report
               </Button>
-            )}
+            }
             
-            {roleAccess.hasFeatureAccess('products', 'canView') && (
-              <Button
-                variant="outline"
-                className="flex items-center gap-2"
-                onClick={() => navigate('/products')}
-              >
+            {roleAccess.hasFeatureAccess('products', 'canView') &&
+            <Button
+              variant="outline"
+              className="flex items-center gap-2"
+              onClick={() => navigate('/products')}>
+
                 <Eye className="h-4 w-4" />
                 View Products
               </Button>
-            )}
+            }
             
-            {roleAccess.hasFeatureAccess('delivery', 'canCreate') && (
-              <Button
-                variant="outline"
-                className="flex items-center gap-2"
-                onClick={() => navigate('/delivery/new')}
-              >
+            {roleAccess.hasFeatureAccess('delivery', 'canCreate') &&
+            <Button
+              variant="outline"
+              className="flex items-center gap-2"
+              onClick={() => navigate('/delivery/new')}>
+
                 <Truck className="h-4 w-4" />
                 Log Delivery
               </Button>
-            )}
+            }
             
-            {roleAccess.hasFeatureAccess('sales', 'canExport') && (
-              <Button
-                variant="outline"
-                className="flex items-center gap-2"
-                onClick={() => navigate('/sales')}
-              >
+            {roleAccess.hasFeatureAccess('sales', 'canExport') &&
+            <Button
+              variant="outline"
+              className="flex items-center gap-2"
+              onClick={() => navigate('/sales')}>
+
                 <Download className="h-4 w-4" />
                 Export Reports
               </Button>
-            )}
+            }
           </div>
         </CardContent>
       </Card>
@@ -687,8 +687,8 @@ const RoleBasedDashboardV2: React.FC = () => {
         <span>Last updated: {realTimeData.lastUpdated.toLocaleTimeString()}</span>
         <span>Auto-refresh: {autoRefresh ? 'Every 30 seconds' : 'Disabled'}</span>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default RoleBasedDashboardV2;
