@@ -85,13 +85,4 @@ try {
   console.warn('Invalid character error monitoring initialization failed:', error);
 }
 
-// Initialize API migration (Supabase replacement for window.ezsite.apis)
-try {
-  const { initializeApiMigration } = await import('./utils/apiMigration');
-  initializeApiMigration();
-  console.log('API Migration: Supabase service initialized successfully');
-} catch (error) {
-  console.warn('API migration initialization failed:', error);
-}
-
 createRoot(document.getElementById("root")!).render(<App />);

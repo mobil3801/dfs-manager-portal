@@ -259,6 +259,16 @@ const AdminPanel: React.FC = () => {
     badge: 'Roles',
     category: 'security',
     status: 'active'
+  },
+  {
+    title: 'Real-time Management',
+    description: 'Monitor and manage real-time data synchronization across the system',
+    path: '/admin/realtime-management',
+    icon: <Activity className="w-8 h-8" />,
+    color: 'bg-emerald-600',
+    badge: 'Real-time',
+    category: 'monitoring',
+    status: 'active'
   }];
 
   // Real-time system stats based on actual data

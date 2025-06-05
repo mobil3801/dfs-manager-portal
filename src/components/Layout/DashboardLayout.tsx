@@ -35,6 +35,8 @@ import {
 import Logo from '@/components/Logo';
 import { PageErrorBoundary } from '@/components/ErrorBoundary';
 import { useResponsiveLayout } from '@/hooks/use-mobile';
+import RealtimeConnectionStatus from '@/components/RealtimeConnectionStatus';
+import RealtimeNotificationCenter from '@/components/RealtimeNotificationCenter';
 
 
 interface NavigationItem {
@@ -258,6 +260,12 @@ const DashboardLayout: React.FC = () => {
 
           {/* User menu - Responsive */}
           <div className="flex items-center space-x-2 sm:space-x-4">
+            {/* Real-time Status */}
+            <RealtimeConnectionStatus showDetails={false} showRefreshButton={false} />
+            
+            {/* Real-time Notifications */}
+            <RealtimeNotificationCenter />
+            
             {!responsive.isMobile &&
             <span className="text-sm text-gray-600">
                 Welcome, {user.Name}

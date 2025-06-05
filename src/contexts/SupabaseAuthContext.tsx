@@ -2,34 +2,16 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
-import { supabaseService } from '@/services/supabaseService';
-
-interface UserProfile {
-  id: number;
-  user_id: number;
-  role: string;
-  station: string;
-  employee_id: string;
-  phone: string;
-  hire_date: string;
-  is_active: boolean;
-  detailed_permissions: string;
-}
 
 interface SupabaseAuthContextType {
   user: User | null;
   session: Session | null;
-  profile: UserProfile | null;
   loading: boolean;
   signUp: (email: string, password: string) => Promise<{error: AuthError | null;}>;
   signIn: (email: string, password: string) => Promise<{error: AuthError | null;}>;
   signOut: () => Promise<{error: AuthError | null;}>;
   resetPassword: (email: string) => Promise<{error: AuthError | null;}>;
   updatePassword: (password: string) => Promise<{error: AuthError | null;}>;
-  refreshProfile: () => Promise<void>;
-  hasPermission: (resource: string, action: string) => boolean;
-  isAdmin: () => boolean;
-  isManager: () => boolean;
 }
 
 const SupabaseAuthContext = createContext<SupabaseAuthContextType | undefined>(undefined);
@@ -49,59 +31,8 @@ interface SupabaseAuthProviderProps {
 export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-
-  const loadUserProfile = async (userId: string) => {
-    try {
-      const { data: userProfile } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
-
-      if (userProfile) {
-        setProfile(userProfile);
-      } else {
-        // Create default profile if it doesn't exist
-        const defaultProfile = {
-          user_id: parseInt(userId),
-          role: 'Employee',
-          station: 'MOBIL',
-          employee_id: '',
-          phone: '',
-          hire_date: new Date().toISOString(),
-          is_active: true,
-          detailed_permissions: JSON.stringify({
-            products: { view: true, create: false, edit: false, delete: false },
-            employees: { view: false, create: false, edit: false, delete: false },
-            sales: { view: true, create: true, edit: true, delete: false },
-            vendors: { view: true, create: false, edit: false, delete: false },
-            orders: { view: true, create: true, edit: true, delete: false },
-            licenses: { view: true, create: false, edit: false, delete: false },
-            salary: { view: false, create: false, edit: false, delete: false },
-            inventory: { view: true, create: false, edit: false, delete: false },
-            delivery: { view: true, create: true, edit: true, delete: false },
-            settings: { view: false, create: false, edit: false, delete: false },
-            admin: { view: false, create: false, edit: false, delete: false }
-          })
-        };
-
-        const { data: newProfile } = await supabase
-          .from('user_profiles')
-          .insert(defaultProfile)
-          .select()
-          .single();
-
-        if (newProfile) {
-          setProfile(newProfile);
-        }
-      }
-    } catch (error) {
-      console.error('Error loading user profile:', error);
-    }
-  };
 
   useEffect(() => {
     // Get initial session
@@ -118,9 +49,6 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
         } else {
           setSession(session);
           setUser(session?.user ?? null);
-          if (session?.user) {
-            await loadUserProfile(session.user.id);
-          }
         }
       } catch (error) {
         console.error('Error in getSession:', error);
@@ -138,13 +66,6 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
 
         setSession(session);
         setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          await loadUserProfile(session.user.id);
-        } else {
-          setProfile(null);
-        }
-        
         setLoading(false);
 
         // Handle different auth events
@@ -160,8 +81,6 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
               title: 'Signed Out',
               description: 'You have been successfully signed out.'
             });
-            // Cleanup realtime subscriptions
-            supabaseService.cleanup();
             break;
           case 'TOKEN_REFRESHED':
             console.log('Token refreshed successfully');
@@ -190,23 +109,28 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
   const signUp = async (email: string, password: string) => {
     try {
       setLoading(true);
-      const result = await supabaseService.register(email, password);
-
-      if (result.error) {
-        toast({
-          title: 'Sign Up Error',
-          description: result.error,
-          variant: 'destructive'
-        });
-        return { error: new Error(result.error) as AuthError };
-      }
-
-      toast({
-        title: 'Check Your Email',
-        description: 'We sent you a confirmation link. Please check your email.'
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`
+        }
       });
 
-      return { error: null };
+      if (error) {
+        toast({
+          title: 'Sign Up Error',
+          description: error.message,
+          variant: 'destructive'
+        });
+      } else {
+        toast({
+          title: 'Check Your Email',
+          description: 'We sent you a confirmation link. Please check your email.'
+        });
+      }
+
+      return { error };
     } catch (error) {
       console.error('Sign up error:', error);
       const authError = error as AuthError;
@@ -224,18 +148,20 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
-      const result = await supabaseService.login(email, password);
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
 
-      if (result.error) {
+      if (error) {
         toast({
           title: 'Sign In Error',
-          description: result.error,
+          description: error.message,
           variant: 'destructive'
         });
-        return { error: new Error(result.error) as AuthError };
       }
 
-      return { error: null };
+      return { error };
     } catch (error) {
       console.error('Sign in error:', error);
       const authError = error as AuthError;
@@ -253,18 +179,17 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
   const signOut = async () => {
     try {
       setLoading(true);
-      const result = await supabaseService.logout();
+      const { error } = await supabase.auth.signOut();
 
-      if (result.error) {
+      if (error) {
         toast({
           title: 'Sign Out Error',
-          description: result.error,
+          description: error.message,
           variant: 'destructive'
         });
-        return { error: new Error(result.error) as AuthError };
       }
 
-      return { error: null };
+      return { error };
     } catch (error) {
       console.error('Sign out error:', error);
       const authError = error as AuthError;
@@ -281,23 +206,24 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
 
   const resetPassword = async (email: string) => {
     try {
-      const result = await supabaseService.sendResetPwdEmail(email);
-
-      if (result.error) {
-        toast({
-          title: 'Password Reset Error',
-          description: result.error,
-          variant: 'destructive'
-        });
-        return { error: new Error(result.error) as AuthError };
-      }
-
-      toast({
-        title: 'Password Reset Email Sent',
-        description: 'Please check your email for password reset instructions.'
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/reset-password`
       });
 
-      return { error: null };
+      if (error) {
+        toast({
+          title: 'Password Reset Error',
+          description: error.message,
+          variant: 'destructive'
+        });
+      } else {
+        toast({
+          title: 'Password Reset Email Sent',
+          description: 'Please check your email for password reset instructions.'
+        });
+      }
+
+      return { error };
     } catch (error) {
       console.error('Password reset error:', error);
       const authError = error as AuthError;
@@ -322,15 +248,14 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
           description: error.message,
           variant: 'destructive'
         });
-        return { error };
+      } else {
+        toast({
+          title: 'Password Updated',
+          description: 'Your password has been updated successfully.'
+        });
       }
 
-      toast({
-        title: 'Password Updated',
-        description: 'Your password has been updated successfully.'
-      });
-
-      return { error: null };
+      return { error };
     } catch (error) {
       console.error('Password update error:', error);
       const authError = error as AuthError;
@@ -343,50 +268,20 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
     }
   };
 
-  const refreshProfile = async () => {
-    if (user) {
-      await loadUserProfile(user.id);
-    }
-  };
-
-  const hasPermission = (resource: string, action: string): boolean => {
-    if (!profile || !profile.detailed_permissions) return false;
-    
-    try {
-      const permissions = JSON.parse(profile.detailed_permissions);
-      return permissions[resource]?.[action] || false;
-    } catch {
-      return false;
-    }
-  };
-
-  const isAdmin = (): boolean => {
-    return profile?.role === 'Administrator' || false;
-  };
-
-  const isManager = (): boolean => {
-    return profile?.role === 'Management' || profile?.role === 'Administrator' || false;
-  };
-
   const value = {
     user,
     session,
-    profile,
     loading,
     signUp,
     signIn,
     signOut,
     resetPassword,
-    updatePassword,
-    refreshProfile,
-    hasPermission,
-    isAdmin,
-    isManager,
+    updatePassword
   };
 
   return (
     <SupabaseAuthContext.Provider value={value}>
       {children}
-    </SupabaseAuthContext.Provider>
-  );
+    </SupabaseAuthContext.Provider>);
+
 };

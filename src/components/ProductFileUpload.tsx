@@ -675,6 +675,8 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
 
 
 
+
+
           // Invalid date format, ignore
         }} // Calculate profit margin
       const unitPrice = mapped.unit_price || 0;const retailPrice = mapped.retail_price || 0;const profitMargin = calculateProfitMargin(unitPrice, retailPrice); // Calculate overdue status
@@ -831,12 +833,10 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
                         {product.isValid && !product.isDuplicate ? <Badge variant="default" className="bg-green-100 text-green-800">
                             <CheckCircle className="w-3 h-3 mr-1" />
                             Valid
-                          </Badge> : product.isDuplicate ?
-                      <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                          </Badge> : product.isDuplicate ? <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
                             <AlertTriangle className="w-3 h-3 mr-1" />
                             Duplicate
                           </Badge> :
-
                       <Badge variant="destructive">
                             <XCircle className="w-3 h-3 mr-1" />
                             Error
