@@ -19,9 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAdminAccess } from '@/hooks/use-admin-access';
 import AccessDenied from '@/components/AccessDenied';
 import InvariantErrorDetector from '@/components/ErrorBoundary/InvariantErrorDetector';
-import EnhancedInvariantDetector from '@/components/ErrorBoundary/EnhancedInvariantDetector';
 import ReactKeyValidator from '@/components/ErrorBoundary/ReactKeyValidator';
-import InvariantQuickFix from '@/components/ErrorBoundary/InvariantQuickFix';
 import ErrorAnalyticsDashboard from '@/components/ErrorAnalyticsDashboard';
 import ErrorMonitoringWidget from '@/components/ErrorMonitoringWidget';
 
@@ -163,43 +161,32 @@ const ErrorMonitoringPage: React.FC = () => {
       </div>
 
       {/* Main Debugging Tools */}
-      <Tabs defaultValue="quickfix" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="quickfix" className="flex items-center gap-2">
-            <RefreshCw className="h-4 w-4" />
-            Quick Fix
-          </TabsTrigger>
+      <Tabs defaultValue="invariant" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="invariant" className="flex items-center gap-2">
             <Bug className="h-4 w-4" />
-            Detector
+            Invariant Detector
           </TabsTrigger>
           <TabsTrigger value="keys" className="flex items-center gap-2">
             <Key className="h-4 w-4" />
-            Keys
+            Key Validator
           </TabsTrigger>
           <TabsTrigger value="analytics" className="flex items-center gap-2">
             <Activity className="h-4 w-4" />
-            Analytics
+            Error Analytics
           </TabsTrigger>
           <TabsTrigger value="monitoring" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
-            Monitor
+            Live Monitoring
           </TabsTrigger>
           <TabsTrigger value="help" className="flex items-center gap-2">
             <Info className="h-4 w-4" />
-            Help
+            Help &amp; Tips
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="quickfix" className="space-y-4">
-          <InvariantQuickFix />
-        </TabsContent>
-
         <TabsContent value="invariant" className="space-y-4">
-          <div className="space-y-4">
-            <EnhancedInvariantDetector />
-            <InvariantErrorDetector />
-          </div>
+          <InvariantErrorDetector />
         </TabsContent>
 
         <TabsContent value="keys" className="space-y-4">

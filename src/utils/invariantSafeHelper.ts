@@ -98,7 +98,7 @@ keyExtractor?: (item: T, index: number) => string)
 };
 
 // Safe component wrapper that adds error boundaries
-export const withInvariantSafety = <P extends object>(
+export const withInvariantSafety = <P extends object,>(
 Component: React.ComponentType<P>) =>
 {
   const SafeComponent = (props: P) => {
@@ -108,26 +108,21 @@ Component: React.ComponentType<P>) =>
     } catch (error) {
       console.error('Component rendering error:', error);
 
-      // Return a safe fallback using React.createElement to avoid JSX syntax issues
-      return React.createElement('div', 
-        { className: 'p-4 border border-red-200 bg-red-50 rounded-md' },
-        React.createElement('p', 
-          { className: 'text-red-800 text-sm' },
-          'Component failed to render safely. Please check the props.'
-        ),
-        process.env.NODE_ENV === 'development' ? 
-          React.createElement('details',
-            { className: 'mt-2' },
-            React.createElement('summary', 
-              { className: 'text-xs cursor-pointer' },
-              'Error Details'
-            ),
-            React.createElement('pre',
-              { className: 'text-xs mt-1 p-2 bg-red-100 rounded overflow-auto' },
+      // Return a safe fallback
+      return (
+        React.createElement('div', { className: 'p-4 border border-red-200 bg-red-50 rounded-md' },
+          React.createElement('p', { className: 'text-red-800 text-sm' },
+            'Component failed to render safely. Please check the props.'
+          ),
+          process.env.NODE_ENV === 'development' &&
+          React.createElement('details', { className: 'mt-2' },
+            React.createElement('summary', { className: 'text-xs cursor-pointer' }, 'Error Details'),
+            React.createElement('pre', { className: 'text-xs mt-1 p-2 bg-red-100 rounded overflow-auto' },
               error instanceof Error ? error.message : String(error)
             )
-          ) : null
-      );
+          )
+        ));
+
     }
   };
 
@@ -149,7 +144,7 @@ export const validateDOMNesting = (parent: string, child: string): boolean => {
 
   const invalidChildren = invalidNesting[parent as keyof typeof invalidNesting];
   if (invalidChildren && invalidChildren.includes(child)) {
-    console.warn(`Invalid DOM nesting: <${child}> inside <${parent}>`);
+    console.warn(`Invalid DOM nesting: &lt;${child}&gt; inside &lt;${parent}&gt;`);
     return false;
   }
 

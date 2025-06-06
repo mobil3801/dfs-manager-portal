@@ -8,7 +8,6 @@ import RealTimeDataProvider from '@/components/RealTimeDataProvider';
 import { GlobalErrorBoundary } from './components/ErrorBoundary';
 import EnhancedGlobalErrorBoundary from './components/ErrorBoundary/EnhancedGlobalErrorBoundary';
 import InvalidCharacterErrorBoundary from './components/ErrorBoundary/InvalidCharacterErrorBoundary';
-import InvariantErrorRecovery from './components/ErrorBoundary/InvariantErrorRecovery';
 
 import DashboardLayout from './components/Layout/DashboardLayout';
 import Dashboard from './pages/Dashboard';
@@ -60,10 +59,9 @@ const queryClient = new QueryClient();
 
 function App() {
   return (
-    <InvariantErrorRecovery autoRecover={true} maxRetries={3}>
-      <EnhancedGlobalErrorBoundary>
-        <GlobalErrorBoundary>
-          <InvalidCharacterErrorBoundary>
+    <EnhancedGlobalErrorBoundary>
+      <GlobalErrorBoundary>
+        <InvalidCharacterErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <SupabaseAuthProvider>
             <AuthProvider>
@@ -163,10 +161,9 @@ function App() {
             </AuthProvider>
           </SupabaseAuthProvider>
         </QueryClientProvider>
-          </InvalidCharacterErrorBoundary>
-        </GlobalErrorBoundary>
-      </EnhancedGlobalErrorBoundary>
-    </InvariantErrorRecovery>);
+        </InvalidCharacterErrorBoundary>
+      </GlobalErrorBoundary>
+    </EnhancedGlobalErrorBoundary>);
 
 }
 
