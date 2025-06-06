@@ -53,11 +53,11 @@ class AnalyticsAlerts {
       // Store in localStorage for now
       // In production, this would be saved to a database table
       const alerts = await this.getAlertConfigurations();
-      const updatedAlerts = alerts.filter((a) => a.id !== config.id);
+      const updatedAlerts = alerts.filter(a => a.id !== config.id);
       updatedAlerts.push(config);
-
+      
       localStorage.setItem('analytics_alert_configs', JSON.stringify(updatedAlerts));
-
+      
       console.log(`Alert configuration updated: ${config.id}`);
     } catch (error) {
       console.error('Error updating alert configuration:', error);
@@ -68,23 +68,23 @@ class AnalyticsAlerts {
   // Check thresholds against current metrics
   async checkThresholds(metrics: any, alerts: AlertConfig[]): Promise<AlertConfig[]> {
     const triggeredAlerts: AlertConfig[] = [];
-
+    
     try {
       for (const alert of alerts) {
         if (!alert.isActive) continue;
-
+        
         // Check cooldown
         if (this.isInCooldown(alert.id)) continue;
-
+        
         const metricValue = this.extractMetricValue(metrics, alert.metric);
         if (metricValue === null) continue;
-
+        
         const isTriggered = this.evaluateThreshold(metricValue, alert.threshold, alert.operator);
-
+        
         if (isTriggered) {
           triggeredAlerts.push(alert);
           this.setCooldown(alert.id);
-
+          
           // Log the alert
           await this.logAlert(alert, metricValue, metrics);
         }
@@ -92,7 +92,7 @@ class AnalyticsAlerts {
     } catch (error) {
       console.error('Error checking thresholds:', error);
     }
-
+    
     return triggeredAlerts;
   }
 
@@ -101,19 +101,19 @@ class AnalyticsAlerts {
     try {
       const metricValue = this.extractMetricValue(metrics, alert.metric);
       const emailContent = this.generateEmailAlertContent(alert, metricValue, metrics);
-
+      
       const { error } = await window.ezsite.apis.sendEmail({
         from: 'support@ezsite.ai',
         to: alert.recipients,
         subject: `Analytics Alert: ${alert.metric}`,
         html: emailContent.html,
-        text: emailContent.text
+        text: emailContent.text,
       });
-
+      
       if (error) {
         throw new Error(error);
       }
-
+      
       console.log(`Email alert sent for ${alert.metric} to ${alert.recipients.length} recipients`);
     } catch (error) {
       console.error('Error sending email alert:', error);
@@ -126,7 +126,7 @@ class AnalyticsAlerts {
     try {
       const metricValue = this.extractMetricValue(metrics, alert.metric);
       const message = this.generateSMSAlertMessage(alert, metricValue);
-
+      
       // Log SMS alert in history table
       const smsData = {
         license_id: 0, // Not applicable for analytics alerts
@@ -136,15 +136,15 @@ class AnalyticsAlerts {
         sent_date: new Date().toISOString(),
         delivery_status: 'Sent',
         days_before_expiry: 0,
-        created_by: 1 // System user
+        created_by: 1, // System user
       };
-
+      
       const { error } = await window.ezsite.apis.tableCreate(this.smsTableId, smsData);
-
+      
       if (error) {
         console.warn('Failed to log SMS alert:', error);
       }
-
+      
       // In a real implementation, this would send SMS via SMS service
       console.log(`SMS alert logged for ${alert.metric}: ${message}`);
     } catch (error) {
@@ -159,15 +159,15 @@ class AnalyticsAlerts {
       const id = `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const alertThreshold: AlertThreshold = {
         ...threshold,
-        id
+        id,
       };
-
+      
       // Store in localStorage for now
       const thresholds = await this.getAlertThresholds();
       thresholds.push(alertThreshold);
-
+      
       localStorage.setItem('analytics_alert_thresholds', JSON.stringify(thresholds));
-
+      
       return id;
     } catch (error) {
       console.error('Error creating alert threshold:', error);
@@ -193,9 +193,9 @@ class AnalyticsAlerts {
   async updateAlertThreshold(threshold: AlertThreshold): Promise<void> {
     try {
       const thresholds = await this.getAlertThresholds();
-      const updatedThresholds = thresholds.filter((t) => t.id !== threshold.id);
+      const updatedThresholds = thresholds.filter(t => t.id !== threshold.id);
       updatedThresholds.push(threshold);
-
+      
       localStorage.setItem('analytics_alert_thresholds', JSON.stringify(updatedThresholds));
     } catch (error) {
       console.error('Error updating alert threshold:', error);
@@ -207,8 +207,8 @@ class AnalyticsAlerts {
   async deleteAlertThreshold(thresholdId: string): Promise<void> {
     try {
       const thresholds = await this.getAlertThresholds();
-      const filteredThresholds = thresholds.filter((t) => t.id !== thresholdId);
-
+      const filteredThresholds = thresholds.filter(t => t.id !== thresholdId);
+      
       localStorage.setItem('analytics_alert_thresholds', JSON.stringify(filteredThresholds));
     } catch (error) {
       console.error('Error deleting alert threshold:', error);
@@ -245,10 +245,10 @@ class AnalyticsAlerts {
   async acknowledgeAlert(alertId: string): Promise<void> {
     try {
       const history = await this.getAlertHistory();
-      const updatedHistory = history.map((alert) =>
-      alert.id === alertId ? { ...alert, acknowledged: true } : alert
+      const updatedHistory = history.map(alert => 
+        alert.id === alertId ? { ...alert, acknowledged: true } : alert
       );
-
+      
       localStorage.setItem(this.alertHistoryKey, JSON.stringify(updatedHistory));
     } catch (error) {
       console.error('Error acknowledging alert:', error);
@@ -259,79 +259,79 @@ class AnalyticsAlerts {
   // Default alert configurations
   private getDefaultAlertConfigurations(): AlertConfig[] {
     return [
-    {
-      id: 'low_sales_alert',
-      metric: 'totalSales.current',
-      threshold: 5000,
-      operator: 'less_than',
-      isActive: true,
-      notificationMethods: ['email', 'dashboard'],
-      recipients: ['manager@example.com']
-    },
-    {
-      id: 'high_expenses_alert',
-      metric: 'expenses.total',
-      threshold: 2000,
-      operator: 'greater_than',
-      isActive: true,
-      notificationMethods: ['email', 'sms'],
-      recipients: ['admin@example.com']
-    },
-    {
-      id: 'low_profit_margin_alert',
-      metric: 'profitMargin.current',
-      threshold: 15,
-      operator: 'less_than',
-      isActive: true,
-      notificationMethods: ['email', 'dashboard'],
-      recipients: ['finance@example.com']
-    },
-    {
-      id: 'low_inventory_alert',
-      metric: 'inventoryMetrics.lowStockItems',
-      threshold: 10,
-      operator: 'greater_than',
-      isActive: true,
-      notificationMethods: ['email'],
-      recipients: ['inventory@example.com']
-    }];
-
+      {
+        id: 'low_sales_alert',
+        metric: 'totalSales.current',
+        threshold: 5000,
+        operator: 'less_than',
+        isActive: true,
+        notificationMethods: ['email', 'dashboard'],
+        recipients: ['manager@example.com'],
+      },
+      {
+        id: 'high_expenses_alert',
+        metric: 'expenses.total',
+        threshold: 2000,
+        operator: 'greater_than',
+        isActive: true,
+        notificationMethods: ['email', 'sms'],
+        recipients: ['admin@example.com'],
+      },
+      {
+        id: 'low_profit_margin_alert',
+        metric: 'profitMargin.current',
+        threshold: 15,
+        operator: 'less_than',
+        isActive: true,
+        notificationMethods: ['email', 'dashboard'],
+        recipients: ['finance@example.com'],
+      },
+      {
+        id: 'low_inventory_alert',
+        metric: 'inventoryMetrics.lowStockItems',
+        threshold: 10,
+        operator: 'greater_than',
+        isActive: true,
+        notificationMethods: ['email'],
+        recipients: ['inventory@example.com'],
+      },
+    ];
   }
 
   // Default alert thresholds
   private getDefaultAlertThresholds(): AlertThreshold[] {
     return [
-    {
-      id: 'sales_drop_threshold',
-      name: 'Sales Drop Alert',
-      metric: 'totalSales.current',
-      value: 5000,
-      operator: 'less_than',
-      severity: 'high',
-      isActive: true,
-      cooldownMinutes: 60
-    },
-    {
-      id: 'expense_spike_threshold',
-      name: 'Expense Spike Alert',
-      metric: 'expenses.total',
-      value: 2000,
-      operator: 'greater_than',
-      severity: 'medium',
-      isActive: true,
-      cooldownMinutes: 120
-    },
-    {
-      id: 'margin_low_threshold',
-      name: 'Low Profit Margin Alert',
-      metric: 'profitMargin.current',
-      value: 15,
-      operator: 'less_than',
-      severity: 'high',
-      isActive: true,
-      cooldownMinutes: 240
-    }];
-
+      {
+        id: 'sales_drop_threshold',
+        name: 'Sales Drop Alert',
+        metric: 'totalSales.current',
+        value: 5000,
+        operator: 'less_than',
+        severity: 'high',
+        isActive: true,
+        cooldownMinutes: 60,
+      },
+      {
+        id: 'expense_spike_threshold',
+        name: 'Expense Spike Alert',
+        metric: 'expenses.total',
+        value: 2000,
+        operator: 'greater_than',
+        severity: 'medium',
+        isActive: true,
+        cooldownMinutes: 120,
+      },
+      {
+        id: 'margin_low_threshold',
+        name: 'Low Profit Margin Alert',
+        metric: 'profitMargin.current',
+        value: 15,
+        operator: 'less_than',
+        severity: 'high',
+        isActive: true,
+        cooldownMinutes: 240,
+      },
+    ];
   }
 
   // Extract metric value from metrics object
@@ -339,7 +339,7 @@ class AnalyticsAlerts {
     try {
       const keys = metricPath.split('.');
       let value = metrics;
-
+      
       for (const key of keys) {
         if (value && typeof value === 'object' && key in value) {
           value = value[key];
@@ -347,7 +347,7 @@ class AnalyticsAlerts {
           return null;
         }
       }
-
+      
       return typeof value === 'number' ? value : null;
     } catch (error) {
       console.error(`Error extracting metric value for ${metricPath}:`, error);
@@ -378,7 +378,7 @@ class AnalyticsAlerts {
   private isInCooldown(alertId: string): boolean {
     const lastTriggered = this.cooldownMap.get(alertId);
     if (!lastTriggered) return false;
-
+    
     const cooldownPeriod = 30 * 60 * 1000; // 30 minutes default
     return Date.now() - lastTriggered.getTime() < cooldownPeriod;
   }
@@ -398,15 +398,15 @@ class AnalyticsAlerts {
         severity: 'medium', // Could be derived from alert config
         triggeredAt: new Date(),
         channels: alert.notificationMethods,
-        acknowledged: false
+        acknowledged: false,
       };
-
+      
       const history = await this.getAlertHistory();
       history.unshift(notification); // Add to beginning
-
+      
       // Keep only last 100 alerts
       const trimmedHistory = history.slice(0, 100);
-
+      
       localStorage.setItem(this.alertHistoryKey, JSON.stringify(trimmedHistory));
     } catch (error) {
       console.error('Error logging alert:', error);
@@ -414,7 +414,7 @@ class AnalyticsAlerts {
   }
 
   // Generate email alert content
-  private generateEmailAlertContent(alert: AlertConfig, metricValue: number, metrics: any): {html: string;text: string;} {
+  private generateEmailAlertContent(alert: AlertConfig, metricValue: number, metrics: any): { html: string; text: string; } {
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
@@ -448,7 +448,7 @@ class AnalyticsAlerts {
         </div>
       </div>
     `;
-
+    
     const text = `
 Analytics Alert Triggered
 
@@ -460,7 +460,7 @@ Alert Details:
 
 Action Required: Please review your dashboard for more details and take appropriate action.
     `;
-
+    
     return { html, text };
   }
 
@@ -493,13 +493,13 @@ Action Required: Please review your dashboard for more details and take appropri
         operator: 'greater_than',
         isActive: true,
         notificationMethods: ['email'],
-        recipients: ['test@example.com']
+        recipients: ['test@example.com'],
       };
-
+      
       const testMetrics = {
         test: { metric: 150 }
       };
-
+      
       await this.sendEmailAlert(testAlert, testMetrics);
       console.log('Alert system test completed successfully');
     } catch (error) {

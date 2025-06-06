@@ -41,9 +41,9 @@ class PerformanceMonitor {
     slowLoadTime: 3000, // 3 seconds
     highMemoryUsage: 100 * 1024 * 1024, // 100MB
     highErrorRate: 0.1, // 10%
-    highCacheMissRate: 0.5 // 50%
+    highCacheMissRate: 0.5, // 50%
   };
-
+  
   private monitorName: string;
   private startTime: number;
   private alerts: PerformanceAlert[] = [];
@@ -51,7 +51,7 @@ class PerformanceMonitor {
   constructor(name: string) {
     this.monitorName = name;
     this.startTime = performance.now();
-
+    
     // Start periodic monitoring
     this.startPeriodicMonitoring();
   }
@@ -63,19 +63,19 @@ class PerformanceMonitor {
       loadTime,
       timestamp: new Date(),
       success,
-      errorMessage
+      errorMessage,
     };
-
+    
     this.loadTimes.push(metric);
-
+    
     // Trim history if too large
     if (this.loadTimes.length > this.maxHistorySize) {
       this.loadTimes = this.loadTimes.slice(-this.maxHistorySize);
     }
-
+    
     // Check for performance alerts
     this.checkPerformanceAlerts(metric);
-
+    
     // Log slow operations
     if (loadTime > this.performanceThresholds.slowLoadTime) {
       console.warn(`Slow operation detected: ${operation} took ${loadTime}ms`);
@@ -88,16 +88,16 @@ class PerformanceMonitor {
       name,
       value,
       timestamp: new Date(),
-      metadata
+      metadata,
     };
-
+    
     if (!this.metrics.has(name)) {
       this.metrics.set(name, []);
     }
-
+    
     const metricHistory = this.metrics.get(name)!;
     metricHistory.push(metric);
-
+    
     // Trim history
     if (metricHistory.length > this.maxHistorySize) {
       this.metrics.set(name, metricHistory.slice(-this.maxHistorySize));
@@ -107,7 +107,7 @@ class PerformanceMonitor {
   // Get performance statistics
   getMetrics(): PerformanceStats {
     const recentLoadTimes = this.loadTimes.slice(-100); // Last 100 operations
-
+    
     if (recentLoadTimes.length === 0) {
       return {
         averageLoadTime: 0,
@@ -115,13 +115,13 @@ class PerformanceMonitor {
         maxLoadTime: 0,
         totalOperations: 0,
         successRate: 0,
-        errorCount: 0
+        errorCount: 0,
       };
     }
-
-    const loadTimes = recentLoadTimes.map((m) => m.loadTime);
-    const successfulOps = recentLoadTimes.filter((m) => m.success).length;
-
+    
+    const loadTimes = recentLoadTimes.map(m => m.loadTime);
+    const successfulOps = recentLoadTimes.filter(m => m.success).length;
+    
     return {
       averageLoadTime: loadTimes.reduce((sum, time) => sum + time, 0) / loadTimes.length,
       minLoadTime: Math.min(...loadTimes),
@@ -129,7 +129,7 @@ class PerformanceMonitor {
       totalOperations: recentLoadTimes.length,
       successRate: successfulOps / recentLoadTimes.length,
       errorCount: recentLoadTimes.length - successfulOps,
-      memoryUsage: this.getMemoryUsage()
+      memoryUsage: this.getMemoryUsage(),
     };
   }
 
@@ -144,7 +144,7 @@ class PerformanceMonitor {
   // Get performance history
   getLoadTimeHistory(operation?: string): LoadTimeMetric[] {
     if (operation) {
-      return this.loadTimes.filter((m) => m.operation === operation);
+      return this.loadTimes.filter(m => m.operation === operation);
     }
     return [...this.loadTimes];
   }
@@ -173,25 +173,25 @@ class PerformanceMonitor {
         message: `Slow operation: ${metric.operation} took ${metric.loadTime}ms`,
         value: metric.loadTime,
         threshold: this.performanceThresholds.slowLoadTime,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
     }
-
+    
     // Check error rate
     const recentOps = this.loadTimes.slice(-20); // Last 20 operations
     if (recentOps.length >= 10) {
-      const errorRate = recentOps.filter((op) => !op.success).length / recentOps.length;
+      const errorRate = recentOps.filter(op => !op.success).length / recentOps.length;
       if (errorRate > this.performanceThresholds.highErrorRate) {
         this.addAlert({
           type: 'error_rate_high',
           message: `High error rate detected: ${(errorRate * 100).toFixed(1)}%`,
           value: errorRate,
           threshold: this.performanceThresholds.highErrorRate,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       }
     }
-
+    
     // Check memory usage
     const memoryUsage = this.getMemoryUsage();
     if (memoryUsage > this.performanceThresholds.highMemoryUsage) {
@@ -200,7 +200,7 @@ class PerformanceMonitor {
         message: `High memory usage: ${(memoryUsage / 1024 / 1024).toFixed(1)}MB`,
         value: memoryUsage,
         threshold: this.performanceThresholds.highMemoryUsage,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
     }
   }
@@ -208,12 +208,12 @@ class PerformanceMonitor {
   // Add performance alert
   private addAlert(alert: PerformanceAlert): void {
     this.alerts.push(alert);
-
+    
     // Keep only recent alerts (last 50)
     if (this.alerts.length > 50) {
       this.alerts = this.alerts.slice(-50);
     }
-
+    
     // Log critical alerts
     if (alert.type === 'memory_high' || alert.type === 'error_rate_high') {
       console.warn(`Performance Alert: ${alert.message}`);
@@ -226,7 +226,7 @@ class PerformanceMonitor {
     setInterval(() => {
       this.recordMetric('memory_usage', this.getMemoryUsage());
       this.recordMetric('uptime', performance.now() - this.startTime);
-
+      
       // Calculate cache hit rate if available
       const cacheStats = this.getCacheStats();
       if (cacheStats) {
@@ -237,13 +237,13 @@ class PerformanceMonitor {
   }
 
   // Get cache statistics (would integrate with analytics cache)
-  private getCacheStats(): {hitRate: number;size: number;} | null {
+  private getCacheStats(): { hitRate: number; size: number; } | null {
     try {
       // This would integrate with the analytics cache
       // For now, return simulated data
       return {
         hitRate: Math.random() * 0.4 + 0.6, // 60-100% hit rate
-        size: Math.floor(Math.random() * 50) + 10 // 10-60 entries
+        size: Math.floor(Math.random() * 50) + 10, // 10-60 entries
       };
     } catch {
       return null;
@@ -254,7 +254,7 @@ class PerformanceMonitor {
   generateReport(): any {
     const stats = this.getMetrics();
     const recentAlerts = this.alerts.slice(-10);
-
+    
     return {
       monitorName: this.monitorName,
       generatedAt: new Date().toISOString(),
@@ -262,52 +262,52 @@ class PerformanceMonitor {
       alerts: recentAlerts,
       recommendations: this.generateRecommendations(stats),
       uptime: performance.now() - this.startTime,
-      healthScore: this.calculateHealthScore(stats)
+      healthScore: this.calculateHealthScore(stats),
     };
   }
 
   // Generate performance recommendations
   private generateRecommendations(stats: PerformanceStats): string[] {
     const recommendations: string[] = [];
-
+    
     if (stats.averageLoadTime > 2000) {
       recommendations.push('Consider enabling caching to improve load times');
     }
-
+    
     if (stats.successRate < 0.95) {
       recommendations.push('High error rate detected - review error handling and data validation');
     }
-
+    
     if (stats.memoryUsage && stats.memoryUsage > 50 * 1024 * 1024) {
       recommendations.push('High memory usage - consider optimizing data structures and garbage collection');
     }
-
+    
     if (stats.maxLoadTime > 5000) {
       recommendations.push('Some operations are very slow - consider database query optimization');
     }
-
+    
     return recommendations;
   }
 
   // Calculate health score (0-100)
   private calculateHealthScore(stats: PerformanceStats): number {
     let score = 100;
-
+    
     // Deduct points for slow performance
     if (stats.averageLoadTime > 1000) {
       score -= Math.min(30, (stats.averageLoadTime - 1000) / 100);
     }
-
+    
     // Deduct points for errors
     if (stats.successRate < 1) {
       score -= (1 - stats.successRate) * 50;
     }
-
+    
     // Deduct points for high memory usage
     if (stats.memoryUsage && stats.memoryUsage > 50 * 1024 * 1024) {
       score -= Math.min(20, (stats.memoryUsage - 50 * 1024 * 1024) / (1024 * 1024));
     }
-
+    
     return Math.max(0, Math.min(100, score));
   }
 
@@ -319,7 +319,7 @@ class PerformanceMonitor {
       customMetrics: Array.from(this.metrics.entries()),
       alerts: this.alerts,
       stats: this.getMetrics(),
-      exportedAt: new Date().toISOString()
+      exportedAt: new Date().toISOString(),
     };
   }
 
@@ -335,7 +335,7 @@ class PerformanceMonitor {
     const startTime = performance.now();
     let success = true;
     let error: Error | undefined;
-
+    
     try {
       const result = await fn();
       return result;
@@ -355,7 +355,7 @@ class PerformanceMonitor {
     const startTime = performance.now();
     let success = true;
     let error: Error | undefined;
-
+    
     try {
       const result = fn();
       return result;
@@ -399,21 +399,21 @@ class AnalyticsPerformance {
 
   // Generate comprehensive report
   generateGlobalReport(): any {
-    const reports = Array.from(this.monitors.values()).map((monitor) => monitor.generateReport());
-
+    const reports = Array.from(this.monitors.values()).map(monitor => monitor.generateReport());
+    
     return {
       generatedAt: new Date().toISOString(),
       totalMonitors: this.monitors.size,
       monitors: reports,
       globalHealthScore: this.calculateGlobalHealthScore(reports),
-      summary: this.generateGlobalSummary(reports)
+      summary: this.generateGlobalSummary(reports),
     };
   }
 
   // Calculate global health score
   private calculateGlobalHealthScore(reports: any[]): number {
     if (reports.length === 0) return 100;
-
+    
     const totalScore = reports.reduce((sum, report) => sum + report.healthScore, 0);
     return totalScore / reports.length;
   }
@@ -423,34 +423,34 @@ class AnalyticsPerformance {
     const totalOperations = reports.reduce((sum, report) => sum + report.stats.totalOperations, 0);
     const totalErrors = reports.reduce((sum, report) => sum + report.stats.errorCount, 0);
     const avgLoadTime = reports.reduce((sum, report) => sum + report.stats.averageLoadTime, 0) / reports.length;
-
+    
     return {
       totalOperations,
       totalErrors,
       globalErrorRate: totalOperations > 0 ? totalErrors / totalOperations : 0,
       averageLoadTime: avgLoadTime || 0,
       activeMonitors: reports.length,
-      totalAlerts: reports.reduce((sum, report) => sum + report.alerts.length, 0)
+      totalAlerts: reports.reduce((sum, report) => sum + report.alerts.length, 0),
     };
   }
 
   // Clear all monitors
   clearAll(): void {
-    this.monitors.forEach((monitor) => monitor.clear());
+    this.monitors.forEach(monitor => monitor.clear());
   }
 
   // Export all performance data
   exportAllData(): any {
     const data: any = {};
-
+    
     this.monitors.forEach((monitor, name) => {
       data[name] = monitor.exportData();
     });
-
+    
     return {
       exportedAt: new Date().toISOString(),
       monitors: data,
-      globalReport: this.generateGlobalReport()
+      globalReport: this.generateGlobalReport(),
     };
   }
 }

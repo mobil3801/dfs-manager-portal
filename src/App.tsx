@@ -6,7 +6,6 @@ import { AuthProvider } from './contexts/AuthContext';
 import { SupabaseAuthProvider } from './contexts/SupabaseAuthContext';
 import RealTimeDataProvider from '@/components/RealTimeDataProvider';
 import { GlobalErrorBoundary } from './components/ErrorBoundary';
-import EnhancedGlobalErrorBoundary from './components/ErrorBoundary/EnhancedGlobalErrorBoundary';
 import InvalidCharacterErrorBoundary from './components/ErrorBoundary/InvalidCharacterErrorBoundary';
 
 import DashboardLayout from './components/Layout/DashboardLayout';
@@ -48,7 +47,6 @@ import DevelopmentMonitoringPage from './pages/Admin/DevelopmentMonitoring';
 import RoleTestingPage from './pages/Admin/RoleTestingPage';
 import AdvancedRealTimeFeatures from './pages/Admin/AdvancedRealTimeFeatures';
 import RealtimeManagement from './pages/Admin/RealtimeManagement';
-import ErrorMonitoringPage from './pages/Admin/ErrorMonitoringPage';
 import InvalidCharacterErrorDemo from './components/InvalidCharacterErrorDemo';
 import LoginPage from './pages/LoginPage';
 import OnAuthSuccessPage from './pages/OnAuthSuccessPage';
@@ -59,9 +57,8 @@ const queryClient = new QueryClient();
 
 function App() {
   return (
-    <EnhancedGlobalErrorBoundary>
-      <GlobalErrorBoundary>
-        <InvalidCharacterErrorBoundary>
+    <GlobalErrorBoundary>
+      <InvalidCharacterErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <SupabaseAuthProvider>
             <AuthProvider>
@@ -148,7 +145,6 @@ function App() {
                         <Route path="admin/role-testing" element={<RoleTestingPage />} />
                         <Route path="admin/advanced-realtime" element={<AdvancedRealTimeFeatures />} />
                         <Route path="admin/realtime-management" element={<RealtimeManagement />} />
-                        <Route path="admin/error-monitoring" element={<ErrorMonitoringPage />} />
                         <Route path="admin/invalid-character-demo" element={<InvalidCharacterErrorDemo />} />
                       </Route>
                       
@@ -161,9 +157,8 @@ function App() {
             </AuthProvider>
           </SupabaseAuthProvider>
         </QueryClientProvider>
-        </InvalidCharacterErrorBoundary>
-      </GlobalErrorBoundary>
-    </EnhancedGlobalErrorBoundary>);
+      </InvalidCharacterErrorBoundary>
+    </GlobalErrorBoundary>);
 
 }
 
