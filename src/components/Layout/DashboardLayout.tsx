@@ -29,7 +29,8 @@ import {
   MessageSquare,
   Activity,
   LogOut,
-  User } from
+  User,
+  Bug } from
 'lucide-react';
 
 import Logo from '@/components/Logo';
@@ -107,7 +108,8 @@ const DashboardLayout: React.FC = () => {
 
   // Admin-only navigation items
   const adminNavigationItems: NavigationItem[] = [
-  { name: 'Admin Panel', path: '/admin', icon: <Settings className="w-5 h-5" /> }];
+  { name: 'Admin Panel', path: '/admin', icon: <Settings className="w-5 h-5" /> },
+  { name: 'Error Monitor', path: '/admin/error-monitoring', icon: <Bug className="w-5 h-5 text-red-500" /> }];
 
 
   // Combine navigation items based on user role
@@ -171,6 +173,7 @@ const DashboardLayout: React.FC = () => {
     if (path.startsWith('/admin/development-monitoring')) return 'Development Monitoring';
     if (path.startsWith('/admin/role-testing')) return 'Role Testing & Customization';
     if (path.startsWith('/admin/advanced-realtime')) return 'Advanced Real-Time Features';
+    if (path.startsWith('/admin/error-monitoring')) return 'Error Monitoring & Debugging';
     if (path.startsWith('/admin')) return 'Site & User Management';
     return 'DFS Manager';
   };

@@ -29,26 +29,26 @@ interface DashboardAnalyticsProviderProps {
   options?: Partial<AnalyticsOptions>;
 }
 
-export const DashboardAnalyticsProvider: React.FC<DashboardAnalyticsProviderProps> = ({ 
-  children, 
-  options = {} 
+export const DashboardAnalyticsProvider: React.FC<DashboardAnalyticsProviderProps> = ({
+  children,
+  options = {}
 }) => {
   const analyticsHook = useDashboardAnalytics(options);
 
   return (
     <DashboardAnalyticsContext.Provider value={analyticsHook}>
       {children}
-    </DashboardAnalyticsContext.Provider>
-  );
+    </DashboardAnalyticsContext.Provider>);
+
 };
 
 export const useDashboardAnalyticsContext = (): DashboardAnalyticsContextType => {
   const context = useContext(DashboardAnalyticsContext);
-  
+
   if (!context) {
     throw new Error('useDashboardAnalyticsContext must be used within a DashboardAnalyticsProvider');
   }
-  
+
   return context;
 };
 

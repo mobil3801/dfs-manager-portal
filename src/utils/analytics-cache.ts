@@ -18,9 +18,9 @@ class AnalyticsCache {
   private config: CacheConfig = {
     maxSize: 100,
     defaultTTL: 5 * 60 * 1000, // 5 minutes
-    persistToStorage: true,
+    persistToStorage: true
   };
-  
+
   private readonly STORAGE_KEY = 'dashboard_analytics_cache';
   private readonly BACKUP_KEY = 'dashboard_analytics_backup';
 
@@ -28,19 +28,19 @@ class AnalyticsCache {
     if (config) {
       this.config = { ...this.config, ...config };
     }
-    
+
     // Load persisted cache on initialization
     if (this.config.persistToStorage) {
       this.loadFromStorage();
     }
-    
+
     // Setup periodic cleanup
     setInterval(() => this.cleanup(), 60000); // Clean every minute
   }
 
   // Generate cache key
   private generateKey(prefix: string, ...params: any[]): string {
-    return `${prefix}:${params.map(p => JSON.stringify(p)).join(':')}`;
+    return `${prefix}:${params.map((p) => JSON.stringify(p)).join(':')}`;
   }
 
   // Set cache entry
@@ -49,16 +49,16 @@ class AnalyticsCache {
       data,
       timestamp: Date.now(),
       ttl: ttl || this.config.defaultTTL,
-      key,
+      key
     };
-    
+
     // Enforce cache size limit
     if (this.cache.size >= this.config.maxSize) {
       this.evictOldest();
     }
-    
+
     this.cache.set(key, entry);
-    
+
     // Persist to storage if enabled
     if (this.config.persistToStorage) {
       this.saveToStorage();
@@ -68,17 +68,17 @@ class AnalyticsCache {
   // Get cache entry
   private get<T>(key: string): T | null {
     const entry = this.cache.get(key) as CacheEntry<T> | undefined;
-    
+
     if (!entry) {
       return null;
     }
-    
+
     // Check if entry has expired
     if (Date.now() - entry.timestamp > entry.ttl) {
       this.cache.delete(key);
       return null;
     }
-    
+
     return entry.data;
   }
 
@@ -86,14 +86,14 @@ class AnalyticsCache {
   private evictOldest(): void {
     let oldestKey = '';
     let oldestTime = Date.now();
-    
+
     for (const [key, entry] of this.cache.entries()) {
       if (entry.timestamp < oldestTime) {
         oldestTime = entry.timestamp;
         oldestKey = key;
       }
     }
-    
+
     if (oldestKey) {
       this.cache.delete(oldestKey);
     }
@@ -103,15 +103,15 @@ class AnalyticsCache {
   private cleanup(): void {
     const now = Date.now();
     const expiredKeys: string[] = [];
-    
+
     for (const [key, entry] of this.cache.entries()) {
       if (now - entry.timestamp > entry.ttl) {
         expiredKeys.push(key);
       }
     }
-    
-    expiredKeys.forEach(key => this.cache.delete(key));
-    
+
+    expiredKeys.forEach((key) => this.cache.delete(key));
+
     // Update storage after cleanup
     if (this.config.persistToStorage && expiredKeys.length > 0) {
       this.saveToStorage();
@@ -135,7 +135,7 @@ class AnalyticsCache {
       if (stored) {
         const cacheData = JSON.parse(stored) as Array<[string, CacheEntry<any>]>;
         this.cache = new Map(cacheData);
-        
+
         // Clean expired entries after loading
         this.cleanup();
       }
@@ -154,7 +154,7 @@ class AnalyticsCache {
   async setMetrics(timeframe: string, stations: string[], data: any, ttl?: number): Promise<void> {
     const key = this.generateKey('metrics', timeframe, stations);
     this.set(key, data, ttl);
-    
+
     // Also save as backup data
     await this.setBackupMetrics(data);
   }
@@ -208,7 +208,7 @@ class AnalyticsCache {
     try {
       localStorage.setItem(this.BACKUP_KEY, JSON.stringify({
         data,
-        timestamp: Date.now(),
+        timestamp: Date.now()
       }));
     } catch (error) {
       console.warn('Failed to save backup metrics:', error);
@@ -220,7 +220,7 @@ class AnalyticsCache {
       const stored = localStorage.getItem(this.BACKUP_KEY);
       if (stored) {
         const backup = JSON.parse(stored);
-        
+
         // Check if backup is not too old (max 24 hours)
         if (Date.now() - backup.timestamp < 24 * 60 * 60 * 1000) {
           return backup.data;
@@ -239,10 +239,10 @@ class AnalyticsCache {
       this.cache.delete(key);
     } else {
       // Invalidate all metrics cache
-      const metricsKeys = Array.from(this.cache.keys()).filter(key => key.startsWith('metrics:'));
-      metricsKeys.forEach(key => this.cache.delete(key));
+      const metricsKeys = Array.from(this.cache.keys()).filter((key) => key.startsWith('metrics:'));
+      metricsKeys.forEach((key) => this.cache.delete(key));
     }
-    
+
     if (this.config.persistToStorage) {
       this.saveToStorage();
     }
@@ -253,19 +253,19 @@ class AnalyticsCache {
       const key = this.generateKey('comparison', timeframe, stations);
       this.cache.delete(key);
     } else {
-      const comparisonKeys = Array.from(this.cache.keys()).filter(key => key.startsWith('comparison:'));
-      comparisonKeys.forEach(key => this.cache.delete(key));
+      const comparisonKeys = Array.from(this.cache.keys()).filter((key) => key.startsWith('comparison:'));
+      comparisonKeys.forEach((key) => this.cache.delete(key));
     }
-    
+
     if (this.config.persistToStorage) {
       this.saveToStorage();
     }
   }
 
   async invalidateForecast(): Promise<void> {
-    const forecastKeys = Array.from(this.cache.keys()).filter(key => key.startsWith('forecast:'));
-    forecastKeys.forEach(key => this.cache.delete(key));
-    
+    const forecastKeys = Array.from(this.cache.keys()).filter((key) => key.startsWith('forecast:'));
+    forecastKeys.forEach((key) => this.cache.delete(key));
+
     if (this.config.persistToStorage) {
       this.saveToStorage();
     }
@@ -274,7 +274,7 @@ class AnalyticsCache {
   // Clear all cache
   async clearAll(): Promise<void> {
     this.cache.clear();
-    
+
     if (this.config.persistToStorage) {
       try {
         localStorage.removeItem(this.STORAGE_KEY);
@@ -290,7 +290,7 @@ class AnalyticsCache {
     let validEntries = 0;
     let expiredEntries = 0;
     let totalSize = 0;
-    
+
     for (const [, entry] of this.cache.entries()) {
       totalSize++;
       if (now - entry.timestamp > entry.ttl) {
@@ -299,24 +299,24 @@ class AnalyticsCache {
         validEntries++;
       }
     }
-    
+
     return {
       totalEntries: totalSize,
       validEntries,
       expiredEntries,
       hitRate: this.hitRate,
       maxSize: this.config.maxSize,
-      usagePercent: (totalSize / this.config.maxSize) * 100,
+      usagePercent: totalSize / this.config.maxSize * 100
     };
   }
 
   // Track hit rate (simplified)
   private hitCount = 0;
   private missCount = 0;
-  
+
   private get hitRate(): number {
     const total = this.hitCount + this.missCount;
-    return total > 0 ? (this.hitCount / total) * 100 : 0;
+    return total > 0 ? this.hitCount / total * 100 : 0;
   }
 
   // Method to track cache hits/misses
@@ -345,7 +345,7 @@ class AnalyticsCache {
     return {
       entries: Array.from(this.cache.entries()),
       config: this.config,
-      stats: this.getCacheStats(),
+      stats: this.getCacheStats()
     };
   }
 }

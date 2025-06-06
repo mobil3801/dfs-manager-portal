@@ -34,14 +34,14 @@ interface ExportResult {
 class AnalyticsExport {
   private readonly emailTemplateIds = {
     daily: 1,
-    weekly: 2, 
-    monthly: 3,
+    weekly: 2,
+    monthly: 3
   };
 
   // Main export method
   async exportDashboardData(options: ExportOptions): Promise<ExportResult> {
     const { format, metrics, comparison, forecast, timeframe, stations } = options;
-    
+
     try {
       switch (format) {
         case 'csv':
@@ -62,81 +62,81 @@ class AnalyticsExport {
   // Export to CSV format
   private async exportToCSV(options: ExportOptions): Promise<ExportResult> {
     const { metrics, comparison, forecast, timeframe, stations } = options;
-    
+
     let csvContent = 'data:text/csv;charset=utf-8,';
-    
+
     // Add header
     csvContent += this.generateCSVHeader() + '\n';
-    
+
     // Add metrics data
     if (metrics) {
       csvContent += this.convertMetricsToCSV(metrics) + '\n';
     }
-    
+
     // Add comparison data
     if (comparison) {
       csvContent += '\n' + this.generateComparisonCSV(comparison) + '\n';
     }
-    
+
     // Add forecast data
     if (forecast) {
       csvContent += '\n' + this.generateForecastCSV(forecast) + '\n';
     }
-    
+
     // Create download URL
     const encodedUri = encodeURI(csvContent);
     const filename = this.generateFilename('csv', timeframe, stations);
-    
+
     return {
       filename,
       downloadUrl: encodedUri,
       size: csvContent.length,
       format: 'csv',
-      generatedAt: new Date().toISOString(),
+      generatedAt: new Date().toISOString()
     };
   }
 
   // Export to Excel format
   private async exportToExcel(options: ExportOptions): Promise<ExportResult> {
     const { metrics, comparison, forecast, timeframe, stations } = options;
-    
+
     // For Excel, we'll create a more structured format
     // This is a simplified implementation - in production, you'd use a library like xlsx
-    
+
     const workbookData = {
       sheets: {
         'Dashboard Metrics': this.convertMetricsToTable(metrics),
         'Comparison Data': comparison ? this.convertComparisonToTable(comparison) : [],
-        'Forecast Data': forecast ? this.convertForecastToTable(forecast) : [],
+        'Forecast Data': forecast ? this.convertForecastToTable(forecast) : []
       },
       metadata: {
         timeframe,
         stations,
-        generatedAt: new Date().toISOString(),
-      },
+        generatedAt: new Date().toISOString()
+      }
     };
-    
+
     // Convert to Excel-compatible format (simplified)
     const excelContent = this.convertToExcelFormat(workbookData);
     const filename = this.generateFilename('xlsx', timeframe, stations);
-    
+
     // Create blob and URL
     const blob = new Blob([excelContent], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     const downloadUrl = URL.createObjectURL(blob);
-    
+
     return {
       filename,
       downloadUrl,
       size: blob.size,
       format: 'excel',
-      generatedAt: new Date().toISOString(),
+      generatedAt: new Date().toISOString()
     };
   }
 
   // Export to PDF format
   private async exportToPDF(options: ExportOptions): Promise<ExportResult> {
     const { metrics, comparison, forecast, timeframe, stations, includeCharts = true } = options;
-    
+
     // Create HTML content for PDF
     const htmlContent = this.generatePDFHTML({
       metrics,
@@ -144,30 +144,30 @@ class AnalyticsExport {
       forecast,
       timeframe,
       stations,
-      includeCharts,
+      includeCharts
     });
-    
+
     // Convert HTML to PDF (simplified - in production, use a library like jsPDF or Puppeteer)
     const pdfContent = await this.convertHTMLToPDF(htmlContent);
     const filename = this.generateFilename('pdf', timeframe, stations);
-    
+
     // Create blob and URL
     const blob = new Blob([pdfContent], { type: 'application/pdf' });
     const downloadUrl = URL.createObjectURL(blob);
-    
+
     return {
       filename,
       downloadUrl,
       size: blob.size,
       format: 'pdf',
-      generatedAt: new Date().toISOString(),
+      generatedAt: new Date().toISOString()
     };
   }
 
   // Send email report
   async sendEmailReport(options: EmailReportOptions): Promise<void> {
     const { metrics, comparison, forecast, recipients, reportType, timeframe, stations, customMessage } = options;
-    
+
     try {
       // Generate report content
       const reportContent = await this.generateEmailReportContent({
@@ -176,9 +176,9 @@ class AnalyticsExport {
         forecast,
         reportType,
         timeframe,
-        stations,
+        stations
       });
-      
+
       // Create PDF attachment
       const pdfAttachment = await this.exportToPDF({
         metrics,
@@ -187,28 +187,28 @@ class AnalyticsExport {
         format: 'pdf',
         timeframe,
         stations,
-        includeCharts: true,
+        includeCharts: true
       });
-      
+
       // Send email using the email API
       const emailContent = {
         from: 'support@ezsite.ai',
         to: recipients,
         subject: this.generateEmailSubject(reportType, timeframe, stations),
         html: reportContent.html,
-        text: reportContent.text,
+        text: reportContent.text
         // Note: Attachment handling would need to be implemented based on email service
       };
-      
+
       const { error } = await window.ezsite.apis.sendEmail(emailContent);
-      
+
       if (error) {
         throw new Error(error);
       }
-      
+
       // Log the email send
       console.log(`Email report sent to ${recipients.length} recipients`);
-      
+
     } catch (error) {
       console.error('Error sending email report:', error);
       throw new Error('Failed to send email report');
@@ -218,92 +218,92 @@ class AnalyticsExport {
   // Generate CSV header
   private generateCSVHeader(): string {
     return [
-      'Metric Type',
-      'Metric Name',
-      'Current Value',
-      'Previous Value',
-      'Change',
-      'Change Percent',
-      'Date Generated',
-      'Station',
-    ].join(',');
+    'Metric Type',
+    'Metric Name',
+    'Current Value',
+    'Previous Value',
+    'Change',
+    'Change Percent',
+    'Date Generated',
+    'Station'].
+    join(',');
   }
 
   // Convert metrics to CSV format
   private convertMetricsToCSV(metrics: any): string {
     const rows: string[] = [];
-    
+
     // Total Sales
     rows.push([
-      'Sales',
-      'Total Sales',
-      metrics.totalSales.current,
-      metrics.totalSales.previous,
-      metrics.totalSales.change,
-      metrics.totalSales.changePercent,
-      new Date().toISOString(),
-      'All',
-    ].join(','));
-    
+    'Sales',
+    'Total Sales',
+    metrics.totalSales.current,
+    metrics.totalSales.previous,
+    metrics.totalSales.change,
+    metrics.totalSales.changePercent,
+    new Date().toISOString(),
+    'All'].
+    join(','));
+
     // Fuel Sales
     rows.push([
-      'Fuel',
-      'Fuel Revenue',
-      metrics.fuelSales.current,
-      '',
-      metrics.fuelSales.change,
-      '',
-      new Date().toISOString(),
-      'All',
-    ].join(','));
-    
+    'Fuel',
+    'Fuel Revenue',
+    metrics.fuelSales.current,
+    '',
+    metrics.fuelSales.change,
+    '',
+    new Date().toISOString(),
+    'All'].
+    join(','));
+
     rows.push([
-      'Fuel',
-      'Gallons Sold',
-      metrics.fuelSales.gallonsSold,
-      '',
-      '',
-      '',
-      new Date().toISOString(),
-      'All',
-    ].join(','));
-    
+    'Fuel',
+    'Gallons Sold',
+    metrics.fuelSales.gallonsSold,
+    '',
+    '',
+    '',
+    new Date().toISOString(),
+    'All'].
+    join(','));
+
     // Convenience Store Sales
     rows.push([
-      'Convenience',
-      'Convenience Sales',
-      metrics.convenienceStoreSales.current,
-      '',
-      metrics.convenienceStoreSales.change,
-      '',
-      new Date().toISOString(),
-      'All',
-    ].join(','));
-    
+    'Convenience',
+    'Convenience Sales',
+    metrics.convenienceStoreSales.current,
+    '',
+    metrics.convenienceStoreSales.change,
+    '',
+    new Date().toISOString(),
+    'All'].
+    join(','));
+
     // Expenses
     rows.push([
-      'Expenses',
-      'Total Expenses',
-      metrics.expenses.total,
-      '',
-      metrics.expenses.change,
-      '',
-      new Date().toISOString(),
-      'All',
-    ].join(','));
-    
+    'Expenses',
+    'Total Expenses',
+    metrics.expenses.total,
+    '',
+    metrics.expenses.change,
+    '',
+    new Date().toISOString(),
+    'All'].
+    join(','));
+
     // Profit Margin
     rows.push([
-      'Profitability',
-      'Profit Margin',
-      metrics.profitMargin.current,
-      metrics.profitMargin.target,
-      metrics.profitMargin.variance,
-      '',
-      new Date().toISOString(),
-      'All',
-    ].join(','));
-    
+    'Profitability',
+    'Profit Margin',
+    metrics.profitMargin.current,
+    metrics.profitMargin.target,
+    metrics.profitMargin.variance,
+    '',
+    new Date().toISOString(),
+    'All'].
+    join(','));
+
     return rows.join('\n');
   }
 
@@ -312,28 +312,28 @@ class AnalyticsExport {
     const rows: string[] = [];
     rows.push('\n=== COMPARISON DATA ===');
     rows.push('Period,Total Sales,Change from Previous,Change Percent');
-    
+
     rows.push([
-      'Current',
-      comparison.current.totalSales.current,
-      '',
-      '',
-    ].join(','));
-    
+    'Current',
+    comparison.current.totalSales.current,
+    '',
+    ''].
+    join(','));
+
     rows.push([
-      'Previous',
-      comparison.previous.totalSales.current,
-      comparison.current.totalSales.change,
-      comparison.current.totalSales.changePercent,
-    ].join(','));
-    
+    'Previous',
+    comparison.previous.totalSales.current,
+    comparison.current.totalSales.change,
+    comparison.current.totalSales.changePercent].
+    join(','));
+
     rows.push([
-      'Year over Year',
-      comparison.yearOverYear.totalSales.current,
-      comparison.current.totalSales.current - comparison.yearOverYear.totalSales.current,
-      '',
-    ].join(','));
-    
+    'Year over Year',
+    comparison.yearOverYear.totalSales.current,
+    comparison.current.totalSales.current - comparison.yearOverYear.totalSales.current,
+    ''].
+    join(','));
+
     return rows.join('\n');
   }
 
@@ -342,56 +342,56 @@ class AnalyticsExport {
     const rows: string[] = [];
     rows.push('\n=== FORECAST DATA ===');
     rows.push('Date,Sales Forecast,Confidence,Upper Bound,Lower Bound');
-    
+
     forecast.sales.forEach((item: any) => {
       rows.push([
-        item.date,
-        item.predicted,
-        item.confidence,
-        item.upperBound,
-        item.lowerBound,
-      ].join(','));
+      item.date,
+      item.predicted,
+      item.confidence,
+      item.upperBound,
+      item.lowerBound].
+      join(','));
     });
-    
+
     return rows.join('\n');
   }
 
   // Convert metrics to table format
   private convertMetricsToTable(metrics: any): any[] {
     return [
-      ['Metric', 'Current', 'Previous', 'Change', 'Change %'],
-      ['Total Sales', metrics.totalSales.current, metrics.totalSales.previous, metrics.totalSales.change, metrics.totalSales.changePercent],
-      ['Fuel Revenue', metrics.fuelSales.current, '', metrics.fuelSales.change, ''],
-      ['Convenience Sales', metrics.convenienceStoreSales.current, '', metrics.convenienceStoreSales.change, ''],
-      ['Total Expenses', metrics.expenses.total, '', metrics.expenses.change, ''],
-      ['Profit Margin %', metrics.profitMargin.current, metrics.profitMargin.target, metrics.profitMargin.variance, ''],
-    ];
+    ['Metric', 'Current', 'Previous', 'Change', 'Change %'],
+    ['Total Sales', metrics.totalSales.current, metrics.totalSales.previous, metrics.totalSales.change, metrics.totalSales.changePercent],
+    ['Fuel Revenue', metrics.fuelSales.current, '', metrics.fuelSales.change, ''],
+    ['Convenience Sales', metrics.convenienceStoreSales.current, '', metrics.convenienceStoreSales.change, ''],
+    ['Total Expenses', metrics.expenses.total, '', metrics.expenses.change, ''],
+    ['Profit Margin %', metrics.profitMargin.current, metrics.profitMargin.target, metrics.profitMargin.variance, '']];
+
   }
 
   // Convert comparison to table format
   private convertComparisonToTable(comparison: any): any[] {
     return [
-      ['Period', 'Total Sales', 'Fuel Sales', 'Convenience Sales'],
-      ['Current', comparison.current.totalSales.current, comparison.current.fuelSales.current, comparison.current.convenienceStoreSales.current],
-      ['Previous', comparison.previous.totalSales.current, comparison.previous.fuelSales.current, comparison.previous.convenienceStoreSales.current],
-      ['Year over Year', comparison.yearOverYear.totalSales.current, comparison.yearOverYear.fuelSales.current, comparison.yearOverYear.convenienceStoreSales.current],
-    ];
+    ['Period', 'Total Sales', 'Fuel Sales', 'Convenience Sales'],
+    ['Current', comparison.current.totalSales.current, comparison.current.fuelSales.current, comparison.current.convenienceStoreSales.current],
+    ['Previous', comparison.previous.totalSales.current, comparison.previous.fuelSales.current, comparison.previous.convenienceStoreSales.current],
+    ['Year over Year', comparison.yearOverYear.totalSales.current, comparison.yearOverYear.fuelSales.current, comparison.yearOverYear.convenienceStoreSales.current]];
+
   }
 
   // Convert forecast to table format
   private convertForecastToTable(forecast: any): any[] {
     const table = [['Date', 'Sales Forecast', 'Confidence', 'Upper Bound', 'Lower Bound']];
-    
+
     forecast.sales.forEach((item: any) => {
       table.push([
-        item.date,
-        item.predicted,
-        (item.confidence * 100).toFixed(1) + '%',
-        item.upperBound,
-        item.lowerBound,
-      ]);
+      item.date,
+      item.predicted,
+      (item.confidence * 100).toFixed(1) + '%',
+      item.upperBound,
+      item.lowerBound]
+      );
     });
-    
+
     return table;
   }
 
@@ -400,11 +400,11 @@ class AnalyticsExport {
     // This is a simplified implementation
     // In production, you would use a library like xlsx or SheetJS
     let content = '';
-    
+
     Object.entries(workbookData.sheets).forEach(([sheetName, data]: [string, any]) => {
       content += `Sheet: ${sheetName}\n`;
       if (Array.isArray(data)) {
-        data.forEach(row => {
+        data.forEach((row) => {
           if (Array.isArray(row)) {
             content += row.join('\t') + '\n';
           }
@@ -412,14 +412,14 @@ class AnalyticsExport {
       }
       content += '\n';
     });
-    
+
     return content;
   }
 
   // Generate PDF HTML content
   private generatePDFHTML(options: any): string {
     const { metrics, comparison, forecast, timeframe, stations } = options;
-    
+
     return `
       <!DOCTYPE html>
       <html>
@@ -479,7 +479,7 @@ class AnalyticsExport {
     let html = '<div class="forecast-section"><h2>Sales Forecast</h2>';
     html += '<table class="forecast-table">';
     html += '<tr><th>Date</th><th>Predicted Sales</th><th>Confidence</th><th>Range</th></tr>';
-    
+
     forecast.sales.slice(0, 7).forEach((item: any) => {
       html += `<tr>
         <td>${item.date}</td>
@@ -488,7 +488,7 @@ class AnalyticsExport {
         <td>$${item.lowerBound.toLocaleString()} - $${item.upperBound.toLocaleString()}</td>
       </tr>`;
     });
-    
+
     html += '</table></div>';
     return html;
   }
@@ -523,7 +523,7 @@ class AnalyticsExport {
   private async convertHTMLToPDF(html: string): Promise<Uint8Array> {
     // This is a simplified implementation
     // In production, you would use a library like jsPDF, Puppeteer, or a PDF service
-    
+
     // For now, we'll create a simple text-based PDF structure
     const pdfContent = `%PDF-1.4
 1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj
@@ -548,14 +548,14 @@ trailer<</Size 5/Root 1 0 R>>
 startxref
 ${200 + html.length}
 %%EOF`;
-    
+
     return new TextEncoder().encode(pdfContent);
   }
 
   // Generate email report content
-  private async generateEmailReportContent(options: any): Promise<{ html: string; text: string; }> {
+  private async generateEmailReportContent(options: any): Promise<{html: string;text: string;}> {
     const { metrics, reportType, timeframe, stations } = options;
-    
+
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #333; text-align: center;">Dashboard Analytics Report</h1>
@@ -589,7 +589,7 @@ ${200 + html.length}
         </p>
       </div>
     `;
-    
+
     const text = `
 Dashboard Analytics Report
 ${reportType.charAt(0).toUpperCase() + reportType.slice(1)} Report | ${timeframe} | ${stations.join(', ')}
@@ -601,7 +601,7 @@ Key Metrics Summary:
 
 This is an automated report generated by the DFS Manager system.
     `;
-    
+
     return { html, text };
   }
 
@@ -634,26 +634,26 @@ This is an automated report generated by the DFS Manager system.
         is_active: config.isActive,
         from_email: 'support@ezsite.ai',
         from_name: 'DFS Manager Analytics',
-        trigger_condition: config.reportType === 'daily' ? 'daily_schedule' : 
-                          config.reportType === 'weekly' ? 'weekly_schedule' : 'monthly_schedule',
+        trigger_condition: config.reportType === 'daily' ? 'daily_schedule' :
+        config.reportType === 'weekly' ? 'weekly_schedule' : 'monthly_schedule',
         trigger_value: config.reportType === 'daily' ? 8 : // 8 AM
-                      config.reportType === 'weekly' ? 1 : // Monday
-                      1, // 1st of month
-        frequency_hours: config.reportType === 'daily' ? 24 : 
-                        config.reportType === 'weekly' ? 168 : 
-                        720, // Monthly
+        config.reportType === 'weekly' ? 1 : // Monday
+        1, // 1st of month
+        frequency_hours: config.reportType === 'daily' ? 24 :
+        config.reportType === 'weekly' ? 168 :
+        720, // Monthly
         template_id: this.emailTemplateIds[config.reportType],
         recipient_groups: config.recipients.join(','),
-        created_by: 1, // System user
+        created_by: 1 // System user
       };
-      
+
       // Save automation config (would use the email_automation_configs table)
       const { error } = await window.ezsite.apis.tableCreate(14605, automationConfig);
-      
+
       if (error) {
         throw new Error(error);
       }
-      
+
       console.log(`Automated ${config.reportType} report scheduled successfully`);
     } catch (error) {
       console.error('Error scheduling automated report:', error);
