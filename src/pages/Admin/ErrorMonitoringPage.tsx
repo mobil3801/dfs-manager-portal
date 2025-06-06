@@ -4,22 +4,24 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  AlertTriangle, 
-  Bug, 
-  Key, 
-  Shield, 
-  Activity, 
+import {
+  AlertTriangle,
+  Bug,
+  Key,
+  Shield,
+  Activity,
   RefreshCw,
   Info,
   CheckCircle,
-  XCircle
-} from 'lucide-react';
+  XCircle } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAdminAccess } from '@/hooks/use-admin-access';
 import AccessDenied from '@/components/AccessDenied';
 import InvariantErrorDetector from '@/components/ErrorBoundary/InvariantErrorDetector';
+import EnhancedInvariantDetector from '@/components/ErrorBoundary/EnhancedInvariantDetector';
 import ReactKeyValidator from '@/components/ErrorBoundary/ReactKeyValidator';
+import InvariantQuickFix from '@/components/ErrorBoundary/InvariantQuickFix';
 import ErrorAnalyticsDashboard from '@/components/ErrorAnalyticsDashboard';
 import ErrorMonitoringWidget from '@/components/ErrorMonitoringWidget';
 
@@ -33,7 +35,7 @@ const ErrorMonitoringPage: React.FC = () => {
 
   const runDiagnostics = () => {
     console.log('Running comprehensive error diagnostics...');
-    
+
     // Check for common issues
     const diagnostics = {
       reactVersion: React.version,
@@ -49,9 +51,9 @@ const ErrorMonitoringPage: React.FC = () => {
       },
       timestamp: new Date().toISOString()
     };
-    
+
     console.log('System Diagnostics:', diagnostics);
-    
+
     toast({
       title: "Diagnostics Complete",
       description: "System diagnostics have been logged to the console."
@@ -138,9 +140,9 @@ const ErrorMonitoringPage: React.FC = () => {
             <div>
               <p className="text-sm font-medium">Memory Usage</p>
               <p className="text-xs text-gray-500">
-                {(performance as any).memory ? 
-                  `${Math.round((performance as any).memory.usedJSHeapSize / 1048576)} MB` : 
-                  'Unavailable'
+                {(performance as any).memory ?
+                `${Math.round((performance as any).memory.usedJSHeapSize / 1048576)} MB` :
+                'Unavailable'
                 }
               </p>
             </div>
@@ -161,32 +163,43 @@ const ErrorMonitoringPage: React.FC = () => {
       </div>
 
       {/* Main Debugging Tools */}
-      <Tabs defaultValue="invariant" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
+      <Tabs defaultValue="quickfix" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="quickfix" className="flex items-center gap-2">
+            <RefreshCw className="h-4 w-4" />
+            Quick Fix
+          </TabsTrigger>
           <TabsTrigger value="invariant" className="flex items-center gap-2">
             <Bug className="h-4 w-4" />
-            Invariant Detector
+            Detector
           </TabsTrigger>
           <TabsTrigger value="keys" className="flex items-center gap-2">
             <Key className="h-4 w-4" />
-            Key Validator
+            Keys
           </TabsTrigger>
           <TabsTrigger value="analytics" className="flex items-center gap-2">
             <Activity className="h-4 w-4" />
-            Error Analytics
+            Analytics
           </TabsTrigger>
           <TabsTrigger value="monitoring" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
-            Live Monitoring
+            Monitor
           </TabsTrigger>
           <TabsTrigger value="help" className="flex items-center gap-2">
             <Info className="h-4 w-4" />
-            Help &amp; Tips
+            Help
           </TabsTrigger>
         </TabsList>
 
+        <TabsContent value="quickfix" className="space-y-4">
+          <InvariantQuickFix />
+        </TabsContent>
+
         <TabsContent value="invariant" className="space-y-4">
-          <InvariantErrorDetector />
+          <div className="space-y-4">
+            <EnhancedInvariantDetector />
+            <InvariantErrorDetector />
+          </div>
         </TabsContent>
 
         <TabsContent value="keys" className="space-y-4">
@@ -286,17 +299,17 @@ const ErrorMonitoringPage: React.FC = () => {
       </Tabs>
       
       {/* Development Only Features */}
-      {process.env.NODE_ENV === 'development' && (
-        <Alert>
+      {process.env.NODE_ENV === 'development' &&
+      <Alert>
           <Info className="h-4 w-4" />
           <AlertDescription>
             <strong>Development Mode:</strong> Enhanced debugging features are active. 
             Additional console logging and error details are available.
           </AlertDescription>
         </Alert>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default ErrorMonitoringPage;

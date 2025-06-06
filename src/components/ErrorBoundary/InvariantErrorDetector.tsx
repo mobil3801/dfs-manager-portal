@@ -29,7 +29,7 @@ const InvariantErrorDetector: React.FC = () => {
     // Override console.error to detect invariant violations
     console.error = (...args) => {
       const message = args.join(' ');
-      
+
       if (message.includes('Invariant') || message.includes('invariant')) {
         const error: InvariantError = {
           id: `inv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -37,47 +37,47 @@ const InvariantErrorDetector: React.FC = () => {
           timestamp: new Date(),
           stack: new Error().stack
         };
-        
-        setErrors(prev => [...prev, error].slice(-10)); // Keep only last 10 errors
-        
+
+        setErrors((prev) => [...prev, error].slice(-10)); // Keep only last 10 errors
+
         toast({
           title: "React Invariant Error Detected",
           description: "A rendering issue was detected and logged.",
           variant: "destructive"
         });
       }
-      
+
       originalConsoleError.apply(console, args);
     };
 
     // Override console.warn to catch React warnings that might lead to invariants
     console.warn = (...args) => {
       const message = args.join(' ');
-      
-      if (message.includes('Warning: ') && 
-          (message.includes('key') || 
-           message.includes('ref') || 
-           message.includes('React.createElement') ||
-           message.includes('validateDOMNesting'))) {
-        
+
+      if (message.includes('Warning: ') && (
+      message.includes('key') ||
+      message.includes('ref') ||
+      message.includes('React.createElement') ||
+      message.includes('validateDOMNesting'))) {
+
         console.log('React warning that might cause invariant:', message);
       }
-      
+
       originalConsoleWarn.apply(console, args);
     };
 
     // Monitor for unhandled promise rejections that might be invariant-related
     const handleRejection = (event: PromiseRejectionEvent) => {
       const reason = String(event.reason);
-      
+
       if (reason.includes('Invariant') || reason.includes('invariant')) {
         const error: InvariantError = {
           id: `rej_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           message: `Promise Rejection: ${reason}`,
           timestamp: new Date()
         };
-        
-        setErrors(prev => [...prev, error].slice(-10));
+
+        setErrors((prev) => [...prev, error].slice(-10));
       }
     };
 
@@ -125,35 +125,35 @@ const InvariantErrorDetector: React.FC = () => {
           <Button
             onClick={toggleMonitoring}
             variant="outline"
-            size="sm"
-          >
+            size="sm">
+
             {isMonitoring ? "Stop" : "Start"} Monitoring
           </Button>
           
-          {errors.length > 0 && (
-            <Button
-              onClick={clearErrors}
-              variant="outline"
-              size="sm"
-            >
+          {errors.length > 0 &&
+          <Button
+            onClick={clearErrors}
+            variant="outline"
+            size="sm">
+
               <RefreshCw className="h-4 w-4 mr-1" />
               Clear ({errors.length})
             </Button>
-          )}
+          }
         </div>
       </div>
 
-      {errors.length === 0 ? (
-        <Alert>
+      {errors.length === 0 ?
+      <Alert>
           <Info className="h-4 w-4" />
           <AlertDescription>
             No invariant errors detected. This tool monitors for React rendering issues in real-time.
           </AlertDescription>
-        </Alert>
-      ) : (
-        <div className="space-y-2 max-h-60 overflow-y-auto">
-          {errors.map((error) => (
-            <Alert key={error.id} variant="destructive">
+        </Alert> :
+
+      <div className="space-y-2 max-h-60 overflow-y-auto">
+          {errors.map((error) =>
+        <Alert key={error.id} variant="destructive">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
                 <div className="space-y-1">
@@ -168,8 +168,8 @@ const InvariantErrorDetector: React.FC = () => {
                   
                   <p className="text-sm font-medium">{error.message}</p>
                   
-                  {process.env.NODE_ENV === 'development' && error.stack && (
-                    <details className="mt-2">
+                  {process.env.NODE_ENV === 'development' && error.stack &&
+              <details className="mt-2">
                       <summary className="cursor-pointer text-xs text-gray-600 hover:text-gray-800">
                         Show Stack Trace
                       </summary>
@@ -177,13 +177,13 @@ const InvariantErrorDetector: React.FC = () => {
                         {error.stack}
                       </pre>
                     </details>
-                  )}
+              }
                 </div>
               </AlertDescription>
             </Alert>
-          ))}
+        )}
         </div>
-      )}
+      }
       
       <div className="text-xs text-gray-500 border-t pt-2">
         <p>
@@ -191,8 +191,8 @@ const InvariantErrorDetector: React.FC = () => {
           Common causes include invalid keys, improper component nesting, or rendering inconsistencies.
         </p>
       </div>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default InvariantErrorDetector;

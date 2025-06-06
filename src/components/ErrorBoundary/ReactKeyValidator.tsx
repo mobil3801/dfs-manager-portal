@@ -27,7 +27,7 @@ const ReactKeyValidator: React.FC = () => {
       // Scan for elements that should have keys
       const listElements = document.querySelectorAll('[data-react-key-missing]');
       const duplicateKeys = new Map<string, number>();
-      
+
       // Check for missing keys in lists
       document.querySelectorAll('ul, ol, [role="list"]').forEach((list, index) => {
         const children = list.children;
@@ -35,7 +35,7 @@ const ReactKeyValidator: React.FC = () => {
           for (let i = 0; i < children.length; i++) {
             const child = children[i];
             const reactKey = child.getAttribute('data-reactkey') || child.getAttribute('key');
-            
+
             if (!reactKey) {
               foundIssues.push({
                 id: `missing_${index}_${i}_${Date.now()}`,
@@ -48,7 +48,7 @@ const ReactKeyValidator: React.FC = () => {
               // Check for duplicate keys
               const count = duplicateKeys.get(reactKey) || 0;
               duplicateKeys.set(reactKey, count + 1);
-              
+
               if (count > 0) {
                 foundIssues.push({
                   id: `duplicate_${reactKey}_${Date.now()}`,
@@ -78,7 +78,7 @@ const ReactKeyValidator: React.FC = () => {
       });
 
       setIssues(foundIssues);
-      
+
       if (foundIssues.length === 0) {
         toast({
           title: "No Key Issues Found",
@@ -153,12 +153,12 @@ const ReactKeyValidator: React.FC = () => {
         <div className="flex items-center gap-2">
           <Key className="h-5 w-5 text-blue-500" />
           <h3 className="text-lg font-semibold">React Key Validator</h3>
-          {issues.length === 0 && (
-            <Badge variant="outline" className="text-green-600 border-green-200">
+          {issues.length === 0 &&
+          <Badge variant="outline" className="text-green-600 border-green-200">
               <CheckCircle className="h-3 w-3 mr-1" />
               No Issues
             </Badge>
-          )}
+          }
         </div>
         
         <div className="flex gap-2">
@@ -166,39 +166,39 @@ const ReactKeyValidator: React.FC = () => {
             onClick={scanForKeyIssues}
             disabled={isScanning}
             variant="outline"
-            size="sm"
-          >
-            {isScanning ? (
-              <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
-            ) : (
-              <RefreshCw className="h-4 w-4 mr-1" />
-            )}
+            size="sm">
+
+            {isScanning ?
+            <RefreshCw className="h-4 w-4 mr-1 animate-spin" /> :
+
+            <RefreshCw className="h-4 w-4 mr-1" />
+            }
             {isScanning ? 'Scanning...' : 'Scan Now'}
           </Button>
           
-          {issues.length > 0 && (
-            <Button
-              onClick={clearIssues}
-              variant="outline"
-              size="sm"
-            >
+          {issues.length > 0 &&
+          <Button
+            onClick={clearIssues}
+            variant="outline"
+            size="sm">
+
               Clear ({issues.length})
             </Button>
-          )}
+          }
         </div>
       </div>
 
-      {issues.length === 0 ? (
-        <Alert>
+      {issues.length === 0 ?
+      <Alert>
           <CheckCircle className="h-4 w-4" />
           <AlertDescription>
             No React key issues detected. All list items appear to have proper keys.
           </AlertDescription>
-        </Alert>
-      ) : (
-        <div className="space-y-2 max-h-60 overflow-y-auto">
-          {issues.map((issue) => (
-            <Alert key={issue.id} variant={getIssueColor(issue.type)}>
+        </Alert> :
+
+      <div className="space-y-2 max-h-60 overflow-y-auto">
+          {issues.map((issue) =>
+        <Alert key={issue.id} variant={getIssueColor(issue.type)}>
               {getIssueIcon(issue.type)}
               <AlertDescription>
                 <div className="space-y-1">
@@ -221,9 +221,9 @@ const ReactKeyValidator: React.FC = () => {
                 </div>
               </AlertDescription>
             </Alert>
-          ))}
+        )}
         </div>
-      )}
+      }
       
       <div className="text-xs text-gray-500 border-t pt-2 space-y-1">
         <p>
@@ -233,8 +233,8 @@ const ReactKeyValidator: React.FC = () => {
           <strong>Best Practices:</strong> Use stable, unique IDs as keys. Avoid array indices for dynamic lists.
         </p>
       </div>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default ReactKeyValidator;
