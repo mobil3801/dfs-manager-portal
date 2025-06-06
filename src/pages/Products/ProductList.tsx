@@ -13,6 +13,7 @@ import HighlightText from '@/components/HighlightText';
 import { ResponsiveTable, ResponsiveStack } from '@/components/ResponsiveWrapper';
 import { useResponsiveLayout } from '@/hooks/use-mobile';
 import ProductCards from '@/components/ProductCards';
+import { generateSafeKey, safeMap } from '@/utils/invariantSafeHelper';
 
 
 interface Product {
@@ -567,7 +568,7 @@ const ProductList: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {products.map((product) => {
+                  {safeMap(products, (product, index) => {
                   const formatDate = (dateString: string) => {
                     if (!dateString) return '-';
                     try {
@@ -578,7 +579,7 @@ const ProductList: React.FC = () => {
                   };
 
                   return (
-                    <TableRow key={product.ID}>
+                    <TableRow key={generateSafeKey(product, index, 'product')}>
                         <TableCell className="font-medium">{product.serial_number || '-'}</TableCell>
                         <TableCell>
                           <div>

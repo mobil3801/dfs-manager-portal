@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { realtimeManager } from '@/services/supabaseService';
+import { supabaseService } from '@/services/supabaseService';
 import { useToast } from '@/hooks/use-toast';
 
 interface RealtimeOptions {
@@ -69,10 +69,9 @@ export const useRealtime = (options: RealtimeOptions) => {
     console.log(`Setting up real-time subscription for ${options.table}`);
     setIsConnected(true);
 
-    const unsubscribe = realtimeManager.subscribe(
+    const unsubscribe = supabaseService.subscribeToTable(
       options.table as any,
-      handleRealtimeEvent,
-      options.filters
+      handleRealtimeEvent
     );
 
     unsubscribeRef.current = unsubscribe;
@@ -96,10 +95,9 @@ export const useRealtime = (options: RealtimeOptions) => {
 
   const reconnect = useCallback(() => {
     if (!unsubscribeRef.current) {
-      const unsubscribe = realtimeManager.subscribe(
+      const unsubscribe = supabaseService.subscribeToTable(
         options.table as any,
-        handleRealtimeEvent,
-        options.filters
+        handleRealtimeEvent
       );
       unsubscribeRef.current = unsubscribe;
       setIsConnected(true);
