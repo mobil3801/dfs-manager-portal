@@ -94,19 +94,19 @@ const EnhancedInvariantDetector: React.FC = () => {
         } catch (e) {
 
 
+
+
           // Silent catch for individual element processing
-        }});
-      keyMap.forEach((data, key) => {
-        if (data.count > 1) {
-          violations.push({
-            type: 'duplicate-key',
-            severity: 'high',
-            message: `Duplicate React key detected: "${key}" used ${data.count} times. This can cause invariant violations.`,
-            fixSuggestion: 'Use unique keys for each element in lists. Consider using item.id + index or UUID.',
-            component: data.element.tagName?.toLowerCase()
-          });
-        }
-      });
+        }});keyMap.forEach((data, key) => {if (data.count > 1) {
+            violations.push({
+              type: 'duplicate-key',
+              severity: 'high',
+              message: `Duplicate React key detected: "${key}" used ${data.count} times. This can cause invariant violations.`,
+              fixSuggestion: 'Use unique keys for each element in lists. Consider using item.id + index or UUID.',
+              component: data.element.tagName?.toLowerCase()
+            });
+          }
+        });
     } catch (error) {
       console.warn('Error detecting duplicate keys:', error);
     }
@@ -163,10 +163,10 @@ const EnhancedInvariantDetector: React.FC = () => {
               } catch (e) {
 
 
+
+
                 // Silent catch for fiber inspection
-              }};
-            if (fiber.current) {
-              checkFiber(fiber.current);
+              }};if (fiber.current) {checkFiber(fiber.current);
             } else if (fiber.child) {
               checkFiber(fiber);
             }
@@ -174,10 +174,10 @@ const EnhancedInvariantDetector: React.FC = () => {
         } catch (e) {
 
 
+
+
           // Silent catch for root processing
-        }});} catch (error) {
-      console.warn('Error detecting fiber inconsistencies:', error);
-    }
+        }});} catch (error) {console.warn('Error detecting fiber inconsistencies:', error);}
 
     return violations;
   }, []);

@@ -202,10 +202,10 @@ class InvariantErrorRecovery extends Component<Props, State> {
             React.unstable_batchedUpdates(() => {
 
 
+
+
               // Empty batch to flush pending updates
-            });}} catch (e) {
-          console.warn('Could not flush React updates:', e);
-        }
+            });}} catch (e) {console.warn('Could not flush React updates:', e);}
       }
 
       // Clear any orphaned event listeners that might cause issues

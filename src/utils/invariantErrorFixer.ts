@@ -214,11 +214,11 @@ export class InvariantErrorFixer {
         (window as any).React.unstable_batchedUpdates(() => {
 
 
+
+
           // Empty batched update to flush pending work
-        });}
-      // Force a repaint
-      document.body.style.display = 'none';
-      document.body.offsetHeight; // Trigger reflow
+        });} // Force a repaint
+      document.body.style.display = 'none';document.body.offsetHeight; // Trigger reflow
       document.body.style.display = '';
 
       return {
