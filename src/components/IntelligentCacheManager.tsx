@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -9,21 +9,30 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Database, Zap, Clock, TrendingUp, Trash2, RefreshCw, Activity, HardDrive } from 'lucide-react';
+import { 
+  Database, 
+  Trash2, 
+  RefreshCw, 
+  Clock, 
+  TrendingUp, 
+  AlertTriangle,
+  Zap,
+  BarChart3,
+  Settings
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 
 interface CacheEntry {
   key: string;
   data: any;
-  timestamp: Date;
+  size: number;
+  created: Date;
   lastAccessed: Date;
   accessCount: number;
   ttl: number;
-  size: number;
-  tags: string[];
-  priority: 'low' | 'medium' | 'high' | 'critical';
-  source: string;
+  priority: number;
+  compressed: boolean;
 }
 
 interface CacheStats {
@@ -32,22 +41,23 @@ interface CacheStats {
   hitRate: number;
   missRate: number;
   evictionCount: number;
-  prefetchHits: number;
-  memoryUsage: number;
+  compressionRatio: number;
   averageAccessTime: number;
+  memoryEfficiency: number;
 }
 
 interface CacheConfig {
-  maxSize: number;
+  maxSizeGB: number;
   defaultTTL: number;
-  evictionPolicy: 'lru' | 'lfu' | 'ttl' | 'priority';
-  prefetchEnabled: boolean;
-  compressionEnabled: boolean;
-  persistToDisk: boolean;
-  maxMemoryUsage: number;
+  enableCompression: boolean;
+  enableSmartEviction: boolean;
+  compressionThreshold: number;
+  maxEntries: number;
+  enableAnalytics: boolean;
 }
 
 const IntelligentCacheManager: React.FC = () => {
+  const { toast } = useToast();
   const [cacheEntries, setCacheEntries] = useState<CacheEntry[]>([]);
   const [cacheStats, setCacheStats] = useState<CacheStats>({
     totalEntries: 0,
@@ -55,527 +65,494 @@ const IntelligentCacheManager: React.FC = () => {
     hitRate: 0,
     missRate: 0,
     evictionCount: 0,
-    prefetchHits: 0,
-    memoryUsage: 0,
-    averageAccessTime: 0
+    compressionRatio: 0,
+    averageAccessTime: 0,
+    memoryEfficiency: 0
   });
   const [config, setConfig] = useState<CacheConfig>({
-    maxSize: 1000,
-    defaultTTL: 300000, // 5 minutes
-    evictionPolicy: 'lru',
-    prefetchEnabled: true,
-    compressionEnabled: true,
-    persistToDisk: false,
-    maxMemoryUsage: 100 // MB
+    maxSizeGB: 1,
+    defaultTTL: 1800000, // 30 minutes
+    enableCompression: true,
+    enableSmartEviction: true,
+    compressionThreshold: 1024, // 1KB
+    maxEntries: 1000,
+    enableAnalytics: true
   });
-  const [isMonitoring, setIsMonitoring] = useState(true);
-  const [filterTag, setFilterTag] = useState('');
-  const [sortBy, setSortBy] = useState<'timestamp' | 'accessed' | 'count' | 'size'>('accessed');
-  const intervalRef = useRef<NodeJS.Timeout>();
-  const { toast } = useToast();
-
-  // Simulate cache operations
+  const [selectedEntries, setSelectedEntries] = useState<Set<string>>(new Set());
+  const [isOptimizing, setIsOptimizing] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // Cache implementation with LRU and intelligent features
+  const cache = useRef(new Map<string, CacheEntry>());
+  const accessStats = useRef(new Map<string, { hits: number; misses: number; lastAccessTime: number }>());
+  const analyticsInterval = useRef<NodeJS.Timeout | null>(null);
+  
+  // Simulate cache data for demo
   useEffect(() => {
-    if (isMonitoring) {
-      intervalRef.current = setInterval(() => {
-        simulateCacheActivity();
-        updateCacheStats();
-        performMaintenance();
-      }, 2000);
-    } else {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    }
-
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [isMonitoring, config]);
-
-  const simulateCacheActivity = useCallback(() => {
-    // Simulate random cache access and updates
-    if (Math.random() < 0.3) {
-      addCacheEntry();
-    }
-
-    if (Math.random() < 0.5 && cacheEntries.length > 0) {
-      accessRandomEntry();
-    }
-
-    if (Math.random() < 0.1) {
-      prefetchData();
-    }
-  }, [cacheEntries]);
-
-  const addCacheEntry = () => {
-    const tables = ['products', 'employees', 'sales', 'orders', 'licenses'];
-    const operations = ['list', 'detail', 'search', 'filter'];
-    const table = tables[Math.floor(Math.random() * tables.length)];
-    const operation = operations[Math.floor(Math.random() * operations.length)];
-
-    const entry: CacheEntry = {
-      key: `${table}_${operation}_${Date.now()}`,
-      data: generateMockData(table),
-      timestamp: new Date(),
-      lastAccessed: new Date(),
-      accessCount: 1,
-      ttl: config.defaultTTL,
-      size: Math.floor(Math.random() * 50000) + 1000, // 1KB to 50KB
-      tags: [table, operation],
-      priority: ['low', 'medium', 'high', 'critical'][Math.floor(Math.random() * 4)] as any,
-      source: 'api'
-    };
-
-    setCacheEntries((prev) => {
-      const newEntries = [entry, ...prev];
-      // Apply eviction policy if needed
-      return applyEvictionPolicy(newEntries);
-    });
-  };
-
-  const generateMockData = (table: string) => {
-    const mockData = {
-      products: { id: 1, name: 'Sample Product', price: 9.99, category: 'Electronics' },
-      employees: { id: 1, name: 'John Doe', position: 'Manager', station: 'MOBIL' },
-      sales: { id: 1, total: 150.00, date: new Date().toISOString() },
-      orders: { id: 1, status: 'pending', amount: 75.50 },
-      licenses: { id: 1, name: 'Business License', expiry: '2024-12-31' }
-    };
-
-    return mockData[table as keyof typeof mockData] || { id: 1, data: 'sample' };
-  };
-
-  const accessRandomEntry = () => {
-    const randomIndex = Math.floor(Math.random() * cacheEntries.length);
-    const entry = cacheEntries[randomIndex];
-
-    setCacheEntries((prev) => prev.map((e, index) =>
-    index === randomIndex ?
-    {
-      ...e,
-      lastAccessed: new Date(),
-      accessCount: e.accessCount + 1
-    } :
-    e
-    ));
-  };
-
-  const prefetchData = () => {
-    if (!config.prefetchEnabled) return;
-
-    // Simulate prefetching related data
-    const relatedTables = ['vendors', 'categories', 'reports'];
-    const table = relatedTables[Math.floor(Math.random() * relatedTables.length)];
-
-    const prefetchEntry: CacheEntry = {
-      key: `prefetch_${table}_${Date.now()}`,
-      data: generateMockData(table),
-      timestamp: new Date(),
-      lastAccessed: new Date(),
-      accessCount: 0,
-      ttl: config.defaultTTL * 0.5, // Shorter TTL for prefetched data
-      size: Math.floor(Math.random() * 20000) + 500,
-      tags: [table, 'prefetch'],
-      priority: 'low',
-      source: 'prefetch'
-    };
-
-    setCacheEntries((prev) => [prefetchEntry, ...prev]);
-  };
-
-  const applyEvictionPolicy = (entries: CacheEntry[]): CacheEntry[] => {
-    if (entries.length <= config.maxSize) return entries;
-
-    let sortedEntries = [...entries];
-
-    switch (config.evictionPolicy) {
-      case 'lru':
-        sortedEntries.sort((a, b) => a.lastAccessed.getTime() - b.lastAccessed.getTime());
-        break;
-      case 'lfu':
-        sortedEntries.sort((a, b) => a.accessCount - b.accessCount);
-        break;
-      case 'ttl':
-        sortedEntries.sort((a, b) => a.timestamp.getTime() + a.ttl - (b.timestamp.getTime() + b.ttl));
-        break;
-      case 'priority':
-        const priorityOrder = { low: 0, medium: 1, high: 2, critical: 3 };
-        sortedEntries.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
-        break;
-    }
-
-    const evicted = sortedEntries.slice(0, sortedEntries.length - config.maxSize);
-    setCacheStats((prev) => ({ ...prev, evictionCount: prev.evictionCount + evicted.length }));
-
-    return sortedEntries.slice(sortedEntries.length - config.maxSize);
-  };
-
-  const performMaintenance = () => {
-    const now = new Date();
-
-    // Remove expired entries
-    setCacheEntries((prev) => {
-      const validEntries = prev.filter((entry) => {
-        const isExpired = now.getTime() - entry.timestamp.getTime() > entry.ttl;
-        return !isExpired;
+    const generateMockCacheEntries = () => {
+      const mockEntries: CacheEntry[] = [
+        {
+          key: 'products_table_11726',
+          data: { records: 150, lastFetch: Date.now() },
+          size: 245760, // ~240KB
+          created: new Date(Date.now() - 600000), // 10 minutes ago
+          lastAccessed: new Date(Date.now() - 60000), // 1 minute ago
+          accessCount: 45,
+          ttl: 1800000,
+          priority: 8,
+          compressed: true
+        },
+        {
+          key: 'employees_table_11727',
+          data: { records: 25, lastFetch: Date.now() },
+          size: 89600, // ~87KB
+          created: new Date(Date.now() - 300000), // 5 minutes ago
+          lastAccessed: new Date(Date.now() - 30000), // 30 seconds ago
+          accessCount: 23,
+          ttl: 1800000,
+          priority: 7,
+          compressed: false
+        },
+        {
+          key: 'sales_reports_table_12356',
+          data: { records: 200, lastFetch: Date.now() },
+          size: 512000, // ~500KB
+          created: new Date(Date.now() - 900000), // 15 minutes ago
+          lastAccessed: new Date(Date.now() - 120000), // 2 minutes ago
+          accessCount: 67,
+          ttl: 1800000,
+          priority: 9,
+          compressed: true
+        },
+        {
+          key: 'audit_logs_table_12706',
+          data: { records: 500, lastFetch: Date.now() },
+          size: 1048576, // 1MB
+          created: new Date(Date.now() - 1200000), // 20 minutes ago
+          lastAccessed: new Date(Date.now() - 600000), // 10 minutes ago
+          accessCount: 12,
+          ttl: 1800000,
+          priority: 3,
+          compressed: true
+        },
+        {
+          key: 'stations_table_12599',
+          data: { records: 3, lastFetch: Date.now() },
+          size: 15360, // ~15KB
+          created: new Date(Date.now() - 180000), // 3 minutes ago
+          lastAccessed: new Date(Date.now() - 45000), // 45 seconds ago
+          accessCount: 18,
+          ttl: 1800000,
+          priority: 6,
+          compressed: false
+        }
+      ];
+      
+      setCacheEntries(mockEntries);
+      
+      // Calculate stats
+      const totalSize = mockEntries.reduce((sum, entry) => sum + entry.size, 0);
+      const totalAccess = mockEntries.reduce((sum, entry) => sum + entry.accessCount, 0);
+      const compressedSize = mockEntries
+        .filter(entry => entry.compressed)
+        .reduce((sum, entry) => sum + entry.size, 0);
+      const uncompressedSize = mockEntries
+        .filter(entry => !entry.compressed)
+        .reduce((sum, entry) => sum + entry.size * 1.5, 0); // Estimate original size
+      
+      setCacheStats({
+        totalEntries: mockEntries.length,
+        totalSize,
+        hitRate: 85.2,
+        missRate: 14.8,
+        evictionCount: 3,
+        compressionRatio: compressedSize > 0 ? (compressedSize + uncompressedSize) / totalSize : 1,
+        averageAccessTime: 12.5,
+        memoryEfficiency: (totalAccess / mockEntries.length) * 10
       });
+    };
+    
+    generateMockCacheEntries();
+  }, []);
 
-      const expiredCount = prev.length - validEntries.length;
-      if (expiredCount > 0) {
-        setCacheStats((prevStats) => ({
-          ...prevStats,
-          evictionCount: prevStats.evictionCount + expiredCount
-        }));
-      }
+  // Format file size
+  const formatSize = useCallback((bytes: number): string => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+  }, []);
 
-      return validEntries;
-    });
-  };
+  // Calculate cache efficiency
+  const getCacheEfficiency = useCallback(() => {
+    const efficiency = (cacheStats.hitRate / 100) * cacheStats.memoryEfficiency;
+    if (efficiency > 80) return { status: 'excellent', color: 'text-green-600' };
+    if (efficiency > 60) return { status: 'good', color: 'text-blue-600' };
+    if (efficiency > 40) return { status: 'fair', color: 'text-yellow-600' };
+    return { status: 'poor', color: 'text-red-600' };
+  }, [cacheStats]);
 
-  const updateCacheStats = () => {
-    const totalSize = cacheEntries.reduce((sum, entry) => sum + entry.size, 0);
-    const totalAccess = cacheEntries.reduce((sum, entry) => sum + entry.accessCount, 0);
-    const prefetchHits = cacheEntries.filter((e) => e.source === 'prefetch' && e.accessCount > 0).length;
+  // Smart cache optimization
+  const optimizeCache = useCallback(async () => {
+    setIsOptimizing(true);
+    
+    try {
+      // Simulate optimization process
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Remove expired entries
+      const now = Date.now();
+      const optimizedEntries = cacheEntries.filter(entry => {
+        const age = now - entry.created.getTime();
+        return age < entry.ttl;
+      });
+      
+      // Apply compression to large uncompressed entries
+      const compressedEntries = optimizedEntries.map(entry => {
+        if (!entry.compressed && entry.size > config.compressionThreshold) {
+          return {
+            ...entry,
+            compressed: true,
+            size: Math.round(entry.size * 0.7) // Simulate 30% compression
+          };
+        }
+        return entry;
+      });
+      
+      // Sort by priority and access patterns for LRU optimization
+      const sortedEntries = compressedEntries.sort((a, b) => {
+        const scoreA = (a.priority * 0.4) + (a.accessCount * 0.3) + ((now - a.lastAccessed.getTime()) * -0.3);
+        const scoreB = (b.priority * 0.4) + (b.accessCount * 0.3) + ((now - b.lastAccessed.getTime()) * -0.3);
+        return scoreB - scoreA;
+      });
+      
+      // Keep only top entries within limits
+      const finalEntries = sortedEntries.slice(0, config.maxEntries);
+      
+      setCacheEntries(finalEntries);
+      
+      // Update stats
+      const newTotalSize = finalEntries.reduce((sum, entry) => sum + entry.size, 0);
+      setCacheStats(prev => ({
+        ...prev,
+        totalEntries: finalEntries.length,
+        totalSize: newTotalSize,
+        hitRate: Math.min(prev.hitRate + 5, 95), // Simulate improvement
+        evictionCount: prev.evictionCount + (cacheEntries.length - finalEntries.length)
+      }));
+      
+      toast({
+        title: "Cache Optimization Complete",
+        description: `Optimized ${cacheEntries.length - finalEntries.length} entries, saved ${formatSize((cacheStats.totalSize - newTotalSize))}`
+      });
+      
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Optimization Failed",
+        description: "Failed to optimize cache. Please try again."
+      });
+    } finally {
+      setIsOptimizing(false);
+    }
+  }, [cacheEntries, config, cacheStats.totalSize, formatSize, toast]);
 
-    setCacheStats((prev) => ({
+  // Clear selected cache entries
+  const clearSelectedEntries = useCallback(() => {
+    if (selectedEntries.size === 0) return;
+    
+    const filteredEntries = cacheEntries.filter(entry => !selectedEntries.has(entry.key));
+    const clearedSize = cacheEntries
+      .filter(entry => selectedEntries.has(entry.key))
+      .reduce((sum, entry) => sum + entry.size, 0);
+    
+    setCacheEntries(filteredEntries);
+    setSelectedEntries(new Set());
+    
+    setCacheStats(prev => ({
       ...prev,
-      totalEntries: cacheEntries.length,
-      totalSize,
-      hitRate: Math.random() * 20 + 80, // Simulate 80-100% hit rate
-      missRate: Math.random() * 20, // Simulate 0-20% miss rate
-      prefetchHits,
-      memoryUsage: totalSize / 1024 / 1024, // Convert to MB
-      averageAccessTime: Math.random() * 50 + 10 // 10-60ms
+      totalEntries: filteredEntries.length,
+      totalSize: prev.totalSize - clearedSize
     }));
-  };
-
-  const clearCache = () => {
-    setCacheEntries([]);
-    setCacheStats((prev) => ({ ...prev, evictionCount: prev.evictionCount + prev.totalEntries }));
+    
     toast({
-      title: "Cache Cleared",
-      description: "All cache entries have been removed"
+      title: "Cache Entries Cleared",
+      description: `Removed ${selectedEntries.size} entries, freed ${formatSize(clearedSize)}`
     });
-  };
+  }, [cacheEntries, selectedEntries, formatSize, toast]);
 
-  const invalidateTag = (tag: string) => {
-    const before = cacheEntries.length;
-    setCacheEntries((prev) => prev.filter((entry) => !entry.tags.includes(tag)));
-    const after = cacheEntries.filter((entry) => !entry.tags.includes(tag)).length;
-
-    toast({
-      title: "Tag Invalidated",
-      description: `Removed ${before - after} entries with tag "${tag}"`
-    });
-  };
-
-  const refreshEntry = async (key: string) => {
-    setCacheEntries((prev) => prev.map((entry) =>
-    entry.key === key ?
-    {
-      ...entry,
-      timestamp: new Date(),
-      lastAccessed: new Date(),
-      accessCount: entry.accessCount + 1
-    } :
-    entry
-    ));
-
-    toast({
-      title: "Entry Refreshed",
-      description: `Updated cache entry: ${key}`
-    });
-  };
-
-  const getFilteredEntries = () => {
-    let filtered = cacheEntries;
-
-    if (filterTag) {
-      filtered = filtered.filter((entry) =>
-      entry.tags.some((tag) => tag.toLowerCase().includes(filterTag.toLowerCase()))
-      );
-    }
-
-    // Sort entries
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'timestamp':
-          return b.timestamp.getTime() - a.timestamp.getTime();
-        case 'accessed':
-          return b.lastAccessed.getTime() - a.lastAccessed.getTime();
-        case 'count':
-          return b.accessCount - a.accessCount;
-        case 'size':
-          return b.size - a.size;
-        default:
-          return 0;
+  // Toggle entry selection
+  const toggleEntrySelection = useCallback((key: string) => {
+    setSelectedEntries(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(key)) {
+        newSet.delete(key);
+      } else {
+        newSet.add(key);
       }
+      return newSet;
     });
+  }, []);
 
-    return filtered;
-  };
+  // Filter entries based on search
+  const filteredEntries = cacheEntries.filter(entry =>
+    entry.key.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const formatSize = (bytes: number): string => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'low':return 'bg-gray-500';
-      case 'medium':return 'bg-blue-500';
-      case 'high':return 'bg-orange-500';
-      case 'critical':return 'bg-red-500';
-      default:return 'bg-gray-500';
-    }
-  };
+  const efficiency = getCacheEfficiency();
 
   return (
     <div className="space-y-6">
-      {/* Header Stats */}
+      {/* Cache Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Cache Size</CardTitle>
+            <Database className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatSize(cacheStats.totalSize)}</div>
+            <Progress 
+              value={(cacheStats.totalSize / (config.maxSizeGB * 1024 * 1024 * 1024)) * 100} 
+              className="mt-2" 
+            />
+            <p className="text-xs text-muted-foreground mt-2">
+              {cacheStats.totalEntries} entries
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Hit Rate</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{cacheStats.hitRate.toFixed(1)}%</div>
+            <Progress value={cacheStats.hitRate} className="mt-2" />
+            <p className="text-xs text-muted-foreground mt-2">
+              {cacheStats.missRate.toFixed(1)}% miss rate
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Compression</CardTitle>
+            <Zap className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{cacheStats.compressionRatio.toFixed(1)}x</div>
+            <p className="text-xs text-muted-foreground mt-2">
+              {cacheEntries.filter(e => e.compressed).length} compressed entries
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Efficiency</CardTitle>
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${efficiency.color}`}>
+              {efficiency.status.toUpperCase()}
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              {cacheStats.averageAccessTime.toFixed(1)}ms avg access
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Cache Controls */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Database className="h-5 w-5" />
-              Intelligent Cache Manager
-            </CardTitle>
-            <div className="flex items-center gap-2">
-              <Badge variant={isMonitoring ? "default" : "secondary"}>
-                {isMonitoring ? "Monitoring" : "Paused"}
-              </Badge>
-              <Button
-                onClick={() => setIsMonitoring(!isMonitoring)}
-                variant={isMonitoring ? "destructive" : "default"}
-                size="sm">
-
-                {isMonitoring ? "Pause" : "Start"}
+            <div>
+              <CardTitle>Intelligent Cache Management</CardTitle>
+              <CardDescription>
+                Advanced caching with compression, smart eviction, and performance analytics
+              </CardDescription>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button 
+                onClick={optimizeCache} 
+                disabled={isOptimizing}
+                variant="default"
+              >
+                {isOptimizing ? (
+                  <motion.div 
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </motion.div>
+                ) : (
+                  <Zap className="h-4 w-4" />
+                )}
+                {isOptimizing ? 'Optimizing...' : 'Smart Optimize'}
               </Button>
+              {selectedEntries.size > 0 && (
+                <Button 
+                  variant="destructive" 
+                  onClick={clearSelectedEntries}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Clear Selected ({selectedEntries.size})
+                </Button>
+              )}
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{cacheStats.totalEntries}</div>
-              <div className="text-sm text-gray-600">Entries</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{formatSize(cacheStats.totalSize)}</div>
-              <div className="text-sm text-gray-600">Total Size</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">{cacheStats.hitRate.toFixed(1)}%</div>
-              <div className="text-sm text-gray-600">Hit Rate</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600">{cacheStats.missRate.toFixed(1)}%</div>
-              <div className="text-sm text-gray-600">Miss Rate</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-red-600">{cacheStats.evictionCount}</div>
-              <div className="text-sm text-gray-600">Evictions</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-indigo-600">{cacheStats.prefetchHits}</div>
-              <div className="text-sm text-gray-600">Prefetch Hits</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-pink-600">{cacheStats.memoryUsage.toFixed(1)} MB</div>
-              <div className="text-sm text-gray-600">Memory</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-teal-600">{cacheStats.averageAccessTime.toFixed(0)}ms</div>
-              <div className="text-sm text-gray-600">Avg Access</div>
-            </div>
-          </div>
-        </CardContent>
       </Card>
 
+      {/* Cache Management Tabs */}
       <Tabs defaultValue="entries" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="entries">Cache Entries ({cacheEntries.length})</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsTrigger value="entries">Cache Entries</TabsTrigger>
+          <TabsTrigger value="analytics">Performance Analytics</TabsTrigger>
+          <TabsTrigger value="configuration">Configuration</TabsTrigger>
         </TabsList>
 
         <TabsContent value="entries" className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <div className="flex gap-2">
-              <Input
-                placeholder="Filter by tag..."
-                value={filterTag}
-                onChange={(e) => setFilterTag(e.target.value)}
-                className="w-48" />
-
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="px-3 py-2 border rounded-md">
-
-                <option value="accessed">Last Accessed</option>
-                <option value="timestamp">Created</option>
-                <option value="count">Access Count</option>
-                <option value="size">Size</option>
-              </select>
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={clearCache}>
-                <Trash2 className="h-4 w-4 mr-1" />
-                Clear All
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => invalidateTag('products')}>
-                Invalidate Products
-              </Button>
-            </div>
-          </div>
-
-          <ScrollArea className="h-96">
-            <div className="space-y-3">
-              <AnimatePresence>
-                {getFilteredEntries().map((entry, index) =>
-                <motion.div
-                  key={entry.key}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ delay: index * 0.02 }}>
-
-                    <Card className="border-l-4" style={{ borderLeftColor: getPriorityColor(entry.priority).replace('bg-', '#') }}>
-                      <CardContent className="pt-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-2">
-                              {entry.source === 'prefetch' && <Zap className="h-4 w-4 text-yellow-500" />}
-                              {entry.source === 'api' && <Database className="h-4 w-4 text-blue-500" />}
-                              <div>
-                                <p className="font-medium text-sm">{entry.key}</p>
-                                <p className="text-xs text-gray-600">
-                                  {entry.source} • {formatSize(entry.size)} • {entry.accessCount} hits
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline" className={`text-xs ${getPriorityColor(entry.priority)} text-white`}>
-                              {entry.priority}
-                            </Badge>
-                            <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => refreshEntry(entry.key)}>
-
-                              <RefreshCw className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-                          <div>
-                            <p className="font-medium">Created:</p>
-                            <p>{entry.timestamp.toLocaleTimeString()}</p>
-                          </div>
-                          <div>
-                            <p className="font-medium">Last Accessed:</p>
-                            <p>{entry.lastAccessed.toLocaleTimeString()}</p>
-                          </div>
-                          <div>
-                            <p className="font-medium">TTL Remaining:</p>
-                            <p>{Math.max(0, Math.round((entry.ttl - (Date.now() - entry.timestamp.getTime())) / 1000))}s</p>
-                          </div>
-                          <div>
-                            <p className="font-medium">Tags:</p>
-                            <div className="flex gap-1 mt-1">
-                              {entry.tags.map((tag) =>
-                            <Badge key={tag} variant="secondary" className="text-xs">
-                                  {tag}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Cache Entries ({filteredEntries.length})</CardTitle>
+                <div className="flex items-center space-x-2">
+                  <Input
+                    placeholder="Search cache entries..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-64"
+                  />
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-96">
+                <div className="space-y-2">
+                  {filteredEntries.map((entry) => {
+                    const age = Date.now() - entry.created.getTime();
+                    const isExpired = age > entry.ttl;
+                    const isSelected = selectedEntries.has(entry.key);
+                    
+                    return (
+                      <motion.div
+                        key={entry.key}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                          isSelected ? 'bg-blue-50 border-blue-200' : 
+                          isExpired ? 'bg-red-50 border-red-200' : 'hover:bg-muted'
+                        }`}
+                        onClick={() => toggleEntrySelection(entry.key)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2">
+                              <span className="font-medium">{entry.key}</span>
+                              {entry.compressed && (
+                                <Badge variant="secondary" className="text-xs">
+                                  <Zap className="h-3 w-3 mr-1" />
+                                  Compressed
                                 </Badge>
-                            )}
+                              )}
+                              {isExpired && (
+                                <Badge variant="destructive" className="text-xs">
+                                  <Clock className="h-3 w-3 mr-1" />
+                                  Expired
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
+                              <span>Size: {formatSize(entry.size)}</span>
+                              <span>Accessed: {entry.accessCount} times</span>
+                              <span>Priority: {entry.priority}/10</span>
+                              <span>Age: {Math.round(age / 60000)}m</span>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm font-medium">
+                              Last accessed: {entry.lastAccessed.toLocaleTimeString()}
                             </div>
                           </div>
                         </div>
-
-                        <div className="mt-3">
-                          <div className="flex justify-between text-xs mb-1">
-                            <span>TTL Progress</span>
-                            <span>{Math.round((Date.now() - entry.timestamp.getTime()) / entry.ttl * 100)}%</span>
-                          </div>
-                          <Progress
-                          value={(Date.now() - entry.timestamp.getTime()) / entry.ttl * 100}
-                          className="h-1" />
-
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </ScrollArea>
+                      </motion.div>
+                    );
+                  })}
+                  
+                  {filteredEntries.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      {searchTerm ? 'No matching cache entries found.' : 'No cache entries available.'}
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Cache Performance
-                </CardTitle>
+                <CardTitle>Performance Metrics</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span>Hit Rate</span>
-                      <span>{cacheStats.hitRate.toFixed(1)}%</span>
-                    </div>
-                    <Progress value={cacheStats.hitRate} className="h-3" />
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span>Cache Hit Rate</span>
+                    <span className="font-mono">{cacheStats.hitRate.toFixed(2)}%</span>
                   </div>
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span>Memory Usage</span>
-                      <span>{cacheStats.memoryUsage.toFixed(1)} / {config.maxMemoryUsage} MB</span>
-                    </div>
-                    <Progress value={cacheStats.memoryUsage / config.maxMemoryUsage * 100} className="h-3" />
+                  <Progress value={cacheStats.hitRate} />
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span>Memory Efficiency</span>
+                    <span className="font-mono">{cacheStats.memoryEfficiency.toFixed(1)}/100</span>
                   </div>
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <span>Cache Utilization</span>
-                      <span>{cacheStats.totalEntries} / {config.maxSize}</span>
-                    </div>
-                    <Progress value={cacheStats.totalEntries / config.maxSize * 100} className="h-3" />
+                  <Progress value={cacheStats.memoryEfficiency} />
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span>Compression Ratio</span>
+                    <span className="font-mono">{cacheStats.compressionRatio.toFixed(2)}x</span>
                   </div>
+                  <Progress value={Math.min((cacheStats.compressionRatio - 1) * 100, 100)} />
                 </div>
               </CardContent>
             </Card>
-
+            
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Activity className="h-5 w-5" />
-                  Activity Metrics
-                </CardTitle>
+                <CardTitle>Cache Statistics</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
-                    <span>Average Access Time:</span>
-                    <Badge variant="outline">{cacheStats.averageAccessTime.toFixed(0)}ms</Badge>
+                    <span className="text-muted-foreground">Total Entries:</span>
+                    <span className="font-mono">{cacheStats.totalEntries}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Prefetch Success:</span>
-                    <Badge variant="outline">{cacheStats.prefetchHits} hits</Badge>
+                    <span className="text-muted-foreground">Total Size:</span>
+                    <span className="font-mono">{formatSize(cacheStats.totalSize)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Total Evictions:</span>
-                    <Badge variant="outline">{cacheStats.evictionCount}</Badge>
+                    <span className="text-muted-foreground">Evictions:</span>
+                    <span className="font-mono">{cacheStats.evictionCount}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Cache Efficiency:</span>
-                    <Badge variant="outline" className="bg-green-100 text-green-800">
-                      {((cacheStats.hitRate - cacheStats.missRate) / 100 * 100).toFixed(1)}%
-                    </Badge>
+                    <span className="text-muted-foreground">Avg Access Time:</span>
+                    <span className="font-mono">{cacheStats.averageAccessTime.toFixed(1)}ms</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Cache Efficiency:</span>
+                    <span className={`font-mono ${efficiency.color}`}>{efficiency.status}</span>
                   </div>
                 </div>
               </CardContent>
@@ -583,120 +560,102 @@ const IntelligentCacheManager: React.FC = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="settings" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Cache Configuration</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+        <TabsContent value="configuration" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Cache Configuration</CardTitle>
+              <CardDescription>
+                Adjust cache settings for optimal performance
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Max Cache Size: {config.maxSize} entries</Label>
-                  <input
-                    type="range"
+                  <Label htmlFor="max-size">Max Cache Size (GB)</Label>
+                  <Input
+                    id="max-size"
+                    type="number"
+                    value={config.maxSizeGB}
+                    onChange={(e) => setConfig(prev => ({ ...prev, maxSizeGB: parseFloat(e.target.value) || 1 }))}
+                    min="0.1"
+                    max="10"
+                    step="0.1"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="max-entries">Max Entries</Label>
+                  <Input
+                    id="max-entries"
+                    type="number"
+                    value={config.maxEntries}
+                    onChange={(e) => setConfig(prev => ({ ...prev, maxEntries: parseInt(e.target.value) || 1000 }))}
                     min="100"
-                    max="5000"
+                    max="10000"
                     step="100"
-                    value={config.maxSize}
-                    onChange={(e) => setConfig((prev) => ({ ...prev, maxSize: Number(e.target.value) }))}
-                    className="w-full" />
-
+                  />
                 </div>
-
+                
                 <div className="space-y-2">
-                  <Label>Default TTL: {Math.round(config.defaultTTL / 1000)}s</Label>
-                  <input
-                    type="range"
-                    min="30"
-                    max="3600"
-                    step="30"
-                    value={config.defaultTTL / 1000}
-                    onChange={(e) => setConfig((prev) => ({ ...prev, defaultTTL: Number(e.target.value) * 1000 }))}
-                    className="w-full" />
-
+                  <Label htmlFor="default-ttl">Default TTL (minutes)</Label>
+                  <Input
+                    id="default-ttl"
+                    type="number"
+                    value={config.defaultTTL / 60000}
+                    onChange={(e) => setConfig(prev => ({ ...prev, defaultTTL: (parseInt(e.target.value) || 30) * 60000 }))}
+                    min="5"
+                    max="240"
+                  />
                 </div>
-
+                
                 <div className="space-y-2">
-                  <Label>Max Memory Usage: {config.maxMemoryUsage} MB</Label>
-                  <input
-                    type="range"
-                    min="50"
-                    max="1000"
-                    step="50"
-                    value={config.maxMemoryUsage}
-                    onChange={(e) => setConfig((prev) => ({ ...prev, maxMemoryUsage: Number(e.target.value) }))}
-                    className="w-full" />
-
+                  <Label htmlFor="compression-threshold">Compression Threshold (KB)</Label>
+                  <Input
+                    id="compression-threshold"
+                    type="number"
+                    value={config.compressionThreshold / 1024}
+                    onChange={(e) => setConfig(prev => ({ ...prev, compressionThreshold: (parseFloat(e.target.value) || 1) * 1024 }))}
+                    min="0.1"
+                    max="100"
+                    step="0.1"
+                  />
                 </div>
-
-                <div className="space-y-2">
-                  <Label>Eviction Policy</Label>
-                  <select
-                    value={config.evictionPolicy}
-                    onChange={(e) => setConfig((prev) => ({ ...prev, evictionPolicy: e.target.value as any }))}
-                    className="w-full px-3 py-2 border rounded-md">
-
-                    <option value="lru">Least Recently Used (LRU)</option>
-                    <option value="lfu">Least Frequently Used (LFU)</option>
-                    <option value="ttl">Time To Live (TTL)</option>
-                    <option value="priority">Priority Based</option>
-                  </select>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Advanced Options</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-sm font-medium">Enable Prefetching</Label>
-                    <p className="text-xs text-gray-600">Automatically cache related data</p>
-                  </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
                   <Switch
-                    checked={config.prefetchEnabled}
-                    onCheckedChange={(checked) => setConfig((prev) => ({ ...prev, prefetchEnabled: checked }))} />
-
+                    id="enable-compression"
+                    checked={config.enableCompression}
+                    onCheckedChange={(checked) => setConfig(prev => ({ ...prev, enableCompression: checked }))}
+                  />
+                  <Label htmlFor="enable-compression">Enable automatic compression</Label>
                 </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-sm font-medium">Enable Compression</Label>
-                    <p className="text-xs text-gray-600">Compress cached data to save memory</p>
-                  </div>
+                
+                <div className="flex items-center space-x-2">
                   <Switch
-                    checked={config.compressionEnabled}
-                    onCheckedChange={(checked) => setConfig((prev) => ({ ...prev, compressionEnabled: checked }))} />
-
+                    id="smart-eviction"
+                    checked={config.enableSmartEviction}
+                    onCheckedChange={(checked) => setConfig(prev => ({ ...prev, enableSmartEviction: checked }))}
+                  />
+                  <Label htmlFor="smart-eviction">Enable smart LRU eviction</Label>
                 </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-sm font-medium">Persist to Disk</Label>
-                    <p className="text-xs text-gray-600">Save cache to local storage</p>
-                  </div>
+                
+                <div className="flex items-center space-x-2">
                   <Switch
-                    checked={config.persistToDisk}
-                    onCheckedChange={(checked) => setConfig((prev) => ({ ...prev, persistToDisk: checked }))} />
-
+                    id="enable-analytics"
+                    checked={config.enableAnalytics}
+                    onCheckedChange={(checked) => setConfig(prev => ({ ...prev, enableAnalytics: checked }))}
+                  />
+                  <Label htmlFor="enable-analytics">Enable performance analytics</Label>
                 </div>
-
-                <Alert>
-                  <HardDrive className="h-4 w-4" />
-                  <AlertDescription>
-                    Intelligent caching improves performance by storing frequently accessed data in memory.
-                    Adjust settings based on your application's memory constraints and access patterns.
-                  </AlertDescription>
-                </Alert>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
-    </div>);
-
+    </div>
+  );
 };
 
 export default IntelligentCacheManager;

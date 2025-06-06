@@ -1,3 +1,4 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -5,9 +6,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
 import { SupabaseAuthProvider } from './contexts/SupabaseAuthContext';
 import RealTimeDataProvider from '@/components/RealTimeDataProvider';
+import { getAutoCleanupService } from '@/services/autoCleanupService';
 import { GlobalErrorBoundary } from './components/ErrorBoundary';
 import EnhancedGlobalErrorBoundary from './components/ErrorBoundary/EnhancedGlobalErrorBoundary';
 import InvalidCharacterErrorBoundary from './components/ErrorBoundary/InvalidCharacterErrorBoundary';
+import InvariantErrorRecovery from './components/ErrorBoundary/InvariantErrorRecovery';
 
 import DashboardLayout from './components/Layout/DashboardLayout';
 import Dashboard from './pages/Dashboard';
@@ -50,18 +53,67 @@ import AdvancedRealTimeFeatures from './pages/Admin/AdvancedRealTimeFeatures';
 import RealtimeManagement from './pages/Admin/RealtimeManagement';
 import ErrorMonitoringPage from './pages/Admin/ErrorMonitoringPage';
 import InvalidCharacterErrorDemo from './components/InvalidCharacterErrorDemo';
+import MemoryMonitoringDashboard from './components/MemoryMonitoringDashboard';
+import SessionManagerDashboard from './components/SessionManagerDashboard';
+import IntelligentCacheManager from './components/IntelligentCacheManager';
 import LoginPage from './pages/LoginPage';
 import OnAuthSuccessPage from './pages/OnAuthSuccessPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import NotFound from './pages/NotFound';
 
-const queryClient = new QueryClient();
+// Create a client with memory-optimized settings
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2,
+      staleTime: parseInt(import.meta.env.VITE_CACHE_DURATION_MINUTES || '15') * 60 * 1000,
+      cacheTime: parseInt(import.meta.env.VITE_DATA_RETENTION_MINUTES || '30') * 60 * 1000,
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+    },
+  },
+});
+
+// Initialize auto cleanup service
+const autoCleanupService = getAutoCleanupService();
+
+// Make query client available globally for cleanup
+(window as any).reactQueryClient = queryClient;
 
 function App() {
+  // Setup memory management
+  React.useEffect(() => {
+    // Global error handler for memory issues
+    const handleMemoryError = (error: ErrorEvent) => {
+      if (error.message.includes('out of memory') || error.message.includes('Maximum call stack')) {
+        console.error('Memory error detected, forcing cleanup:', error);
+        autoCleanupService.forceCleanup();
+      }
+    };
+    
+    window.addEventListener('error', handleMemoryError);
+    
+    // Global unhandled promise rejection handler
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      if (event.reason?.message?.includes('memory') || event.reason?.message?.includes('heap')) {
+        console.error('Memory-related promise rejection:', event.reason);
+        autoCleanupService.forceCleanup();
+      }
+    };
+    
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    
+    return () => {
+      window.removeEventListener('error', handleMemoryError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, []);
+  
   return (
-    <EnhancedGlobalErrorBoundary>
-      <GlobalErrorBoundary>
-        <InvalidCharacterErrorBoundary>
+    <InvariantErrorRecovery autoRecover={true} maxRetries={3}>
+      <EnhancedGlobalErrorBoundary>
+        <GlobalErrorBoundary>
+          <InvalidCharacterErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <SupabaseAuthProvider>
             <AuthProvider>
@@ -149,6 +201,9 @@ function App() {
                         <Route path="admin/advanced-realtime" element={<AdvancedRealTimeFeatures />} />
                         <Route path="admin/realtime-management" element={<RealtimeManagement />} />
                         <Route path="admin/error-monitoring" element={<ErrorMonitoringPage />} />
+                        <Route path="admin/memory-dashboard" element={<MemoryMonitoringDashboard />} />
+                        <Route path="admin/session-manager" element={<SessionManagerDashboard />} />
+                        <Route path="admin/cache-manager" element={<IntelligentCacheManager />} />
                         <Route path="admin/invalid-character-demo" element={<InvalidCharacterErrorDemo />} />
                       </Route>
                       
@@ -161,9 +216,10 @@ function App() {
             </AuthProvider>
           </SupabaseAuthProvider>
         </QueryClientProvider>
-        </InvalidCharacterErrorBoundary>
-      </GlobalErrorBoundary>
-    </EnhancedGlobalErrorBoundary>);
+          </InvalidCharacterErrorBoundary>
+        </GlobalErrorBoundary>
+      </EnhancedGlobalErrorBoundary>
+    </InvariantErrorRecovery>);
 
 }
 

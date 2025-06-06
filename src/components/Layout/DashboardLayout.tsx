@@ -109,6 +109,9 @@ const DashboardLayout: React.FC = () => {
   // Admin-only navigation items
   const adminNavigationItems: NavigationItem[] = [
   { name: 'Admin Panel', path: '/admin', icon: <Settings className="w-5 h-5" /> },
+  { name: 'Memory Manager', path: '/admin/memory-dashboard', icon: <Activity className="w-5 h-5 text-blue-500" /> },
+  { name: 'Session Manager', path: '/admin/session-manager', icon: <User className="w-5 h-5 text-green-500" /> },
+  { name: 'Cache Manager', path: '/admin/cache-manager', icon: <Database className="w-5 h-5 text-purple-500" /> },
   { name: 'Error Monitor', path: '/admin/error-monitoring', icon: <Bug className="w-5 h-5 text-red-500" /> }];
 
 
@@ -174,6 +177,9 @@ const DashboardLayout: React.FC = () => {
     if (path.startsWith('/admin/role-testing')) return 'Role Testing & Customization';
     if (path.startsWith('/admin/advanced-realtime')) return 'Advanced Real-Time Features';
     if (path.startsWith('/admin/error-monitoring')) return 'Error Monitoring & Debugging';
+    if (path.startsWith('/admin/memory-dashboard')) return 'Memory Monitoring Dashboard';
+    if (path.startsWith('/admin/session-manager')) return 'Session Management';
+    if (path.startsWith('/admin/cache-manager')) return 'Intelligent Cache Manager';
     if (path.startsWith('/admin')) return 'Site & User Management';
     return 'DFS Manager';
   };
