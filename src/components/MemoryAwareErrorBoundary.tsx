@@ -33,8 +33,8 @@ interface MemoryAwareErrorBoundaryProps {
 
 class MemoryAwareErrorBoundary extends Component<
   MemoryAwareErrorBoundaryProps,
-  MemoryAwareErrorBoundaryState
-> {
+  MemoryAwareErrorBoundaryState>
+{
   private memoryMonitorInterval: NodeJS.Timeout | null = null;
   private autoRecoveryTimeout: NodeJS.Timeout | null = null;
   private performanceObserver: PerformanceObserver | null = null;
@@ -42,7 +42,7 @@ class MemoryAwareErrorBoundary extends Component<
 
   constructor(props: MemoryAwareErrorBoundaryProps) {
     super(props);
-    
+
     this.state = {
       hasError: false,
       error: null,
@@ -67,7 +67,7 @@ class MemoryAwareErrorBoundary extends Component<
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     const memoryUsage = this.getMemoryUsage();
     const errorPattern = this.analyzeErrorPattern(error, errorInfo);
-    
+
     this.setState({
       errorInfo,
       memoryUsage,
@@ -77,10 +77,10 @@ class MemoryAwareErrorBoundary extends Component<
 
     // Log error with enhanced information
     this.logEnhancedError(error, errorInfo, errorPattern, memoryUsage);
-    
+
     // Notify parent component
     this.props.onError?.(error, errorInfo);
-    
+
     // Attempt automatic recovery for memory-related errors
     if (this.props.autoRecovery && errorPattern === 'memory') {
       this.attemptAutoRecovery();
@@ -103,9 +103,9 @@ class MemoryAwareErrorBoundary extends Component<
     if (this.props.resetOnPropsChange && this.props.resetKeys) {
       const prevKeys = prevProps.resetKeys || [];
       const currentKeys = this.props.resetKeys;
-      
-      if (prevKeys.length !== currentKeys.length || 
-          prevKeys.some((key, index) => key !== currentKeys[index])) {
+
+      if (prevKeys.length !== currentKeys.length ||
+      prevKeys.some((key, index) => key !== currentKeys[index])) {
         this.setState({
           hasError: false,
           error: null,
@@ -137,26 +137,26 @@ class MemoryAwareErrorBoundary extends Component<
     const componentStack = errorInfo.componentStack.toLowerCase();
 
     // Memory-related patterns
-    if (errorMessage.includes('memory') || 
-        errorMessage.includes('heap') ||
-        stackTrace.includes('out of memory') ||
-        this.state.memoryUsage > (this.props.memoryThreshold || 0.8)) {
+    if (errorMessage.includes('memory') ||
+    errorMessage.includes('heap') ||
+    stackTrace.includes('out of memory') ||
+    this.state.memoryUsage > (this.props.memoryThreshold || 0.8)) {
       return 'memory';
     }
 
     // Render-related patterns
     if (errorMessage.includes('render') ||
-        errorMessage.includes('hook') ||
-        errorMessage.includes('state') ||
-        componentStack.includes('render')) {
+    errorMessage.includes('hook') ||
+    errorMessage.includes('state') ||
+    componentStack.includes('render')) {
       return 'render';
     }
 
     // Network-related patterns
     if (errorMessage.includes('network') ||
-        errorMessage.includes('fetch') ||
-        errorMessage.includes('timeout') ||
-        errorMessage.includes('connection')) {
+    errorMessage.includes('fetch') ||
+    errorMessage.includes('timeout') ||
+    errorMessage.includes('connection')) {
       return 'network';
     }
 
@@ -169,15 +169,15 @@ class MemoryAwareErrorBoundary extends Component<
   private logEnhancedError(error: Error, errorInfo: ErrorInfo, pattern: string, memoryUsage: number) {
     const errorKey = `${error.name}-${error.message.substring(0, 50)}`;
     const now = Date.now();
-    
+
     // Throttle similar errors
     const lastLogged = this.errorThrottleMap.get(errorKey) || 0;
-    if (now - lastLogged < 5000) { // 5 second throttle
+    if (now - lastLogged < 5000) {// 5 second throttle
       return;
     }
-    
+
     this.errorThrottleMap.set(errorKey, now);
-    
+
     const enhancedErrorData = {
       error: {
         name: error.name,
@@ -198,7 +198,7 @@ class MemoryAwareErrorBoundary extends Component<
     };
 
     console.error('[MemoryAwareErrorBoundary] Enhanced Error Report:', enhancedErrorData);
-    
+
     // Send to error reporting service if available
     if (window.ezsite?.errorReporter) {
       window.ezsite.errorReporter.report(enhancedErrorData);
@@ -237,10 +237,10 @@ class MemoryAwareErrorBoundary extends Component<
     this.memoryMonitorInterval = setInterval(() => {
       const memoryUsage = this.getMemoryUsage();
       const threshold = this.props.memoryThreshold || 0.8;
-      
+
       if (memoryUsage > threshold) {
         console.warn(`[MemoryAwareErrorBoundary] High memory usage detected: ${Math.round(memoryUsage * 100)}%`);
-        
+
         // Trigger proactive cleanup
         this.performMemoryCleanup();
       }
@@ -261,7 +261,7 @@ class MemoryAwareErrorBoundary extends Component<
           }
         }
       });
-      
+
       try {
         this.performanceObserver.observe({ entryTypes: ['measure', 'navigation'] });
       } catch (error) {
@@ -278,12 +278,12 @@ class MemoryAwareErrorBoundary extends Component<
     if (window.ezsite?.cache?.clear) {
       window.ezsite.cache.clear();
     }
-    
+
     // Force garbage collection if available
     if ('gc' in window) {
       (window as any).gc();
     }
-    
+
     console.log('[MemoryAwareErrorBoundary] Memory cleanup performed');
   }
 
@@ -293,17 +293,17 @@ class MemoryAwareErrorBoundary extends Component<
   private attemptAutoRecovery() {
     const maxAttempts = 3;
     const { autoRecoveryAttempts } = this.state;
-    
+
     if (autoRecoveryAttempts >= maxAttempts) {
       console.warn('[MemoryAwareErrorBoundary] Max auto-recovery attempts reached');
       return;
     }
-    
+
     console.log(`[MemoryAwareErrorBoundary] Attempting auto-recovery (${autoRecoveryAttempts + 1}/${maxAttempts})`);
-    
+
     // Perform cleanup before recovery
     this.performMemoryCleanup();
-    
+
     // Set recovery timeout
     this.autoRecoveryTimeout = setTimeout(() => {
       this.setState({
@@ -321,15 +321,15 @@ class MemoryAwareErrorBoundary extends Component<
   private handleRetry = () => {
     const { maxRetries = 3 } = this.props;
     const { retryCount } = this.state;
-    
+
     if (retryCount >= maxRetries) {
       console.warn('[MemoryAwareErrorBoundary] Max retries reached');
       return;
     }
-    
+
     // Perform cleanup before retry
     this.performMemoryCleanup();
-    
+
     this.setState({
       hasError: false,
       error: null,
@@ -343,7 +343,7 @@ class MemoryAwareErrorBoundary extends Component<
    */
   private handleForceCleanup = () => {
     this.performMemoryCleanup();
-    
+
     // Clear all state
     this.setState({
       hasError: false,
@@ -361,15 +361,15 @@ class MemoryAwareErrorBoundary extends Component<
     if (this.memoryMonitorInterval) {
       clearInterval(this.memoryMonitorInterval);
     }
-    
+
     if (this.autoRecoveryTimeout) {
       clearTimeout(this.autoRecoveryTimeout);
     }
-    
+
     if (this.performanceObserver) {
       this.performanceObserver.disconnect();
     }
-    
+
     this.errorThrottleMap.clear();
   }
 
@@ -378,19 +378,19 @@ class MemoryAwareErrorBoundary extends Component<
    */
   private getSeverityLevel(): 'low' | 'medium' | 'high' | 'critical' {
     const { errorPattern, memoryUsage, retryCount } = this.state;
-    
+
     if (errorPattern === 'memory' || memoryUsage > 0.9 || retryCount > 2) {
       return 'critical';
     }
-    
+
     if (errorPattern === 'render' || retryCount > 1) {
       return 'high';
     }
-    
+
     if (errorPattern === 'network') {
       return 'medium';
     }
-    
+
     return 'low';
   }
 
@@ -408,8 +408,8 @@ class MemoryAwareErrorBoundary extends Component<
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="p-4"
-        >
+          className="p-4">
+
           <Card className="border-red-200 bg-red-50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-red-700">
@@ -438,10 +438,10 @@ class MemoryAwareErrorBoundary extends Component<
                 </div>
                 <div>
                   <strong>Memory Usage:</strong>
-                  <Badge 
+                  <Badge
                     variant={memoryUsage > 0.8 ? 'destructive' : 'outline'}
-                    className="ml-2"
-                  >
+                    className="ml-2">
+
                     {Math.round(memoryUsage * 100)}%
                   </Badge>
                 </div>
@@ -461,49 +461,49 @@ class MemoryAwareErrorBoundary extends Component<
 
               {/* Action Buttons */}
               <div className="flex gap-2 flex-wrap">
-                {retryCount < maxRetries && (
-                  <Button 
-                    onClick={this.handleRetry} 
-                    variant="outline"
-                    size="sm"
-                  >
+                {retryCount < maxRetries &&
+                <Button
+                  onClick={this.handleRetry}
+                  variant="outline"
+                  size="sm">
+
                     <RefreshCw className="mr-2 h-4 w-4" />
                     Retry ({maxRetries - retryCount} left)
                   </Button>
-                )}
+                }
                 
-                <Button 
-                  onClick={this.handleForceCleanup} 
+                <Button
+                  onClick={this.handleForceCleanup}
                   variant="outline"
-                  size="sm"
-                >
+                  size="sm">
+
                   <Trash2 className="mr-2 h-4 w-4" />
                   Force Cleanup & Reset
                 </Button>
                 
-                <Button 
-                  onClick={() => window.location.reload()} 
+                <Button
+                  onClick={() => window.location.reload()}
                   variant="secondary"
-                  size="sm"
-                >
+                  size="sm">
+
                   <RefreshCw className="mr-2 h-4 w-4" />
                   Reload Page
                 </Button>
               </div>
 
               {/* Memory Warning */}
-              {memoryUsage > 0.8 && (
-                <Alert variant="destructive">
+              {memoryUsage > 0.8 &&
+              <Alert variant="destructive">
                   <Activity className="h-4 w-4" />
                   <AlertDescription>
                     High memory usage detected. Consider closing unused tabs or restarting the application.
                   </AlertDescription>
                 </Alert>
-              )}
+              }
 
               {/* Development Details */}
-              {process.env.NODE_ENV === 'development' && (
-                <details className="text-xs">
+              {process.env.NODE_ENV === 'development' &&
+              <details className="text-xs">
                   <summary className="cursor-pointer flex items-center gap-2 mb-2">
                     <Info className="h-4 w-4" />
                     Development Details
@@ -515,11 +515,11 @@ class MemoryAwareErrorBoundary extends Component<
                     <pre>{errorInfo?.componentStack}</pre>
                   </div>
                 </details>
-              )}
+              }
             </CardContent>
           </Card>
-        </motion.div>
-      );
+        </motion.div>);
+
     }
 
     return this.props.children;

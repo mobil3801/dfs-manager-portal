@@ -15,8 +15,8 @@ const Dashboard: React.FC = () => {
       autoRecovery={true}
       memoryThreshold={0.8}
       enableMemoryMonitoring={true}
-      isolationLevel="page"
-    >
+      isolationLevel="page">
+
       <div className="space-y-6">
         {/* Main Dashboard Tabs */}
         <Tabs defaultValue="optimized" className="space-y-6">
@@ -69,8 +69,8 @@ const Dashboard: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </MemoryAwareErrorBoundary>
-  );
+    </MemoryAwareErrorBoundary>);
+
 };
 
 export default Dashboard;

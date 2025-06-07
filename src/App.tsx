@@ -34,8 +34,6 @@ import DeliveryForm from './pages/Delivery/DeliveryForm';
 import AppSettings from './pages/Settings/AppSettings';
 import AdminPanel from './pages/Admin/AdminPanel';
 import AdminDashboard from './pages/Admin/AdminDashboard';
-import OptimizedAdminPage from './pages/Admin/OptimizedAdminPage';
-import MemoryAwareErrorBoundary from '@/components/MemoryAwareErrorBoundary';
 import UserManagement from './pages/Admin/UserManagement';
 import SiteManagement from './pages/Admin/SiteManagement';
 import SystemLogs from './pages/Admin/SystemLogs';
@@ -137,7 +135,6 @@ function App() {
                         {/* Admin routes */}
                         <Route path="admin" element={<AdminPanel />} />
                         <Route path="admin/dashboard" element={<AdminDashboard />} />
-                        <Route path="admin/optimized" element={<OptimizedAdminPage />} />
                         <Route path="admin/user-management" element={<UserManagement />} />
                         <Route path="admin/site-management" element={<SiteManagement />} />
                         <Route path="admin/system-logs" element={<SystemLogs />} />

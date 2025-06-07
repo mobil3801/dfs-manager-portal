@@ -5,18 +5,18 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Activity, 
-  AlertTriangle, 
-  Database, 
-  Gauge, 
-  Monitor, 
+import {
+  Activity,
+  AlertTriangle,
+  Database,
+  Gauge,
+  Monitor,
   RefreshCw,
   Settings,
   TrendingUp,
   Users,
-  Zap
-} from 'lucide-react';
+  Zap } from
+'lucide-react';
 import { motion } from 'motion/react';
 import { useToast } from '@/hooks/use-toast';
 import { useAdminAccess } from '@/hooks/use-admin-access';
@@ -89,22 +89,22 @@ const OptimizedAdminDashboard: React.FC = () => {
     try {
       // Use optimized data service for selective fetching
       const [usersResult, salesResult, productsResult] = await Promise.all([
-        optimizedDataService.fetchData('11725', { PageNo: 1, PageSize: 1 }, { 
-          fields: ['id'], 
-          priority: 'high',
-          cache: true 
-        }),
-        optimizedDataService.fetchData('12356', { PageNo: 1, PageSize: 1 }, { 
-          fields: ['id', 'total_sales'], 
-          priority: 'high',
-          cache: true 
-        }),
-        optimizedDataService.fetchData('11726', { PageNo: 1, PageSize: 1 }, { 
-          fields: ['id'], 
-          priority: 'medium',
-          cache: true 
-        })
-      ]);
+      optimizedDataService.fetchData('11725', { PageNo: 1, PageSize: 1 }, {
+        fields: ['id'],
+        priority: 'high',
+        cache: true
+      }),
+      optimizedDataService.fetchData('12356', { PageNo: 1, PageSize: 1 }, {
+        fields: ['id', 'total_sales'],
+        priority: 'high',
+        cache: true
+      }),
+      optimizedDataService.fetchData('11726', { PageNo: 1, PageSize: 1 }, {
+        fields: ['id'],
+        priority: 'medium',
+        cache: true
+      })]
+      );
 
       // Get performance metrics from service
       const performanceMetrics = optimizedDataService.getMetrics();
@@ -122,10 +122,10 @@ const OptimizedAdminDashboard: React.FC = () => {
 
       // Simulate system health data
       setSystemHealth({
-        status: performanceMetrics.memoryUsage > 80 ? 'critical' : 
-                performanceMetrics.memoryUsage > 60 ? 'warning' : 'healthy',
+        status: performanceMetrics.memoryUsage > 80 ? 'critical' :
+        performanceMetrics.memoryUsage > 60 ? 'warning' : 'healthy',
         uptime: Date.now() - (Date.now() - 24 * 60 * 60 * 1000), // 24h uptime
-        lastBackup: Date.now() - (2 * 60 * 60 * 1000), // 2h ago
+        lastBackup: Date.now() - 2 * 60 * 60 * 1000, // 2h ago
         diskUsage: Math.random() * 100,
         cpuUsage: Math.random() * 100
       });
@@ -145,7 +145,7 @@ const OptimizedAdminDashboard: React.FC = () => {
    */
   const optimizeSystem = useCallback(async () => {
     setIsOptimizing(true);
-    
+
     try {
       // Trigger various optimization processes
       toast({
@@ -154,8 +154,8 @@ const OptimizedAdminDashboard: React.FC = () => {
       });
 
       // Simulate optimization tasks
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       // Force garbage collection if available
       if ('gc' in window) {
         (window as any).gc();
@@ -188,13 +188,13 @@ const OptimizedAdminDashboard: React.FC = () => {
   /**
    * Memoized table row renderer for virtual scrolling
    */
-  const renderEmployeeRow = useCallback((item: any, index: number) => (
-    <motion.div
-      key={`employee-${item.id}-${index}`}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="flex items-center justify-between p-4 border-b hover:bg-gray-50"
-    >
+  const renderEmployeeRow = useCallback((item: any, index: number) =>
+  <motion.div
+    key={`employee-${item.id}-${index}`}
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    className="flex items-center justify-between p-4 border-b hover:bg-gray-50">
+
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
           <Users className="h-4 w-4 text-blue-600" />
@@ -207,16 +207,16 @@ const OptimizedAdminDashboard: React.FC = () => {
       <Badge variant={item.is_active ? 'default' : 'secondary'}>
         {item.is_active ? 'Active' : 'Inactive'}
       </Badge>
-    </motion.div>
-  ), []);
+    </motion.div>,
+  []);
 
-  const renderSalesRow = useCallback((item: any, index: number) => (
-    <motion.div
-      key={`sales-${item.id}-${index}`}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="flex items-center justify-between p-4 border-b hover:bg-gray-50"
-    >
+  const renderSalesRow = useCallback((item: any, index: number) =>
+  <motion.div
+    key={`sales-${item.id}-${index}`}
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    className="flex items-center justify-between p-4 border-b hover:bg-gray-50">
+
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
           <TrendingUp className="h-4 w-4 text-green-600" />
@@ -230,16 +230,16 @@ const OptimizedAdminDashboard: React.FC = () => {
         <div className="font-semibold">${(item.total_sales || 0).toLocaleString()}</div>
         <div className="text-sm text-gray-600">{item.shift} shift</div>
       </div>
-    </motion.div>
-  ), []);
+    </motion.div>,
+  []);
 
-  const renderProductRow = useCallback((item: any, index: number) => (
-    <motion.div
-      key={`product-${item.id}-${index}`}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="flex items-center justify-between p-4 border-b hover:bg-gray-50"
-    >
+  const renderProductRow = useCallback((item: any, index: number) =>
+  <motion.div
+    key={`product-${item.id}-${index}`}
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    className="flex items-center justify-between p-4 border-b hover:bg-gray-50">
+
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
           <Database className="h-4 w-4 text-purple-600" />
@@ -252,15 +252,15 @@ const OptimizedAdminDashboard: React.FC = () => {
       <Badge variant={item.quantity_in_stock > item.minimum_stock ? 'default' : 'destructive'}>
         Stock: {item.quantity_in_stock}
       </Badge>
-    </motion.div>
-  ), []);
+    </motion.div>,
+  []);
 
   /**
    * Load metrics on mount and set up periodic refresh
    */
   useEffect(() => {
     loadMetrics();
-    
+
     // Refresh metrics every 30 seconds
     const interval = setInterval(loadMetrics, 30000);
     return () => clearInterval(interval);
@@ -273,8 +273,8 @@ const OptimizedAdminDashboard: React.FC = () => {
     const monitorPerformance = () => {
       if ('memory' in performance) {
         const memInfo = (performance as any).memory;
-        const usage = (memInfo.usedJSHeapSize / memInfo.totalJSHeapSize) * 100;
-        
+        const usage = memInfo.usedJSHeapSize / memInfo.totalJSHeapSize * 100;
+
         if (usage > 90) {
           toast({
             title: 'Critical Memory Usage',
@@ -284,7 +284,7 @@ const OptimizedAdminDashboard: React.FC = () => {
         }
       }
     };
-    
+
     const interval = setInterval(monitorPerformance, 60000); // Every minute
     return () => clearInterval(interval);
   }, [toast]);
@@ -297,8 +297,8 @@ const OptimizedAdminDashboard: React.FC = () => {
           <h3 className="text-lg font-semibold mb-2">Access Denied</h3>
           <p className="text-gray-600">You don't have permission to access the admin dashboard.</p>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   if (!metrics || !systemHealth) {
@@ -310,8 +310,8 @@ const OptimizedAdminDashboard: React.FC = () => {
             <p>Loading optimized dashboard...</p>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -320,8 +320,8 @@ const OptimizedAdminDashboard: React.FC = () => {
       autoRecovery={true}
       memoryThreshold={0.8}
       enableMemoryMonitoring={true}
-      isolationLevel="page"
-    >
+      isolationLevel="page">
+
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -335,29 +335,29 @@ const OptimizedAdminDashboard: React.FC = () => {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Badge 
-              variant={systemHealth.status === 'healthy' ? 'default' : 
-                      systemHealth.status === 'warning' ? 'secondary' : 'destructive'}
-            >
+            <Badge
+              variant={systemHealth.status === 'healthy' ? 'default' :
+              systemHealth.status === 'warning' ? 'secondary' : 'destructive'}>
+
               {systemHealth.status.toUpperCase()}
             </Badge>
             <Button
               onClick={optimizeSystem}
               disabled={isOptimizing}
-              size="sm"
-            >
-              {isOptimizing ? (
-                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Zap className="mr-2 h-4 w-4" />
-              )}
+              size="sm">
+
+              {isOptimizing ?
+              <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> :
+
+              <Zap className="mr-2 h-4 w-4" />
+              }
               Optimize System
             </Button>
             <Button
               onClick={() => setShowAdvancedMetrics(!showAdvancedMetrics)}
               variant="outline"
-              size="sm"
-            >
+              size="sm">
+
               <Settings className="mr-2 h-4 w-4" />
               Advanced
             </Button>
@@ -365,8 +365,8 @@ const OptimizedAdminDashboard: React.FC = () => {
         </div>
 
         {/* System Health Alert */}
-        {systemHealth.status !== 'healthy' && (
-          <Alert variant={systemHealth.status === 'critical' ? 'destructive' : 'default'}>
+        {systemHealth.status !== 'healthy' &&
+        <Alert variant={systemHealth.status === 'critical' ? 'destructive' : 'default'}>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               System status: {systemHealth.status}. 
@@ -374,7 +374,7 @@ const OptimizedAdminDashboard: React.FC = () => {
               {systemHealth.status === 'warning' && 'Performance may be affected.'}
             </AlertDescription>
           </Alert>
-        )}
+        }
 
         {/* Quick Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -456,12 +456,12 @@ const OptimizedAdminDashboard: React.FC = () => {
         </div>
 
         {/* Advanced Metrics */}
-        {showAdvancedMetrics && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-          >
+        {showAdvancedMetrics &&
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card>
                 <CardHeader>
@@ -471,10 +471,10 @@ const OptimizedAdminDashboard: React.FC = () => {
                   <div className="text-lg font-semibold">
                     {metrics.avgResponseTime.toFixed(0)}ms
                   </div>
-                  <Progress 
-                    value={Math.min((metrics.avgResponseTime / 2000) * 100, 100)} 
-                    className="h-2 mt-2" 
-                  />
+                  <Progress
+                  value={Math.min(metrics.avgResponseTime / 2000 * 100, 100)}
+                  className="h-2 mt-2" />
+
                 </CardContent>
               </Card>
 
@@ -509,7 +509,7 @@ const OptimizedAdminDashboard: React.FC = () => {
               </Card>
             </div>
           </motion.div>
-        )}
+        }
 
         {/* Main Dashboard Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
@@ -535,15 +535,15 @@ const OptimizedAdminDashboard: React.FC = () => {
                 <CardContent>
                   <MemoryAwareErrorBoundary>
                     <VirtualScrollContainer
-                      items={salesData.items.map(item => ({ id: item.id, data: item }))}
+                      items={salesData.items.map((item) => ({ id: item.id, data: item }))}
                       itemHeight={80}
                       containerHeight={300}
                       renderItem={(item) => renderSalesRow(item.data, 0)}
                       loadMore={salesData.loadMore}
                       hasMore={salesData.hasMore}
                       loading={salesData.loading}
-                      className="border rounded"
-                    />
+                      className="border rounded" />
+
                   </MemoryAwareErrorBoundary>
                 </CardContent>
               </Card>
@@ -559,15 +559,15 @@ const OptimizedAdminDashboard: React.FC = () => {
                 <CardContent>
                   <MemoryAwareErrorBoundary>
                     <VirtualScrollContainer
-                      items={employeesData.items.filter(emp => emp.is_active).map(item => ({ id: item.id, data: item }))}
+                      items={employeesData.items.filter((emp) => emp.is_active).map((item) => ({ id: item.id, data: item }))}
                       itemHeight={80}
                       containerHeight={300}
                       renderItem={(item) => renderEmployeeRow(item.data, 0)}
                       loadMore={employeesData.loadMore}
                       hasMore={employeesData.hasMore}
                       loading={employeesData.loading}
-                      className="border rounded"
-                    />
+                      className="border rounded" />
+
                   </MemoryAwareErrorBoundary>
                 </CardContent>
               </Card>
@@ -587,15 +587,15 @@ const OptimizedAdminDashboard: React.FC = () => {
                 <CardContent>
                   <MemoryAwareErrorBoundary>
                     <VirtualScrollContainer
-                      items={productsData.items.map(item => ({ id: item.id, data: item }))}
+                      items={productsData.items.map((item) => ({ id: item.id, data: item }))}
                       itemHeight={80}
                       containerHeight={400}
                       renderItem={(item) => renderProductRow(item.data, 0)}
                       loadMore={productsData.loadMore}
                       hasMore={productsData.hasMore}
                       loading={productsData.loading}
-                      className="border rounded"
-                    />
+                      className="border rounded" />
+
                   </MemoryAwareErrorBoundary>
                 </CardContent>
               </Card>
@@ -611,11 +611,11 @@ const OptimizedAdminDashboard: React.FC = () => {
                 <CardContent>
                   <MemoryAwareErrorBoundary>
                     <VirtualScrollContainer
-                      items={usersData.items.map(item => ({ id: item.id, data: item }))}
+                      items={usersData.items.map((item) => ({ id: item.id, data: item }))}
                       itemHeight={80}
                       containerHeight={400}
-                      renderItem={(item) => (
-                        <div className="flex items-center justify-between p-4 border-b hover:bg-gray-50">
+                      renderItem={(item) =>
+                      <div className="flex items-center justify-between p-4 border-b hover:bg-gray-50">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
                               <Users className="h-4 w-4 text-indigo-600" />
@@ -629,12 +629,12 @@ const OptimizedAdminDashboard: React.FC = () => {
                             {item.data.is_active ? 'Active' : 'Inactive'}
                           </Badge>
                         </div>
-                      )}
+                      }
                       loadMore={usersData.loadMore}
                       hasMore={usersData.hasMore}
                       loading={usersData.loading}
-                      className="border rounded"
-                    />
+                      className="border rounded" />
+
                   </MemoryAwareErrorBoundary>
                 </CardContent>
               </Card>
@@ -721,8 +721,8 @@ const OptimizedAdminDashboard: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </MemoryAwareErrorBoundary>
-  );
+    </MemoryAwareErrorBoundary>);
+
 };
 
 export default OptimizedAdminDashboard;

@@ -204,10 +204,10 @@ class InvariantErrorRecovery extends Component<Props, State> {
 
 
 
-              // Empty batch to flush pending updates
-            });}} catch (e) {console.warn('Could not flush React updates:', e);}
-      }
 
+
+              // Empty batch to flush pending updates
+            });}} catch (e) {console.warn('Could not flush React updates:', e);}}
       // Clear any orphaned event listeners that might cause issues
       const elementsWithListeners = document.querySelectorAll('[onclick], [onchange], [onsubmit]');
       elementsWithListeners.forEach((element) => {

@@ -216,12 +216,12 @@ export class InvariantErrorFixer {
 
 
 
+
+
           // Empty batched update to flush pending work
         });} // Force a repaint
       document.body.style.display = 'none';document.body.offsetHeight; // Trigger reflow
-      document.body.style.display = '';
-
-      return {
+      document.body.style.display = '';return {
         fixed: true,
         message: 'Flushed React updates and forced repaint',
         details: { method: 'batch-flush-repaint' }

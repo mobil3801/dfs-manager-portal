@@ -5,18 +5,18 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Activity, 
-  AlertTriangle, 
-  CheckCircle, 
-  Clock, 
-  Database, 
-  Gauge, 
-  Monitor, 
+import {
+  Activity,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  Database,
+  Gauge,
+  Monitor,
   RefreshCw,
   TrendingUp,
-  Zap
-} from 'lucide-react';
+  Zap } from
+'lucide-react';
 import { motion } from 'motion/react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -79,7 +79,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
   const [suggestions, setSuggestions] = useState<OptimizationSuggestion[]>([]);
   const [isMonitoring, setIsMonitoring] = useState(true);
   const [autoOptimizationEnabled, setAutoOptimizationEnabled] = useState(false);
-  
+
   const monitoringInterval = useRef<NodeJS.Timeout | null>(null);
   const performanceObserver = useRef<PerformanceObserver | null>(null);
   const lastMetrics = useRef<PerformanceMetrics | null>(null);
@@ -93,34 +93,34 @@ const PerformanceMonitoringSystem: React.FC = () => {
     const memoryInfo = 'memory' in performance ? (performance as any).memory : null;
     const memoryUsed = memoryInfo?.usedJSHeapSize || 0;
     const memoryTotal = memoryInfo?.totalJSHeapSize || 1;
-    const memoryPercentage = (memoryUsed / memoryTotal) * 100;
-    
+    const memoryPercentage = memoryUsed / memoryTotal * 100;
+
     // Calculate memory trend
     let memoryTrend: 'up' | 'down' | 'stable' = 'stable';
     if (lastMetrics.current) {
       const lastPercentage = lastMetrics.current.memory.percentage;
-      if (memoryPercentage > lastPercentage + 5) memoryTrend = 'up';
-      else if (memoryPercentage < lastPercentage - 5) memoryTrend = 'down';
+      if (memoryPercentage > lastPercentage + 5) memoryTrend = 'up';else
+      if (memoryPercentage < lastPercentage - 5) memoryTrend = 'down';
     }
 
     // Timing metrics
     const navigationEntries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
     const navigationEntry = navigationEntries[0];
-    
+
     // Network metrics (estimated)
     const networkEntries = performance.getEntriesByType('resource');
-    const recentRequests = networkEntries.filter(entry => 
-      Date.now() - entry.startTime < 60000 // Last minute
+    const recentRequests = networkEntries.filter((entry) =>
+    Date.now() - entry.startTime < 60000 // Last minute
     );
-    
-    const avgLatency = recentRequests.length > 0 
-      ? recentRequests.reduce((sum, entry) => sum + entry.duration, 0) / recentRequests.length
-      : 0;
+
+    const avgLatency = recentRequests.length > 0 ?
+    recentRequests.reduce((sum, entry) => sum + entry.duration, 0) / recentRequests.length :
+    0;
 
     // Resource metrics
     const domNodes = document.querySelectorAll('*').length;
     const eventListeners = getEventListenerCount();
-    
+
     // Web Vitals (simplified)
     const vitals = getWebVitals();
 
@@ -161,7 +161,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
     const fid = getFID();
     const lcp = getLCP();
     const ttfb = getTTFB();
-    
+
     return { cls, fid, lcp, ttfb };
   };
 
@@ -177,14 +177,14 @@ const PerformanceMonitoringSystem: React.FC = () => {
         }
       }
     });
-    
+
     try {
       observer.observe({ type: 'layout-shift', buffered: true });
     } catch (e) {
+
+
       // Layout shift not supported
-    }
-    
-    return clsValue;
+    }return clsValue;
   };
 
   /**
@@ -197,14 +197,14 @@ const PerformanceMonitoringSystem: React.FC = () => {
         fidValue = (entry as any).processingStart - entry.startTime;
       }
     });
-    
+
     try {
       observer.observe({ type: 'first-input', buffered: true });
     } catch (e) {
+
+
       // First input not supported
-    }
-    
-    return fidValue;
+    }return fidValue;
   };
 
   /**
@@ -239,14 +239,14 @@ const PerformanceMonitoringSystem: React.FC = () => {
     // This is an approximation since there's no direct API
     const elements = document.querySelectorAll('*');
     let count = 0;
-    
-    elements.forEach(element => {
+
+    elements.forEach((element) => {
       const events = ['click', 'scroll', 'mouseover', 'keydown', 'resize'];
-      events.forEach(eventType => {
+      events.forEach((eventType) => {
         if ((element as any)[`on${eventType}`]) count++;
       });
     });
-    
+
     return count;
   };
 
@@ -256,7 +256,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
   const estimateActiveConnections = (): number => {
     // Estimate based on recent network activity
     const recentEntries = performance.getEntriesByType('resource').filter(
-      entry => Date.now() - entry.startTime < 10000 // Last 10 seconds
+      (entry) => Date.now() - entry.startTime < 10000 // Last 10 seconds
     );
     return recentEntries.length;
   };
@@ -266,13 +266,13 @@ const PerformanceMonitoringSystem: React.FC = () => {
    */
   const calculateErrorRate = (entries: PerformanceEntry[]): number => {
     if (entries.length === 0) return 0;
-    
-    const errorEntries = entries.filter(entry => {
+
+    const errorEntries = entries.filter((entry) => {
       // This is a simplified check - in reality you'd need more sophisticated error detection
       return entry.duration === 0 || entry.name.includes('error');
     });
-    
-    return (errorEntries.length / entries.length) * 100;
+
+    return errorEntries.length / entries.length * 100;
   };
 
   /**
@@ -292,7 +292,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
     const intervals = (window as any).__intervals__ || [];
     const timeouts = (window as any).__timeouts__ || [];
     const observers = (window as any).__observers__ || [];
-    
+
     return intervals.length + timeouts.length + observers.length;
   };
 
@@ -301,7 +301,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
    */
   const analyzeMetrics = useCallback((currentMetrics: PerformanceMetrics) => {
     const newAlerts: Alert[] = [];
-    
+
     // Memory alerts
     if (currentMetrics.memory.percentage > 80) {
       newAlerts.push({
@@ -314,7 +314,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
         autoResolve: true
       });
     }
-    
+
     // Performance alerts
     if (currentMetrics.timing.apiResponseTime > 2000) {
       newAlerts.push({
@@ -326,7 +326,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
         severity: 'medium'
       });
     }
-    
+
     // Network alerts
     if (currentMetrics.network.errorRate > 10) {
       newAlerts.push({
@@ -338,7 +338,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
         severity: 'high'
       });
     }
-    
+
     // Web Vitals alerts
     if (currentMetrics.vitals.cls > 0.1) {
       newAlerts.push({
@@ -350,7 +350,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
         severity: 'medium'
       });
     }
-    
+
     if (currentMetrics.vitals.lcp > 2500) {
       newAlerts.push({
         id: `lcp-slow-${Date.now()}`,
@@ -361,14 +361,14 @@ const PerformanceMonitoringSystem: React.FC = () => {
         severity: 'medium'
       });
     }
-    
+
     // Add new alerts
     if (newAlerts.length > 0) {
-      setAlerts(prev => [...newAlerts, ...prev].slice(0, 50)); // Keep last 50 alerts
+      setAlerts((prev) => [...newAlerts, ...prev].slice(0, 50)); // Keep last 50 alerts
       alertHistory.current = [...newAlerts, ...alertHistory.current];
-      
+
       // Show toast for critical alerts
-      newAlerts.forEach(alert => {
+      newAlerts.forEach((alert) => {
         if (alert.severity === 'critical') {
           toast({
             title: alert.title,
@@ -385,7 +385,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
    */
   const generateSuggestions = useCallback((currentMetrics: PerformanceMetrics) => {
     const newSuggestions: OptimizationSuggestion[] = [];
-    
+
     if (currentMetrics.memory.percentage > 70) {
       newSuggestions.push({
         category: 'memory',
@@ -402,7 +402,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
         }
       });
     }
-    
+
     if (currentMetrics.network.avgLatency > 1000) {
       newSuggestions.push({
         category: 'network',
@@ -412,7 +412,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
         effort: 'medium'
       });
     }
-    
+
     if (currentMetrics.resources.domNodes > 3000) {
       newSuggestions.push({
         category: 'rendering',
@@ -422,7 +422,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
         effort: 'high'
       });
     }
-    
+
     if (currentMetrics.resources.cacheHitRate < 60) {
       newSuggestions.push({
         category: 'caching',
@@ -432,7 +432,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
         effort: 'low'
       });
     }
-    
+
     setSuggestions(newSuggestions);
   }, [toast]);
 
@@ -441,25 +441,25 @@ const PerformanceMonitoringSystem: React.FC = () => {
    */
   const startMonitoring = useCallback(() => {
     if (monitoringInterval.current) return;
-    
+
     setIsMonitoring(true);
-    
+
     // Collect initial metrics
     const initialMetrics = collectMetrics();
     setMetrics(initialMetrics);
     lastMetrics.current = initialMetrics;
-    
+
     // Set up periodic collection
     monitoringInterval.current = setInterval(() => {
       const currentMetrics = collectMetrics();
       setMetrics(currentMetrics);
-      
+
       analyzeMetrics(currentMetrics);
       generateSuggestions(currentMetrics);
-      
+
       lastMetrics.current = currentMetrics;
     }, 5000); // Every 5 seconds
-    
+
     toast({
       title: 'Performance Monitoring Started',
       description: 'Real-time performance monitoring is now active.'
@@ -474,13 +474,13 @@ const PerformanceMonitoringSystem: React.FC = () => {
       clearInterval(monitoringInterval.current);
       monitoringInterval.current = null;
     }
-    
+
     if (performanceObserver.current) {
       performanceObserver.current.disconnect();
     }
-    
+
     setIsMonitoring(false);
-    
+
     toast({
       title: 'Performance Monitoring Stopped',
       description: 'Real-time performance monitoring has been paused.'
@@ -492,11 +492,11 @@ const PerformanceMonitoringSystem: React.FC = () => {
    */
   useEffect(() => {
     const dismissTimeout = setTimeout(() => {
-      setAlerts(prev => prev.filter(alert => 
-        !alert.autoResolve || (Date.now() - alert.timestamp) < 30000
+      setAlerts((prev) => prev.filter((alert) =>
+      !alert.autoResolve || Date.now() - alert.timestamp < 30000
       ));
     }, 30000);
-    
+
     return () => clearTimeout(dismissTimeout);
   }, [alerts]);
 
@@ -505,7 +505,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
    */
   useEffect(() => {
     startMonitoring();
-    
+
     return () => {
       stopMonitoring();
     };
@@ -514,7 +514,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
   /**
    * Get status color based on metric value
    */
-  const getStatusColor = (value: number, thresholds: { good: number; warning: number }) => {
+  const getStatusColor = (value: number, thresholds: {good: number;warning: number;}) => {
     if (value <= thresholds.good) return 'text-green-600';
     if (value <= thresholds.warning) return 'text-yellow-600';
     return 'text-red-600';
@@ -545,8 +545,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
             <p>Collecting performance metrics...</p>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -564,26 +564,26 @@ const PerformanceMonitoringSystem: React.FC = () => {
           <Button
             onClick={isMonitoring ? stopMonitoring : startMonitoring}
             variant="outline"
-            size="sm"
-          >
+            size="sm">
+
             {isMonitoring ? 'Pause' : 'Start'} Monitoring
           </Button>
         </div>
       </div>
 
       {/* Active Alerts */}
-      {alerts.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-2"
-        >
-          {alerts.slice(0, 3).map(alert => (
-            <Alert
-              key={alert.id}
-              variant={alert.type === 'error' ? 'destructive' : 'default'}
-              className="animate-pulse"
-            >
+      {alerts.length > 0 &&
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-2">
+
+          {alerts.slice(0, 3).map((alert) =>
+        <Alert
+          key={alert.id}
+          variant={alert.type === 'error' ? 'destructive' : 'default'}
+          className="animate-pulse">
+
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
                 <div className="flex items-center justify-between">
@@ -596,9 +596,9 @@ const PerformanceMonitoringSystem: React.FC = () => {
                 </div>
               </AlertDescription>
             </Alert>
-          ))}
+        )}
         </motion.div>
-      )}
+      }
 
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
@@ -650,10 +650,10 @@ const PerformanceMonitoringSystem: React.FC = () => {
                   <span className={getStatusColor(metrics.timing.apiResponseTime, { good: 500, warning: 1000 })}>
                     {formatTime(metrics.timing.apiResponseTime)}
                   </span>
-                  <Progress 
-                    value={Math.min((metrics.timing.apiResponseTime / 3000) * 100, 100)} 
-                    className="h-2" 
-                  />
+                  <Progress
+                    value={Math.min(metrics.timing.apiResponseTime / 3000 * 100, 100)}
+                    className="h-2" />
+
                   <p className="text-xs text-muted-foreground">
                     Avg response time
                   </p>
@@ -841,8 +841,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
         <TabsContent value="suggestions" className="space-y-4">
           <div className="space-y-4">
-            {suggestions.map((suggestion, index) => (
-              <Card key={index}>
+            {suggestions.map((suggestion, index) =>
+            <Card key={index}>
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between">
                     <div className="space-y-2">
@@ -860,19 +860,19 @@ const PerformanceMonitoringSystem: React.FC = () => {
                         {suggestion.description}
                       </p>
                     </div>
-                    {suggestion.action && (
-                      <Button onClick={suggestion.action} size="sm">
+                    {suggestion.action &&
+                  <Button onClick={suggestion.action} size="sm">
                         <Zap className="mr-2 h-4 w-4" />
                         Apply Fix
                       </Button>
-                    )}
+                  }
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            )}
             
-            {suggestions.length === 0 && (
-              <Card>
+            {suggestions.length === 0 &&
+            <Card>
                 <CardContent className="flex items-center justify-center h-32">
                   <div className="text-center">
                     <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
@@ -881,12 +881,12 @@ const PerformanceMonitoringSystem: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
-            )}
+            }
           </div>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 /**
@@ -894,26 +894,26 @@ const PerformanceMonitoringSystem: React.FC = () => {
  */
 const calculateOverallScore = (metrics: PerformanceMetrics): number => {
   let score = 100;
-  
+
   // Memory penalty
-  if (metrics.memory.percentage > 80) score -= 20;
-  else if (metrics.memory.percentage > 60) score -= 10;
-  
+  if (metrics.memory.percentage > 80) score -= 20;else
+  if (metrics.memory.percentage > 60) score -= 10;
+
   // Timing penalty
-  if (metrics.timing.apiResponseTime > 2000) score -= 15;
-  else if (metrics.timing.apiResponseTime > 1000) score -= 8;
-  
+  if (metrics.timing.apiResponseTime > 2000) score -= 15;else
+  if (metrics.timing.apiResponseTime > 1000) score -= 8;
+
   // Network penalty
-  if (metrics.network.errorRate > 5) score -= 15;
-  else if (metrics.network.errorRate > 2) score -= 8;
-  
+  if (metrics.network.errorRate > 5) score -= 15;else
+  if (metrics.network.errorRate > 2) score -= 8;
+
   // Web Vitals penalty
-  if (metrics.vitals.lcp > 4000) score -= 10;
-  else if (metrics.vitals.lcp > 2500) score -= 5;
-  
-  if (metrics.vitals.cls > 0.25) score -= 10;
-  else if (metrics.vitals.cls > 0.1) score -= 5;
-  
+  if (metrics.vitals.lcp > 4000) score -= 10;else
+  if (metrics.vitals.lcp > 2500) score -= 5;
+
+  if (metrics.vitals.cls > 0.25) score -= 10;else
+  if (metrics.vitals.cls > 0.1) score -= 5;
+
   return Math.max(0, Math.round(score));
 };
 

@@ -46,18 +46,18 @@ class OptimizedDataService {
    * Intelligent data fetching with selective loading
    */
   async fetchData(
-    tableId: string,
-    params: any,
-    options: {
-      priority?: 'high' | 'medium' | 'low';
-      cache?: boolean;
-      viewport?: { start: number; end: number };
-      fields?: string[];
-    } = {}
-  ) {
+  tableId: string,
+  params: any,
+  options: {
+    priority?: 'high' | 'medium' | 'low';
+    cache?: boolean;
+    viewport?: {start: number;end: number;};
+    fields?: string[];
+  } = {})
+  {
     const startTime = performance.now();
     const cacheKey = this.generateCacheKey(tableId, params, options);
-    
+
     try {
       // Check cache first
       if (options.cache !== false && this.isCacheValid(cacheKey)) {
@@ -75,7 +75,7 @@ class OptimizedDataService {
       this.requestQueue.set(cacheKey, requestPromise);
 
       const result = await requestPromise;
-      
+
       // Cache the result
       if (options.cache !== false) {
         this.cacheData(cacheKey, result.data);
@@ -102,11 +102,11 @@ class OptimizedDataService {
     return new Promise(async (resolve, reject) => {
       const executeWithConnection = async () => {
         this.connectionPool.active++;
-        
+
         try {
           // Optimize query based on viewport and fields
           const optimizedParams = this.optimizeQuery(params, options);
-          
+
           const { data, error } = await window.ezsite.apis.tablePage(
             tableId,
             optimizedParams
@@ -163,8 +163,8 @@ class OptimizedDataService {
    * Process connection queue
    */
   private processQueue() {
-    if (this.connectionPool.queue.length > 0 && 
-        this.connectionPool.active < this.connectionPool.maxConnections) {
+    if (this.connectionPool.queue.length > 0 &&
+    this.connectionPool.active < this.connectionPool.maxConnections) {
       const nextRequest = this.connectionPool.queue.shift();
       if (nextRequest) {
         nextRequest();
@@ -191,7 +191,7 @@ class OptimizedDataService {
   private isCacheValid(cacheKey: string): boolean {
     const cached = this.cache[cacheKey];
     if (!cached) return false;
-    
+
     const now = Date.now();
     return now < cached.expiresAt;
   }
@@ -204,7 +204,7 @@ class OptimizedDataService {
     this.cache[cacheKey] = {
       data,
       timestamp: now,
-      expiresAt: now + (5 * 60 * 1000), // 5 minutes default
+      expiresAt: now + 5 * 60 * 1000, // 5 minutes default
       accessCount: 1,
       lastAccessed: now
     };
@@ -225,18 +225,18 @@ class OptimizedDataService {
    */
   private updateMetrics(responseTime: number, success: boolean) {
     this.performanceMetrics.totalRequests++;
-    
+
     if (success) {
-      this.performanceMetrics.avgResponseTime = 
-        (this.performanceMetrics.avgResponseTime + responseTime) / 2;
+      this.performanceMetrics.avgResponseTime =
+      (this.performanceMetrics.avgResponseTime + responseTime) / 2;
     }
 
     // Calculate cache hit rate
-    const totalCacheRequests = Object.values(this.cache)
-      .reduce((sum, item) => sum + item.accessCount, 0);
-    
-    this.performanceMetrics.cacheHitRate = 
-      totalCacheRequests / this.performanceMetrics.totalRequests;
+    const totalCacheRequests = Object.values(this.cache).
+    reduce((sum, item) => sum + item.accessCount, 0);
+
+    this.performanceMetrics.cacheHitRate =
+    totalCacheRequests / this.performanceMetrics.totalRequests;
   }
 
   /**
@@ -256,22 +256,22 @@ class OptimizedDataService {
   private cleanupCache() {
     const now = Date.now();
     const expiredKeys: string[] = [];
-    
-    Object.keys(this.cache).forEach(key => {
+
+    Object.keys(this.cache).forEach((key) => {
       const cached = this.cache[key];
-      
+
       // Remove expired entries
       if (now > cached.expiresAt) {
         expiredKeys.push(key);
       }
-      
+
       // Remove rarely accessed entries (LRU)
-      if (cached.accessCount < 2 && (now - cached.lastAccessed) > 600000) {
+      if (cached.accessCount < 2 && now - cached.lastAccessed > 600000) {
         expiredKeys.push(key);
       }
     });
 
-    expiredKeys.forEach(key => {
+    expiredKeys.forEach((key) => {
       delete this.cache[key];
     });
 
@@ -297,7 +297,7 @@ class OptimizedDataService {
     if ('memory' in performance) {
       const memInfo = (performance as any).memory;
       this.performanceMetrics.memoryUsage = memInfo.usedJSHeapSize / memInfo.totalJSHeapSize;
-      
+
       // Force cleanup if memory usage is high
       if (this.performanceMetrics.memoryUsage > 0.8) {
         this.forceCleanup();
@@ -311,15 +311,15 @@ class OptimizedDataService {
   private forceCleanup() {
     // Clear all cache
     this.cache = {};
-    
+
     // Clear request queue
     this.requestQueue.clear();
-    
+
     // Force garbage collection if available
     if ('gc' in window) {
       (window as any).gc();
     }
-    
+
     console.warn('Forced cleanup due to high memory usage');
   }
 
@@ -341,15 +341,15 @@ class OptimizedDataService {
   private monitorPerformance() {
     setInterval(() => {
       const metrics = this.getMetrics();
-      
+
       // Log performance data for monitoring
       console.log('Performance Metrics:', metrics);
-      
+
       // Trigger alerts if needed
       if (metrics.avgResponseTime > 2000) {
         console.warn('High response time detected:', metrics.avgResponseTime);
       }
-      
+
       if (metrics.memoryUsage > 0.7) {
         console.warn('High memory usage detected:', metrics.memoryUsage);
       }

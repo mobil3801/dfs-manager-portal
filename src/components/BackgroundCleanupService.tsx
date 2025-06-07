@@ -5,17 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { 
-  Activity, 
-  Trash2, 
-  RefreshCw, 
-  Settings, 
+import {
+  Activity,
+  Trash2,
+  RefreshCw,
+  Settings,
   CheckCircle,
   AlertTriangle,
   Clock,
   Database,
-  Monitor
-} from 'lucide-react';
+  Monitor } from
+'lucide-react';
 import { motion } from 'motion/react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -28,7 +28,7 @@ interface CleanupTask {
   lastRun: number;
   nextRun: number;
   isActive: boolean;
-  cleanupFunction: () => Promise<{ cleaned: number; freed: number }>;
+  cleanupFunction: () => Promise<{cleaned: number;freed: number;}>;
 }
 
 interface CleanupStats {
@@ -71,115 +71,115 @@ const BackgroundCleanupService: React.FC = () => {
   });
   const [currentTask, setCurrentTask] = useState<string | null>(null);
   const [memoryUsage, setMemoryUsage] = useState<number>(0);
-  
+
   const cleanupInterval = useRef<NodeJS.Timeout | null>(null);
   const memoryMonitor = useRef<NodeJS.Timeout | null>(null);
   const performanceObserver = useRef<PerformanceObserver | null>(null);
-  const cleanupHistory = useRef<Array<{ timestamp: number; task: string; result: any }>>([]);
+  const cleanupHistory = useRef<Array<{timestamp: number;task: string;result: any;}>>([]);
 
   /**
    * Initialize cleanup tasks
    */
   const initializeCleanupTasks = useCallback((): CleanupTask[] => {
     const now = Date.now();
-    
+
     return [
-      {
-        id: 'dom-cleanup',
-        name: 'DOM Cleanup',
-        description: 'Remove orphaned DOM elements and event listeners',
-        priority: 'medium',
-        interval: 120000, // 2 minutes
-        lastRun: 0,
-        nextRun: now + 120000,
-        isActive: true,
-        cleanupFunction: cleanupDOMElements
-      },
-      {
-        id: 'memory-cleanup',
-        name: 'Memory Cleanup',
-        description: 'Force garbage collection and clear caches',
-        priority: 'high',
-        interval: 60000, // 1 minute
-        lastRun: 0,
-        nextRun: now + 60000,
-        isActive: true,
-        cleanupFunction: cleanupMemory
-      },
-      {
-        id: 'cache-cleanup',
-        name: 'Cache Cleanup',
-        description: 'Clear expired cache entries',
-        priority: 'medium',
-        interval: 300000, // 5 minutes
-        lastRun: 0,
-        nextRun: now + 300000,
-        isActive: true,
-        cleanupFunction: cleanupCache
-      },
-      {
-        id: 'storage-cleanup',
-        name: 'Storage Cleanup',
-        description: 'Remove old localStorage and sessionStorage entries',
-        priority: 'low',
-        interval: 600000, // 10 minutes
-        lastRun: 0,
-        nextRun: now + 600000,
-        isActive: true,
-        cleanupFunction: cleanupStorage
-      },
-      {
-        id: 'network-cleanup',
-        name: 'Network Cleanup',
-        description: 'Cancel pending requests and close connections',
-        priority: 'high',
-        interval: 180000, // 3 minutes
-        lastRun: 0,
-        nextRun: now + 180000,
-        isActive: true,
-        cleanupFunction: cleanupNetwork
-      },
-      {
-        id: 'component-cleanup',
-        name: 'Component Cleanup',
-        description: 'Cleanup unmounted React components',
-        priority: 'medium',
-        interval: 240000, // 4 minutes
-        lastRun: 0,
-        nextRun: now + 240000,
-        isActive: true,
-        cleanupFunction: cleanupComponents
-      },
-      {
-        id: 'performance-cleanup',
-        name: 'Performance Cleanup',
-        description: 'Clear performance entries and metrics',
-        priority: 'low',
-        interval: 900000, // 15 minutes
-        lastRun: 0,
-        nextRun: now + 900000,
-        isActive: true,
-        cleanupFunction: cleanupPerformanceEntries
-      }
-    ];
+    {
+      id: 'dom-cleanup',
+      name: 'DOM Cleanup',
+      description: 'Remove orphaned DOM elements and event listeners',
+      priority: 'medium',
+      interval: 120000, // 2 minutes
+      lastRun: 0,
+      nextRun: now + 120000,
+      isActive: true,
+      cleanupFunction: cleanupDOMElements
+    },
+    {
+      id: 'memory-cleanup',
+      name: 'Memory Cleanup',
+      description: 'Force garbage collection and clear caches',
+      priority: 'high',
+      interval: 60000, // 1 minute
+      lastRun: 0,
+      nextRun: now + 60000,
+      isActive: true,
+      cleanupFunction: cleanupMemory
+    },
+    {
+      id: 'cache-cleanup',
+      name: 'Cache Cleanup',
+      description: 'Clear expired cache entries',
+      priority: 'medium',
+      interval: 300000, // 5 minutes
+      lastRun: 0,
+      nextRun: now + 300000,
+      isActive: true,
+      cleanupFunction: cleanupCache
+    },
+    {
+      id: 'storage-cleanup',
+      name: 'Storage Cleanup',
+      description: 'Remove old localStorage and sessionStorage entries',
+      priority: 'low',
+      interval: 600000, // 10 minutes
+      lastRun: 0,
+      nextRun: now + 600000,
+      isActive: true,
+      cleanupFunction: cleanupStorage
+    },
+    {
+      id: 'network-cleanup',
+      name: 'Network Cleanup',
+      description: 'Cancel pending requests and close connections',
+      priority: 'high',
+      interval: 180000, // 3 minutes
+      lastRun: 0,
+      nextRun: now + 180000,
+      isActive: true,
+      cleanupFunction: cleanupNetwork
+    },
+    {
+      id: 'component-cleanup',
+      name: 'Component Cleanup',
+      description: 'Cleanup unmounted React components',
+      priority: 'medium',
+      interval: 240000, // 4 minutes
+      lastRun: 0,
+      nextRun: now + 240000,
+      isActive: true,
+      cleanupFunction: cleanupComponents
+    },
+    {
+      id: 'performance-cleanup',
+      name: 'Performance Cleanup',
+      description: 'Clear performance entries and metrics',
+      priority: 'low',
+      interval: 900000, // 15 minutes
+      lastRun: 0,
+      nextRun: now + 900000,
+      isActive: true,
+      cleanupFunction: cleanupPerformanceEntries
+    }];
+
   }, []);
 
   /**
    * DOM Elements Cleanup
    */
-  const cleanupDOMElements = async (): Promise<{ cleaned: number; freed: number }> => {
+  const cleanupDOMElements = async (): Promise<{cleaned: number;freed: number;}> => {
     let cleaned = 0;
     let freed = 0;
-    
+
     try {
       // Remove orphaned elements
       const orphanedElements = document.querySelectorAll('[data-cleanup="true"]');
-      orphanedElements.forEach(element => {
+      orphanedElements.forEach((element) => {
         element.remove();
         cleaned++;
         freed += 100; // Estimate 100 bytes per element
       });
-      
+
       // Clean up empty text nodes
       const walker = document.createTreeWalker(
         document.body,
@@ -190,22 +190,22 @@ const BackgroundCleanupService: React.FC = () => {
           }
         }
       );
-      
+
       const emptyTextNodes: Node[] = [];
       let node;
       while (node = walker.nextNode()) {
         emptyTextNodes.push(node);
       }
-      
-      emptyTextNodes.forEach(textNode => {
+
+      emptyTextNodes.forEach((textNode) => {
         textNode.remove();
         cleaned++;
         freed += 50;
       });
-      
+
       // Remove duplicate event listeners (simplified detection)
       const elementsWithListeners = document.querySelectorAll('[data-has-listeners]');
-      elementsWithListeners.forEach(element => {
+      elementsWithListeners.forEach((element) => {
         // This is a simplified approach - in practice you'd need more sophisticated detection
         const listenerCount = parseInt(element.getAttribute('data-listener-count') || '0');
         if (listenerCount > 5) {
@@ -215,22 +215,22 @@ const BackgroundCleanupService: React.FC = () => {
           freed += 200;
         }
       });
-      
+
       console.log(`DOM Cleanup: Removed ${cleaned} elements, freed ~${freed} bytes`);
     } catch (error) {
       console.error('DOM cleanup failed:', error);
     }
-    
+
     return { cleaned, freed };
   };
 
   /**
    * Memory Cleanup
    */
-  const cleanupMemory = async (): Promise<{ cleaned: number; freed: number }> => {
+  const cleanupMemory = async (): Promise<{cleaned: number;freed: number;}> => {
     let cleaned = 0;
     let freed = 0;
-    
+
     try {
       // Clear WeakMaps and WeakSets if possible
       if (window.WeakRef) {
@@ -238,53 +238,53 @@ const BackgroundCleanupService: React.FC = () => {
         cleaned += 10;
         freed += 1000;
       }
-      
+
       // Force garbage collection if available
       if ('gc' in window) {
         (window as any).gc();
         cleaned += 1;
         freed += 10000; // Estimate
       }
-      
+
       // Clear function closures and references
       if ('FinalizationRegistry' in window) {
         // Clean up finalization registry if supported
         cleaned += 5;
         freed += 500;
       }
-      
+
       // Clear performance memory if available
       if ('memory' in performance) {
         const memInfo = (performance as any).memory;
         const beforeUsed = memInfo.usedJSHeapSize;
-        
+
         // Trigger memory cleanup
         const tempArray = new Array(1000).fill(null);
         tempArray.length = 0;
-        
+
         setTimeout(() => {
           const afterUsed = memInfo.usedJSHeapSize;
           freed = Math.max(0, beforeUsed - afterUsed);
         }, 100);
-        
+
         cleaned += 1;
       }
-      
+
       console.log(`Memory Cleanup: ${cleaned} operations, freed ~${freed} bytes`);
     } catch (error) {
       console.error('Memory cleanup failed:', error);
     }
-    
+
     return { cleaned, freed };
   };
 
   /**
    * Cache Cleanup
    */
-  const cleanupCache = async (): Promise<{ cleaned: number; freed: number }> => {
+  const cleanupCache = async (): Promise<{cleaned: number;freed: number;}> => {
     let cleaned = 0;
     let freed = 0;
-    
+
     try {
       // Clear application cache if available
       if ('caches' in window) {
@@ -292,13 +292,13 @@ const BackgroundCleanupService: React.FC = () => {
         for (const cacheName of cacheNames) {
           const cache = await caches.open(cacheName);
           const requests = await cache.keys();
-          
+
           for (const request of requests) {
             const response = await cache.match(request);
             if (response) {
               const cacheControl = response.headers.get('cache-control');
               const expires = response.headers.get('expires');
-              
+
               // Check if cache is expired
               let isExpired = false;
               if (expires) {
@@ -308,7 +308,7 @@ const BackgroundCleanupService: React.FC = () => {
                 const responseDate = new Date(response.headers.get('date') || '');
                 isExpired = Date.now() - responseDate.getTime() > maxAge * 1000;
               }
-              
+
               if (isExpired) {
                 await cache.delete(request);
                 cleaned++;
@@ -318,40 +318,40 @@ const BackgroundCleanupService: React.FC = () => {
           }
         }
       }
-      
+
       // Clear in-memory caches
       if (window.ezsite?.cache?.clear) {
         window.ezsite.cache.clear();
         cleaned += 10;
         freed += 5000;
       }
-      
+
       console.log(`Cache Cleanup: Cleared ${cleaned} entries, freed ~${freed} bytes`);
     } catch (error) {
       console.error('Cache cleanup failed:', error);
     }
-    
+
     return { cleaned, freed };
   };
 
   /**
    * Storage Cleanup
    */
-  const cleanupStorage = async (): Promise<{ cleaned: number; freed: number }> => {
+  const cleanupStorage = async (): Promise<{cleaned: number;freed: number;}> => {
     let cleaned = 0;
     let freed = 0;
-    
+
     try {
       const now = Date.now();
       const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days
-      
+
       // Clean localStorage
       const localStorageKeys = Object.keys(localStorage);
-      localStorageKeys.forEach(key => {
+      localStorageKeys.forEach((key) => {
         try {
           if (key.startsWith('temp_') || key.startsWith('cache_')) {
             const data = JSON.parse(localStorage.getItem(key) || '{}');
-            if (data.timestamp && (now - data.timestamp) > maxAge) {
+            if (data.timestamp && now - data.timestamp > maxAge) {
               const size = new Blob([localStorage.getItem(key) || '']).size;
               localStorage.removeItem(key);
               cleaned++;
@@ -365,10 +365,10 @@ const BackgroundCleanupService: React.FC = () => {
           freed += 100;
         }
       });
-      
+
       // Clean sessionStorage
       const sessionStorageKeys = Object.keys(sessionStorage);
-      sessionStorageKeys.forEach(key => {
+      sessionStorageKeys.forEach((key) => {
         try {
           if (key.startsWith('temp_')) {
             const size = new Blob([sessionStorage.getItem(key) || '']).size;
@@ -382,22 +382,22 @@ const BackgroundCleanupService: React.FC = () => {
           freed += 50;
         }
       });
-      
+
       console.log(`Storage Cleanup: Removed ${cleaned} items, freed ~${freed} bytes`);
     } catch (error) {
       console.error('Storage cleanup failed:', error);
     }
-    
+
     return { cleaned, freed };
   };
 
   /**
    * Network Cleanup
    */
-  const cleanupNetwork = async (): Promise<{ cleaned: number; freed: number }> => {
+  const cleanupNetwork = async (): Promise<{cleaned: number;freed: number;}> => {
     let cleaned = 0;
     let freed = 0;
-    
+
     try {
       // Cancel pending fetch requests (if tracked)
       if (window.ezsite?.pendingRequests) {
@@ -413,7 +413,7 @@ const BackgroundCleanupService: React.FC = () => {
           }
         });
       }
-      
+
       // Close idle connections (WebSocket, EventSource)
       if (window.ezsite?.connections) {
         const connections = window.ezsite.connections;
@@ -429,7 +429,7 @@ const BackgroundCleanupService: React.FC = () => {
           }
         });
       }
-      
+
       // Clear DNS cache if possible (browser specific)
       if ('connection' in navigator && 'clearDNSCache' in (navigator as any).connection) {
         try {
@@ -440,22 +440,22 @@ const BackgroundCleanupService: React.FC = () => {
           console.warn('DNS cache clear not supported');
         }
       }
-      
+
       console.log(`Network Cleanup: Closed ${cleaned} connections, freed ~${freed} bytes`);
     } catch (error) {
       console.error('Network cleanup failed:', error);
     }
-    
+
     return { cleaned, freed };
   };
 
   /**
    * Component Cleanup
    */
-  const cleanupComponents = async (): Promise<{ cleaned: number; freed: number }> => {
+  const cleanupComponents = async (): Promise<{cleaned: number;freed: number;}> => {
     let cleaned = 0;
     let freed = 0;
-    
+
     try {
       // Clean up React DevTools data if available
       if (window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
@@ -471,41 +471,41 @@ const BackgroundCleanupService: React.FC = () => {
           });
         }
       }
-      
+
       // Clear component refs and callbacks
       if (window.ezsite?.componentRegistry) {
         const registry = window.ezsite.componentRegistry;
         const now = Date.now();
-        
+
         registry.forEach((component: any, id: string) => {
-          if (component.unmountedAt && (now - component.unmountedAt) > 60000) {
+          if (component.unmountedAt && now - component.unmountedAt > 60000) {
             registry.delete(id);
             cleaned++;
             freed += 200;
           }
         });
       }
-      
+
       console.log(`Component Cleanup: Cleaned ${cleaned} components, freed ~${freed} bytes`);
     } catch (error) {
       console.error('Component cleanup failed:', error);
     }
-    
+
     return { cleaned, freed };
   };
 
   /**
    * Performance Entries Cleanup
    */
-  const cleanupPerformanceEntries = async (): Promise<{ cleaned: number; freed: number }> => {
+  const cleanupPerformanceEntries = async (): Promise<{cleaned: number;freed: number;}> => {
     let cleaned = 0;
     let freed = 0;
-    
+
     try {
       // Clear performance entries
       const entryTypes = ['navigation', 'resource', 'measure', 'mark'];
-      
-      entryTypes.forEach(entryType => {
+
+      entryTypes.forEach((entryType) => {
         try {
           const entries = performance.getEntriesByType(entryType);
           if (entries.length > 100) {
@@ -522,23 +522,23 @@ const BackgroundCleanupService: React.FC = () => {
           console.warn(`Failed to clear ${entryType} entries:`, error);
         }
       });
-      
+
       // Clear observer data
       if (performanceObserver.current) {
         performanceObserver.current.disconnect();
         performanceObserver.current = null;
         cleaned++;
         freed += 1000;
-        
+
         // Recreate observer
         setupPerformanceObserver();
       }
-      
+
       console.log(`Performance Cleanup: Cleared ${cleaned} entries, freed ~${freed} bytes`);
     } catch (error) {
       console.error('Performance cleanup failed:', error);
     }
-    
+
     return { cleaned, freed };
   };
 
@@ -555,7 +555,7 @@ const BackgroundCleanupService: React.FC = () => {
           console.log('High performance entry count detected, scheduling cleanup');
         }
       });
-      
+
       try {
         performanceObserver.current.observe({ entryTypes: ['measure', 'navigation'] });
       } catch (error) {
@@ -570,9 +570,9 @@ const BackgroundCleanupService: React.FC = () => {
   const monitorMemoryUsage = useCallback(() => {
     if ('memory' in performance) {
       const memInfo = (performance as any).memory;
-      const usage = (memInfo.usedJSHeapSize / memInfo.totalJSHeapSize) * 100;
+      const usage = memInfo.usedJSHeapSize / memInfo.totalJSHeapSize * 100;
       setMemoryUsage(usage);
-      
+
       // Trigger aggressive cleanup if memory usage is high
       if (usage > config.maxMemoryUsage && config.aggressiveMode) {
         console.log(`High memory usage (${usage.toFixed(1)}%), triggering aggressive cleanup`);
@@ -585,29 +585,29 @@ const BackgroundCleanupService: React.FC = () => {
    * Run a specific cleanup task
    */
   const runCleanupTask = useCallback(async (taskId: string, force: boolean = false) => {
-    const task = tasks.find(t => t.id === taskId);
-    if (!task || (!task.isActive && !force)) return;
-    
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task || !task.isActive && !force) return;
+
     const now = Date.now();
     if (!force && now < task.nextRun) return;
-    
+
     setCurrentTask(taskId);
     const startTime = performance.now();
-    
+
     try {
       const result = await task.cleanupFunction();
       const endTime = performance.now();
       const duration = endTime - startTime;
-      
+
       // Update task
-      setTasks(prev => prev.map(t => t.id === taskId ? {
+      setTasks((prev) => prev.map((t) => t.id === taskId ? {
         ...t,
         lastRun: now,
         nextRun: now + t.interval
       } : t));
-      
+
       // Update stats
-      setStats(prev => ({
+      setStats((prev) => ({
         ...prev,
         totalRuns: prev.totalRuns + 1,
         totalCleaned: prev.totalCleaned + result.cleaned,
@@ -615,23 +615,23 @@ const BackgroundCleanupService: React.FC = () => {
         lastCleanup: now,
         averageCleanupTime: (prev.averageCleanupTime + duration) / 2
       }));
-      
+
       // Add to history
       cleanupHistory.current.push({
         timestamp: now,
         task: task.name,
         result
       });
-      
+
       // Keep only last 50 entries
       if (cleanupHistory.current.length > 50) {
         cleanupHistory.current = cleanupHistory.current.slice(-50);
       }
-      
+
       console.log(`Cleanup task ${task.name} completed:`, result);
     } catch (error) {
       console.error(`Cleanup task ${task.name} failed:`, error);
-      setStats(prev => ({ ...prev, errorCount: prev.errorCount + 1 }));
+      setStats((prev) => ({ ...prev, errorCount: prev.errorCount + 1 }));
     } finally {
       setCurrentTask(null);
     }
@@ -642,27 +642,27 @@ const BackgroundCleanupService: React.FC = () => {
    */
   const runCleanupCycle = useCallback(async () => {
     if (!config.enabled) return;
-    
+
     const now = Date.now();
-    const tasksToRun = tasks.filter(task => 
-      task.isActive && now >= task.nextRun
+    const tasksToRun = tasks.filter((task) =>
+    task.isActive && now >= task.nextRun
     ).sort((a, b) => {
       // Sort by priority: critical -> high -> medium -> low
       const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
       return priorityOrder[a.priority] - priorityOrder[b.priority];
     });
-    
+
     // Run tasks in batches to avoid blocking
     for (let i = 0; i < tasksToRun.length; i += config.batchSize) {
       const batch = tasksToRun.slice(i, i + config.batchSize);
-      
+
       await Promise.all(
-        batch.map(task => runCleanupTask(task.id))
+        batch.map((task) => runCleanupTask(task.id))
       );
-      
+
       // Small delay between batches
       if (i + config.batchSize < tasksToRun.length) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
       }
     }
   }, [config, tasks, runCleanupTask]);
@@ -672,21 +672,21 @@ const BackgroundCleanupService: React.FC = () => {
    */
   const startService = useCallback(() => {
     if (isRunning) return;
-    
+
     setIsRunning(true);
-    
+
     // Initialize tasks
     setTasks(initializeCleanupTasks());
-    
+
     // Setup cleanup interval
     cleanupInterval.current = setInterval(runCleanupCycle, config.checkInterval);
-    
+
     // Setup memory monitoring
     memoryMonitor.current = setInterval(monitorMemoryUsage, 10000); // Every 10 seconds
-    
+
     // Setup performance observer
     setupPerformanceObserver();
-    
+
     toast({
       title: 'Background Cleanup Started',
       description: 'Automatic cleanup service is now running.'
@@ -698,22 +698,22 @@ const BackgroundCleanupService: React.FC = () => {
    */
   const stopService = useCallback(() => {
     setIsRunning(false);
-    
+
     if (cleanupInterval.current) {
       clearInterval(cleanupInterval.current);
       cleanupInterval.current = null;
     }
-    
+
     if (memoryMonitor.current) {
       clearInterval(memoryMonitor.current);
       memoryMonitor.current = null;
     }
-    
+
     if (performanceObserver.current) {
       performanceObserver.current.disconnect();
       performanceObserver.current = null;
     }
-    
+
     toast({
       title: 'Background Cleanup Stopped',
       description: 'Automatic cleanup service has been paused.'
@@ -727,7 +727,7 @@ const BackgroundCleanupService: React.FC = () => {
     if (config.enabled) {
       startService();
     }
-    
+
     return () => {
       stopService();
     };
@@ -737,8 +737,8 @@ const BackgroundCleanupService: React.FC = () => {
    * Update config
    */
   const updateConfig = useCallback((newConfig: Partial<CleanupConfig>) => {
-    setConfig(prev => ({ ...prev, ...newConfig }));
-    
+    setConfig((prev) => ({ ...prev, ...newConfig }));
+
     // Restart service if running
     if (isRunning) {
       stopService();
@@ -766,11 +766,11 @@ const BackgroundCleanupService: React.FC = () => {
    */
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'critical': return 'destructive';
-      case 'high': return 'default';
-      case 'medium': return 'secondary';
-      case 'low': return 'outline';
-      default: return 'outline';
+      case 'critical':return 'destructive';
+      case 'high':return 'default';
+      case 'medium':return 'secondary';
+      case 'low':return 'outline';
+      default:return 'outline';
     }
   };
 
@@ -789,19 +789,19 @@ const BackgroundCleanupService: React.FC = () => {
           <Button
             onClick={isRunning ? stopService : startService}
             variant="outline"
-            size="sm"
-          >
+            size="sm">
+
             {isRunning ? 'Stop' : 'Start'} Service
           </Button>
         </div>
       </div>
 
       {/* Memory Alert */}
-      {memoryUsage > config.maxMemoryUsage && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+      {memoryUsage > config.maxMemoryUsage &&
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}>
+
           <Card className="border-red-200 bg-red-50">
             <CardContent className="pt-6">
               <div className="flex items-center gap-2">
@@ -810,10 +810,10 @@ const BackgroundCleanupService: React.FC = () => {
                   High Memory Usage: {memoryUsage.toFixed(1)}%
                 </span>
                 <Button
-                  onClick={() => runCleanupTask('memory-cleanup', true)}
-                  size="sm"
-                  variant="destructive"
-                >
+                onClick={() => runCleanupTask('memory-cleanup', true)}
+                size="sm"
+                variant="destructive">
+
                   <RefreshCw className="mr-2 h-4 w-4" />
                   Force Cleanup
                 </Button>
@@ -821,7 +821,7 @@ const BackgroundCleanupService: React.FC = () => {
             </CardContent>
           </Card>
         </motion.div>
-      )}
+      }
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -889,18 +889,18 @@ const BackgroundCleanupService: React.FC = () => {
       </div>
 
       {/* Current Status */}
-      {currentTask && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg"
-        >
+      {currentTask &&
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+
           <RefreshCw className="h-4 w-4 animate-spin text-blue-600" />
           <span className="text-blue-700">
-            Running cleanup task: {tasks.find(t => t.id === currentTask)?.name}
+            Running cleanup task: {tasks.find((t) => t.id === currentTask)?.name}
           </span>
         </motion.div>
-      )}
+      }
 
       {/* Memory Usage */}
       <Card>
@@ -934,27 +934,27 @@ const BackgroundCleanupService: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {tasks.map(task => {
+            {tasks.map((task) => {
               const nextRunIn = Math.max(0, task.nextRun - Date.now());
               const timeSinceLastRun = task.lastRun ? Date.now() - task.lastRun : 0;
-              
+
               return (
                 <motion.div
                   key={task.id}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="flex items-center justify-between p-3 border rounded-lg"
-                >
+                  className="flex items-center justify-between p-3 border rounded-lg">
+
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
                       <Badge variant={getPriorityColor(task.priority) as any}>
                         {task.priority}
                       </Badge>
-                      {task.isActive ? (
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                      ) : (
-                        <AlertTriangle className="h-4 w-4 text-gray-400" />
-                      )}
+                      {task.isActive ?
+                      <CheckCircle className="h-4 w-4 text-green-600" /> :
+
+                      <AlertTriangle className="h-4 w-4 text-gray-400" />
+                      }
                     </div>
                     <div>
                       <h4 className="font-semibold">{task.name}</h4>
@@ -975,16 +975,16 @@ const BackgroundCleanupService: React.FC = () => {
                     onClick={() => runCleanupTask(task.id, true)}
                     disabled={currentTask === task.id}
                     size="sm"
-                    variant="outline"
-                  >
-                    {currentTask === task.id ? (
-                      <RefreshCw className="h-3 w-3 animate-spin" />
-                    ) : (
-                      'Run Now'
-                    )}
+                    variant="outline">
+
+                    {currentTask === task.id ?
+                    <RefreshCw className="h-3 w-3 animate-spin" /> :
+
+                    'Run Now'
+                    }
                   </Button>
-                </motion.div>
-              );
+                </motion.div>);
+
             })}
           </div>
         </CardContent>
@@ -1006,8 +1006,8 @@ const BackgroundCleanupService: React.FC = () => {
                 <Switch
                   id="enabled"
                   checked={config.enabled}
-                  onCheckedChange={(checked) => updateConfig({ enabled: checked })}
-                />
+                  onCheckedChange={(checked) => updateConfig({ enabled: checked })} />
+
               </div>
               
               <div className="flex items-center justify-between">
@@ -1015,8 +1015,8 @@ const BackgroundCleanupService: React.FC = () => {
                 <Switch
                   id="aggressive"
                   checked={config.aggressiveMode}
-                  onCheckedChange={(checked) => updateConfig({ aggressiveMode: checked })}
-                />
+                  onCheckedChange={(checked) => updateConfig({ aggressiveMode: checked })} />
+
               </div>
             </div>
             
@@ -1029,8 +1029,8 @@ const BackgroundCleanupService: React.FC = () => {
                   max="95"
                   value={config.maxMemoryUsage}
                   onChange={(e) => updateConfig({ maxMemoryUsage: parseInt(e.target.value) })}
-                  className="w-full"
-                />
+                  className="w-full" />
+
               </div>
               
               <div>
@@ -1041,15 +1041,15 @@ const BackgroundCleanupService: React.FC = () => {
                   max="300"
                   value={config.checkInterval / 1000}
                   onChange={(e) => updateConfig({ checkInterval: parseInt(e.target.value) * 1000 })}
-                  className="w-full"
-                />
+                  className="w-full" />
+
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default BackgroundCleanupService;

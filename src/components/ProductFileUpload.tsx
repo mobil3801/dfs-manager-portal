@@ -691,6 +691,8 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
 
 
 
+
+
           // Invalid date format, ignore
         }} // Calculate profit margin
       const unitPrice = mapped.unit_price || 0;const retailPrice = mapped.retail_price || 0;const profitMargin = calculateProfitMargin(unitPrice, retailPrice); // Calculate overdue status
@@ -877,9 +879,7 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
                       </TableCell>
                       <TableCell>
                         <div className="text-xs">
-                          {product.mapped.quantity_in_stock !== undefined ?
-                        <div>Current: {product.mapped.quantity_in_stock}</div> :
-                        null}
+                          {product.mapped.quantity_in_stock !== undefined ? <div>Current: {product.mapped.quantity_in_stock}</div> : null}
                           {product.mapped.minimum_stock !== undefined ?
                         <div>Min: {product.mapped.minimum_stock}</div> :
                         null}

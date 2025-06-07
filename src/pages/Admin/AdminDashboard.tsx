@@ -24,6 +24,8 @@ import AccessDenied from '@/components/AccessDenied';
 import AdminDiagnostics from '@/components/AdminDiagnostics';
 import AdminFeatureTester from '@/components/AdminFeatureTester';
 import { useToast } from '@/hooks/use-toast';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 interface DashboardStat {
   label: string;
@@ -78,10 +80,32 @@ const AdminDashboard: React.FC = () => {
   const [systemAlerts, setSystemAlerts] = useState<SystemAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [refreshInterval, setRefreshInterval] = useState(60000); // 1 minute
+  const [lastUpdateTime, setLastUpdateTime] = useState<string>('');
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  // Auto-refresh functionality
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+    
+    if (autoRefresh) {
+      console.log('Starting auto-refresh for admin dashboard with interval:', refreshInterval);
+      intervalId = setInterval(() => {
+        console.log('Auto-refreshing dashboard data...');
+        fetchDashboardData();
+      }, refreshInterval);
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [autoRefresh, refreshInterval]);
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -105,12 +129,23 @@ const AdminDashboard: React.FC = () => {
 
   const refreshDashboard = async () => {
     setRefreshing(true);
-    await fetchDashboardData();
-    setRefreshing(false);
-    toast({
-      title: "Success",
-      description: "Dashboard data refreshed successfully"
-    });
+    try {
+      await fetchDashboardData();
+      setLastUpdateTime(new Date().toLocaleTimeString());
+      toast({
+        title: "Success",
+        description: "Dashboard data refreshed successfully"
+      });
+    } catch (error) {
+      console.error('Error refreshing dashboard:', error);
+      toast({
+        title: "Error",
+        description: "Failed to refresh dashboard data",
+        variant: "destructive"
+      });
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const fetchDatabaseStats = async () => {
@@ -198,7 +233,8 @@ const AdminDashboard: React.FC = () => {
         totalSales,
         totalLicenses,
         activeSessions,
-        smsAlertsSent
+        smsAlertsSent,
+        timestamp: new Date().toISOString()
       });
 
       setDbStats({
@@ -338,7 +374,11 @@ const AdminDashboard: React.FC = () => {
         resolved: true
       });
 
-      console.log('Real-time alerts generated:', alerts.length, 'alerts');
+      console.log('Real-time alerts generated:', alerts.length, 'alerts', {
+        licenseAlerts: alerts.filter(a => a.title.includes('License')).length,
+        stockAlerts: alerts.filter(a => a.title.includes('Stock')).length,
+        systemAlerts: alerts.filter(a => a.title.includes('System')).length
+      });
       setSystemAlerts(alerts);
     } catch (error) {
       console.error('Error fetching system alerts:', error);
@@ -364,10 +404,12 @@ const AdminDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-64">
-        <div className="text-lg">Loading real-time dashboard data...</div>
-      </div>);
-
+      <div className="flex flex-col items-center justify-center min-h-64 space-y-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="text-lg font-medium">Loading real-time dashboard data...</div>
+        <div className="text-sm text-gray-500">Fetching latest system metrics and analytics</div>
+      </div>
+    );
   }
 
   const dashboardStats: DashboardStat[] = [
@@ -494,15 +536,48 @@ const AdminDashboard: React.FC = () => {
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
             Monitor and manage your DFS Manager system with real-time insights and authentic data.
           </p>
+          <div className="flex items-center justify-center space-x-4 mt-3">
+            <div className="flex items-center space-x-2">
+              <div className={`w-2 h-2 rounded-full ${loading ? 'bg-yellow-500' : 'bg-green-500'} animate-pulse`}></div>
+              <span className="text-sm text-gray-500">
+                {loading ? 'Loading...' : `Live Data ${lastUpdateTime ? `(Updated: ${lastUpdateTime})` : ''}`}
+              </span>
+            </div>
+            <div className="flex items-center space-x-2 px-3 py-1 border rounded-lg">
+              <Switch 
+                checked={autoRefresh} 
+                onCheckedChange={setAutoRefresh}
+                id="dashboard-auto-refresh"
+                className="data-[state=checked]:bg-green-600"
+              />
+              <Label htmlFor="dashboard-auto-refresh" className="text-sm">
+                Auto-refresh {autoRefresh && `(${refreshInterval/1000}s)`}
+              </Label>
+            </div>
+          </div>
         </div>
-        <Button
-          onClick={refreshDashboard}
-          disabled={refreshing}
-          variant="outline"
-          className="flex items-center space-x-2">
-          <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-          <span>Refresh</span>
-        </Button>
+        <div className="flex items-center space-x-2">
+          {autoRefresh && (
+            <select 
+              value={refreshInterval}
+              onChange={(e) => setRefreshInterval(Number(e.target.value))}
+              className="px-3 py-2 border rounded-md text-sm"
+            >
+              <option value={30000}>30s</option>
+              <option value={60000}>1m</option>
+              <option value={300000}>5m</option>
+              <option value={600000}>10m</option>
+            </select>
+          )}
+          <Button
+            onClick={refreshDashboard}
+            disabled={refreshing}
+            variant="outline"
+            className="flex items-center space-x-2">
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            <span>{refreshing ? 'Refreshing...' : 'Refresh'}</span>
+          </Button>
+        </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

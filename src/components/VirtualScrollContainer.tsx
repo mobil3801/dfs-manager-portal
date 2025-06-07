@@ -59,7 +59,7 @@ const VirtualScrollContainer: React.FC<VirtualScrollContainerProps> = ({
 
   // Calculate total height with caching
   const totalHeight = useMemo(() => {
-    if (getItemSize || items.some(item => item.height)) {
+    if (getItemSize || items.some((item) => item.height)) {
       let height = 0;
       for (let i = 0; i < items.length; i++) {
         height += getItemHeight(i);
@@ -81,11 +81,11 @@ const VirtualScrollContainer: React.FC<VirtualScrollContainerProps> = ({
     // Binary search for start index
     let low = 0;
     let high = items.length - 1;
-    
+
     while (low <= high) {
       const mid = Math.floor((low + high) / 2);
       const midOffset = getMidOffset(mid);
-      
+
       if (midOffset < scrollTop) {
         start = mid;
         low = mid + 1;
@@ -97,7 +97,7 @@ const VirtualScrollContainer: React.FC<VirtualScrollContainerProps> = ({
     // Find end index
     currentOffset = getMidOffset(start);
     end = start;
-    
+
     while (end < items.length && currentOffset < scrollTop + containerHeight) {
       currentOffset += getItemHeight(end);
       end++;
@@ -127,7 +127,7 @@ const VirtualScrollContainer: React.FC<VirtualScrollContainerProps> = ({
     const newScrollTop = e.currentTarget.scrollTop;
     setScrollTop(newScrollTop);
     setIsScrolling(true);
-    
+
     onScroll?.(newScrollTop, true);
 
     // Clear existing timeout
@@ -143,11 +143,11 @@ const VirtualScrollContainer: React.FC<VirtualScrollContainerProps> = ({
 
     // Load more data when near bottom
     const threshold = 0.8;
-    const isNearBottom = 
-      (newScrollTop + containerHeight) >= (totalHeight * threshold);
-    
+    const isNearBottom =
+    newScrollTop + containerHeight >= totalHeight * threshold;
+
     if (isNearBottom && hasMore && !loading && loadMore) {
-      loadMore().catch(error => {
+      loadMore().catch((error) => {
         console.error('Failed to load more data:', error);
         toast({
           title: 'Loading Error',
@@ -161,13 +161,13 @@ const VirtualScrollContainer: React.FC<VirtualScrollContainerProps> = ({
   // Render visible items
   const renderVisibleItems = () => {
     const visibleItems = [];
-    
+
     for (let i = visibleRange.start; i <= visibleRange.end; i++) {
       if (i >= items.length) break;
-      
+
       const item = items[i];
       const itemTop = getMidOffset(i) - offsetY;
-      
+
       visibleItems.push(
         <motion.div
           key={`${item.id}-${i}`}
@@ -180,13 +180,13 @@ const VirtualScrollContainer: React.FC<VirtualScrollContainerProps> = ({
           }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2 }}
-        >
+          transition={{ duration: 0.2 }}>
+
           {renderItem(item, i)}
         </motion.div>
       );
     }
-    
+
     return visibleItems;
   };
 
@@ -205,7 +205,7 @@ const VirtualScrollContainer: React.FC<VirtualScrollContainerProps> = ({
     const monitor = () => {
       const renderedItems = visibleRange.end - visibleRange.start + 1;
       console.log(`VirtualScroll: Rendering ${renderedItems}/${items.length} items`);
-      
+
       if (renderedItems > 50) {
         console.warn('VirtualScroll: High number of rendered items, consider reducing overscan');
       }
@@ -223,59 +223,59 @@ const VirtualScrollContainer: React.FC<VirtualScrollContainerProps> = ({
         overflow: 'auto',
         position: 'relative'
       }}
-      onScroll={handleScroll}
-    >
+      onScroll={handleScroll}>
+
       {/* Virtual container with total height */}
       <div
         style={{
           height: totalHeight,
           position: 'relative'
-        }}
-      >
+        }}>
+
         {/* Visible items container */}
         <div
           style={{
             transform: `translateY(${offsetY}px)`,
             position: 'relative'
-          }}
-        >
+          }}>
+
           {renderVisibleItems()}
         </div>
         
         {/* Loading indicator */}
-        {loading && (
-          <motion.div
-            className="flex items-center justify-center p-4"
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
+        {loading &&
+        <motion.div
+          className="flex items-center justify-center p-4"
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}>
+
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Loading more data...
           </motion.div>
-        )}
+        }
       </div>
       
       {/* Scroll indicator for debugging */}
-      {process.env.NODE_ENV === 'development' && (
-        <div
-          className="fixed top-4 right-4 bg-black/80 text-white p-2 rounded text-xs"
-          style={{ zIndex: 1000 }}
-        >
+      {process.env.NODE_ENV === 'development' &&
+      <div
+        className="fixed top-4 right-4 bg-black/80 text-white p-2 rounded text-xs"
+        style={{ zIndex: 1000 }}>
+
           <div>Scroll: {Math.round(scrollTop)}px</div>
           <div>Visible: {visibleRange.start}-{visibleRange.end}</div>
           <div>Total: {items.length}</div>
           <div>Height: {Math.round(totalHeight)}px</div>
           <div>Memory: {Math.round(totalHeightCache.current / 1024)}KB</div>
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default VirtualScrollContainer;
@@ -285,23 +285,23 @@ export const useVirtualScrollData = <T,>({
   tableId,
   pageSize = 50,
   initialParams = {}
-}: {
-  tableId: string;
-  pageSize?: number;
-  initialParams?: any;
-}) => {
+
+
+
+
+}: {tableId: string;pageSize?: number;initialParams?: any;}) => {
   const [items, setItems] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const pageRef = useRef(1);
-  
+
   const loadMore = useCallback(async () => {
     if (loading || !hasMore) return;
-    
+
     setLoading(true);
     setError(null);
-    
+
     try {
       const { data, error: apiError } = await window.ezsite.apis.tablePage(
         tableId,
@@ -311,17 +311,17 @@ export const useVirtualScrollData = <T,>({
           ...initialParams
         }
       );
-      
+
       if (apiError) throw new Error(apiError);
-      
+
       const newItems = data?.List || [];
-      
+
       if (newItems.length === 0) {
         setHasMore(false);
       } else {
-        setItems(prev => [...prev, ...newItems]);
+        setItems((prev) => [...prev, ...newItems]);
         pageRef.current += 1;
-        
+
         if (newItems.length < pageSize) {
           setHasMore(false);
         }
@@ -332,19 +332,19 @@ export const useVirtualScrollData = <T,>({
       setLoading(false);
     }
   }, [tableId, pageSize, initialParams, loading, hasMore]);
-  
+
   const reset = useCallback(() => {
     setItems([]);
     setHasMore(true);
     setError(null);
     pageRef.current = 1;
   }, []);
-  
+
   // Initial load
   useEffect(() => {
     loadMore();
   }, []);
-  
+
   return {
     items,
     loading,

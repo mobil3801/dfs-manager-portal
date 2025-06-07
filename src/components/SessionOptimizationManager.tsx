@@ -7,18 +7,18 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  User, 
-  Clock, 
-  Trash2, 
-  Shield, 
-  Activity, 
-  Database, 
+import {
+  User,
+  Clock,
+  Trash2,
+  Shield,
+  Activity,
+  Database,
   RefreshCw,
   Settings,
   AlertTriangle,
-  CheckCircle
-} from 'lucide-react';
+  CheckCircle } from
+'lucide-react';
 import { motion } from 'motion/react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -80,7 +80,7 @@ const SessionOptimizationManager: React.FC = () => {
     setupCleanupInterval();
     setupCompressionWorker();
     setupPerformanceMonitoring();
-    
+
     return () => {
       if (cleanupInterval.current) {
         clearInterval(cleanupInterval.current);
@@ -98,19 +98,19 @@ const SessionOptimizationManager: React.FC = () => {
     try {
       const sessionData: SessionData[] = [];
       const storageKeys = Object.keys(localStorage);
-      
-      storageKeys.forEach(key => {
+
+      storageKeys.forEach((key) => {
         if (key.startsWith('session_')) {
           try {
             const data = JSON.parse(localStorage.getItem(key) || '{}');
             const sessionId = key.replace('session_', '');
-            
+
             sessionData.push({
               id: sessionId,
               userId: data.userId || 'unknown',
               created: data.created || Date.now(),
               lastAccessed: data.lastAccessed || Date.now(),
-              expiresAt: data.expiresAt || Date.now() + (30 * 60 * 1000),
+              expiresAt: data.expiresAt || Date.now() + 30 * 60 * 1000,
               size: new Blob([JSON.stringify(data)]).size,
               isActive: Date.now() < (data.expiresAt || 0),
               data
@@ -120,7 +120,7 @@ const SessionOptimizationManager: React.FC = () => {
           }
         }
       });
-      
+
       setSessions(sessionData);
       calculateMetrics(sessionData);
     } catch (error) {
@@ -138,18 +138,18 @@ const SessionOptimizationManager: React.FC = () => {
    */
   const calculateMetrics = useCallback((sessionData: SessionData[]) => {
     const now = Date.now();
-    const activeSessions = sessionData.filter(s => s.isActive && s.expiresAt > now);
-    const expiredSessions = sessionData.filter(s => !s.isActive || s.expiresAt <= now);
+    const activeSessions = sessionData.filter((s) => s.isActive && s.expiresAt > now);
+    const expiredSessions = sessionData.filter((s) => !s.isActive || s.expiresAt <= now);
     const totalSize = sessionData.reduce((sum, s) => sum + s.size, 0);
-    const oldestSession = sessionData.length > 0 
-      ? Math.min(...sessionData.map(s => s.created))
-      : Date.now();
-    
+    const oldestSession = sessionData.length > 0 ?
+    Math.min(...sessionData.map((s) => s.created)) :
+    Date.now();
+
     // Estimate memory usage (rough approximation)
-    const estimatedMemoryUsage = totalSize + (sessionData.length * 100); // Base overhead per session
+    const estimatedMemoryUsage = totalSize + sessionData.length * 100; // Base overhead per session
     const memoryLimit = 50 * 1024 * 1024; // Assume 50MB limit for localStorage
-    const memoryUsagePercentage = (estimatedMemoryUsage / memoryLimit) * 100;
-    
+    const memoryUsagePercentage = estimatedMemoryUsage / memoryLimit * 100;
+
     setMetrics({
       totalSessions: sessionData.length,
       activeSessions: activeSessions.length,
@@ -201,13 +201,13 @@ const SessionOptimizationManager: React.FC = () => {
             }
           };
         `;
-        
+
         const blob = new Blob([workerCode], { type: 'application/javascript' });
         compressionWorker.current = new Worker(URL.createObjectURL(blob));
-        
+
         compressionWorker.current.onmessage = (e) => {
           const { type, sessionId, data, error } = e.data;
-          
+
           if (type === 'compressed') {
             // Handle compressed session data
             console.log(`Session ${sessionId} compressed successfully`);
@@ -233,8 +233,8 @@ const SessionOptimizationManager: React.FC = () => {
       try {
         const used = JSON.stringify(localStorage).length;
         const quota = 10 * 1024 * 1024; // Approximate 10MB quota
-        const percentage = (used / quota) * 100;
-        
+        const percentage = used / quota * 100;
+
         if (percentage > settings.memoryThreshold) {
           toast({
             title: 'High Storage Usage',
@@ -246,10 +246,10 @@ const SessionOptimizationManager: React.FC = () => {
         console.warn('Failed to monitor storage usage:', error);
       }
     };
-    
+
     // Check every minute
     const monitoringInterval = setInterval(monitorStorage, 60000);
-    
+
     return () => clearInterval(monitoringInterval);
   }, [settings.memoryThreshold, toast]);
 
@@ -258,22 +258,22 @@ const SessionOptimizationManager: React.FC = () => {
    */
   const performAutoCleanup = useCallback(async () => {
     console.log('Performing automatic session cleanup...');
-    
+
     const now = Date.now();
     const expiredKeys: string[] = [];
     const oversizedKeys: string[] = [];
-    
+
     // Find expired sessions
-    Object.keys(localStorage).forEach(key => {
+    Object.keys(localStorage).forEach((key) => {
       if (key.startsWith('session_')) {
         try {
           const data = JSON.parse(localStorage.getItem(key) || '{}');
-          
+
           // Check if expired
           if (data.expiresAt && data.expiresAt < now) {
             expiredKeys.push(key);
           }
-          
+
           // Check if oversized
           const size = new Blob([JSON.stringify(data)]).size;
           if (size > settings.maxSessionSize) {
@@ -285,15 +285,15 @@ const SessionOptimizationManager: React.FC = () => {
         }
       }
     });
-    
+
     // Remove expired sessions
-    expiredKeys.forEach(key => {
+    expiredKeys.forEach((key) => {
       localStorage.removeItem(key);
       console.log(`Removed expired session: ${key}`);
     });
-    
+
     // Handle oversized sessions
-    oversizedKeys.forEach(key => {
+    oversizedKeys.forEach((key) => {
       if (settings.enableCompression) {
         // Try to compress instead of removing
         compressSession(key);
@@ -302,10 +302,10 @@ const SessionOptimizationManager: React.FC = () => {
         console.log(`Removed oversized session: ${key}`);
       }
     });
-    
+
     // Reload session data
     loadSessionData();
-    
+
     if (expiredKeys.length > 0 || oversizedKeys.length > 0) {
       toast({
         title: 'Session Cleanup Complete',
@@ -319,7 +319,7 @@ const SessionOptimizationManager: React.FC = () => {
    */
   const compressSession = useCallback((sessionKey: string) => {
     if (!compressionWorker.current) return;
-    
+
     try {
       const data = JSON.parse(localStorage.getItem(sessionKey) || '{}');
       compressionWorker.current.postMessage({
@@ -337,16 +337,16 @@ const SessionOptimizationManager: React.FC = () => {
    */
   const performManualCleanup = useCallback(async () => {
     setIsOptimizing(true);
-    
+
     try {
       await performAutoCleanup();
-      
+
       // Additional manual cleanup steps
       const now = Date.now();
-      const oldThreshold = now - (7 * 24 * 60 * 60 * 1000); // 7 days
+      const oldThreshold = now - 7 * 24 * 60 * 60 * 1000; // 7 days
       const oldSessions: string[] = [];
-      
-      Object.keys(localStorage).forEach(key => {
+
+      Object.keys(localStorage).forEach((key) => {
         if (key.startsWith('session_')) {
           try {
             const data = JSON.parse(localStorage.getItem(key) || '{}');
@@ -358,12 +358,12 @@ const SessionOptimizationManager: React.FC = () => {
           }
         }
       });
-      
+
       // Remove old sessions
-      oldSessions.forEach(key => {
+      oldSessions.forEach((key) => {
         localStorage.removeItem(key);
       });
-      
+
       toast({
         title: 'Manual Cleanup Complete',
         description: `Removed ${oldSessions.length} old sessions. Storage optimized.`
@@ -384,14 +384,14 @@ const SessionOptimizationManager: React.FC = () => {
    * Clear all sessions
    */
   const clearAllSessions = useCallback(() => {
-    const sessionKeys = Object.keys(localStorage).filter(key => key.startsWith('session_'));
-    
-    sessionKeys.forEach(key => {
+    const sessionKeys = Object.keys(localStorage).filter((key) => key.startsWith('session_'));
+
+    sessionKeys.forEach((key) => {
       localStorage.removeItem(key);
     });
-    
+
     loadSessionData();
-    
+
     toast({
       title: 'All Sessions Cleared',
       description: `Removed ${sessionKeys.length} sessions from storage.`
@@ -402,8 +402,8 @@ const SessionOptimizationManager: React.FC = () => {
    * Update session settings
    */
   const updateSettings = useCallback((newSettings: Partial<SessionSettings>) => {
-    setSettings(prev => ({ ...prev, ...newSettings }));
-    
+    setSettings((prev) => ({ ...prev, ...newSettings }));
+
     // Restart cleanup interval if auto cleanup settings changed
     if (newSettings.autoCleanup !== undefined || newSettings.cleanupInterval !== undefined) {
       if (cleanupInterval.current) {
@@ -411,7 +411,7 @@ const SessionOptimizationManager: React.FC = () => {
       }
       setupCleanupInterval();
     }
-    
+
     toast({
       title: 'Settings Updated',
       description: 'Session optimization settings have been updated.'
@@ -437,7 +437,7 @@ const SessionOptimizationManager: React.FC = () => {
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
-    
+
     if (days > 0) return `${days}d ${hours % 24}h`;
     if (hours > 0) return `${hours}h ${minutes % 60}m`;
     if (minutes > 0) return `${minutes}m ${seconds % 60}s`;
@@ -453,8 +453,8 @@ const SessionOptimizationManager: React.FC = () => {
             <p>Loading session data...</p>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -472,28 +472,28 @@ const SessionOptimizationManager: React.FC = () => {
           <Button
             onClick={performManualCleanup}
             disabled={isOptimizing}
-            size="sm"
-          >
-            {isOptimizing ? (
-              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Trash2 className="mr-2 h-4 w-4" />
-            )}
+            size="sm">
+
+            {isOptimizing ?
+            <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> :
+
+            <Trash2 className="mr-2 h-4 w-4" />
+            }
             Cleanup Now
           </Button>
         </div>
       </div>
 
       {/* Memory Usage Alert */}
-      {metrics.memoryUsagePercentage > settings.memoryThreshold && (
-        <Alert variant="destructive">
+      {metrics.memoryUsagePercentage > settings.memoryThreshold &&
+      <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
             High storage usage detected ({metrics.memoryUsagePercentage.toFixed(1)}%). 
             Consider cleaning up old sessions or enabling auto-cleanup.
           </AlertDescription>
         </Alert>
-      )}
+      }
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -524,10 +524,10 @@ const SessionOptimizationManager: React.FC = () => {
               <div className="text-2xl font-bold">
                 {formatBytes(metrics.totalMemoryUsage)}
               </div>
-              <Progress 
-                value={metrics.memoryUsagePercentage} 
-                className="h-2" 
-              />
+              <Progress
+                value={metrics.memoryUsagePercentage}
+                className="h-2" />
+
               <p className="text-xs text-muted-foreground">
                 {metrics.memoryUsagePercentage.toFixed(1)}% of storage used
               </p>
@@ -591,10 +591,10 @@ const SessionOptimizationManager: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <Badge variant="default">{metrics.activeSessions}</Badge>
                       <div className="w-32">
-                        <Progress 
-                          value={(metrics.activeSessions / metrics.totalSessions) * 100} 
-                          className="h-2" 
-                        />
+                        <Progress
+                          value={metrics.activeSessions / metrics.totalSessions * 100}
+                          className="h-2" />
+
                       </div>
                     </div>
                   </div>
@@ -603,10 +603,10 @@ const SessionOptimizationManager: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <Badge variant="secondary">{metrics.expiredSessions}</Badge>
                       <div className="w-32">
-                        <Progress 
-                          value={(metrics.expiredSessions / metrics.totalSessions) * 100} 
-                          className="h-2" 
-                        />
+                        <Progress
+                          value={metrics.expiredSessions / metrics.totalSessions * 100}
+                          className="h-2" />
+
                       </div>
                     </div>
                   </div>
@@ -650,13 +650,13 @@ const SessionOptimizationManager: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2 max-h-64 overflow-y-auto">
-                {sessions.map(session => (
-                  <motion.div
-                    key={session.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="flex items-center justify-between p-2 border rounded"
-                  >
+                {sessions.map((session) =>
+                <motion.div
+                  key={session.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex items-center justify-between p-2 border rounded">
+
                     <div className="flex items-center gap-2">
                       <Badge variant={session.isActive ? 'default' : 'secondary'}>
                         {session.isActive ? 'Active' : 'Expired'}
@@ -669,25 +669,25 @@ const SessionOptimizationManager: React.FC = () => {
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <span>{formatDuration(Date.now() - session.lastAccessed)} ago</span>
                       <Button
-                        onClick={() => {
-                          localStorage.removeItem(`session_${session.id}`);
-                          loadSessionData();
-                        }}
-                        variant="ghost"
-                        size="sm"
-                      >
+                      onClick={() => {
+                        localStorage.removeItem(`session_${session.id}`);
+                        loadSessionData();
+                      }}
+                      variant="ghost"
+                      size="sm">
+
                         <Trash2 className="h-3 w-3" />
                       </Button>
                     </div>
                   </motion.div>
-                ))}
+                )}
                 
-                {sessions.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
+                {sessions.length === 0 &&
+                <div className="text-center py-8 text-muted-foreground">
                     <CheckCircle className="h-8 w-8 mx-auto mb-2" />
                     <p>No sessions found</p>
                   </div>
-                )}
+                }
               </div>
             </CardContent>
           </Card>
@@ -709,8 +709,8 @@ const SessionOptimizationManager: React.FC = () => {
                     <Switch
                       id="auto-cleanup"
                       checked={settings.autoCleanup}
-                      onCheckedChange={(checked) => updateSettings({ autoCleanup: checked })}
-                    />
+                      onCheckedChange={(checked) => updateSettings({ autoCleanup: checked })} />
+
                   </div>
                   
                   <div className="flex items-center justify-between">
@@ -718,8 +718,8 @@ const SessionOptimizationManager: React.FC = () => {
                     <Switch
                       id="compression"
                       checked={settings.enableCompression}
-                      onCheckedChange={(checked) => updateSettings({ enableCompression: checked })}
-                    />
+                      onCheckedChange={(checked) => updateSettings({ enableCompression: checked })} />
+
                   </div>
                   
                   <div className="flex items-center justify-between">
@@ -727,8 +727,8 @@ const SessionOptimizationManager: React.FC = () => {
                     <Switch
                       id="encryption"
                       checked={settings.enableEncryption}
-                      onCheckedChange={(checked) => updateSettings({ enableEncryption: checked })}
-                    />
+                      onCheckedChange={(checked) => updateSettings({ enableEncryption: checked })} />
+
                   </div>
                 </div>
                 
@@ -741,8 +741,8 @@ const SessionOptimizationManager: React.FC = () => {
                       max="120"
                       value={settings.sessionTimeout}
                       onChange={(e) => updateSettings({ sessionTimeout: parseInt(e.target.value) })}
-                      className="w-full"
-                    />
+                      className="w-full" />
+
                   </div>
                   
                   <div>
@@ -753,8 +753,8 @@ const SessionOptimizationManager: React.FC = () => {
                       max="60"
                       value={settings.cleanupInterval}
                       onChange={(e) => updateSettings({ cleanupInterval: parseInt(e.target.value) })}
-                      className="w-full"
-                    />
+                      className="w-full" />
+
                   </div>
                   
                   <div>
@@ -765,8 +765,8 @@ const SessionOptimizationManager: React.FC = () => {
                       max="95"
                       value={settings.memoryThreshold}
                       onChange={(e) => updateSettings({ memoryThreshold: parseInt(e.target.value) })}
-                      className="w-full"
-                    />
+                      className="w-full" />
+
                   </div>
                 </div>
               </div>
@@ -784,21 +784,21 @@ const SessionOptimizationManager: React.FC = () => {
                 <Button
                   onClick={performManualCleanup}
                   disabled={isOptimizing}
-                  className="w-full"
-                >
-                  {isOptimizing ? (
-                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Trash2 className="mr-2 h-4 w-4" />
-                  )}
+                  className="w-full">
+
+                  {isOptimizing ?
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> :
+
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  }
                   Deep Cleanup
                 </Button>
                 
                 <Button
                   onClick={clearAllSessions}
                   variant="destructive"
-                  className="w-full"
-                >
+                  className="w-full">
+
                   <Trash2 className="mr-2 h-4 w-4" />
                   Clear All Sessions
                 </Button>
@@ -813,8 +813,8 @@ const SessionOptimizationManager: React.FC = () => {
                     }
                   }}
                   variant="outline"
-                  className="w-full"
-                >
+                  className="w-full">
+
                   <RefreshCw className="mr-2 h-4 w-4" />
                   Force Garbage Collection
                 </Button>
@@ -827,49 +827,49 @@ const SessionOptimizationManager: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {metrics.memoryUsagePercentage > 80 && (
-                    <Alert>
+                  {metrics.memoryUsagePercentage > 80 &&
+                  <Alert>
                       <AlertTriangle className="h-4 w-4" />
                       <AlertDescription>
                         High storage usage. Consider enabling auto-cleanup or reducing session timeout.
                       </AlertDescription>
                     </Alert>
-                  )}
+                  }
                   
-                  {metrics.expiredSessions > 10 && (
-                    <Alert>
+                  {metrics.expiredSessions > 10 &&
+                  <Alert>
                       <AlertTriangle className="h-4 w-4" />
                       <AlertDescription>
                         {metrics.expiredSessions} expired sessions found. Run cleanup to free storage.
                       </AlertDescription>
                     </Alert>
-                  )}
+                  }
                   
-                  {metrics.averageSessionSize > 100000 && (
-                    <Alert>
+                  {metrics.averageSessionSize > 100000 &&
+                  <Alert>
                       <AlertTriangle className="h-4 w-4" />
                       <AlertDescription>
                         Large average session size. Consider enabling compression.
                       </AlertDescription>
                     </Alert>
-                  )}
+                  }
                   
-                  {!settings.autoCleanup && (
-                    <Alert>
+                  {!settings.autoCleanup &&
+                  <Alert>
                       <AlertTriangle className="h-4 w-4" />
                       <AlertDescription>
                         Auto cleanup is disabled. Enable it for better performance.
                       </AlertDescription>
                     </Alert>
-                  )}
+                  }
                 </div>
               </CardContent>
             </Card>
           </div>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SessionOptimizationManager;

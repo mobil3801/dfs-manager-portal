@@ -9,7 +9,7 @@ interface UseOptimizedDataOptions {
   cacheDuration?: number;
   priority?: 'low' | 'medium' | 'high';
   fields?: string[];
-  viewport?: { start: number; end: number };
+  viewport?: {start: number;end: number;};
   onError?: (error: Error) => void;
 }
 
@@ -31,8 +31,8 @@ interface UseOptimizedDataReturn<T> {
  * Hook for optimized data fetching with intelligent caching and performance monitoring
  */
 export function useOptimizedData<T = any>(
-  options: UseOptimizedDataOptions
-): UseOptimizedDataReturn<T> {
+options: UseOptimizedDataOptions)
+: UseOptimizedDataReturn<T> {
   const { toast } = useToast();
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(false);
@@ -42,7 +42,7 @@ export function useOptimizedData<T = any>(
     responseTime: number;
     dataSize: number;
   } | null>(null);
-  
+
   const abortController = useRef<AbortController | null>(null);
   const lastParams = useRef<any>(null);
   const retryCount = useRef(0);
@@ -56,14 +56,14 @@ export function useOptimizedData<T = any>(
     if (abortController.current) {
       abortController.current.abort();
     }
-    
+
     abortController.current = new AbortController();
     setLoading(true);
     setError(null);
-    
+
     const finalParams = { ...options.initialParams, ...params };
     const startTime = performance.now();
-    
+
     try {
       const result = await optimizedDataService.fetchData(
         options.tableId,
@@ -75,51 +75,51 @@ export function useOptimizedData<T = any>(
           fields: options.fields
         }
       );
-      
+
       if (result.error) {
         throw new Error(result.error);
       }
-      
+
       const endTime = performance.now();
       const responseTime = endTime - startTime;
       const dataSize = JSON.stringify(result.data).length;
-      
+
       setData(result.data);
       setMetrics({
         cacheHit: !!result.fromCache,
         responseTime,
         dataSize
       });
-      
+
       lastParams.current = finalParams;
       retryCount.current = 0;
-      
+
       // Performance warning
       if (responseTime > 2000 && !result.fromCache) {
         console.warn(`Slow data fetch detected: ${responseTime.toFixed(0)}ms for table ${options.tableId}`);
       }
-      
+
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch data';
-      
+
       // Retry logic for network errors
-      if (retryCount.current < maxRetries && 
-          (errorMessage.includes('network') || errorMessage.includes('timeout'))) {
+      if (retryCount.current < maxRetries && (
+      errorMessage.includes('network') || errorMessage.includes('timeout'))) {
         retryCount.current++;
         console.log(`Retrying data fetch (${retryCount.current}/${maxRetries})...`);
-        
+
         // Exponential backoff
         const delay = Math.pow(2, retryCount.current) * 1000;
         setTimeout(() => {
           fetchData(params, forceRefresh);
         }, delay);
-        
+
         return;
       }
-      
+
       setError(errorMessage);
       options.onError?.(err instanceof Error ? err : new Error(errorMessage));
-      
+
       toast({
         title: 'Data Fetch Error',
         description: errorMessage,
@@ -149,14 +149,14 @@ export function useOptimizedData<T = any>(
    * Update data optimistically
    */
   const updateData = useCallback((newData: Partial<T>) => {
-    setData(prevData => {
+    setData((prevData) => {
       if (!prevData) return newData as T;
-      
+
       // Merge with existing data
       if (typeof prevData === 'object' && typeof newData === 'object') {
         return { ...prevData, ...newData };
       }
-      
+
       return newData as T;
     });
   }, []);
@@ -168,7 +168,7 @@ export function useOptimizedData<T = any>(
     if (options.autoLoad !== false) {
       fetchData();
     }
-    
+
     // Cleanup on unmount
     return () => {
       if (abortController.current) {
@@ -182,11 +182,11 @@ export function useOptimizedData<T = any>(
    */
   useEffect(() => {
     if (!data || !options.cacheDuration) return;
-    
+
     const refreshTimer = setTimeout(() => {
       refresh();
     }, options.cacheDuration);
-    
+
     return () => clearTimeout(refreshTimer);
   }, [data, options.cacheDuration, refresh]);
 
@@ -211,21 +211,21 @@ export function usePaginatedOptimizedData<T = any>({
   priority = 'medium',
   fields,
   onError
-}: {
-  tableId: string;
-  pageSize?: number;
-  initialParams?: any;
-  priority?: 'low' | 'medium' | 'high';
-  fields?: string[];
-  onError?: (error: Error) => void;
-}) {
+
+
+
+
+
+
+
+}: {tableId: string;pageSize?: number;initialParams?: any;priority?: 'low' | 'medium' | 'high';fields?: string[];onError?: (error: Error) => void;}) {
   const { toast } = useToast();
   const [items, setItems] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
-  
+
   const currentPage = useRef(1);
   const isLoadingMore = useRef(false);
 
@@ -234,11 +234,11 @@ export function usePaginatedOptimizedData<T = any>({
    */
   const loadMore = useCallback(async () => {
     if (isLoadingMore.current || !hasMore) return;
-    
+
     isLoadingMore.current = true;
     setLoading(true);
     setError(null);
-    
+
     try {
       const result = await optimizedDataService.fetchData(
         tableId,
@@ -253,29 +253,29 @@ export function usePaginatedOptimizedData<T = any>({
           fields
         }
       );
-      
+
       if (result.error) {
         throw new Error(result.error);
       }
-      
+
       const newItems = result.data?.List || [];
       const virtualCount = result.data?.VirtualCount || 0;
-      
-      setItems(prev => [...prev, ...newItems]);
+
+      setItems((prev) => [...prev, ...newItems]);
       setTotalCount(virtualCount);
-      
+
       // Check if we have more data
-      if (newItems.length < pageSize || (currentPage.current * pageSize) >= virtualCount) {
+      if (newItems.length < pageSize || currentPage.current * pageSize >= virtualCount) {
         setHasMore(false);
       } else {
         currentPage.current++;
       }
-      
+
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load data';
       setError(errorMessage);
       onError?.(err instanceof Error ? err : new Error(errorMessage));
-      
+
       toast({
         title: 'Data Load Error',
         description: errorMessage,
@@ -336,15 +336,15 @@ export function useRealtimeOptimizedData<T = any>({
   fields,
   onUpdate,
   onError
-}: {
-  tableId: string;
-  params?: any;
-  updateInterval?: number;
-  priority?: 'low' | 'medium' | 'high';
-  fields?: string[];
-  onUpdate?: (data: T) => void;
-  onError?: (error: Error) => void;
-}) {
+
+
+
+
+
+
+
+
+}: {tableId: string;params?: any;updateInterval?: number;priority?: 'low' | 'medium' | 'high';fields?: string[];onUpdate?: (data: T) => void;onError?: (error: Error) => void;}) {
   const { data, loading, error, refresh } = useOptimizedData<T>({
     tableId,
     initialParams: params,
@@ -352,7 +352,7 @@ export function useRealtimeOptimizedData<T = any>({
     fields,
     onError
   });
-  
+
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastData = useRef<T | null>(null);
 
@@ -365,7 +365,7 @@ export function useRealtimeOptimizedData<T = any>({
         refresh();
       }, updateInterval);
     }
-    
+
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
