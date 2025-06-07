@@ -91,7 +91,7 @@ const AdminDashboard: React.FC = () => {
   // Auto-refresh functionality
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
-    
+
     if (autoRefresh) {
       console.log('Starting auto-refresh for admin dashboard with interval:', refreshInterval);
       intervalId = setInterval(() => {
@@ -375,9 +375,9 @@ const AdminDashboard: React.FC = () => {
       });
 
       console.log('Real-time alerts generated:', alerts.length, 'alerts', {
-        licenseAlerts: alerts.filter(a => a.title.includes('License')).length,
-        stockAlerts: alerts.filter(a => a.title.includes('Stock')).length,
-        systemAlerts: alerts.filter(a => a.title.includes('System')).length
+        licenseAlerts: alerts.filter((a) => a.title.includes('License')).length,
+        stockAlerts: alerts.filter((a) => a.title.includes('Stock')).length,
+        systemAlerts: alerts.filter((a) => a.title.includes('System')).length
       });
       setSystemAlerts(alerts);
     } catch (error) {
@@ -408,8 +408,8 @@ const AdminDashboard: React.FC = () => {
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
         <div className="text-lg font-medium">Loading real-time dashboard data...</div>
         <div className="text-sm text-gray-500">Fetching latest system metrics and analytics</div>
-      </div>
-    );
+      </div>);
+
   }
 
   const dashboardStats: DashboardStat[] = [
@@ -544,31 +544,31 @@ const AdminDashboard: React.FC = () => {
               </span>
             </div>
             <div className="flex items-center space-x-2 px-3 py-1 border rounded-lg">
-              <Switch 
-                checked={autoRefresh} 
+              <Switch
+                checked={autoRefresh}
                 onCheckedChange={setAutoRefresh}
                 id="dashboard-auto-refresh"
-                className="data-[state=checked]:bg-green-600"
-              />
+                className="data-[state=checked]:bg-green-600" />
+
               <Label htmlFor="dashboard-auto-refresh" className="text-sm">
-                Auto-refresh {autoRefresh && `(${refreshInterval/1000}s)`}
+                Auto-refresh {autoRefresh && `(${refreshInterval / 1000}s)`}
               </Label>
             </div>
           </div>
         </div>
         <div className="flex items-center space-x-2">
-          {autoRefresh && (
-            <select 
-              value={refreshInterval}
-              onChange={(e) => setRefreshInterval(Number(e.target.value))}
-              className="px-3 py-2 border rounded-md text-sm"
-            >
+          {autoRefresh &&
+          <select
+            value={refreshInterval}
+            onChange={(e) => setRefreshInterval(Number(e.target.value))}
+            className="px-3 py-2 border rounded-md text-sm">
+
               <option value={30000}>30s</option>
               <option value={60000}>1m</option>
               <option value={300000}>5m</option>
               <option value={600000}>10m</option>
             </select>
-          )}
+          }
           <Button
             onClick={refreshDashboard}
             disabled={refreshing}

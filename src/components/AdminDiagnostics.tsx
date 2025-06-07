@@ -95,152 +95,152 @@ const AdminDiagnostics: React.FC = () => {
     size: 156,
     maxSize: 1000
   });
-  
+
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
-  
+
   const [tests, setTests] = useState<DiagnosticTest[]>([
-    {
-      id: 'database',
-      name: 'Database Connection',
-      description: 'Test database connectivity and response time',
-      status: 'pending',
-      icon: <Database className="w-4 h-4" />
-    },
-    {
-      id: 'api',
-      name: 'API Endpoints',
-      description: 'Verify all API endpoints are responding correctly',
-      status: 'pending',
-      icon: <Wifi className="w-4 h-4" />
-    },
-    {
-      id: 'sms',
-      name: 'SMS Service',
-      description: 'Test SMS service configuration and connectivity',
-      status: 'pending',
-      icon: <MessageSquare className="w-4 h-4" />
-    },
-    {
-      id: 'auth',
-      name: 'Authentication',
-      description: 'Verify authentication system and user access',
-      status: 'pending',
-      icon: <Shield className="w-4 h-4" />
-    },
-    {
-      id: 'permissions',
-      name: 'User Permissions',
-      description: 'Check role-based access control system',
-      status: 'pending',
-      icon: <Users className="w-4 h-4" />
-    },
-    {
-      id: 'backup',
-      name: 'Backup System',
-      description: 'Verify backup system functionality',
-      status: 'pending',
-      icon: <Server className="w-4 h-4" />
-    },
-    {
-      id: 'realtime',
-      name: 'Real-time Sync',
-      description: 'Test real-time data synchronization',
-      status: 'pending',
-      icon: <Zap className="w-4 h-4" />
-    },
-    {
-      id: 'performance',
-      name: 'Performance Metrics',
-      description: 'Monitor system performance and response times',
-      status: 'pending',
-      icon: <TrendingUp className="w-4 h-4" />
-    },
-    {
-      id: 'cache',
-      name: 'Cache System',
-      description: 'Verify caching mechanisms and hit rates',
-      status: 'pending',
-      icon: <Monitor className="w-4 h-4" />
-    },
-    {
-      id: 'websocket',
-      name: 'WebSocket Connection',
-      description: 'Test WebSocket connectivity for real-time updates',
-      status: 'pending',
-      icon: <Globe className="w-4 h-4" />
-    }
-  ]);
+  {
+    id: 'database',
+    name: 'Database Connection',
+    description: 'Test database connectivity and response time',
+    status: 'pending',
+    icon: <Database className="w-4 h-4" />
+  },
+  {
+    id: 'api',
+    name: 'API Endpoints',
+    description: 'Verify all API endpoints are responding correctly',
+    status: 'pending',
+    icon: <Wifi className="w-4 h-4" />
+  },
+  {
+    id: 'sms',
+    name: 'SMS Service',
+    description: 'Test SMS service configuration and connectivity',
+    status: 'pending',
+    icon: <MessageSquare className="w-4 h-4" />
+  },
+  {
+    id: 'auth',
+    name: 'Authentication',
+    description: 'Verify authentication system and user access',
+    status: 'pending',
+    icon: <Shield className="w-4 h-4" />
+  },
+  {
+    id: 'permissions',
+    name: 'User Permissions',
+    description: 'Check role-based access control system',
+    status: 'pending',
+    icon: <Users className="w-4 h-4" />
+  },
+  {
+    id: 'backup',
+    name: 'Backup System',
+    description: 'Verify backup system functionality',
+    status: 'pending',
+    icon: <Server className="w-4 h-4" />
+  },
+  {
+    id: 'realtime',
+    name: 'Real-time Sync',
+    description: 'Test real-time data synchronization',
+    status: 'pending',
+    icon: <Zap className="w-4 h-4" />
+  },
+  {
+    id: 'performance',
+    name: 'Performance Metrics',
+    description: 'Monitor system performance and response times',
+    status: 'pending',
+    icon: <TrendingUp className="w-4 h-4" />
+  },
+  {
+    id: 'cache',
+    name: 'Cache System',
+    description: 'Verify caching mechanisms and hit rates',
+    status: 'pending',
+    icon: <Monitor className="w-4 h-4" />
+  },
+  {
+    id: 'websocket',
+    name: 'WebSocket Connection',
+    description: 'Test WebSocket connectivity for real-time updates',
+    status: 'pending',
+    icon: <Globe className="w-4 h-4" />
+  }]
+  );
 
   const [metrics, setMetrics] = useState<SystemMetric[]>([
-    {
-      label: 'CPU Usage',
-      value: 0,
-      max: 100,
-      unit: '%',
-      status: 'good',
-      icon: <Activity className="w-4 h-4" />,
-      trend: 'stable',
-      lastUpdated: new Date().toISOString(),
-      history: []
-    },
-    {
-      label: 'Memory',
-      value: 0,
-      max: 8,
-      unit: 'GB',
-      status: 'good',
-      icon: <Server className="w-4 h-4" />,
-      trend: 'stable',
-      lastUpdated: new Date().toISOString(),
-      history: []
-    },
-    {
-      label: 'Database Size',
-      value: 0,
-      max: 1000,
-      unit: 'MB',
-      status: 'good',
-      icon: <Database className="w-4 h-4" />,
-      trend: 'up',
-      lastUpdated: new Date().toISOString(),
-      history: []
-    },
-    {
-      label: 'Active Sessions',
-      value: 0,
-      max: 100,
-      unit: 'users',
-      status: 'good',
-      icon: <Users className="w-4 h-4" />,
-      trend: 'stable',
-      lastUpdated: new Date().toISOString(),
-      history: []
-    },
-    {
-      label: 'API Response Time',
-      value: 0,
-      max: 1000,
-      unit: 'ms',
-      status: 'good',
-      icon: <Wifi className="w-4 h-4" />,
-      trend: 'down',
-      lastUpdated: new Date().toISOString(),
-      history: []
-    },
-    {
-      label: 'Cache Hit Rate',
-      value: 0,
-      max: 100,
-      unit: '%',
-      status: 'good',
-      icon: <Monitor className="w-4 h-4" />,
-      trend: 'up',
-      lastUpdated: new Date().toISOString(),
-      history: []
-    }
-  ]);
+  {
+    label: 'CPU Usage',
+    value: 0,
+    max: 100,
+    unit: '%',
+    status: 'good',
+    icon: <Activity className="w-4 h-4" />,
+    trend: 'stable',
+    lastUpdated: new Date().toISOString(),
+    history: []
+  },
+  {
+    label: 'Memory',
+    value: 0,
+    max: 8,
+    unit: 'GB',
+    status: 'good',
+    icon: <Server className="w-4 h-4" />,
+    trend: 'stable',
+    lastUpdated: new Date().toISOString(),
+    history: []
+  },
+  {
+    label: 'Database Size',
+    value: 0,
+    max: 1000,
+    unit: 'MB',
+    status: 'good',
+    icon: <Database className="w-4 h-4" />,
+    trend: 'up',
+    lastUpdated: new Date().toISOString(),
+    history: []
+  },
+  {
+    label: 'Active Sessions',
+    value: 0,
+    max: 100,
+    unit: 'users',
+    status: 'good',
+    icon: <Users className="w-4 h-4" />,
+    trend: 'stable',
+    lastUpdated: new Date().toISOString(),
+    history: []
+  },
+  {
+    label: 'API Response Time',
+    value: 0,
+    max: 1000,
+    unit: 'ms',
+    status: 'good',
+    icon: <Wifi className="w-4 h-4" />,
+    trend: 'down',
+    lastUpdated: new Date().toISOString(),
+    history: []
+  },
+  {
+    label: 'Cache Hit Rate',
+    value: 0,
+    max: 100,
+    unit: '%',
+    status: 'good',
+    icon: <Monitor className="w-4 h-4" />,
+    trend: 'up',
+    lastUpdated: new Date().toISOString(),
+    history: []
+  }]
+  );
 
   // Auto-refresh functionality
   useEffect(() => {
@@ -265,25 +265,25 @@ const AdminDiagnostics: React.FC = () => {
   // WebSocket connection for real-time updates
   const setupWebSocket = useCallback(() => {
     if (typeof window === 'undefined') return;
-    
+
     setConnectionStatus('connecting');
     addRealTimeUpdate('Attempting WebSocket connection...', 'info');
-    
+
     try {
       // Note: In a real implementation, replace with your WebSocket server URL
       // For now, simulate WebSocket behavior with periodic updates
       setConnectionStatus('connected');
       addRealTimeUpdate('Real-time monitoring activated', 'success');
-      
+
       // Simulate real-time updates
       const simulateUpdates = setInterval(() => {
-        if (Math.random() > 0.7) { // 30% chance of update
+        if (Math.random() > 0.7) {// 30% chance of update
           const updateTypes = ['Database query executed', 'User logged in', 'System backup completed', 'License check performed'];
           const randomUpdate = updateTypes[Math.floor(Math.random() * updateTypes.length)];
           addRealTimeUpdate(randomUpdate, 'info');
         }
       }, 10000); // Every 10 seconds
-      
+
       return () => clearInterval(simulateUpdates);
     } catch (error) {
       console.error('WebSocket connection failed:', error);
@@ -318,8 +318,8 @@ const AdminDiagnostics: React.FC = () => {
       message,
       type
     };
-    
-    setRealTimeUpdates(prev => {
+
+    setRealTimeUpdates((prev) => {
       const newUpdates = [update, ...prev].slice(0, 50); // Keep last 50 updates
       return newUpdates;
     });
@@ -342,9 +342,9 @@ const AdminDiagnostics: React.FC = () => {
 
       // Update test status to running
       setTests((prev) => prev.map((t) =>
-        t.id === test.id ?
-          { ...t, status: 'running' as const } :
-          t
+      t.id === test.id ?
+      { ...t, status: 'running' as const } :
+      t
       ));
 
       addRealTimeUpdate(`Running test: ${test.name}`, 'info');
@@ -353,14 +353,14 @@ const AdminDiagnostics: React.FC = () => {
       const result = await runSpecificTest(test.id);
 
       setTests((prev) => prev.map((t) =>
-        t.id === test.id ?
-          {
-            ...t,
-            status: result.passed ? 'passed' as const : 'failed' as const,
-            duration: result.duration,
-            details: result.details
-          } :
-          t
+      t.id === test.id ?
+      {
+        ...t,
+        status: result.passed ? 'passed' as const : 'failed' as const,
+        duration: result.duration,
+        details: result.details
+      } :
+      t
       ));
 
       addRealTimeUpdate(
@@ -390,7 +390,7 @@ const AdminDiagnostics: React.FC = () => {
     });
   };
 
-  const runSpecificTest = async (testId: string): Promise<{passed: boolean; duration: number; details: string;}> => {
+  const runSpecificTest = async (testId: string): Promise<{passed: boolean;duration: number;details: string;}> => {
     const startTime = Date.now();
 
     try {
@@ -398,37 +398,37 @@ const AdminDiagnostics: React.FC = () => {
         case 'database':
           // Test database connectivity with multiple tables for comprehensive check
           const dbTests = await Promise.all([
-            window.ezsite.apis.tablePage(11725, { PageNo: 1, PageSize: 1, Filters: [] }), // user_profiles
-            window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 1, Filters: [] }), // products  
-            window.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 1, Filters: [] }), // employees
-            window.ezsite.apis.tablePage(12599, { PageNo: 1, PageSize: 1, Filters: [] })  // stations
+          window.ezsite.apis.tablePage(11725, { PageNo: 1, PageSize: 1, Filters: [] }), // user_profiles
+          window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 1, Filters: [] }), // products  
+          window.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 1, Filters: [] }), // employees
+          window.ezsite.apis.tablePage(12599, { PageNo: 1, PageSize: 1, Filters: [] }) // stations
           ]);
           const dbDuration = Date.now() - startTime;
-          const failedDbTests = dbTests.filter(result => result.error).length;
+          const failedDbTests = dbTests.filter((result) => result.error).length;
           const avgResponseTime = dbDuration / dbTests.length;
-          
+
           // Update performance metrics
-          setPerformanceMetrics(prev => ({
+          setPerformanceMetrics((prev) => ({
             ...prev,
             responseTime: avgResponseTime,
-            throughput: failedDbTests === 0 ? 100 : ((dbTests.length - failedDbTests) / dbTests.length) * 100
+            throughput: failedDbTests === 0 ? 100 : (dbTests.length - failedDbTests) / dbTests.length * 100
           }));
-          
+
           return {
             passed: failedDbTests === 0,
             duration: dbDuration,
-            details: failedDbTests === 0 ? 
-              `All ${dbTests.length} database tables accessible. Avg response: ${Math.round(avgResponseTime)}ms` : 
-              `${failedDbTests}/${dbTests.length} database connections failed`
+            details: failedDbTests === 0 ?
+            `All ${dbTests.length} database tables accessible. Avg response: ${Math.round(avgResponseTime)}ms` :
+            `${failedDbTests}/${dbTests.length} database connections failed`
           };
 
         case 'api':
           // Test multiple API endpoints
           const apiTests = await Promise.all([
-            window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 1, Filters: [] }),
-            window.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 1, Filters: [] }),
-            window.ezsite.apis.tablePage(12599, { PageNo: 1, PageSize: 1, Filters: [] })
-          ]);
+          window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 1, Filters: [] }),
+          window.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 1, Filters: [] }),
+          window.ezsite.apis.tablePage(12599, { PageNo: 1, PageSize: 1, Filters: [] })]
+          );
           const apiDuration = Date.now() - startTime;
           const failedApis = apiTests.filter((result) => result.error).length;
           return {
@@ -474,7 +474,7 @@ const AdminDiagnostics: React.FC = () => {
             passed: !permError && hasRoles,
             duration: permDuration,
             details: permError ? 'Permission system test failed' :
-              hasRoles ? `Role-based permissions active (${permDuration}ms)` : 'No role data found in user profiles'
+            hasRoles ? `Role-based permissions active (${permDuration}ms)` : 'No role data found in user profiles'
           };
 
         case 'backup':
@@ -495,11 +495,11 @@ const AdminDiagnostics: React.FC = () => {
           // Test real-time data synchronization
           const testStartTime = Date.now();
           const syncTests = await Promise.all([
-            window.ezsite.apis.tablePage(12356, { PageNo: 1, PageSize: 1, OrderByField: 'id', IsAsc: false, Filters: [] }), // Latest sales report
-            window.ezsite.apis.tablePage(12613, { PageNo: 1, PageSize: 1, OrderByField: 'sent_date', IsAsc: false, Filters: [] }) // Latest SMS alert
+          window.ezsite.apis.tablePage(12356, { PageNo: 1, PageSize: 1, OrderByField: 'id', IsAsc: false, Filters: [] }), // Latest sales report
+          window.ezsite.apis.tablePage(12613, { PageNo: 1, PageSize: 1, OrderByField: 'sent_date', IsAsc: false, Filters: [] }) // Latest SMS alert
           ]);
           const realtimeDuration = Date.now() - testStartTime;
-          const syncSuccess = syncTests.every(result => !result.error);
+          const syncSuccess = syncTests.every((result) => !result.error);
           return {
             passed: syncSuccess,
             duration: realtimeDuration,
@@ -510,26 +510,26 @@ const AdminDiagnostics: React.FC = () => {
           // Test system performance metrics
           const perfStartTime = Date.now();
           const performanceTests = await Promise.all([
-            window.ezsite.apis.getUserInfo(),
-            window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 10, Filters: [] }),
-            window.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 10, Filters: [] })
-          ]);
+          window.ezsite.apis.getUserInfo(),
+          window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 10, Filters: [] }),
+          window.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 10, Filters: [] })]
+          );
           const perfDuration = Date.now() - perfStartTime;
-          const perfSuccess = performanceTests.every(result => !result.error);
+          const perfSuccess = performanceTests.every((result) => !result.error);
           const avgPerfTime = perfDuration / performanceTests.length;
-          
-          setPerformanceMetrics(prev => ({
+
+          setPerformanceMetrics((prev) => ({
             ...prev,
             responseTime: avgPerfTime,
-            errorRate: perfSuccess ? 0 : ((performanceTests.filter(r => r.error).length / performanceTests.length) * 100)
+            errorRate: perfSuccess ? 0 : performanceTests.filter((r) => r.error).length / performanceTests.length * 100
           }));
-          
+
           return {
             passed: perfSuccess && avgPerfTime < 500,
             duration: perfDuration,
-            details: perfSuccess ? 
-              `Performance optimal. Avg response: ${Math.round(avgPerfTime)}ms` : 
-              `Performance issues detected. Response time: ${Math.round(avgPerfTime)}ms`
+            details: perfSuccess ?
+            `Performance optimal. Avg response: ${Math.round(avgPerfTime)}ms` :
+            `Performance issues detected. Response time: ${Math.round(avgPerfTime)}ms`
           };
 
         case 'cache':
@@ -538,15 +538,15 @@ const AdminDiagnostics: React.FC = () => {
           const cacheTest1 = await window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 5, Filters: [] });
           const cacheTest2 = await window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 5, Filters: [] }); // Same query
           const cacheDuration = Date.now() - cacheStartTime;
-          
+
           // Update cache stats with simulated data based on real performance
           const hitRate = cacheDuration < 200 ? 95 + Math.random() * 4 : 85 + Math.random() * 10;
-          setCacheStats(prev => ({
+          setCacheStats((prev) => ({
             ...prev,
             hitRate: Math.round(hitRate * 10) / 10,
             missRate: Math.round((100 - hitRate) * 10) / 10
           }));
-          
+
           return {
             passed: !cacheTest1.error && !cacheTest2.error,
             duration: cacheDuration,
@@ -558,17 +558,17 @@ const AdminDiagnostics: React.FC = () => {
           const wsStartTime = Date.now();
           const wsConnected = connectionStatus === 'connected';
           const wsDuration = Date.now() - wsStartTime;
-          
+
           if (wsConnected) {
             addRealTimeUpdate('WebSocket diagnostic test completed', 'success');
           }
-          
+
           return {
             passed: wsConnected,
             duration: wsDuration,
-            details: wsConnected ? 
-              `WebSocket connection active. Real-time updates enabled.` : 
-              `WebSocket connection failed. Real-time updates disabled.`
+            details: wsConnected ?
+            `WebSocket connection active. Real-time updates enabled.` :
+            `WebSocket connection failed. Real-time updates disabled.`
           };
 
         default:
@@ -591,26 +591,26 @@ const AdminDiagnostics: React.FC = () => {
     try {
       console.log('Updating real-time metrics with enhanced data...');
       addRealTimeUpdate('Fetching latest system metrics', 'info');
-      
+
       // Abort previous request if still pending
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
       abortControllerRef.current = new AbortController();
-      
+
       const startTime = Date.now();
-      
+
       // Get comprehensive real data from multiple tables
       const [userData, productsData, employeesData, salesData, smsData, licensesData, auditData] = await Promise.all([
-        window.ezsite.apis.tablePage(11725, { PageNo: 1, PageSize: 1, Filters: [{ name: 'is_active', op: 'Equal', value: true }] }),
-        window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 1, Filters: [] }),
-        window.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 1, Filters: [] }),
-        window.ezsite.apis.tablePage(12356, { PageNo: 1, PageSize: 1, Filters: [] }),
-        window.ezsite.apis.tablePage(12613, { PageNo: 1, PageSize: 1, Filters: [] }),
-        window.ezsite.apis.tablePage(11731, { PageNo: 1, PageSize: 1, Filters: [] }),
-        window.ezsite.apis.tablePage(12706, { PageNo: 1, PageSize: 1, Filters: [] })
-      ]);
-      
+      window.ezsite.apis.tablePage(11725, { PageNo: 1, PageSize: 1, Filters: [{ name: 'is_active', op: 'Equal', value: true }] }),
+      window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 1, Filters: [] }),
+      window.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 1, Filters: [] }),
+      window.ezsite.apis.tablePage(12356, { PageNo: 1, PageSize: 1, Filters: [] }),
+      window.ezsite.apis.tablePage(12613, { PageNo: 1, PageSize: 1, Filters: [] }),
+      window.ezsite.apis.tablePage(11731, { PageNo: 1, PageSize: 1, Filters: [] }),
+      window.ezsite.apis.tablePage(12706, { PageNo: 1, PageSize: 1, Filters: [] })]
+      );
+
       const responseTime = Date.now() - startTime;
       const activeSessions = userData.data?.VirtualCount || 0;
       const totalProducts = productsData.data?.VirtualCount || 0;
@@ -619,100 +619,100 @@ const AdminDiagnostics: React.FC = () => {
       const totalSMS = smsData.data?.VirtualCount || 0;
       const totalLicenses = licensesData.data?.VirtualCount || 0;
       const totalAuditLogs = auditData.data?.VirtualCount || 0;
-      
+
       // Calculate realistic metrics based on actual data
       const totalRecords = activeSessions + totalProducts + totalEmployees + totalSales + totalSMS + totalLicenses + totalAuditLogs;
       const estimatedDbSize = Math.max(50, totalRecords * 0.5); // More accurate estimate
-      
+
       // Simulate realistic but dynamic CPU and memory usage
-      const baseCpuUsage = Math.min(15 + (totalRecords / 100), 60);
+      const baseCpuUsage = Math.min(15 + totalRecords / 100, 60);
       const cpuUsage = Math.round(baseCpuUsage + (Math.random() - 0.5) * 10);
-      
-      const baseMemoryUsage = Math.min(1.2 + (totalRecords / 1000), 4.5);
+
+      const baseMemoryUsage = Math.min(1.2 + totalRecords / 1000, 4.5);
       const memoryUsage = Math.round((baseMemoryUsage + (Math.random() - 0.5) * 0.5) * 10) / 10;
-      
+
       const currentTime = new Date().toISOString();
-      
-      setMetrics(prev => [
-        {
-          label: 'CPU Usage',
-          value: cpuUsage,
-          max: 100,
-          unit: '%',
-          status: cpuUsage > 80 ? 'critical' : cpuUsage > 60 ? 'warning' : 'good',
-          icon: <Activity className="w-4 h-4" />,
-          trend: prev[0] ? (cpuUsage > prev[0].value ? 'up' : cpuUsage < prev[0].value ? 'down' : 'stable') : 'stable',
-          lastUpdated: currentTime,
-          history: [...(prev[0]?.history || []).slice(-9), cpuUsage]
-        },
-        {
-          label: 'Memory',
-          value: memoryUsage,
-          max: 8,
-          unit: 'GB',
-          status: memoryUsage > 6 ? 'critical' : memoryUsage > 4 ? 'warning' : 'good',
-          icon: <Server className="w-4 h-4" />,
-          trend: prev[1] ? (memoryUsage > prev[1].value ? 'up' : memoryUsage < prev[1].value ? 'down' : 'stable') : 'stable',
-          lastUpdated: currentTime,
-          history: [...(prev[1]?.history || []).slice(-9), memoryUsage]
-        },
-        {
-          label: 'Database Size',
-          value: Math.round(estimatedDbSize),
-          max: 1000,
-          unit: 'MB',
-          status: estimatedDbSize > 800 ? 'critical' : estimatedDbSize > 600 ? 'warning' : 'good',
-          icon: <Database className="w-4 h-4" />,
-          trend: prev[2] ? (estimatedDbSize > prev[2].value ? 'up' : 'stable') : 'up',
-          lastUpdated: currentTime,
-          history: [...(prev[2]?.history || []).slice(-9), Math.round(estimatedDbSize)]
-        },
-        {
-          label: 'Active Sessions',
-          value: activeSessions,
-          max: 100,
-          unit: 'users',
-          status: activeSessions > 75 ? 'warning' : 'good',
-          icon: <Users className="w-4 h-4" />,
-          trend: prev[3] ? (activeSessions > prev[3].value ? 'up' : activeSessions < prev[3].value ? 'down' : 'stable') : 'stable',
-          lastUpdated: currentTime,
-          history: [...(prev[3]?.history || []).slice(-9), activeSessions]
-        },
-        {
-          label: 'API Response Time',
-          value: Math.round(responseTime / 7), // Average per API call
-          max: 1000,
-          unit: 'ms',
-          status: responseTime > 3000 ? 'critical' : responseTime > 1500 ? 'warning' : 'good',
-          icon: <Wifi className="w-4 h-4" />,
-          trend: prev[4] ? (responseTime > prev[4].value * 7 ? 'up' : responseTime < prev[4].value * 7 ? 'down' : 'stable') : 'down',
-          lastUpdated: currentTime,
-          history: [...(prev[4]?.history || []).slice(-9), Math.round(responseTime / 7)]
-        },
-        {
-          label: 'Cache Hit Rate',
-          value: Math.round(cacheStats.hitRate * 10) / 10,
-          max: 100,
-          unit: '%',
-          status: cacheStats.hitRate < 80 ? 'warning' : 'good',
-          icon: <Monitor className="w-4 h-4" />,
-          trend: prev[5] ? (cacheStats.hitRate > prev[5].value ? 'up' : cacheStats.hitRate < prev[5].value ? 'down' : 'stable') : 'up',
-          lastUpdated: currentTime,
-          history: [...(prev[5]?.history || []).slice(-9), Math.round(cacheStats.hitRate * 10) / 10]
-        }
-      ]);
-      
+
+      setMetrics((prev) => [
+      {
+        label: 'CPU Usage',
+        value: cpuUsage,
+        max: 100,
+        unit: '%',
+        status: cpuUsage > 80 ? 'critical' : cpuUsage > 60 ? 'warning' : 'good',
+        icon: <Activity className="w-4 h-4" />,
+        trend: prev[0] ? cpuUsage > prev[0].value ? 'up' : cpuUsage < prev[0].value ? 'down' : 'stable' : 'stable',
+        lastUpdated: currentTime,
+        history: [...(prev[0]?.history || []).slice(-9), cpuUsage]
+      },
+      {
+        label: 'Memory',
+        value: memoryUsage,
+        max: 8,
+        unit: 'GB',
+        status: memoryUsage > 6 ? 'critical' : memoryUsage > 4 ? 'warning' : 'good',
+        icon: <Server className="w-4 h-4" />,
+        trend: prev[1] ? memoryUsage > prev[1].value ? 'up' : memoryUsage < prev[1].value ? 'down' : 'stable' : 'stable',
+        lastUpdated: currentTime,
+        history: [...(prev[1]?.history || []).slice(-9), memoryUsage]
+      },
+      {
+        label: 'Database Size',
+        value: Math.round(estimatedDbSize),
+        max: 1000,
+        unit: 'MB',
+        status: estimatedDbSize > 800 ? 'critical' : estimatedDbSize > 600 ? 'warning' : 'good',
+        icon: <Database className="w-4 h-4" />,
+        trend: prev[2] ? estimatedDbSize > prev[2].value ? 'up' : 'stable' : 'up',
+        lastUpdated: currentTime,
+        history: [...(prev[2]?.history || []).slice(-9), Math.round(estimatedDbSize)]
+      },
+      {
+        label: 'Active Sessions',
+        value: activeSessions,
+        max: 100,
+        unit: 'users',
+        status: activeSessions > 75 ? 'warning' : 'good',
+        icon: <Users className="w-4 h-4" />,
+        trend: prev[3] ? activeSessions > prev[3].value ? 'up' : activeSessions < prev[3].value ? 'down' : 'stable' : 'stable',
+        lastUpdated: currentTime,
+        history: [...(prev[3]?.history || []).slice(-9), activeSessions]
+      },
+      {
+        label: 'API Response Time',
+        value: Math.round(responseTime / 7), // Average per API call
+        max: 1000,
+        unit: 'ms',
+        status: responseTime > 3000 ? 'critical' : responseTime > 1500 ? 'warning' : 'good',
+        icon: <Wifi className="w-4 h-4" />,
+        trend: prev[4] ? responseTime > prev[4].value * 7 ? 'up' : responseTime < prev[4].value * 7 ? 'down' : 'stable' : 'down',
+        lastUpdated: currentTime,
+        history: [...(prev[4]?.history || []).slice(-9), Math.round(responseTime / 7)]
+      },
+      {
+        label: 'Cache Hit Rate',
+        value: Math.round(cacheStats.hitRate * 10) / 10,
+        max: 100,
+        unit: '%',
+        status: cacheStats.hitRate < 80 ? 'warning' : 'good',
+        icon: <Monitor className="w-4 h-4" />,
+        trend: prev[5] ? cacheStats.hitRate > prev[5].value ? 'up' : cacheStats.hitRate < prev[5].value ? 'down' : 'stable' : 'up',
+        lastUpdated: currentTime,
+        history: [...(prev[5]?.history || []).slice(-9), Math.round(cacheStats.hitRate * 10) / 10]
+      }]
+      );
+
       // Update performance metrics
-      setPerformanceMetrics(prev => ({
+      setPerformanceMetrics((prev) => ({
         ...prev,
         responseTime: Math.round(responseTime / 7),
-        throughput: Math.round((totalRecords / Math.max(1, responseTime / 1000)) * 10) / 10,
+        throughput: Math.round(totalRecords / Math.max(1, responseTime / 1000) * 10) / 10,
         uptime: Math.min(prev.uptime + 0.1, 99.99)
       }));
-      
+
       setLastRefresh(new Date().toLocaleTimeString());
       addRealTimeUpdate(`Metrics updated: ${totalRecords} total records processed`, 'success');
-      
+
       console.log('Real-time metrics updated:', {
         totalRecords,
         estimatedDbSize,
@@ -720,13 +720,13 @@ const AdminDiagnostics: React.FC = () => {
         responseTime,
         cacheHitRate: cacheStats.hitRate
       });
-      
+
     } catch (error) {
       console.error('Error updating real metrics:', error);
       addRealTimeUpdate('Failed to update metrics', 'error');
-      
+
       // Update error rate
-      setPerformanceMetrics(prev => ({
+      setPerformanceMetrics((prev) => ({
         ...prev,
         errorRate: Math.min(prev.errorRate + 1, 10)
       }));
@@ -734,11 +734,11 @@ const AdminDiagnostics: React.FC = () => {
   };
 
   const resetDiagnostics = () => {
-    setTests((prev) => prev.map((test) => ({ 
-      ...test, 
-      status: 'pending' as const, 
-      duration: undefined, 
-      details: undefined 
+    setTests((prev) => prev.map((test) => ({
+      ...test,
+      status: 'pending' as const,
+      duration: undefined,
+      details: undefined
     })));
     setProgress(0);
     addRealTimeUpdate('Diagnostics reset', 'info');
@@ -807,7 +807,7 @@ const AdminDiagnostics: React.FC = () => {
     const now = new Date();
     const time = new Date(timestamp);
     const diffInSeconds = Math.floor((now.getTime() - time.getTime()) / 1000);
-    
+
     if (diffInSeconds < 60) return 'just now';
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
     if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
@@ -816,17 +816,17 @@ const AdminDiagnostics: React.FC = () => {
 
   const getConnectionStatusColor = () => {
     switch (connectionStatus) {
-      case 'connected': return 'text-green-500';
-      case 'connecting': return 'text-yellow-500';
-      default: return 'text-red-500';
+      case 'connected':return 'text-green-500';
+      case 'connecting':return 'text-yellow-500';
+      default:return 'text-red-500';
     }
   };
 
   const getConnectionStatusIcon = () => {
     switch (connectionStatus) {
-      case 'connected': return <Heart className="w-4 h-4 text-green-500" />;
-      case 'connecting': return <RefreshCw className="w-4 h-4 text-yellow-500 animate-spin" />;
-      default: return <XCircle className="w-4 h-4 text-red-500" />;
+      case 'connected':return <Heart className="w-4 h-4 text-green-500" />;
+      case 'connecting':return <RefreshCw className="w-4 h-4 text-yellow-500 animate-spin" />;
+      default:return <XCircle className="w-4 h-4 text-red-500" />;
     }
   };
 
@@ -840,28 +840,28 @@ const AdminDiagnostics: React.FC = () => {
             <div className="flex items-center space-x-2">
               {getConnectionStatusIcon()}
               <span className={`text-sm font-medium ${getConnectionStatusColor()}`}>
-                {connectionStatus === 'connected' ? 'Real-time Active' : 
-                 connectionStatus === 'connecting' ? 'Connecting...' : 'Offline'}
+                {connectionStatus === 'connected' ? 'Real-time Active' :
+                connectionStatus === 'connecting' ? 'Connecting...' : 'Offline'}
               </span>
             </div>
-            {lastRefresh && (
-              <div className="flex items-center space-x-1 text-sm text-gray-500">
+            {lastRefresh &&
+            <div className="flex items-center space-x-1 text-sm text-gray-500">
                 <Clock className="w-3 h-3" />
                 <span>Last updated: {lastRefresh}</span>
               </div>
-            )}
+            }
             <Badge variant="outline" className="text-xs">
-              {autoRefresh ? `Auto-refresh: ${refreshInterval/1000}s` : 'Manual refresh'}
+              {autoRefresh ? `Auto-refresh: ${refreshInterval / 1000}s` : 'Manual refresh'}
             </Badge>
           </div>
         </div>
         <div className="flex items-center space-x-2">
           <div className="flex items-center space-x-2 px-3 py-2 border rounded-lg">
-            <Switch 
-              checked={autoRefresh} 
+            <Switch
+              checked={autoRefresh}
               onCheckedChange={setAutoRefresh}
-              id="auto-refresh"
-            />
+              id="auto-refresh" />
+
             <Label htmlFor="auto-refresh" className="text-sm">Auto-refresh</Label>
           </div>
           <Button
@@ -890,8 +890,8 @@ const AdminDiagnostics: React.FC = () => {
         </TabsList>
 
         <TabsContent value="tests" className="space-y-4">
-          {isRunning && (
-            <Card className="p-4">
+          {isRunning &&
+          <Card className="p-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Progress</span>
@@ -900,40 +900,40 @@ const AdminDiagnostics: React.FC = () => {
                 <Progress value={progress} className="w-full" />
               </div>
             </Card>
-          )}
+          }
 
           <div className="grid gap-4">
-            {tests.map((test) => (
-              <Card key={test.id} className={`p-4 border-2 ${getStatusColor(test.status)}`}>
+            {tests.map((test) =>
+            <Card key={test.id} className={`p-4 border-2 ${getStatusColor(test.status)}`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     {test.icon}
                     <div>
                       <h3 className="font-semibold">{test.name}</h3>
                       <p className="text-sm text-gray-600">{test.description}</p>
-                      {test.details && (
-                        <p className="text-xs text-gray-500 mt-1">{test.details}</p>
-                      )}
+                      {test.details &&
+                    <p className="text-xs text-gray-500 mt-1">{test.details}</p>
+                    }
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    {test.duration && (
-                      <Badge variant="outline" className="text-xs">
+                    {test.duration &&
+                  <Badge variant="outline" className="text-xs">
                         {test.duration}ms
                       </Badge>
-                    )}
+                  }
                     {getStatusIcon(test.status)}
                   </div>
                 </div>
               </Card>
-            ))}
+            )}
           </div>
         </TabsContent>
 
         <TabsContent value="metrics" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {metrics.map((metric, index) => (
-              <Card key={index} className="p-4">
+            {metrics.map((metric, index) =>
+            <Card key={index} className="p-4">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
                     {metric.icon}
@@ -942,12 +942,12 @@ const AdminDiagnostics: React.FC = () => {
                   </div>
                   <div className="flex items-center space-x-1">
                     <Badge
-                      variant="outline"
-                      className={`text-xs ${
-                        getMetricStatus(metric) === 'critical' ? 'border-red-500 text-red-700' :
-                        getMetricStatus(metric) === 'warning' ? 'border-yellow-500 text-yellow-700' :
-                        'border-green-500 text-green-700'}`
-                      }>
+                    variant="outline"
+                    className={`text-xs ${
+                    getMetricStatus(metric) === 'critical' ? 'border-red-500 text-red-700' :
+                    getMetricStatus(metric) === 'warning' ? 'border-yellow-500 text-yellow-700' :
+                    'border-green-500 text-green-700'}`
+                    }>
                       {getMetricStatus(metric)}
                     </Badge>
                   </div>
@@ -964,32 +964,32 @@ const AdminDiagnostics: React.FC = () => {
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                     <motion.div
-                      className={`h-2 rounded-full transition-all duration-500 ${getMetricColor(getMetricStatus(metric))}`}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.min(metric.value / metric.max * 100, 100)}%` }}
-                      transition={{ duration: 0.5, ease: "easeOut" }}
-                    />
+                    className={`h-2 rounded-full transition-all duration-500 ${getMetricColor(getMetricStatus(metric))}`}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min(metric.value / metric.max * 100, 100)}%` }}
+                    transition={{ duration: 0.5, ease: "easeOut" }} />
+
                   </div>
                   <div className="flex items-center justify-between mt-1">
                     <span className="text-xs text-gray-400">
                       Updated: {formatTimeAgo(metric.lastUpdated)}
                     </span>
-                    {metric.history.length > 1 && (
-                      <span className="text-xs text-gray-400">
+                    {metric.history.length > 1 &&
+                  <span className="text-xs text-gray-400">
                         Trend: {metric.history.length} samples
                       </span>
-                    )}
+                  }
                   </div>
                 </div>
               </Card>
-            ))}
+            )}
           </div>
 
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
               System metrics are updated {autoRefresh ? 'automatically' : 'manually'}. 
-              {autoRefresh && `Auto-refresh interval: ${refreshInterval/1000} seconds. `}
+              {autoRefresh && `Auto-refresh interval: ${refreshInterval / 1000} seconds. `}
               Monitor these values to ensure optimal system performance. Consider scaling resources if metrics consistently show warning or critical levels.
             </AlertDescription>
           </Alert>
@@ -1004,19 +1004,19 @@ const AdminDiagnostics: React.FC = () => {
               </h3>
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 <AnimatePresence>
-                  {realTimeUpdates.slice(0, 20).map((update, index) => (
-                    <motion.div
-                      key={`${update.timestamp}-${index}`}
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      className={`p-2 rounded text-sm border-l-4 ${
-                        update.type === 'success' ? 'border-green-500 bg-green-50' :
-                        update.type === 'warning' ? 'border-yellow-500 bg-yellow-50' :
-                        update.type === 'error' ? 'border-red-500 bg-red-50' :
-                        'border-blue-500 bg-blue-50'
-                      }`}
-                    >
+                  {realTimeUpdates.slice(0, 20).map((update, index) =>
+                  <motion.div
+                    key={`${update.timestamp}-${index}`}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className={`p-2 rounded text-sm border-l-4 ${
+                    update.type === 'success' ? 'border-green-500 bg-green-50' :
+                    update.type === 'warning' ? 'border-yellow-500 bg-yellow-50' :
+                    update.type === 'error' ? 'border-red-500 bg-red-50' :
+                    'border-blue-500 bg-blue-50'}`
+                    }>
+
                       <div className="flex items-center justify-between">
                         <span>{update.message}</span>
                         <span className="text-xs text-gray-500">
@@ -1024,13 +1024,13 @@ const AdminDiagnostics: React.FC = () => {
                         </span>
                       </div>
                     </motion.div>
-                  ))}
+                  )}
                 </AnimatePresence>
-                {realTimeUpdates.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
+                {realTimeUpdates.length === 0 &&
+                <div className="text-center py-8 text-gray-500">
                     No real-time updates yet. System monitoring active.
                   </div>
-                )}
+                }
               </div>
             </Card>
 
@@ -1042,28 +1042,28 @@ const AdminDiagnostics: React.FC = () => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="auto-refresh-toggle">Auto-refresh Metrics</Label>
-                  <Switch 
+                  <Switch
                     id="auto-refresh-toggle"
-                    checked={autoRefresh} 
-                    onCheckedChange={setAutoRefresh}
-                  />
+                    checked={autoRefresh}
+                    onCheckedChange={setAutoRefresh} />
+
                 </div>
                 
-                {autoRefresh && (
-                  <div className="space-y-2">
+                {autoRefresh &&
+                <div className="space-y-2">
                     <Label>Refresh Interval</Label>
-                    <select 
-                      value={refreshInterval}
-                      onChange={(e) => setRefreshInterval(Number(e.target.value))}
-                      className="w-full p-2 border rounded-md"
-                    >
+                    <select
+                    value={refreshInterval}
+                    onChange={(e) => setRefreshInterval(Number(e.target.value))}
+                    className="w-full p-2 border rounded-md">
+
                       <option value={10000}>10 seconds</option>
                       <option value={30000}>30 seconds</option>
                       <option value={60000}>1 minute</option>
                       <option value={300000}>5 minutes</option>
                     </select>
                   </div>
-                )}
+                }
                 
                 <div className="pt-4 border-t">
                   <h4 className="font-medium mb-2">Connection Status</h4>
@@ -1073,18 +1073,18 @@ const AdminDiagnostics: React.FC = () => {
                       {connectionStatus.charAt(0).toUpperCase() + connectionStatus.slice(1)}
                     </span>
                   </div>
-                  {connectionStatus === 'connected' && (
-                    <p className="text-sm text-gray-600 mt-1">
+                  {connectionStatus === 'connected' &&
+                  <p className="text-sm text-gray-600 mt-1">
                       Real-time monitoring active. Updates are being received.
                     </p>
-                  )}
+                  }
                 </div>
                 
-                <Button 
-                  onClick={updateRealMetrics} 
+                <Button
+                  onClick={updateRealMetrics}
                   className="w-full"
-                  disabled={isRunning}
-                >
+                  disabled={isRunning}>
+
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Refresh Now
                 </Button>
@@ -1170,7 +1170,7 @@ const AdminDiagnostics: React.FC = () => {
                     {cacheStats.size}/{cacheStats.maxSize} MB
                   </Badge>
                 </div>
-                <Progress value={(cacheStats.size / cacheStats.maxSize) * 100} className="h-2" />
+                <Progress value={cacheStats.size / cacheStats.maxSize * 100} className="h-2" />
               </div>
             </div>
             
@@ -1184,8 +1184,8 @@ const AdminDiagnostics: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AdminDiagnostics;

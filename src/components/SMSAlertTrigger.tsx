@@ -19,7 +19,8 @@ import {
   Users } from
 'lucide-react';
 import licenseAlertService from '@/services/licenseAlertService';
-import { smsService } from '@/services/smsService';
+import { smsService, productionSmsService } from '@/services/smsService';
+import { enhancedSmsService } from '@/services/enhancedSmsService';
 
 interface License {
   id: number;
@@ -61,7 +62,23 @@ const SMSAlertTrigger: React.FC = () => {
     loadLicenses();
     loadAlertJobs();
     checkAutoScheduling();
+    initializeProductionSMS();
   }, []);
+
+  const initializeProductionSMS = async () => {
+    try {
+      await productionSmsService.initializeForProduction();
+      await enhancedSmsService.initialize();
+      console.log('✅ Production SMS services initialized');
+    } catch (error) {
+      console.error('❌ Failed to initialize SMS services:', error);
+      toast({
+        title: "SMS Configuration Warning",
+        description: "SMS service may not be properly configured. Please check settings.",
+        variant: "destructive"
+      });
+    }
+  };
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -168,31 +185,36 @@ const SMSAlertTrigger: React.FC = () => {
       setAlertJobs(updatedJobs);
       saveAlertJobs(updatedJobs);
 
-      // Run the license alert service
-      await licenseAlertService.checkAndSendAlerts();
-
-      // Simulate some processing and get alert count
-      // In a real implementation, the alert service would return statistics
-      const mockAlertsSent = Math.floor(Math.random() * 5); // Mock data
-
+      // Use enhanced SMS service for production alerts
+      const alertResult = await enhancedSmsService.runScheduledAlerts();
+      
       const completedJob: AlertJob = {
         ...newJob,
-        status: 'completed',
+        status: alertResult.errors.length > 0 ? 'failed' : 'completed',
         endTime: new Date(),
-        alertsSent: mockAlertsSent
+        alertsSent: alertResult.alertsSent,
+        error: alertResult.errors.length > 0 ? alertResult.errors.join(', ') : undefined
       };
 
       const finalJobs = alertJobs.map((job) =>
-      job.id === jobId ? completedJob : job
+        job.id === jobId ? completedJob : job
       );
       setAlertJobs(finalJobs);
       saveAlertJobs(finalJobs);
 
       if (type === 'manual') {
-        toast({
-          title: "✅ License Alerts Processed",
-          description: `Alert check completed. ${mockAlertsSent} alerts were sent.`
-        });
+        if (alertResult.errors.length > 0) {
+          toast({
+            title: "⚠️ Alerts Completed with Errors",
+            description: `${alertResult.alertsSent} alerts sent. ${alertResult.errors.length} errors occurred.`,
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "✅ License Alerts Processed",
+            description: `Alert check completed successfully. ${alertResult.alertsSent} alerts were sent.`
+          });
+        }
       }
     } catch (error) {
       console.error('Error triggering license alerts:', error);
@@ -226,17 +248,83 @@ const SMSAlertTrigger: React.FC = () => {
 
   const triggerSpecificLicenseAlert = async (licenseId: number) => {
     try {
-      const result = await licenseAlertService.sendImmediateAlert(licenseId);
+      const license = licenses.find(l => l.id === licenseId);
+      if (!license) {
+        throw new Error('License not found');
+      }
 
-      if (result.success) {
+      const expiryDate = new Date(license.expiry_date);
+      const today = new Date();
+      const daysUntilExpiry = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+      // Get active SMS template
+      const { data: templateData, error: templateError } = await window.ezsite.apis.tablePage('12641', {
+        PageNo: 1,
+        PageSize: 1,
+        OrderByField: 'ID',
+        IsAsc: false,
+        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+      });
+
+      if (templateError) throw new Error(templateError);
+
+      const template = templateData?.List?.[0];
+      if (!template) {
+        throw new Error('No active SMS template found');
+      }
+
+      // Get contacts for this station
+      const { data: contactData, error: contactError } = await window.ezsite.apis.tablePage('12612', {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: 'ID',
+        IsAsc: false,
+        Filters: [
+          { name: 'is_active', op: 'Equal', value: true },
+          { name: 'station', op: 'Equal', value: license.station }
+        ]
+      });
+
+      if (contactError) throw new Error(contactError);
+
+      const contacts = contactData?.List || [];
+      if (contacts.length === 0) {
+        throw new Error(`No active contacts found for station ${license.station}`);
+      }
+
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (const contact of contacts) {
+        try {
+          const result = await enhancedSmsService.sendProductionSMS({
+            to: contact.mobile_number,
+            content: template.message_content,
+            templateId: template.id,
+            licenseId: license.id,
+            priority: daysUntilExpiry <= 7 ? 'critical' : daysUntilExpiry <= 14 ? 'high' : 'medium'
+          });
+
+          if (result.success) {
+            successCount++;
+          } else {
+            errorCount++;
+          }
+        } catch (error) {
+          console.error(`Error sending SMS to ${contact.mobile_number}:`, error);
+          errorCount++;
+        }
+      }
+
+      if (successCount > 0) {
         toast({
           title: "✅ Alert Sent",
-          description: result.message
+          description: `Alert sent successfully to ${successCount} contact(s)${errorCount > 0 ? ` (${errorCount} failed)` : ''}`
         });
       } else {
         toast({
           title: "❌ Alert Failed",
-          description: result.message,
+          description: "Failed to send alert to any contacts",
           variant: "destructive"
         });
       }
@@ -244,7 +332,7 @@ const SMSAlertTrigger: React.FC = () => {
       console.error('Error sending specific license alert:', error);
       toast({
         title: "Error",
-        description: "Failed to send license alert",
+        description: error instanceof Error ? error.message : "Failed to send license alert",
         variant: "destructive"
       });
     }

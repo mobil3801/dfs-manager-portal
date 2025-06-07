@@ -183,11 +183,11 @@ const PerformanceMonitoringSystem: React.FC = () => {
     } catch (e) {
 
 
-      // Layout shift not supported
-    }return clsValue;
-  };
 
-  /**
+
+
+      // Layout shift not supported
+    }return clsValue;}; /**
    * Get First Input Delay
    */
   const getFID = (): number => {
@@ -203,11 +203,11 @@ const PerformanceMonitoringSystem: React.FC = () => {
     } catch (e) {
 
 
-      // First input not supported
-    }return fidValue;
-  };
 
-  /**
+
+
+      // First input not supported
+    }return fidValue;}; /**
    * Get Largest Contentful Paint
    */
   const getLCP = (): number => {

@@ -460,5 +460,45 @@ class SMSService {
 
 export const smsService = new SMSService();
 
+// Enhanced SMS Service with production features
+class ProductionSMSService extends SMSService {
+  async loadEnvironmentConfig(): Promise<void> {
+    try {
+      // Load from environment variables first
+      const envConfig = {
+        accountSid: import.meta.env.VITE_TWILIO_ACCOUNT_SID,
+        authToken: import.meta.env.VITE_TWILIO_AUTH_TOKEN,
+        fromNumber: import.meta.env.VITE_TWILIO_PHONE_NUMBER,
+        testMode: import.meta.env.VITE_SMS_TEST_MODE === 'true',
+        webhookUrl: import.meta.env.VITE_SMS_WEBHOOK_URL
+      };
+
+      if (envConfig.accountSid && envConfig.authToken && envConfig.fromNumber) {
+        await this.configure(envConfig);
+        console.log('📱 SMS service configured from environment variables');
+      } else {
+        // Fallback to database configuration
+        await this.loadConfiguration();
+        console.log('📱 SMS service configured from database');
+      }
+    } catch (error) {
+      console.error('Error loading SMS configuration:', error);
+      throw error;
+    }
+  }
+
+  async initializeForProduction(): Promise<void> {
+    try {
+      await this.loadEnvironmentConfig();
+      console.log('🚀 Production SMS service initialized');
+    } catch (error) {
+      console.error('❌ Failed to initialize production SMS service:', error);
+      throw error;
+    }
+  }
+}
+
+export const productionSmsService = new ProductionSMSService();
+
 // Also export the enhanced service
 export { enhancedSmsService } from './enhancedSmsService';
