@@ -1,6 +1,5 @@
 // License Alert Service for automated SMS notifications
-import { smsService, productionSmsService } from './smsService';
-import { enhancedSmsService } from './enhancedSmsService';
+import { smsService } from './smsService';
 
 interface License {
   id: number;
@@ -219,12 +218,11 @@ class LicenseAlertService {
 
       console.log(`📱 Sending license alert to ${contact.contact_name} (${contact.mobile_number})`);
 
-      // Send SMS using enhanced production service
-      const smsResult = await enhancedSmsService.sendProductionSMS({
+      // Send SMS
+      const smsResult = await smsService.sendSMS({
         to: contact.mobile_number,
-        content: message,
-        licenseId: license.id,
-        priority: daysUntilExpiry <= 7 ? 'critical' : daysUntilExpiry <= 14 ? 'high' : 'medium'
+        message: message,
+        type: 'license_alert'
       });
 
       // Record in history
@@ -320,11 +318,10 @@ class LicenseAlertService {
 
       let successCount = 0;
       for (const contact of relevantContacts) {
-        const smsResult = await enhancedSmsService.sendProductionSMS({
+        const smsResult = await smsService.sendSMS({
           to: contact.mobile_number,
-          content: defaultTemplate,
-          licenseId: license.ID,
-          priority: daysUntilExpiry <= 7 ? 'critical' : 'high'
+          message: defaultTemplate,
+          type: 'immediate_alert'
         });
 
         await window.ezsite.apis.tableCreate('12613', {

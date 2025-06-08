@@ -222,12 +222,12 @@ export class InvariantErrorFixer {
 
 
 
+
+
           // Empty batched update to flush pending work
         });} // Force a repaint
       document.body.style.display = 'none';document.body.offsetHeight; // Trigger reflow
-      document.body.style.display = '';return { fixed: true, message: 'Flushed React updates and forced repaint', details: { method: 'batch-flush-repaint' } };
-    } catch (error) {
-      return {
+      document.body.style.display = '';return { fixed: true, message: 'Flushed React updates and forced repaint', details: { method: 'batch-flush-repaint' } };} catch (error) {return {
         fixed: false,
         message: `Error flushing React updates: ${error instanceof Error ? error.message : 'Unknown error'}`,
         details: { error }

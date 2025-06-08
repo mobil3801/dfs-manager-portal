@@ -42,6 +42,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import AccessDenied from '@/components/AccessDenied';
+import AdminAccessDebugger from '@/components/AdminAccessDebugger';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
 
@@ -96,7 +97,7 @@ interface RealtimeStats {
 
 const AdminPanel: React.FC = () => {
   const navigate = useNavigate();
-  const { isAdmin } = useAuth();
+  const { isAdmin, user, userProfile, loading } = useAuth();
   const { user: supabaseUser, signUp } = useSupabaseAuth();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
@@ -112,7 +113,7 @@ const AdminPanel: React.FC = () => {
     smsServiceStatus: 'active'
   });
   const [userProfiles, setUserProfiles] = useState<UserProfile[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setLoading] = useState(true);
   const [isCreatingUser, setIsCreatingUser] = useState(false);
 
   if (!isAdmin) {

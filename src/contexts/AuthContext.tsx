@@ -18,6 +18,7 @@ interface UserProfile {
   phone: string;
   hire_date: string;
   is_active: boolean;
+  detailed_permissions?: string;
 }
 
 interface AuthContextType {
@@ -58,7 +59,7 @@ const ACCESS_MATRIX = {
     vendors: ['read', 'write'],
     orders: ['read', 'write'],
     licenses: ['read', 'write'],
-    monitoring: [] // No monitoring access
+    monitoring: ['read'] // Limited monitoring access
   },
   Administrator: {
     dashboard: ['read', 'write'],
@@ -83,14 +84,16 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
 
   const checkUserSession = async () => {
     try {
+      console.log('Checking user session...');
       const { data, error } = await window.ezsite.apis.getUserInfo();
       if (error) {
-        console.log('No active session');
+        console.log('No active session:', error);
         setLoading(false);
         return;
       }
 
       if (data) {
+        console.log('Active session found for user:', data);
         setUser(data);
         await fetchUserProfile(data.ID);
       }
@@ -103,20 +106,28 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
 
   const fetchUserProfile = async (userId: number) => {
     try {
+      console.log('Fetching user profile for user ID:', userId);
+      
       const { data, error } = await window.ezsite.apis.tablePage('11725', {
         PageNo: 1,
         PageSize: 1,
         Filters: [
-        { name: 'user_id', op: 'Equal', value: userId }]
-
+          { name: 'user_id', op: 'Equal', value: userId }
+        ]
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        throw error;
+      }
 
       if (data && data.List && data.List.length > 0) {
+        console.log('User profile found:', data.List[0]);
         setUserProfile(data.List[0]);
       } else {
-        // Create default profile for new users with full access
+        console.log('No user profile found, creating default admin profile...');
+        
+        // Create default admin profile for new users
         const defaultProfile = {
           user_id: userId,
           role: 'Administrator' as const,
@@ -124,20 +135,34 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
           employee_id: 'EMP' + userId.toString().padStart(4, '0'),
           phone: '',
           hire_date: new Date().toISOString(),
-          is_active: true
+          is_active: true,
+          detailed_permissions: JSON.stringify({
+            canViewReports: true,
+            canEditProducts: true,
+            canManageUsers: true,
+            canAccessAdmin: true,
+            canViewLogs: true
+          })
         };
 
-        const { error: createError } = await window.ezsite.apis.tableCreate('11725', defaultProfile);
-        if (createError) throw createError;
+        console.log('Creating user profile:', defaultProfile);
 
+        const { error: createError } = await window.ezsite.apis.tableCreate('11725', defaultProfile);
+        if (createError) {
+          console.error('Error creating user profile:', createError);
+          throw createError;
+        }
+
+        console.log('User profile created successfully, fetching updated profile...');
+        
         // Fetch the created profile
         await fetchUserProfile(userId);
       }
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      console.error('Error in fetchUserProfile:', error);
       toast({
         title: "Error",
-        description: "Failed to load user profile",
+        description: "Failed to load user profile. Please try logging in again.",
         variant: "destructive"
       });
     }
@@ -148,9 +173,12 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
 
     try {
       setLoading(true);
+      console.log('Attempting login for:', email);
+      
       const { error } = await window.ezsite.apis.login({ email, password });
 
       if (error) {
+        console.error('Login failed:', error);
         // Log failed login attempt
         await auditLogger.logLogin(email, false, undefined, error);
 
@@ -162,9 +190,12 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
         return false;
       }
 
+      console.log('Login successful, getting user info...');
+
       // Get user info after successful login
       const { data: userData, error: userError } = await window.ezsite.apis.getUserInfo();
       if (userError) {
+        console.error('Failed to get user info:', userError);
         await auditLogger.logLogin(email, false, undefined, 'Failed to get user information');
 
         toast({
@@ -175,6 +206,7 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
         return false;
       }
 
+      console.log('User data retrieved:', userData);
       setUser(userData);
       await fetchUserProfile(userData.ID);
 
@@ -207,9 +239,12 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
 
     try {
       setLoading(true);
+      console.log('Attempting registration for:', email);
+      
       const { error } = await window.ezsite.apis.register({ email, password });
 
       if (error) {
+        console.error('Registration failed:', error);
         // Log failed registration attempt
         await auditLogger.logRegistration(email, false, error);
 
@@ -249,6 +284,8 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
     const auditLogger = AuditLoggerService.getInstance();
 
     try {
+      console.log('Logging out user...');
+      
       // Log logout before clearing user state
       if (user) {
         await auditLogger.logLogout(user.Email, user.ID);
@@ -257,6 +294,9 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
       await window.ezsite.apis.logout();
       setUser(null);
       setUserProfile(null);
+      
+      console.log('Logout successful');
+      
       toast({
         title: "Success",
         description: "Logged out successfully"
@@ -269,65 +309,72 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
   const hasPermission = (feature: string, action: 'read' | 'write'): boolean => {
     if (!userProfile) return false;
 
-    // Special handling for monitoring features
-    if (feature === 'monitoring') {
-      return userProfile.role === 'Administrator';
+    // Special handling for admin features
+    if (feature === 'admin' || feature === 'monitoring') {
+      return userProfile.role === 'Administrator' || userProfile.role === 'Management';
     }
 
-    // Full access for all other features
+    // Full access for all other features for authenticated users
     return true;
   };
 
   const canEdit = (feature?: string): boolean => {
     if (!userProfile) return false;
 
-    // Monitoring features restricted to Administrators
-    if (feature === 'monitoring') {
-      return userProfile.role === 'Administrator';
+    // Admin features restricted to Administrator and Management
+    if (feature === 'admin' || feature === 'monitoring') {
+      return userProfile.role === 'Administrator' || userProfile.role === 'Management';
     }
 
-    // Full visual editing access for all users and other features
+    // Full editing access for all other features
     return true;
   };
 
   const canDelete = (feature?: string): boolean => {
     if (!userProfile) return false;
 
-    // Monitoring features restricted to Administrators
-    if (feature === 'monitoring') {
-      return userProfile.role === 'Administrator';
+    // Admin features restricted to Administrator and Management
+    if (feature === 'admin' || feature === 'monitoring') {
+      return userProfile.role === 'Administrator' || userProfile.role === 'Management';
     }
 
-    // Full delete access for all users and other features
+    // Full delete access for all other features
     return true;
   };
 
   const canCreate = (feature?: string): boolean => {
     if (!userProfile) return false;
 
-    // Monitoring features restricted to Administrators
-    if (feature === 'monitoring') {
-      return userProfile.role === 'Administrator';
+    // Admin features restricted to Administrator and Management
+    if (feature === 'admin' || feature === 'monitoring') {
+      return userProfile.role === 'Administrator' || userProfile.role === 'Management';
     }
 
-    // Full create access for all users and other features
+    // Full create access for all other features
     return true;
   };
 
   const canViewLogs = (feature?: string): boolean => {
     if (!userProfile) return false;
 
-    // Monitoring features restricted to Administrators
-    if (feature === 'monitoring') {
-      return userProfile.role === 'Administrator';
+    // Admin features restricted to Administrator and Management
+    if (feature === 'admin' || feature === 'monitoring') {
+      return userProfile.role === 'Administrator' || userProfile.role === 'Management';
     }
 
-    // Full log viewing access for all users and other features
+    // Full log viewing access for all other features
     return true;
   };
 
   const isVisualEditingEnabled = true;
-  const isAdmin = userProfile?.role === 'Administrator';
+  const isAdmin = userProfile?.role === 'Administrator' || userProfile?.role === 'Management';
+
+  console.log('Auth context state:', {
+    user: user?.Email,
+    userProfile: userProfile?.role,
+    isAdmin,
+    loading
+  });
 
   const value = {
     user,
@@ -348,8 +395,8 @@ export const AuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => 
   return (
     <AuthContext.Provider value={value}>
       {children}
-    </AuthContext.Provider>);
-
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {

@@ -186,12 +186,12 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
-   * Get First Input Delay
-   */
-  const getFID = (): number => {
-    let fidValue = 0;
+  * Get First Input Delay
+  */const getFID = (): number => {let fidValue = 0;
     const observer = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
         fidValue = (entry as any).processingStart - entry.startTime;
@@ -206,12 +206,12 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // First input not supported
     }return fidValue;}; /**
-   * Get Largest Contentful Paint
-   */
-  const getLCP = (): number => {
-    const entries = performance.getEntriesByType('largest-contentful-paint');
+  * Get Largest Contentful Paint
+  */const getLCP = (): number => {const entries = performance.getEntriesByType('largest-contentful-paint');
     return entries.length > 0 ? entries[entries.length - 1].startTime : 0;
   };
 

@@ -49,7 +49,7 @@ export interface SMSAlert {
 class EnhancedSMSService {
   private config: ProductionSMSConfig | null = null;
   private isInitialized: boolean = false;
-  private retryQueue: Array<{ message: any; attempts: number }> = [];
+  private retryQueue: Array<{message: any;attempts: number;}> = [];
   private deliveryStatusCache = new Map<string, SMSDeliveryStatus>();
   private processRetryQueueInterval: NodeJS.Timeout | null = null;
 
@@ -176,7 +176,7 @@ class EnhancedSMSService {
       }
 
       // Small delay between retries
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }
 
@@ -186,7 +186,7 @@ class EnhancedSMSService {
     templateId?: number;
     licenseId?: number;
     priority?: 'low' | 'medium' | 'high' | 'critical';
-  }): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  }): Promise<{success: boolean;messageId?: string;error?: string;}> {
     if (!this.isInitialized) {
       await this.initialize();
     }
@@ -236,7 +236,7 @@ class EnhancedSMSService {
     }
   }
 
-  private async sendSMSWithTwilio(message: any): Promise<{ success: boolean; messageId?: string; error?: string; retryable?: boolean }> {
+  private async sendSMSWithTwilio(message: any): Promise<{success: boolean;messageId?: string;error?: string;retryable?: boolean;}> {
     if (!this.config) {
       throw new Error('SMS service not configured');
     }
@@ -244,10 +244,10 @@ class EnhancedSMSService {
     try {
       // In production, this would use the actual Twilio SDK
       // For now, we'll use the existing smsService with enhanced error handling
-      
+
       // Simulate real Twilio API call with proper error handling
       const response = await this.simulateTwilioAPI(message);
-      
+
       if (response.success && response.messageId) {
         // Track delivery status if enabled
         if (this.config.enableDeliveryTracking) {
@@ -270,30 +270,30 @@ class EnhancedSMSService {
     }
   }
 
-  private async simulateTwilioAPI(message: any): Promise<{ success: boolean; messageId?: string; error?: string; retryable?: boolean }> {
+  private async simulateTwilioAPI(message: any): Promise<{success: boolean;messageId?: string;error?: string;retryable?: boolean;}> {
     // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+    await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 2000));
 
     // Simulate different error conditions
     const errorChance = Math.random();
-    
-    if (errorChance < 0.02) { // 2% permanent failure (invalid number)
+
+    if (errorChance < 0.02) {// 2% permanent failure (invalid number)
       return {
         success: false,
         error: 'Invalid phone number format',
         retryable: false
       };
     }
-    
-    if (errorChance < 0.05) { // 3% temporary failure (rate limit)
+
+    if (errorChance < 0.05) {// 3% temporary failure (rate limit)
       return {
         success: false,
         error: 'Rate limit exceeded',
         retryable: true
       };
     }
-    
-    if (errorChance < 0.08) { // 3% temporary failure (network)
+
+    if (errorChance < 0.08) {// 3% temporary failure (network)
       return {
         success: false,
         error: 'Network timeout',
@@ -323,14 +323,14 @@ class EnhancedSMSService {
 
       if (data?.List && data.List.length > 0) {
         let template = data.List[0].message_content;
-        
+
         // Replace template variables
         template = template.replace(/{license_name}/g, context.licenseName || 'Unknown License');
         template = template.replace(/{station}/g, context.station || 'Unknown Station');
         template = template.replace(/{expiry_date}/g, context.expiryDate || 'Unknown Date');
         template = template.replace(/{days_remaining}/g, context.daysUntilExpiry || '0');
         template = template.replace(/{priority}/g, context.priority || 'medium');
-        
+
         return template;
       }
 
@@ -341,7 +341,7 @@ class EnhancedSMSService {
     }
   }
 
-  async runScheduledAlerts(): Promise<{ alertsSent: number; errors: string[] }> {
+  async runScheduledAlerts(): Promise<{alertsSent: number;errors: string[];}> {
     if (!this.isInitialized) {
       await this.initialize();
     }
@@ -368,7 +368,7 @@ class EnhancedSMSService {
     }
   }
 
-  private async processScheduledAlerts(schedules: AlertSchedule[]): Promise<{ alertsSent: number; errors: string[] }> {
+  private async processScheduledAlerts(schedules: AlertSchedule[]): Promise<{alertsSent: number;errors: string[];}> {
     let totalAlertsSent = 0;
     const errors: string[] = [];
     const now = new Date();
@@ -376,22 +376,22 @@ class EnhancedSMSService {
     for (const schedule of schedules) {
       try {
         const nextRun = new Date(schedule.next_run);
-        
+
         // Check if schedule is due
         if (nextRun <= now) {
           console.log(`⏰ Processing schedule: ${schedule.schedule_name}`);
-          
+
           const alertsSent = await this.processLicenseExpiryAlerts(schedule);
           totalAlertsSent += alertsSent;
-          
+
           // Update next run time
-          const nextRunTime = new Date(now.getTime() + (schedule.frequency_days * 24 * 60 * 60 * 1000));
+          const nextRunTime = new Date(now.getTime() + schedule.frequency_days * 24 * 60 * 60 * 1000);
           await window.ezsite.apis.tableUpdate('12642', {
             ID: schedule.id,
             last_run: now.toISOString(),
             next_run: nextRunTime.toISOString()
           });
-          
+
           console.log(`✅ Schedule ${schedule.schedule_name} completed. ${alertsSent} alerts sent.`);
         }
       } catch (error) {
@@ -413,9 +413,9 @@ class EnhancedSMSService {
         OrderByField: 'expiry_date',
         IsAsc: true,
         Filters: [
-          { name: 'status', op: 'Equal', value: 'Active' },
-          ...(schedule.station_filter !== 'ALL' ? [{ name: 'station', op: 'Equal', value: schedule.station_filter }] : [])
-        ]
+        { name: 'status', op: 'Equal', value: 'Active' },
+        ...(schedule.station_filter !== 'ALL' ? [{ name: 'station', op: 'Equal', value: schedule.station_filter }] : [])]
+
       });
 
       if (licenseError) throw new Error(licenseError);
@@ -432,7 +432,7 @@ class EnhancedSMSService {
         if (daysUntilExpiry <= schedule.days_before_expiry && daysUntilExpiry > 0) {
           // Get contact numbers for this license/station
           const contacts = await this.getContactNumbers(license.station);
-          
+
           if (contacts.length > 0) {
             alertsToSend.push({
               licenseId: license.id,
@@ -468,7 +468,7 @@ class EnhancedSMSService {
             }
 
             // Small delay between messages
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise((resolve) => setTimeout(resolve, 500));
           } catch (error) {
             console.error(`Error sending alert to ${contactNumber}:`, error);
           }
@@ -490,15 +490,15 @@ class EnhancedSMSService {
         OrderByField: 'ID',
         IsAsc: false,
         Filters: [
-          { name: 'is_active', op: 'Equal', value: true },
-          { name: 'station', op: 'Equal', value: station }
-        ]
+        { name: 'is_active', op: 'Equal', value: true },
+        { name: 'station', op: 'Equal', value: station }]
+
       });
 
       if (error) throw new Error(error);
 
       const contacts = data?.List || [];
-      
+
       // Also get contacts for 'ALL' stations
       const { data: allData, error: allError } = await window.ezsite.apis.tablePage('12612', {
         PageNo: 1,
@@ -506,16 +506,16 @@ class EnhancedSMSService {
         OrderByField: 'ID',
         IsAsc: false,
         Filters: [
-          { name: 'is_active', op: 'Equal', value: true },
-          { name: 'station', op: 'Equal', value: 'ALL' }
-        ]
+        { name: 'is_active', op: 'Equal', value: true },
+        { name: 'station', op: 'Equal', value: 'ALL' }]
+
       });
 
       if (!allError && allData?.List) {
         contacts.push(...allData.List);
       }
 
-      return contacts.map(contact => contact.mobile_number).filter(Boolean);
+      return contacts.map((contact) => contact.mobile_number).filter(Boolean);
     } catch (error) {
       console.error('Error getting contact numbers:', error);
       return [];
@@ -566,9 +566,9 @@ class EnhancedSMSService {
 
       const retryQueueSize = this.retryQueue.length;
       const configValid = !!this.config?.accountSid && !!this.config?.authToken;
-      
+
       let status: 'healthy' | 'degraded' | 'down' = 'healthy';
-      
+
       if (!configValid) {
         status = 'down';
       } else if (retryQueueSize > 10) {

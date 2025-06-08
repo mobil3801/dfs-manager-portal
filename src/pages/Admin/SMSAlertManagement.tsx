@@ -21,10 +21,6 @@ import CustomSMSSendingForm from '@/components/CustomSMSSendingForm';
 import EnhancedSMSTestManager from '@/components/EnhancedSMSTestManager';
 import SMSConfigurationValidator from '@/components/SMSConfigurationValidator';
 import SMSTroubleshootingGuide from '@/components/SMSTroubleshootingGuide';
-import SMSAlertScheduler from '@/components/SMSAlertScheduler';
-import SMSDeliveryTracker from '@/components/SMSDeliveryTracker';
-import SMSConfigurationManager from '@/components/SMSConfigurationManager';
-import SMSTemplateManager from '@/components/SMSTemplateManager';
 
 interface SMSAlertSetting {
   id: number;
@@ -309,19 +305,15 @@ const SMSAlertManagement: React.FC = () => {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-12">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
             <TabsTrigger value="overview">📊 Overview</TabsTrigger>
             <TabsTrigger value="config">🔧 Config</TabsTrigger>
-            <TabsTrigger value="scheduler">⏰ Scheduler</TabsTrigger>
-            <TabsTrigger value="templates">📝 Templates</TabsTrigger>
-            <TabsTrigger value="delivery">📨 Delivery</TabsTrigger>
             <TabsTrigger value="testing">🧪 Testing</TabsTrigger>
             <TabsTrigger value="troubleshoot">🔍 Debug</TabsTrigger>
             <TabsTrigger value="custom">📱 Send SMS</TabsTrigger>
             <TabsTrigger value="contacts">📞 Contacts</TabsTrigger>
             <TabsTrigger value="settings">⚙️ Settings</TabsTrigger>
             <TabsTrigger value="history">📝 History</TabsTrigger>
-            <TabsTrigger value="management">💰 SMS Config</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview">
@@ -407,22 +399,6 @@ const SMSAlertManagement: React.FC = () => {
 
           <TabsContent value="config">
             <SMSConfigurationValidator />
-          </TabsContent>
-
-          <TabsContent value="scheduler">
-            <SMSAlertScheduler />
-          </TabsContent>
-
-          <TabsContent value="templates">
-            <SMSTemplateManager />
-          </TabsContent>
-
-          <TabsContent value="delivery">
-            <SMSDeliveryTracker />
-          </TabsContent>
-
-          <TabsContent value="management">
-            <SMSConfigurationManager />
           </TabsContent>
 
           <TabsContent value="testing">

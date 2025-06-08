@@ -21,8 +21,8 @@ import {
   Edit,
   AlertTriangle,
   CheckCircle2,
-  Timer
-} from 'lucide-react';
+  Timer } from
+'lucide-react';
 
 interface AlertSchedule {
   id: number;
@@ -123,7 +123,7 @@ const SMSAlertScheduler: React.FC = () => {
 
       // Calculate next run time
       const now = new Date();
-      const nextRun = new Date(now.getTime() + (newSchedule.frequency_days * 24 * 60 * 60 * 1000));
+      const nextRun = new Date(now.getTime() + newSchedule.frequency_days * 24 * 60 * 60 * 1000);
 
       const { error } = await window.ezsite.apis.tableCreate('12642', {
         ...newSchedule,
@@ -220,7 +220,7 @@ const SMSAlertScheduler: React.FC = () => {
       // This would trigger the schedule immediately
       // For now, we'll just update the next_run time to trigger it
       const now = new Date();
-      const nextRun = new Date(now.getTime() + (schedule.frequency_days * 24 * 60 * 60 * 1000));
+      const nextRun = new Date(now.getTime() + schedule.frequency_days * 24 * 60 * 60 * 1000);
 
       const { error } = await window.ezsite.apis.tableUpdate('12642', {
         ID: schedule.id,
@@ -252,7 +252,7 @@ const SMSAlertScheduler: React.FC = () => {
     const now = new Date();
     const diffMs = date.getTime() - now.getTime();
     const diffHours = Math.round(diffMs / (1000 * 60 * 60));
-    
+
     if (diffHours < 0) {
       return 'Overdue';
     } else if (diffHours < 24) {
@@ -267,14 +267,14 @@ const SMSAlertScheduler: React.FC = () => {
     if (!schedule.is_active) {
       return <Badge variant="secondary">Paused</Badge>;
     }
-    
+
     const nextRun = new Date(schedule.next_run);
     const now = new Date();
-    
+
     if (nextRun <= now) {
       return <Badge className="bg-orange-100 text-orange-800">Due</Badge>;
     }
-    
+
     return <Badge className="bg-green-100 text-green-800">Active</Badge>;
   };
 
@@ -307,14 +307,14 @@ const SMSAlertScheduler: React.FC = () => {
                 <Input
                   id="schedule-name"
                   value={newSchedule.schedule_name}
-                  onChange={(e) => setNewSchedule({...newSchedule, schedule_name: e.target.value})}
-                  placeholder="e.g., License Expiry Alerts"
-                />
+                  onChange={(e) => setNewSchedule({ ...newSchedule, schedule_name: e.target.value })}
+                  placeholder="e.g., License Expiry Alerts" />
+
               </div>
               
               <div>
                 <Label htmlFor="alert-type">Alert Type</Label>
-                <Select value={newSchedule.alert_type} onValueChange={(value) => setNewSchedule({...newSchedule, alert_type: value})}>
+                <Select value={newSchedule.alert_type} onValueChange={(value) => setNewSchedule({ ...newSchedule, alert_type: value })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -328,7 +328,7 @@ const SMSAlertScheduler: React.FC = () => {
               
               <div>
                 <Label htmlFor="days-before">Days Before Expiry</Label>
-                <Select value={newSchedule.days_before_expiry.toString()} onValueChange={(value) => setNewSchedule({...newSchedule, days_before_expiry: parseInt(value)})}>
+                <Select value={newSchedule.days_before_expiry.toString()} onValueChange={(value) => setNewSchedule({ ...newSchedule, days_before_expiry: parseInt(value) })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -344,7 +344,7 @@ const SMSAlertScheduler: React.FC = () => {
               
               <div>
                 <Label htmlFor="frequency">Frequency (Days)</Label>
-                <Select value={newSchedule.frequency_days.toString()} onValueChange={(value) => setNewSchedule({...newSchedule, frequency_days: parseInt(value)})}>
+                <Select value={newSchedule.frequency_days.toString()} onValueChange={(value) => setNewSchedule({ ...newSchedule, frequency_days: parseInt(value) })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -360,23 +360,23 @@ const SMSAlertScheduler: React.FC = () => {
               
               <div>
                 <Label htmlFor="template">SMS Template</Label>
-                <Select value={newSchedule.template_id.toString()} onValueChange={(value) => setNewSchedule({...newSchedule, template_id: parseInt(value)})}>
+                <Select value={newSchedule.template_id.toString()} onValueChange={(value) => setNewSchedule({ ...newSchedule, template_id: parseInt(value) })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select template" />
                   </SelectTrigger>
                   <SelectContent>
-                    {templates.map((template) => (
-                      <SelectItem key={template.id} value={template.id.toString()}>
+                    {templates.map((template) =>
+                    <SelectItem key={template.id} value={template.id.toString()}>
                         {template.template_name}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
               
               <div>
                 <Label htmlFor="station-filter">Station Filter</Label>
-                <Select value={newSchedule.station_filter} onValueChange={(value) => setNewSchedule({...newSchedule, station_filter: value})}>
+                <Select value={newSchedule.station_filter} onValueChange={(value) => setNewSchedule({ ...newSchedule, station_filter: value })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -393,8 +393,8 @@ const SMSAlertScheduler: React.FC = () => {
                 <Switch
                   id="active"
                   checked={newSchedule.is_active}
-                  onCheckedChange={(checked) => setNewSchedule({...newSchedule, is_active: checked})}
-                />
+                  onCheckedChange={(checked) => setNewSchedule({ ...newSchedule, is_active: checked })} />
+
                 <Label htmlFor="active">Active</Label>
               </div>
               
@@ -402,8 +402,8 @@ const SMSAlertScheduler: React.FC = () => {
                 <Button
                   onClick={createSchedule}
                   disabled={creating || !newSchedule.schedule_name || !newSchedule.template_id}
-                  className="flex-1"
-                >
+                  className="flex-1">
+
                   {creating ? 'Creating...' : 'Create Schedule'}
                 </Button>
                 <Button variant="outline" onClick={() => setShowCreateDialog(false)}>Cancel</Button>
@@ -415,14 +415,14 @@ const SMSAlertScheduler: React.FC = () => {
 
       {/* Schedules List */}
       <div className="grid gap-4">
-        {loading ? (
-          <Card>
+        {loading ?
+        <Card>
             <CardContent className="pt-6">
               <div className="text-center">Loading schedules...</div>
             </CardContent>
-          </Card>
-        ) : schedules.length === 0 ? (
-          <Card>
+          </Card> :
+        schedules.length === 0 ?
+        <Card>
             <CardContent className="pt-6">
               <div className="text-center">
                 <Timer className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -430,10 +430,10 @@ const SMSAlertScheduler: React.FC = () => {
                 <p className="text-gray-500">Create your first alert schedule to start automating SMS notifications.</p>
               </div>
             </CardContent>
-          </Card>
-        ) : (
-          schedules.map((schedule) => (
-            <Card key={schedule.id}>
+          </Card> :
+
+        schedules.map((schedule) =>
+        <Card key={schedule.id}>
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
@@ -460,50 +460,50 @@ const SMSAlertScheduler: React.FC = () => {
                         </span>
                       </div>
                       
-                      {schedule.last_run && (
-                        <div className="text-xs text-gray-500">
+                      {schedule.last_run &&
+                  <div className="text-xs text-gray-500">
                           Last run: {new Date(schedule.last_run).toLocaleString()}
                         </div>
-                      )}
+                  }
                     </div>
                   </div>
                   
                   <div className="flex items-center space-x-2">
                     <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => runScheduleNow(schedule)}
-                      disabled={!schedule.is_active}
-                    >
+                  size="sm"
+                  variant="outline"
+                  onClick={() => runScheduleNow(schedule)}
+                  disabled={!schedule.is_active}>
+
                       <Play className="w-4 h-4 mr-1" />
                       Run Now
                     </Button>
                     
                     <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => toggleSchedule(schedule)}
-                    >
-                      {schedule.is_active ? (
-                        <><Pause className="w-4 h-4 mr-1" />Pause</>
-                      ) : (
-                        <><Play className="w-4 h-4 mr-1" />Activate</>
-                      )}
+                  size="sm"
+                  variant="outline"
+                  onClick={() => toggleSchedule(schedule)}>
+
+                      {schedule.is_active ?
+                  <><Pause className="w-4 h-4 mr-1" />Pause</> :
+
+                  <><Play className="w-4 h-4 mr-1" />Activate</>
+                  }
                     </Button>
                     
                     <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => deleteSchedule(schedule)}
-                    >
+                  size="sm"
+                  variant="outline"
+                  onClick={() => deleteSchedule(schedule)}>
+
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          ))
-        )}
+        )
+        }
       </div>
 
       {/* Summary Stats */}
@@ -522,7 +522,7 @@ const SMSAlertScheduler: React.FC = () => {
           <CardContent className="pt-6">
             <div className="text-center">
               <CheckCircle2 className="w-8 h-8 text-green-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold">{schedules.filter(s => s.is_active).length}</div>
+              <div className="text-2xl font-bold">{schedules.filter((s) => s.is_active).length}</div>
               <p className="text-sm text-gray-600">Active Schedules</p>
             </div>
           </CardContent>
@@ -533,15 +533,15 @@ const SMSAlertScheduler: React.FC = () => {
             <div className="text-center">
               <Bell className="w-8 h-8 text-orange-500 mx-auto mb-2" />
               <div className="text-2xl font-bold">
-                {schedules.filter(s => s.is_active && new Date(s.next_run) <= new Date()).length}
+                {schedules.filter((s) => s.is_active && new Date(s.next_run) <= new Date()).length}
               </div>
               <p className="text-sm text-gray-600">Due Now</p>
             </div>
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SMSAlertScheduler;

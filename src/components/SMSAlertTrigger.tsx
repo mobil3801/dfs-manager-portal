@@ -187,7 +187,7 @@ const SMSAlertTrigger: React.FC = () => {
 
       // Use enhanced SMS service for production alerts
       const alertResult = await enhancedSmsService.runScheduledAlerts();
-      
+
       const completedJob: AlertJob = {
         ...newJob,
         status: alertResult.errors.length > 0 ? 'failed' : 'completed',
@@ -197,7 +197,7 @@ const SMSAlertTrigger: React.FC = () => {
       };
 
       const finalJobs = alertJobs.map((job) =>
-        job.id === jobId ? completedJob : job
+      job.id === jobId ? completedJob : job
       );
       setAlertJobs(finalJobs);
       saveAlertJobs(finalJobs);
@@ -248,7 +248,7 @@ const SMSAlertTrigger: React.FC = () => {
 
   const triggerSpecificLicenseAlert = async (licenseId: number) => {
     try {
-      const license = licenses.find(l => l.id === licenseId);
+      const license = licenses.find((l) => l.id === licenseId);
       if (!license) {
         throw new Error('License not found');
       }
@@ -280,9 +280,9 @@ const SMSAlertTrigger: React.FC = () => {
         OrderByField: 'ID',
         IsAsc: false,
         Filters: [
-          { name: 'is_active', op: 'Equal', value: true },
-          { name: 'station', op: 'Equal', value: license.station }
-        ]
+        { name: 'is_active', op: 'Equal', value: true },
+        { name: 'station', op: 'Equal', value: license.station }]
+
       });
 
       if (contactError) throw new Error(contactError);

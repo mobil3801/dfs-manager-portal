@@ -19,8 +19,8 @@ import {
   XCircle,
   AlertTriangle,
   Key,
-  Zap
-} from 'lucide-react';
+  Zap } from
+'lucide-react';
 import { enhancedSmsService } from '@/services/enhancedSmsService';
 
 interface SMSConfig {
@@ -42,7 +42,7 @@ const SMSConfigurationManager: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
-  const [testResult, setTestResult] = useState<{success: boolean; message: string} | null>(null);
+  const [testResult, setTestResult] = useState<{success: boolean;message: string;} | null>(null);
   const [showTokens, setShowTokens] = useState(false);
   const [testPhoneNumber, setTestPhoneNumber] = useState('');
   const [serviceHealth, setServiceHealth] = useState<any>(null);
@@ -243,7 +243,7 @@ const SMSConfigurationManager: React.FC = () => {
 
   const getHealthStatusBadge = () => {
     if (!serviceHealth) return <Badge variant="secondary">Unknown</Badge>;
-    
+
     switch (serviceHealth.status) {
       case 'healthy':
         return <Badge className="bg-green-100 text-green-800">Healthy</Badge>;
@@ -258,7 +258,7 @@ const SMSConfigurationManager: React.FC = () => {
 
   const getHealthIcon = () => {
     if (!serviceHealth) return <AlertTriangle className="w-5 h-5 text-gray-500" />;
-    
+
     switch (serviceHealth.status) {
       case 'healthy':
         return <CheckCircle className="w-5 h-5 text-green-500" />;
@@ -290,14 +290,14 @@ const SMSConfigurationManager: React.FC = () => {
       </div>
 
       {/* Service Health Alert */}
-      {serviceHealth && serviceHealth.status !== 'healthy' && (
-        <Alert>
+      {serviceHealth && serviceHealth.status !== 'healthy' &&
+      <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
             <strong>Service Health Warning:</strong> {serviceHealth.details?.message || 'SMS service is not operating normally'}
           </AlertDescription>
         </Alert>
-      )}
+      }
 
       {/* Configuration Form */}
       <Card>
@@ -308,32 +308,32 @@ const SMSConfigurationManager: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {loading ? (
-            <div className="text-center py-8">
+          {loading ?
+          <div className="text-center py-8">
               <p className="text-gray-600">Loading configuration...</p>
-            </div>
-          ) : (
-            <>
+            </div> :
+
+          <>
               {/* Basic Settings */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <Label htmlFor="provider">Provider</Label>
                   <Input
-                    id="provider"
-                    value={formData.provider_name}
-                    onChange={(e) => setFormData({...formData, provider_name: e.target.value})}
-                    disabled
-                  />
+                  id="provider"
+                  value={formData.provider_name}
+                  onChange={(e) => setFormData({ ...formData, provider_name: e.target.value })}
+                  disabled />
+
                 </div>
                 
                 <div>
                   <Label htmlFor="from-number">From Phone Number</Label>
                   <Input
-                    id="from-number"
-                    value={formData.from_number}
-                    onChange={(e) => setFormData({...formData, from_number: e.target.value})}
-                    placeholder="+1234567890"
-                  />
+                  id="from-number"
+                  value={formData.from_number}
+                  onChange={(e) => setFormData({ ...formData, from_number: e.target.value })}
+                  placeholder="+1234567890" />
+
                 </div>
               </div>
 
@@ -345,10 +345,10 @@ const SMSConfigurationManager: React.FC = () => {
                     API Credentials
                   </h3>
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowTokens(!showTokens)}
-                  >
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowTokens(!showTokens)}>
+
                     {showTokens ? 'Hide' : 'Show'} Tokens
                   </Button>
                 </div>
@@ -357,23 +357,23 @@ const SMSConfigurationManager: React.FC = () => {
                   <div>
                     <Label htmlFor="account-sid">Account SID</Label>
                     <Input
-                      id="account-sid"
-                      type={showTokens ? 'text' : 'password'}
-                      value={formData.account_sid}
-                      onChange={(e) => setFormData({...formData, account_sid: e.target.value})}
-                      placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                    />
+                    id="account-sid"
+                    type={showTokens ? 'text' : 'password'}
+                    value={formData.account_sid}
+                    onChange={(e) => setFormData({ ...formData, account_sid: e.target.value })}
+                    placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
+
                   </div>
                   
                   <div>
                     <Label htmlFor="auth-token">Auth Token</Label>
                     <Input
-                      id="auth-token"
-                      type={showTokens ? 'text' : 'password'}
-                      value={formData.auth_token}
-                      onChange={(e) => setFormData({...formData, auth_token: e.target.value})}
-                      placeholder="Your Twilio Auth Token"
-                    />
+                    id="auth-token"
+                    type={showTokens ? 'text' : 'password'}
+                    value={formData.auth_token}
+                    onChange={(e) => setFormData({ ...formData, auth_token: e.target.value })}
+                    placeholder="Your Twilio Auth Token" />
+
                   </div>
                 </div>
               </div>
@@ -389,48 +389,48 @@ const SMSConfigurationManager: React.FC = () => {
                   <div>
                     <Label htmlFor="monthly-limit">Monthly SMS Limit</Label>
                     <Input
-                      id="monthly-limit"
-                      type="number"
-                      value={formData.monthly_limit}
-                      onChange={(e) => setFormData({...formData, monthly_limit: parseInt(e.target.value) || 1000})}
-                    />
+                    id="monthly-limit"
+                    type="number"
+                    value={formData.monthly_limit}
+                    onChange={(e) => setFormData({ ...formData, monthly_limit: parseInt(e.target.value) || 1000 })} />
+
                   </div>
                   
                   <div>
                     <Label htmlFor="webhook-url">Webhook URL (Optional)</Label>
                     <Input
-                      id="webhook-url"
-                      value={formData.webhook_url}
-                      onChange={(e) => setFormData({...formData, webhook_url: e.target.value})}
-                      placeholder="https://your-domain.com/webhooks/sms"
-                    />
+                    id="webhook-url"
+                    value={formData.webhook_url}
+                    onChange={(e) => setFormData({ ...formData, webhook_url: e.target.value })}
+                    placeholder="https://your-domain.com/webhooks/sms" />
+
                   </div>
                 </div>
                 
                 <div className="flex items-center space-x-6">
                   <div className="flex items-center space-x-2">
                     <Switch
-                      id="active"
-                      checked={formData.is_active}
-                      onCheckedChange={(checked) => setFormData({...formData, is_active: checked})}
-                    />
+                    id="active"
+                    checked={formData.is_active}
+                    onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })} />
+
                     <Label htmlFor="active">Service Active</Label>
                   </div>
                   
                   <div className="flex items-center space-x-2">
                     <Switch
-                      id="test-mode"
-                      checked={formData.test_mode}
-                      onCheckedChange={(checked) => setFormData({...formData, test_mode: checked})}
-                    />
+                    id="test-mode"
+                    checked={formData.test_mode}
+                    onCheckedChange={(checked) => setFormData({ ...formData, test_mode: checked })} />
+
                     <Label htmlFor="test-mode">Test Mode</Label>
                   </div>
                 </div>
               </div>
 
               {/* Current Usage */}
-              {config && (
-                <div className="border-t pt-4">
+              {config &&
+            <div className="border-t pt-4">
                   <h3 className="text-lg font-medium mb-4">Current Usage</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="bg-blue-50 p-4 rounded-lg">
@@ -443,7 +443,7 @@ const SMSConfigurationManager: React.FC = () => {
                     </div>
                     <div className="bg-purple-50 p-4 rounded-lg">
                       <div className="text-2xl font-bold text-purple-700">
-                        {Math.round((config.current_month_count / config.monthly_limit) * 100)}%
+                        {Math.round(config.current_month_count / config.monthly_limit * 100)}%
                       </div>
                       <p className="text-sm text-purple-600">Usage Percentage</p>
                     </div>
@@ -454,21 +454,21 @@ const SMSConfigurationManager: React.FC = () => {
                     </Button>
                   </div>
                 </div>
-              )}
+            }
 
               {/* Action Buttons */}
               <div className="flex space-x-4">
                 <Button
-                  onClick={saveConfiguration}
-                  disabled={saving || !formData.account_sid || !formData.auth_token || !formData.from_number}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
+                onClick={saveConfiguration}
+                disabled={saving || !formData.account_sid || !formData.auth_token || !formData.from_number}
+                className="bg-blue-600 hover:bg-blue-700">
+
                   <Save className="w-4 h-4 mr-2" />
                   {saving ? 'Saving...' : 'Save Configuration'}
                 </Button>
               </div>
             </>
-          )}
+          }
         </CardContent>
       </Card>
 
@@ -487,8 +487,8 @@ const SMSConfigurationManager: React.FC = () => {
               id="test-phone"
               value={testPhoneNumber}
               onChange={(e) => setTestPhoneNumber(e.target.value)}
-              placeholder="+1234567890"
-            />
+              placeholder="+1234567890" />
+
             <p className="text-sm text-gray-500 mt-1">
               Enter a phone number to send a test SMS (use E.164 format: +1234567890)
             </p>
@@ -497,28 +497,28 @@ const SMSConfigurationManager: React.FC = () => {
           <Button
             onClick={testConfiguration}
             disabled={testing || !testPhoneNumber || !formData.account_sid || !formData.auth_token}
-            variant="outline"
-          >
+            variant="outline">
+
             <Zap className="w-4 h-4 mr-2" />
             {testing ? 'Sending Test...' : 'Send Test SMS'}
           </Button>
           
-          {testResult && (
-            <Alert className={testResult.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}>
-              {testResult.success ? (
-                <CheckCircle className="h-4 w-4 text-green-600" />
-              ) : (
-                <XCircle className="h-4 w-4 text-red-600" />
-              )}
+          {testResult &&
+          <Alert className={testResult.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}>
+              {testResult.success ?
+            <CheckCircle className="h-4 w-4 text-green-600" /> :
+
+            <XCircle className="h-4 w-4 text-red-600" />
+            }
               <AlertDescription className={testResult.success ? 'text-green-700' : 'text-red-700'}>
                 {testResult.message}
               </AlertDescription>
             </Alert>
-          )}
+          }
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SMSConfigurationManager;
