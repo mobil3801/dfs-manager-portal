@@ -19,8 +19,9 @@ import CashCollectionSection from '@/components/SalesReportSections/CashCollecti
 
 interface Expense {
   id: string;
-  vendorId: string;
-  vendorName: string;
+  vendorId?: string;
+  vendorName?: string;
+  othersName?: string;
   amount: number;
   paymentType: 'Cash' | 'Credit Card' | 'Cheque';
   chequeNo?: string;
@@ -504,6 +505,29 @@ export default function SalesReportForm() {
                 <div className="text-center">
                   <div className="text-2xl font-bold text-green-800">${totalGrocerySales.toFixed(2)}</div>
                   <div className="text-sm text-gray-600">Grocery Sales</div>
+                </div>
+              </div>
+              
+              {/* Expense Summary in RED */}
+              <div className="mt-6 pt-4 border-t border-blue-200">
+                <h3 className="text-lg font-semibold text-blue-800 mb-4">Expense Summary</h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-red-600">${expenses.filter((e) => e.paymentType === 'Cash').reduce((sum, expense) => sum + expense.amount, 0).toFixed(2)}</div>
+                    <div className="text-sm text-gray-600">Cash Expenses</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-red-600">${expenses.filter((e) => e.paymentType === 'Credit Card').reduce((sum, expense) => sum + expense.amount, 0).toFixed(2)}</div>
+                    <div className="text-sm text-gray-600">Card Expenses</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-red-600">${expenses.filter((e) => e.paymentType === 'Cheque').reduce((sum, expense) => sum + expense.amount, 0).toFixed(2)}</div>
+                    <div className="text-sm text-gray-600">Cheque Expenses</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-red-600">${expenses.reduce((sum, expense) => sum + expense.amount, 0).toFixed(2)}</div>
+                    <div className="text-sm text-gray-600">Total Expenses</div>
+                  </div>
                 </div>
               </div>
             </CardContent>

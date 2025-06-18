@@ -29,10 +29,10 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
 }) => {
   const isMobile = useIsMobile();
   const isMobil = station === 'MOBIL';
-  
+
   // Total Sales - Auto calculated (Credit Card + Debit Card + Mobile Payment + Cash + Grocery)
   const totalSales = values.creditCardAmount + values.debitCardAmount + values.mobileAmount + values.cashAmount + values.grocerySales;
-  
+
   // Total Grocery Sales - Auto calculated (Cash Sales + Credit/Debit Card + EBT)
   const totalGrocerySales = (values.groceryCashSales || 0) + (values.groceryCardSales || 0) + (values.ebtSales || 0);
 
@@ -56,8 +56,8 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 onChange={(value) => onChange('creditCardAmount', value || 0)}
                 min={0}
                 step={0.01}
-                required
-              />
+                required />
+
             </div>
             <div className="space-y-2">
               <Label htmlFor="debitCard">Debit Card Amount ($) *</Label>
@@ -67,8 +67,8 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 onChange={(value) => onChange('debitCardAmount', value || 0)}
                 min={0}
                 step={0.01}
-                required
-              />
+                required />
+
             </div>
             <div className="space-y-2">
               <Label htmlFor="mobile">Mobile Payment Amount ($) *</Label>
@@ -78,8 +78,8 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 onChange={(value) => onChange('mobileAmount', value || 0)}
                 min={0}
                 step={0.01}
-                required
-              />
+                required />
+
             </div>
             <div className="space-y-2">
               <Label htmlFor="cash">Cash Amount ($) *</Label>
@@ -89,8 +89,8 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 onChange={(value) => onChange('cashAmount', value || 0)}
                 min={0}
                 step={0.01}
-                required
-              />
+                required />
+
             </div>
             <div className="space-y-2">
               <Label htmlFor="grocery">Grocery Sales ($) *</Label>
@@ -100,8 +100,8 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 onChange={(value) => onChange('grocerySales', value || 0)}
                 min={0}
                 step={0.01}
-                required
-              />
+                required />
+
             </div>
           </div>
           
@@ -135,8 +135,8 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 onChange={(value) => onChange('groceryCashSales', value || 0)}
                 min={0}
                 step={0.01}
-                required
-              />
+                required />
+
             </div>
             <div className="space-y-2">
               <Label htmlFor="groceryCard">Credit/Debit Card ($) *</Label>
@@ -146,22 +146,22 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 onChange={(value) => onChange('groceryCardSales', value || 0)}
                 min={0}
                 step={0.01}
-                required
-              />
+                required />
+
             </div>
-            {isMobil && (
-              <div className="space-y-2">
+            {isMobil &&
+            <div className="space-y-2">
                 <Label htmlFor="ebt">EBT ($) *</Label>
                 <NumberInput
-                  id="ebt"
-                  value={values.ebtSales || 0}
-                  onChange={(value) => onChange('ebtSales', value || 0)}
-                  min={0}
-                  step={0.01}
-                  required
-                />
+                id="ebt"
+                value={values.ebtSales || 0}
+                onChange={(value) => onChange('ebtSales', value || 0)}
+                min={0}
+                step={0.01}
+                required />
+
               </div>
-            )}
+            }
           </div>
           
           <div className="pt-4 border-t border-green-200">
@@ -175,8 +175,8 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default GasGrocerySalesSection;

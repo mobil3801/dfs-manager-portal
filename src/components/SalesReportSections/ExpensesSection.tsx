@@ -9,11 +9,14 @@ import { NumberInput } from '@/components/ui/number-input';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2, Upload, Receipt } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import EnhancedFileUpload from '@/components/EnhancedFileUpload';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Expense {
   id: string;
-  vendorId: string;
-  vendorName: string;
+  vendorId?: string;
+  vendorName?: string;
+  othersName?: string;
   amount: number;
   paymentType: 'Cash' | 'Credit Card' | 'Cheque';
   chequeNo?: string;
@@ -32,7 +35,9 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
 }) => {
   const [vendors, setVendors] = useState<Array<{id: number;vendor_name: string;}>>([]);
   const [isLoadingVendors, setIsLoadingVendors] = useState(true);
+  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     loadVendors();
@@ -67,6 +72,7 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
       id: Date.now().toString(),
       vendorId: '',
       vendorName: '',
+      othersName: '',
       amount: 0,
       paymentType: 'Cash',
       notes: ''
@@ -91,7 +97,8 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
     onChange(updatedExpenses);
   };
 
-  const uploadInvoice = async (index: number, file: File) => {
+  const handleFileUpload = async (index: number, file: File) => {
+    setUploadingIndex(index);
     try {
       const { data: fileId, error } = await window.ezsite.apis.upload({
         filename: file.name,
@@ -112,11 +119,16 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
         description: 'Failed to upload invoice',
         variant: 'destructive'
       });
+    } finally {
+      setUploadingIndex(null);
     }
   };
 
-  const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+  // Calculate expenses by payment type
   const cashExpenses = expenses.filter((e) => e.paymentType === 'Cash').reduce((sum, expense) => sum + expense.amount, 0);
+  const cardExpenses = expenses.filter((e) => e.paymentType === 'Credit Card').reduce((sum, expense) => sum + expense.amount, 0);
+  const chequeExpenses = expenses.filter((e) => e.paymentType === 'Cheque').reduce((sum, expense) => sum + expense.amount, 0);
+  const totalExpenses = cashExpenses + cardExpenses + chequeExpenses;
 
   return (
     <Card className="bg-orange-50 border-orange-200">
@@ -132,7 +144,6 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
             size="sm"
             onClick={addExpense}
             className="bg-white hover:bg-orange-100">
-
             <Plus className="w-4 h-4 mr-2" />
             Add Expense
           </Button>
@@ -157,22 +168,21 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
                 size="sm"
                 onClick={() => removeExpense(index)}
                 className="text-red-600 hover:text-red-800 hover:bg-red-50">
-
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className={`grid grid-cols-1 ${isMobile ? 'gap-4' : 'md:grid-cols-2 gap-4'}`}>
                   <div className="space-y-2">
-                    <Label>Vendor *</Label>
+                    <Label>Vendor (Optional)</Label>
                     <Select
-                  value={expense.vendorId}
+                  value={expense.vendorId || ''}
                   onValueChange={(value) => updateExpense(index, 'vendorId', value)}>
-
                       <SelectTrigger>
-                        <SelectValue placeholder="Select vendor" />
+                        <SelectValue placeholder="Select vendor (optional)" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="">None Selected</SelectItem>
                         {vendors.map((vendor) =>
                     <SelectItem key={vendor.id} value={vendor.id.toString()}>
                             {vendor.vendor_name}
@@ -183,6 +193,15 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
                   </div>
                   
                   <div className="space-y-2">
+                    <Label>Other's Name</Label>
+                    <Input
+                  value={expense.othersName || ''}
+                  onChange={(e) => updateExpense(index, 'othersName', e.target.value)}
+                  placeholder="Enter other's name" />
+
+                  </div>
+                  
+                  <div className="space-y-2">
                     <Label>Amount ($) *</Label>
                     <NumberInput
                   value={expense.amount}
@@ -190,7 +209,6 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
                   min={0}
                   step={0.01}
                   required />
-
                   </div>
                   
                   <div className="space-y-2">
@@ -198,7 +216,6 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
                     <Select
                   value={expense.paymentType}
                   onValueChange={(value) => updateExpense(index, 'paymentType', value)}>
-
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -218,25 +235,24 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
                   onChange={(e) => updateExpense(index, 'chequeNo', e.target.value)}
                   placeholder="Enter cheque number"
                   required />
-
                     </div>
               }
                   
                   <div className="md:col-span-2 space-y-2">
                     <Label>Upload Invoice * (Mandatory)</Label>
-                    <div className="flex items-center space-x-2">
-                      <Input
-                    type="file"
+                    <div className="space-y-2">
+                      <EnhancedFileUpload
+                    onFileSelect={(file) => handleFileUpload(index, file)}
                     accept=".pdf,.jpg,.jpeg,.png"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) uploadInvoice(index, file);
-                    }}
-                    className="flex-1" />
+                    label={uploadingIndex === index ? "Uploading..." : "Choose Invoice File"}
+                    maxSize={10}
+                    disabled={uploadingIndex === index}
+                    allowCamera={false}
+                    className="w-full" />
 
                       {expense.invoiceFileId &&
                   <Badge variant="default" className="bg-green-100 text-green-800">
-                          ✓ Uploaded
+                          ✓ Invoice Uploaded Successfully
                         </Badge>
                   }
                     </div>
@@ -249,7 +265,6 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
                   onChange={(e) => updateExpense(index, 'notes', e.target.value)}
                   placeholder="Additional notes about this expense..."
                   rows={2} />
-
                   </div>
                 </div>
               </div>
@@ -259,14 +274,23 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
         
         {expenses.length > 0 &&
         <div className="pt-4 border-t border-orange-200 bg-orange-100 rounded-lg p-4">
+            <h3 className="text-lg font-semibold text-orange-800 mb-4">Expense Summary</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center justify-between">
-                <Label className="font-semibold">Total Expenses:</Label>
-                <div className="text-xl font-bold text-orange-800">${totalExpenses.toFixed(2)}</div>
+                <Label className="font-semibold">Cash Expenses:</Label>
+                <div className="text-xl font-bold text-red-600">${cashExpenses.toFixed(2)}</div>
               </div>
               <div className="flex items-center justify-between">
-                <Label className="font-semibold">Cash Expenses:</Label>
-                <div className="text-xl font-bold text-orange-800">${cashExpenses.toFixed(2)}</div>
+                <Label className="font-semibold">Card Expenses:</Label>
+                <div className="text-xl font-bold text-red-600">${cardExpenses.toFixed(2)}</div>
+              </div>
+              <div className="flex items-center justify-between">
+                <Label className="font-semibold">Cheque Expenses:</Label>
+                <div className="text-xl font-bold text-red-600">${chequeExpenses.toFixed(2)}</div>
+              </div>
+              <div className="flex items-center justify-between border-t pt-2">
+                <Label className="font-bold text-lg">Total Expenses:</Label>
+                <div className="text-2xl font-bold text-red-600">${totalExpenses.toFixed(2)}</div>
               </div>
             </div>
           </div>

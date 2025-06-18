@@ -18,7 +18,7 @@ const LotterySalesSection: React.FC<LotterySalesSectionProps> = ({
   onChange
 }) => {
   const isMobile = useIsMobile();
-  
+
   // Total Sales Cash - Auto calculated (Net Sales + Scratch Off Sales)
   const totalSalesCash = values.lotteryNetSales + values.scratchOffSales;
 
@@ -40,8 +40,8 @@ const LotterySalesSection: React.FC<LotterySalesSectionProps> = ({
               onChange={(value) => onChange('lotteryNetSales', value || 0)}
               min={0}
               step={0.01}
-              required
-            />
+              required />
+
           </div>
           <div className="space-y-2">
             <Label htmlFor="scratchOff">Scratch Off Sales ($) *</Label>
@@ -51,8 +51,8 @@ const LotterySalesSection: React.FC<LotterySalesSectionProps> = ({
               onChange={(value) => onChange('scratchOffSales', value || 0)}
               min={0}
               step={0.01}
-              required
-            />
+              required />
+
           </div>
         </div>
         
@@ -66,8 +66,8 @@ const LotterySalesSection: React.FC<LotterySalesSectionProps> = ({
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default LotterySalesSection;
