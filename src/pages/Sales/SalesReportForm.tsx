@@ -13,21 +13,8 @@ import StationSelector from '@/components/StationSelector';
 import GasGrocerySalesSection from '@/components/SalesReportSections/GasGrocerySalesSection';
 import LotterySalesSection from '@/components/SalesReportSections/LotterySalesSection';
 import GasTankReportSection from '@/components/SalesReportSections/GasTankReportSection';
-import ExpensesSectionWrapper from '@/components/ExpensesSectionErrorBoundary';
 import DocumentsUploadSection from '@/components/SalesReportSections/DocumentsUploadSection';
 import CashCollectionSection from '@/components/SalesReportSections/CashCollectionSection';
-
-interface Expense {
-  id: string;
-  vendorId?: string;
-  vendorName?: string;
-  othersName?: string;
-  amount: number;
-  paymentType: 'Cash' | 'Credit Card' | 'Cheque';
-  chequeNo?: string;
-  invoiceFileId?: number;
-  notes: string;
-}
 
 export default function SalesReportForm() {
   const navigate = useNavigate();
@@ -73,8 +60,6 @@ export default function SalesReportForm() {
     // Notes
     notes: ''
   });
-
-  const [expenses, setExpenses] = useState<Expense[]>([]);
 
   useEffect(() => {
     if (selectedStation) {
@@ -129,17 +114,6 @@ export default function SalesReportForm() {
           scratchOffReportFileId: report.scratch_off_report_file_id,
           notes: report.notes
         });
-
-        // Parse expenses from JSON with safe fallback
-        if (report.expenses_data) {
-          try {
-            const parsedExpenses = JSON.parse(report.expenses_data);
-            setExpenses(Array.isArray(parsedExpenses) ? parsedExpenses : []);
-          } catch (e) {
-            console.error('Error parsing expenses data:', e);
-            setExpenses([]);
-          }
-        }
       }
     } catch (error) {
       console.error('Error loading report:', error);
@@ -194,9 +168,8 @@ export default function SalesReportForm() {
 
   // Expected Cash calculation: Cash Amount + Grocery Sales (cash portion) + NY Lottery Net Sales + Scratch Off Sales
   const totalCashFromSales = formData.cashAmount + formData.groceryCashSales + formData.lotteryNetSales + formData.scratchOffSales;
-  const totalCashFromExpenses = (expenses || []).
-  filter((e) => e && e.paymentType === 'Cash').
-  reduce((sum, expense) => sum + (expense?.amount || 0), 0);
+  // Removed expense calculations
+  const totalCashFromExpenses = 0;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -209,18 +182,6 @@ export default function SalesReportForm() {
       toast({
         title: 'Missing Documents',
         description: 'Please upload all required documents before submitting.',
-        variant: 'destructive'
-      });
-      return;
-    }
-
-    // Validate expenses have invoices
-    const safeExpenses = expenses || [];
-    const expensesWithoutInvoices = safeExpenses.filter((expense) => expense && !expense.invoiceFileId);
-    if (expensesWithoutInvoices.length > 0) {
-      toast({
-        title: 'Missing Invoices',
-        description: 'Please upload invoices for all expenses.',
         variant: 'destructive'
       });
       return;
@@ -247,7 +208,7 @@ export default function SalesReportForm() {
       super_gallons: formData.superGallons,
       diesel_gallons: formData.dieselGallons,
       total_gallons: totalGallons,
-      expenses_data: JSON.stringify(safeExpenses),
+      expenses_data: '[]', // Empty expenses array
       day_report_file_id: formData.dayReportFileId,
       veeder_root_file_id: formData.veederRootFileId,
       lotto_report_file_id: formData.lottoReportFileId,
@@ -287,10 +248,6 @@ export default function SalesReportForm() {
 
   const updateFormData = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleExpensesChange = (newExpenses: Expense[]) => {
-    setExpenses(newExpenses || []);
   };
 
   const handleDocumentUpload = (field: string, fileId: number) => {
@@ -446,10 +403,7 @@ export default function SalesReportForm() {
             }}
             onChange={updateFormData} />
 
-          {/* Expenses - Now with Error Boundary */}
-          <ExpensesSectionWrapper
-            expenses={expenses}
-            onChange={handleExpensesChange} />
+          {/* Expenses Section Removed - No longer displayed */}
 
           {/* Documents Upload */}
           <DocumentsUploadSection
@@ -504,28 +458,7 @@ export default function SalesReportForm() {
                 </div>
               </div>
               
-              {/* Expense Summary in RED */}
-              <div className="mt-6 pt-4 border-t border-blue-200">
-                <h3 className="text-lg font-semibold text-blue-800 mb-4">Expense Summary</h3>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-red-600">${(expenses || []).filter((e) => e && e.paymentType === 'Cash').reduce((sum, expense) => sum + (expense?.amount || 0), 0).toFixed(2)}</div>
-                    <div className="text-sm text-gray-600">Cash Expenses</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-red-600">${(expenses || []).filter((e) => e && e.paymentType === 'Credit Card').reduce((sum, expense) => sum + (expense?.amount || 0), 0).toFixed(2)}</div>
-                    <div className="text-sm text-gray-600">Card Expenses</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-red-600">${(expenses || []).filter((e) => e && e.paymentType === 'Cheque').reduce((sum, expense) => sum + (expense?.amount || 0), 0).toFixed(2)}</div>
-                    <div className="text-sm text-gray-600">Cheque Expenses</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-red-600">${(expenses || []).reduce((sum, expense) => sum + (expense?.amount || 0), 0).toFixed(2)}</div>
-                    <div className="text-sm text-gray-600">Total Expenses</div>
-                  </div>
-                </div>
-              </div>
+              {/* Expense Summary Removed */}
             </CardContent>
           </Card>
 
