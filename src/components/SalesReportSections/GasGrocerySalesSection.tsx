@@ -3,8 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { NumberInput } from '@/components/ui/number-input';
-import { Fuel, ShoppingCart, Calculator } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { Fuel, ShoppingCart } from 'lucide-react';
 
 interface GasGrocerySalesSectionProps {
   station: string;
@@ -15,11 +14,6 @@ interface GasGrocerySalesSectionProps {
     cashAmount: number;
     grocerySales: number;
     ebtSales?: number; // Only for MOBIL
-    totalSales?: number; // Manual total sales entry
-    regularGallons?: number; // Manual gas gallons entry
-    superGallons?: number; // Manual gas gallons entry
-    dieselGallons?: number; // Manual gas gallons entry
-    totalGallons?: number; // Manual total gallons entry
   };
   onChange: (field: string, value: number) => void;
 }
@@ -29,12 +23,9 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
   values,
   onChange
 }) => {
-  const isMobile = useIsMobile();
   const isMobil = station === 'MOBIL';
-
-  // Auto-calculated total for reference, but user can override
-  const calculatedTotal = values.creditCardAmount + values.debitCardAmount + values.mobileAmount + values.cashAmount + values.grocerySales + (values.ebtSales || 0);
-  const calculatedGallons = (values.regularGallons || 0) + (values.superGallons || 0) + (values.dieselGallons || 0);
+  // Auto-calculate only the total sales
+  const totalSales = values.creditCardAmount + values.debitCardAmount + values.mobileAmount + values.cashAmount + values.grocerySales;
 
   return (
     <div className="space-y-6">
@@ -47,189 +38,123 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Payment Method Sales */}
-          <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-4`}>
-            <div className="space-y-2">
-              <Label htmlFor="creditCard">Credit Card Amount ($) *</Label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Credit Card Amount - Separate Input Box */}
+            <div className="space-y-2 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+              <Label htmlFor="creditCard" className="font-medium text-gray-700">Credit Card Amount ($) *</Label>
               <NumberInput
                 id="creditCard"
                 value={values.creditCardAmount}
                 onChange={(value) => onChange('creditCardAmount', value || 0)}
                 min={0}
                 step={0.01}
-                placeholder="Enter credit card sales"
-                required />
+                required
+                className="w-full text-lg"
+                placeholder="Enter credit card amount" />
 
+              <div className="text-xs text-gray-500">Manual entry only</div>
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="debitCard">Debit Card Amount ($) *</Label>
+
+            {/* Debit Card Amount - Separate Input Box */}
+            <div className="space-y-2 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+              <Label htmlFor="debitCard" className="font-medium text-gray-700">Debit Card Amount ($) *</Label>
               <NumberInput
                 id="debitCard"
                 value={values.debitCardAmount}
                 onChange={(value) => onChange('debitCardAmount', value || 0)}
                 min={0}
                 step={0.01}
-                placeholder="Enter debit card sales"
-                required />
+                required
+                className="w-full text-lg"
+                placeholder="Enter debit card amount" />
 
+              <div className="text-xs text-gray-500">Manual entry only</div>
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="mobile">Mobile Payment Amount ($) *</Label>
+
+            {/* Mobile Payment Amount - Separate Input Box */}
+            <div className="space-y-2 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+              <Label htmlFor="mobile" className="font-medium text-gray-700">Mobile Payment Amount ($) *</Label>
               <NumberInput
                 id="mobile"
                 value={values.mobileAmount}
                 onChange={(value) => onChange('mobileAmount', value || 0)}
                 min={0}
                 step={0.01}
-                placeholder="Enter mobile payment sales"
-                required />
+                required
+                className="w-full text-lg"
+                placeholder="Enter mobile payment amount" />
 
+              <div className="text-xs text-gray-500">Manual entry only</div>
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="cash">Cash Amount ($) *</Label>
+
+            {/* Cash Amount - Separate Input Box */}
+            <div className="space-y-2 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+              <Label htmlFor="cash" className="font-medium text-gray-700">Cash Amount ($) *</Label>
               <NumberInput
                 id="cash"
                 value={values.cashAmount}
                 onChange={(value) => onChange('cashAmount', value || 0)}
                 min={0}
                 step={0.01}
-                placeholder="Enter cash sales"
-                required />
+                required
+                className="w-full text-lg"
+                placeholder="Enter cash amount" />
 
+              <div className="text-xs text-gray-500">Manual entry only</div>
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="grocery">Grocery Sales ($) *</Label>
+
+            {/* Grocery Sales - Separate Input Box */}
+            <div className="space-y-2 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+              <Label htmlFor="grocery" className="font-medium text-gray-700">Grocery Sales ($) *</Label>
               <NumberInput
                 id="grocery"
                 value={values.grocerySales}
                 onChange={(value) => onChange('grocerySales', value || 0)}
                 min={0}
                 step={0.01}
-                placeholder="Enter grocery sales"
-                required />
+                required
+                className="w-full text-lg"
+                placeholder="Enter grocery sales amount" />
 
+              <div className="text-xs text-gray-500">Manual entry only</div>
             </div>
 
+            {/* EBT Sales - Separate Input Box (MOBIL only) */}
             {isMobil &&
-            <div className="space-y-2">
-                <Label htmlFor="ebtSales">EBT Sales ($) *</Label>
+            <div className="space-y-2 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                <Label htmlFor="ebt" className="font-medium text-gray-700">EBT Sales ($) *</Label>
                 <NumberInput
-                id="ebtSales"
+                id="ebt"
                 value={values.ebtSales || 0}
                 onChange={(value) => onChange('ebtSales', value || 0)}
                 min={0}
                 step={0.01}
-                placeholder="Enter EBT sales"
-                required />
-
+                required
+                className="w-full text-lg"
+                placeholder="Enter EBT sales amount" />
+                <div className="text-xs text-gray-500">Manual entry only (MOBIL station)</div>
               </div>
             }
           </div>
-
-          {/* Gas Gallons Section */}
-          <div className="pt-4 border-t border-blue-200">
-            <Label className="text-lg font-semibold mb-4 block">Gas Sales (Gallons) - Manual Entry</Label>
-            <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-3'} gap-4`}>
-              <div className="space-y-2">
-                <Label htmlFor="regularGallons">Regular Gallons *</Label>
-                <NumberInput
-                  id="regularGallons"
-                  value={values.regularGallons || 0}
-                  onChange={(value) => onChange('regularGallons', value || 0)}
-                  min={0}
-                  step={0.01}
-                  placeholder="Enter regular gallons"
-                  required />
-
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="superGallons">Super Gallons *</Label>
-                <NumberInput
-                  id="superGallons"
-                  value={values.superGallons || 0}
-                  onChange={(value) => onChange('superGallons', value || 0)}
-                  min={0}
-                  step={0.01}
-                  placeholder="Enter super gallons"
-                  required />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="dieselGallons">Diesel Gallons *</Label>
-                <NumberInput
-                  id="dieselGallons"
-                  value={values.dieselGallons || 0}
-                  onChange={(value) => onChange('dieselGallons', value || 0)}
-                  min={0}
-                  step={0.01}
-                  placeholder="Enter diesel gallons"
-                  required />
-              </div>
-            </div>
-
-            {/* Manual Total Gallons Override */}
-            <div className="mt-4 pt-4 border-t border-blue-100">
-              <div className="space-y-2">
-                <Label htmlFor="totalGallons" className="text-sm font-medium">
-                  Total Gallons - Manual Entry (Override calculated: {calculatedGallons.toFixed(2)})
-                </Label>
-                <NumberInput
-                  id="totalGallons"
-                  value={values.totalGallons || calculatedGallons}
-                  onChange={(value) => onChange('totalGallons', value || 0)}
-                  min={0}
-                  step={0.01}
-                  placeholder="Enter total gallons or leave to auto-calculate"
-                  className="bg-yellow-50 border-yellow-300" />
-              </div>
-            </div>
-          </div>
           
-          {/* Manual Total Sales Section */}
-          <div className="pt-4 border-t border-blue-200">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Calculator className="w-5 h-5 text-blue-600" />
-                <Label className="text-lg font-semibold">Sales Total - Manual Entry</Label>
-              </div>
-              
-              <div className="grid grid-cols-1 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="totalSales" className="text-sm font-medium">
-                    Total Sales ($) - Manual Entry (Calculated: ${calculatedTotal.toFixed(2)})
-                  </Label>
-                  <NumberInput
-                    id="totalSales"
-                    value={values.totalSales || calculatedTotal}
-                    onChange={(value) => onChange('totalSales', value || 0)}
-                    min={0}
-                    step={0.01}
-                    placeholder="Enter total sales or leave to auto-calculate"
-                    className="bg-yellow-50 border-yellow-300 text-lg font-semibold" />
-                </div>
-              </div>
-              
-              <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                <div className="font-medium mb-2">Breakdown Reference:</div>
-                <div>Credit: ${values.creditCardAmount.toFixed(2)}</div>
-                <div>Debit: ${values.debitCardAmount.toFixed(2)}</div>
-                <div>Mobile: ${values.mobileAmount.toFixed(2)}</div>
-                <div>Cash: ${values.cashAmount.toFixed(2)}</div>
-                <div>Grocery: ${values.grocerySales.toFixed(2)}</div>
-                {isMobil && <div>EBT: ${(values.ebtSales || 0).toFixed(2)}</div>}
-                <div className="border-t pt-2 mt-2 font-medium">
-                  Auto-calculated Total: ${calculatedTotal.toFixed(2)}
-                </div>
-                <div className="font-medium text-blue-700">
-                  Manual Total: ${(values.totalSales || calculatedTotal).toFixed(2)}
-                </div>
+          {/* Auto-calculated Total Sales Section */}
+          <div className="pt-6 border-t-2 border-blue-300 bg-blue-100 p-4 rounded-lg">
+            <div className="flex items-center justify-between">
+              <Label className="text-lg font-semibold text-blue-900">
+                💰 Total Sales (Auto-calculated)
+              </Label>
+              <div className="text-3xl font-bold text-blue-800 bg-white px-4 py-2 rounded-lg shadow">
+                ${totalSales.toFixed(2)}
               </div>
             </div>
+            <div className="text-sm text-blue-700 mt-2 font-medium">
+              📊 Credit (${values.creditCardAmount.toFixed(2)}) + Debit (${values.debitCardAmount.toFixed(2)}) + Mobile (${values.mobileAmount.toFixed(2)}) + Cash (${values.cashAmount.toFixed(2)}) + Grocery (${values.grocerySales.toFixed(2)}) = ${totalSales.toFixed(2)}
+            </div>
+            {isMobil && values.ebtSales &&
+            <div className="text-xs text-blue-600 mt-1">
+                Note: EBT sales (${values.ebtSales.toFixed(2)}) not included in main total - tracked separately
+              </div>
+            }
           </div>
         </CardContent>
       </Card>
