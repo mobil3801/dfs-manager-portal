@@ -13,7 +13,7 @@ import StationSelector from '@/components/StationSelector';
 import GasGrocerySalesSection from '@/components/SalesReportSections/GasGrocerySalesSection';
 import LotterySalesSection from '@/components/SalesReportSections/LotterySalesSection';
 import GasTankReportSection from '@/components/SalesReportSections/GasTankReportSection';
-import ExpensesSection from '@/components/SalesReportSections/ExpensesSection';
+import ExpensesSectionWrapper from '@/components/ExpensesSectionErrorBoundary';
 import DocumentsUploadSection from '@/components/SalesReportSections/DocumentsUploadSection';
 import CashCollectionSection from '@/components/SalesReportSections/CashCollectionSection';
 
@@ -97,7 +97,7 @@ export default function SalesReportForm() {
         Filters: [{ name: 'id', op: 'Equal', value: parseInt(id!) }]
       });
 
-      if (error) throw error;
+      if (error) throw new Error(error);
 
       if (data?.List && data.List.length > 0) {
         const report = data.List[0];
@@ -130,12 +130,14 @@ export default function SalesReportForm() {
           notes: report.notes
         });
 
-        // Parse expenses from JSON
+        // Parse expenses from JSON with safe fallback
         if (report.expenses_data) {
           try {
-            setExpenses(JSON.parse(report.expenses_data));
+            const parsedExpenses = JSON.parse(report.expenses_data);
+            setExpenses(Array.isArray(parsedExpenses) ? parsedExpenses : []);
           } catch (e) {
             console.error('Error parsing expenses data:', e);
+            setExpenses([]);
           }
         }
       }
@@ -158,12 +160,12 @@ export default function SalesReportForm() {
         OrderByField: 'first_name',
         IsAsc: true,
         Filters: [
-        { name: 'station', op: 'Equal', value: station },
-        { name: 'is_active', op: 'Equal', value: true }]
-
+          { name: 'station', op: 'Equal', value: station },
+          { name: 'is_active', op: 'Equal', value: true }
+        ]
       });
 
-      if (error) throw error;
+      if (error) throw new Error(error);
       setEmployees(data?.List || []);
     } catch (error) {
       console.error('Error loading employees:', error);
@@ -192,7 +194,9 @@ export default function SalesReportForm() {
 
   // Expected Cash calculation: Cash Amount + Grocery Sales (cash portion) + NY Lottery Net Sales + Scratch Off Sales
   const totalCashFromSales = formData.cashAmount + formData.groceryCashSales + formData.lotteryNetSales + formData.scratchOffSales;
-  const totalCashFromExpenses = expenses.filter((e) => e.paymentType === 'Cash').reduce((sum, expense) => sum + expense.amount, 0);
+  const totalCashFromExpenses = (expenses || [])
+    .filter((e) => e && e.paymentType === 'Cash')
+    .reduce((sum, expense) => sum + (expense?.amount || 0), 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -211,7 +215,8 @@ export default function SalesReportForm() {
     }
 
     // Validate expenses have invoices
-    const expensesWithoutInvoices = expenses.filter((expense) => !expense.invoiceFileId);
+    const safeExpenses = expenses || [];
+    const expensesWithoutInvoices = safeExpenses.filter((expense) => expense && !expense.invoiceFileId);
     if (expensesWithoutInvoices.length > 0) {
       toast({
         title: 'Missing Invoices',
@@ -242,7 +247,7 @@ export default function SalesReportForm() {
       super_gallons: formData.superGallons,
       diesel_gallons: formData.dieselGallons,
       total_gallons: totalGallons,
-      expenses_data: JSON.stringify(expenses),
+      expenses_data: JSON.stringify(safeExpenses),
       day_report_file_id: formData.dayReportFileId,
       veeder_root_file_id: formData.veederRootFileId,
       lotto_report_file_id: formData.lottoReportFileId,
@@ -285,7 +290,7 @@ export default function SalesReportForm() {
   };
 
   const handleExpensesChange = (newExpenses: Expense[]) => {
-    setExpenses(newExpenses);
+    setExpenses(newExpenses || []);
   };
 
   const handleDocumentUpload = (field: string, fileId: number) => {
@@ -310,8 +315,8 @@ export default function SalesReportForm() {
           </div>
           <StationSelector onStationSelect={setSelectedStation} />
         </div>
-      </div>);
-
+      </div>
+    );
   }
 
   return (
@@ -322,7 +327,6 @@ export default function SalesReportForm() {
             variant="outline"
             onClick={() => setSelectedStation('')}
             className="mb-4">
-
             <ArrowLeft className="w-4 h-4 mr-2" />
             Change Station
           </Button>
@@ -352,7 +356,6 @@ export default function SalesReportForm() {
                     value={formData.report_date}
                     onChange={(e) => updateFormData('report_date', e.target.value)}
                     required />
-
                 </div>
                 <div className="space-y-2">
                   <Label>Station</Label>
@@ -390,11 +393,11 @@ export default function SalesReportForm() {
                       <SelectValue placeholder={isLoadingEmployees ? "Loading employees..." : "Select employee"} />
                     </SelectTrigger>
                     <SelectContent>
-                      {employees.map((employee) =>
-                      <SelectItem key={employee.id} value={employee.employee_id}>
+                      {employees.map((employee) => (
+                        <SelectItem key={employee.id} value={employee.employee_id}>
                           {employee.first_name} {employee.last_name} (ID: {employee.employee_id})
                         </SelectItem>
-                      )}
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -411,7 +414,6 @@ export default function SalesReportForm() {
             }}
             onChange={updateFormData} />
 
-
           {/* Gas & Grocery Sales */}
           <GasGrocerySalesSection
             station={selectedStation}
@@ -427,7 +429,6 @@ export default function SalesReportForm() {
             }}
             onChange={updateFormData} />
 
-
           {/* NY Lottery Sales */}
           <LotterySalesSection
             values={{
@@ -435,7 +436,6 @@ export default function SalesReportForm() {
               scratchOffSales: formData.scratchOffSales
             }}
             onChange={updateFormData} />
-
 
           {/* Gas Tank Report */}
           <GasTankReportSection
@@ -446,12 +446,10 @@ export default function SalesReportForm() {
             }}
             onChange={updateFormData} />
 
-
-          {/* Expenses */}
-          <ExpensesSection
+          {/* Expenses - Now with Error Boundary */}
+          <ExpensesSectionWrapper
             expenses={expenses}
             onChange={handleExpensesChange} />
-
 
           {/* Documents Upload */}
           <DocumentsUploadSection
@@ -462,7 +460,6 @@ export default function SalesReportForm() {
               scratchOffReportFileId: formData.scratchOffReportFileId
             }}
             onChange={handleDocumentUpload} />
-
 
           {/* Notes */}
           <Card>
@@ -478,7 +475,6 @@ export default function SalesReportForm() {
                   onChange={(e) => updateFormData('notes', e.target.value)}
                   placeholder="Enter any additional notes about the day's operations..."
                   rows={4} />
-
               </div>
             </CardContent>
           </Card>
@@ -513,19 +509,19 @@ export default function SalesReportForm() {
                 <h3 className="text-lg font-semibold text-blue-800 mb-4">Expense Summary</h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-red-600">${expenses.filter((e) => e.paymentType === 'Cash').reduce((sum, expense) => sum + expense.amount, 0).toFixed(2)}</div>
+                    <div className="text-2xl font-bold text-red-600">${(expenses || []).filter((e) => e && e.paymentType === 'Cash').reduce((sum, expense) => sum + (expense?.amount || 0), 0).toFixed(2)}</div>
                     <div className="text-sm text-gray-600">Cash Expenses</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-red-600">${expenses.filter((e) => e.paymentType === 'Credit Card').reduce((sum, expense) => sum + expense.amount, 0).toFixed(2)}</div>
+                    <div className="text-2xl font-bold text-red-600">${(expenses || []).filter((e) => e && e.paymentType === 'Credit Card').reduce((sum, expense) => sum + (expense?.amount || 0), 0).toFixed(2)}</div>
                     <div className="text-sm text-gray-600">Card Expenses</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-red-600">${expenses.filter((e) => e.paymentType === 'Cheque').reduce((sum, expense) => sum + expense.amount, 0).toFixed(2)}</div>
+                    <div className="text-2xl font-bold text-red-600">${(expenses || []).filter((e) => e && e.paymentType === 'Cheque').reduce((sum, expense) => sum + (expense?.amount || 0), 0).toFixed(2)}</div>
                     <div className="text-sm text-gray-600">Cheque Expenses</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-red-600">${expenses.reduce((sum, expense) => sum + expense.amount, 0).toFixed(2)}</div>
+                    <div className="text-2xl font-bold text-red-600">${(expenses || []).reduce((sum, expense) => sum + (expense?.amount || 0), 0).toFixed(2)}</div>
                     <div className="text-sm text-gray-600">Total Expenses</div>
                   </div>
                 </div>
@@ -548,6 +544,6 @@ export default function SalesReportForm() {
           </div>
         </form>
       </div>
-    </div>);
-
+    </div>
+  );
 }

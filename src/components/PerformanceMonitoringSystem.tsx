@@ -200,6 +200,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -227,9 +229,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
   * Get Time to First Byte
   */const getTTFB = (): number => {const navigationEntries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];const navigationEntry = navigationEntries[0];return navigationEntry ? navigationEntry.responseStart - navigationEntry.requestStart : 0;}; /**
   * Get First Contentful Paint
-  */const getFirstContentfulPaint = (): number | null => {
-    const entries = performance.getEntriesByName('first-contentful-paint');
-    return entries.length > 0 ? entries[0].startTime : null;
+  */const getFirstContentfulPaint = (): number | null => {const entries = performance.getEntriesByName('first-contentful-paint');return entries.length > 0 ? entries[0].startTime : null;
   };
 
   /**

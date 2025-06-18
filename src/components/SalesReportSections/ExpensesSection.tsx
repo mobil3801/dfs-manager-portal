@@ -30,10 +30,10 @@ interface ExpensesSectionProps {
 }
 
 const ExpensesSection: React.FC<ExpensesSectionProps> = ({
-  expenses,
+  expenses = [],
   onChange
 }) => {
-  const [vendors, setVendors] = useState<Array<{id: number;vendor_name: string;}>>([]);
+  const [vendors, setVendors] = useState<Array<{id: number; vendor_name: string;}>>([]);
   const [isLoadingVendors, setIsLoadingVendors] = useState(true);
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const { toast } = useToast();
@@ -53,7 +53,7 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
         Filters: [{ name: 'is_active', op: 'Equal', value: true }]
       });
 
-      if (error) throw error;
+      if (error) throw new Error(error);
       setVendors(data?.List || []);
     } catch (error) {
       console.error('Error loading vendors:', error);
@@ -69,7 +69,7 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
 
   const addExpense = () => {
     const newExpense: Expense = {
-      id: Date.now().toString(),
+      id: `expense_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       vendorId: '',
       vendorName: '',
       othersName: '',
@@ -81,20 +81,48 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
   };
 
   const updateExpense = (index: number, field: keyof Expense, value: any) => {
-    const updatedExpenses = [...expenses];
-    updatedExpenses[index] = { ...updatedExpenses[index], [field]: value };
-
-    if (field === 'vendorId') {
-      const vendor = vendors.find((v) => v.id.toString() === value);
-      updatedExpenses[index].vendorName = vendor?.vendor_name || '';
+    if (!expenses || index < 0 || index >= expenses.length) {
+      console.error('Invalid expense index:', index);
+      return;
     }
 
-    onChange(updatedExpenses);
+    try {
+      const updatedExpenses = [...expenses];
+      updatedExpenses[index] = { ...updatedExpenses[index], [field]: value };
+
+      if (field === 'vendorId' && value) {
+        const vendor = vendors.find((v) => v.id.toString() === value);
+        updatedExpenses[index].vendorName = vendor?.vendor_name || '';
+      }
+
+      onChange(updatedExpenses);
+    } catch (error) {
+      console.error('Error updating expense:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update expense',
+        variant: 'destructive'
+      });
+    }
   };
 
   const removeExpense = (index: number) => {
-    const updatedExpenses = expenses.filter((_, i) => i !== index);
-    onChange(updatedExpenses);
+    if (!expenses || index < 0 || index >= expenses.length) {
+      console.error('Invalid expense index for removal:', index);
+      return;
+    }
+
+    try {
+      const updatedExpenses = expenses.filter((_, i) => i !== index);
+      onChange(updatedExpenses);
+    } catch (error) {
+      console.error('Error removing expense:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to remove expense',
+        variant: 'destructive'
+      });
+    }
   };
 
   const handleFileUpload = async (index: number, file: File) => {
@@ -105,7 +133,7 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
         file: file
       });
 
-      if (error) throw error;
+      if (error) throw new Error(error);
       updateExpense(index, 'invoiceFileId', fileId);
 
       toast({
@@ -124,10 +152,20 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
     }
   };
 
-  // Calculate expenses by payment type
-  const cashExpenses = expenses.filter((e) => e.paymentType === 'Cash').reduce((sum, expense) => sum + expense.amount, 0);
-  const cardExpenses = expenses.filter((e) => e.paymentType === 'Credit Card').reduce((sum, expense) => sum + expense.amount, 0);
-  const chequeExpenses = expenses.filter((e) => e.paymentType === 'Cheque').reduce((sum, expense) => sum + expense.amount, 0);
+  // Safe calculations with null checks
+  const safeExpenses = expenses || [];
+  const cashExpenses = safeExpenses
+    .filter((e) => e && e.paymentType === 'Cash')
+    .reduce((sum, expense) => sum + (expense?.amount || 0), 0);
+  
+  const cardExpenses = safeExpenses
+    .filter((e) => e && e.paymentType === 'Credit Card')
+    .reduce((sum, expense) => sum + (expense?.amount || 0), 0);
+  
+  const chequeExpenses = safeExpenses
+    .filter((e) => e && e.paymentType === 'Cheque')
+    .reduce((sum, expense) => sum + (expense?.amount || 0), 0);
+  
   const totalExpenses = cashExpenses + cardExpenses + chequeExpenses;
 
   return (
@@ -144,144 +182,150 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
             size="sm"
             onClick={addExpense}
             className="bg-white hover:bg-orange-100">
-
             <Plus className="w-4 h-4 mr-2" />
             Add Expense
           </Button>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {expenses.length === 0 ?
-        <div className="text-center py-8 text-gray-500">
+        {!safeExpenses || safeExpenses.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
             No expenses recorded. Click "Add Expense" to get started.
-          </div> :
-
-        <div className="space-y-4">
-            {expenses.map((expense, index) =>
-          <div key={expense.id} className="border border-orange-200 rounded-lg p-4 bg-white">
-                <div className="flex items-center justify-between mb-4">
-                  <Badge variant="outline" className="text-orange-700">
-                    Expense #{index + 1}
-                  </Badge>
-                  <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => removeExpense(index)}
-                className="text-red-600 hover:text-red-800 hover:bg-red-50">
-
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-                
-                <div className={`grid grid-cols-1 ${isMobile ? 'gap-4' : 'md:grid-cols-2 gap-4'}`}>
-                  <div className="space-y-2">
-                    <Label>Vendor (Optional)</Label>
-                    <Select
-                  value={expense.vendorId || ''}
-                  onValueChange={(value) => updateExpense(index, 'vendorId', value)}>
-
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select vendor (optional)" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">None Selected</SelectItem>
-                        {vendors.map((vendor) =>
-                    <SelectItem key={vendor.id} value={vendor.id.toString()}>
-                            {vendor.vendor_name}
-                          </SelectItem>
-                    )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label>Other's Name</Label>
-                    <Input
-                  value={expense.othersName || ''}
-                  onChange={(e) => updateExpense(index, 'othersName', e.target.value)}
-                  placeholder="Enter other's name" />
-
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label>Amount ($) *</Label>
-                    <NumberInput
-                  value={expense.amount}
-                  onChange={(value) => updateExpense(index, 'amount', value || 0)}
-                  min={0}
-                  step={0.01}
-                  required />
-
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label>Payment Type *</Label>
-                    <Select
-                  value={expense.paymentType}
-                  onValueChange={(value) => updateExpense(index, 'paymentType', value)}>
-
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Cash">Cash</SelectItem>
-                        <SelectItem value="Credit Card">Credit Card</SelectItem>
-                        <SelectItem value="Cheque">Cheque</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  {expense.paymentType === 'Cheque' &&
-              <div className="space-y-2">
-                      <Label>Cheque Number *</Label>
-                      <Input
-                  value={expense.chequeNo || ''}
-                  onChange={(e) => updateExpense(index, 'chequeNo', e.target.value)}
-                  placeholder="Enter cheque number"
-                  required />
-
-                    </div>
-              }
-                  
-                  <div className="md:col-span-2 space-y-2">
-                    <Label>Upload Invoice * (Mandatory)</Label>
-                    <div className="space-y-2">
-                      <EnhancedFileUpload
-                    onFileSelect={(file) => handleFileUpload(index, file)}
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    label={uploadingIndex === index ? "Uploading..." : "Choose Invoice File"}
-                    maxSize={10}
-                    disabled={uploadingIndex === index}
-                    allowCamera={false}
-                    className="w-full" />
-
-
-                      {expense.invoiceFileId &&
-                  <Badge variant="default" className="bg-green-100 text-green-800">
-                          ✓ Invoice Uploaded Successfully
-                        </Badge>
-                  }
-                    </div>
-                  </div>
-                  
-                  <div className="md:col-span-2 space-y-2">
-                    <Label>Notes</Label>
-                    <Textarea
-                  value={expense.notes}
-                  onChange={(e) => updateExpense(index, 'notes', e.target.value)}
-                  placeholder="Additional notes about this expense..."
-                  rows={2} />
-
-                  </div>
-                </div>
-              </div>
-          )}
           </div>
-        }
+        ) : (
+          <div className="space-y-4">
+            {safeExpenses.map((expense, index) => {
+              // Ensure expense has required properties with safe fallbacks
+              const safeExpense = {
+                id: expense?.id || `fallback_${index}`,
+                vendorId: expense?.vendorId || '',
+                vendorName: expense?.vendorName || '',
+                othersName: expense?.othersName || '',
+                amount: expense?.amount || 0,
+                paymentType: expense?.paymentType || 'Cash',
+                chequeNo: expense?.chequeNo || '',
+                invoiceFileId: expense?.invoiceFileId,
+                notes: expense?.notes || ''
+              } as Expense;
+
+              return (
+                <div key={safeExpense.id} className="border border-orange-200 rounded-lg p-4 bg-white">
+                  <div className="flex items-center justify-between mb-4">
+                    <Badge variant="outline" className="text-orange-700">
+                      Expense #{index + 1}
+                    </Badge>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeExpense(index)}
+                      className="text-red-600 hover:text-red-800 hover:bg-red-50">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  
+                  <div className={`grid grid-cols-1 ${isMobile ? 'gap-4' : 'md:grid-cols-2 gap-4'}`}>
+                    <div className="space-y-2">
+                      <Label>Vendor (Optional)</Label>
+                      <Select
+                        value={safeExpense.vendorId}
+                        onValueChange={(value) => updateExpense(index, 'vendorId', value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select vendor (optional)" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">None Selected</SelectItem>
+                          {vendors.map((vendor) => (
+                            <SelectItem key={vendor.id} value={vendor.id.toString()}>
+                              {vendor.vendor_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label>Other's Name</Label>
+                      <Input
+                        value={safeExpense.othersName}
+                        onChange={(e) => updateExpense(index, 'othersName', e.target.value)}
+                        placeholder="Enter other's name" />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label>Amount ($) *</Label>
+                      <NumberInput
+                        value={safeExpense.amount}
+                        onChange={(value) => updateExpense(index, 'amount', value || 0)}
+                        min={0}
+                        step={0.01}
+                        required />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label>Payment Type *</Label>
+                      <Select
+                        value={safeExpense.paymentType}
+                        onValueChange={(value) => updateExpense(index, 'paymentType', value)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Cash">Cash</SelectItem>
+                          <SelectItem value="Credit Card">Credit Card</SelectItem>
+                          <SelectItem value="Cheque">Cheque</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    {safeExpense.paymentType === 'Cheque' && (
+                      <div className="space-y-2">
+                        <Label>Cheque Number *</Label>
+                        <Input
+                          value={safeExpense.chequeNo}
+                          onChange={(e) => updateExpense(index, 'chequeNo', e.target.value)}
+                          placeholder="Enter cheque number"
+                          required />
+                      </div>
+                    )}
+                    
+                    <div className="md:col-span-2 space-y-2">
+                      <Label>Upload Invoice * (Mandatory)</Label>
+                      <div className="space-y-2">
+                        <EnhancedFileUpload
+                          onFileSelect={(file) => handleFileUpload(index, file)}
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          label={uploadingIndex === index ? "Uploading..." : "Choose Invoice File"}
+                          maxSize={10}
+                          disabled={uploadingIndex === index}
+                          allowCamera={false}
+                          className="w-full" />
+
+                        {safeExpense.invoiceFileId && (
+                          <Badge variant="default" className="bg-green-100 text-green-800">
+                            ✓ Invoice Uploaded Successfully
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="md:col-span-2 space-y-2">
+                      <Label>Notes</Label>
+                      <Textarea
+                        value={safeExpense.notes}
+                        onChange={(e) => updateExpense(index, 'notes', e.target.value)}
+                        placeholder="Additional notes about this expense..."
+                        rows={2} />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
         
-        {expenses.length > 0 &&
-        <div className="pt-4 border-t border-orange-200 bg-orange-100 rounded-lg p-4">
+        {safeExpenses.length > 0 && (
+          <div className="pt-4 border-t border-orange-200 bg-orange-100 rounded-lg p-4">
             <h3 className="text-lg font-semibold text-orange-800 mb-4">Expense Summary</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center justify-between">
@@ -302,10 +346,10 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
               </div>
             </div>
           </div>
-        }
+        )}
       </CardContent>
-    </Card>);
-
+    </Card>
+  );
 };
 
 export default ExpensesSection;
