@@ -17,8 +17,8 @@ import {
   MoreHorizontal,
   AlertTriangle,
   Database,
-  Users
-} from 'lucide-react';
+  Users } from
+'lucide-react';
 
 interface PermissionDemoProps {
   pageKey: string;
@@ -52,8 +52,8 @@ const PermissionDemoComponent: React.FC<PermissionDemoProps> = ({ pageKey, pageN
             <p>Loading permissions...</p>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   if (!canView) {
@@ -75,27 +75,27 @@ const PermissionDemoComponent: React.FC<PermissionDemoProps> = ({ pageKey, pageN
             </AlertDescription>
           </Alert>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   const permissionItems = [
-    { key: 'view', label: 'View', icon: Eye, color: 'text-blue-600', enabled: canView },
-    { key: 'create', label: 'Create', icon: Plus, color: 'text-green-600', enabled: canCreate },
-    { key: 'edit', label: 'Edit', icon: Edit, color: 'text-yellow-600', enabled: canEdit },
-    { key: 'delete', label: 'Delete', icon: Trash2, color: 'text-red-600', enabled: canDelete },
-    { key: 'export', label: 'Export', icon: Download, color: 'text-purple-600', enabled: canExport },
-    { key: 'print', label: 'Print', icon: Printer, color: 'text-indigo-600', enabled: canPrint },
-    { key: 'approve', label: 'Approve', icon: CheckCircle2, color: 'text-green-700', enabled: canApprove },
-    { key: 'bulk_operations', label: 'Bulk Ops', icon: MoreHorizontal, color: 'text-orange-600', enabled: canBulkOperations },
-    { key: 'advanced_features', label: 'Advanced', icon: Settings, color: 'text-gray-700', enabled: canAdvancedFeatures }
-  ];
+  { key: 'view', label: 'View', icon: Eye, color: 'text-blue-600', enabled: canView },
+  { key: 'create', label: 'Create', icon: Plus, color: 'text-green-600', enabled: canCreate },
+  { key: 'edit', label: 'Edit', icon: Edit, color: 'text-yellow-600', enabled: canEdit },
+  { key: 'delete', label: 'Delete', icon: Trash2, color: 'text-red-600', enabled: canDelete },
+  { key: 'export', label: 'Export', icon: Download, color: 'text-purple-600', enabled: canExport },
+  { key: 'print', label: 'Print', icon: Printer, color: 'text-indigo-600', enabled: canPrint },
+  { key: 'approve', label: 'Approve', icon: CheckCircle2, color: 'text-green-700', enabled: canApprove },
+  { key: 'bulk_operations', label: 'Bulk Ops', icon: MoreHorizontal, color: 'text-orange-600', enabled: canBulkOperations },
+  { key: 'advanced_features', label: 'Advanced', icon: Settings, color: 'text-gray-700', enabled: canAdvancedFeatures }];
+
 
   return (
     <div className="space-y-6">
       {/* User Profile Info */}
-      {userProfile && (
-        <Card className="border-green-200">
+      {userProfile &&
+      <Card className="border-green-200">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Users className="w-5 h-5 text-green-600" />
@@ -125,7 +125,7 @@ const PermissionDemoComponent: React.FC<PermissionDemoProps> = ({ pageKey, pageN
             </div>
           </CardContent>
         </Card>
-      )}
+      }
 
       {/* Page Permissions Demo */}
       <Card>
@@ -138,25 +138,25 @@ const PermissionDemoComponent: React.FC<PermissionDemoProps> = ({ pageKey, pageN
         <CardContent>
           {/* Permission Grid */}
           <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6">
-            {permissionItems.map(item => (
-              <div
-                key={item.key}
-                className={`p-3 border rounded-lg text-center ${
-                  item.enabled ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-50'
-                }`}>
+            {permissionItems.map((item) =>
+            <div
+              key={item.key}
+              className={`p-3 border rounded-lg text-center ${
+              item.enabled ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-50'}`
+              }>
                 <item.icon className={`w-6 h-6 mx-auto mb-2 ${item.enabled ? item.color : 'text-gray-400'}`} />
                 <p className={`text-xs font-medium ${item.enabled ? 'text-gray-900' : 'text-gray-500'}`}>
                   {item.label}
                 </p>
                 <Badge
-                  variant={item.enabled ? "default" : "secondary"}
-                  className={`mt-1 text-xs ${
-                    item.enabled ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
-                  }`}>
+                variant={item.enabled ? "default" : "secondary"}
+                className={`mt-1 text-xs ${
+                item.enabled ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`
+                }>
                   {item.enabled ? 'Allowed' : 'Denied'}
                 </Badge>
               </div>
-            ))}
+            )}
           </div>
 
           {/* Action Buttons Demo */}
@@ -258,7 +258,7 @@ const PermissionDemoComponent: React.FC<PermissionDemoProps> = ({ pageKey, pageN
                     Role: {userProfile?.role || 'N/A'}
                   </Badge>
                   <Badge variant="outline" className="text-xs">
-                    Active Permissions: {permissionItems.filter(p => p.enabled).length}/{permissionItems.length}
+                    Active Permissions: {permissionItems.filter((p) => p.enabled).length}/{permissionItems.length}
                   </Badge>
                 </div>
               </div>
@@ -266,8 +266,8 @@ const PermissionDemoComponent: React.FC<PermissionDemoProps> = ({ pageKey, pageN
           </Alert>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default PermissionDemoComponent;

@@ -43,8 +43,8 @@ import {
   AlertCircle,
   RefreshCw,
   Database,
-  CheckCircle2
-} from 'lucide-react';
+  CheckCircle2 } from
+'lucide-react';
 
 interface User {
   ID: number;
@@ -313,7 +313,7 @@ const UserManagement: React.FC = () => {
     try {
       const selectedData = batchSelection.getSelectedData(filteredProfiles, (profile) => profile.id);
       console.log('Batch editing user profiles:', selectedData.length);
-      
+
       const updates = selectedData.map((profile) => ({
         id: profile.id,
         ...(batchEditData.role && { role: batchEditData.role }),
@@ -393,8 +393,8 @@ const UserManagement: React.FC = () => {
 
   const filteredProfiles = userProfiles.filter((profile) => {
     const matchesSearch =
-      profile.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      profile.phone.toLowerCase().includes(searchTerm.toLowerCase());
+    profile.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    profile.phone.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = selectedRole === 'All' || profile.role === selectedRole;
     const matchesStation = selectedStation === 'All' || profile.station === selectedStation;
 
@@ -403,19 +403,19 @@ const UserManagement: React.FC = () => {
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case 'Administrator': return 'bg-red-100 text-red-800';
-      case 'Management': return 'bg-blue-100 text-blue-800';
-      case 'Employee': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'Administrator':return 'bg-red-100 text-red-800';
+      case 'Management':return 'bg-blue-100 text-blue-800';
+      case 'Employee':return 'bg-green-100 text-green-800';
+      default:return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStationBadgeColor = (station: string) => {
     switch (station) {
-      case 'MOBIL': return 'bg-purple-100 text-purple-800';
-      case 'AMOCO ROSEDALE': return 'bg-orange-100 text-orange-800';
-      case 'AMOCO BROOKLYN': return 'bg-teal-100 text-teal-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'MOBIL':return 'bg-purple-100 text-purple-800';
+      case 'AMOCO ROSEDALE':return 'bg-orange-100 text-orange-800';
+      case 'AMOCO BROOKLYN':return 'bg-teal-100 text-teal-800';
+      default:return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -434,10 +434,10 @@ const UserManagement: React.FC = () => {
 
       const permissions = JSON.parse(profile.detailed_permissions);
       const contentAreas = [
-        'dashboard', 'products', 'employees', 'sales_reports', 'vendors',
-        'orders', 'licenses', 'salary', 'inventory', 'delivery', 'settings',
-        'user_management', 'site_management', 'system_logs', 'security_settings'
-      ];
+      'dashboard', 'products', 'employees', 'sales_reports', 'vendors',
+      'orders', 'licenses', 'salary', 'inventory', 'delivery', 'settings',
+      'user_management', 'site_management', 'system_logs', 'security_settings'];
+
 
       const viewCount = contentAreas.filter((area) => permissions[area]?.view).length;
       const editCount = contentAreas.filter((area) => permissions[area]?.edit).length;
@@ -468,17 +468,17 @@ const UserManagement: React.FC = () => {
     return (
       <AccessDenied
         feature="User Management"
-        requiredRole="Administrator"
-      />
-    );
+        requiredRole="Administrator" />);
+
+
   }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-64">
         <div className="text-lg">Loading real-time user management...</div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -561,8 +561,8 @@ const UserManagement: React.FC = () => {
                           readOnly
                           disabled
                           className="bg-gray-50 text-gray-700 cursor-not-allowed"
-                          placeholder="Auto-generated ID"
-                        />
+                          placeholder="Auto-generated ID" />
+
                         <Button
                           type="button"
                           variant="ghost"
@@ -591,9 +591,9 @@ const UserManagement: React.FC = () => {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {roles.map((role) => (
-                            <SelectItem key={role} value={role}>{role}</SelectItem>
-                          ))}
+                          {roles.map((role) =>
+                          <SelectItem key={role} value={role}>{role}</SelectItem>
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
@@ -604,9 +604,9 @@ const UserManagement: React.FC = () => {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {stations.map((station) => (
-                            <SelectItem key={station} value={station}>{station}</SelectItem>
-                          ))}
+                          {stations.map((station) =>
+                          <SelectItem key={station} value={station}>{station}</SelectItem>
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
@@ -617,8 +617,8 @@ const UserManagement: React.FC = () => {
                         value={formData.employee_id}
                         onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })}
                         placeholder="Enter employee ID"
-                        required
-                      />
+                        required />
+
                     </div>
                     <div>
                       <Label htmlFor="phone">Phone *</Label>
@@ -627,8 +627,8 @@ const UserManagement: React.FC = () => {
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         placeholder="Enter phone number"
-                        required
-                      />
+                        required />
+
                     </div>
                     <div>
                       <Label htmlFor="hire_date">Hire Date</Label>
@@ -636,16 +636,16 @@ const UserManagement: React.FC = () => {
                         id="hire_date"
                         type="date"
                         value={formData.hire_date}
-                        onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })}
-                      />
+                        onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })} />
+
                     </div>
                     <div className="flex items-center space-x-2">
                       <input
                         type="checkbox"
                         id="is_active"
                         checked={formData.is_active}
-                        onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                      />
+                        onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })} />
+
                       <Label htmlFor="is_active">Active User</Label>
                     </div>
                     <Button onClick={handleCreateProfile} className="w-full">
@@ -731,8 +731,8 @@ const UserManagement: React.FC = () => {
                     placeholder="Search by employee ID or phone..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
+                    className="pl-10" />
+
                 </div>
                 
                 <Select value={selectedRole} onValueChange={setSelectedRole}>
@@ -741,9 +741,9 @@ const UserManagement: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="All">All Roles</SelectItem>
-                    {roles.map((role) => (
-                      <SelectItem key={role} value={role}>{role}</SelectItem>
-                    ))}
+                    {roles.map((role) =>
+                    <SelectItem key={role} value={role}>{role}</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
                 
@@ -753,9 +753,9 @@ const UserManagement: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="All">All Stations</SelectItem>
-                    {stations.map((station) => (
-                      <SelectItem key={station} value={station}>{station}</SelectItem>
-                    ))}
+                    {stations.map((station) =>
+                    <SelectItem key={station} value={station}>{station}</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
                 
@@ -778,8 +778,8 @@ const UserManagement: React.FC = () => {
             onBatchEdit={handleBatchEdit}
             onBatchDelete={handleBatchDelete}
             onClearSelection={batchSelection.clearSelection}
-            isLoading={batchActionLoading}
-          />
+            isLoading={batchActionLoading} />
+
 
           {/* User Profiles Table */}
           <Card>
@@ -795,8 +795,8 @@ const UserManagement: React.FC = () => {
                         <Checkbox
                           checked={filteredProfiles.length > 0 && batchSelection.selectedCount === filteredProfiles.length}
                           onCheckedChange={() => batchSelection.toggleSelectAll(filteredProfiles, (profile) => profile.id)}
-                          aria-label="Select all profiles"
-                        />
+                          aria-label="Select all profiles" />
+
                       </TableHead>
                       <TableHead>Employee ID</TableHead>
                       <TableHead>Role</TableHead>
@@ -809,54 +809,54 @@ const UserManagement: React.FC = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredProfiles.length === 0 ? (
-                      <TableRow>
+                    {filteredProfiles.length === 0 ?
+                    <TableRow>
                         <TableCell colSpan={9} className="text-center py-8">
                           <div className="flex flex-col items-center space-y-3">
-                            {userProfiles.length === 0 ? (
-                              <>
+                            {userProfiles.length === 0 ?
+                          <>
                                 <Database className="w-12 h-12 text-gray-300" />
                                 <div>
                                   <p className="text-gray-500 font-medium">No User Profiles in Database</p>
                                   <p className="text-sm text-gray-400">Create your first user profile to get started</p>
                                 </div>
                                 <Button
-                                  onClick={() => setIsCreateUserDialogOpen(true)}
-                                  className="bg-blue-600 hover:bg-blue-700">
+                              onClick={() => setIsCreateUserDialogOpen(true)}
+                              className="bg-blue-600 hover:bg-blue-700">
                                   <UserPlus className="w-4 h-4 mr-2" />
                                   Create First User
                                 </Button>
-                              </>
-                            ) : (
-                              <>
+                              </> :
+
+                          <>
                                 <Search className="w-12 h-12 text-gray-300" />
                                 <div>
                                   <p className="text-gray-500 font-medium">No Profiles Match Current Filters</p>
                                   <p className="text-sm text-gray-400">Try adjusting your search criteria</p>
                                 </div>
                                 <Button
-                                  variant="outline"
-                                  onClick={() => {
-                                    setSearchTerm('');
-                                    setSelectedRole('All');
-                                    setSelectedStation('All');
-                                  }}>
+                              variant="outline"
+                              onClick={() => {
+                                setSearchTerm('');
+                                setSelectedRole('All');
+                                setSelectedStation('All');
+                              }}>
                                   Clear All Filters
                                 </Button>
                               </>
-                            )}
+                          }
                           </div>
                         </TableCell>
-                      </TableRow>
-                    ) : (
-                      filteredProfiles.map((profile) => (
-                        <TableRow key={profile.id} className={batchSelection.isSelected(profile.id) ? "bg-blue-50" : ""}>
+                      </TableRow> :
+
+                    filteredProfiles.map((profile) =>
+                    <TableRow key={profile.id} className={batchSelection.isSelected(profile.id) ? "bg-blue-50" : ""}>
                           <TableCell>
                             <Checkbox
-                              checked={batchSelection.isSelected(profile.id)}
-                              onCheckedChange={() => batchSelection.toggleItem(profile.id)}
-                              aria-label={`Select profile ${profile.employee_id}`}
-                            />
+                          checked={batchSelection.isSelected(profile.id)}
+                          onCheckedChange={() => batchSelection.toggleItem(profile.id)}
+                          aria-label={`Select profile ${profile.employee_id}`} />
+
                           </TableCell>
                           <TableCell className="font-medium">{profile.employee_id}</TableCell>
                           <TableCell>
@@ -878,51 +878,51 @@ const UserManagement: React.FC = () => {
                           </TableCell>
                           <TableCell>
                             {(() => {
-                              const permSummary = getPermissionSummary(profile);
-                              return (
-                                <div className="space-y-1">
+                          const permSummary = getPermissionSummary(profile);
+                          return (
+                            <div className="space-y-1">
                                   <Badge
-                                    variant={permSummary.hasAccess ? "default" : "secondary"}
-                                    className={permSummary.hasAccess ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}>
+                                variant={permSummary.hasAccess ? "default" : "secondary"}
+                                className={permSummary.hasAccess ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}>
                                     {permSummary.summary}
                                   </Badge>
                                   <p className="text-xs text-gray-500">{permSummary.details}</p>
-                                </div>
-                              );
-                            })()}
+                                </div>);
+
+                        })()}
                           </TableCell>
                           <TableCell>
                             <div className="flex space-x-2">
                               <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleEditProfile(profile)}>
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEditProfile(profile)}>
                                 <Edit3 className="w-4 h-4" />
                               </Button>
                               <ComprehensivePermissionDialog
-                                selectedUserId={profile.id}
-                                trigger={
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="text-blue-600 hover:text-blue-700"
-                                    title="Real-Time Permission Management">
+                            selectedUserId={profile.id}
+                            trigger={
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-blue-600 hover:text-blue-700"
+                              title="Real-Time Permission Management">
                                     <Shield className="w-4 h-4" />
                                   </Button>
-                                }
-                              />
+                            } />
+
                               <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleDeleteProfile(profile.id)}
-                                className="text-red-600 hover:text-red-700">
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDeleteProfile(profile.id)}
+                            className="text-red-600 hover:text-red-700">
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
                           </TableCell>
                         </TableRow>
-                      ))
-                    )}
+                    )
+                    }
                   </TableBody>
                 </Table>
               </div>
@@ -944,9 +944,9 @@ const UserManagement: React.FC = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {roles.map((role) => (
-                          <SelectItem key={role} value={role}>{role}</SelectItem>
-                        ))}
+                        {roles.map((role) =>
+                        <SelectItem key={role} value={role}>{role}</SelectItem>
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
@@ -957,9 +957,9 @@ const UserManagement: React.FC = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {stations.map((station) => (
-                          <SelectItem key={station} value={station}>{station}</SelectItem>
-                        ))}
+                        {stations.map((station) =>
+                        <SelectItem key={station} value={station}>{station}</SelectItem>
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
@@ -971,8 +971,8 @@ const UserManagement: React.FC = () => {
                       id="edit_employee_id"
                       value={formData.employee_id}
                       onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })}
-                      required
-                    />
+                      required />
+
                   </div>
                   <div>
                     <Label htmlFor="edit_phone">Phone *</Label>
@@ -980,8 +980,8 @@ const UserManagement: React.FC = () => {
                       id="edit_phone"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      required
-                    />
+                      required />
+
                   </div>
                 </div>
                 <div>
@@ -990,16 +990,16 @@ const UserManagement: React.FC = () => {
                     id="edit_hire_date"
                     type="date"
                     value={formData.hire_date}
-                    onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })}
-                  />
+                    onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })} />
+
                 </div>
                 <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
                     id="edit_is_active"
                     checked={formData.is_active}
-                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                  />
+                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })} />
+
                   <Label htmlFor="edit_is_active">Active User</Label>
                 </div>
                 <Button onClick={handleUpdateProfile} className="w-full">
@@ -1032,9 +1032,9 @@ const UserManagement: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">Keep existing roles</SelectItem>
-                {roles.map((role) => (
-                  <SelectItem key={role} value={role}>{role}</SelectItem>
-                ))}
+                {roles.map((role) =>
+                <SelectItem key={role} value={role}>{role}</SelectItem>
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -1046,9 +1046,9 @@ const UserManagement: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">Keep existing stations</SelectItem>
-                {stations.map((station) => (
-                  <SelectItem key={station} value={station}>{station}</SelectItem>
-                ))}
+                {stations.map((station) =>
+                <SelectItem key={station} value={station}>{station}</SelectItem>
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -1056,8 +1056,8 @@ const UserManagement: React.FC = () => {
             <Checkbox
               id="batch_is_active"
               checked={batchEditData.is_active}
-              onCheckedChange={(checked) => setBatchEditData({ ...batchEditData, is_active: checked as boolean })}
-            />
+              onCheckedChange={(checked) => setBatchEditData({ ...batchEditData, is_active: checked as boolean })} />
+
             <Label htmlFor="batch_is_active">Set all selected users as active</Label>
           </div>
         </div>
@@ -1074,8 +1074,8 @@ const UserManagement: React.FC = () => {
         selectedItems={batchSelection.getSelectedData(filteredProfiles, (profile) => profile.id).map((profile) => ({
           id: profile.id,
           name: `${profile.employee_id} - ${profile.role}`
-        }))}
-      />
+        }))} />
+
 
       {/* Create New User Dialog */}
       <CreateUserDialog
@@ -1087,10 +1087,10 @@ const UserManagement: React.FC = () => {
             title: "Success",
             description: "New user account and profile created successfully in production database"
           });
-        }}
-      />
-    </div>
-  );
+        }} />
+
+    </div>);
+
 };
 
 export default UserManagement;
