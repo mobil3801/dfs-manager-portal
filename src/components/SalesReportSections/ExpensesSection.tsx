@@ -1,93 +1,130 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { NumberInput } from '@/components/ui/number-input';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Upload, FileText, DollarSign } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Plus, DollarSign, FileText, Trash2, Calendar, User, CreditCard } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import EnhancedFileUpload from '@/components/EnhancedFileUpload';
 import { useIsMobile } from '@/hooks/use-mobile';
+import ExpenseFormDialog from '@/components/ExpenseFormDialog';
 
-interface Expense {
-  id: string;
+interface ExpenseRecord {
+  id: number;
+  vendor_name: string;
+  others_name: string;
+  amount: number;
+  payment_type: 'Cash' | 'Credit' | 'Cheque';
+  cheque_number: string;
+  invoice_file_id?: number;
+  station: string;
+  expense_date: string;
+  created_by: number;
+}
+
+interface ExpenseFormData {
   vendor: string;
   othersName: string;
   amount: number;
-  paymentType: 'Cash' | 'Card' | 'Cheque';
-  description: string;
-  receiptFileId?: number;
-  receiptFileName?: string;
+  paymentType: 'Cash' | 'Credit' | 'Cheque';
+  chequeNumber: string;
+  invoiceFileId?: number;
+  invoiceFileName?: string;
 }
 
 interface ExpensesSectionProps {
-  expenses: Expense[];
-  onExpensesChange: (expenses: Expense[]) => void;
+  station: string;
+  reportDate: string;
+  onExpensesChange?: (totalExpenses: number) => void;
 }
 
 const ExpensesSection: React.FC<ExpensesSectionProps> = ({
-  expenses,
+  station = "MOBIL",
+  reportDate,
   onExpensesChange
 }) => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const [vendors, setVendors] = useState<Array<{id: number;vendor_name: string;}>>([]);
-  const [loadingVendors, setLoadingVendors] = useState(false);
+  const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [showForm, setShowForm] = useState(false);
 
-  // Load vendors from database
+  // Load expenses for current station and date
   useEffect(() => {
-    loadVendors();
-  }, []);
+    if (reportDate) {
+      loadExpenses();
+    }
+  }, [station, reportDate]);
 
-  const loadVendors = async () => {
+  // Calculate totals whenever expenses change
+  useEffect(() => {
+    const totals = calculateTotals();
+    onExpensesChange?.(totals.totalExpenses);
+  }, [expenses, onExpensesChange]);
+
+  const loadExpenses = async () => {
     try {
-      setLoadingVendors(true);
-      const { data, error } = await window.ezsite.apis.tablePage(11729, {
+      setLoading(true);
+      const { data, error } = await window.ezsite.apis.tablePage(18494, {
         PageNo: 1,
         PageSize: 100,
-        OrderByField: "vendor_name",
-        IsAsc: true,
-        Filters: [{
-          name: "is_active",
+        OrderByField: "expense_date",
+        IsAsc: false,
+        Filters: [
+        {
+          name: "station",
           op: "Equal",
-          value: true
+          value: station
+        },
+        {
+          name: "expense_date",
+          op: "StringStartsWith",
+          value: reportDate?.split('T')[0] || new Date().toISOString().split('T')[0]
         }]
+
       });
 
       if (error) throw error;
-      setVendors(data?.List || []);
+      setExpenses(data?.List || []);
     } catch (error) {
-      console.error('Error loading vendors:', error);
+      console.error('Error loading expenses:', error);
       toast({
         title: "Error",
-        description: "Failed to load vendors",
+        description: "Failed to load expenses",
         variant: "destructive"
       });
     } finally {
-      setLoadingVendors(false);
+      setLoading(false);
     }
   };
 
-  const addExpense = () => {
+  const addExpense = async (formData: ExpenseFormData) => {
     try {
-      const newExpense: Expense = {
-        id: Date.now().toString(),
-        vendor: '',
-        othersName: '',
-        amount: 0,
-        paymentType: 'Cash',
-        description: ''
+      setLoading(true);
+
+      const expenseData = {
+        vendor_name: formData.vendor || '',
+        others_name: formData.othersName,
+        amount: formData.amount,
+        payment_type: formData.paymentType,
+        cheque_number: formData.chequeNumber || '',
+        invoice_file_id: formData.invoiceFileId || 0,
+        station: station,
+        expense_date: reportDate || new Date().toISOString(),
+        created_by: 1 // TODO: Get from auth context
       };
-      const updatedExpenses = [...expenses, newExpense];
-      onExpensesChange(updatedExpenses);
+
+      const { error } = await window.ezsite.apis.tableCreate(18494, expenseData);
+
+      if (error) throw error;
 
       toast({
         title: "Success",
-        description: "New expense added successfully"
+        description: "Expense added successfully"
       });
+
+      // Reload expenses
+      loadExpenses();
+
     } catch (error) {
       console.error('Error adding expense:', error);
       toast({
@@ -95,86 +132,51 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
         description: "Failed to add expense",
         variant: "destructive"
       });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const updateExpense = (id: string, field: keyof Expense, value: any) => {
+  const deleteExpense = async (expenseId: number) => {
     try {
-      const updatedExpenses = expenses.map((expense) =>
-      expense.id === id ? { ...expense, [field]: value } : expense
-      );
-      onExpensesChange(updatedExpenses);
-    } catch (error) {
-      console.error('Error updating expense:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update expense",
-        variant: "destructive"
-      });
-    }
-  };
+      setLoading(true);
 
-  const removeExpense = (id: string) => {
-    try {
-      const updatedExpenses = expenses.filter((expense) => expense.id !== id);
-      onExpensesChange(updatedExpenses);
-      toast({
-        title: "Success",
-        description: "Expense removed successfully"
-      });
-    } catch (error) {
-      console.error('Error removing expense:', error);
-      toast({
-        title: "Error",
-        description: "Failed to remove expense",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleFileUpload = async (file: File, expenseId: string) => {
-    try {
-      toast({
-        title: "Uploading",
-        description: "Uploading receipt image..."
-      });
-
-      const { data: fileId, error } = await window.ezsite.apis.upload({
-        filename: file.name,
-        file: file
-      });
+      const { error } = await window.ezsite.apis.tableDelete(18494, { ID: expenseId });
 
       if (error) throw error;
 
-      updateExpense(expenseId, 'receiptFileId', fileId);
-      updateExpense(expenseId, 'receiptFileName', file.name);
-
       toast({
         title: "Success",
-        description: "Receipt uploaded successfully"
+        description: "Expense deleted successfully"
       });
+
+      // Reload expenses
+      loadExpenses();
+
     } catch (error) {
-      console.error('Error uploading file:', error);
+      console.error('Error deleting expense:', error);
       toast({
         title: "Error",
-        description: "Failed to upload receipt",
+        description: "Failed to delete expense",
         variant: "destructive"
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   // Calculate totals by payment type
   const calculateTotals = () => {
     const cashExpense = expenses.
-    filter((exp) => exp.paymentType === 'Cash').
+    filter((exp) => exp.payment_type === 'Cash').
     reduce((sum, exp) => sum + (exp.amount || 0), 0);
 
     const cardExpense = expenses.
-    filter((exp) => exp.paymentType === 'Card').
+    filter((exp) => exp.payment_type === 'Credit').
     reduce((sum, exp) => sum + (exp.amount || 0), 0);
 
     const chequeExpense = expenses.
-    filter((exp) => exp.paymentType === 'Cheque').
+    filter((exp) => exp.payment_type === 'Cheque').
     reduce((sum, exp) => sum + (exp.amount || 0), 0);
 
     const totalExpenses = cashExpense + cardExpense + chequeExpense;
@@ -184,195 +186,186 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
 
   const { cashExpense, cardExpense, chequeExpense, totalExpenses } = calculateTotals();
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  const getPaymentTypeIcon = (type: string) => {
+    switch (type) {
+      case 'Cash':return '💵';
+      case 'Credit':return '💳';
+      case 'Cheque':return '🧾';
+      default:return '💰';
+    }
+  };
+
   return (
-    <Card className="p-4 space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <DollarSign className="h-5 w-5" />
-          Expenses
-        </h3>
-        <Button
-          onClick={addExpense}
-          size="sm"
-          className="gap-2 hover:bg-blue-600 transition-colors"
+    <>
+      <Card className="p-4 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <DollarSign className="h-5 w-5" />
+            Expenses
+          </h3>
+          <Button
+            onClick={() => setShowForm(true)}
+            size="sm"
+            className="gap-2 hover:bg-blue-600 transition-colors"
+            disabled={loading}
+            type="button">
 
-          type="button">
+            <Plus className="h-4 w-4" />
+            Add Expense
+          </Button>
+        </div>
 
-          <Plus className="h-4 w-4" />
-          Add Expense
-        </Button>
-      </div>
+        <div className="space-y-4">
+          {loading ?
+          <div className="text-center py-8 text-gray-500">
+              <DollarSign className="h-8 w-8 mx-auto mb-2 opacity-50 animate-spin" />
+              <p>Loading expenses...</p>
+            </div> :
+          expenses.length === 0 ?
+          <div className="text-center py-8 text-gray-500">
+              <DollarSign className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No expenses added yet</p>
+              <p className="text-sm">Click "Add Expense" to get started</p>
+            </div> :
 
-      <div className="space-y-4">
-        {expenses.map((expense) =>
-        <Card key={expense.id} className="p-4 space-y-4 border-l-4 border-l-blue-500">
-            <div className="flex items-center justify-between">
-              <Badge variant="outline" className="gap-1">
-                <FileText className="h-3 w-3" />
-                Expense #{expense.id.slice(-4)}
-              </Badge>
-              <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => removeExpense(expense.id)}
-              className="text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+          expenses.map((expense) =>
+          <Card key={expense.id} className="p-4 space-y-3 border-l-4 border-l-blue-500">
+                <div className="flex items-center justify-between">
+                  <Badge variant="outline" className="gap-1">
+                    <FileText className="h-3 w-3" />
+                    Expense #{expense.id}
+                  </Badge>
+                  <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => deleteExpense(expense.id)}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+                disabled={loading}
+                type="button">
 
-              type="button">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
 
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
+                <div className={`grid gap-3 ${isMobile ? 'grid-cols-1' : 'grid-cols-2 lg:grid-cols-3'}`}>
+                  {/* Vendor/Other's Name */}
+                  <div className="space-y-1">
+                    <Label className="text-sm text-gray-600 flex items-center gap-1">
+                      <User className="h-3 w-3" />
+                      {expense.vendor_name ? 'Vendor' : "Other's Name"}
+                    </Label>
+                    <div className="text-sm font-medium">
+                      {expense.vendor_name || expense.others_name}
+                    </div>
+                  </div>
 
-            <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-2 lg:grid-cols-3'}`}>
-              <div className="space-y-2">
-                <Label htmlFor={`vendor-${expense.id}`}>Vendor (Optional)</Label>
-                <Select
-                value={expense.vendor}
-                onValueChange={(value) => updateExpense(expense.id, 'vendor', value)}>
+                  {/* Amount */}
+                  <div className="space-y-1">
+                    <Label className="text-sm text-gray-600 flex items-center gap-1">
+                      <DollarSign className="h-3 w-3" />
+                      Amount
+                    </Label>
+                    <div className="text-lg font-bold text-red-600">
+                      ${expense.amount.toFixed(2)}
+                    </div>
+                  </div>
 
+                  {/* Payment Type */}
+                  <div className="space-y-1">
+                    <Label className="text-sm text-gray-600 flex items-center gap-1">
+                      <CreditCard className="h-3 w-3" />
+                      Payment Type
+                    </Label>
+                    <Badge variant="secondary" className="gap-1">
+                      {getPaymentTypeIcon(expense.payment_type)}
+                      {expense.payment_type}
+                      {expense.payment_type === 'Cheque' && expense.cheque_number &&
+                  <span className="ml-1">#{expense.cheque_number}</span>
+                  }
+                    </Badge>
+                  </div>
 
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select vendor (optional)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">No vendor selected</SelectItem>
-                    {vendors.map((vendor) =>
-                  <SelectItem key={vendor.id} value={vendor.vendor_name}>
-                        {vendor.vendor_name}
-                      </SelectItem>
-                  )}
-                  </SelectContent>
-                </Select>
-              </div>
+                  {/* Date */}
+                  <div className="space-y-1">
+                    <Label className="text-sm text-gray-600 flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      Date
+                    </Label>
+                    <div className="text-sm">
+                      {formatDate(expense.expense_date)}
+                    </div>
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor={`others-name-${expense.id}`}>Other's Name</Label>
-                <Input
-                id={`others-name-${expense.id}`}
-                value={expense.othersName}
-                onChange={(e) => updateExpense(expense.id, 'othersName', e.target.value)}
-                placeholder="Enter other's name" />
-
-
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor={`payment-type-${expense.id}`}>Payment Type</Label>
-                <Select
-                value={expense.paymentType}
-                onValueChange={(value) => updateExpense(expense.id, 'paymentType', value as 'Cash' | 'Card' | 'Cheque')}>
-
-
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Cash">Cash</SelectItem>
-                    <SelectItem value="Card">Card</SelectItem>
-                    <SelectItem value="Cheque">Cheque</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor={`amount-${expense.id}`}>Amount ($)</Label>
-                <NumberInput
-                id={`amount-${expense.id}`}
-                value={expense.amount}
-                onValueChange={(value) => updateExpense(expense.id, 'amount', value)}
-                placeholder="0.00"
-                min={0}
-                step={0.01} />
-
-
-              </div>
-
-              <div className="space-y-2 col-span-full">
-                <Label htmlFor={`description-${expense.id}`}>Description</Label>
-                <Textarea
-                id={`description-${expense.id}`}
-                value={expense.description}
-                onChange={(e) => updateExpense(expense.id, 'description', e.target.value)}
-                placeholder="Enter expense description"
-                rows={2} />
-
-
-              </div>
-
-              <div className="space-y-2 col-span-full">
-                <Label>Receipt Image</Label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                  <EnhancedFileUpload
-                  onFileSelect={(file) => handleFileUpload(file, expense.id)}
-                  accept="image/*"
-                  maxSize={10}
-                  label="Upload Receipt"
-                  allowCamera={true} />
-
-
-                  {expense.receiptFileName &&
-                <div className="mt-2 flex items-center gap-2">
+                  {/* Invoice File */}
+                  {expense.invoice_file_id &&
+              <div className="space-y-1 col-span-full">
+                      <Label className="text-sm text-gray-600 flex items-center gap-1">
+                        <FileText className="h-3 w-3" />
+                        Invoice Attached
+                      </Label>
                       <Badge variant="secondary" className="gap-1">
-                        <Upload className="h-3 w-3" />
-                        {expense.receiptFileName}
+                        <FileText className="h-3 w-3" />
+                        File ID: {expense.invoice_file_id}
                       </Badge>
                     </div>
-                }
+              }
+                </div>
+              </Card>
+          )
+          }
+        </div>
+
+        {/* Expense Totals Calculation */}
+        {expenses.length > 0 &&
+        <Card className="p-4 bg-gray-50 border-2 border-gray-200">
+            <h4 className="font-semibold mb-3 flex items-center gap-2">
+              <DollarSign className="h-4 w-4" />
+              Expense Summary
+            </h4>
+            
+            <div className={`grid gap-3 ${isMobile ? 'grid-cols-1' : 'grid-cols-2 lg:grid-cols-4'}`}>
+              <div className="bg-white p-3 rounded-lg border">
+                <Label className="text-sm text-gray-600">Cash Expense</Label>
+                <div className="text-xl font-bold text-red-600">
+                  ${cashExpense.toFixed(2)}
+                </div>
+              </div>
+              
+              <div className="bg-white p-3 rounded-lg border">
+                <Label className="text-sm text-gray-600">Card Expense</Label>
+                <div className="text-xl font-bold text-red-600">
+                  ${cardExpense.toFixed(2)}
+                </div>
+              </div>
+              
+              <div className="bg-white p-3 rounded-lg border">
+                <Label className="text-sm text-gray-600">Cheque Expense</Label>
+                <div className="text-xl font-bold text-red-600">
+                  ${chequeExpense.toFixed(2)}
+                </div>
+              </div>
+              
+              <div className="bg-white p-3 rounded-lg border border-red-300">
+                <Label className="text-sm text-gray-600">Total Expenses</Label>
+                <div className="text-2xl font-bold text-red-600">
+                  ${totalExpenses.toFixed(2)}
                 </div>
               </div>
             </div>
           </Card>
-        )}
-
-        {expenses.length === 0 &&
-        <div className="text-center py-8 text-gray-500">
-            <DollarSign className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>No expenses added yet</p>
-            <p className="text-sm">Click "Add Expense" to get started</p>
-          </div>
         }
-      </div>
+      </Card>
 
-      {/* Expense Totals Calculation */}
-      {expenses.length > 0 &&
-      <Card className="p-4 bg-gray-50 border-2 border-gray-200">
-          <h4 className="font-semibold mb-3 flex items-center gap-2">
-            <DollarSign className="h-4 w-4" />
-            Expense Summary
-          </h4>
-          
-          <div className={`grid gap-3 ${isMobile ? 'grid-cols-1' : 'grid-cols-2 lg:grid-cols-4'}`}>
-            <div className="bg-white p-3 rounded-lg border">
-              <Label className="text-sm text-gray-600">Cash Expense</Label>
-              <div className="text-xl font-bold text-red-600">
-                ${cashExpense.toFixed(2)}
-              </div>
-            </div>
-            
-            <div className="bg-white p-3 rounded-lg border">
-              <Label className="text-sm text-gray-600">Card Expense</Label>
-              <div className="text-xl font-bold text-red-600">
-                ${cardExpense.toFixed(2)}
-              </div>
-            </div>
-            
-            <div className="bg-white p-3 rounded-lg border">
-              <Label className="text-sm text-gray-600">Cheque Expense</Label>
-              <div className="text-xl font-bold text-red-600">
-                ${chequeExpense.toFixed(2)}
-              </div>
-            </div>
-            
-            <div className="bg-white p-3 rounded-lg border border-red-300">
-              <Label className="text-sm text-gray-600">Total Expenses</Label>
-              <div className="text-2xl font-bold text-red-600">
-                ${totalExpenses.toFixed(2)}
-              </div>
-            </div>
-          </div>
-        </Card>
-      }
-    </Card>);
+      <ExpenseFormDialog
+        open={showForm}
+        onClose={() => setShowForm(false)}
+        onSubmit={addExpense} />
+
+    </>);
 
 };
 
