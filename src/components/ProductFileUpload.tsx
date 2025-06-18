@@ -704,8 +704,6 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
 
 
 
-
-
           // Invalid date format, ignore
         }} // Calculate profit margin
       const unitPrice = mapped.unit_price || 0;const retailPrice = mapped.retail_price || 0;const profitMargin = calculateProfitMargin(unitPrice, retailPrice); // Calculate overdue status
@@ -928,12 +926,14 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
                 Back to Upload
               </Button>
               <div className="flex space-x-2">
-                <Button variant="outline" onClick={handleCloseDialog}>
+                <Button variant="outline"
+            onClick={handleCloseDialog}>
                   Cancel
                 </Button>
-                <Button onClick={handleConfirmImport}
-            disabled={parsedProducts.filter((p) => p.isValid && !p.isDuplicate).length === 0}
-            className="bg-green-600 hover:bg-green-700">
+                <Button
+              onClick={handleConfirmImport}
+              disabled={parsedProducts.filter((p) => p.isValid && !p.isDuplicate).length === 0}
+              className="bg-green-600 hover:bg-green-700">
                   <CheckCircle className="w-4 h-4 mr-2" />
                   Import {parsedProducts.filter((p) => p.isValid && !p.isDuplicate).length} Products
                 </Button>
