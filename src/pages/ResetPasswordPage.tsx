@@ -79,7 +79,7 @@ const ResetPasswordPage: React.FC = () => {
           title: "Success",
           description: "Password reset successfully"
         });
-        
+
         // Redirect to login page after 3 seconds
         setTimeout(() => {
           navigate('/login');
@@ -126,41 +126,41 @@ const ResetPasswordPage: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {message && (
-                <Alert className={`mb-4 ${messageType === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-                  {messageType === 'success' ? (
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  ) : (
-                    <AlertCircle className="h-4 w-4 text-red-600" />
-                  )}
+              {message &&
+              <Alert className={`mb-4 ${messageType === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                  {messageType === 'success' ?
+                <CheckCircle2 className="h-4 w-4 text-green-600" /> :
+
+                <AlertCircle className="h-4 w-4 text-red-600" />
+                }
                   <AlertDescription className={messageType === 'success' ? 'text-green-800' : 'text-red-800'}>
                     {message}
                   </AlertDescription>
                 </Alert>
-              )}
+              }
 
-              {token ? (
-                <form onSubmit={handleSubmit} className="space-y-4">
+              {token ?
+              <form onSubmit={handleSubmit} className="space-y-4">
                   {/* New Password Field */}
                   <div className="space-y-2">
                     <Label htmlFor="password" className="text-slate-700 font-medium">New Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                       <Input
-                        id="password"
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="Enter your new password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        minLength={6}
-                        className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                      />
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter your new password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      minLength={6}
+                      className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
+
                       <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                      >
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600">
+
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
@@ -172,20 +172,20 @@ const ResetPasswordPage: React.FC = () => {
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                       <Input
-                        id="confirmPassword"
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        placeholder="Confirm your new password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                        minLength={6}
-                        className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                      />
+                      id="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      placeholder="Confirm your new password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      minLength={6}
+                      className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
+
                       <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                      >
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600">
+
                         {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
@@ -193,32 +193,32 @@ const ResetPasswordPage: React.FC = () => {
 
                   {/* Submit Button */}
                   <Button
-                    type="submit"
-                    className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02]"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Lock className="mr-2 h-4 w-4" />
-                    )}
+                  type="submit"
+                  className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02]"
+                  disabled={isLoading}>
+
+                    {isLoading ?
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> :
+
+                  <Lock className="mr-2 h-4 w-4" />
+                  }
                     {isLoading ? 'Resetting Password...' : 'Reset Password'}
                   </Button>
-                </form>
-              ) : (
-                <div className="text-center">
+                </form> :
+
+              <div className="text-center">
                   <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
                   <p className="text-slate-600 mb-4">Invalid or missing reset token</p>
                 </div>
-              )}
+              }
 
               {/* Back to Login */}
               <div className="mt-6 text-center">
                 <Button
                   variant="link"
                   className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
-                  onClick={() => navigate('/login')}
-                >
+                  onClick={() => navigate('/login')}>
+
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back to Login
                 </Button>
@@ -232,8 +232,8 @@ const ResetPasswordPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ResetPasswordPage;

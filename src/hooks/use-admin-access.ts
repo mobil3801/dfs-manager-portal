@@ -1,71 +1,101 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 
-export interface AdminAccessResult {
+interface AdminAccessState {
   isAdmin: boolean;
-  hasAdminAccess: boolean;
-  hasMonitoringAccess: boolean;
-  checkAdminAccess: () => boolean;
-  requireAdminAccess: () => void;
-  isLoading: boolean;
-  debugInfo: {
-    user: any;
-    userProfile: any;
-    userRole: string | null;
-  };
+  isManager: boolean;
+  isEmployee: boolean;
+  isGuest: boolean;
+  hasAccess: boolean;
+  role: string;
+  station: string;
+  loading: boolean;
+  error: string | null;
 }
 
-export const useAdminAccess = (): AdminAccessResult => {
-  const { user, userProfile, loading } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Enhanced admin checking with detailed logging
-  const isAdmin = userProfile?.role === 'Administrator' || userProfile?.role === 'Management';
-  const hasMonitoringAccess = isAdmin;
+export const useAdminAccess = (): AdminAccessState => {
+  const { user, userProfile, isAuthenticated, isLoading, authError } = useAuth();
+  const [state, setState] = useState<AdminAccessState>({
+    isAdmin: false,
+    isManager: false,
+    isEmployee: false,
+    isGuest: true,
+    hasAccess: false,
+    role: 'Guest',
+    station: '',
+    loading: true,
+    error: null
+  });
 
   useEffect(() => {
-    // Debug logging for admin access
-    console.log('=== ADMIN ACCESS DEBUG ===');
-    console.log('User:', user);
-    console.log('User Profile:', userProfile);
-    console.log('User Role:', userProfile?.role);
-    console.log('Is Admin:', isAdmin);
-    console.log('Auth Loading:', loading);
-    console.log('========================');
-
-    setIsLoading(loading);
-  }, [user, userProfile, loading, isAdmin]);
-
-  const checkAdminAccess = (): boolean => {
-    console.log('Checking admin access:', {
-      hasUser: !!user,
-      hasProfile: !!userProfile,
-      role: userProfile?.role,
-      isAdmin
-    });
-    return isAdmin;
-  };
-
-  const requireAdminAccess = (): void => {
-    if (!isAdmin) {
-      const errorMsg = userProfile ?
-      `Access denied. Current role: ${userProfile.role}. Administrator or Management role required.` :
-      'Access denied. User profile not found. Please contact administrator.';
-      throw new Error(errorMsg);
+    console.log('🔍 Admin access check - User:', user?.Name, 'Profile:', userProfile?.role);
+    
+    if (isLoading) {
+      setState(prev => ({ ...prev, loading: true }));
+      return;
     }
-  };
+
+    if (authError) {
+      setState(prev => ({ 
+        ...prev, 
+        loading: false, 
+        error: authError,
+        hasAccess: false 
+      }));
+      return;
+    }
+
+    if (!isAuthenticated || !user || !userProfile) {
+      console.log('❌ Admin access denied - Not authenticated');
+      setState({
+        isAdmin: false,
+        isManager: false,
+        isEmployee: false,
+        isGuest: true,
+        hasAccess: false,
+        role: 'Guest',
+        station: '',
+        loading: false,
+        error: null
+      });
+      return;
+    }
+
+    const isAdmin = userProfile.role === 'Administrator';
+    const isManager = userProfile.role === 'Management' || isAdmin;
+    const isEmployee = userProfile.role === 'Employee';
+    const hasAccess = isAdmin || isManager;
+
+    console.log(`✅ Admin access determined - Role: ${userProfile.role}, HasAccess: ${hasAccess}`);
+
+    setState({
+      isAdmin,
+      isManager,
+      isEmployee,
+      isGuest: false,
+      hasAccess,
+      role: userProfile.role,
+      station: userProfile.station || '',
+      loading: false,
+      error: null
+    });
+  }, [user, userProfile, isAuthenticated, isLoading, authError]);
+
+  return state;
+};
+
+// Hook specifically for admin access debugging
+export const useAdminAccessDebug = () => {
+  const { user, userProfile, isAuthenticated } = useAuth();
+  const adminAccess = useAdminAccess();
 
   return {
-    isAdmin,
-    hasAdminAccess: isAdmin,
-    hasMonitoringAccess,
-    checkAdminAccess,
-    requireAdminAccess,
-    isLoading,
+    ...adminAccess,
     debugInfo: {
       user,
       userProfile,
-      userRole: userProfile?.role || null
+      isAuthenticated,
+      timestamp: new Date().toISOString()
     }
   };
 };

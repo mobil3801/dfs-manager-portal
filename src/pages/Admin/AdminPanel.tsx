@@ -4,17 +4,17 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Users, 
-  Shield, 
-  Activity, 
+import {
+  Users,
+  Shield,
+  Activity,
   Database,
   MessageSquare,
   Settings,
   AlertTriangle,
   CheckCircle,
-  Clock
-} from 'lucide-react';
+  Clock } from
+'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -87,11 +87,11 @@ const AdminPanel = () => {
 
     } catch (error) {
       console.error('Error fetching admin stats:', error);
-      setStats(prev => ({ ...prev, systemHealth: 'error' }));
+      setStats((prev) => ({ ...prev, systemHealth: 'error' }));
       toast({
         title: "Error",
         description: "Failed to load admin dashboard data",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -105,23 +105,23 @@ const AdminPanel = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const AdminStatCard = ({ 
-    title, 
-    value, 
-    icon: Icon, 
-    color, 
-    onClick 
-  }: { 
-    title: string; 
-    value: number | string; 
-    icon: any; 
-    color: string;
-    onClick?: () => void;
-  }) => (
-    <Card 
-      className={`p-6 cursor-pointer hover:shadow-lg transition-shadow ${onClick ? 'hover:bg-gray-50' : ''}`}
-      onClick={onClick}
-    >
+  const AdminStatCard = ({
+    title,
+    value,
+    icon: Icon,
+    color,
+    onClick
+
+
+
+
+
+
+  }: {title: string;value: number | string;icon: any;color: string;onClick?: () => void;}) =>
+  <Card
+    className={`p-6 cursor-pointer hover:shadow-lg transition-shadow ${onClick ? 'hover:bg-gray-50' : ''}`}
+    onClick={onClick}>
+
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-600">{title}</p>
@@ -129,23 +129,23 @@ const AdminPanel = () => {
         </div>
         <Icon className={`h-8 w-8 ${color}`} />
       </div>
-    </Card>
-  );
+    </Card>;
 
-  const QuickAdminAction = ({ 
-    title, 
-    description, 
-    icon: Icon, 
-    onClick, 
-    variant = "default" 
-  }: { 
-    title: string; 
-    description: string; 
-    icon: any; 
-    onClick: () => void;
-    variant?: "default" | "secondary" | "destructive";
-  }) => (
-    <Card className="p-4 hover:shadow-md transition-shadow">
+
+  const QuickAdminAction = ({
+    title,
+    description,
+    icon: Icon,
+    onClick,
+    variant = "default"
+
+
+
+
+
+
+  }: {title: string;description: string;icon: any;onClick: () => void;variant?: "default" | "secondary" | "destructive";}) =>
+  <Card className="p-4 hover:shadow-md transition-shadow">
       <div className="flex items-start space-x-3 mb-3">
         <Icon className="h-6 w-6 text-blue-600 mt-1" />
         <div className="flex-1">
@@ -156,8 +156,8 @@ const AdminPanel = () => {
       <Button onClick={onClick} variant={variant} size="sm" className="w-full">
         Access {title}
       </Button>
-    </Card>
-  );
+    </Card>;
+
 
   const getSystemHealthBadge = () => {
     const health = stats.systemHealth;
@@ -198,27 +198,27 @@ const AdminPanel = () => {
           value={stats.totalUsers}
           icon={Users}
           color="text-blue-600"
-          onClick={() => navigate('/admin/users')}
-        />
+          onClick={() => navigate('/admin/users')} />
+
         <AdminStatCard
           title="Active Users"
           value={stats.activeUsers}
           icon={Shield}
-          color="text-green-600"
-        />
+          color="text-green-600" />
+
         <AdminStatCard
           title="Total Audit Logs"
           value={stats.totalAuditLogs}
           icon={Database}
           color="text-purple-600"
-          onClick={() => navigate('/admin/audit')}
-        />
+          onClick={() => navigate('/admin/audit')} />
+
         <AdminStatCard
           title="Today's Activity"
           value={stats.todaysActivity}
           icon={Activity}
-          color="text-orange-600"
-        />
+          color="text-orange-600" />
+
       </div>
 
       {/* Admin Actions */}
@@ -235,20 +235,20 @@ const AdminPanel = () => {
               title="User Management"
               description="Manage user accounts, roles, and permissions"
               icon={Users}
-              onClick={() => navigate('/admin/users')}
-            />
+              onClick={() => navigate('/admin/users')} />
+
             <QuickAdminAction
               title="Site Management"
               description="Configure stations and locations"
               icon={Settings}
-              onClick={() => navigate('/admin/sites')}
-            />
+              onClick={() => navigate('/admin/sites')} />
+
             <QuickAdminAction
               title="Security Settings"
               description="Manage security policies and access controls"
               icon={Shield}
-              onClick={() => navigate('/admin/security')}
-            />
+              onClick={() => navigate('/admin/security')} />
+
           </div>
         </TabsContent>
 
@@ -258,20 +258,20 @@ const AdminPanel = () => {
               title="Database Monitoring"
               description="Monitor database performance and connections"
               icon={Database}
-              onClick={() => navigate('/admin/database')}
-            />
+              onClick={() => navigate('/admin/database')} />
+
             <QuickAdminAction
               title="SMS Management"
               description="Configure SMS alerts and notifications"
               icon={MessageSquare}
-              onClick={() => navigate('/admin/sms')}
-            />
+              onClick={() => navigate('/admin/sms')} />
+
             <QuickAdminAction
               title="System Logs"
               description="View and manage system logs"
               icon={Activity}
-              onClick={() => navigate('/admin/logs')}
-            />
+              onClick={() => navigate('/admin/logs')} />
+
           </div>
         </TabsContent>
 
@@ -281,21 +281,21 @@ const AdminPanel = () => {
               title="Audit Monitoring"
               description="Review audit logs and user activity"
               icon={Shield}
-              onClick={() => navigate('/admin/audit')}
-            />
+              onClick={() => navigate('/admin/audit')} />
+
             <QuickAdminAction
               title="Error Monitoring"
               description="Track and resolve system errors"
               icon={AlertTriangle}
               onClick={() => navigate('/admin/errors')}
-              variant="secondary"
-            />
+              variant="secondary" />
+
             <QuickAdminAction
               title="Performance Monitor"
               description="Monitor system performance metrics"
               icon={Activity}
-              onClick={() => navigate('/admin/performance')}
-            />
+              onClick={() => navigate('/admin/performance')} />
+
           </div>
         </TabsContent>
       </Tabs>
@@ -310,8 +310,8 @@ const AdminPanel = () => {
           <p>• Database connection is stable</p>
         </div>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AdminPanel;

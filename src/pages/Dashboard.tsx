@@ -4,17 +4,17 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  BarChart3, 
-  Users, 
-  Package, 
-  FileText, 
-  Truck, 
+import {
+  BarChart3,
+  Users,
+  Package,
+  FileText,
+  Truck,
   Calendar,
   AlertTriangle,
   TrendingUp,
-  Activity
-} from 'lucide-react';
+  Activity } from
+'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -45,7 +45,7 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch employees count
       const employeesResponse = await window.ezsite.apis.tablePage(11727, {
         PageNo: 1,
@@ -80,16 +80,16 @@ const Dashboard = () => {
         PageNo: 1,
         PageSize: 1,
         Filters: [
-          { name: "expiry_date", op: "LessThanOrEqual", value: thirtyDaysFromNow.toISOString() },
-          { name: "status", op: "Equal", value: "Active" }
-        ]
+        { name: "expiry_date", op: "LessThanOrEqual", value: thirtyDaysFromNow.toISOString() },
+        { name: "status", op: "Equal", value: "Active" }]
+
       });
 
       // Calculate total sales from today's reports
       let totalSales = 0;
       if (salesResponse.data?.List) {
-        totalSales = salesResponse.data.List.reduce((sum: number, report: any) => 
-          sum + (report.total_sales || 0), 0
+        totalSales = salesResponse.data.List.reduce((sum: number, report: any) =>
+        sum + (report.total_sales || 0), 0
         );
       }
 
@@ -107,7 +107,7 @@ const Dashboard = () => {
       toast({
         title: "Error",
         description: "Failed to load dashboard data",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -121,23 +121,23 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const QuickStatCard = ({ 
-    title, 
-    value, 
-    icon: Icon, 
-    color, 
-    onClick 
-  }: { 
-    title: string; 
-    value: number | string; 
-    icon: any; 
-    color: string;
-    onClick?: () => void;
-  }) => (
-    <Card 
-      className={`p-6 cursor-pointer hover:shadow-lg transition-shadow ${onClick ? 'hover:bg-gray-50' : ''}`}
-      onClick={onClick}
-    >
+  const QuickStatCard = ({
+    title,
+    value,
+    icon: Icon,
+    color,
+    onClick
+
+
+
+
+
+
+  }: {title: string;value: number | string;icon: any;color: string;onClick?: () => void;}) =>
+  <Card
+    className={`p-6 cursor-pointer hover:shadow-lg transition-shadow ${onClick ? 'hover:bg-gray-50' : ''}`}
+    onClick={onClick}>
+
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-600">{title}</p>
@@ -145,23 +145,23 @@ const Dashboard = () => {
         </div>
         <Icon className={`h-8 w-8 ${color}`} />
       </div>
-    </Card>
-  );
+    </Card>;
 
-  const QuickAction = ({ 
-    title, 
-    description, 
-    icon: Icon, 
-    onClick, 
-    color = "text-blue-600" 
-  }: { 
-    title: string; 
-    description: string; 
-    icon: any; 
-    onClick: () => void;
-    color?: string;
-  }) => (
-    <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={onClick}>
+
+  const QuickAction = ({
+    title,
+    description,
+    icon: Icon,
+    onClick,
+    color = "text-blue-600"
+
+
+
+
+
+
+  }: {title: string;description: string;icon: any;onClick: () => void;color?: string;}) =>
+  <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={onClick}>
       <div className="flex items-start space-x-3">
         <Icon className={`h-6 w-6 ${color} mt-1`} />
         <div>
@@ -169,8 +169,8 @@ const Dashboard = () => {
           <p className="text-sm text-gray-600">{description}</p>
         </div>
       </div>
-    </Card>
-  );
+    </Card>;
+
 
   return (
     <div className="space-y-6">
@@ -189,42 +189,42 @@ const Dashboard = () => {
           value={stats.totalEmployees}
           icon={Users}
           color="text-blue-600"
-          onClick={() => navigate('/employees')}
-        />
+          onClick={() => navigate('/employees')} />
+
         <QuickStatCard
           title="Products"
           value={stats.activeProducts}
           icon={Package}
           color="text-green-600"
-          onClick={() => navigate('/products')}
-        />
+          onClick={() => navigate('/products')} />
+
         <QuickStatCard
           title="Today's Reports"
           value={stats.todayReports}
           icon={FileText}
           color="text-purple-600"
-          onClick={() => navigate('/sales')}
-        />
+          onClick={() => navigate('/sales')} />
+
         <QuickStatCard
           title="Deliveries"
           value={stats.pendingDeliveries}
           icon={Truck}
           color="text-orange-600"
-          onClick={() => navigate('/delivery')}
-        />
+          onClick={() => navigate('/delivery')} />
+
         <QuickStatCard
           title="Expiring Licenses"
           value={stats.expiringLicenses}
           icon={AlertTriangle}
           color="text-red-600"
-          onClick={() => navigate('/licenses')}
-        />
+          onClick={() => navigate('/licenses')} />
+
         <QuickStatCard
           title="Today's Sales"
           value={`$${stats.totalSales.toLocaleString()}`}
           icon={TrendingUp}
-          color="text-emerald-600"
-        />
+          color="text-emerald-600" />
+
       </div>
 
       {/* Main Content Tabs */}
@@ -236,8 +236,8 @@ const Dashboard = () => {
 
         <TabsContent value="overview" className="space-y-4">
           {/* Alerts and Notifications */}
-          {stats.expiringLicenses > 0 && (
-            <Card className="p-4 border-orange-200 bg-orange-50">
+          {stats.expiringLicenses > 0 &&
+          <Card className="p-4 border-orange-200 bg-orange-50">
               <div className="flex items-center space-x-2">
                 <AlertTriangle className="h-5 w-5 text-orange-600" />
                 <div>
@@ -246,17 +246,17 @@ const Dashboard = () => {
                     {stats.expiringLicenses} license(s) expiring within 30 days
                   </p>
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="ml-auto"
-                  onClick={() => navigate('/licenses')}
-                >
+                <Button
+                variant="outline"
+                size="sm"
+                className="ml-auto"
+                onClick={() => navigate('/licenses')}>
+
                   View Licenses
                 </Button>
               </div>
             </Card>
-          )}
+          }
 
           {/* Recent Activity */}
           <Card className="p-6">
@@ -289,50 +289,50 @@ const Dashboard = () => {
               title="New Sales Report"
               description="Create a daily sales report"
               icon={FileText}
-              onClick={() => navigate('/sales/new')}
-            />
+              onClick={() => navigate('/sales/new')} />
+
             <QuickAction
               title="Record Delivery"
               description="Log a new fuel delivery"
               icon={Truck}
-              onClick={() => navigate('/delivery/new')}
-            />
+              onClick={() => navigate('/delivery/new')} />
+
             <QuickAction
               title="Add Product"
               description="Register a new product"
               icon={Package}
-              onClick={() => navigate('/products/new')}
-            />
-            {isManager() && (
-              <>
+              onClick={() => navigate('/products/new')} />
+
+            {isManager() &&
+            <>
                 <QuickAction
-                  title="Manage Employees"
-                  description="View and edit employee records"
-                  icon={Users}
-                  onClick={() => navigate('/employees')}
-                />
+                title="Manage Employees"
+                description="View and edit employee records"
+                icon={Users}
+                onClick={() => navigate('/employees')} />
+
                 <QuickAction
-                  title="Check Licenses"
-                  description="Review license status and renewals"
-                  icon={Calendar}
-                  onClick={() => navigate('/licenses')}
-                />
+                title="Check Licenses"
+                description="Review license status and renewals"
+                icon={Calendar}
+                onClick={() => navigate('/licenses')} />
+
               </>
-            )}
-            {isAdmin() && (
-              <QuickAction
-                title="Admin Panel"
-                description="System administration and settings"
-                icon={BarChart3}
-                onClick={() => navigate('/admin')}
-                color="text-red-600"
-              />
-            )}
+            }
+            {isAdmin() &&
+            <QuickAction
+              title="Admin Panel"
+              description="System administration and settings"
+              icon={BarChart3}
+              onClick={() => navigate('/admin')}
+              color="text-red-600" />
+
+            }
           </div>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Dashboard;

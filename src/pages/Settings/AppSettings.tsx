@@ -9,14 +9,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Settings, 
-  User, 
-  Bell, 
+import {
+  Settings,
+  User,
+  Bell,
   Database,
   Shield,
-  Save
-} from 'lucide-react';
+  Save } from
+'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -64,7 +64,7 @@ const AppSettings = () => {
 
     try {
       setLoading(true);
-      
+
       const { error } = await window.ezsite.apis.tableUpdate(11725, {
         id: userProfile.id,
         phone: profileData.phone,
@@ -77,14 +77,14 @@ const AppSettings = () => {
 
       toast({
         title: "Profile Updated",
-        description: "Your profile has been successfully updated",
+        description: "Your profile has been successfully updated"
       });
     } catch (error) {
       console.error('Error updating profile:', error);
       toast({
         title: "Update Failed",
         description: "Failed to update profile",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -94,19 +94,19 @@ const AppSettings = () => {
   const handleSaveSettings = async () => {
     try {
       setLoading(true);
-      
+
       // In a real implementation, you would save settings to a user preferences table
-      
+
       toast({
         title: "Settings Saved",
-        description: "Your preferences have been saved",
+        description: "Your preferences have been saved"
       });
     } catch (error) {
       console.error('Error saving settings:', error);
       toast({
         title: "Save Failed",
         description: "Failed to save settings",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -141,42 +141,42 @@ const AppSettings = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="name">Name</Label>
-                <Input 
-                  id="name" 
-                  value={user?.Name || ''} 
-                  disabled 
-                  className="bg-gray-50"
-                />
+                <Input
+                  id="name"
+                  value={user?.Name || ''}
+                  disabled
+                  className="bg-gray-50" />
+
                 <p className="text-xs text-gray-500 mt-1">Contact admin to change name</p>
               </div>
               
               <div>
                 <Label htmlFor="email">Email</Label>
-                <Input 
-                  id="email" 
-                  value={user?.Email || ''} 
-                  disabled 
-                  className="bg-gray-50"
-                />
+                <Input
+                  id="email"
+                  value={user?.Email || ''}
+                  disabled
+                  className="bg-gray-50" />
+
                 <p className="text-xs text-gray-500 mt-1">Contact admin to change email</p>
               </div>
               
               <div>
                 <Label htmlFor="phone">Phone</Label>
-                <Input 
-                  id="phone" 
+                <Input
+                  id="phone"
                   value={profileData.phone}
-                  onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
-                  placeholder="Enter phone number"
-                />
+                  onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                  placeholder="Enter phone number" />
+
               </div>
               
               <div>
                 <Label htmlFor="station">Station</Label>
-                <Select 
-                  value={profileData.station} 
-                  onValueChange={(value) => setProfileData({...profileData, station: value})}
-                >
+                <Select
+                  value={profileData.station}
+                  onValueChange={(value) => setProfileData({ ...profileData, station: value })}>
+
                   <SelectTrigger>
                     <SelectValue placeholder="Select station" />
                   </SelectTrigger>
@@ -191,23 +191,23 @@ const AppSettings = () => {
               
               <div>
                 <Label htmlFor="role">Role</Label>
-                <Input 
-                  id="role" 
-                  value={userProfile?.role || ''} 
-                  disabled 
-                  className="bg-gray-50"
-                />
+                <Input
+                  id="role"
+                  value={userProfile?.role || ''}
+                  disabled
+                  className="bg-gray-50" />
+
                 <p className="text-xs text-gray-500 mt-1">Contact admin to change role</p>
               </div>
               
               <div>
                 <Label htmlFor="employee-id">Employee ID</Label>
-                <Input 
-                  id="employee-id" 
-                  value={userProfile?.employee_id || ''} 
-                  disabled 
-                  className="bg-gray-50"
-                />
+                <Input
+                  id="employee-id"
+                  value={userProfile?.employee_id || ''}
+                  disabled
+                  className="bg-gray-50" />
+
               </div>
             </div>
             
@@ -233,15 +233,15 @@ const AppSettings = () => {
                   <Label>Email Alerts</Label>
                   <p className="text-sm text-gray-600">Receive alerts via email</p>
                 </div>
-                <Switch 
+                <Switch
                   checked={settings.notifications.emailAlerts}
-                  onCheckedChange={(checked) => 
-                    setSettings({
-                      ...settings,
-                      notifications: {...settings.notifications, emailAlerts: checked}
-                    })
-                  }
-                />
+                  onCheckedChange={(checked) =>
+                  setSettings({
+                    ...settings,
+                    notifications: { ...settings.notifications, emailAlerts: checked }
+                  })
+                  } />
+
               </div>
               
               <div className="flex items-center justify-between">
@@ -249,15 +249,15 @@ const AppSettings = () => {
                   <Label>SMS Alerts</Label>
                   <p className="text-sm text-gray-600">Receive alerts via SMS</p>
                 </div>
-                <Switch 
+                <Switch
                   checked={settings.notifications.smsAlerts}
-                  onCheckedChange={(checked) => 
-                    setSettings({
-                      ...settings,
-                      notifications: {...settings.notifications, smsAlerts: checked}
-                    })
-                  }
-                />
+                  onCheckedChange={(checked) =>
+                  setSettings({
+                    ...settings,
+                    notifications: { ...settings.notifications, smsAlerts: checked }
+                  })
+                  } />
+
               </div>
               
               <div className="flex items-center justify-between">
@@ -265,28 +265,28 @@ const AppSettings = () => {
                   <Label>Desktop Notifications</Label>
                   <p className="text-sm text-gray-600">Show browser notifications</p>
                 </div>
-                <Switch 
+                <Switch
                   checked={settings.notifications.desktopNotifications}
-                  onCheckedChange={(checked) => 
-                    setSettings({
-                      ...settings,
-                      notifications: {...settings.notifications, desktopNotifications: checked}
-                    })
-                  }
-                />
+                  onCheckedChange={(checked) =>
+                  setSettings({
+                    ...settings,
+                    notifications: { ...settings.notifications, desktopNotifications: checked }
+                  })
+                  } />
+
               </div>
               
               <div>
                 <Label>Alert Frequency</Label>
-                <Select 
+                <Select
                   value={settings.notifications.alertFrequency}
-                  onValueChange={(value) => 
-                    setSettings({
-                      ...settings,
-                      notifications: {...settings.notifications, alertFrequency: value}
-                    })
-                  }
-                >
+                  onValueChange={(value) =>
+                  setSettings({
+                    ...settings,
+                    notifications: { ...settings.notifications, alertFrequency: value }
+                  })
+                  }>
+
                   <SelectTrigger className="mt-2">
                     <SelectValue />
                   </SelectTrigger>
@@ -318,15 +318,15 @@ const AppSettings = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label>Theme</Label>
-                <Select 
+                <Select
                   value={settings.preferences.theme}
-                  onValueChange={(value) => 
-                    setSettings({
-                      ...settings,
-                      preferences: {...settings.preferences, theme: value}
-                    })
-                  }
-                >
+                  onValueChange={(value) =>
+                  setSettings({
+                    ...settings,
+                    preferences: { ...settings.preferences, theme: value }
+                  })
+                  }>
+
                   <SelectTrigger className="mt-2">
                     <SelectValue />
                   </SelectTrigger>
@@ -340,15 +340,15 @@ const AppSettings = () => {
               
               <div>
                 <Label>Language</Label>
-                <Select 
+                <Select
                   value={settings.preferences.language}
-                  onValueChange={(value) => 
-                    setSettings({
-                      ...settings,
-                      preferences: {...settings.preferences, language: value}
-                    })
-                  }
-                >
+                  onValueChange={(value) =>
+                  setSettings({
+                    ...settings,
+                    preferences: { ...settings.preferences, language: value }
+                  })
+                  }>
+
                   <SelectTrigger className="mt-2">
                     <SelectValue />
                   </SelectTrigger>
@@ -361,15 +361,15 @@ const AppSettings = () => {
               
               <div>
                 <Label>Date Format</Label>
-                <Select 
+                <Select
                   value={settings.preferences.dateFormat}
-                  onValueChange={(value) => 
-                    setSettings({
-                      ...settings,
-                      preferences: {...settings.preferences, dateFormat: value}
-                    })
-                  }
-                >
+                  onValueChange={(value) =>
+                  setSettings({
+                    ...settings,
+                    preferences: { ...settings.preferences, dateFormat: value }
+                  })
+                  }>
+
                   <SelectTrigger className="mt-2">
                     <SelectValue />
                   </SelectTrigger>
@@ -383,15 +383,15 @@ const AppSettings = () => {
               
               <div>
                 <Label>Currency</Label>
-                <Select 
+                <Select
                   value={settings.preferences.currency}
-                  onValueChange={(value) => 
-                    setSettings({
-                      ...settings,
-                      preferences: {...settings.preferences, currency: value}
-                    })
-                  }
-                >
+                  onValueChange={(value) =>
+                  setSettings({
+                    ...settings,
+                    preferences: { ...settings.preferences, currency: value }
+                  })
+                  }>
+
                   <SelectTrigger className="mt-2">
                     <SelectValue />
                   </SelectTrigger>
@@ -413,8 +413,8 @@ const AppSettings = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AppSettings;
