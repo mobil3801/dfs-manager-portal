@@ -144,6 +144,7 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
             size="sm"
             onClick={addExpense}
             className="bg-white hover:bg-orange-100">
+
             <Plus className="w-4 h-4 mr-2" />
             Add Expense
           </Button>
@@ -168,6 +169,7 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
                 size="sm"
                 onClick={() => removeExpense(index)}
                 className="text-red-600 hover:text-red-800 hover:bg-red-50">
+
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
@@ -178,6 +180,7 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
                     <Select
                   value={expense.vendorId || ''}
                   onValueChange={(value) => updateExpense(index, 'vendorId', value)}>
+
                       <SelectTrigger>
                         <SelectValue placeholder="Select vendor (optional)" />
                       </SelectTrigger>
@@ -209,6 +212,7 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
                   min={0}
                   step={0.01}
                   required />
+
                   </div>
                   
                   <div className="space-y-2">
@@ -216,6 +220,7 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
                     <Select
                   value={expense.paymentType}
                   onValueChange={(value) => updateExpense(index, 'paymentType', value)}>
+
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -235,6 +240,7 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
                   onChange={(e) => updateExpense(index, 'chequeNo', e.target.value)}
                   placeholder="Enter cheque number"
                   required />
+
                     </div>
               }
                   
@@ -249,6 +255,7 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
                     disabled={uploadingIndex === index}
                     allowCamera={false}
                     className="w-full" />
+
 
                       {expense.invoiceFileId &&
                   <Badge variant="default" className="bg-green-100 text-green-800">
@@ -265,6 +272,7 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
                   onChange={(e) => updateExpense(index, 'notes', e.target.value)}
                   placeholder="Additional notes about this expense..."
                   rows={2} />
+
                   </div>
                 </div>
               </div>
