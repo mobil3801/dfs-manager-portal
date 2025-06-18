@@ -29,18 +29,18 @@ export const useAdminAccess = (): AdminAccessState => {
 
   useEffect(() => {
     console.log('🔍 Admin access check - User:', user?.Name, 'Profile:', userProfile?.role);
-    
+
     if (isLoading) {
-      setState(prev => ({ ...prev, loading: true }));
+      setState((prev) => ({ ...prev, loading: true }));
       return;
     }
 
     if (authError) {
-      setState(prev => ({ 
-        ...prev, 
-        loading: false, 
+      setState((prev) => ({
+        ...prev,
+        loading: false,
         error: authError,
-        hasAccess: false 
+        hasAccess: false
       }));
       return;
     }

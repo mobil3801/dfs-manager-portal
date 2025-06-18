@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import {
   Shield,
@@ -31,21 +32,14 @@ import {
   Trash2,
   Save,
   Search,
-  Copy,
-  RotateCcw,
   AlertTriangle,
-  Lock,
-  Unlock,
-  Download,
-  Printer,
-  Bell,
+  RefreshCw,
   Calendar,
-  Archive,
-  CheckSquare,
-  Home,
+  Bell,
   Map,
-  MoreHorizontal } from
-'lucide-react';
+  Archive,
+  CheckSquare
+} from 'lucide-react';
 
 interface UserProfile {
   id: number;
@@ -87,251 +81,286 @@ const defaultPagePermission: PagePermission = {
   advanced_features: false
 };
 
-// Comprehensive page definitions with all system pages
-const pageGroups = {
-  'Core Operations': [
-  {
-    key: 'dashboard',
-    label: 'Dashboard',
-    icon: BarChart3,
-    color: 'text-blue-600',
-    description: 'Main overview, analytics, quick access toolbar',
-    features: ['View reports', 'Quick actions', 'Analytics widgets']
-  },
-  {
-    key: 'products',
-    label: 'Products Management',
-    icon: Package,
-    color: 'text-green-600',
-    description: 'Product inventory, pricing, barcode scanning',
-    features: ['Add/Edit products', 'Barcode scanning', 'Price management', 'Stock tracking']
-  },
-  {
-    key: 'product_form',
-    label: 'Product Form',
-    icon: Edit,
-    color: 'text-green-500',
-    description: 'Add and edit individual product records',
-    features: ['Product creation', 'Information editing', 'File uploads']
-  }],
-
-
-  'Sales & Reporting': [
-  {
-    key: 'sales_reports',
-    label: 'Sales Reports List',
-    icon: FileText,
-    color: 'text-orange-600',
-    description: 'Daily sales reporting, enhanced print dialogs',
-    features: ['View sales reports', 'Print enhanced reports', 'Export data']
-  },
-  {
-    key: 'sales_report_form',
-    label: 'Sales Report Form',
-    icon: Edit,
-    color: 'text-orange-500',
-    description: 'Create and edit daily sales reports',
-    features: ['Gas/grocery sales', 'Lottery sales', 'Expenses', 'Document uploads', 'Cash collection']
-  }],
-
-
+// Real system pages that actually exist in the project
+const systemPages = {
+  'Core Dashboard': [
+    {
+      key: 'dashboard',
+      label: 'Dashboard',
+      icon: BarChart3,
+      color: 'text-blue-600',
+      route: '/dashboard',
+      description: 'Main dashboard with analytics and quick access'
+    }
+  ],
+  'Product Management': [
+    {
+      key: 'products',
+      label: 'Product List',
+      icon: Package,
+      color: 'text-green-600',
+      route: '/products',
+      description: 'View and manage product inventory'
+    },
+    {
+      key: 'product_form',
+      label: 'Product Form',
+      icon: Edit,
+      color: 'text-green-500',
+      route: '/products/new',
+      description: 'Add and edit product records'
+    }
+  ],
+  'Sales & Reports': [
+    {
+      key: 'sales_reports',
+      label: 'Sales Reports',
+      icon: FileText,
+      color: 'text-orange-600',
+      route: '/sales-reports',
+      description: 'Daily sales reporting and enhanced print dialogs'
+    },
+    {
+      key: 'sales_report_form',
+      label: 'Sales Report Form',
+      icon: Calendar,
+      color: 'text-orange-500',
+      route: '/sales-reports/new',
+      description: 'Create daily sales reports'
+    }
+  ],
   'Human Resources': [
-  {
-    key: 'employees',
-    label: 'Employee List',
-    icon: Users,
-    color: 'text-purple-600',
-    description: 'Employee records and information management',
-    features: ['View employees', 'Add/Edit employees', 'Search/Filter']
-  },
-  {
-    key: 'employee_form',
-    label: 'Employee Form',
-    icon: UserCheck,
-    color: 'text-purple-500',
-    description: 'Add and edit employee records with file uploads',
-    features: ['Employee creation', 'Document uploads', 'Contact management']
-  },
-  {
-    key: 'salary',
-    label: 'Salary List',
-    icon: DollarSign,
-    color: 'text-yellow-600',
-    description: 'Payroll processing and salary records',
-    features: ['View salary records', 'Pay period management', 'Export reports']
-  },
-  {
-    key: 'salary_form',
-    label: 'Salary Form',
-    icon: Calendar,
-    color: 'text-yellow-500',
-    description: 'Create and edit salary records',
-    features: ['Payroll processing', 'Deduction calculations', 'Pay period setup']
-  }],
-
-
+    {
+      key: 'employees',
+      label: 'Employee List',
+      icon: Users,
+      color: 'text-purple-600',
+      route: '/employees',
+      description: 'Employee records management'
+    },
+    {
+      key: 'employee_form',
+      label: 'Employee Form',
+      icon: UserCheck,
+      color: 'text-purple-500',
+      route: '/employees/new',
+      description: 'Add and edit employee records'
+    },
+    {
+      key: 'salary',
+      label: 'Salary Management',
+      icon: DollarSign,
+      color: 'text-yellow-600',
+      route: '/salary',
+      description: 'Payroll and salary records'
+    },
+    {
+      key: 'salary_form',
+      label: 'Salary Form',
+      icon: Calendar,
+      color: 'text-yellow-500',
+      route: '/salary/new',
+      description: 'Create salary records'
+    }
+  ],
   'Business Operations': [
-  {
-    key: 'vendors',
-    label: 'Vendor List',
-    icon: Building2,
-    color: 'text-teal-600',
-    description: 'Supplier relationships and vendor contacts',
-    features: ['View vendors', 'Add/Edit vendors', 'Contact management']
-  },
-  {
-    key: 'vendor_form',
-    label: 'Vendor Form',
-    icon: Building2,
-    color: 'text-teal-500',
-    description: 'Add and edit vendor information',
-    features: ['Vendor creation', 'Contact details', 'Payment terms']
-  },
-  {
-    key: 'orders',
-    label: 'Order List',
-    icon: Truck,
-    color: 'text-indigo-600',
-    description: 'Purchase orders and inventory ordering',
-    features: ['View orders', 'Order tracking', 'Status management']
-  },
-  {
-    key: 'order_form',
-    label: 'Order Form',
-    icon: Archive,
-    color: 'text-indigo-500',
-    description: 'Create and edit purchase orders',
-    features: ['Order creation', 'Item selection', 'Vendor management']
-  }],
-
-
+    {
+      key: 'vendors',
+      label: 'Vendor List',
+      icon: Building2,
+      color: 'text-teal-600',
+      route: '/vendors',
+      description: 'Supplier relationships'
+    },
+    {
+      key: 'vendor_form',
+      label: 'Vendor Form',
+      icon: Building2,
+      color: 'text-teal-500',
+      route: '/vendors/new',
+      description: 'Add and edit vendors'
+    },
+    {
+      key: 'orders',
+      label: 'Order List',
+      icon: Truck,
+      color: 'text-indigo-600',
+      route: '/orders',
+      description: 'Purchase orders management'
+    },
+    {
+      key: 'order_form',
+      label: 'Order Form',
+      icon: Archive,
+      color: 'text-indigo-500',
+      route: '/orders/new',
+      description: 'Create purchase orders'
+    }
+  ],
   'Delivery & Inventory': [
-  {
-    key: 'delivery',
-    label: 'Delivery List',
-    icon: Truck,
-    color: 'text-pink-600',
-    description: 'Fuel delivery tracking with enhanced print dialogs',
-    features: ['View deliveries', 'Enhanced print reports', 'BOL tracking']
-  },
-  {
-    key: 'delivery_form',
-    label: 'Delivery Form',
-    icon: Map,
-    color: 'text-pink-500',
-    description: 'Create and edit delivery records',
-    features: ['Delivery creation', 'Tank volume tracking', 'BOL management']
-  },
-  {
-    key: 'inventory_alerts',
-    label: 'Inventory Alerts',
-    icon: Bell,
-    color: 'text-red-600',
-    description: 'Stock level alerts and notifications',
-    features: ['View alerts', 'Stock monitoring', 'Alert management']
-  },
-  {
-    key: 'alert_settings',
-    label: 'Alert Settings',
-    icon: Settings,
-    color: 'text-red-500',
-    description: 'Configure inventory alert thresholds',
-    features: ['Alert configuration', 'Threshold settings', 'Notification preferences']
-  },
-  {
-    key: 'gas_delivery_inventory',
-    label: 'Gas Delivery Inventory',
-    icon: Database,
-    color: 'text-cyan-600',
-    description: 'Gas tank monitoring and delivery tracking',
-    features: ['Tank levels', 'Delivery tracking', 'Volume calculations']
-  }],
-
-
-  'Compliance & Licensing': [
-  {
-    key: 'licenses',
-    label: 'License List',
-    icon: Shield,
-    color: 'text-red-600',
-    description: 'Business licenses and regulatory compliance with enhanced print',
-    features: ['View licenses', 'Enhanced print dialogs', 'Expiry tracking']
-  },
-  {
-    key: 'license_form',
-    label: 'License Form',
-    icon: CheckSquare,
-    color: 'text-red-500',
-    description: 'Add and edit license records with file uploads',
-    features: ['License creation', 'Document uploads', 'Expiry management']
-  }],
-
-
+    {
+      key: 'delivery',
+      label: 'Delivery List',
+      icon: Truck,
+      color: 'text-pink-600',
+      route: '/delivery',
+      description: 'Fuel delivery tracking'
+    },
+    {
+      key: 'delivery_form',
+      label: 'Delivery Form',
+      icon: Map,
+      color: 'text-pink-500',
+      route: '/delivery/new',
+      description: 'Create delivery records'
+    },
+    {
+      key: 'inventory_alerts',
+      label: 'Inventory Alerts',
+      icon: Bell,
+      color: 'text-red-600',
+      route: '/inventory/alerts',
+      description: 'Stock level alerts'
+    },
+    {
+      key: 'alert_settings',
+      label: 'Alert Settings',
+      icon: Settings,
+      color: 'text-red-500',
+      route: '/inventory/settings',
+      description: 'Configure inventory alerts'
+    },
+    {
+      key: 'gas_delivery_inventory',
+      label: 'Gas Delivery Inventory',
+      icon: Database,
+      color: 'text-cyan-600',
+      route: '/inventory/gas-delivery',
+      description: 'Gas tank monitoring'
+    }
+  ],
+  'Licenses & Compliance': [
+    {
+      key: 'licenses',
+      label: 'License List',
+      icon: Shield,
+      color: 'text-red-600',
+      route: '/licenses',
+      description: 'Business licenses and compliance'
+    },
+    {
+      key: 'license_form',
+      label: 'License Form',
+      icon: CheckSquare,
+      color: 'text-red-500',
+      route: '/licenses/new',
+      description: 'Add and edit licenses'
+    }
+  ],
   'System Administration': [
-  {
-    key: 'settings',
-    label: 'App Settings',
-    icon: Settings,
-    color: 'text-gray-600',
-    description: 'Application configuration, image compression, demo features',
-    features: ['App configuration', 'Image compression settings', 'System preferences']
-  },
-  {
-    key: 'user_management',
-    label: 'User Management',
-    icon: UserCheck,
-    color: 'text-red-600',
-    description: 'User accounts, permission management, enhanced controls',
-    features: ['User accounts', 'Permission management', 'Enhanced controls']
-  },
-  {
-    key: 'site_management',
-    label: 'Site Management',
-    icon: Building2,
-    color: 'text-blue-600',
-    description: 'Multi-station configuration and management',
-    features: ['Station configuration', 'Site settings', 'Multi-location management']
-  },
-  {
-    key: 'system_logs',
-    label: 'System Logs',
-    icon: FileText,
-    color: 'text-gray-600',
-    description: 'System activity and audit trails',
-    features: ['Activity logs', 'Audit trails', 'System monitoring']
-  },
-  {
-    key: 'security_settings',
-    label: 'Security Settings',
-    icon: Shield,
-    color: 'text-red-600',
-    description: 'Security policies and authentication settings',
-    features: ['Security policies', 'Authentication settings', 'Access controls']
-  }]
-
+    {
+      key: 'settings',
+      label: 'App Settings',
+      icon: Settings,
+      color: 'text-gray-600',
+      route: '/settings',
+      description: 'Application configuration'
+    },
+    {
+      key: 'user_management',
+      label: 'User Management',
+      icon: UserCheck,
+      color: 'text-red-600',
+      route: '/admin/users',
+      description: 'User accounts and permissions'
+    },
+    {
+      key: 'site_management',
+      label: 'Site Management',
+      icon: Building2,
+      color: 'text-blue-600',
+      route: '/admin/sites',
+      description: 'Multi-station management'
+    },
+    {
+      key: 'system_logs',
+      label: 'System Logs',
+      icon: FileText,
+      color: 'text-gray-600',
+      route: '/admin/logs',
+      description: 'System activity logs'
+    },
+    {
+      key: 'security_settings',
+      label: 'Security Settings',
+      icon: Shield,
+      color: 'text-red-600',
+      route: '/admin/security',
+      description: 'Security policies'
+    }
+  ]
 };
 
-// Enhanced permission types with descriptions
 const permissionTypes = [
-{ key: 'view', label: 'View', icon: Eye, description: 'Can view and access the page/content', color: 'text-blue-600' },
-{ key: 'create', label: 'Add/Create', icon: Plus, description: 'Can use Add buttons and create new records', color: 'text-green-600' },
-{ key: 'edit', label: 'Edit/Modify', icon: Edit, description: 'Can use Edit buttons and modify existing records', color: 'text-yellow-600' },
-{ key: 'delete', label: 'Delete', icon: Trash2, description: 'Can delete records and use delete buttons', color: 'text-red-600' },
-{ key: 'export', label: 'Export', icon: Download, description: 'Can export data to files (CSV, Excel, etc.)', color: 'text-purple-600' },
-{ key: 'print', label: 'Print', icon: Printer, description: 'Can print reports and use enhanced print dialogs', color: 'text-indigo-600' },
-{ key: 'approve', label: 'Approve', icon: CheckCircle2, description: 'Can approve transactions and records', color: 'text-green-700' },
-{ key: 'bulk_operations', label: 'Bulk Ops', icon: MoreHorizontal, description: 'Can perform bulk operations on multiple records', color: 'text-orange-600' },
-{ key: 'advanced_features', label: 'Advanced', icon: Settings, description: 'Can access advanced features and configurations', color: 'text-gray-700' }];
+  { key: 'view', label: 'View', icon: Eye, description: 'Can view and access the page', color: 'text-blue-600' },
+  { key: 'create', label: 'Create', icon: Plus, description: 'Can create new records', color: 'text-green-600' },
+  { key: 'edit', label: 'Edit', icon: Edit, description: 'Can modify existing records', color: 'text-yellow-600' },
+  { key: 'delete', label: 'Delete', icon: Trash2, description: 'Can delete records', color: 'text-red-600' },
+  { key: 'export', label: 'Export', icon: FileText, description: 'Can export data', color: 'text-purple-600' },
+  { key: 'print', label: 'Print', icon: Settings, description: 'Can print reports', color: 'text-indigo-600' }
+];
 
-
-// Enhanced role templates with detailed descriptions
 const roleTemplates = {
-  Administrator: 'Full system access including all pages, buttons, and administrative functions',
-  Management: 'Full operational access with limited system administration capabilities',
-  'Station Manager': 'Complete station operations with inventory, sales, and delivery management',
-  Employee: 'Basic operational access to daily tasks and reporting',
-  Cashier: 'Sales reporting and basic inventory viewing with limited editing',
-  'Custom': 'Manually configured permissions for specific business needs'
+  Administrator: {
+    description: 'Full system access with all permissions',
+    permissions: () => {
+      const perms: DetailedPermissions = {};
+      Object.values(systemPages).flat().forEach(page => {
+        perms[page.key] = { ...defaultPagePermission };
+        permissionTypes.forEach(type => {
+          perms[page.key][type.key as keyof PagePermission] = true;
+        });
+      });
+      return perms;
+    }
+  },
+  Management: {
+    description: 'Full operational access with limited admin features',
+    permissions: () => {
+      const perms: DetailedPermissions = {};
+      Object.values(systemPages).flat().forEach(page => {
+        perms[page.key] = { ...defaultPagePermission };
+        if (!['user_management', 'system_logs', 'security_settings'].includes(page.key)) {
+          permissionTypes.forEach(type => {
+            perms[page.key][type.key as keyof PagePermission] = true;
+          });
+        } else {
+          perms[page.key].view = true;
+          perms[page.key].export = true;
+        }
+      });
+      return perms;
+    }
+  },
+  Employee: {
+    description: 'Basic operational access for daily tasks',
+    permissions: () => {
+      const perms: DetailedPermissions = {};
+      const employeePages = ['dashboard', 'sales_reports', 'sales_report_form', 'delivery', 'delivery_form'];
+      Object.values(systemPages).flat().forEach(page => {
+        perms[page.key] = { ...defaultPagePermission };
+        if (employeePages.includes(page.key)) {
+          perms[page.key].view = true;
+          perms[page.key].create = true;
+          perms[page.key].edit = true;
+          perms[page.key].print = true;
+        } else if (['products', 'inventory_alerts', 'gas_delivery_inventory'].includes(page.key)) {
+          perms[page.key].view = true;
+        }
+      });
+      return perms;
+    }
+  }
 };
 
 interface ComprehensivePermissionDialogProps {
@@ -348,6 +377,7 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
   const [permissions, setPermissions] = useState<DetailedPermissions>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState('All');
   const [activeTemplate, setActiveTemplate] = useState<string>('Custom');
@@ -378,6 +408,8 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
   const fetchUserProfiles = async () => {
     try {
       setLoading(true);
+      console.log('Fetching user profiles for comprehensive permission management...');
+      
       const { data, error } = await window.ezsite.apis.tablePage(11725, {
         PageNo: 1,
         PageSize: 100,
@@ -386,12 +418,17 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
         Filters: []
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching user profiles:', error);
+        throw error;
+      }
+
+      console.log('User profiles loaded:', data?.List?.length || 0);
       setUserProfiles(data?.List || []);
     } catch (error) {
       console.error('Error fetching user profiles:', error);
       toast({
-        title: "Error",
+        title: "Database Error",
         description: `Failed to fetch user profiles: ${error}`,
         variant: "destructive"
       });
@@ -400,30 +437,46 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
     }
   };
 
+  const refreshData = async () => {
+    setRefreshing(true);
+    await fetchUserProfiles();
+    setRefreshing(false);
+    toast({
+      title: "Success",
+      description: "User data refreshed successfully"
+    });
+  };
+
   const loadUserPermissions = (user: UserProfile) => {
     try {
-      if (user.detailed_permissions) {
+      console.log('Loading permissions for user:', user.employee_id);
+      
+      if (user.detailed_permissions && user.detailed_permissions.trim() !== '' && user.detailed_permissions !== '{}') {
         const existingPermissions = JSON.parse(user.detailed_permissions);
         setPermissions(existingPermissions);
         setActiveTemplate('Custom');
+        console.log('Loaded existing permissions');
       } else {
+        // Apply default role template
         applyRoleTemplate(user.role, false);
+        console.log('Applied default role template:', user.role);
       }
     } catch (error) {
-      console.error('Error parsing permissions:', error);
+      console.error('Error parsing permissions for user:', user.employee_id, error);
       applyRoleTemplate(user.role, false);
     }
   };
 
   const handleUserSelect = (userId: string) => {
-    const user = userProfiles.find((u) => u.id.toString() === userId);
+    const user = userProfiles.find(u => u.id.toString() === userId);
     if (user) {
       setSelectedUser(user);
+      console.log('Selected user for permission management:', user.employee_id);
     }
   };
 
   const handlePermissionChange = (pageKey: string, permissionType: string, value: boolean) => {
-    setPermissions((prev) => ({
+    setPermissions(prev => ({
       ...prev,
       [pageKey]: {
         ...(prev[pageKey] || defaultPagePermission),
@@ -431,59 +484,129 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
       }
     }));
     setActiveTemplate('Custom');
+    console.log('Permission changed:', pageKey, permissionType, value);
   };
 
-  const handleBulkPermissionChange = (pageKey: string, action: 'grant_all' | 'revoke_all' | 'view_only' | 'operational') => {
-    const newPagePermissions = { ...defaultPagePermission };
-
-    switch (action) {
-      case 'grant_all':
-        permissionTypes.forEach((type) => {
-          newPagePermissions[type.key as keyof PagePermission] = true;
+  const applyRoleTemplate = (role: string, showToast: boolean = true) => {
+    const template = roleTemplates[role as keyof typeof roleTemplates];
+    if (template) {
+      const newPermissions = template.permissions();
+      setPermissions(newPermissions);
+      setActiveTemplate(role);
+      console.log('Applied role template:', role);
+      
+      if (showToast) {
+        toast({
+          title: "Template Applied",
+          description: `${role} permission template has been applied`
         });
-        break;
-      case 'operational':
-        newPagePermissions.view = true;
-        newPagePermissions.create = true;
-        newPagePermissions.edit = true;
-        newPagePermissions.export = true;
-        newPagePermissions.print = true;
-        break;
-      case 'view_only':
-        newPagePermissions.view = true;
-        newPagePermissions.export = true;
-        break;
-      case 'revoke_all':
-        // All permissions remain false
-        break;
+      }
+    } else {
+      // Initialize with empty permissions for unknown roles
+      const emptyPermissions: DetailedPermissions = {};
+      Object.values(systemPages).flat().forEach(page => {
+        emptyPermissions[page.key] = { ...defaultPagePermission };
+      });
+      setPermissions(emptyPermissions);
+      setActiveTemplate('Custom');
+      
+      if (showToast) {
+        toast({
+          title: "Custom Template",
+          description: "Initialize custom permissions for this role"
+        });
+      }
+    }
+  };
+
+  const savePermissions = async () => {
+    if (!selectedUser) {
+      toast({
+        title: "Error",
+        description: "No user selected",
+        variant: "destructive"
+      });
+      return;
     }
 
-    setPermissions((prev) => ({
-      ...prev,
-      [pageKey]: newPagePermissions
-    }));
-    setActiveTemplate('Custom');
+    setSaving(true);
+    try {
+      console.log('Saving permissions for user:', selectedUser.employee_id);
+      
+      const { error } = await window.ezsite.apis.tableUpdate(11725, {
+        id: selectedUser.id,
+        detailed_permissions: JSON.stringify(permissions)
+      });
+
+      if (error) {
+        console.error('Database error saving permissions:', error);
+        throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: `Permissions updated successfully for ${selectedUser.employee_id}`
+      });
+
+      // Update local state
+      setUserProfiles(prev => prev.map(user => 
+        user.id === selectedUser.id 
+          ? { ...user, detailed_permissions: JSON.stringify(permissions) }
+          : user
+      ));
+
+      console.log('Permissions saved to production database successfully');
+    } catch (error) {
+      console.error('Error saving permissions:', error);
+      toast({
+        title: "Database Error",
+        description: `Failed to save permissions: ${error}`,
+        variant: "destructive"
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleGroupPermissionChange = (groupName: string, action: 'grant_all' | 'revoke_all' | 'view_only' | 'operational') => {
-    const groupPages = pageGroups[groupName as keyof typeof pageGroups] || [];
+  const getPermissionSummary = (user: UserProfile) => {
+    try {
+      const userPermissions = user.detailed_permissions && user.detailed_permissions.trim() !== '' 
+        ? JSON.parse(user.detailed_permissions) 
+        : {};
+
+      const totalPages = Object.values(systemPages).flat().length;
+      const pagesWithAccess = Object.values(systemPages).flat().filter(page => 
+        userPermissions[page.key]?.view
+      ).length;
+
+      return {
+        summary: `${pagesWithAccess}/${totalPages}`,
+        hasAccess: pagesWithAccess > 0,
+        pagesWithAccess,
+        totalPages
+      };
+    } catch {
+      return {
+        summary: '0/0',
+        hasAccess: false,
+        pagesWithAccess: 0,
+        totalPages: 0
+      };
+    }
+  };
+
+  const handleBulkPermissionChange = (groupName: string, action: 'grant_all' | 'revoke_all' | 'view_only') => {
+    const groupPages = systemPages[groupName as keyof typeof systemPages] || [];
     const newPermissions = { ...permissions };
 
-    groupPages.forEach((page) => {
+    groupPages.forEach(page => {
       const newPagePermissions = { ...defaultPagePermission };
 
       switch (action) {
         case 'grant_all':
-          permissionTypes.forEach((type) => {
+          permissionTypes.forEach(type => {
             newPagePermissions[type.key as keyof PagePermission] = true;
           });
-          break;
-        case 'operational':
-          newPagePermissions.view = true;
-          newPagePermissions.create = true;
-          newPagePermissions.edit = true;
-          newPagePermissions.export = true;
-          newPagePermissions.print = true;
           break;
         case 'view_only':
           newPagePermissions.view = true;
@@ -499,185 +622,18 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
 
     setPermissions(newPermissions);
     setActiveTemplate('Custom');
-  };
-
-  const applyRoleTemplate = (role: string, showToast: boolean = true) => {
-    let newPermissions: DetailedPermissions = {};
-
-    // Initialize all pages with default permissions
-    Object.values(pageGroups).flat().forEach((page) => {
-      newPermissions[page.key] = { ...defaultPagePermission };
+    
+    toast({
+      title: "Bulk Update",
+      description: `${action.replace('_', ' ')} applied to ${groupName}`
     });
-
-    switch (role) {
-      case 'Administrator':
-        // Full access to everything
-        Object.keys(newPermissions).forEach((pageKey) => {
-          permissionTypes.forEach((type) => {
-            newPermissions[pageKey][type.key as keyof PagePermission] = true;
-          });
-        });
-        break;
-
-      case 'Management':
-        // Full access to operations, limited admin access
-        const managementPages = [
-        'dashboard', 'products', 'product_form', 'employees', 'employee_form',
-        'sales_reports', 'sales_report_form', 'vendors', 'vendor_form',
-        'orders', 'order_form', 'delivery', 'delivery_form', 'licenses',
-        'license_form', 'inventory_alerts', 'alert_settings', 'gas_delivery_inventory',
-        'salary', 'salary_form'];
-
-        managementPages.forEach((pageKey) => {
-          if (newPermissions[pageKey]) {
-            permissionTypes.forEach((type) => {
-              newPermissions[pageKey][type.key as keyof PagePermission] = true;
-            });
-          }
-        });
-        // Limited admin access
-        const limitedAdminPages = ['settings', 'user_management'];
-        limitedAdminPages.forEach((pageKey) => {
-          if (newPermissions[pageKey]) {
-            newPermissions[pageKey].view = true;
-            newPermissions[pageKey].edit = true;
-            newPermissions[pageKey].export = true;
-          }
-        });
-        break;
-
-      case 'Station Manager':
-        // Full operational access for station management
-        const stationManagerPages = [
-        'dashboard', 'products', 'product_form', 'sales_reports', 'sales_report_form',
-        'delivery', 'delivery_form', 'inventory_alerts', 'alert_settings', 'gas_delivery_inventory'];
-
-        stationManagerPages.forEach((pageKey) => {
-          if (newPermissions[pageKey]) {
-            permissionTypes.slice(0, 6).forEach((type) => {// Exclude advanced permissions
-              newPermissions[pageKey][type.key as keyof PagePermission] = true;
-            });
-          }
-        });
-        // View access to other operational areas
-        const viewOnlyPages = ['employees', 'employee_form', 'vendors', 'vendor_form', 'orders', 'order_form', 'licenses', 'license_form', 'salary'];
-        viewOnlyPages.forEach((pageKey) => {
-          if (newPermissions[pageKey]) {
-            newPermissions[pageKey].view = true;
-            newPermissions[pageKey].export = true;
-            newPermissions[pageKey].print = true;
-          }
-        });
-        break;
-
-      case 'Employee':
-        // Basic operational access
-        const employeePages = ['dashboard', 'sales_reports', 'sales_report_form', 'delivery', 'delivery_form'];
-        employeePages.forEach((pageKey) => {
-          if (newPermissions[pageKey]) {
-            newPermissions[pageKey].view = true;
-            newPermissions[pageKey].create = true;
-            newPermissions[pageKey].edit = true;
-            newPermissions[pageKey].print = true;
-          }
-        });
-        // View-only access to products and inventory
-        const employeeViewPages = ['products', 'inventory_alerts', 'gas_delivery_inventory'];
-        employeeViewPages.forEach((pageKey) => {
-          if (newPermissions[pageKey]) {
-            newPermissions[pageKey].view = true;
-          }
-        });
-        break;
-
-      case 'Cashier':
-        // Sales and basic inventory access
-        newPermissions['dashboard'].view = true;
-        newPermissions['sales_reports'].view = true;
-        newPermissions['sales_reports'].export = true;
-        newPermissions['sales_reports'].print = true;
-        newPermissions['sales_report_form'].view = true;
-        newPermissions['sales_report_form'].create = true;
-        newPermissions['sales_report_form'].edit = true;
-        newPermissions['products'].view = true;
-        newPermissions['inventory_alerts'].view = true;
-        newPermissions['gas_delivery_inventory'].view = true;
-        break;
-
-      default:
-        // Custom or unknown role - minimal access
-        newPermissions['dashboard'].view = true;
-        break;
-    }
-
-    setPermissions(newPermissions);
-    setActiveTemplate(role);
-
-    if (showToast) {
-      toast({
-        title: "Template Applied",
-        description: `${role} permission template has been applied`
-      });
-    }
   };
 
-  const savePermissions = async () => {
-    if (!selectedUser) return;
-
-    setSaving(true);
-    try {
-      const { error } = await window.ezsite.apis.tableUpdate(11725, {
-        id: selectedUser.id,
-        detailed_permissions: JSON.stringify(permissions)
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "User permissions updated successfully"
-      });
-
-      // Update local state
-      setUserProfiles((prev) => prev.map((user) =>
-      user.id === selectedUser.id ?
-      { ...user, detailed_permissions: JSON.stringify(permissions) } :
-      user
-      ));
-    } catch (error) {
-      console.error('Error saving permissions:', error);
-      toast({
-        title: "Error",
-        description: `Failed to save permissions: ${error}`,
-        variant: "destructive"
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const getPermissionSummary = (user: UserProfile) => {
-    try {
-      const userPermissions = user.detailed_permissions ?
-      JSON.parse(user.detailed_permissions) :
-      {};
-
-      const totalPages = Object.values(pageGroups).flat().length;
-      const pagesWithAccess = Object.values(pageGroups).flat().filter((page) =>
-      userPermissions[page.key]?.view
-      ).length;
-
-      return `${pagesWithAccess}/${totalPages}`;
-    } catch {
-      return '0';
-    }
-  };
-
-  const filteredUsers = userProfiles.filter((user) => {
+  const filteredUsers = userProfiles.filter(user => {
     const matchesSearch =
-    user.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.role.toLowerCase().includes(searchTerm.toLowerCase());
+      user.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.role.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = selectedRole === 'All' || user.role === selectedRole;
     return matchesSearch && matchesRole;
   });
@@ -689,10 +645,24 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
       </DialogTrigger>
       <DialogContent className="max-w-7xl h-[90vh] overflow-hidden">
         <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2">
-            <Shield className="w-6 h-6 text-blue-600" />
-            <span>Comprehensive User Permission Management</span>
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center space-x-2">
+              <Database className="w-6 h-6 text-blue-600" />
+              <span>Real-Time Permission Management</span>
+            </DialogTitle>
+            <div className="flex items-center space-x-2">
+              <Badge variant="outline" className="bg-green-50 text-green-700">
+                {userProfiles.length} Users
+              </Badge>
+              <Button
+                onClick={refreshData}
+                disabled={refreshing}
+                variant="outline"
+                size="sm">
+                <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+              </Button>
+            </div>
+          </div>
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden">
@@ -707,20 +677,20 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {loading ?
-                  <div className="text-center py-4">Loading users...</div> :
-
-                  <>
+                  {loading ? (
+                    <div className="text-center py-4">Loading users from database...</div>
+                  ) : (
+                    <>
                       {/* Search and Filter */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="relative">
                           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                           <Input
-                          placeholder="Search users..."
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          className="pl-10" />
-
+                            placeholder="Search users..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-10"
+                          />
                         </div>
                         <Select value={selectedRole} onValueChange={setSelectedRole}>
                           <SelectTrigger>
@@ -730,9 +700,7 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
                             <SelectItem value="All">All Roles</SelectItem>
                             <SelectItem value="Administrator">Administrator</SelectItem>
                             <SelectItem value="Management">Management</SelectItem>
-                            <SelectItem value="Station Manager">Station Manager</SelectItem>
                             <SelectItem value="Employee">Employee</SelectItem>
-                            <SelectItem value="Cashier">Cashier</SelectItem>
                           </SelectContent>
                         </Select>
                         <Select onValueChange={handleUserSelect} value={selectedUser?.id.toString() || ''}>
@@ -740,342 +708,212 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
                             <SelectValue placeholder="Select user to manage" />
                           </SelectTrigger>
                           <SelectContent>
-                            {filteredUsers.map((user) =>
-                          <SelectItem key={user.id} value={user.id.toString()}>
-                                <div className="flex items-center justify-between w-full">
-                                  <span>{user.employee_id} - {user.role}</span>
-                                  <Badge variant="outline" className="ml-2">
-                                    {getPermissionSummary(user)}
-                                  </Badge>
-                                </div>
-                              </SelectItem>
-                          )}
+                            {filteredUsers.map(user => {
+                              const summary = getPermissionSummary(user);
+                              return (
+                                <SelectItem key={user.id} value={user.id.toString()}>
+                                  <div className="flex items-center justify-between w-full">
+                                    <span>{user.employee_id} - {user.role}</span>
+                                    <Badge variant="outline" className="ml-2">
+                                      {summary.summary}
+                                    </Badge>
+                                  </div>
+                                </SelectItem>
+                              );
+                            })}
                           </SelectContent>
                         </Select>
                       </div>
 
                       {/* Selected User Info */}
-                      {selectedUser &&
-                    <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <h3 className="font-semibold text-lg">{selectedUser.employee_id}</h3>
-                              <p className="text-sm text-gray-600">
-                                Role: {selectedUser.role} | Station: {selectedUser.station}
-                              </p>
-                            </div>
-                            <div className="text-right space-y-2">
-                              <Badge className={selectedUser.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
-                                {selectedUser.is_active ? 'Active' : 'Inactive'}
-                              </Badge>
-                              <div className="text-xs text-gray-500">
-                                Template: {activeTemplate}
+                      {selectedUser && (
+                        <Alert>
+                          <Database className="h-4 w-4" />
+                          <AlertDescription>
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <strong>{selectedUser.employee_id}</strong> - {selectedUser.role} at {selectedUser.station}
+                                <br />
+                                <span className="text-sm text-gray-600">Template: {activeTemplate}</span>
+                              </div>
+                              <div className="text-right">
+                                <Badge className={selectedUser.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                                  {selectedUser.is_active ? 'Active' : 'Inactive'}
+                                </Badge>
                               </div>
                             </div>
-                          </div>
-                        </div>
-                    }
+                          </AlertDescription>
+                        </Alert>
+                      )}
 
                       {/* Role Templates */}
-                      {selectedUser &&
-                    <div className="space-y-3">
+                      {selectedUser && (
+                        <div className="space-y-3">
                           <Label className="text-sm font-medium">Quick Permission Templates</Label>
-                          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
-                            {Object.entries(roleTemplates).map(([role, description]) =>
-                        <Button
-                          key={role}
-                          variant={activeTemplate === role ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => applyRoleTemplate(role)}
-                          className="text-xs h-auto py-2 px-3 flex flex-col items-center space-y-1"
-                          title={description}>
-
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                            {Object.entries(roleTemplates).map(([role, template]) => (
+                              <Button
+                                key={role}
+                                variant={activeTemplate === role ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => applyRoleTemplate(role)}
+                                className="text-xs h-auto py-2 px-3 flex flex-col items-center space-y-1"
+                                title={template.description}>
                                 <span className="font-medium">{role}</span>
                               </Button>
-                        )}
+                            ))}
                           </div>
                         </div>
-                    }
+                      )}
                     </>
-                  }
+                  )}
                 </CardContent>
               </Card>
 
               {/* Permission Management */}
-              {selectedUser &&
-              <Card>
+              {selectedUser && (
+                <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center space-x-2">
                         <Shield className="w-5 h-5" />
-                        <span>Detailed Permissions for {selectedUser.employee_id}</span>
+                        <span>Real-Time Permissions for {selectedUser.employee_id}</span>
                       </CardTitle>
                       <Button
-                      onClick={savePermissions}
-                      disabled={saving}
-                      className="bg-blue-600 hover:bg-blue-700">
-
+                        onClick={savePermissions}
+                        disabled={saving}
+                        className="bg-blue-600 hover:bg-blue-700">
                         <Save className="w-4 h-4 mr-2" />
-                        {saving ? 'Saving...' : 'Save Permissions'}
+                        {saving ? 'Saving to Database...' : 'Save Permissions'}
                       </Button>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <Tabs defaultValue="by-groups" className="w-full">
-                      <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="by-groups">By Page Groups</TabsTrigger>
-                        <TabsTrigger value="matrix-view">Matrix View</TabsTrigger>
-                      </TabsList>
-
-                      <TabsContent value="by-groups" className="space-y-6">
-                        {Object.entries(pageGroups).map(([groupName, pages]) =>
-                      <Card key={groupName} className="border-l-4 border-l-blue-500">
-                            <CardHeader className="pb-3">
-                              <div className="flex items-center justify-between">
-                                <CardTitle className="text-lg">{groupName}</CardTitle>
-                                <div className="flex space-x-2">
-                                  <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleGroupPermissionChange(groupName, 'view_only')}
-                                className="text-blue-600">
-
-                                    <Eye className="w-3 h-3 mr-1" />
-                                    View Only
-                                  </Button>
-                                  <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleGroupPermissionChange(groupName, 'operational')}
-                                className="text-orange-600">
-
-                                    <Settings className="w-3 h-3 mr-1" />
-                                    Operational
-                                  </Button>
-                                  <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleGroupPermissionChange(groupName, 'grant_all')}
-                                className="text-green-600">
-
-                                    <CheckCircle2 className="w-3 h-3 mr-1" />
-                                    Full Access
-                                  </Button>
-                                  <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleGroupPermissionChange(groupName, 'revoke_all')}
-                                className="text-red-600">
-
-                                    <XCircle className="w-3 h-3 mr-1" />
-                                    No Access
-                                  </Button>
-                                </div>
+                    <div className="space-y-6">
+                      {Object.entries(systemPages).map(([groupName, pages]) => (
+                        <Card key={groupName} className="border-l-4 border-l-blue-500">
+                          <CardHeader className="pb-3">
+                            <div className="flex items-center justify-between">
+                              <CardTitle className="text-lg">{groupName}</CardTitle>
+                              <div className="flex space-x-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleBulkPermissionChange(groupName, 'view_only')}
+                                  className="text-blue-600">
+                                  <Eye className="w-3 h-3 mr-1" />
+                                  View Only
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleBulkPermissionChange(groupName, 'grant_all')}
+                                  className="text-green-600">
+                                  <CheckCircle2 className="w-3 h-3 mr-1" />
+                                  Full Access
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleBulkPermissionChange(groupName, 'revoke_all')}
+                                  className="text-red-600">
+                                  <XCircle className="w-3 h-3 mr-1" />
+                                  No Access
+                                </Button>
                               </div>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="space-y-4">
-                                {pages.map((page) => {
-                              const pagePermissions = permissions[page.key] || defaultPagePermission;
-                              return (
-                                <div key={page.key} className="border rounded-lg p-4">
-                                      <div className="flex items-start justify-between mb-3">
-                                        <div className="flex items-center space-x-3">
-                                          <page.icon className={`w-5 h-5 ${page.color}`} />
-                                          <div>
-                                            <h4 className="font-medium">{page.label}</h4>
-                                            <p className="text-xs text-gray-500">{page.description}</p>
-                                            {page.features &&
-                                        <div className="mt-1">
-                                                {page.features.map((feature, idx) =>
-                                          <Badge key={idx} variant="outline" className="text-xs mr-1 mb-1">
-                                                    {feature}
-                                                  </Badge>
-                                          )}
-                                              </div>
-                                        }
-                                          </div>
-                                        </div>
-                                        <div className="flex space-x-1">
-                                          <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => handleBulkPermissionChange(page.key, 'view_only')}
-                                        className="text-blue-600 text-xs px-2 py-1">
-
-                                            View
-                                          </Button>
-                                          <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => handleBulkPermissionChange(page.key, 'operational')}
-                                        className="text-orange-600 text-xs px-2 py-1">
-
-                                            Ops
-                                          </Button>
-                                          <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => handleBulkPermissionChange(page.key, 'grant_all')}
-                                        className="text-green-600 text-xs px-2 py-1">
-
-                                            <CheckCircle2 className="w-3 h-3" />
-                                          </Button>
-                                          <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => handleBulkPermissionChange(page.key, 'revoke_all')}
-                                        className="text-red-600 text-xs px-2 py-1">
-
-                                            <XCircle className="w-3 h-3" />
-                                          </Button>
-                                        </div>
-                                      </div>
-                                      
-                                      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-9 gap-3">
-                                        {permissionTypes.map((type) =>
-                                    <div key={type.key} className="flex items-center space-x-2 p-2 border rounded">
-                                            <Switch
-                                        checked={pagePermissions[type.key as keyof PagePermission] || false}
-                                        onCheckedChange={(checked) =>
-                                        handlePermissionChange(page.key, type.key, checked)
-                                        }
-                                        id={`${page.key}-${type.key}`} />
-
-                                            <Label
-                                        htmlFor={`${page.key}-${type.key}`}
-                                        className="text-xs cursor-pointer flex items-center space-x-1">
-
-                                              <type.icon className={`w-3 h-3 ${type.color}`} />
-                                              <span>{type.label}</span>
-                                            </Label>
-                                          </div>
-                                    )}
-                                      </div>
-                                    </div>);
-
-                            })}
-                              </div>
-                            </CardContent>
-                          </Card>
-                      )}
-                      </TabsContent>
-
-                      <TabsContent value="matrix-view">
-                        <div className="overflow-x-auto">
-                          <table className="w-full border-collapse border">
-                            <thead className="sticky top-0 bg-white z-10">
-                              <tr className="border-b">
-                                <th className="text-left p-3 font-semibold bg-white border min-w-48">Page</th>
-                                {permissionTypes.map((type) =>
-                              <th key={type.key} className="text-center p-3 font-semibold min-w-20 bg-white border">
-                                    <div className="flex flex-col items-center space-y-1">
-                                      <type.icon className={`w-4 h-4 ${type.color}`} />
-                                      <span className="text-xs">{type.label}</span>
-                                    </div>
-                                  </th>
-                              )}
-                                <th className="text-center p-3 font-semibold bg-white border">Quick Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {Object.entries(pageGroups).map(([groupName, pages]) =>
-                            <React.Fragment key={groupName}>
-                                  <tr className="bg-gray-100">
-                                    <td colSpan={permissionTypes.length + 2} className="p-2 font-semibold text-sm border">
-                                      {groupName}
-                                    </td>
-                                  </tr>
-                                  {pages.map((page) => {
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-4">
+                              {pages.map(page => {
                                 const pagePermissions = permissions[page.key] || defaultPagePermission;
                                 return (
-                                  <tr key={page.key} className="border-b hover:bg-gray-50">
-                                        <td className="p-3 border">
-                                          <div className="flex items-center space-x-3">
-                                            <page.icon className={`w-4 h-4 ${page.color}`} />
-                                            <div>
-                                              <span className="font-medium text-sm">{page.label}</span>
-                                              <p className="text-xs text-gray-500">{page.description}</p>
-                                            </div>
-                                          </div>
-                                        </td>
-                                        {permissionTypes.map((type) =>
-                                    <td key={type.key} className="text-center p-3 border">
-                                            <Switch
-                                        checked={pagePermissions[type.key as keyof PagePermission] || false}
-                                        onCheckedChange={(checked) =>
-                                        handlePermissionChange(page.key, type.key, checked)
-                                        } />
-
-                                          </td>
-                                    )}
-                                        <td className="text-center p-3 border">
-                                          <div className="flex space-x-1 justify-center">
-                                            <Button
-                                          size="sm"
-                                          variant="outline"
-                                          onClick={() => handleBulkPermissionChange(page.key, 'grant_all')}
-                                          className="text-green-600 hover:text-green-700"
-                                          title="Grant all permissions">
-
-                                              <CheckCircle2 className="w-3 h-3" />
-                                            </Button>
-                                            <Button
-                                          size="sm"
-                                          variant="outline"
-                                          onClick={() => handleBulkPermissionChange(page.key, 'revoke_all')}
-                                          className="text-red-600 hover:text-red-700"
-                                          title="Revoke all permissions">
-
-                                              <XCircle className="w-3 h-3" />
-                                            </Button>
-                                          </div>
-                                        </td>
-                                      </tr>);
-
+                                  <div key={page.key} className="border rounded-lg p-4">
+                                    <div className="flex items-start justify-between mb-3">
+                                      <div className="flex items-center space-x-3">
+                                        <page.icon className={`w-5 h-5 ${page.color}`} />
+                                        <div>
+                                          <h4 className="font-medium">{page.label}</h4>
+                                          <p className="text-xs text-gray-500">{page.description}</p>
+                                          {page.route && (
+                                            <p className="text-xs text-blue-500">Route: {page.route}</p>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                                      {permissionTypes.map(type => (
+                                        <div key={type.key} className="flex items-center space-x-2 p-2 border rounded">
+                                          <Switch
+                                            checked={pagePermissions[type.key as keyof PagePermission] || false}
+                                            onCheckedChange={(checked) =>
+                                              handlePermissionChange(page.key, type.key, checked)
+                                            }
+                                            id={`${page.key}-${type.key}`}
+                                          />
+                                          <Label
+                                            htmlFor={`${page.key}-${type.key}`}
+                                            className="text-xs cursor-pointer flex items-center space-x-1">
+                                            <type.icon className={`w-3 h-3 ${type.color}`} />
+                                            <span>{type.label}</span>
+                                          </Label>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                );
                               })}
-                                </React.Fragment>
-                            )}
-                            </tbody>
-                          </table>
-                        </div>
-                      </TabsContent>
-                    </Tabs>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
 
                     {/* Permission Summary */}
                     <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                       <h4 className="font-semibold mb-3 flex items-center">
                         <AlertTriangle className="w-4 h-4 mr-2 text-blue-600" />
-                        Permission Summary & Add/Edit Button Controls
+                        Real-Time Production Database Integration
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div>
                           <p className="font-medium mb-2">Button Controls:</p>
                           <ul className="space-y-1 text-gray-600">
-                            <li>• <strong>Add/Create:</strong> Controls "Add" buttons throughout the system</li>
-                            <li>• <strong>Edit/Modify:</strong> Controls "Edit" buttons and modification features</li>
+                            <li>• <strong>View:</strong> Controls page access and navigation visibility</li>
+                            <li>• <strong>Create:</strong> Controls "Add" and "Create New" buttons</li>
+                            <li>• <strong>Edit:</strong> Controls "Edit" and modification buttons</li>
                             <li>• <strong>Delete:</strong> Controls delete actions and buttons</li>
-                            <li>• <strong>Print:</strong> Controls enhanced print dialogs and report printing</li>
+                            <li>• <strong>Export:</strong> Controls data export functionality</li>
+                            <li>• <strong>Print:</strong> Controls enhanced print dialogs</li>
                           </ul>
                         </div>
                         <div>
                           <p className="font-medium mb-2">Current Configuration:</p>
                           <Badge variant="outline" className="mb-2">{activeTemplate}</Badge>
                           <p className="text-gray-600 text-xs">
-                            {roleTemplates[activeTemplate as keyof typeof roleTemplates] || 'Custom permissions configured'}
+                            {roleTemplates[activeTemplate as keyof typeof roleTemplates]?.description || 'Custom permissions configured'}
                           </p>
+                          {selectedUser && (() => {
+                            const summary = getPermissionSummary(selectedUser);
+                            return (
+                              <p className="text-xs text-green-600 mt-2">
+                                Access to {summary.pagesWithAccess} out of {summary.totalPages} pages
+                              </p>
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              }
+              )}
             </div>
           </ScrollArea>
         </div>
       </DialogContent>
-    </Dialog>);
-
+    </Dialog>
+  );
 };
 
 export default ComprehensivePermissionDialog;

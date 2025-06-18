@@ -192,15 +192,17 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
-  */const getFID = (): number => {let fidValue = 0;const observer = new PerformanceObserver((list) => {for (const entry of list.getEntries()) {fidValue = (entry as any).processingStart - entry.startTime;}
-      });
-
+  */const getFID = (): number => {let fidValue = 0;const observer = new PerformanceObserver((list) => {for (const entry of list.getEntries()) {fidValue = (entry as any).processingStart - entry.startTime;}});
     try {
       observer.observe({ type: 'first-input', buffered: true });
     } catch (e) {
+
+
 
 
 
@@ -216,10 +218,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
     }return fidValue;}; /**
   * Get Largest Contentful Paint
   */const getLCP = (): number => {const entries = performance.getEntriesByType('largest-contentful-paint');return entries.length > 0 ? entries[entries.length - 1].startTime : 0;}; /**
-   * Get Time to First Byte
-   */
-  const getTTFB = (): number => {
-    const navigationEntries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
+  * Get Time to First Byte
+  */const getTTFB = (): number => {const navigationEntries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
     const navigationEntry = navigationEntries[0];
     return navigationEntry ? navigationEntry.responseStart - navigationEntry.requestStart : 0;
   };

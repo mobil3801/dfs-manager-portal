@@ -16,30 +16,30 @@ const AuthDebugger: React.FC = () => {
   const runAuthTest = async () => {
     try {
       setTestResult('Testing authentication...');
-      
+
       // Test getUserInfo API
       const userInfoResponse = await window.ezsite.apis.getUserInfo();
       console.log('Auth Test - getUserInfo:', userInfoResponse);
-      
+
       if (userInfoResponse.error) {
         setTestResult(`❌ Auth Test Failed: ${userInfoResponse.error}`);
         return;
       }
-      
+
       if (!userInfoResponse.data) {
         setTestResult('⚠️ Auth Test: No user data (not authenticated)');
         return;
       }
-      
+
       // Test profile fetch
       const profileResponse = await window.ezsite.apis.tablePage(11725, {
         PageNo: 1,
         PageSize: 1,
         Filters: [{ name: "user_id", op: "Equal", value: userInfoResponse.data.ID }]
       });
-      
+
       console.log('Auth Test - Profile:', profileResponse);
-      
+
       setTestResult('✅ Auth Test: All systems functional');
     } catch (error) {
       console.error('Auth test error:', error);
@@ -48,17 +48,17 @@ const AuthDebugger: React.FC = () => {
   };
 
   const getStatusIcon = (status: boolean | undefined) => {
-    return status ? 
-      <CheckCircle className="h-4 w-4 text-green-600" /> : 
-      <AlertTriangle className="h-4 w-4 text-red-600" />;
+    return status ?
+    <CheckCircle className="h-4 w-4 text-green-600" /> :
+    <AlertTriangle className="h-4 w-4 text-red-600" />;
   };
 
   const getStatusBadge = (status: boolean, trueText: string, falseText: string) => {
     return (
       <Badge variant={status ? "default" : "destructive"} className="ml-2">
         {status ? trueText : falseText}
-      </Badge>
-    );
+      </Badge>);
+
   };
 
   if (!isExpanded) {
@@ -68,13 +68,13 @@ const AuthDebugger: React.FC = () => {
           onClick={() => setIsExpanded(true)}
           variant="outline"
           size="sm"
-          className="bg-white shadow-lg"
-        >
+          className="bg-white shadow-lg">
+
           <Settings className="h-4 w-4 mr-2" />
           Auth Debug
         </Button>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -88,8 +88,8 @@ const AuthDebugger: React.FC = () => {
           <Button
             onClick={() => setIsExpanded(false)}
             variant="ghost"
-            size="sm"
-          >
+            size="sm">
+
             ×
           </Button>
         </div>
@@ -123,8 +123,8 @@ const AuthDebugger: React.FC = () => {
           </div>
 
           {/* User Info */}
-          {auth.user && (
-            <div className="border-t pt-3">
+          {auth.user &&
+          <div className="border-t pt-3">
               <div className="flex items-center mb-2">
                 <User className="h-4 w-4 mr-2" />
                 <span className="text-sm font-medium">User Details</span>
@@ -135,11 +135,11 @@ const AuthDebugger: React.FC = () => {
                 <div><strong>ID:</strong> {auth.user.ID}</div>
               </div>
             </div>
-          )}
+          }
 
           {/* Role Info */}
-          {auth.userProfile && (
-            <div className="border-t pt-3">
+          {auth.userProfile &&
+          <div className="border-t pt-3">
               <div className="text-xs space-y-1">
                 <div><strong>Role:</strong> {auth.userProfile.role}</div>
                 <div><strong>Station:</strong> {auth.userProfile.station || 'Not assigned'}</div>
@@ -153,26 +153,26 @@ const AuthDebugger: React.FC = () => {
                 </div>
               </div>
             </div>
-          )}
+          }
 
           {/* Error Display */}
-          {auth.authError && (
-            <Alert variant="destructive">
+          {auth.authError &&
+          <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription className="text-xs">
                 {auth.authError}
               </AlertDescription>
             </Alert>
-          )}
+          }
 
           {/* Test Results */}
-          {testResult && (
-            <Alert>
+          {testResult &&
+          <Alert>
               <AlertDescription className="text-xs">
                 {testResult}
               </AlertDescription>
             </Alert>
-          )}
+          }
 
           {/* Action Buttons */}
           <div className="border-t pt-3 space-y-2">
@@ -180,33 +180,33 @@ const AuthDebugger: React.FC = () => {
               onClick={runAuthTest}
               variant="outline"
               size="sm"
-              className="w-full text-xs"
-            >
+              className="w-full text-xs">
+
               Run Auth Test
             </Button>
             <Button
               onClick={auth.refreshUserData}
               variant="outline"
               size="sm"
-              className="w-full text-xs"
-            >
+              className="w-full text-xs">
+
               Refresh User Data
             </Button>
-            {auth.authError && (
-              <Button
-                onClick={auth.clearError}
-                variant="outline"
-                size="sm"
-                className="w-full text-xs"
-              >
+            {auth.authError &&
+            <Button
+              onClick={auth.clearError}
+              variant="outline"
+              size="sm"
+              className="w-full text-xs">
+
                 Clear Error
               </Button>
-            )}
+            }
           </div>
         </div>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AuthDebugger;

@@ -62,19 +62,19 @@ const queryClient = new QueryClient({
 });
 
 // Loading Spinner Component
-const LoadingSpinner = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+const LoadingSpinner = () =>
+<div className="min-h-screen flex items-center justify-center bg-gray-50">
     <div className="text-center">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
       <p className="text-gray-600">Loading DFS Manager Portal...</p>
       <p className="text-sm text-gray-500 mt-2">Initializing authentication system...</p>
     </div>
-  </div>
-);
+  </div>;
+
 
 // Error Display Component
-const AuthError = ({ error, onRetry }: { error: string; onRetry: () => void }) => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+const AuthError = ({ error, onRetry }: {error: string;onRetry: () => void;}) =>
+<div className="min-h-screen flex items-center justify-center bg-gray-50">
     <div className="max-w-md w-full text-center">
       <div className="bg-white rounded-lg shadow-lg p-6">
         <div className="text-red-600 mb-4">
@@ -85,23 +85,23 @@ const AuthError = ({ error, onRetry }: { error: string; onRetry: () => void }) =
         <h3 className="text-lg font-semibold text-gray-900 mb-2">Authentication Error</h3>
         <p className="text-gray-600 mb-4">{error}</p>
         <div className="space-y-2">
-          <button 
-            onClick={onRetry}
-            className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
+          <button
+          onClick={onRetry}
+          className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+
             Try Again
           </button>
-          <button 
-            onClick={() => window.location.href = '/login'}
-            className="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
-          >
+          <button
+          onClick={() => window.location.href = '/login'}
+          className="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors">
+
             Go to Login
           </button>
         </div>
       </div>
     </div>
-  </div>
-);
+  </div>;
+
 
 // Protected Route Component with improved error handling
 const ProtectedRoute: React.FC<{children: React.ReactNode;}> = ({ children }) => {
@@ -214,8 +214,8 @@ const AppRouter = () => {
         {/* Auth Debugger - Only show in development or for debugging */}
         <AuthDebugger />
       </div>
-    </Router>
-  );
+    </Router>);
+
 };
 
 function App() {
@@ -229,8 +229,8 @@ function App() {
         </GlobalErrorBoundary>
       </TooltipProvider>
       <Toaster />
-    </QueryClientProvider>
-  );
+    </QueryClientProvider>);
+
 }
 
 export default App;

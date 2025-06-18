@@ -16,8 +16,7 @@ import { useBatchSelection } from '@/hooks/use-batch-selection';
 import BatchActionBar from '@/components/BatchActionBar';
 import BatchDeleteDialog from '@/components/BatchDeleteDialog';
 import BatchEditDialog from '@/components/BatchEditDialog';
-import UserPermissionManager from '@/components/UserPermissionManager';
-import EnhancedUserPermissionManager from '@/components/EnhancedUserPermissionManager';
+import RealTimePermissionManager from '@/components/RealTimePermissionManager';
 import ComprehensivePermissionDialog from '@/components/ComprehensivePermissionDialog';
 import AccessDenied from '@/components/AccessDenied';
 import useAdminAccess from '@/hooks/use-admin-access';
@@ -42,8 +41,10 @@ import {
   Eye,
   FileText,
   AlertCircle,
-  RefreshCw } from
-'lucide-react';
+  RefreshCw,
+  Database,
+  CheckCircle2
+} from 'lucide-react';
 
 interface User {
   ID: number;
@@ -127,18 +128,20 @@ const UserManagement: React.FC = () => {
     setRefreshing(false);
     toast({
       title: "Success",
-      description: "Data refreshed successfully"
+      description: "Real-time data refreshed successfully"
     });
   };
 
   const fetchUsers = async () => {
     try {
+      console.log('Fetching current user info...');
       const { data: currentUser, error: userError } = await window.ezsite.apis.getUserInfo();
       if (userError) {
         console.log('User info not available:', userError);
         setUsers([]);
         return;
       }
+      console.log('Current user loaded:', currentUser);
       setUsers([currentUser]);
     } catch (error) {
       console.error('Error fetching current user info:', error);
@@ -148,7 +151,7 @@ const UserManagement: React.FC = () => {
 
   const fetchUserProfiles = async () => {
     try {
-      console.log('Fetching user profiles from table ID: 11725');
+      console.log('Fetching user profiles from production database...');
       const { data, error } = await window.ezsite.apis.tablePage(11725, {
         PageNo: 1,
         PageSize: 100,
@@ -158,16 +161,16 @@ const UserManagement: React.FC = () => {
       });
 
       if (error) {
-        console.error('API returned error:', error);
+        console.error('Database API returned error:', error);
         throw error;
       }
 
-      console.log('User profiles data received:', data);
+      console.log('User profiles loaded from database:', data?.List?.length || 0);
       setUserProfiles(data?.List || []);
     } catch (error) {
       console.error('Error fetching user profiles:', error);
       toast({
-        title: "Error",
+        title: "Database Error",
         description: `Failed to fetch user profiles: ${error}`,
         variant: "destructive"
       });
@@ -186,6 +189,7 @@ const UserManagement: React.FC = () => {
     }
 
     try {
+      console.log('Creating new user profile:', formData);
       const { error } = await window.ezsite.apis.tableCreate(11725, formData);
       if (error) throw error;
 
@@ -208,7 +212,7 @@ const UserManagement: React.FC = () => {
     } catch (error) {
       console.error('Error creating profile:', error);
       toast({
-        title: "Error",
+        title: "Database Error",
         description: `Failed to create user profile: ${error}`,
         variant: "destructive"
       });
@@ -228,6 +232,7 @@ const UserManagement: React.FC = () => {
     }
 
     try {
+      console.log('Updating user profile:', selectedUserProfile.id, formData);
       const { error } = await window.ezsite.apis.tableUpdate(11725, {
         id: selectedUserProfile.id,
         ...formData
@@ -245,7 +250,7 @@ const UserManagement: React.FC = () => {
     } catch (error) {
       console.error('Error updating profile:', error);
       toast({
-        title: "Error",
+        title: "Database Error",
         description: `Failed to update user profile: ${error}`,
         variant: "destructive"
       });
@@ -256,6 +261,7 @@ const UserManagement: React.FC = () => {
     if (!confirm('Are you sure you want to delete this user profile? This action cannot be undone.')) return;
 
     try {
+      console.log('Deleting user profile:', profileId);
       const { error } = await window.ezsite.apis.tableDelete(11725, { id: profileId });
       if (error) throw error;
 
@@ -268,14 +274,14 @@ const UserManagement: React.FC = () => {
     } catch (error) {
       console.error('Error deleting profile:', error);
       toast({
-        title: "Error",
+        title: "Database Error",
         description: `Failed to delete user profile: ${error}`,
         variant: "destructive"
       });
     }
   };
 
-  // Batch operations
+  // Batch operations with real database operations
   const handleBatchEdit = () => {
     const selectedData = batchSelection.getSelectedData(filteredProfiles, (profile) => profile.id);
     if (selectedData.length === 0) {
@@ -306,6 +312,8 @@ const UserManagement: React.FC = () => {
     setBatchActionLoading(true);
     try {
       const selectedData = batchSelection.getSelectedData(filteredProfiles, (profile) => profile.id);
+      console.log('Batch editing user profiles:', selectedData.length);
+      
       const updates = selectedData.map((profile) => ({
         id: profile.id,
         ...(batchEditData.role && { role: batchEditData.role }),
@@ -329,7 +337,7 @@ const UserManagement: React.FC = () => {
     } catch (error) {
       console.error('Error in batch edit:', error);
       toast({
-        title: "Error",
+        title: "Database Error",
         description: `Failed to update profiles: ${error}`,
         variant: "destructive"
       });
@@ -342,6 +350,7 @@ const UserManagement: React.FC = () => {
     setBatchActionLoading(true);
     try {
       const selectedData = batchSelection.getSelectedData(filteredProfiles, (profile) => profile.id);
+      console.log('Batch deleting user profiles:', selectedData.length);
 
       for (const profile of selectedData) {
         const { error } = await window.ezsite.apis.tableDelete(11725, { id: profile.id });
@@ -359,7 +368,7 @@ const UserManagement: React.FC = () => {
     } catch (error) {
       console.error('Error in batch delete:', error);
       toast({
-        title: "Error",
+        title: "Database Error",
         description: `Failed to delete profiles: ${error}`,
         variant: "destructive"
       });
@@ -384,8 +393,8 @@ const UserManagement: React.FC = () => {
 
   const filteredProfiles = userProfiles.filter((profile) => {
     const matchesSearch =
-    profile.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    profile.phone.toLowerCase().includes(searchTerm.toLowerCase());
+      profile.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      profile.phone.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = selectedRole === 'All' || profile.role === selectedRole;
     const matchesStation = selectedStation === 'All' || profile.station === selectedStation;
 
@@ -394,25 +403,25 @@ const UserManagement: React.FC = () => {
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case 'Administrator':return 'bg-red-100 text-red-800';
-      case 'Management':return 'bg-blue-100 text-blue-800';
-      case 'Employee':return 'bg-green-100 text-green-800';
-      default:return 'bg-gray-100 text-gray-800';
+      case 'Administrator': return 'bg-red-100 text-red-800';
+      case 'Management': return 'bg-blue-100 text-blue-800';
+      case 'Employee': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStationBadgeColor = (station: string) => {
     switch (station) {
-      case 'MOBIL':return 'bg-purple-100 text-purple-800';
-      case 'AMOCO ROSEDALE':return 'bg-orange-100 text-orange-800';
-      case 'AMOCO BROOKLYN':return 'bg-teal-100 text-teal-800';
-      default:return 'bg-gray-100 text-gray-800';
+      case 'MOBIL': return 'bg-purple-100 text-purple-800';
+      case 'AMOCO ROSEDALE': return 'bg-orange-100 text-orange-800';
+      case 'AMOCO BROOKLYN': return 'bg-teal-100 text-teal-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getPermissionSummary = (profile: UserProfile) => {
     try {
-      if (!profile.detailed_permissions) {
+      if (!profile.detailed_permissions || profile.detailed_permissions.trim() === '' || profile.detailed_permissions === '{}') {
         return {
           summary: 'No permissions set',
           details: 'Permissions not configured',
@@ -425,10 +434,10 @@ const UserManagement: React.FC = () => {
 
       const permissions = JSON.parse(profile.detailed_permissions);
       const contentAreas = [
-      'dashboard', 'products', 'employees', 'sales_reports', 'vendors',
-      'orders', 'licenses', 'salary', 'inventory', 'delivery', 'settings',
-      'user_management', 'site_management', 'system_logs', 'security_settings'];
-
+        'dashboard', 'products', 'employees', 'sales_reports', 'vendors',
+        'orders', 'licenses', 'salary', 'inventory', 'delivery', 'settings',
+        'user_management', 'site_management', 'system_logs', 'security_settings'
+      ];
 
       const viewCount = contentAreas.filter((area) => permissions[area]?.view).length;
       const editCount = contentAreas.filter((area) => permissions[area]?.edit).length;
@@ -459,16 +468,17 @@ const UserManagement: React.FC = () => {
     return (
       <AccessDenied
         feature="User Management"
-        requiredRole="Administrator" />);
-
+        requiredRole="Administrator"
+      />
+    );
   }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-64">
-        <div className="text-lg">Loading user management...</div>
-      </div>);
-
+        <div className="text-lg">Loading real-time user management...</div>
+      </div>
+    );
   }
 
   return (
@@ -476,14 +486,15 @@ const UserManagement: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <Users className="w-8 h-8 text-blue-600" />
+          <Database className="w-8 h-8 text-blue-600" />
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Real-time User Management</h1>
-            <p className="text-sm text-green-600 font-medium">✓ Production Database Connected - Live User Data</p>
+            <h1 className="text-2xl font-bold text-gray-900">Real-Time User Management</h1>
+            <p className="text-sm text-green-600 font-medium">✓ Production Database Connected - Live Data & Permissions</p>
           </div>
         </div>
         <div className="flex items-center space-x-2">
           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+            <Database className="w-3 h-3 mr-1" />
             {userProfiles.length} Users
           </Badge>
           <Button
@@ -506,7 +517,7 @@ const UserManagement: React.FC = () => {
           </TabsTrigger>
           <TabsTrigger value="permissions" className="flex items-center space-x-2">
             <Shield className="w-4 h-4" />
-            <span>Permission Management</span>
+            <span>Real-Time Permission Management</span>
           </TabsTrigger>
         </TabsList>
 
@@ -516,7 +527,6 @@ const UserManagement: React.FC = () => {
             <Button
               onClick={() => setIsCreateUserDialogOpen(true)}
               className="bg-green-600 hover:bg-green-700">
-
               <UserPlus className="w-4 h-4 mr-2" />
               Create New User
             </Button>
@@ -551,7 +561,8 @@ const UserManagement: React.FC = () => {
                           readOnly
                           disabled
                           className="bg-gray-50 text-gray-700 cursor-not-allowed"
-                          placeholder="Auto-generated ID" />
+                          placeholder="Auto-generated ID"
+                        />
                         <Button
                           type="button"
                           variant="ghost"
@@ -566,7 +577,6 @@ const UserManagement: React.FC = () => {
                             });
                           }}
                           title="Generate new random User ID">
-
                           <RefreshCw className="w-3 h-3" />
                         </Button>
                       </div>
@@ -581,9 +591,9 @@ const UserManagement: React.FC = () => {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {roles.map((role) =>
-                          <SelectItem key={role} value={role}>{role}</SelectItem>
-                          )}
+                          {roles.map((role) => (
+                            <SelectItem key={role} value={role}>{role}</SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -594,9 +604,9 @@ const UserManagement: React.FC = () => {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {stations.map((station) =>
-                          <SelectItem key={station} value={station}>{station}</SelectItem>
-                          )}
+                          {stations.map((station) => (
+                            <SelectItem key={station} value={station}>{station}</SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -607,7 +617,8 @@ const UserManagement: React.FC = () => {
                         value={formData.employee_id}
                         onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })}
                         placeholder="Enter employee ID"
-                        required />
+                        required
+                      />
                     </div>
                     <div>
                       <Label htmlFor="phone">Phone *</Label>
@@ -616,7 +627,8 @@ const UserManagement: React.FC = () => {
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         placeholder="Enter phone number"
-                        required />
+                        required
+                      />
                     </div>
                     <div>
                       <Label htmlFor="hire_date">Hire Date</Label>
@@ -624,14 +636,16 @@ const UserManagement: React.FC = () => {
                         id="hire_date"
                         type="date"
                         value={formData.hire_date}
-                        onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })} />
+                        onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })}
+                      />
                     </div>
                     <div className="flex items-center space-x-2">
                       <input
                         type="checkbox"
                         id="is_active"
                         checked={formData.is_active}
-                        onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })} />
+                        onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                      />
                       <Label htmlFor="is_active">Active User</Label>
                     </div>
                     <Button onClick={handleCreateProfile} className="w-full">
@@ -688,11 +702,18 @@ const UserManagement: React.FC = () => {
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center space-x-3">
-                  <UserX className="w-8 h-8 text-red-600" />
+                  <Database className="w-8 h-8 text-purple-600" />
                   <div>
-                    <p className="text-sm text-gray-600">Inactive Users</p>
+                    <p className="text-sm text-gray-600">With Permissions</p>
                     <p className="text-2xl font-bold">
-                      {userProfiles.filter((p) => !p.is_active).length}
+                      {userProfiles.filter((p) => {
+                        try {
+                          const perms = JSON.parse(p.detailed_permissions || '{}');
+                          return Object.keys(perms).length > 0;
+                        } catch {
+                          return false;
+                        }
+                      }).length}
                     </p>
                   </div>
                 </div>
@@ -710,7 +731,8 @@ const UserManagement: React.FC = () => {
                     placeholder="Search by employee ID or phone..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10" />
+                    className="pl-10"
+                  />
                 </div>
                 
                 <Select value={selectedRole} onValueChange={setSelectedRole}>
@@ -719,9 +741,9 @@ const UserManagement: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="All">All Roles</SelectItem>
-                    {roles.map((role) =>
-                    <SelectItem key={role} value={role}>{role}</SelectItem>
-                    )}
+                    {roles.map((role) => (
+                      <SelectItem key={role} value={role}>{role}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 
@@ -731,9 +753,9 @@ const UserManagement: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="All">All Stations</SelectItem>
-                    {stations.map((station) =>
-                    <SelectItem key={station} value={station}>{station}</SelectItem>
-                    )}
+                    {stations.map((station) => (
+                      <SelectItem key={station} value={station}>{station}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 
@@ -756,13 +778,13 @@ const UserManagement: React.FC = () => {
             onBatchEdit={handleBatchEdit}
             onBatchDelete={handleBatchDelete}
             onClearSelection={batchSelection.clearSelection}
-            isLoading={batchActionLoading} />
-
+            isLoading={batchActionLoading}
+          />
 
           {/* User Profiles Table */}
           <Card>
             <CardHeader>
-              <CardTitle>User Profiles ({filteredProfiles.length})</CardTitle>
+              <CardTitle>Real-Time User Profiles ({filteredProfiles.length})</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -773,8 +795,8 @@ const UserManagement: React.FC = () => {
                         <Checkbox
                           checked={filteredProfiles.length > 0 && batchSelection.selectedCount === filteredProfiles.length}
                           onCheckedChange={() => batchSelection.toggleSelectAll(filteredProfiles, (profile) => profile.id)}
-                          aria-label="Select all profiles" />
-
+                          aria-label="Select all profiles"
+                        />
                       </TableHead>
                       <TableHead>Employee ID</TableHead>
                       <TableHead>Role</TableHead>
@@ -787,56 +809,54 @@ const UserManagement: React.FC = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredProfiles.length === 0 ?
-                    <TableRow>
+                    {filteredProfiles.length === 0 ? (
+                      <TableRow>
                         <TableCell colSpan={9} className="text-center py-8">
                           <div className="flex flex-col items-center space-y-3">
-                            {userProfiles.length === 0 ?
-                          <>
-                                <Users className="w-12 h-12 text-gray-300" />
+                            {userProfiles.length === 0 ? (
+                              <>
+                                <Database className="w-12 h-12 text-gray-300" />
                                 <div>
-                                  <p className="text-gray-500 font-medium">No User Profiles Found</p>
-                                  <p className="text-sm text-gray-400">Create your first user profile to get started with the system</p>
+                                  <p className="text-gray-500 font-medium">No User Profiles in Database</p>
+                                  <p className="text-sm text-gray-400">Create your first user profile to get started</p>
                                 </div>
                                 <Button
-                              onClick={() => setIsCreateUserDialogOpen(true)}
-                              className="bg-blue-600 hover:bg-blue-700">
-
+                                  onClick={() => setIsCreateUserDialogOpen(true)}
+                                  className="bg-blue-600 hover:bg-blue-700">
                                   <UserPlus className="w-4 h-4 mr-2" />
                                   Create First User
                                 </Button>
-                              </> :
-
-                          <>
+                              </>
+                            ) : (
+                              <>
                                 <Search className="w-12 h-12 text-gray-300" />
                                 <div>
                                   <p className="text-gray-500 font-medium">No Profiles Match Current Filters</p>
-                                  <p className="text-sm text-gray-400">Try adjusting your search criteria or clearing filters</p>
+                                  <p className="text-sm text-gray-400">Try adjusting your search criteria</p>
                                 </div>
                                 <Button
-                              variant="outline"
-                              onClick={() => {
-                                setSearchTerm('');
-                                setSelectedRole('All');
-                                setSelectedStation('All');
-                              }}>
-
+                                  variant="outline"
+                                  onClick={() => {
+                                    setSearchTerm('');
+                                    setSelectedRole('All');
+                                    setSelectedStation('All');
+                                  }}>
                                   Clear All Filters
                                 </Button>
                               </>
-                          }
+                            )}
                           </div>
                         </TableCell>
-                      </TableRow> :
-
-                    filteredProfiles.map((profile) =>
-                    <TableRow key={profile.id} className={batchSelection.isSelected(profile.id) ? "bg-blue-50" : ""}>
+                      </TableRow>
+                    ) : (
+                      filteredProfiles.map((profile) => (
+                        <TableRow key={profile.id} className={batchSelection.isSelected(profile.id) ? "bg-blue-50" : ""}>
                           <TableCell>
                             <Checkbox
-                          checked={batchSelection.isSelected(profile.id)}
-                          onCheckedChange={() => batchSelection.toggleItem(profile.id)}
-                          aria-label={`Select profile ${profile.employee_id}`} />
-
+                              checked={batchSelection.isSelected(profile.id)}
+                              onCheckedChange={() => batchSelection.toggleItem(profile.id)}
+                              aria-label={`Select profile ${profile.employee_id}`}
+                            />
                           </TableCell>
                           <TableCell className="font-medium">{profile.employee_id}</TableCell>
                           <TableCell>
@@ -858,53 +878,51 @@ const UserManagement: React.FC = () => {
                           </TableCell>
                           <TableCell>
                             {(() => {
-                          const permSummary = getPermissionSummary(profile);
-                          return (
-                            <div className="space-y-1">
+                              const permSummary = getPermissionSummary(profile);
+                              return (
+                                <div className="space-y-1">
                                   <Badge
-                                variant={permSummary.hasAccess ? "default" : "secondary"}
-                                className={permSummary.hasAccess ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}>
-
+                                    variant={permSummary.hasAccess ? "default" : "secondary"}
+                                    className={permSummary.hasAccess ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}>
                                     {permSummary.summary}
                                   </Badge>
                                   <p className="text-xs text-gray-500">{permSummary.details}</p>
-                                </div>);
-
-                        })()} 
+                                </div>
+                              );
+                            })()}
                           </TableCell>
                           <TableCell>
                             <div className="flex space-x-2">
                               <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEditProfile(profile)}>
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleEditProfile(profile)}>
                                 <Edit3 className="w-4 h-4" />
                               </Button>
                               <ComprehensivePermissionDialog
-                            selectedUserId={profile.id}
-                            trigger={
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-blue-600 hover:text-blue-700"
-                              title="Comprehensive Permission Management">
-
+                                selectedUserId={profile.id}
+                                trigger={
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-blue-600 hover:text-blue-700"
+                                    title="Real-Time Permission Management">
                                     <Shield className="w-4 h-4" />
                                   </Button>
-                            } />
-
+                                }
+                              />
                               <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDeleteProfile(profile.id)}
-                            className="text-red-600 hover:text-red-700">
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleDeleteProfile(profile.id)}
+                                className="text-red-600 hover:text-red-700">
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
                           </TableCell>
                         </TableRow>
-                    )
-                    }
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </div>
@@ -913,276 +931,87 @@ const UserManagement: React.FC = () => {
 
           {/* Edit Dialog */}
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-            <DialogContent className="max-w-6xl max-h-[90vh]">
+            <DialogContent className="max-w-2xl">
               <DialogHeader>
-                <DialogTitle>Edit User Profile & Permissions</DialogTitle>
+                <DialogTitle>Edit User Profile</DialogTitle>
               </DialogHeader>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(90vh-120px)]">
-                {/* Left Side - Edit Form */}
-                <div className="lg:col-span-1">
-                  <ScrollArea className="h-full pr-4">
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="edit_role">Role</Label>
-                        <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {roles.map((role) =>
-                            <SelectItem key={role} value={role}>{role}</SelectItem>
-                            )}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="edit_station">Station</Label>
-                        <Select value={formData.station} onValueChange={(value) => setFormData({ ...formData, station: value })}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {stations.map((station) =>
-                            <SelectItem key={station} value={station}>{station}</SelectItem>
-                            )}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="edit_employee_id">Employee ID *</Label>
-                        <Input
-                          id="edit_employee_id"
-                          value={formData.employee_id}
-                          onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })}
-                          required />
-                      </div>
-                      <div>
-                        <Label htmlFor="edit_phone">Phone *</Label>
-                        <Input
-                          id="edit_phone"
-                          value={formData.phone}
-                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                          required />
-                      </div>
-                      <div>
-                        <Label htmlFor="edit_hire_date">Hire Date</Label>
-                        <Input
-                          id="edit_hire_date"
-                          type="date"
-                          value={formData.hire_date}
-                          onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })} />
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id="edit_is_active"
-                          checked={formData.is_active}
-                          onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })} />
-                        <Label htmlFor="edit_is_active">Active User</Label>
-                      </div>
-                      <Button onClick={handleUpdateProfile} className="w-full">
-                        Update Profile
-                      </Button>
-                      
-                      {/* Quick Permission Management */}
-                      <Separator />
-                      <div className="space-y-3">
-                        <h4 className="font-semibold text-sm flex items-center">
-                          <Shield className="w-4 h-4 mr-2" />
-                          Quick Actions
-                        </h4>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            const permissionsTab = document.querySelector('[value="permissions"]') as HTMLElement;
-                            if (permissionsTab) {
-                              permissionsTab.click();
-                            }
-                          }}
-                          className="w-full">
-
-                          Manage Detailed Permissions
-                        </Button>
-                      </div>
-                    </div>
-                  </ScrollArea>
-                </div>
-
-                {/* Middle & Right Side - User Summary & Activity */}
-                <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* User Summary */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <ScrollArea className="h-full">
-                      <div className="space-y-4">
-                        <h3 className="font-semibold text-lg mb-3 flex items-center">
-                          <Eye className="w-5 h-5 mr-2 text-blue-600" />
-                          User Summary
-                        </h3>
-                        <div className="space-y-3">
-                          <div className="p-3 bg-gray-50 rounded-lg">
-                            <p className="text-sm text-gray-600">Employee ID</p>
-                            <p className="font-medium">{selectedUserProfile?.employee_id || 'N/A'}</p>
-                          </div>
-                          <div className="p-3 bg-gray-50 rounded-lg">
-                            <p className="text-sm text-gray-600">Current Role</p>
-                            <Badge className={getRoleBadgeColor(selectedUserProfile?.role || '')}>
-                              {selectedUserProfile?.role || 'N/A'}
-                            </Badge>
-                          </div>
-                          <div className="p-3 bg-gray-50 rounded-lg">
-                            <p className="text-sm text-gray-600">Station Assignment</p>
-                            <Badge className={getStationBadgeColor(selectedUserProfile?.station || '')}>
-                              {selectedUserProfile?.station || 'N/A'}
-                            </Badge>
-                          </div>
-                          <div className="p-3 bg-gray-50 rounded-lg">
-                            <p className="text-sm text-gray-600">Status</p>
-                            <Badge className={selectedUserProfile?.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
-                              {selectedUserProfile?.is_active ? 'Active' : 'Inactive'}
-                            </Badge>
-                          </div>
-                        </div>
-                        
-                        {/* Permissions Overview */}
-                        <Separator />
-                        <h4 className="font-semibold text-md flex items-center">
-                          <Shield className="w-4 h-4 mr-2 text-green-600" />
-                          Permissions Overview
-                        </h4>
-                        <div className="space-y-2">
-                          {(() => {
-                            try {
-                              const permissions = selectedUserProfile?.detailed_permissions ?
-                              JSON.parse(selectedUserProfile.detailed_permissions) : {};
-                              const areas = [
-                              'dashboard', 'products', 'employees', 'sales_reports', 'vendors',
-                              'orders', 'licenses', 'salary', 'inventory', 'delivery'];
-
-
-                              if (Object.keys(permissions).length === 0) {
-                                return (
-                                  <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                                    <p className="text-sm text-yellow-800 font-medium">No Permissions Configured</p>
-                                    <p className="text-xs text-yellow-700">Use the Permissions tab to set up access levels</p>
-                                  </div>);
-
-                              }
-
-                              return areas.map((area) => {
-                                const areaPerms = permissions[area];
-                                const hasView = areaPerms?.view;
-                                const hasEdit = areaPerms?.edit;
-                                const hasCreate = areaPerms?.create;
-
-                                return (
-                                  <div key={area} className="p-2 bg-gray-50 rounded-lg">
-                                    <div className="flex items-center justify-between mb-1">
-                                      <span className="text-sm font-medium capitalize">{area.replace('_', ' ')}</span>
-                                      <div className="flex space-x-1">
-                                        {hasView && <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700">View</Badge>}
-                                        {hasEdit && <Badge variant="outline" className="text-xs bg-yellow-50 text-yellow-700">Edit</Badge>}
-                                        {hasCreate && <Badge variant="outline" className="text-xs bg-green-50 text-green-700">Create</Badge>}
-                                        {!hasView && !hasEdit && !hasCreate && <Badge variant="secondary" className="text-xs">No Access</Badge>}
-                                      </div>
-                                    </div>
-                                  </div>);
-
-                              });
-                            } catch {
-                              return (
-                                <div className="p-3 bg-red-50 rounded-lg border border-red-200">
-                                  <p className="text-sm text-red-800 font-medium">Permission Data Error</p>
-                                  <p className="text-xs text-red-700">Invalid permission format detected</p>
-                                </div>);
-
-                            }
-                          })()
-                          }
-                        </div>
-                      </div>
-                    </ScrollArea>
+                    <Label htmlFor="edit_role">Role</Label>
+                    <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {roles.map((role) => (
+                          <SelectItem key={role} value={role}>{role}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-
-                  {/* Recent Activity & Tips */}
                   <div>
-                    <ScrollArea className="h-full">
-                      <div className="space-y-4">
-                        <h3 className="font-semibold text-lg mb-3 flex items-center">
-                          <Activity className="w-5 h-5 mr-2 text-orange-600" />
-                          Recent Activity
-                        </h3>
-                        <div className="space-y-3">
-                          <div className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
-                            <Clock className="w-4 h-4 text-blue-600 mt-1" />
-                            <div>
-                              <p className="text-sm font-medium">Profile Updated</p>
-                              <p className="text-xs text-gray-600">Last modified today</p>
-                            </div>
-                          </div>
-                          <div className="flex items-start space-x-3 p-3 bg-green-50 rounded-lg">
-                            <UserCheck className="w-4 h-4 text-green-600 mt-1" />
-                            <div>
-                              <p className="text-sm font-medium">Account Status</p>
-                              <p className="text-xs text-gray-600">Currently {selectedUserProfile?.is_active ? 'active' : 'inactive'}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-start space-x-3 p-3 bg-purple-50 rounded-lg">
-                            <Building2 className="w-4 h-4 text-purple-600 mt-1" />
-                            <div>
-                              <p className="text-sm font-medium">Station Assignment</p>
-                              <p className="text-xs text-gray-600">Assigned to {selectedUserProfile?.station}</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <Separator />
-                        
-                        {/* Tips & Help */}
-                        <h4 className="font-semibold text-md mb-3 flex items-center">
-                          <FileText className="w-4 h-4 mr-2 text-indigo-600" />
-                          Tips & Help
-                        </h4>
-                        <div className="space-y-3">
-                          <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                            <div className="flex items-start space-x-2">
-                              <AlertCircle className="w-4 h-4 text-yellow-600 mt-1" />
-                              <div>
-                                <p className="text-sm font-medium text-yellow-800">Role Changes</p>
-                                <p className="text-xs text-yellow-700">Changing roles will affect user permissions immediately</p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                            <div className="flex items-start space-x-2">
-                              <Settings className="w-4 h-4 text-blue-600 mt-1" />
-                              <div>
-                                <p className="text-sm font-medium text-blue-800">Station Assignment</p>
-                                <p className="text-xs text-blue-700">Users can only access data for their assigned station</p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="p-3 bg-green-50 rounded-lg border border-green-200">
-                            <div className="flex items-start space-x-2">
-                              <Phone className="w-4 h-4 text-green-600 mt-1" />
-                              <div>
-                                <p className="text-sm font-medium text-green-800">Contact Information</p>
-                                <p className="text-xs text-green-700">Keep phone numbers updated for important notifications</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </ScrollArea>
+                    <Label htmlFor="edit_station">Station</Label>
+                    <Select value={formData.station} onValueChange={(value) => setFormData({ ...formData, station: value })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {stations.map((station) => (
+                          <SelectItem key={station} value={station}>{station}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="edit_employee_id">Employee ID *</Label>
+                    <Input
+                      id="edit_employee_id"
+                      value={formData.employee_id}
+                      onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit_phone">Phone *</Label>
+                    <Input
+                      id="edit_phone"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="edit_hire_date">Hire Date</Label>
+                  <Input
+                    id="edit_hire_date"
+                    type="date"
+                    value={formData.hire_date}
+                    onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })}
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="edit_is_active"
+                    checked={formData.is_active}
+                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                  />
+                  <Label htmlFor="edit_is_active">Active User</Label>
+                </div>
+                <Button onClick={handleUpdateProfile} className="w-full">
+                  Update Profile
+                </Button>
               </div>
             </DialogContent>
           </Dialog>
         </TabsContent>
 
         <TabsContent value="permissions">
-          <EnhancedUserPermissionManager />
+          <RealTimePermissionManager />
         </TabsContent>
       </Tabs>
 
@@ -1194,7 +1023,6 @@ const UserManagement: React.FC = () => {
         selectedCount={batchSelection.selectedCount}
         isLoading={batchActionLoading}
         itemName="user profiles">
-
         <div className="space-y-4">
           <div>
             <Label htmlFor="batch_role">Role</Label>
@@ -1204,9 +1032,9 @@ const UserManagement: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">Keep existing roles</SelectItem>
-                {roles.map((role) =>
-                <SelectItem key={role} value={role}>{role}</SelectItem>
-                )}
+                {roles.map((role) => (
+                  <SelectItem key={role} value={role}>{role}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -1218,9 +1046,9 @@ const UserManagement: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">Keep existing stations</SelectItem>
-                {stations.map((station) =>
-                <SelectItem key={station} value={station}>{station}</SelectItem>
-                )}
+                {stations.map((station) => (
+                  <SelectItem key={station} value={station}>{station}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -1228,8 +1056,8 @@ const UserManagement: React.FC = () => {
             <Checkbox
               id="batch_is_active"
               checked={batchEditData.is_active}
-              onCheckedChange={(checked) => setBatchEditData({ ...batchEditData, is_active: checked as boolean })} />
-
+              onCheckedChange={(checked) => setBatchEditData({ ...batchEditData, is_active: checked as boolean })}
+            />
             <Label htmlFor="batch_is_active">Set all selected users as active</Label>
           </div>
         </div>
@@ -1246,7 +1074,8 @@ const UserManagement: React.FC = () => {
         selectedItems={batchSelection.getSelectedData(filteredProfiles, (profile) => profile.id).map((profile) => ({
           id: profile.id,
           name: `${profile.employee_id} - ${profile.role}`
-        }))} />
+        }))}
+      />
 
       {/* Create New User Dialog */}
       <CreateUserDialog
@@ -1256,13 +1085,12 @@ const UserManagement: React.FC = () => {
           fetchData(); // Refresh both users and profiles
           toast({
             title: "Success",
-            description: "New user account and profile created successfully"
+            description: "New user account and profile created successfully in production database"
           });
-        }} />
-
-
-    </div>);
-
+        }}
+      />
+    </div>
+  );
 };
 
 export default UserManagement;

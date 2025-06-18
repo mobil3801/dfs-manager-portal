@@ -73,14 +73,14 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
   const safeFetchUserData = async (showErrors = false): Promise<boolean> => {
     try {
       console.log('🔄 Attempting to fetch user data...');
-      
+
       // Check if APIs are available
       if (!window.ezsite?.apis) {
         throw new Error('EZSite APIs not available');
       }
 
       const userResponse = await window.ezsite.apis.getUserInfo();
-      
+
       // Handle response with no data (user not authenticated)
       if (!userResponse.data) {
         console.log('👤 No user data - user not authenticated');
@@ -107,13 +107,13 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       // Fetch user profile with retries
       try {
         console.log('🔄 Fetching user profile for user ID:', userResponse.data.ID);
-        
+
         const profileResponse = await window.ezsite.apis.tablePage(11725, {
           PageNo: 1,
           PageSize: 1,
           Filters: [
-            { name: "user_id", op: "Equal", value: userResponse.data.ID }
-          ]
+          { name: "user_id", op: "Equal", value: userResponse.data.ID }]
+
         });
 
         if (profileResponse.error) {
@@ -170,14 +170,14 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
     } catch (error) {
       console.error('❌ Error fetching user data:', error);
-      
+
       const errorMessage = error instanceof Error ? error.message : String(error);
-      
+
       // Only show error for critical failures
       if (showErrors && !errorMessage.includes('not authenticated')) {
         setAuthError(`Failed to load user data: ${errorMessage}`);
       }
-      
+
       // Set guest state for any error
       setUser(null);
       setUserProfile(GUEST_PROFILE);
@@ -195,13 +195,13 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
   const initializeAuth = async () => {
     console.log('🚀 Initializing authentication...');
     setIsLoading(true);
-    
+
     try {
       // Wait for APIs to be available
       let attempts = 0;
       while (!window.ezsite?.apis && attempts < 30) {
         console.log(`⏳ Waiting for EZSite APIs... (attempt ${attempts + 1})`);
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
         attempts++;
       }
 
@@ -211,7 +211,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
       console.log('✅ EZSite APIs loaded, fetching user data...');
       await safeFetchUserData(false);
-      
+
     } catch (error) {
       console.error('❌ Auth initialization failed:', error);
       setAuthError(`Initialization failed: ${error instanceof Error ? error.message : String(error)}`);
@@ -232,15 +232,15 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     try {
       setIsLoading(true);
       setAuthError(null);
-      
+
       console.log('🔑 Attempting login for:', email);
-      
+
       if (!window.ezsite?.apis) {
         throw new Error('Authentication system not available');
       }
 
       const response = await window.ezsite.apis.login({ email, password });
-      
+
       if (response.error) {
         console.log('❌ Login failed:', response.error);
         await auditLogger.logLogin(email, false, undefined, response.error);
@@ -255,7 +255,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
       console.log('✅ Login successful, fetching user data...');
       const userDataFetched = await safeFetchUserData(true);
-      
+
       if (userDataFetched && user) {
         await auditLogger.logLogin(email, true, user.ID);
         toast({
@@ -286,7 +286,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
   const logout = async (): Promise<void> => {
     try {
       console.log('🚪 Logging out user...');
-      
+
       // Log logout before clearing user data
       if (user) {
         await auditLogger.logLogout(user.Email, user.ID);
@@ -295,7 +295,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       if (window.ezsite?.apis) {
         await window.ezsite.apis.logout();
       }
-      
+
       setUser(null);
       setUserProfile(GUEST_PROFILE);
       setAuthError(null);
@@ -304,7 +304,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
         title: "Logged Out",
         description: "You have been successfully logged out"
       });
-      
+
       console.log('✅ Logout successful');
     } catch (error) {
       console.error('⚠️ Logout error (non-critical):', error);
@@ -319,15 +319,15 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     try {
       setIsLoading(true);
       setAuthError(null);
-      
+
       console.log('📝 Attempting registration for:', email);
-      
+
       if (!window.ezsite?.apis) {
         throw new Error('Registration system not available');
       }
 
       const response = await window.ezsite.apis.register({ email, password });
-      
+
       if (response.error) {
         console.log('❌ Registration failed:', response.error);
         await auditLogger.logRegistration(email, false, response.error);
@@ -378,8 +378,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     if (userProfile.detailed_permissions) {
       try {
         const permissions = typeof userProfile.detailed_permissions === 'string' ?
-          JSON.parse(userProfile.detailed_permissions) :
-          userProfile.detailed_permissions;
+        JSON.parse(userProfile.detailed_permissions) :
+        userProfile.detailed_permissions;
 
         if (resource && permissions[resource] && permissions[resource][action]) {
           return true;

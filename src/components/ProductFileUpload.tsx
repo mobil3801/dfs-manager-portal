@@ -702,6 +702,8 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
 
 
 
+
+
           // Invalid date format, ignore
         }} // Calculate profit margin
       const unitPrice = mapped.unit_price || 0;const retailPrice = mapped.retail_price || 0;const profitMargin = calculateProfitMargin(unitPrice, retailPrice); // Calculate overdue status
@@ -920,14 +922,12 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
             </div>
 
             <div className="flex justify-between items-center">
-              <Button variant="outline"
-          onClick={() => setShowPreview(false)}>
+              <Button variant="outline" onClick={() => setShowPreview(false)}>
                 Back to Upload
               </Button>
               <div className="flex space-x-2">
-                <Button
-              variant="outline"
-              onClick={handleCloseDialog}>
+                <Button variant="outline"
+            onClick={handleCloseDialog}>
                   Cancel
                 </Button>
                 <Button

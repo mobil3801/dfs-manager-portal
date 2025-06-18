@@ -26,9 +26,9 @@ const AdminAccessDebugger: React.FC = () => {
   };
 
   const getStatusIcon = (status: boolean) => {
-    return status ? 
-      <CheckCircle className="h-4 w-4 text-green-600" /> : 
-      <AlertTriangle className="h-4 w-4 text-red-600" />;
+    return status ?
+    <CheckCircle className="h-4 w-4 text-green-600" /> :
+    <AlertTriangle className="h-4 w-4 text-red-600" />;
   };
 
   return (
@@ -38,12 +38,12 @@ const AdminAccessDebugger: React.FC = () => {
           <Shield className="h-5 w-5 mr-2" />
           Admin Access Debugger
         </h2>
-        <Button 
-          onClick={handleRefresh} 
+        <Button
+          onClick={handleRefresh}
           disabled={refreshing}
           variant="outline"
-          size="sm"
-        >
+          size="sm">
+
           <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
@@ -88,14 +88,14 @@ const AdminAccessDebugger: React.FC = () => {
               </div>
             </div>
 
-            {auth.authError && (
-              <Alert variant="destructive">
+            {auth.authError &&
+            <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription className="text-sm">
                   <strong>Error:</strong> {auth.authError}
                 </AlertDescription>
               </Alert>
-            )}
+            }
           </div>
         </div>
 
@@ -144,21 +144,21 @@ const AdminAccessDebugger: React.FC = () => {
               </Badge>
             </div>
 
-            {adminAccess.station && (
-              <div className="flex items-center justify-between">
+            {adminAccess.station &&
+            <div className="flex items-center justify-between">
                 <span className="text-sm">Station</span>
                 <Badge variant="outline">
                   {adminAccess.station}
                 </Badge>
               </div>
-            )}
+            }
           </div>
         </div>
       </div>
 
       {/* User Details */}
-      {auth.user && (
-        <div className="mt-6 pt-6 border-t">
+      {auth.user &&
+      <div className="mt-6 pt-6 border-t">
           <h3 className="font-medium mb-3">User Details</h3>
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -174,8 +174,8 @@ const AdminAccessDebugger: React.FC = () => {
               <div>
                 <strong>Created:</strong> {new Date(auth.user.CreateTime).toLocaleDateString()}
               </div>
-              {auth.userProfile && (
-                <>
+              {auth.userProfile &&
+            <>
                   <div>
                     <strong>Profile ID:</strong> {auth.userProfile.id}
                   </div>
@@ -189,46 +189,46 @@ const AdminAccessDebugger: React.FC = () => {
                     <strong>Active:</strong> {auth.userProfile.is_active ? 'Yes' : 'No'}
                   </div>
                 </>
-              )}
+            }
             </div>
           </div>
         </div>
-      )}
+      }
 
       {/* Debug Actions */}
       <div className="mt-6 pt-6 border-t">
         <h3 className="font-medium mb-3">Debug Actions</h3>
         <div className="flex flex-wrap gap-2">
-          <Button 
+          <Button
             onClick={() => console.log('Auth Context:', auth)}
             variant="outline"
-            size="sm"
-          >
+            size="sm">
+
             Log Auth Context
           </Button>
-          <Button 
+          <Button
             onClick={() => console.log('Admin Access:', adminAccess)}
             variant="outline"
-            size="sm"
-          >
+            size="sm">
+
             Log Admin Access
           </Button>
-          <Button 
+          <Button
             onClick={() => console.log('User Profile:', auth.userProfile)}
             variant="outline"
-            size="sm"
-          >
+            size="sm">
+
             Log User Profile
           </Button>
-          {auth.authError && (
-            <Button 
-              onClick={auth.clearError}
-              variant="outline"
-              size="sm"
-            >
+          {auth.authError &&
+          <Button
+            onClick={auth.clearError}
+            variant="outline"
+            size="sm">
+
               Clear Error
             </Button>
-          )}
+          }
         </div>
       </div>
 
@@ -240,8 +240,8 @@ const AdminAccessDebugger: React.FC = () => {
           Remove or hide this component in production environments.
         </AlertDescription>
       </Alert>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default AdminAccessDebugger;
