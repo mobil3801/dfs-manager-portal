@@ -144,6 +144,8 @@ const SyncMonitoringDashboard: React.FC = () => {
 
 
 
+
+
           // Table not accessible, skip
         }}return Math.max(activeTableCount, 1); // At least 1 table should be available
     } catch {return 21; // Default to total expected tables
@@ -151,10 +153,8 @@ const SyncMonitoringDashboard: React.FC = () => {
       const { data: auditData, error: auditError } = await window.ezsite.apis.tablePage(12706, { PageNo: 1, PageSize: 50, OrderByField: 'event_timestamp', IsAsc: false, Filters: [{ name: 'action_performed', op: 'StringContains', value: 'sync' }] });let realLogs: SyncLog[] = [];if (!auditError && auditData?.List) {realLogs = auditData.List.map((audit: any, index: number) => ({ id: audit.id?.toString() || index.toString(), timestamp: audit.event_timestamp || new Date().toISOString(), type: audit.action_performed?.includes('create') ? 'create' : audit.action_performed?.includes('update') ? 'update' : audit.action_performed?.includes('delete') ? 'delete' : audit.event_status === 'Failed' ? 'error' : 'scan', tableName: audit.resource_accessed || 'system', status: audit.event_status === 'Success' ? 'success' : audit.event_status === 'Failed' ? 'failed' : 'pending', details: audit.additional_data || audit.failure_reason || 'Database sync operation', duration: Math.floor(Math.random() * 2000) + 500 // Estimated duration
           }));} // If no audit logs, create minimal real status logs
       if (realLogs.length === 0) {realLogs = [{ id: '1', timestamp: new Date().toISOString(), type: 'scan', tableName: 'system', status: 'success', details: 'Database connection verified', duration: 250 }];}setSyncLogs(realLogs); // Calculate real metrics
-      const successfulSyncs = realLogs.filter((log) => log.status === 'success');const todaysSyncs = realLogs.filter((log) => {const logDate = new Date(log.timestamp);const today = new Date();return logDate.toDateString() === today.toDateString();});
-      // Get actual table count from database
+      const successfulSyncs = realLogs.filter((log) => log.status === 'success');const todaysSyncs = realLogs.filter((log) => {const logDate = new Date(log.timestamp);const today = new Date();return logDate.toDateString() === today.toDateString();}); // Get actual table count from database
       const tableCount = await getRealTableCount();
-
       setMetrics({
         totalTables: tableCount,
         syncedToday: todaysSyncs.length,

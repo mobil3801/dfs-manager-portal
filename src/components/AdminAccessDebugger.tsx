@@ -3,17 +3,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  User, 
-  Shield, 
-  Database, 
-  RefreshCw, 
-  CheckCircle, 
-  XCircle, 
+import {
+  User,
+  Shield,
+  Database,
+  RefreshCw,
+  CheckCircle,
+  XCircle,
   AlertTriangle,
   Eye,
-  Settings
-} from 'lucide-react';
+  Settings } from
+'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdminAccess } from '@/hooks/use-admin-access';
 import { toast } from '@/hooks/use-toast';
@@ -100,7 +100,7 @@ const AdminAccessDebugger: React.FC = () => {
 
     } catch (err) {
       console.error('Error fetching debug info:', err);
-      setDebugInfo(prev => ({
+      setDebugInfo((prev) => ({
         ...prev,
         database: {
           userProfiles: [],
@@ -171,11 +171,11 @@ const AdminAccessDebugger: React.FC = () => {
     }
   };
 
-  const StatusIcon = ({ status }: { status: boolean | null }) => {
+  const StatusIcon = ({ status }: {status: boolean | null;}) => {
     if (status === null) return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
-    return status ? 
-      <CheckCircle className="w-4 h-4 text-green-500" /> : 
-      <XCircle className="w-4 h-4 text-red-500" />;
+    return status ?
+    <CheckCircle className="w-4 h-4 text-green-500" /> :
+    <XCircle className="w-4 h-4 text-red-500" />;
   };
 
   return (
@@ -189,13 +189,13 @@ const AdminAccessDebugger: React.FC = () => {
               size="sm"
               variant="outline"
               onClick={fetchDebugInfo}
-              disabled={refreshing}
-            >
-              {refreshing ? (
-                <RefreshCw className="w-4 h-4 animate-spin" />
-              ) : (
-                <RefreshCw className="w-4 h-4" />
-              )}
+              disabled={refreshing}>
+
+              {refreshing ?
+              <RefreshCw className="w-4 h-4 animate-spin" /> :
+
+              <RefreshCw className="w-4 h-4" />
+              }
               Refresh
             </Button>
           </CardTitle>
@@ -222,12 +222,12 @@ const AdminAccessDebugger: React.FC = () => {
                   </div>
                 </div>
                 
-                {debugInfo.authContext.user && (
-                  <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                {debugInfo.authContext.user &&
+                <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
                     <strong>Email:</strong> {debugInfo.authContext.user.Email}<br />
                     <strong>ID:</strong> {debugInfo.authContext.user.ID}
                   </div>
-                )}
+                }
 
                 <div className="flex items-center justify-between">
                   <span>User Profile:</span>
@@ -239,13 +239,13 @@ const AdminAccessDebugger: React.FC = () => {
                   </div>
                 </div>
 
-                {debugInfo.authContext.userProfile && (
-                  <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                {debugInfo.authContext.userProfile &&
+                <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
                     <strong>Role:</strong> {debugInfo.authContext.userProfile.role}<br />
                     <strong>Station:</strong> {debugInfo.authContext.userProfile.station}<br />
                     <strong>Employee ID:</strong> {debugInfo.authContext.userProfile.employee_id}
                   </div>
-                )}
+                }
 
                 <div className="flex items-center justify-between">
                   <span>Is Admin (Context):</span>
@@ -302,14 +302,14 @@ const AdminAccessDebugger: React.FC = () => {
                   </Badge>
                 </div>
 
-                {debugInfo.adminHook.debugInfo && (
-                  <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                {debugInfo.adminHook.debugInfo &&
+                <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
                     <strong>Hook Debug:</strong><br />
                     User Role: {debugInfo.adminHook.debugInfo.userRole || 'None'}<br />
                     Has User: {debugInfo.adminHook.debugInfo.user ? 'Yes' : 'No'}<br />
                     Has Profile: {debugInfo.adminHook.debugInfo.userProfile ? 'Yes' : 'No'}
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
 
@@ -322,74 +322,74 @@ const AdminAccessDebugger: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {debugInfo.database.error ? (
-                  <Alert variant="destructive">
+                {debugInfo.database.error ?
+                <Alert variant="destructive">
                     <AlertTriangle className="w-4 h-4" />
                     <AlertDescription>
                       Database Error: {debugInfo.database.error}
                     </AlertDescription>
-                  </Alert>
-                ) : (
-                  <div className="space-y-3">
+                  </Alert> :
+
+                <div className="space-y-3">
                     <p className="text-sm text-gray-600">
                       Found {debugInfo.database.userProfiles.length} user profiles in database:
                     </p>
-                    {debugInfo.database.userProfiles.length > 0 ? (
-                      <div className="space-y-2 max-h-40 overflow-y-auto">
-                        {debugInfo.database.userProfiles.map((profile, index) => (
-                          <div key={index} className="bg-gray-50 p-2 rounded text-sm">
+                    {debugInfo.database.userProfiles.length > 0 ?
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                        {debugInfo.database.userProfiles.map((profile, index) =>
+                    <div key={index} className="bg-gray-50 p-2 rounded text-sm">
                             <strong>ID:</strong> {profile.ID} | 
                             <strong> User ID:</strong> {profile.user_id} | 
                             <strong> Role:</strong> {profile.role} | 
                             <strong> Station:</strong> {profile.station} |
                             <strong> Active:</strong> {profile.is_active ? 'Yes' : 'No'}
                           </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <Alert>
+                    )}
+                      </div> :
+
+                  <Alert>
                         <Eye className="w-4 h-4" />
                         <AlertDescription>
                           No user profiles found in database. This might be why admin access is denied.
                         </AlertDescription>
                       </Alert>
-                    )}
+                  }
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
           </div>
 
           {/* Action Buttons */}
           <div className="mt-6 flex gap-3">
-            {auth.user && !auth.userProfile && (
-              <Button onClick={createAdminProfile} className="bg-green-600 hover:bg-green-700">
+            {auth.user && !auth.userProfile &&
+            <Button onClick={createAdminProfile} className="bg-green-600 hover:bg-green-700">
                 Create Admin Profile
               </Button>
-            )}
-            <Button 
-              variant="outline" 
-              onClick={() => window.location.reload()}
-            >
+            }
+            <Button
+              variant="outline"
+              onClick={() => window.location.reload()}>
+
               Reload Page
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => {
                 console.log('Full debug info:', debugInfo);
                 toast({
                   title: "Debug Info",
                   description: "Check browser console for full debug information"
                 });
-              }}
-            >
+              }}>
+
               Log to Console
             </Button>
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AdminAccessDebugger;

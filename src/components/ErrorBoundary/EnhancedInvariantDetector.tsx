@@ -104,10 +104,10 @@ const EnhancedInvariantDetector: React.FC = () => {
 
 
 
+
+
           // Silent catch for individual element processing
-        }});keyMap.forEach((data, key) => {if (data.count > 1) {violations.push({ type: 'duplicate-key', severity: 'high', message: `Duplicate React key detected: "${key}" used ${data.count} times. This can cause invariant violations.`, fixSuggestion: 'Use unique keys for each element in lists. Consider using item.id + index or UUID.', component: data.element.tagName?.toLowerCase() });}
-        });
-    } catch (error) {
+        }});keyMap.forEach((data, key) => {if (data.count > 1) {violations.push({ type: 'duplicate-key', severity: 'high', message: `Duplicate React key detected: "${key}" used ${data.count} times. This can cause invariant violations.`, fixSuggestion: 'Use unique keys for each element in lists. Consider using item.id + index or UUID.', component: data.element.tagName?.toLowerCase() });}});} catch (error) {
       console.warn('Error detecting duplicate keys:', error);
     }
 
@@ -173,6 +173,8 @@ const EnhancedInvariantDetector: React.FC = () => {
 
 
 
+
+
                 // Silent catch for fiber inspection
               }};if (fiber.current) {checkFiber(fiber.current);} else if (fiber.child) {checkFiber(fiber);}}} catch (e) {
 
@@ -186,9 +188,7 @@ const EnhancedInvariantDetector: React.FC = () => {
 
           // Silent catch for root processing
         }});} catch (error) {console.warn('Error detecting fiber inconsistencies:', error);}return violations;}, []); // Enhanced DOM nesting detection
-  const detectInvalidNesting = useCallback(() => {const violations: Omit<InvariantViolation, 'id' | 'timestamp'>[] = [];try {
-        const invalidCombinations = [
-        { parent: 'p', child: 'div', message: 'Block elements cannot be nested inside paragraphs' },
+  const detectInvalidNesting = useCallback(() => {const violations: Omit<InvariantViolation, 'id' | 'timestamp'>[] = [];try {const invalidCombinations = [{ parent: 'p', child: 'div', message: 'Block elements cannot be nested inside paragraphs' },
         { parent: 'p', child: 'p', message: 'Paragraphs cannot be nested inside other paragraphs' },
         { parent: 'a', child: 'a', message: 'Anchor tags cannot be nested inside other anchor tags' },
         { parent: 'button', child: 'button', message: 'Buttons cannot be nested inside other buttons' },

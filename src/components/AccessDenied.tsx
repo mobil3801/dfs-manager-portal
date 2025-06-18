@@ -104,23 +104,23 @@ const AccessDenied: React.FC<AccessDeniedProps> = ({
           <div className="text-sm text-red-600 bg-red-50 p-3 rounded border border-red-200">
             <p className="font-medium mb-1">Need access?</p>
             <p>Contact your system administrator to request {requiredRole} privileges.</p>
-            {!userProfile && (
-              <p className="mt-2 text-xs">
+            {!userProfile &&
+            <p className="mt-2 text-xs">
                 Note: Your user profile may not be set up correctly. Try refreshing the page.
               </p>
-            )}
+            }
           </div>
 
           <div className="flex gap-2 pt-4">
-            {showBackButton && (
-              <Button
-                variant="outline"
-                onClick={() => navigate(-1)}
-                className="flex-1 border-red-300 text-red-700 hover:bg-red-100">
+            {showBackButton &&
+            <Button
+              variant="outline"
+              onClick={() => navigate(-1)}
+              className="flex-1 border-red-300 text-red-700 hover:bg-red-100">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Go Back
               </Button>
-            )}
+            }
             <Button
               variant="outline"
               onClick={handleRefresh}
@@ -131,20 +131,20 @@ const AccessDenied: React.FC<AccessDeniedProps> = ({
           </div>
 
           {/* Login suggestion if not logged in */}
-          {!user && (
-            <div className="pt-2">
+          {!user &&
+          <div className="pt-2">
               <Button
-                onClick={() => navigate('/login')}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+              onClick={() => navigate('/login')}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white">
                 <User className="h-4 w-4 mr-2" />
                 Go to Login
               </Button>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AccessDenied;

@@ -48,9 +48,9 @@ export const useAdminAccess = (): AdminAccessResult => {
 
   const requireAdminAccess = (): void => {
     if (!isAdmin) {
-      const errorMsg = userProfile 
-        ? `Access denied. Current role: ${userProfile.role}. Administrator or Management role required.`
-        : 'Access denied. User profile not found. Please contact administrator.';
+      const errorMsg = userProfile ?
+      `Access denied. Current role: ${userProfile.role}. Administrator or Management role required.` :
+      'Access denied. User profile not found. Please contact administrator.';
       throw new Error(errorMsg);
     }
   };
