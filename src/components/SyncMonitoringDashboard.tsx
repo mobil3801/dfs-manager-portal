@@ -158,6 +158,8 @@ const SyncMonitoringDashboard: React.FC = () => {
 
 
 
+
+
           // Table not accessible, skip
         }}return Math.max(activeTableCount, 1); // At least 1 table should be available
     } catch {return 21; // Default to total expected tables
@@ -167,9 +169,7 @@ const SyncMonitoringDashboard: React.FC = () => {
       if (realLogs.length === 0) {realLogs = [{ id: '1', timestamp: new Date().toISOString(), type: 'scan', tableName: 'system', status: 'success', details: 'Database connection verified', duration: 250 }];}setSyncLogs(realLogs); // Calculate real metrics
       const successfulSyncs = realLogs.filter((log) => log.status === 'success');const todaysSyncs = realLogs.filter((log) => {const logDate = new Date(log.timestamp);const today = new Date();return logDate.toDateString() === today.toDateString();}); // Get actual table count from database
       const tableCount = await getRealTableCount();setMetrics({ totalTables: tableCount, syncedToday: todaysSyncs.length, errorCount: realLogs.filter((log) => log.status === 'failed').length, avgSyncTime: successfulSyncs.length > 0 ? successfulSyncs.reduce((acc, log) => acc + log.duration, 0) / successfulSyncs.length : 0, successRate: realLogs.length > 0 ? successfulSyncs.length / realLogs.length * 100 : 100 }); // Update sync status with real data
-      const status = autoSyncService.getStatus();setSyncStatus({ isActive: status.isMonitoring,
-          lastSync: status.lastSync || new Date().toISOString(),
-          nextSync: new Date(Date.now() + 300000).toISOString(), // 5 minutes from now
+      const status = autoSyncService.getStatus();setSyncStatus({ isActive: status.isMonitoring, lastSync: status.lastSync || new Date().toISOString(), nextSync: new Date(Date.now() + 300000).toISOString(), // 5 minutes from now
           currentOperation: status.isMonitoring ? 'Monitoring for changes...' : 'System operational'
         });
 

@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,347 +8,321 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { NumberInput } from '@/components/ui/number-input';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Upload, Receipt } from 'lucide-react';
+import { Plus, Trash2, Upload, FileText, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import EnhancedFileUpload from '@/components/EnhancedFileUpload';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Expense {
   id: string;
-  vendorId?: string;
-  vendorName?: string;
-  othersName?: string;
+  vendor: string;
+  othersName: string;
   amount: number;
-  paymentType: 'Cash' | 'Credit Card' | 'Cheque';
-  chequeNo?: string;
-  invoiceFileId?: number;
-  notes: string;
+  paymentType: 'Cash' | 'Card' | 'Cheque';
+  description: string;
+  receiptFileId?: number;
+  receiptFileName?: string;
 }
 
 interface ExpensesSectionProps {
   expenses: Expense[];
-  onChange: (expenses: Expense[]) => void;
+  onExpensesChange: (expenses: Expense[]) => void;
 }
 
 const ExpensesSection: React.FC<ExpensesSectionProps> = ({
-  expenses = [],
-  onChange
+  expenses,
+  onExpensesChange,
 }) => {
-  const [vendors, setVendors] = useState<Array<{id: number; vendor_name: string;}>>([]);
-  const [isLoadingVendors, setIsLoadingVendors] = useState(true);
-  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const [vendors, setVendors] = useState<Array<{ id: number; vendor_name: string }>>([]);
+  const [loadingVendors, setLoadingVendors] = useState(false);
 
+  // Load vendors from database
   useEffect(() => {
     loadVendors();
   }, []);
 
   const loadVendors = async () => {
     try {
+      setLoadingVendors(true);
       const { data, error } = await window.ezsite.apis.tablePage(11729, {
         PageNo: 1,
         PageSize: 100,
-        OrderByField: 'vendor_name',
+        OrderByField: "vendor_name",
         IsAsc: true,
-        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+        Filters: [
+          {
+            name: "is_active",
+            op: "Equal",
+            value: true
+          }
+        ]
       });
 
-      if (error) throw new Error(error);
+      if (error) throw error;
       setVendors(data?.List || []);
     } catch (error) {
       console.error('Error loading vendors:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to load vendors',
-        variant: 'destructive'
+        title: "Error",
+        description: "Failed to load vendors",
+        variant: "destructive",
       });
     } finally {
-      setIsLoadingVendors(false);
+      setLoadingVendors(false);
     }
   };
 
   const addExpense = () => {
     const newExpense: Expense = {
-      id: `expense_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      vendorId: '',
-      vendorName: '',
+      id: Date.now().toString(),
+      vendor: '',
       othersName: '',
       amount: 0,
       paymentType: 'Cash',
-      notes: ''
+      description: '',
     };
-    onChange([...expenses, newExpense]);
+    onExpensesChange([...expenses, newExpense]);
   };
 
-  const updateExpense = (index: number, field: keyof Expense, value: any) => {
-    if (!expenses || index < 0 || index >= expenses.length) {
-      console.error('Invalid expense index:', index);
-      return;
-    }
-
-    try {
-      const updatedExpenses = [...expenses];
-      updatedExpenses[index] = { ...updatedExpenses[index], [field]: value };
-
-      if (field === 'vendorId' && value) {
-        const vendor = vendors.find((v) => v.id.toString() === value);
-        updatedExpenses[index].vendorName = vendor?.vendor_name || '';
-      }
-
-      onChange(updatedExpenses);
-    } catch (error) {
-      console.error('Error updating expense:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to update expense',
-        variant: 'destructive'
-      });
-    }
+  const updateExpense = (id: string, field: keyof Expense, value: any) => {
+    const updatedExpenses = expenses.map(expense =>
+      expense.id === id ? { ...expense, [field]: value } : expense
+    );
+    onExpensesChange(updatedExpenses);
   };
 
-  const removeExpense = (index: number) => {
-    if (!expenses || index < 0 || index >= expenses.length) {
-      console.error('Invalid expense index for removal:', index);
-      return;
-    }
-
-    try {
-      const updatedExpenses = expenses.filter((_, i) => i !== index);
-      onChange(updatedExpenses);
-    } catch (error) {
-      console.error('Error removing expense:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to remove expense',
-        variant: 'destructive'
-      });
-    }
+  const removeExpense = (id: string) => {
+    const updatedExpenses = expenses.filter(expense => expense.id !== id);
+    onExpensesChange(updatedExpenses);
+    toast({
+      title: "Success",
+      description: "Expense removed successfully",
+    });
   };
 
-  const handleFileUpload = async (index: number, file: File) => {
-    setUploadingIndex(index);
+  const handleFileUpload = async (file: File, expenseId: string) => {
     try {
       const { data: fileId, error } = await window.ezsite.apis.upload({
         filename: file.name,
         file: file
       });
 
-      if (error) throw new Error(error);
-      updateExpense(index, 'invoiceFileId', fileId);
+      if (error) throw error;
+
+      updateExpense(expenseId, 'receiptFileId', fileId);
+      updateExpense(expenseId, 'receiptFileName', file.name);
 
       toast({
-        title: 'Success',
-        description: 'Invoice uploaded successfully'
+        title: "Success",
+        description: "Receipt uploaded successfully",
       });
     } catch (error) {
-      console.error('Error uploading invoice:', error);
+      console.error('Error uploading file:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to upload invoice',
-        variant: 'destructive'
+        title: "Error",
+        description: "Failed to upload receipt",
+        variant: "destructive",
       });
-    } finally {
-      setUploadingIndex(null);
     }
   };
 
-  // Safe calculations with null checks
-  const safeExpenses = expenses || [];
-  const cashExpenses = safeExpenses
-    .filter((e) => e && e.paymentType === 'Cash')
-    .reduce((sum, expense) => sum + (expense?.amount || 0), 0);
-  
-  const cardExpenses = safeExpenses
-    .filter((e) => e && e.paymentType === 'Credit Card')
-    .reduce((sum, expense) => sum + (expense?.amount || 0), 0);
-  
-  const chequeExpenses = safeExpenses
-    .filter((e) => e && e.paymentType === 'Cheque')
-    .reduce((sum, expense) => sum + (expense?.amount || 0), 0);
-  
-  const totalExpenses = cashExpenses + cardExpenses + chequeExpenses;
+  // Calculate totals by payment type
+  const calculateTotals = () => {
+    const cashExpense = expenses
+      .filter(exp => exp.paymentType === 'Cash')
+      .reduce((sum, exp) => sum + (exp.amount || 0), 0);
+
+    const cardExpense = expenses
+      .filter(exp => exp.paymentType === 'Card')
+      .reduce((sum, exp) => sum + (exp.amount || 0), 0);
+
+    const chequeExpense = expenses
+      .filter(exp => exp.paymentType === 'Cheque')
+      .reduce((sum, exp) => sum + (exp.amount || 0), 0);
+
+    const totalExpenses = cashExpense + cardExpense + chequeExpense;
+
+    return { cashExpense, cardExpense, chequeExpense, totalExpenses };
+  };
+
+  const { cashExpense, cardExpense, chequeExpense, totalExpenses } = calculateTotals();
 
   return (
-    <Card className="bg-orange-50 border-orange-200">
-      <CardHeader>
-        <CardTitle className="text-orange-800 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Receipt className="w-5 h-5" />
-            <span>Expenses</span>
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={addExpense}
-            className="bg-white hover:bg-orange-100">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Expense
-          </Button>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {!safeExpenses || safeExpenses.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            No expenses recorded. Click "Add Expense" to get started.
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {safeExpenses.map((expense, index) => {
-              // Ensure expense has required properties with safe fallbacks
-              const safeExpense = {
-                id: expense?.id || `fallback_${index}`,
-                vendorId: expense?.vendorId || '',
-                vendorName: expense?.vendorName || '',
-                othersName: expense?.othersName || '',
-                amount: expense?.amount || 0,
-                paymentType: expense?.paymentType || 'Cash',
-                chequeNo: expense?.chequeNo || '',
-                invoiceFileId: expense?.invoiceFileId,
-                notes: expense?.notes || ''
-              } as Expense;
+    <Card className="p-4 space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <DollarSign className="h-5 w-5" />
+          Expenses
+        </h3>
+        <Button onClick={addExpense} size="sm" className="gap-2">
+          <Plus className="h-4 w-4" />
+          Add Expense
+        </Button>
+      </div>
 
-              return (
-                <div key={safeExpense.id} className="border border-orange-200 rounded-lg p-4 bg-white">
-                  <div className="flex items-center justify-between mb-4">
-                    <Badge variant="outline" className="text-orange-700">
-                      Expense #{index + 1}
-                    </Badge>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeExpense(index)}
-                      className="text-red-600 hover:text-red-800 hover:bg-red-50">
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  
-                  <div className={`grid grid-cols-1 ${isMobile ? 'gap-4' : 'md:grid-cols-2 gap-4'}`}>
-                    <div className="space-y-2">
-                      <Label>Vendor (Optional)</Label>
-                      <Select
-                        value={safeExpense.vendorId}
-                        onValueChange={(value) => updateExpense(index, 'vendorId', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select vendor (optional)" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="">None Selected</SelectItem>
-                          {vendors.map((vendor) => (
-                            <SelectItem key={vendor.id} value={vendor.id.toString()}>
-                              {vendor.vendor_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label>Other's Name</Label>
-                      <Input
-                        value={safeExpense.othersName}
-                        onChange={(e) => updateExpense(index, 'othersName', e.target.value)}
-                        placeholder="Enter other's name" />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label>Amount ($) *</Label>
-                      <NumberInput
-                        value={safeExpense.amount}
-                        onChange={(value) => updateExpense(index, 'amount', value || 0)}
-                        min={0}
-                        step={0.01}
-                        required />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label>Payment Type *</Label>
-                      <Select
-                        value={safeExpense.paymentType}
-                        onValueChange={(value) => updateExpense(index, 'paymentType', value)}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Cash">Cash</SelectItem>
-                          <SelectItem value="Credit Card">Credit Card</SelectItem>
-                          <SelectItem value="Cheque">Cheque</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    {safeExpense.paymentType === 'Cheque' && (
-                      <div className="space-y-2">
-                        <Label>Cheque Number *</Label>
-                        <Input
-                          value={safeExpense.chequeNo}
-                          onChange={(e) => updateExpense(index, 'chequeNo', e.target.value)}
-                          placeholder="Enter cheque number"
-                          required />
-                      </div>
-                    )}
-                    
-                    <div className="md:col-span-2 space-y-2">
-                      <Label>Upload Invoice * (Mandatory)</Label>
-                      <div className="space-y-2">
-                        <EnhancedFileUpload
-                          onFileSelect={(file) => handleFileUpload(index, file)}
-                          accept=".pdf,.jpg,.jpeg,.png"
-                          label={uploadingIndex === index ? "Uploading..." : "Choose Invoice File"}
-                          maxSize={10}
-                          disabled={uploadingIndex === index}
-                          allowCamera={false}
-                          className="w-full" />
+      <div className="space-y-4">
+        {expenses.map((expense) => (
+          <Card key={expense.id} className="p-4 space-y-4 border-l-4 border-l-blue-500">
+            <div className="flex items-center justify-between">
+              <Badge variant="outline" className="gap-1">
+                <FileText className="h-3 w-3" />
+                Expense #{expense.id.slice(-4)}
+              </Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => removeExpense(expense.id)}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
 
-                        {safeExpense.invoiceFileId && (
-                          <Badge variant="default" className="bg-green-100 text-green-800">
-                            ✓ Invoice Uploaded Successfully
-                          </Badge>
-                        )}
-                      </div>
+            <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-2 lg:grid-cols-3'}`}>
+              <div className="space-y-2">
+                <Label htmlFor={`vendor-${expense.id}`}>Vendor (Optional)</Label>
+                <Select
+                  value={expense.vendor}
+                  onValueChange={(value) => updateExpense(expense.id, 'vendor', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select vendor (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">No vendor selected</SelectItem>
+                    {vendors.map((vendor) => (
+                      <SelectItem key={vendor.id} value={vendor.vendor_name}>
+                        {vendor.vendor_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor={`others-name-${expense.id}`}>Other's Name</Label>
+                <Input
+                  id={`others-name-${expense.id}`}
+                  value={expense.othersName}
+                  onChange={(e) => updateExpense(expense.id, 'othersName', e.target.value)}
+                  placeholder="Enter other's name"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor={`payment-type-${expense.id}`}>Payment Type</Label>
+                <Select
+                  value={expense.paymentType}
+                  onValueChange={(value) => updateExpense(expense.id, 'paymentType', value as 'Cash' | 'Card' | 'Cheque')}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Cash">Cash</SelectItem>
+                    <SelectItem value="Card">Card</SelectItem>
+                    <SelectItem value="Cheque">Cheque</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor={`amount-${expense.id}`}>Amount ($)</Label>
+                <NumberInput
+                  id={`amount-${expense.id}`}
+                  value={expense.amount}
+                  onValueChange={(value) => updateExpense(expense.id, 'amount', value)}
+                  placeholder="0.00"
+                  min={0}
+                  step={0.01}
+                />
+              </div>
+
+              <div className="space-y-2 col-span-full">
+                <Label htmlFor={`description-${expense.id}`}>Description</Label>
+                <Textarea
+                  id={`description-${expense.id}`}
+                  value={expense.description}
+                  onChange={(e) => updateExpense(expense.id, 'description', e.target.value)}
+                  placeholder="Enter expense description"
+                  rows={2}
+                />
+              </div>
+
+              <div className="space-y-2 col-span-full">
+                <Label>Receipt Image</Label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                  <EnhancedFileUpload
+                    onFileSelect={(file) => handleFileUpload(file, expense.id)}
+                    accept="image/*"
+                    maxSize={10}
+                    label="Upload Receipt"
+                    allowCamera={true}
+                  />
+                  {expense.receiptFileName && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <Badge variant="secondary" className="gap-1">
+                        <Upload className="h-3 w-3" />
+                        {expense.receiptFileName}
+                      </Badge>
                     </div>
-                    
-                    <div className="md:col-span-2 space-y-2">
-                      <Label>Notes</Label>
-                      <Textarea
-                        value={safeExpense.notes}
-                        onChange={(e) => updateExpense(index, 'notes', e.target.value)}
-                        placeholder="Additional notes about this expense..."
-                        rows={2} />
-                    </div>
-                  </div>
+                  )}
                 </div>
-              );
-            })}
+              </div>
+            </div>
+          </Card>
+        ))}
+
+        {expenses.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            <DollarSign className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p>No expenses added yet</p>
+            <p className="text-sm">Click "Add Expense" to get started</p>
           </div>
         )}
-        
-        {safeExpenses.length > 0 && (
-          <div className="pt-4 border-t border-orange-200 bg-orange-100 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-orange-800 mb-4">Expense Summary</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center justify-between">
-                <Label className="font-semibold">Cash Expenses:</Label>
-                <div className="text-xl font-bold text-red-600">${cashExpenses.toFixed(2)}</div>
+      </div>
+
+      {/* Expense Totals Calculation */}
+      {expenses.length > 0 && (
+        <Card className="p-4 bg-gray-50 border-2 border-gray-200">
+          <h4 className="font-semibold mb-3 flex items-center gap-2">
+            <DollarSign className="h-4 w-4" />
+            Expense Summary
+          </h4>
+          
+          <div className={`grid gap-3 ${isMobile ? 'grid-cols-1' : 'grid-cols-2 lg:grid-cols-4'}`}>
+            <div className="bg-white p-3 rounded-lg border">
+              <Label className="text-sm text-gray-600">Cash Expense</Label>
+              <div className="text-xl font-bold text-red-600">
+                ${cashExpense.toFixed(2)}
               </div>
-              <div className="flex items-center justify-between">
-                <Label className="font-semibold">Card Expenses:</Label>
-                <div className="text-xl font-bold text-red-600">${cardExpenses.toFixed(2)}</div>
+            </div>
+            
+            <div className="bg-white p-3 rounded-lg border">
+              <Label className="text-sm text-gray-600">Card Expense</Label>
+              <div className="text-xl font-bold text-red-600">
+                ${cardExpense.toFixed(2)}
               </div>
-              <div className="flex items-center justify-between">
-                <Label className="font-semibold">Cheque Expenses:</Label>
-                <div className="text-xl font-bold text-red-600">${chequeExpenses.toFixed(2)}</div>
+            </div>
+            
+            <div className="bg-white p-3 rounded-lg border">
+              <Label className="text-sm text-gray-600">Cheque Expense</Label>
+              <div className="text-xl font-bold text-red-600">
+                ${chequeExpense.toFixed(2)}
               </div>
-              <div className="flex items-center justify-between border-t pt-2">
-                <Label className="font-bold text-lg">Total Expenses:</Label>
-                <div className="text-2xl font-bold text-red-600">${totalExpenses.toFixed(2)}</div>
+            </div>
+            
+            <div className="bg-white p-3 rounded-lg border border-red-300">
+              <Label className="text-sm text-gray-600">Total Expenses</Label>
+              <div className="text-2xl font-bold text-red-600">
+                ${totalExpenses.toFixed(2)}
               </div>
             </div>
           </div>
-        )}
-      </CardContent>
+        </Card>
+      )}
     </Card>
   );
 };

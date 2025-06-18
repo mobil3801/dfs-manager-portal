@@ -23,8 +23,8 @@ const ExpensesSectionWrapper: React.FC<ExpensesSectionWrapperProps> = (props) =>
   return (
     <ComponentErrorBoundary>
       <ExpensesSection {...props} />
-    </ComponentErrorBoundary>
-  );
+    </ComponentErrorBoundary>);
+
 };
 
 export default ExpensesSectionWrapper;

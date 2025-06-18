@@ -160,9 +160,9 @@ export default function SalesReportForm() {
         OrderByField: 'first_name',
         IsAsc: true,
         Filters: [
-          { name: 'station', op: 'Equal', value: station },
-          { name: 'is_active', op: 'Equal', value: true }
-        ]
+        { name: 'station', op: 'Equal', value: station },
+        { name: 'is_active', op: 'Equal', value: true }]
+
       });
 
       if (error) throw new Error(error);
@@ -194,9 +194,9 @@ export default function SalesReportForm() {
 
   // Expected Cash calculation: Cash Amount + Grocery Sales (cash portion) + NY Lottery Net Sales + Scratch Off Sales
   const totalCashFromSales = formData.cashAmount + formData.groceryCashSales + formData.lotteryNetSales + formData.scratchOffSales;
-  const totalCashFromExpenses = (expenses || [])
-    .filter((e) => e && e.paymentType === 'Cash')
-    .reduce((sum, expense) => sum + (expense?.amount || 0), 0);
+  const totalCashFromExpenses = (expenses || []).
+  filter((e) => e && e.paymentType === 'Cash').
+  reduce((sum, expense) => sum + (expense?.amount || 0), 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -315,8 +315,8 @@ export default function SalesReportForm() {
           </div>
           <StationSelector onStationSelect={setSelectedStation} />
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -393,11 +393,11 @@ export default function SalesReportForm() {
                       <SelectValue placeholder={isLoadingEmployees ? "Loading employees..." : "Select employee"} />
                     </SelectTrigger>
                     <SelectContent>
-                      {employees.map((employee) => (
-                        <SelectItem key={employee.id} value={employee.employee_id}>
+                      {employees.map((employee) =>
+                      <SelectItem key={employee.id} value={employee.employee_id}>
                           {employee.first_name} {employee.last_name} (ID: {employee.employee_id})
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -544,6 +544,6 @@ export default function SalesReportForm() {
           </div>
         </form>
       </div>
-    </div>
-  );
+    </div>);
+
 }
