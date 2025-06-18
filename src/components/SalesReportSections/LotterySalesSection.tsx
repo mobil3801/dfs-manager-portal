@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { NumberInput } from '@/components/ui/number-input';
 import { Ticket } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface LotterySalesSectionProps {
   values: {
@@ -16,7 +17,10 @@ const LotterySalesSection: React.FC<LotterySalesSectionProps> = ({
   values,
   onChange
 }) => {
-  const totalLotteryCash = values.lotteryNetSales + values.scratchOffSales;
+  const isMobile = useIsMobile();
+  
+  // Total Sales Cash - Auto calculated (Net Sales + Scratch Off Sales)
+  const totalSalesCash = values.lotteryNetSales + values.scratchOffSales;
 
   return (
     <Card className="bg-yellow-50 border-yellow-200">
@@ -27,7 +31,7 @@ const LotterySalesSection: React.FC<LotterySalesSectionProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className={`grid grid-cols-1 ${isMobile ? 'gap-4' : 'md:grid-cols-2 gap-4'}`}>
           <div className="space-y-2">
             <Label htmlFor="lotteryNet">Net Sales ($) *</Label>
             <NumberInput
@@ -36,8 +40,8 @@ const LotterySalesSection: React.FC<LotterySalesSectionProps> = ({
               onChange={(value) => onChange('lotteryNetSales', value || 0)}
               min={0}
               step={0.01}
-              required />
-
+              required
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="scratchOff">Scratch Off Sales ($) *</Label>
@@ -47,23 +51,23 @@ const LotterySalesSection: React.FC<LotterySalesSectionProps> = ({
               onChange={(value) => onChange('scratchOffSales', value || 0)}
               min={0}
               step={0.01}
-              required />
-
+              required
+            />
           </div>
         </div>
         
         <div className="pt-4 border-t border-yellow-200">
           <div className="flex items-center justify-between">
             <Label className="text-lg font-semibold">Total Sales Cash (Auto-calculated)</Label>
-            <div className="text-2xl font-bold text-yellow-800">${totalLotteryCash.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-yellow-800">${totalSalesCash.toFixed(2)}</div>
           </div>
           <div className="text-sm text-gray-600 mt-1">
-            Net Sales + Scratch Off = ${totalLotteryCash.toFixed(2)}
+            Net Sales + Scratch Off Sales = ${totalSalesCash.toFixed(2)}
           </div>
         </div>
       </CardContent>
-    </Card>);
-
+    </Card>
+  );
 };
 
 export default LotterySalesSection;

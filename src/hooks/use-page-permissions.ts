@@ -62,7 +62,7 @@ export const usePagePermissions = (pageKey: string) => {
     try {
       setLoading(true);
       console.log('Fetching permissions for user:', user?.ID, 'Page:', pageKey);
-      
+
       // Fetch user profile from database
       const { data, error } = await window.ezsite.apis.tablePage(11725, {
         PageNo: 1,
@@ -70,12 +70,12 @@ export const usePagePermissions = (pageKey: string) => {
         OrderByField: "id",
         IsAsc: false,
         Filters: [
-          {
-            name: "user_id",
-            op: "Equal",
-            value: user?.ID
-          }
-        ]
+        {
+          name: "user_id",
+          op: "Equal",
+          value: user?.ID
+        }]
+
       });
 
       if (error) {
@@ -125,26 +125,26 @@ export const usePagePermissions = (pageKey: string) => {
 
   const getDefaultRolePermissions = (role: string): DetailedPermissions => {
     const allPermissions: DetailedPermissions = {};
-    
+
     // Define all pages
     const allPages = [
-      'dashboard', 'products', 'product_form', 'employees', 'employee_form',
-      'sales_reports', 'sales_report_form', 'vendors', 'vendor_form',
-      'orders', 'order_form', 'delivery', 'delivery_form', 'licenses',
-      'license_form', 'inventory_alerts', 'alert_settings', 'gas_delivery_inventory',
-      'salary', 'salary_form', 'settings', 'user_management', 'site_management',
-      'system_logs', 'security_settings'
-    ];
+    'dashboard', 'products', 'product_form', 'employees', 'employee_form',
+    'sales_reports', 'sales_report_form', 'vendors', 'vendor_form',
+    'orders', 'order_form', 'delivery', 'delivery_form', 'licenses',
+    'license_form', 'inventory_alerts', 'alert_settings', 'gas_delivery_inventory',
+    'salary', 'salary_form', 'settings', 'user_management', 'site_management',
+    'system_logs', 'security_settings'];
+
 
     // Initialize all pages with default permissions
-    allPages.forEach(page => {
+    allPages.forEach((page) => {
       allPermissions[page] = { ...defaultPagePermission };
     });
 
     switch (role) {
       case 'Administrator':
         // Full access to everything
-        allPages.forEach(page => {
+        allPages.forEach((page) => {
           allPermissions[page] = {
             view: true,
             create: true,
@@ -162,14 +162,14 @@ export const usePagePermissions = (pageKey: string) => {
       case 'Management':
         // Full operational access, limited admin access
         const managementPages = [
-          'dashboard', 'products', 'product_form', 'employees', 'employee_form',
-          'sales_reports', 'sales_report_form', 'vendors', 'vendor_form',
-          'orders', 'order_form', 'delivery', 'delivery_form', 'licenses',
-          'license_form', 'inventory_alerts', 'alert_settings', 'gas_delivery_inventory',
-          'salary', 'salary_form'
-        ];
+        'dashboard', 'products', 'product_form', 'employees', 'employee_form',
+        'sales_reports', 'sales_report_form', 'vendors', 'vendor_form',
+        'orders', 'order_form', 'delivery', 'delivery_form', 'licenses',
+        'license_form', 'inventory_alerts', 'alert_settings', 'gas_delivery_inventory',
+        'salary', 'salary_form'];
 
-        managementPages.forEach(page => {
+
+        managementPages.forEach((page) => {
           allPermissions[page] = {
             view: true,
             create: true,
@@ -184,7 +184,7 @@ export const usePagePermissions = (pageKey: string) => {
         });
 
         // Limited admin access
-        ['settings', 'user_management'].forEach(page => {
+        ['settings', 'user_management'].forEach((page) => {
           allPermissions[page] = {
             view: true,
             create: false,
@@ -202,7 +202,7 @@ export const usePagePermissions = (pageKey: string) => {
       case 'Employee':
         // Basic operational access
         const employeePages = ['dashboard', 'sales_reports', 'sales_report_form', 'delivery', 'delivery_form'];
-        employeePages.forEach(page => {
+        employeePages.forEach((page) => {
           allPermissions[page] = {
             view: true,
             create: true,
@@ -217,7 +217,7 @@ export const usePagePermissions = (pageKey: string) => {
         });
 
         // View-only access
-        ['products', 'inventory_alerts', 'gas_delivery_inventory'].forEach(page => {
+        ['products', 'inventory_alerts', 'gas_delivery_inventory'].forEach((page) => {
           allPermissions[page] = {
             view: true,
             create: false,
@@ -258,7 +258,7 @@ export const usePagePermissions = (pageKey: string) => {
 
   const checkPermissionAndNotify = (permissionType: keyof PagePermission, action?: string): boolean => {
     const hasAccess = hasPermission(permissionType);
-    
+
     if (!hasAccess && action) {
       toast({
         title: "Access Denied",
@@ -266,7 +266,7 @@ export const usePagePermissions = (pageKey: string) => {
         variant: "destructive"
       });
     }
-    
+
     return hasAccess;
   };
 

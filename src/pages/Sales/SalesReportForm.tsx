@@ -47,17 +47,20 @@ export default function SalesReportForm() {
     employee_id: '',
     // Cash Collection
     cashCollectionOnHand: 0,
-    // Gas & Grocery Sales
+    // Gas & Grocery Sales - Manual Entry
     creditCardAmount: 0,
     debitCardAmount: 0,
     mobileAmount: 0,
     cashAmount: 0,
     grocerySales: 0,
     ebtSales: 0, // MOBIL only
-    // Lottery
+    // Grocery Sales Breakdown - Manual Entry
+    groceryCashSales: 0,
+    groceryCardSales: 0,
+    // Lottery - Manual Entry
     lotteryNetSales: 0,
     scratchOffSales: 0,
-    // Gas Tank Report
+    // Gas Tank Report - Manual Entry
     regularGallons: 0,
     superGallons: 0,
     dieselGallons: 0,
@@ -111,6 +114,9 @@ export default function SalesReportForm() {
           cashAmount: report.cash_amount,
           grocerySales: report.grocery_sales,
           ebtSales: report.ebt_sales,
+          // Initialize new grocery breakdown fields to 0 if not present
+          groceryCashSales: 0,
+          groceryCardSales: 0,
           lotteryNetSales: report.lottery_net_sales,
           scratchOffSales: report.scratch_off_sales,
           regularGallons: report.regular_gallons,
@@ -170,12 +176,21 @@ export default function SalesReportForm() {
     }
   };
 
-  // Auto-calculations
+  // Auto-calculations according to new requirements
+  // Total Sales - Auto (Credit Card + Debit Card + Mobile Payment + Cash + Grocery)
   const totalSales = formData.creditCardAmount + formData.debitCardAmount + formData.mobileAmount + formData.cashAmount + formData.grocerySales;
+
+  // Total Gallon Sold - Auto (Regular + Super + Diesel)
   const totalGallons = formData.regularGallons + formData.superGallons + formData.dieselGallons;
+
+  // Total Sales Cash - Auto (Net Sales + Scratch Off Sales)
   const totalLotteryCash = formData.lotteryNetSales + formData.scratchOffSales;
+
+  // Total Grocery Sales - Auto (Cash Sales + Credit/Debit Card + EBT)
+  const totalGrocerySales = formData.groceryCashSales + formData.groceryCardSales + formData.ebtSales;
+
   // Expected Cash calculation: Cash Amount + Grocery Sales (cash portion) + NY Lottery Net Sales + Scratch Off Sales
-  const totalCashFromSales = formData.cashAmount + formData.grocerySales + formData.lotteryNetSales + formData.scratchOffSales;
+  const totalCashFromSales = formData.cashAmount + formData.groceryCashSales + formData.lotteryNetSales + formData.scratchOffSales;
   const totalCashFromExpenses = expenses.filter((e) => e.paymentType === 'Cash').reduce((sum, expense) => sum + expense.amount, 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -405,7 +420,9 @@ export default function SalesReportForm() {
               mobileAmount: formData.mobileAmount,
               cashAmount: formData.cashAmount,
               grocerySales: formData.grocerySales,
-              ebtSales: formData.ebtSales
+              ebtSales: formData.ebtSales,
+              groceryCashSales: formData.groceryCashSales,
+              groceryCardSales: formData.groceryCardSales
             }}
             onChange={updateFormData} />
 
@@ -471,7 +488,7 @@ export default function SalesReportForm() {
               <CardTitle className="text-blue-800">Report Summary</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-blue-800">${totalSales.toFixed(2)}</div>
                   <div className="text-sm text-gray-600">Total Sales</div>
@@ -483,6 +500,10 @@ export default function SalesReportForm() {
                 <div className="text-center">
                   <div className="text-2xl font-bold text-purple-800">${totalLotteryCash.toFixed(2)}</div>
                   <div className="text-sm text-gray-600">Lottery Sales</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-800">${totalGrocerySales.toFixed(2)}</div>
+                  <div className="text-sm text-gray-600">Grocery Sales</div>
                 </div>
               </div>
             </CardContent>

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { NumberInput } from '@/components/ui/number-input';
 import { Gauge } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface GasTankReportSectionProps {
   values: {
@@ -17,7 +18,10 @@ const GasTankReportSection: React.FC<GasTankReportSectionProps> = ({
   values,
   onChange
 }) => {
-  const totalGallons = values.regularGallons + values.superGallons + values.dieselGallons;
+  const isMobile = useIsMobile();
+  
+  // Total Gallon Sold - Auto calculated (Regular + Super + Diesel)
+  const totalGallonsSold = values.regularGallons + values.superGallons + values.dieselGallons;
 
   return (
     <Card className="bg-red-50 border-red-200">
@@ -28,7 +32,7 @@ const GasTankReportSection: React.FC<GasTankReportSectionProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className={`grid grid-cols-1 ${isMobile ? 'gap-4' : 'md:grid-cols-3 gap-4'}`}>
           <div className="space-y-2">
             <Label htmlFor="regular">Regular (Gallons) *</Label>
             <NumberInput
@@ -37,8 +41,8 @@ const GasTankReportSection: React.FC<GasTankReportSectionProps> = ({
               onChange={(value) => onChange('regularGallons', value || 0)}
               min={0}
               step={0.01}
-              required />
-
+              required
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="super">Super (Gallons) *</Label>
@@ -48,8 +52,8 @@ const GasTankReportSection: React.FC<GasTankReportSectionProps> = ({
               onChange={(value) => onChange('superGallons', value || 0)}
               min={0}
               step={0.01}
-              required />
-
+              required
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="diesel">Diesel (Gallons) *</Label>
@@ -59,23 +63,23 @@ const GasTankReportSection: React.FC<GasTankReportSectionProps> = ({
               onChange={(value) => onChange('dieselGallons', value || 0)}
               min={0}
               step={0.01}
-              required />
-
+              required
+            />
           </div>
         </div>
         
         <div className="pt-4 border-t border-red-200">
           <div className="flex items-center justify-between">
-            <Label className="text-lg font-semibold">Total Gallons Sold (Auto-calculated)</Label>
-            <div className="text-2xl font-bold text-red-800">{totalGallons.toFixed(2)} gal</div>
+            <Label className="text-lg font-semibold">Total Gallon Sold (Auto-calculated)</Label>
+            <div className="text-2xl font-bold text-red-800">{totalGallonsSold.toFixed(2)} gal</div>
           </div>
           <div className="text-sm text-gray-600 mt-1">
-            Regular + Super + Diesel = {totalGallons.toFixed(2)} gallons
+            Regular + Super + Diesel = {totalGallonsSold.toFixed(2)} gallons
           </div>
         </div>
       </CardContent>
-    </Card>);
-
+    </Card>
+  );
 };
 
 export default GasTankReportSection;
