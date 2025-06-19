@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { NumberInput } from '@/components/ui/number-input';
 import { Progress } from '@/components/ui/progress';
-import { Upload, X, FileText, CheckCircle } from 'lucide-react';
+import { Plus, Upload, CheckCircle, AlertCircle, DollarSign, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Vendor {
   id: number;
   vendor_name: string;
+  category: string;
+  is_active: boolean;
 }
 
 interface ExpenseFormData {
   vendor: string;
   othersName: string;
   amount: number;
-  paymentType: 'Cash' | 'Credit' | 'Cheque';
+  paymentType: 'Cash' | 'Credit Card' | 'Cheque';
   chequeNumber: string;
   invoiceFileId?: number;
   invoiceFileName?: string;
@@ -27,42 +29,47 @@ interface ExpenseFormData {
 interface ExpenseFormDialogProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (expense: ExpenseFormData) => void;
+  onSubmit: (data: ExpenseFormData) => void;
+  loading?: boolean;
 }
 
 const ExpenseFormDialog: React.FC<ExpenseFormDialogProps> = ({
   open,
   onClose,
-  onSubmit
+  onSubmit,
+  loading = false
 }) => {
   const { toast } = useToast();
+  const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [loadingVendors, setLoadingVendors] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  
   const [formData, setFormData] = useState<ExpenseFormData>({
     vendor: '',
     othersName: '',
     amount: 0,
     paymentType: 'Cash',
-    chequeNumber: ''
+    chequeNumber: '',
+    invoiceFileId: undefined,
+    invoiceFileName: ''
   });
-  const [vendors, setVendors] = useState<Vendor[]>([]);
-  const [loadingVendors, setLoadingVendors] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isDragOver, setIsDragOver] = useState(false);
 
   // Load vendors when dialog opens
   useEffect(() => {
     if (open) {
       loadVendors();
-      // Reset form
+      // Reset form when dialog opens
       setFormData({
         vendor: '',
         othersName: '',
         amount: 0,
         paymentType: 'Cash',
-        chequeNumber: ''
+        chequeNumber: '',
+        invoiceFileId: undefined,
+        invoiceFileName: ''
       });
       setUploadProgress(0);
-      setIsUploading(false);
     }
   }, [open]);
 
@@ -72,115 +79,144 @@ const ExpenseFormDialog: React.FC<ExpenseFormDialogProps> = ({
       const { data, error } = await window.ezsite.apis.tablePage(11729, {
         PageNo: 1,
         PageSize: 100,
-        OrderByField: "vendor_name",
+        OrderByField: 'vendor_name',
         IsAsc: true,
-        Filters: [{
-          name: "is_active",
-          op: "Equal",
-          value: true
-        }]
+        Filters: [
+          { name: 'is_active', op: 'Equal', value: true }
+        ]
       });
 
-      if (error) throw error;
+      if (error) throw new Error(error);
       setVendors(data?.List || []);
     } catch (error) {
       console.error('Error loading vendors:', error);
       toast({
-        title: "Error",
-        description: "Failed to load vendors",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to load vendors',
+        variant: 'destructive'
       });
     } finally {
       setLoadingVendors(false);
     }
   };
 
-  const handleFileUpload = async (file: File) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type (accept common document types)
+    const allowedTypes = [
+      'application/pdf',
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: 'Invalid File Type',
+        description: 'Please upload a PDF, image, or document file',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: 'File Too Large',
+        description: 'Please upload a file smaller than 10MB',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     try {
-      setIsUploading(true);
-      setUploadProgress(10);
+      setUploading(true);
+      setUploadProgress(0);
 
-      // Validate file
-      if (file.size > 10 * 1024 * 1024) {// 10MB limit
-        throw new Error('File size must be less than 10MB');
-      }
-
-      setUploadProgress(30);
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prev + 10;
+        });
+      }, 100);
 
       const { data: fileId, error } = await window.ezsite.apis.upload({
         filename: file.name,
         file: file
       });
 
-      if (error) throw error;
+      clearInterval(progressInterval);
+
+      if (error) throw new Error(error);
 
       setUploadProgress(100);
-      setFormData((prev) => ({
+      setFormData(prev => ({
         ...prev,
         invoiceFileId: fileId,
         invoiceFileName: file.name
       }));
 
       toast({
-        title: "Success",
-        description: "Invoice file uploaded successfully"
+        title: 'Success',
+        description: 'Invoice uploaded successfully'
       });
 
     } catch (error) {
       console.error('Error uploading file:', error);
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to upload file",
-        variant: "destructive"
+        title: 'Upload Failed',
+        description: 'Failed to upload invoice file',
+        variant: 'destructive'
       });
-      setUploadProgress(0);
     } finally {
-      setIsUploading(false);
+      setUploading(false);
     }
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsDragOver(false);
 
-    const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) {
-      handleFileUpload(files[0]);
-    }
-  };
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleFileUpload(file);
-    }
-  };
-
-  const handleSubmit = () => {
     // Validation
-    if (!formData.othersName.trim()) {
+    if (!formData.vendor && !formData.othersName.trim()) {
       toast({
-        title: "Validation Error",
-        description: "Other's Name is required",
-        variant: "destructive"
+        title: 'Validation Error',
+        description: 'Please select a vendor or enter Other\'s Name',
+        variant: 'destructive'
       });
       return;
     }
 
     if (formData.amount <= 0) {
       toast({
-        title: "Validation Error",
-        description: "Amount must be greater than 0",
-        variant: "destructive"
+        title: 'Validation Error',
+        description: 'Please enter a valid amount',
+        variant: 'destructive'
       });
       return;
     }
 
     if (formData.paymentType === 'Cheque' && !formData.chequeNumber.trim()) {
       toast({
-        title: "Validation Error",
-        description: "Cheque Number is required for cheque payments",
-        variant: "destructive"
+        title: 'Validation Error',
+        description: 'Cheque number is required for cheque payments',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    if (!formData.invoiceFileId) {
+      toast({
+        title: 'Validation Error',
+        description: 'Invoice upload is mandatory',
+        variant: 'destructive'
       });
       return;
     }
@@ -189,72 +225,93 @@ const ExpenseFormDialog: React.FC<ExpenseFormDialogProps> = ({
     onClose();
   };
 
-  const removeFile = () => {
-    setFormData((prev) => ({
-      ...prev,
+  const updateFormData = (field: keyof ExpenseFormData, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const resetForm = () => {
+    setFormData({
+      vendor: '',
+      othersName: '',
+      amount: 0,
+      paymentType: 'Cash',
+      chequeNumber: '',
       invoiceFileId: undefined,
-      invoiceFileName: undefined
-    }));
+      invoiceFileName: ''
+    });
     setUploadProgress(0);
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md mx-auto max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Add New Expense
+            <DollarSign className="h-5 w-5" />
+            Add Expense
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          {/* Vendor Name */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Vendor Selection */}
           <div className="space-y-2">
-            <Label htmlFor="vendor">Vendor Name (Optional)</Label>
+            <Label htmlFor="vendor">Vendor Name</Label>
             <Select
               value={formData.vendor}
-              onValueChange={(value) => setFormData((prev) => ({ ...prev, vendor: value }))}
-              disabled={loadingVendors}>
-
+              onValueChange={(value) => {
+                updateFormData('vendor', value);
+                // Clear others name when vendor is selected
+                if (value) updateFormData('othersName', '');
+              }}
+              disabled={loadingVendors}
+            >
               <SelectTrigger>
-                <SelectValue placeholder={loadingVendors ? "Loading vendors..." : "Select vendor (optional)"} />
+                <SelectValue placeholder={loadingVendors ? "Loading vendors..." : "Select vendor"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No vendor selected</SelectItem>
-                {vendors.map((vendor) =>
-                <SelectItem key={vendor.id} value={vendor.vendor_name}>
-                    {vendor.vendor_name}
+                <SelectItem value="">Select a vendor</SelectItem>
+                {vendors.map((vendor) => (
+                  <SelectItem key={vendor.id} value={vendor.vendor_name}>
+                    {vendor.vendor_name} ({vendor.category})
                   </SelectItem>
-                )}
+                ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* Other's Name */}
+          {/* Others Name */}
           <div className="space-y-2">
-            <Label htmlFor="othersName">Other's Name *</Label>
+            <Label htmlFor="othersName">Other's Name</Label>
             <Input
               id="othersName"
               value={formData.othersName}
-              onChange={(e) => setFormData((prev) => ({ ...prev, othersName: e.target.value }))}
-              placeholder="Enter other's name"
-              required />
-
+              onChange={(e) => {
+                updateFormData('othersName', e.target.value);
+                // Clear vendor when others name is entered
+                if (e.target.value) updateFormData('vendor', '');
+              }}
+              placeholder="Enter name if not using vendor list"
+              disabled={!!formData.vendor}
+            />
+            {formData.vendor && (
+              <p className="text-sm text-gray-500">
+                Clear vendor selection to enter other's name
+              </p>
+            )}
           </div>
 
           {/* Amount */}
           <div className="space-y-2">
-            <Label htmlFor="amount">Amount ($) *</Label>
+            <Label htmlFor="amount">Amount *</Label>
             <NumberInput
               id="amount"
               value={formData.amount}
-              onValueChange={(value) => setFormData((prev) => ({ ...prev, amount: value }))}
+              onChange={(value) => updateFormData('amount', value)}
               placeholder="0.00"
               min={0}
               step={0.01}
-              required />
-
+              required
+            />
           </div>
 
           {/* Payment Type */}
@@ -262,121 +319,120 @@ const ExpenseFormDialog: React.FC<ExpenseFormDialogProps> = ({
             <Label htmlFor="paymentType">Payment Type *</Label>
             <Select
               value={formData.paymentType}
-              onValueChange={(value) => setFormData((prev) => ({
-                ...prev,
-                paymentType: value as 'Cash' | 'Credit' | 'Cheque',
-                chequeNumber: value !== 'Cheque' ? '' : prev.chequeNumber
-              }))}>
-
+              onValueChange={(value: 'Cash' | 'Credit Card' | 'Cheque') => {
+                updateFormData('paymentType', value);
+                // Clear cheque number if not cheque payment
+                if (value !== 'Cheque') updateFormData('chequeNumber', '');
+              }}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Cash">Cash</SelectItem>
-                <SelectItem value="Credit">Credit</SelectItem>
+                <SelectItem value="Credit Card">Credit Card</SelectItem>
                 <SelectItem value="Cheque">Cheque</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {/* Cheque Number (Conditional) */}
-          {formData.paymentType === 'Cheque' &&
-          <div className="space-y-2">
+          {/* Cheque Number (conditional) */}
+          {formData.paymentType === 'Cheque' && (
+            <div className="space-y-2">
               <Label htmlFor="chequeNumber">Cheque Number *</Label>
               <Input
-              id="chequeNumber"
-              value={formData.chequeNumber}
-              onChange={(e) => setFormData((prev) => ({ ...prev, chequeNumber: e.target.value }))}
-              placeholder="Enter cheque number"
-              required />
-
+                id="chequeNumber"
+                value={formData.chequeNumber}
+                onChange={(e) => updateFormData('chequeNumber', e.target.value)}
+                placeholder="Enter cheque number"
+                required
+              />
             </div>
-          }
+          )}
 
           {/* Invoice Upload */}
           <div className="space-y-2">
-            <Label>Invoice Number (Upload File)</Label>
-            
-            {!formData.invoiceFileName ?
-            <div
-              className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-              isDragOver ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}`
-              }
-              onDrop={handleDrop}
-              onDragOver={(e) => {e.preventDefault();setIsDragOver(true);}}
-              onDragLeave={() => setIsDragOver(false)}>
-
-                <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                <p className="text-sm text-gray-600 mb-2">
-                  Drag & drop a file here, or click to select
-                </p>
-                <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => document.getElementById('file-input')?.click()}
-                disabled={isUploading}>
-
-                  {isUploading ? 'Uploading...' : 'Choose File'}
-                </Button>
+            <Label htmlFor="invoice">Invoice Upload *</Label>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
                 <input
-                id="file-input"
-                type="file"
-                className="hidden"
-                onChange={handleFileSelect}
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif" />
-
-              </div> :
-
-            <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  <span className="text-sm text-green-800">{formData.invoiceFileName}</span>
-                </div>
+                  type="file"
+                  id="invoice"
+                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  disabled={uploading}
+                />
                 <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={removeFile}>
-
-                  <X className="h-4 w-4" />
+                  type="button"
+                  variant="outline"
+                  onClick={() => document.getElementById('invoice')?.click()}
+                  disabled={uploading}
+                  className="flex items-center gap-2"
+                >
+                  <Upload className="h-4 w-4" />
+                  {uploading ? 'Uploading...' : 'Choose File'}
                 </Button>
+                {formData.invoiceFileName && (
+                  <span className="text-sm text-gray-600 truncate">
+                    {formData.invoiceFileName}
+                  </span>
+                )}
               </div>
-            }
 
-            {/* Upload Progress */}
-            {isUploading &&
-            <div className="space-y-2">
-                <div className="flex justify-between text-xs text-gray-600">
-                  <span>Uploading...</span>
-                  <span>{uploadProgress}%</span>
+              {/* Upload Progress */}
+              {uploading && (
+                <div className="space-y-2">
+                  <Progress value={uploadProgress} className="h-2" />
+                  <p className="text-sm text-gray-600">
+                    Uploading... {uploadProgress}%
+                  </p>
                 </div>
-                <Progress value={uploadProgress} className="h-2" />
-              </div>
-            }
+              )}
+
+              {/* Upload Status */}
+              {formData.invoiceFileId && !uploading && (
+                <div className="flex items-center gap-2 text-green-600">
+                  <CheckCircle className="h-4 w-4" />
+                  <span className="text-sm">Invoice uploaded successfully</span>
+                </div>
+              )}
+
+              {!formData.invoiceFileId && !uploading && (
+                <div className="flex items-center gap-2 text-amber-600">
+                  <AlertCircle className="h-4 w-4" />
+                  <span className="text-sm">Invoice upload is required</span>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
 
-        <DialogFooter className="gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onClose}
-            disabled={isUploading}>
-
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            onClick={handleSubmit}
-            disabled={isUploading}>
-
-            Submit
-          </Button>
-        </DialogFooter>
+          {/* Form Actions */}
+          <div className="flex items-center justify-end space-x-2 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                resetForm();
+                onClose();
+              }}
+              disabled={loading || uploading}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={loading || uploading || !formData.invoiceFileId}
+              className="flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              {loading ? 'Adding...' : 'Add Expense'}
+            </Button>
+          </div>
+        </form>
       </DialogContent>
-    </Dialog>);
-
+    </Dialog>
+  );
 };
 
 export default ExpenseFormDialog;

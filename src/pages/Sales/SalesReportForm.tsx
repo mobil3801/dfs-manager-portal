@@ -13,6 +13,7 @@ import StationSelector from '@/components/StationSelector';
 import GasGrocerySalesSection from '@/components/SalesReportSections/GasGrocerySalesSection';
 import LotterySalesSection from '@/components/SalesReportSections/LotterySalesSection';
 import GasTankReportSection from '@/components/SalesReportSections/GasTankReportSection';
+import ExpensesSection from '@/components/SalesReportSections/ExpensesSection';
 import DocumentsUploadSection from '@/components/SalesReportSections/DocumentsUploadSection';
 import CashCollectionSection from '@/components/SalesReportSections/CashCollectionSection';
 
@@ -26,6 +27,7 @@ export default function SalesReportForm() {
   const [selectedStation, setSelectedStation] = useState('');
   const [employees, setEmployees] = useState<Array<{id: number;first_name: string;last_name: string;employee_id: string;}>>([]);
   const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
+  const [totalExpenses, setTotalExpenses] = useState(0);
 
   const [formData, setFormData] = useState({
     report_date: new Date().toISOString().split('T')[0],
@@ -168,8 +170,8 @@ export default function SalesReportForm() {
 
   // Expected Cash calculation: Cash Amount + Grocery Sales (cash portion) + NY Lottery Net Sales + Scratch Off Sales
   const totalCashFromSales = formData.cashAmount + formData.groceryCashSales + formData.lotteryNetSales + formData.scratchOffSales;
-  // Removed expense calculations
-  const totalCashFromExpenses = 0;
+  // Include expense calculations from the ExpensesSection
+  const totalCashFromExpenses = totalExpenses;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -208,7 +210,7 @@ export default function SalesReportForm() {
       super_gallons: formData.superGallons,
       diesel_gallons: formData.dieselGallons,
       total_gallons: totalGallons,
-      expenses_data: '[]', // Empty expenses array
+      expenses_data: JSON.stringify({ total_expenses: totalExpenses }), // Store expense total
       day_report_file_id: formData.dayReportFileId,
       veeder_root_file_id: formData.veederRootFileId,
       lotto_report_file_id: formData.lottoReportFileId,
@@ -403,7 +405,11 @@ export default function SalesReportForm() {
             }}
             onChange={updateFormData} />
 
-          {/* Expenses Section Removed - No longer displayed */}
+          {/* Expenses Section - Added under Gas Tank Report */}
+          <ExpensesSection
+            station={selectedStation}
+            reportDate={formData.report_date}
+            onExpensesChange={setTotalExpenses} />
 
           {/* Documents Upload */}
           <DocumentsUploadSection
@@ -439,7 +445,7 @@ export default function SalesReportForm() {
               <CardTitle className="text-blue-800">Report Summary</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-blue-800">${totalSales.toFixed(2)}</div>
                   <div className="text-sm text-gray-600">Total Sales</div>
@@ -456,9 +462,11 @@ export default function SalesReportForm() {
                   <div className="text-2xl font-bold text-green-800">${totalGrocerySales.toFixed(2)}</div>
                   <div className="text-sm text-gray-600">Grocery Sales</div>
                 </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-red-800">${totalExpenses.toFixed(2)}</div>
+                  <div className="text-sm text-gray-600">Total Expenses</div>
+                </div>
               </div>
-              
-              {/* Expense Summary Removed */}
             </CardContent>
           </Card>
 
