@@ -136,9 +136,9 @@ export default function SalesReportForm() {
         OrderByField: 'first_name',
         IsAsc: true,
         Filters: [
-        { name: 'station', op: 'Equal', value: station },
-        { name: 'is_active', op: 'Equal', value: true }]
-
+          { name: 'station', op: 'Equal', value: station },
+          { name: 'is_active', op: 'Equal', value: true }
+        ]
       });
 
       if (error) throw new Error(error);
@@ -256,6 +256,9 @@ export default function SalesReportForm() {
     setFormData((prev) => ({ ...prev, [field]: fileId }));
   };
 
+  // Filter out employees with empty employee_id values
+  const validEmployees = employees.filter(employee => employee.employee_id && employee.employee_id.trim() !== '');
+
   // If no station selected, show station selector
   if (!selectedStation) {
     return (
@@ -274,8 +277,8 @@ export default function SalesReportForm() {
           </div>
           <StationSelector onStationSelect={setSelectedStation} />
         </div>
-      </div>);
-
+      </div>
+    );
   }
 
   return (
@@ -341,7 +344,7 @@ export default function SalesReportForm() {
                   <Select
                     value={formData.employee_id}
                     onValueChange={(value) => {
-                      const selectedEmployee = employees.find((emp) => emp.employee_id === value);
+                      const selectedEmployee = validEmployees.find((emp) => emp.employee_id === value);
                       if (selectedEmployee) {
                         updateFormData('employee_id', value);
                         updateFormData('employee_name', `${selectedEmployee.first_name} ${selectedEmployee.last_name}`);
@@ -352,8 +355,13 @@ export default function SalesReportForm() {
                       <SelectValue placeholder={isLoadingEmployees ? "Loading employees..." : "Select employee"} />
                     </SelectTrigger>
                     <SelectContent>
-                      {employees.map((employee) =>
-                      <SelectItem key={employee.id} value={employee.employee_id}>
+                      {validEmployees.length === 0 && !isLoadingEmployees &&
+                        <div className="p-2 text-center text-gray-500">
+                          No active employees found for {selectedStation}
+                        </div>
+                      }
+                      {validEmployees.map((employee) =>
+                        <SelectItem key={employee.id} value={employee.employee_id}>
                           {employee.first_name} {employee.last_name} (ID: {employee.employee_id})
                         </SelectItem>
                       )}
@@ -485,6 +493,6 @@ export default function SalesReportForm() {
           </div>
         </form>
       </div>
-    </div>);
-
+    </div>
+  );
 }

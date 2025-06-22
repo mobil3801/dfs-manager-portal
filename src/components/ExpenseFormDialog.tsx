@@ -44,7 +44,7 @@ const ExpenseFormDialog: React.FC<ExpenseFormDialogProps> = ({
   const [loadingVendors, setLoadingVendors] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  
+
   const [formData, setFormData] = useState<ExpenseFormData>({
     vendor: '',
     othersName: '',
@@ -139,7 +139,7 @@ const ExpenseFormDialog: React.FC<ExpenseFormDialogProps> = ({
 
       // Simulate upload progress
       const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
+        setUploadProgress((prev) => {
           if (prev >= 90) {
             clearInterval(progressInterval);
             return 90;
@@ -158,7 +158,7 @@ const ExpenseFormDialog: React.FC<ExpenseFormDialogProps> = ({
       if (error) throw new Error(error);
 
       setUploadProgress(100);
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         invoiceFileId: fileId,
         invoiceFileName: file.name
@@ -226,7 +226,7 @@ const ExpenseFormDialog: React.FC<ExpenseFormDialogProps> = ({
   };
 
   const updateFormData = (field: keyof ExpenseFormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const resetForm = () => {
@@ -261,20 +261,20 @@ const ExpenseFormDialog: React.FC<ExpenseFormDialogProps> = ({
               onValueChange={(value) => {
                 updateFormData('vendor', value);
                 // Clear others name when vendor is selected
-                if (value) updateFormData('othersName', '');
+                if (value && value !== "none") updateFormData('othersName', '');
               }}
-              disabled={loadingVendors}
-            >
+              disabled={loadingVendors}>
+
               <SelectTrigger>
                 <SelectValue placeholder={loadingVendors ? "Loading vendors..." : "Select vendor"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Select a vendor</SelectItem>
-                {vendors.map((vendor) => (
+                <SelectItem value="none">Select a vendor</SelectItem>
+                {vendors.map((vendor) =>
                   <SelectItem key={vendor.id} value={vendor.vendor_name}>
                     {vendor.vendor_name} ({vendor.category})
                   </SelectItem>
-                ))}
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -291,13 +291,13 @@ const ExpenseFormDialog: React.FC<ExpenseFormDialogProps> = ({
                 if (e.target.value) updateFormData('vendor', '');
               }}
               placeholder="Enter name if not using vendor list"
-              disabled={!!formData.vendor}
-            />
-            {formData.vendor && (
+              disabled={!!(formData.vendor && formData.vendor !== "none")} />
+
+            {formData.vendor && formData.vendor !== "none" &&
               <p className="text-sm text-gray-500">
                 Clear vendor selection to enter other's name
               </p>
-            )}
+            }
           </div>
 
           {/* Amount */}
@@ -310,8 +310,8 @@ const ExpenseFormDialog: React.FC<ExpenseFormDialogProps> = ({
               placeholder="0.00"
               min={0}
               step={0.01}
-              required
-            />
+              required />
+
           </div>
 
           {/* Payment Type */}
@@ -323,8 +323,8 @@ const ExpenseFormDialog: React.FC<ExpenseFormDialogProps> = ({
                 updateFormData('paymentType', value);
                 // Clear cheque number if not cheque payment
                 if (value !== 'Cheque') updateFormData('chequeNumber', '');
-              }}
-            >
+              }}>
+
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -337,7 +337,7 @@ const ExpenseFormDialog: React.FC<ExpenseFormDialogProps> = ({
           </div>
 
           {/* Cheque Number (conditional) */}
-          {formData.paymentType === 'Cheque' && (
+          {formData.paymentType === 'Cheque' &&
             <div className="space-y-2">
               <Label htmlFor="chequeNumber">Cheque Number *</Label>
               <Input
@@ -345,10 +345,10 @@ const ExpenseFormDialog: React.FC<ExpenseFormDialogProps> = ({
                 value={formData.chequeNumber}
                 onChange={(e) => updateFormData('chequeNumber', e.target.value)}
                 placeholder="Enter cheque number"
-                required
-              />
+                required />
+
             </div>
-          )}
+          }
 
           {/* Invoice Upload */}
           <div className="space-y-2">
@@ -361,49 +361,49 @@ const ExpenseFormDialog: React.FC<ExpenseFormDialogProps> = ({
                   accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                   onChange={handleFileUpload}
                   className="hidden"
-                  disabled={uploading}
-                />
+                  disabled={uploading} />
+
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => document.getElementById('invoice')?.click()}
                   disabled={uploading}
-                  className="flex items-center gap-2"
-                >
+                  className="flex items-center gap-2">
+
                   <Upload className="h-4 w-4" />
                   {uploading ? 'Uploading...' : 'Choose File'}
                 </Button>
-                {formData.invoiceFileName && (
+                {formData.invoiceFileName &&
                   <span className="text-sm text-gray-600 truncate">
                     {formData.invoiceFileName}
                   </span>
-                )}
+                }
               </div>
 
               {/* Upload Progress */}
-              {uploading && (
+              {uploading &&
                 <div className="space-y-2">
                   <Progress value={uploadProgress} className="h-2" />
                   <p className="text-sm text-gray-600">
                     Uploading... {uploadProgress}%
                   </p>
                 </div>
-              )}
+              }
 
               {/* Upload Status */}
-              {formData.invoiceFileId && !uploading && (
+              {formData.invoiceFileId && !uploading &&
                 <div className="flex items-center gap-2 text-green-600">
                   <CheckCircle className="h-4 w-4" />
                   <span className="text-sm">Invoice uploaded successfully</span>
                 </div>
-              )}
+              }
 
-              {!formData.invoiceFileId && !uploading && (
+              {!formData.invoiceFileId && !uploading &&
                 <div className="flex items-center gap-2 text-amber-600">
                   <AlertCircle className="h-4 w-4" />
                   <span className="text-sm">Invoice upload is required</span>
                 </div>
-              )}
+              }
             </div>
           </div>
 
@@ -416,15 +416,15 @@ const ExpenseFormDialog: React.FC<ExpenseFormDialogProps> = ({
                 resetForm();
                 onClose();
               }}
-              disabled={loading || uploading}
-            >
+              disabled={loading || uploading}>
+
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={loading || uploading || !formData.invoiceFileId}
-              className="flex items-center gap-2"
-            >
+              className="flex items-center gap-2">
+
               <Plus className="h-4 w-4" />
               {loading ? 'Adding...' : 'Add Expense'}
             </Button>
