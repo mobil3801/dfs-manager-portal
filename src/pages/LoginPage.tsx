@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,376 +7,247 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useNavigate } from 'react-router-dom';
-import { Loader2, Eye, EyeOff, Mail, Lock, UserPlus, LogIn, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff, Mail, Lock, AlertCircle } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { useToast } from '@/hooks/use-toast';
-
-type AuthMode = 'login' | 'register' | 'forgot-password';
+import { motion } from 'motion/react';
+import { useEnhancedDeviceDetection } from '@/hooks/use-enhanced-device-detection';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [authMode, setAuthMode] = useState<AuthMode>('login');
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState<'error' | 'success'>('error');
-
-  const { login, register } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { login, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const device = useEnhancedDeviceDetection();
 
-  const clearForm = () => {
-    setEmail('');
-    setPassword('');
-    setConfirmPassword('');
-    setMessage('');
-  };
-
-  const handleForgotPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) {
-      setMessage('Please enter your email address');
-      setMessageType('error');
-      return;
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
     }
-
-    setIsLoading(true);
-    try {
-      const { error } = await window.ezsite.apis.sendResetPwdEmail({ email });
-      if (error) {
-        setMessage(error);
-        setMessageType('error');
-        toast({
-          title: "Error",
-          description: error,
-          variant: "destructive"
-        });
-      } else {
-        setMessage('Password reset link has been sent to your email address');
-        setMessageType('success');
-        toast({
-          title: "Success",
-          description: "Password reset link sent to your email"
-        });
-        setTimeout(() => {
-          setAuthMode('login');
-          clearForm();
-        }, 3000);
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to send reset email';
-      setMessage(errorMessage);
-      setMessageType('error');
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('');
-
-    if (authMode === 'forgot-password') {
-      return handleForgotPassword(e);
-    }
-
-    if (authMode === 'register' && password !== confirmPassword) {
-      setMessage('Passwords do not match');
-      setMessageType('error');
+    setError('');
+    
+    if (!email || !password) {
+      setError('Please fill in all fields');
       return;
     }
 
-    setIsLoading(true);
-
+    setLoading(true);
     try {
-      if (authMode === 'login') {
-        const success = await login(email, password);
-        if (success) {
-          toast({
-            title: "Welcome back!",
-            description: "Successfully logged in"
-          });
-          navigate('/dashboard');
-        }
-      } else if (authMode === 'register') {
-        const success = await register(email, password, email.split('@')[0]);
-        if (success) {
-          setMessage('Account created successfully! Please check your email for verification.');
-          setMessageType('success');
-          toast({
-            title: "Account Created",
-            description: "Please check your email for verification"
-          });
-          setTimeout(() => {
-            setAuthMode('login');
-            clearForm();
-          }, 3000);
-        }
+      const result = await login(email, password);
+      if (result.success) {
+        toast({
+          title: 'Welcome back!',
+          description: 'You have been successfully logged in.',
+        });
+        navigate('/dashboard');
+      } else {
+        setError(result.error || 'Login failed');
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
-      setMessage(errorMessage);
-      setMessageType('error');
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive"
-      });
+      console.error('Login error:', error);
+      setError('An unexpected error occurred. Please try again.');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const getFormTitle = () => {
-    switch (authMode) {
-      case 'login':return 'Welcome Back';
-      case 'register':return 'Create Account';
-      case 'forgot-password':return 'Reset Password';
-      default:return 'Sign In';
-    }
-  };
-
-  const getFormDescription = () => {
-    switch (authMode) {
-      case 'login':return 'Enter your credentials to access the portal';
-      case 'register':return 'Create a new account to get started';
-      case 'forgot-password':return 'Enter your email to receive a password reset link';
-      default:return '';
-    }
-  };
-
-  const getSubmitButtonText = () => {
-    if (isLoading) return 'Please wait...';
-    switch (authMode) {
-      case 'login':return 'Sign In';
-      case 'register':return 'Create Account';
-      case 'forgot-password':return 'Send Reset Link';
-      default:return 'Submit';
-    }
-  };
-
-  const getSubmitButtonIcon = () => {
-    if (isLoading) return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
-    switch (authMode) {
-      case 'login':return <LogIn className="mr-2 h-4 w-4" />;
-      case 'register':return <UserPlus className="mr-2 h-4 w-4" />;
-      case 'forgot-password':return <Mail className="mr-2 h-4 w-4" />;
-      default:return null;
-    }
+  const inputStyle = {
+    fontSize: device.isMobile ? '16px' : '14px', // Prevents zoom on iOS
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      <div className="flex items-center justify-center p-4 min-h-screen">
-        <div className="w-full max-w-md">
-          {/* Logo and Company Name */}
-          <div className="text-center mb-8">
-            <div className="flex flex-col items-center">
-              <div className="mb-4 transform hover:scale-105 transition-transform duration-200">
-                <Logo className="mb-4" />
-              </div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-800 to-indigo-800 bg-clip-text text-transparent mb-2">
-                DFS Manager Portal
-              </h1>
-              <p className="text-slate-600 font-medium">Gas Station Management System</p>
-            </div>
-          </div>
-
-          <Card className="shadow-2xl border-0 backdrop-blur-sm bg-white/95">
-            <CardHeader className="space-y-1 pb-6">
-              <CardTitle className="text-2xl font-bold text-center text-slate-800">
-                {getFormTitle()}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ 
+          duration: device.connectionType === 'slow' ? 0.2 : 0.5,
+          ease: "easeOut"
+        }}
+        className={`w-full ${device.isMobile ? 'max-w-sm' : device.isTablet ? 'max-w-md' : 'max-w-lg'}`}
+      >
+        <Card className="shadow-2xl border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+          <CardHeader className={`text-center ${device.isMobile ? 'pb-4' : 'pb-6'}`}>
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="flex justify-center mb-4"
+            >
+              <Logo />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <CardTitle className={`${device.optimalFontSize === 'large' ? 'text-3xl' : 'text-2xl'} font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent`}>
+                Welcome Back
               </CardTitle>
-              <CardDescription className="text-center text-slate-600">
-                {getFormDescription()}
+              <CardDescription className={`mt-2 ${device.optimalFontSize === 'large' ? 'text-base' : 'text-sm'}`}>
+                Sign in to access your DFS Manager dashboard
               </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {message &&
-              <Alert className={`mb-4 ${messageType === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-                  {messageType === 'success' ?
-                <CheckCircle2 className="h-4 w-4 text-green-600" /> :
+            </motion.div>
+          </CardHeader>
 
-                <AlertCircle className="h-4 w-4 text-red-600" />
-                }
-                  <AlertDescription className={messageType === 'success' ? 'text-green-800' : 'text-red-800'}>
-                    {message}
-                  </AlertDescription>
-                </Alert>
-              }
+          <CardContent className={device.isMobile ? 'px-4 pb-4' : 'px-6 pb-6'}>
+            <motion.form
+              onSubmit={handleSubmit}
+              className="space-y-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="overflow-hidden"
+                >
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                </motion.div>
+              )}
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Email Field */}
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-slate-700 font-medium">Email Address</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="h-11 pl-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
-
-                  </div>
+              <div className="space-y-2">
+                <Label htmlFor="email" className={device.optimalFontSize === 'large' ? 'text-base' : 'text-sm'}>
+                  Email Address
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    className={`pl-10 ${device.hasTouch ? 'min-h-[44px]' : 'min-h-[40px]'} transition-all duration-200 focus:ring-2 focus:ring-blue-500`}
+                    style={inputStyle}
+                    autoComplete="email"
+                    required
+                  />
                 </div>
+              </div>
 
-                {/* Password Field */}
-                {authMode !== 'forgot-password' &&
-                <div className="space-y-2">
-                    <Label htmlFor="password" className="text-slate-700 font-medium">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-                      <Input
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
-
-                      <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600">
-
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                  </div>
-                }
-
-                {/* Confirm Password Field */}
-                {authMode === 'register' &&
-                <div className="space-y-2">
-                    <Label htmlFor="confirmPassword" className="text-slate-700 font-medium">Confirm Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-                      <Input
-                      id="confirmPassword"
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      placeholder="Confirm your password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                      className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
-
-                      <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600">
-
-                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                  </div>
-                }
-
-                {/* Forgot Password Link */}
-                {authMode === 'login' &&
-                <div className="text-right">
-                    <Button
+              <div className="space-y-2">
+                <Label htmlFor="password" className={device.optimalFontSize === 'large' ? 'text-base' : 'text-sm'}>
+                  Password
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    className={`pl-10 pr-10 ${device.hasTouch ? 'min-h-[44px]' : 'min-h-[40px]'} transition-all duration-200 focus:ring-2 focus:ring-blue-500`}
+                    style={inputStyle}
+                    autoComplete="current-password"
+                    required
+                  />
+                  <button
                     type="button"
-                    variant="link"
-                    className="p-0 h-auto text-blue-600 hover:text-blue-800 text-sm"
-                    onClick={() => {
-                      setAuthMode('forgot-password');
-                      setPassword('');
-                      setMessage('');
-                    }}>
+                    onClick={() => setShowPassword(!showPassword)}
+                    className={`absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 ${device.hasTouch ? 'p-2' : 'p-1'}`}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
 
-                      Forgot password?
-                    </Button>
-                  </div>
-                }
-
-                {/* Submit Button */}
+              <motion.div
+                whileHover={device.hasTouch ? {} : { scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <Button
                   type="submit"
-                  className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02]"
-                  disabled={isLoading}>
-
-                  {getSubmitButtonIcon()}
-                  {getSubmitButtonText()}
+                  className={`w-full ${device.hasTouch ? 'min-h-[48px]' : 'min-h-[44px]'} bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl`}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Signing in...</span>
+                    </div>
+                  ) : (
+                    'Sign In'
+                  )}
                 </Button>
-              </form>
+              </motion.div>
 
-              {/* Auth Mode Switcher */}
-              <div className="mt-6">
-                <Separator className="my-4" />
-                <div className="text-center space-y-2">
-                  {authMode === 'login' &&
-                  <div>
-                      <span className="text-sm text-slate-600">Don't have an account? </span>
-                      <Button
-                      variant="link"
-                      className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
-                      onClick={() => {
-                        setAuthMode('register');
-                        clearForm();
-                      }}>
-
-                        Create one
-                      </Button>
-                    </div>
-                  }
-
-                  {authMode === 'register' &&
-                  <div>
-                      <span className="text-sm text-slate-600">Already have an account? </span>
-                      <Button
-                      variant="link"
-                      className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
-                      onClick={() => {
-                        setAuthMode('login');
-                        clearForm();
-                      }}>
-
-                        Sign in
-                      </Button>
-                    </div>
-                  }
-
-                  {authMode === 'forgot-password' &&
-                  <div>
-                      <span className="text-sm text-slate-600">Remember your password? </span>
-                      <Button
-                      variant="link"
-                      className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
-                      onClick={() => {
-                        setAuthMode('login');
-                        clearForm();
-                      }}>
-
-                        Sign in
-                      </Button>
-                    </div>
-                  }
-                </div>
+              <div className="text-center">
+                <Link
+                  to="/resetpassword"
+                  className={`text-blue-600 hover:text-blue-800 transition-colors ${device.optimalFontSize === 'large' ? 'text-base' : 'text-sm'} ${device.hasTouch ? 'py-2 px-1' : ''}`}
+                >
+                  Forgot your password?
+                </Link>
               </div>
-            </CardContent>
-          </Card>
+            </motion.form>
 
-          {/* Footer */}
-          <div className="text-center mt-6 text-sm text-slate-500">
-            <p>&copy; 2024 DFS Management Systems. All rights reserved.</p>
-          </div>
-        </div>
-      </div>
-    </div>);
+            <Separator className="my-6" />
 
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="text-center"
+            >
+              <p className={`text-gray-600 dark:text-gray-400 ${device.optimalFontSize === 'large' ? 'text-base' : 'text-sm'}`}>
+                Need help accessing your account?
+              </p>
+              <p className={`text-gray-500 dark:text-gray-500 ${device.optimalFontSize === 'large' ? 'text-sm' : 'text-xs'} mt-1`}>
+                Contact your system administrator
+              </p>
+            </motion.div>
+
+            {/* Device-specific help text */}
+            {device.isMobile && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.7 }}
+                className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg"
+              >
+                <p className="text-xs text-blue-700 dark:text-blue-300 text-center">
+                  💡 For the best mobile experience, consider adding this site to your home screen
+                </p>
+              </motion.div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Footer */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="text-center mt-6"
+        >
+          <p className={`text-gray-500 dark:text-gray-400 ${device.optimalFontSize === 'large' ? 'text-sm' : 'text-xs'}`}>
+            © 2024 DFS Manager. All rights reserved.
+          </p>
+          {process.env.NODE_ENV === 'development' && (
+            <p className="text-xs text-gray-400 mt-1">
+              Device: {device.deviceType} • {device.screenSize} • {device.hasTouch ? 'Touch' : 'Mouse'}
+            </p>
+          )}
+        </motion.div>
+      </motion.div>
+    </div>
+  );
 };
 
 export default LoginPage;

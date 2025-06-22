@@ -1,338 +1,269 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  BarChart3,
-  Users,
-  Package,
-  FileText,
-  Truck,
-  Calendar,
-  AlertTriangle,
-  TrendingUp,
-  Activity } from
-'lucide-react';
+import React from 'react';
+import { motion } from 'motion/react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
+import { useDeviceAdaptive } from '@/contexts/DeviceAdaptiveContext';
+import AdaptiveCard from '@/components/AdaptiveCard';
+import { TouchOptimizedButton } from '@/components/TouchOptimizedComponents';
+import PerformanceOptimizedContainer from '@/components/PerformanceOptimizedContainer';
+import { 
+  Users, Package, TrendingUp, DollarSign, 
+  BarChart3, Calendar, AlertCircle, Truck 
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
-interface DashboardStats {
-  totalEmployees: number;
-  activeProducts: number;
-  todayReports: number;
-  pendingDeliveries: number;
-  expiringLicenses: number;
-  totalSales: number;
-}
+const Dashboard: React.FC = () => {
+  const { user } = useAuth();
+  const device = useDeviceAdaptive();
 
-const Dashboard = () => {
-  const { user, userProfile, isAdmin, isManager } = useAuth();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [stats, setStats] = useState<DashboardStats>({
-    totalEmployees: 0,
-    activeProducts: 0,
-    todayReports: 0,
-    pendingDeliveries: 0,
-    expiringLicenses: 0,
-    totalSales: 0
-  });
-  const [loading, setLoading] = useState(true);
+  const quickStats = [
+    { 
+      label: 'Total Sales', 
+      value: '$12,345', 
+      change: '+12%', 
+      icon: DollarSign,
+      color: 'text-green-600'
+    },
+    { 
+      label: 'Products', 
+      value: '1,234', 
+      change: '+5%', 
+      icon: Package,
+      color: 'text-blue-600'
+    },
+    { 
+      label: 'Employees', 
+      value: '45', 
+      change: '+2%', 
+      icon: Users,
+      color: 'text-purple-600'
+    },
+    { 
+      label: 'Orders', 
+      value: '89', 
+      change: '+8%', 
+      icon: Truck,
+      color: 'text-orange-600'
+    },
+  ];
 
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
+  const recentActivities = [
+    { id: 1, action: 'New sale recorded', station: 'MOBIL', time: '2 minutes ago', type: 'sale' },
+    { id: 2, action: 'Product restocked', station: 'AMOCO ROSEDALE', time: '15 minutes ago', type: 'inventory' },
+    { id: 3, action: 'License expiring soon', station: 'AMOCO BROOKLYN', time: '1 hour ago', type: 'alert' },
+    { id: 4, action: 'Employee clocked in', station: 'MOBIL', time: '2 hours ago', type: 'employee' },
+  ];
 
-      // Fetch employees count
-      const employeesResponse = await window.ezsite.apis.tablePage(11727, {
-        PageNo: 1,
-        PageSize: 1,
-        Filters: [{ name: "is_active", op: "Equal", value: true }]
-      });
+  const getGridClasses = () => {
+    if (device.isMobile) return 'grid-cols-1 gap-4';
+    if (device.isTablet) return 'grid-cols-2 gap-6';
+    return 'grid-cols-4 gap-6';
+  };
 
-      // Fetch active products count
-      const productsResponse = await window.ezsite.apis.tablePage(11726, {
-        PageNo: 1,
-        PageSize: 1
-      });
-
-      // Fetch today's sales reports
-      const today = new Date().toISOString().split('T')[0];
-      const salesResponse = await window.ezsite.apis.tablePage(12356, {
-        PageNo: 1,
-        PageSize: 10,
-        Filters: [{ name: "report_date", op: "StringStartsWith", value: today }]
-      });
-
-      // Fetch pending deliveries
-      const deliveriesResponse = await window.ezsite.apis.tablePage(12196, {
-        PageNo: 1,
-        PageSize: 1
-      });
-
-      // Fetch expiring licenses (next 30 days)
-      const thirtyDaysFromNow = new Date();
-      thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
-      const licensesResponse = await window.ezsite.apis.tablePage(11731, {
-        PageNo: 1,
-        PageSize: 1,
-        Filters: [
-        { name: "expiry_date", op: "LessThanOrEqual", value: thirtyDaysFromNow.toISOString() },
-        { name: "status", op: "Equal", value: "Active" }]
-
-      });
-
-      // Calculate total sales from today's reports
-      let totalSales = 0;
-      if (salesResponse.data?.List) {
-        totalSales = salesResponse.data.List.reduce((sum: number, report: any) =>
-        sum + (report.total_sales || 0), 0
-        );
-      }
-
-      setStats({
-        totalEmployees: employeesResponse.data?.VirtualCount || 0,
-        activeProducts: productsResponse.data?.VirtualCount || 0,
-        todayReports: salesResponse.data?.VirtualCount || 0,
-        pendingDeliveries: deliveriesResponse.data?.VirtualCount || 0,
-        expiringLicenses: licensesResponse.data?.VirtualCount || 0,
-        totalSales
-      });
-
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load dashboard data",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'sale': return TrendingUp;
+      case 'inventory': return Package;
+      case 'alert': return AlertCircle;
+      case 'employee': return Users;
+      default: return BarChart3;
     }
   };
 
-  useEffect(() => {
-    fetchDashboardData();
-    // Refresh data every 5 minutes
-    const interval = setInterval(fetchDashboardData, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const QuickStatCard = ({
-    title,
-    value,
-    icon: Icon,
-    color,
-    onClick
-
-
-
-
-
-
-  }: {title: string;value: number | string;icon: any;color: string;onClick?: () => void;}) =>
-  <Card
-    className={`p-6 cursor-pointer hover:shadow-lg transition-shadow ${onClick ? 'hover:bg-gray-50' : ''}`}
-    onClick={onClick}>
-
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-bold">{loading ? '...' : value}</p>
-        </div>
-        <Icon className={`h-8 w-8 ${color}`} />
-      </div>
-    </Card>;
-
-
-  const QuickAction = ({
-    title,
-    description,
-    icon: Icon,
-    onClick,
-    color = "text-blue-600"
-
-
-
-
-
-
-  }: {title: string;description: string;icon: any;onClick: () => void;color?: string;}) =>
-  <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={onClick}>
-      <div className="flex items-start space-x-3">
-        <Icon className={`h-6 w-6 ${color} mt-1`} />
-        <div>
-          <h4 className="font-semibold">{title}</h4>
-          <p className="text-sm text-gray-600">{description}</p>
-        </div>
-      </div>
-    </Card>;
-
+  const getActivityColor = (type: string) => {
+    switch (type) {
+      case 'sale': return 'bg-green-100 text-green-800';
+      case 'inventory': return 'bg-blue-100 text-blue-800';
+      case 'alert': return 'bg-red-100 text-red-800';
+      case 'employee': return 'bg-purple-100 text-purple-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white">
-        <h1 className="text-2xl font-bold">Welcome back, {user?.Name || 'User'}!</h1>
-        <p className="opacity-90">
-          {userProfile?.station || 'All Stations'} • {userProfile?.role || 'User'}
-        </p>
-      </div>
+    <PerformanceOptimizedContainer>
+      <div className="space-y-6">
+        {/* Welcome Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <h1 className={`font-bold text-gray-900 dark:text-white ${
+              device.optimalFontSize === 'large' ? 'text-3xl' : 'text-2xl'
+            }`}>
+              Welcome back, {user?.name || 'User'}
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Here's what's happening at your gas stations today.
+            </p>
+          </div>
+          <div className="mt-4 sm:mt-0">
+            <Badge variant="outline" className="text-sm">
+              {device.deviceType} • {device.screenSize}
+            </Badge>
+          </div>
+        </motion.div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        <QuickStatCard
-          title="Employees"
-          value={stats.totalEmployees}
-          icon={Users}
-          color="text-blue-600"
-          onClick={() => navigate('/employees')} />
-
-        <QuickStatCard
-          title="Products"
-          value={stats.activeProducts}
-          icon={Package}
-          color="text-green-600"
-          onClick={() => navigate('/products')} />
-
-        <QuickStatCard
-          title="Today's Reports"
-          value={stats.todayReports}
-          icon={FileText}
-          color="text-purple-600"
-          onClick={() => navigate('/sales')} />
-
-        <QuickStatCard
-          title="Deliveries"
-          value={stats.pendingDeliveries}
-          icon={Truck}
-          color="text-orange-600"
-          onClick={() => navigate('/delivery')} />
-
-        <QuickStatCard
-          title="Expiring Licenses"
-          value={stats.expiringLicenses}
-          icon={AlertTriangle}
-          color="text-red-600"
-          onClick={() => navigate('/licenses')} />
-
-        <QuickStatCard
-          title="Today's Sales"
-          value={`$${stats.totalSales.toLocaleString()}`}
-          icon={TrendingUp}
-          color="text-emerald-600" />
-
-      </div>
-
-      {/* Main Content Tabs */}
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid w-full lg:w-[400px] grid-cols-2">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="quick-actions">Quick Actions</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-4">
-          {/* Alerts and Notifications */}
-          {stats.expiringLicenses > 0 &&
-          <Card className="p-4 border-orange-200 bg-orange-50">
-              <div className="flex items-center space-x-2">
-                <AlertTriangle className="h-5 w-5 text-orange-600" />
-                <div>
-                  <h4 className="font-semibold text-orange-800">License Expiry Alert</h4>
-                  <p className="text-sm text-orange-700">
-                    {stats.expiringLicenses} license(s) expiring within 30 days
-                  </p>
+        {/* Quick Stats */}
+        <div className={`grid ${getGridClasses()}`}>
+          {quickStats.map((stat, index) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <AdaptiveCard hoverable>
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className={`text-gray-600 dark:text-gray-400 ${
+                      device.optimalFontSize === 'large' ? 'text-base' : 'text-sm'
+                    }`}>
+                      {stat.label}
+                    </p>
+                    <p className={`font-bold text-gray-900 dark:text-white ${
+                      device.isMobile ? 'text-xl' : 'text-2xl'
+                    }`}>
+                      {stat.value}
+                    </p>
+                    <p className={`text-green-600 ${
+                      device.optimalFontSize === 'large' ? 'text-sm' : 'text-xs'
+                    }`}>
+                      {stat.change}
+                    </p>
+                  </div>
+                  <div className={`${stat.color} p-3 rounded-lg bg-opacity-10`}>
+                    <stat.icon className={`${device.isMobile ? 'w-6 h-6' : 'w-5 h-5'}`} />
+                  </div>
                 </div>
-                <Button
-                variant="outline"
-                size="sm"
-                className="ml-auto"
-                onClick={() => navigate('/licenses')}>
+              </AdaptiveCard>
+            </motion.div>
+          ))}
+        </div>
 
-                  View Licenses
-                </Button>
+        {/* Main Content Grid */}
+        <div className={`grid ${device.isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 lg:grid-cols-3 gap-8'}`}>
+          {/* Quick Actions */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className={device.isMobile ? '' : 'lg:col-span-1'}
+          >
+            <AdaptiveCard title="Quick Actions" description="Common tasks">
+              <div className="space-y-3">
+                <TouchOptimizedButton variant="outline" className="w-full justify-start">
+                  <Package className="w-4 h-4 mr-2" />
+                  Add New Product
+                </TouchOptimizedButton>
+                <TouchOptimizedButton variant="outline" className="w-full justify-start">
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Record Sales
+                </TouchOptimizedButton>
+                <TouchOptimizedButton variant="outline" className="w-full justify-start">
+                  <Truck className="w-4 h-4 mr-2" />
+                  Log Delivery
+                </TouchOptimizedButton>
+                <TouchOptimizedButton variant="outline" className="w-full justify-start">
+                  <Calendar className="w-4 h-4 mr-2" />
+                  View Schedule
+                </TouchOptimizedButton>
               </div>
-            </Card>
-          }
+            </AdaptiveCard>
+          </motion.div>
 
           {/* Recent Activity */}
-          <Card className="p-6">
-            <div className="flex items-center space-x-2 mb-4">
-              <Activity className="h-5 w-5" />
-              <h3 className="text-lg font-semibold">System Status</h3>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Database Connection</span>
-                <Badge variant="default" className="bg-green-100 text-green-800">Active</Badge>
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className={device.isMobile ? '' : 'lg:col-span-2'}
+          >
+            <AdaptiveCard title="Recent Activity" description="Latest updates across all stations">
+              <div className="space-y-4">
+                {recentActivities.map((activity, index) => {
+                  const ActivityIcon = getActivityIcon(activity.type);
+                  return (
+                    <motion.div
+                      key={activity.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 + index * 0.1 }}
+                      className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    >
+                      <div className={`p-2 rounded-full ${getActivityColor(activity.type)}`}>
+                        <ActivityIcon className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`font-medium text-gray-900 dark:text-white ${
+                          device.optimalFontSize === 'large' ? 'text-base' : 'text-sm'
+                        }`}>
+                          {activity.action}
+                        </p>
+                        <p className={`text-gray-600 dark:text-gray-400 ${
+                          device.optimalFontSize === 'large' ? 'text-sm' : 'text-xs'
+                        }`}>
+                          {activity.station} • {activity.time}
+                        </p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Last Data Sync</span>
-                <span className="text-sm text-gray-500">
-                  {new Date().toLocaleTimeString()}
-                </span>
+            </AdaptiveCard>
+          </motion.div>
+        </div>
+
+        {/* Device Debug Info (only in development) */}
+        {process.env.NODE_ENV === 'development' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+          >
+            <AdaptiveCard title="Device Information" description="Current device detection results">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                  <span className="font-medium">Device Type:</span>
+                  <p className="text-gray-600">{device.deviceType}</p>
+                </div>
+                <div>
+                  <span className="font-medium">Screen Size:</span>
+                  <p className="text-gray-600">{device.screenSize}</p>
+                </div>
+                <div>
+                  <span className="font-medium">Touch Support:</span>
+                  <p className="text-gray-600">{device.hasTouch ? 'Yes' : 'No'}</p>
+                </div>
+                <div>
+                  <span className="font-medium">Navigation:</span>
+                  <p className="text-gray-600">{device.preferredNavigation}</p>
+                </div>
+                <div>
+                  <span className="font-medium">Orientation:</span>
+                  <p className="text-gray-600">{device.orientation}</p>
+                </div>
+                <div>
+                  <span className="font-medium">Connection:</span>
+                  <p className="text-gray-600">{device.connectionType}</p>
+                </div>
+                <div>
+                  <span className="font-medium">Platform:</span>
+                  <p className="text-gray-600">{device.platform}</p>
+                </div>
+                <div>
+                  <span className="font-medium">Browser:</span>
+                  <p className="text-gray-600">{device.browserName}</p>
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">User Session</span>
-                <Badge variant="default" className="bg-blue-100 text-blue-800">Active</Badge>
-              </div>
-            </div>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="quick-actions" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <QuickAction
-              title="New Sales Report"
-              description="Create a daily sales report"
-              icon={FileText}
-              onClick={() => navigate('/sales/new')} />
-
-            <QuickAction
-              title="Record Delivery"
-              description="Log a new fuel delivery"
-              icon={Truck}
-              onClick={() => navigate('/delivery/new')} />
-
-            <QuickAction
-              title="Add Product"
-              description="Register a new product"
-              icon={Package}
-              onClick={() => navigate('/products/new')} />
-
-            {isManager() &&
-            <>
-                <QuickAction
-                title="Manage Employees"
-                description="View and edit employee records"
-                icon={Users}
-                onClick={() => navigate('/employees')} />
-
-                <QuickAction
-                title="Check Licenses"
-                description="Review license status and renewals"
-                icon={Calendar}
-                onClick={() => navigate('/licenses')} />
-
-              </>
-            }
-            {isAdmin() &&
-            <QuickAction
-              title="Admin Panel"
-              description="System administration and settings"
-              icon={BarChart3}
-              onClick={() => navigate('/admin')}
-              color="text-red-600" />
-
-            }
-          </div>
-        </TabsContent>
-      </Tabs>
-    </div>);
-
+            </AdaptiveCard>
+          </motion.div>
+        )}
+      </div>
+    </PerformanceOptimizedContainer>
+  );
 };
 
 export default Dashboard;
