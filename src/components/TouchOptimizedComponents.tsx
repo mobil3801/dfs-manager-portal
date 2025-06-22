@@ -24,8 +24,8 @@ export const TouchOptimizedButton: React.FC<TouchOptimizedButtonProps> = ({
   return (
     <motion.div
       whileTap={{ scale: 0.95 }}
-      transition={{ duration: 0.1 }}
-    >
+      transition={{ duration: 0.1 }}>
+
       <Button
         variant={variant}
         onClick={onClick}
@@ -37,13 +37,13 @@ export const TouchOptimizedButton: React.FC<TouchOptimizedButtonProps> = ({
           ${className}
         `}
         style={{
-          WebkitTapHighlightColor: 'transparent',
-        }}
-      >
+          WebkitTapHighlightColor: 'transparent'
+        }}>
+
         {children}
       </Button>
-    </motion.div>
-  );
+    </motion.div>);
+
 };
 
 interface SwipeableCardProps {
@@ -78,11 +78,11 @@ export const SwipeableCard: React.FC<SwipeableCardProps> = ({
           onSwipeLeft();
         }
       }}
-      whileDrag={{ scale: 0.95 }}
-    >
+      whileDrag={{ scale: 0.95 }}>
+
       {children}
-    </motion.div>
-  );
+    </motion.div>);
+
 };
 
 interface PullToRefreshProps {
@@ -133,20 +133,20 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
         }
       }}
       style={{
-        transform: `translateY(${Math.min(pullDistance / 2, 50)}px)`,
-      }}
-    >
-      {pullDistance > 50 && (
-        <motion.div
-          className="flex items-center justify-center py-4 text-blue-600"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
+        transform: `translateY(${Math.min(pullDistance / 2, 50)}px)`
+      }}>
+
+      {pullDistance > 50 &&
+      <motion.div
+        className="flex items-center justify-center py-4 text-blue-600"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}>
+
           <div className="w-6 h-6 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
           <span>{isRefreshing ? 'Refreshing...' : 'Release to refresh'}</span>
         </motion.div>
-      )}
+      }
       {children}
-    </motion.div>
-  );
+    </motion.div>);
+
 };

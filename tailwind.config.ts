@@ -1,11 +1,10 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["class"],
   content: [
-  "./src/**/*.{ts,tsx}"],
-
+    "./src/**/*.{ts,tsx}",
+  ],
   prefix: "",
   theme: {
     container: {
@@ -100,6 +99,53 @@ export default {
           '5': 'hsl(var(--chart-5))'
         }
       },
+      spacing: {
+        '14': '3.5rem',
+        '15': '3.75rem',
+        '16': '4rem',
+        '17': '4.25rem',
+        '18': '4.5rem',
+        '19': '4.75rem',
+        '20': '5rem',
+        '56': '14rem',
+        '64': '16rem',
+        '70': '17.5rem',
+        '72': '18rem',
+        '80': '20rem',
+        '96': '24rem'
+      },
+      width: {
+        '56': '14rem',
+        '64': '16rem',
+        '70': '17.5rem',
+        '72': '18rem',
+        '80': '20rem',
+        '96': '24rem'
+      },
+      padding: {
+        '14': '3.5rem',
+        '15': '3.75rem',
+        '16': '4rem',
+        '17': '4.25rem',
+        '18': '4.5rem',
+        '56': '14rem',
+        '64': '16rem',
+        '70': '17.5rem',
+        '72': '18rem',
+        '80': '20rem'
+      },
+      margin: {
+        '14': '3.5rem',
+        '15': '3.75rem',
+        '16': '4rem',
+        '17': '4.25rem',
+        '18': '4.5rem',
+        '56': '14rem',
+        '64': '16rem',
+        '70': '17.5rem',
+        '72': '18rem',
+        '80': '20rem'
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
@@ -129,12 +175,62 @@ export default {
           '50%': {
             transform: 'translateY(-10px)'
           }
+        },
+        slideInRight: {
+          '0%': {
+            transform: 'translateX(100%)',
+            opacity: '0'
+          },
+          '100%': {
+            transform: 'translateX(0)',
+            opacity: '1'
+          }
+        },
+        slideInLeft: {
+          '0%': {
+            transform: 'translateX(-100%)',
+            opacity: '0'
+          },
+          '100%': {
+            transform: 'translateX(0)',
+            opacity: '1'
+          }
+        },
+        fadeInUp: {
+          '0%': {
+            transform: 'translateY(20px)',
+            opacity: '0'
+          },
+          '100%': {
+            transform: 'translateY(0)',
+            opacity: '1'
+          }
         }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        float: 'float 6s ease-in-out infinite'
+        float: 'float 6s ease-in-out infinite',
+        'slide-in-right': 'slideInRight 0.3s ease-out',
+        'slide-in-left': 'slideInLeft 0.3s ease-out',
+        'fade-in-up': 'fadeInUp 0.4s ease-out'
+      },
+      screens: {
+        'xs': '475px',
+        '3xl': '1600px',
+        'touch': { 'raw': '(hover: none)' },
+        'no-touch': { 'raw': '(hover: hover)' }
+      },
+      fontSize: {
+        'xs': ['0.75rem', { lineHeight: '1rem' }],
+        'sm': ['0.875rem', { lineHeight: '1.25rem' }],
+        'base': ['1rem', { lineHeight: '1.5rem' }],
+        'lg': ['1.125rem', { lineHeight: '1.75rem' }],
+        'xl': ['1.25rem', { lineHeight: '1.75rem' }]
+      },
+      minHeight: {
+        '44': '11rem', // For touch targets
+        'touch': '44px'
       }
     }
   },

@@ -158,8 +158,8 @@ const App: React.FC = () => {
           </GlobalErrorBoundary>
         </AuthProvider>
       </TooltipProvider>
-    </QueryClientProvider>
-  );
+    </QueryClientProvider>);
+
 };
 
 export default App;

@@ -222,6 +222,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -255,10 +257,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
     const elements = document.querySelectorAll('*');let count = 0;elements.forEach((element) => {const events = ['click', 'scroll', 'mouseover', 'keydown', 'resize'];events.forEach((eventType) => {if ((element as any)[`on${eventType}`]) count++;});});return count;}; /**
   * Estimate active connections
   */const estimateActiveConnections = (): number => {// Estimate based on recent network activity
-    const recentEntries = performance.getEntriesByType('resource').filter(
-      (entry) => Date.now() - entry.startTime < 10000 // Last 10 seconds
-    );
-    return recentEntries.length;
+    const recentEntries = performance.getEntriesByType('resource').filter((entry) => Date.now() - entry.startTime < 10000 // Last 10 seconds
+    );return recentEntries.length;
   };
 
   /**

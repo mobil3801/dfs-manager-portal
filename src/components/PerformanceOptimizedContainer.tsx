@@ -18,18 +18,18 @@ const PerformanceOptimizedContainer: React.FC<PerformanceOptimizedContainerProps
 }) => {
   const device = useDeviceAdaptive();
 
-  const defaultFallback = (
-    <motion.div 
-      className="flex items-center justify-center p-8"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-    >
+  const defaultFallback =
+  <motion.div
+    className="flex items-center justify-center p-8"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}>
+
       <div className="flex items-center space-x-3">
         <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
         <span className="text-gray-600">Loading...</span>
       </div>
-    </motion.div>
-  );
+    </motion.div>;
+
 
   // Disable heavy animations on slow connections
   useEffect(() => {
@@ -42,18 +42,18 @@ const PerformanceOptimizedContainer: React.FC<PerformanceOptimizedContainerProps
 
   return (
     <Suspense fallback={fallback || defaultFallback}>
-      <motion.div 
+      <motion.div
         className={className}
         initial={device.connectionType !== 'slow' ? { opacity: 0, y: 10 } : { opacity: 1 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ 
-          duration: device.connectionType === 'slow' ? 0.1 : device.animationDuration / 1000 
-        }}
-      >
+        transition={{
+          duration: device.connectionType === 'slow' ? 0.1 : device.animationDuration / 1000
+        }}>
+
         {children}
       </motion.div>
-    </Suspense>
-  );
+    </Suspense>);
+
 };
 
 export default PerformanceOptimizedContainer;

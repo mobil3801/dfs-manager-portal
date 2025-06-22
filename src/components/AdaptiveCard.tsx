@@ -52,34 +52,34 @@ const AdaptiveCard: React.FC<AdaptiveCardProps> = ({
       `}
       onClick={onClick}
       whileHover={
-        shouldAnimate && hoverable && !device.hasTouch
-          ? { scale: 1.02, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }
-          : {}
+      shouldAnimate && hoverable && !device.hasTouch ?
+      { scale: 1.02, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' } :
+      {}
       }
       whileTap={shouldAnimate ? { scale: 0.98 } : {}}
       initial={shouldAnimate ? { opacity: 0, y: 20 } : { opacity: 1 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: device.animationDuration / 1000 }}
-    >
-      {(title || description) && (
-        <CardHeader className={sizeClasses[cardSize]}>
-          {title && (
-            <CardTitle className={titleSizeClasses[cardSize]}>
+      transition={{ duration: device.animationDuration / 1000 }}>
+
+      {(title || description) &&
+      <CardHeader className={sizeClasses[cardSize]}>
+          {title &&
+        <CardTitle className={titleSizeClasses[cardSize]}>
               {title}
             </CardTitle>
-          )}
-          {description && (
-            <CardDescription className={device.optimalFontSize === 'large' ? 'text-base' : 'text-sm'}>
+        }
+          {description &&
+        <CardDescription className={device.optimalFontSize === 'large' ? 'text-base' : 'text-sm'}>
               {description}
             </CardDescription>
-          )}
+        }
         </CardHeader>
-      )}
+      }
       <CardContent className={sizeClasses[cardSize]}>
         {children}
       </CardContent>
-    </CardWrapper>
-  );
+    </CardWrapper>);
+
 };
 
 export default AdaptiveCard;

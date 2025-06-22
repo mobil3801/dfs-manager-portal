@@ -11,17 +11,17 @@ const AdaptiveDashboardLayout: React.FC = () => {
 
   if (!user) {
     return (
-      <motion.div 
+      <motion.div
         className="flex items-center justify-center min-h-screen"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-      >
+        animate={{ opacity: 1 }}>
+
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading...</p>
         </div>
-      </motion.div>
-    );
+      </motion.div>);
+
   }
 
   return (
@@ -29,8 +29,8 @@ const AdaptiveDashboardLayout: React.FC = () => {
       <AdaptiveLayout>
         <Outlet />
       </AdaptiveLayout>
-    </DeviceAdaptiveProvider>
-  );
+    </DeviceAdaptiveProvider>);
+
 };
 
 export default AdaptiveDashboardLayout;

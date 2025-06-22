@@ -36,8 +36,8 @@ export const AdaptiveInput: React.FC<AdaptiveInputProps> = ({
       className={`space-y-2 ${className}`}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: device.animationDuration / 1000 }}
-    >
+      transition={{ duration: device.animationDuration / 1000 }}>
+
       <Label htmlFor={id} className={device.optimalFontSize === 'large' ? 'text-base' : 'text-sm'}>
         {label} {required && <span className="text-red-500">*</span>}
       </Label>
@@ -51,10 +51,10 @@ export const AdaptiveInput: React.FC<AdaptiveInputProps> = ({
           ${device.hasTouch ? 'min-h-[44px]' : 'min-h-[36px]'}
           ${device.optimalFontSize === 'large' ? 'text-base' : 'text-sm'}
         `}
-        style={{ fontSize: device.optimalFontSize === 'large' ? '16px' : '14px' }}
-      />
-    </motion.div>
-  );
+        style={{ fontSize: device.optimalFontSize === 'large' ? '16px' : '14px' }} />
+
+    </motion.div>);
+
 };
 
 interface AdaptiveTextareaProps {
@@ -85,8 +85,8 @@ export const AdaptiveTextarea: React.FC<AdaptiveTextareaProps> = ({
       className={`space-y-2 ${className}`}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: device.animationDuration / 1000 }}
-    >
+      transition={{ duration: device.animationDuration / 1000 }}>
+
       <Label htmlFor={id} className={device.optimalFontSize === 'large' ? 'text-base' : 'text-sm'}>
         {label} {required && <span className="text-red-500">*</span>}
       </Label>
@@ -100,10 +100,10 @@ export const AdaptiveTextarea: React.FC<AdaptiveTextareaProps> = ({
           ${device.optimalFontSize === 'large' ? 'text-base' : 'text-sm'}
           resize-none
         `}
-        style={{ fontSize: device.optimalFontSize === 'large' ? '16px' : '14px' }}
-      />
-    </motion.div>
-  );
+        style={{ fontSize: device.optimalFontSize === 'large' ? '16px' : '14px' }} />
+
+    </motion.div>);
+
 };
 
 interface AdaptiveSelectProps {
@@ -111,7 +111,7 @@ interface AdaptiveSelectProps {
   id: string;
   value: string;
   onChange: (value: string) => void;
-  options: { value: string; label: string }[];
+  options: {value: string;label: string;}[];
   placeholder?: string;
   required?: boolean;
   className?: string;
@@ -134,35 +134,35 @@ export const AdaptiveSelect: React.FC<AdaptiveSelectProps> = ({
       className={`space-y-2 ${className}`}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: device.animationDuration / 1000 }}
-    >
+      transition={{ duration: device.animationDuration / 1000 }}>
+
       <Label htmlFor={id} className={device.optimalFontSize === 'large' ? 'text-base' : 'text-sm'}>
         {label} {required && <span className="text-red-500">*</span>}
       </Label>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger 
+        <SelectTrigger
           id={id}
           className={`
             ${device.hasTouch ? 'min-h-[44px]' : 'min-h-[36px]'}
             ${device.optimalFontSize === 'large' ? 'text-base' : 'text-sm'}
-          `}
-        >
+          `}>
+
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
-          {options.map((option) => (
-            <SelectItem 
-              key={option.value} 
-              value={option.value}
-              className={device.hasTouch ? 'min-h-[44px]' : 'min-h-[36px]'}
-            >
+          {options.map((option) =>
+          <SelectItem
+            key={option.value}
+            value={option.value}
+            className={device.hasTouch ? 'min-h-[44px]' : 'min-h-[36px]'}>
+
               {option.label}
             </SelectItem>
-          ))}
+          )}
         </SelectContent>
       </Select>
-    </motion.div>
-  );
+    </motion.div>);
+
 };
 
 interface AdaptiveButtonProps {
@@ -199,8 +199,8 @@ export const AdaptiveButton: React.FC<AdaptiveButtonProps> = ({
     <motion.div
       whileHover={device.hasTouch ? {} : { scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      transition={{ duration: device.animationDuration / 1000 }}
-    >
+      transition={{ duration: device.animationDuration / 1000 }}>
+
       <Button
         type={type}
         variant={variant}
@@ -211,17 +211,17 @@ export const AdaptiveButton: React.FC<AdaptiveButtonProps> = ({
           ${device.hasTouch ? 'min-h-[44px] px-6' : 'min-h-[36px]'}
           ${device.optimalFontSize === 'large' ? 'text-base' : 'text-sm'}
           ${className}
-        `}
-      >
-        {loading ? (
-          <div className="flex items-center space-x-2">
+        `}>
+
+        {loading ?
+        <div className="flex items-center space-x-2">
             <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
             <span>Loading...</span>
-          </div>
-        ) : (
-          children
-        )}
+          </div> :
+
+        children
+        }
       </Button>
-    </motion.div>
-  );
+    </motion.div>);
+
 };
