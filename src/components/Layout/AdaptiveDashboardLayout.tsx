@@ -20,8 +20,8 @@ const AdaptiveDashboardLayout: React.FC = () => {
           <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600 font-medium">Loading dashboard...</p>
         </div>
-      </motion.div>
-    );
+      </motion.div>);
+
   }
 
   // Use enhanced layout for desktop, adaptive for mobile
@@ -29,16 +29,16 @@ const AdaptiveDashboardLayout: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50">
         <EnhancedDashboardLayout />
-      </div>
-    );
+      </div>);
+
   }
 
   // Mobile view with adaptive layout - no need for nested provider since it's already wrapped in App.tsx
   return (
     <EnhancedAdaptiveLayout padding="small" maxWidth="full">
       <Outlet />
-    </EnhancedAdaptiveLayout>
-  );
+    </EnhancedAdaptiveLayout>);
+
 };
 
 export default AdaptiveDashboardLayout;

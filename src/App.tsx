@@ -160,8 +160,8 @@ const App: React.FC = () => {
           </AuthProvider>
         </DeviceAdaptiveProvider>
       </TooltipProvider>
-    </QueryClientProvider>
-  );
+    </QueryClientProvider>);
+
 };
 
 export default App;
