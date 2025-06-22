@@ -190,6 +190,8 @@ const SyncMonitoringDashboard: React.FC = () => {
 
 
 
+
+
           // Table not accessible, skip
         }}return Math.max(activeTableCount, 1); // At least 1 table should be available
     } catch {return 21; // Default to total expected tables
@@ -202,9 +204,7 @@ const SyncMonitoringDashboard: React.FC = () => {
       const status = autoSyncService.getStatus();setSyncStatus({ isActive: status.isMonitoring, lastSync: status.lastSync || new Date().toISOString(), nextSync: new Date(Date.now() + 300000).toISOString(), // 5 minutes from now
           currentOperation: status.isMonitoring ? 'Monitoring for changes...' : 'System operational' });} catch (error) {console.error('Error loading sync data:', error); // Set minimal fallback data
       setSyncLogs([]);setMetrics({ totalTables: 21, syncedToday: 0, errorCount: 0, avgSyncTime: 0, successRate: 100 });}};const handleManualSync = async () => {setIsLoading(true);try {await autoSyncService.triggerSync();toast({ title: "Manual Sync Triggered", description: "Database synchronization has been initiated." }); // Reload data after sync
-      setTimeout(loadSyncData, 2000);} catch (error) {toast({ title: "Sync Failed", description: "Unable to trigger manual sync. Please try again.",
-          variant: "destructive"
-        });
+      setTimeout(loadSyncData, 2000);} catch (error) {toast({ title: "Sync Failed", description: "Unable to trigger manual sync. Please try again.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
