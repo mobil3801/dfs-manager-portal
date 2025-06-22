@@ -49,8 +49,8 @@ const EmployeeSelector: React.FC<EmployeeSelectorProps> = ({
     setLoading(true);
     try {
       const filters = [
-        { name: 'is_active', op: 'Equal', value: true }
-      ];
+      { name: 'is_active', op: 'Equal', value: true }];
+
 
       // Add station filter if provided
       if (station) {
@@ -88,12 +88,12 @@ const EmployeeSelector: React.FC<EmployeeSelectorProps> = ({
   };
 
   // Filter out employees with empty employee_id values
-  const validEmployees = employees.filter(employee => employee.employee_id && employee.employee_id.trim() !== '');
+  const validEmployees = employees.filter((employee) => employee.employee_id && employee.employee_id.trim() !== '');
 
   return (
     <div className={`space-y-2 ${className}`}>
       {showLabel &&
-        <Label htmlFor="employee-selector" className="flex items-center gap-2">
+      <Label htmlFor="employee-selector" className="flex items-center gap-2">
           <Users className="w-4 h-4" />
           {label} {required && <span className="text-red-500">*</span>}
         </Label>
@@ -108,24 +108,24 @@ const EmployeeSelector: React.FC<EmployeeSelectorProps> = ({
         <SelectTrigger className="w-full">
           <SelectValue
             placeholder={
-              loading ?
-                <div className="flex items-center gap-2">
+            loading ?
+            <div className="flex items-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Loading employees...
                 </div> :
-                placeholder
+            placeholder
             } />
 
         </SelectTrigger>
         <SelectContent>
           {validEmployees.length === 0 && !loading &&
-            <div className="p-2 text-center text-gray-500">
+          <div className="p-2 text-center text-gray-500">
               {station ? `No active employees found for ${station}` : 'No active employees found'}
             </div>
           }
           
           {validEmployees.map((employee) =>
-            <SelectItem key={employee.id} value={employee.employee_id}>
+          <SelectItem key={employee.id} value={employee.employee_id}>
               <div className="flex flex-col">
                 <span className="font-medium">
                   {employee.first_name} {employee.last_name}
@@ -140,12 +140,12 @@ const EmployeeSelector: React.FC<EmployeeSelectorProps> = ({
       </Select>
       
       {station &&
-        <p className="text-xs text-gray-500">
+      <p className="text-xs text-gray-500">
           Showing employees from {station} station only
         </p>
       }
-    </div>
-  );
+    </div>);
+
 };
 
 export default EmployeeSelector;

@@ -238,20 +238,20 @@ class InvariantErrorRecovery extends Component<Props, State> {
 
 
 
+
+
               // Empty batch to flush pending updates
             });}} catch (e) {console.warn('Could not flush React updates:', e);}} // Clear any orphaned event listeners that might cause issues
-      const elementsWithListeners = document.querySelectorAll('[onclick], [onchange], [onsubmit]');elementsWithListeners.forEach((element) => {element.removeAttribute('onclick');element.removeAttribute('onchange');element.removeAttribute('onsubmit');});console.log('Fixed render issues');resolve();});};private handleManualRetry = () => {this.setState({ hasError: false, error: null, errorInfo: null, isRecovering: false, retryCount: this.state.retryCount + 1 });};private handleForceReload = () => {window.location.reload();};render() {if (this.state.hasError) {const isInvariantError = this.state.error ? this.isInvariantError(this.state.error) : false;const canRetry = this.state.retryCount < this.maxRetries;return (
-        <Card className="w-full max-w-4xl mx-auto mt-8 border-red-200">
+      const elementsWithListeners = document.querySelectorAll('[onclick], [onchange], [onsubmit]');elementsWithListeners.forEach((element) => {element.removeAttribute('onclick');element.removeAttribute('onchange');element.removeAttribute('onsubmit');});console.log('Fixed render issues');resolve();});};private handleManualRetry = () => {this.setState({ hasError: false, error: null, errorInfo: null, isRecovering: false, retryCount: this.state.retryCount + 1 });};private handleForceReload = () => {window.location.reload();};render() {if (this.state.hasError) {const isInvariantError = this.state.error ? this.isInvariantError(this.state.error) : false;const canRetry = this.state.retryCount < this.maxRetries;return <Card className="w-full max-w-4xl mx-auto mt-8 border-red-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-red-700">
               <AlertTriangle className="h-5 w-5" />
               {isInvariantError ? 'React Invariant Error Detected' : 'Application Error'}
             </CardTitle>
             <CardDescription>
-              {isInvariantError ?
-              'A React consistency violation was detected. Recovery options are available.' :
-              'An unexpected error occurred in the application.'
-              }
+              {isInvariantError ? 'A React consistency violation was detected. Recovery options are available.' :
+            'An unexpected error occurred in the application.'
+            }
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -263,11 +263,11 @@ class InvariantErrorRecovery extends Component<Props, State> {
                 Retry Count: {this.state.retryCount}
               </Badge>
               {this.state.isRecovering &&
-              <Badge variant="outline" className="bg-blue-50 text-blue-700">
+            <Badge variant="outline" className="bg-blue-50 text-blue-700">
                   <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
                   Recovering...
                 </Badge>
-              }
+            }
             </div>
 
             <Alert className="bg-red-50 border-red-200">
@@ -279,7 +279,7 @@ class InvariantErrorRecovery extends Component<Props, State> {
                     {this.state.error?.message || 'Unknown error'}
                   </div>
                   {isInvariantError &&
-                  <div className="text-sm text-red-700">
+                <div className="text-sm text-red-700">
                       This appears to be a React invariant violation, which typically occurs due to:
                       <ul className="list-disc list-inside mt-1 space-y-1">
                         <li>Duplicate React keys in lists</li>
@@ -288,13 +288,13 @@ class InvariantErrorRecovery extends Component<Props, State> {
                         <li>Improper component lifecycle usage</li>
                       </ul>
                     </div>
-                  }
+                }
                 </div>
               </AlertDescription>
             </Alert>
 
             {process.env.NODE_ENV === 'development' && this.state.errorInfo &&
-            <details className="text-sm">
+          <details className="text-sm">
                 <summary className="cursor-pointer font-semibold text-gray-700 hover:text-gray-900">
                   Show Error Details
                 </summary>
@@ -306,41 +306,41 @@ class InvariantErrorRecovery extends Component<Props, State> {
                     </pre>
                   </div>
                   {this.state.error?.stack &&
-                <div>
+              <div>
                       <div className="font-semibold">Error Stack:</div>
                       <pre className="text-xs bg-gray-100 p-2 rounded overflow-auto max-h-32">
                         {this.state.error.stack}
                       </pre>
                     </div>
-                }
+              }
                 </div>
               </details>
-            }
+          }
 
             <div className="flex flex-wrap gap-2 pt-4 border-t">
               <Button
-                onClick={this.handleManualRetry}
-                disabled={this.state.isRecovering || !canRetry}
-                variant="default">
+              onClick={this.handleManualRetry}
+              disabled={this.state.isRecovering || !canRetry}
+              variant="default">
 
                 <RefreshCw className="h-4 w-4 mr-2" />
                 {this.state.isRecovering ? 'Recovering...' : `Retry (${this.maxRetries - this.state.retryCount} left)`}
               </Button>
               
               {isInvariantError && canRetry &&
-              <Button
-                onClick={() => this.attemptAutoRecovery(this.state.error!)}
-                disabled={this.state.isRecovering}
-                variant="outline">
+            <Button
+              onClick={() => this.attemptAutoRecovery(this.state.error!)}
+              disabled={this.state.isRecovering}
+              variant="outline">
 
                   <Shield className="h-4 w-4 mr-2" />
                   Auto-Recover
                 </Button>
-              }
+            }
               
               <Button
-                onClick={this.handleForceReload}
-                variant="outline">
+              onClick={this.handleForceReload}
+              variant="outline">
 
                 <Zap className="h-4 w-4 mr-2" />
                 Reload Page
@@ -348,15 +348,15 @@ class InvariantErrorRecovery extends Component<Props, State> {
             </div>
 
             {!canRetry &&
-            <Alert className="bg-yellow-50 border-yellow-200">
+          <Alert className="bg-yellow-50 border-yellow-200">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
                   Maximum retry attempts reached. Please reload the page or contact support if the issue persists.
                 </AlertDescription>
               </Alert>
-            }
+          }
           </CardContent>
-        </Card>);
+        </Card>;
 
     }
 

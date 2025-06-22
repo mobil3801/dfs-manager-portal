@@ -28,6 +28,7 @@ export default function SalesReportForm() {
   const [employees, setEmployees] = useState<Array<{id: number;first_name: string;last_name: string;employee_id: string;}>>([]);
   const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
   const [totalExpenses, setTotalExpenses] = useState(0);
+  const [cashExpenses, setCashExpenses] = useState(0); // Track only cash expenses
 
   const [formData, setFormData] = useState({
     report_date: new Date().toISOString().split('T')[0],
@@ -136,9 +137,9 @@ export default function SalesReportForm() {
         OrderByField: 'first_name',
         IsAsc: true,
         Filters: [
-          { name: 'station', op: 'Equal', value: station },
-          { name: 'is_active', op: 'Equal', value: true }
-        ]
+        { name: 'station', op: 'Equal', value: station },
+        { name: 'is_active', op: 'Equal', value: true }]
+
       });
 
       if (error) throw new Error(error);
@@ -168,10 +169,9 @@ export default function SalesReportForm() {
   // Total Grocery Sales - Auto (Cash Sales + Credit/Debit Card + EBT)
   const totalGrocerySales = formData.groceryCashSales + formData.groceryCardSales + formData.ebtSales;
 
-  // Expected Cash calculation: Cash Amount + Grocery Sales (cash portion) + NY Lottery Net Sales + Scratch Off Sales
-  const totalCashFromSales = formData.cashAmount + formData.groceryCashSales + formData.lotteryNetSales + formData.scratchOffSales;
-  // Include expense calculations from the ExpensesSection
-  const totalCashFromExpenses = totalExpenses;
+  // Updated calculation based on user requirements:
+  // Total (+/-) Short/Over = Gas & Grocery Sales-Cash Amount + Grocery Sales Breakdown-Cash Sales + NY Lottery Sales-Total Sales Cash + Cash Expenses
+  const totalCashSalesForCalculation = formData.cashAmount + formData.groceryCashSales + totalLotteryCash;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -189,6 +189,10 @@ export default function SalesReportForm() {
       return;
     }
 
+    // Calculate short/over using the user-specified formula
+    const expectedCashFromSales = totalCashSalesForCalculation;
+    const totalShortOver = formData.cashCollectionOnHand - (expectedCashFromSales - cashExpenses);
+
     const submitData = {
       report_date: formData.report_date,
       station: formData.station,
@@ -196,7 +200,7 @@ export default function SalesReportForm() {
       employee_name: formData.employee_name,
       employee_id: formData.employee_id,
       cash_collection_on_hand: formData.cashCollectionOnHand,
-      total_short_over: formData.cashCollectionOnHand - (totalCashFromSales - totalCashFromExpenses),
+      total_short_over: totalShortOver,
       credit_card_amount: formData.creditCardAmount,
       debit_card_amount: formData.debitCardAmount,
       mobile_amount: formData.mobileAmount,
@@ -210,7 +214,7 @@ export default function SalesReportForm() {
       super_gallons: formData.superGallons,
       diesel_gallons: formData.dieselGallons,
       total_gallons: totalGallons,
-      expenses_data: JSON.stringify({ total_expenses: totalExpenses }), // Store expense total
+      expenses_data: JSON.stringify({ total_expenses: totalExpenses, cash_expenses: cashExpenses }), // Store both totals
       day_report_file_id: formData.dayReportFileId,
       veeder_root_file_id: formData.veederRootFileId,
       lotto_report_file_id: formData.lottoReportFileId,
@@ -256,8 +260,14 @@ export default function SalesReportForm() {
     setFormData((prev) => ({ ...prev, [field]: fileId }));
   };
 
+  // Updated expenses change handler to also track cash expenses separately
+  const handleExpensesChange = (totalExpenses: number, cashExpenses: number = 0) => {
+    setTotalExpenses(totalExpenses);
+    setCashExpenses(cashExpenses);
+  };
+
   // Filter out employees with empty employee_id values
-  const validEmployees = employees.filter(employee => employee.employee_id && employee.employee_id.trim() !== '');
+  const validEmployees = employees.filter((employee) => employee.employee_id && employee.employee_id.trim() !== '');
 
   // If no station selected, show station selector
   if (!selectedStation) {
@@ -277,8 +287,8 @@ export default function SalesReportForm() {
           </div>
           <StationSelector onStationSelect={setSelectedStation} />
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -356,12 +366,12 @@ export default function SalesReportForm() {
                     </SelectTrigger>
                     <SelectContent>
                       {validEmployees.length === 0 && !isLoadingEmployees &&
-                        <div className="p-2 text-center text-gray-500">
+                      <div className="p-2 text-center text-gray-500">
                           No active employees found for {selectedStation}
                         </div>
                       }
                       {validEmployees.map((employee) =>
-                        <SelectItem key={employee.id} value={employee.employee_id}>
+                      <SelectItem key={employee.id} value={employee.employee_id}>
                           {employee.first_name} {employee.last_name} (ID: {employee.employee_id})
                         </SelectItem>
                       )}
@@ -376,8 +386,8 @@ export default function SalesReportForm() {
           <CashCollectionSection
             values={{
               cashCollectionOnHand: formData.cashCollectionOnHand,
-              totalCashFromSales: totalCashFromSales,
-              totalCashFromExpenses: totalCashFromExpenses
+              totalCashFromSales: totalCashSalesForCalculation,
+              totalCashFromExpenses: cashExpenses
             }}
             onChange={updateFormData} />
 
@@ -417,7 +427,7 @@ export default function SalesReportForm() {
           <ExpensesSection
             station={selectedStation}
             reportDate={formData.report_date}
-            onExpensesChange={setTotalExpenses} />
+            onExpensesChange={handleExpensesChange} />
 
           {/* Documents Upload */}
           <DocumentsUploadSection
@@ -493,6 +503,6 @@ export default function SalesReportForm() {
           </div>
         </form>
       </div>
-    </div>
-  );
+    </div>);
+
 }
