@@ -133,7 +133,7 @@ const CashCollectionSection: React.FC<CashCollectionSectionProps> = ({
                 Cash Collection on Hand - (Gas Cash + Grocery Cash + Lottery Cash - Cash Expenses)
               </p>
               <p className="text-xs mt-1 text-amber-700">
-                • Positive result = Over (more cash than expected)<br/>
+                • Positive result = Over (more cash than expected)<br />
                 • Negative result = Short (less cash than expected)
               </p>
             </div>
