@@ -65,8 +65,6 @@ const ProductForm = () => {
     profit_margin: 0,
     category: '',
     supplier: '',
-    quantity_in_stock: 0,
-    minimum_stock: 0,
     description: '',
     bar_code_case: '',
     bar_code_unit: '',
@@ -78,41 +76,41 @@ const ProductForm = () => {
 
   // USA Weight Units
   const weightUnits = [
-  { value: 'lb', label: 'Pounds (lb)' },
-  { value: 'oz', label: 'Ounces (oz)' },
-  { value: 'ton', label: 'Tons' },
-  { value: 'fl_oz', label: 'Fluid Ounces (fl oz)' },
-  { value: 'gal', label: 'Gallons (gal)' },
-  { value: 'qt', label: 'Quarts (qt)' },
-  { value: 'pt', label: 'Pints (pt)' },
-  { value: 'cup', label: 'Cups' },
-  { value: 'tbsp', label: 'Tablespoons (tbsp)' },
-  { value: 'tsp', label: 'Teaspoons (tsp)' }];
-
+    { value: 'lb', label: 'Pounds (lb)' },
+    { value: 'oz', label: 'Ounces (oz)' },
+    { value: 'ton', label: 'Tons' },
+    { value: 'fl_oz', label: 'Fluid Ounces (fl oz)' },
+    { value: 'gal', label: 'Gallons (gal)' },
+    { value: 'qt', label: 'Quarts (qt)' },
+    { value: 'pt', label: 'Pints (pt)' },
+    { value: 'cup', label: 'Cups' },
+    { value: 'tbsp', label: 'Tablespoons (tbsp)' },
+    { value: 'tsp', label: 'Teaspoons (tsp)' }
+  ];
 
   // Departments based on gas station categories
   const departments = [
-  'Convenience Store',
-  'Fuel & Oil',
-  'Automotive',
-  'Food & Beverages',
-  'Tobacco Products',
-  'Lottery & Gaming',
-  'Health & Personal Care',
-  'Electronics & Accessories',
-  'Cleaning Supplies',
-  'Office Supplies',
-  'Snacks & Candy',
-  'Hot Foods & Coffee',
-  'Cold Beverages',
-  'Energy Drinks',
-  'Beer & Wine',
-  'Ice & Frozen',
-  'Phone Cards & Prepaid',
-  'Car Accessories',
-  'Gift Cards',
-  'Pharmacy & Medicine'];
-
+    'Convenience Store',
+    'Fuel & Oil',
+    'Automotive',
+    'Food & Beverages',
+    'Tobacco Products',
+    'Lottery & Gaming',
+    'Health & Personal Care',
+    'Electronics & Accessories',
+    'Cleaning Supplies',
+    'Office Supplies',
+    'Snacks & Candy',
+    'Hot Foods & Coffee',
+    'Cold Beverages',
+    'Energy Drinks',
+    'Beer & Wine',
+    'Ice & Frozen',
+    'Phone Cards & Prepaid',
+    'Car Accessories',
+    'Gift Cards',
+    'Pharmacy & Medicine'
+  ];
 
   useEffect(() => {
     fetchVendors();
@@ -252,8 +250,6 @@ const ProductForm = () => {
           profit_margin: 0, // Will be calculated by useEffect
           category: product.category || '',
           supplier: product.supplier || '',
-          quantity_in_stock: product.quantity_in_stock || 0,
-          minimum_stock: product.minimum_stock || 0,
           description: product.description || '',
           bar_code_case: product.bar_code_case || '',
           bar_code_unit: product.bar_code_unit || '',
@@ -457,8 +453,6 @@ const ProductForm = () => {
             category: productData.category || '',
             supplier: productData.supplier || '',
             description: productData.description || '',
-            quantity_in_stock: 0,
-            minimum_stock: 0,
             bar_code_case: '',
             bar_code_unit: '',
             created_by: userProfile.user_id
@@ -571,20 +565,20 @@ const ProductForm = () => {
       };
 
       const { error } = isEdit ?
-      await window.ezsite.apis.tableUpdate('11726', { id: parseInt(id!), ...payload }) :
-      await window.ezsite.apis.tableCreate('11726', payload);
+        await window.ezsite.apis.tableUpdate('11726', { id: parseInt(id!), ...payload }) :
+        await window.ezsite.apis.tableCreate('11726', payload);
 
       if (error) throw error;
 
       // Log changes for existing products
       if (isEdit && originalData && userProfile) {
         const fieldsToTrack = [
-        'last_shopping_date',
-        'case_price',
-        'unit_per_case',
-        'unit_price',
-        'retail_price'];
-
+          'last_shopping_date',
+          'case_price',
+          'unit_per_case',
+          'unit_price',
+          'retail_price'
+        ];
 
         for (const field of fieldsToTrack) {
           const oldValue = originalData[field];
@@ -597,7 +591,7 @@ const ProductForm = () => {
 
         // Calculate and log profit margin changes
         const oldProfitMargin = originalData.unit_price > 0 && originalData.retail_price > 0 ?
-        (originalData.retail_price - originalData.unit_price) / originalData.retail_price * 100 : 0;
+          (originalData.retail_price - originalData.unit_price) / originalData.retail_price * 100 : 0;
         const newProfitMargin = formData.profit_margin;
 
         if (Math.abs(oldProfitMargin - newProfitMargin) > 0.01) {
@@ -628,9 +622,9 @@ const ProductForm = () => {
   // Download CSV template
   const downloadTemplate = () => {
     const csvContent = [
-    'Product Name,Weight,Weight Unit,Department,Merchant,Case Price,Unit Per Case,Unit Price,Retail Price,Category,Supplier,Description',
-    'Example Product,12,oz,Food & Beverages,,24.00,24,1.00,1.99,Soft Drinks,Example Supplier,Example description'].
-    join('\n');
+      'Product Name,Weight,Weight Unit,Department,Merchant,Case Price,Unit Per Case,Unit Price,Retail Price,Category,Supplier,Description',
+      'Example Product,12,oz,Food & Beverages,,24.00,24,1.00,1.99,Soft Drinks,Example Supplier,Example description'
+    ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -661,7 +655,7 @@ const ProductForm = () => {
           <div>
             <h1 className="text-2xl font-bold">{isEdit ? 'Edit Product' : 'Add New Product'}</h1>
             <p className="text-muted-foreground">
-              {isEdit ? 'Update product information' : 'Add a new product to your inventory'}
+              {isEdit ? 'Update product information' : 'Add a new product to your catalog'}
             </p>
           </div>
         </div>
@@ -683,7 +677,7 @@ const ProductForm = () => {
             </DialogHeader>
             
             {bulkUploadData.length === 0 ?
-            <div className="space-y-4">
+              <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <h3 className="text-lg font-medium">Upload CSV File</h3>
                   <Button variant="outline" onClick={downloadTemplate}>
@@ -698,11 +692,10 @@ const ProductForm = () => {
                     <h3 className="text-lg font-medium">Upload CSV File</h3>
                     <p className="text-sm text-gray-500">Select a CSV file containing product data</p>
                     <Input
-                    type="file"
-                    accept=".csv"
-                    onChange={handleBulkFileUpload}
-                    className="max-w-xs mx-auto" />
-
+                      type="file"
+                      accept=".csv"
+                      onChange={handleBulkFileUpload}
+                      className="max-w-xs mx-auto" />
                   </div>
                 </div>
                 
@@ -717,14 +710,14 @@ const ProductForm = () => {
                 </div>
               </div> :
 
-            <div className="space-y-4">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-medium">Preview Import Data ({bulkUploadData.length} products)</h3>
                   <div className="space-x-2">
                     <Button variant="outline" onClick={() => {
-                    setBulkUploadData([]);
-                    setShowBulkPreview(false);
-                  }}>
+                      setBulkUploadData([]);
+                      setShowBulkPreview(false);
+                    }}>
                       Cancel
                     </Button>
                     <Button onClick={handleBulkSubmit} disabled={isUploadingBulk}>
@@ -748,12 +741,12 @@ const ProductForm = () => {
                     </TableHeader>
                     <TableBody>
                       {bulkUploadData.map((product, index) => {
-                      const profit = product.unit_price > 0 && product.retail_price > 0 ?
-                      ((product.retail_price - product.unit_price) / product.retail_price * 100).toFixed(1) :
-                      '0';
+                        const profit = product.unit_price > 0 && product.retail_price > 0 ?
+                          ((product.retail_price - product.unit_price) / product.retail_price * 100).toFixed(1) :
+                          '0';
 
-                      return (
-                        <TableRow key={index}>
+                        return (
+                          <TableRow key={index}>
                             <TableCell className="font-medium">{product.product_name}</TableCell>
                             <TableCell>{product.weight} {product.weight_unit}</TableCell>
                             <TableCell>{product.department}</TableCell>
@@ -765,9 +758,9 @@ const ProductForm = () => {
                                 {profit}%
                               </Badge>
                             </TableCell>
-                          </TableRow>);
-
-                    })}
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </div>
@@ -808,8 +801,6 @@ const ProductForm = () => {
                   profit_margin: 0,
                   category: '',
                   supplier: '',
-                  quantity_in_stock: 0,
-                  minimum_stock: 0,
                   description: '',
                   bar_code_case: '',
                   bar_code_unit: '',
@@ -831,7 +822,6 @@ const ProductForm = () => {
                     value={formData.product_name}
                     onChange={(e) => handleInputChange('product_name', e.target.value)}
                     required />
-
                 </div>
 
                 <div className="space-y-2">
@@ -839,13 +829,12 @@ const ProductForm = () => {
                   <Select
                     value={formData.category}
                     onValueChange={(value) => handleInputChange('category', value)}>
-
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
                       {validCategories.map((cat) =>
-                      <SelectItem key={cat.id} value={cat.category_name}>
+                        <SelectItem key={cat.id} value={cat.category_name}>
                           {cat.category_name}
                         </SelectItem>
                       )}
@@ -864,7 +853,6 @@ const ProductForm = () => {
                     min={0}
                     value={formData.weight}
                     onChange={(value) => handleInputChange('weight', value)} />
-
                 </div>
 
                 <div className="space-y-2">
@@ -872,13 +860,12 @@ const ProductForm = () => {
                   <Select
                     value={formData.weight_unit}
                     onValueChange={(value) => handleInputChange('weight_unit', value)}>
-
                     <SelectTrigger>
                       <SelectValue placeholder="Select unit" />
                     </SelectTrigger>
                     <SelectContent>
                       {weightUnits.map((unit) =>
-                      <SelectItem key={unit.value} value={unit.value}>
+                        <SelectItem key={unit.value} value={unit.value}>
                           {unit.label}
                         </SelectItem>
                       )}
@@ -894,13 +881,12 @@ const ProductForm = () => {
                   <Select
                     value={formData.department}
                     onValueChange={(value) => handleInputChange('department', value)}>
-
                     <SelectTrigger>
                       <SelectValue placeholder="Select department" />
                     </SelectTrigger>
                     <SelectContent>
                       {departments.map((dept) =>
-                      <SelectItem key={dept} value={dept}>
+                        <SelectItem key={dept} value={dept}>
                           {dept}
                         </SelectItem>
                       )}
@@ -916,13 +902,12 @@ const ProductForm = () => {
                   <Select
                     value={formData.merchant_id}
                     onValueChange={(value) => handleInputChange('merchant_id', value)}>
-
                     <SelectTrigger>
                       <SelectValue placeholder="Select merchant" />
                     </SelectTrigger>
                     <SelectContent>
                       {validVendors.map((vendor) =>
-                      <SelectItem key={vendor.id} value={vendor.id.toString()}>
+                        <SelectItem key={vendor.id} value={vendor.id.toString()}>
                           {vendor.vendor_name}
                         </SelectItem>
                       )}
@@ -937,7 +922,6 @@ const ProductForm = () => {
                     type="date"
                     value={formData.last_updated_date}
                     onChange={(e) => handleInputChange('last_updated_date', e.target.value)} />
-
                 </div>
 
                 <div className="space-y-2">
@@ -947,7 +931,6 @@ const ProductForm = () => {
                     type="date"
                     value={formData.last_shopping_date}
                     onChange={(e) => handleInputChange('last_shopping_date', e.target.value)} />
-
                 </div>
               </div>
 
@@ -965,7 +948,6 @@ const ProductForm = () => {
                       min={0}
                       value={formData.case_price}
                       onChange={(value) => handleInputChange('case_price', value)} />
-
                   </div>
 
                   <div className="space-y-2">
@@ -975,7 +957,6 @@ const ProductForm = () => {
                       min={1}
                       value={formData.unit_per_case}
                       onChange={(value) => handleInputChange('unit_per_case', value)} />
-
                   </div>
 
                   <div className="space-y-2">
@@ -986,9 +967,8 @@ const ProductForm = () => {
                       min={0}
                       value={formData.unit_price}
                       onChange={(value) => handleInputChange('unit_price', value)} />
-
                     {formData.case_price > 0 && formData.unit_per_case > 0 &&
-                    <p className="text-xs text-green-600 flex items-center">
+                      <p className="text-xs text-green-600 flex items-center">
                         <Calculator className="w-3 h-3 mr-1" />
                         Auto-calculated from case price
                       </p>
@@ -1005,10 +985,9 @@ const ProductForm = () => {
                       min={0}
                       value={formData.retail_price}
                       onChange={(value) => handleInputChange('retail_price', value)} />
-
                     {/* Auto-calculation indicator */}
                     {formData.unit_price > 0 && Math.abs(formData.retail_price - suggestedRetailPrice) < 0.01 &&
-                    <p className="text-xs text-green-600 flex items-center">
+                      <p className="text-xs text-green-600 flex items-center">
                         <Calculator className="w-3 h-3 mr-1" />
                         Auto-calculated from unit price
                       </p>
@@ -1016,7 +995,7 @@ const ProductForm = () => {
                     
                     {/* Pricing Suggestion */}
                     {formData.unit_price > 0 && Math.abs(formData.retail_price - suggestedRetailPrice) >= 0.01 &&
-                    <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-2">
                             <DollarSign className="w-4 h-4 text-red-600" />
@@ -1025,20 +1004,19 @@ const ProductForm = () => {
                             </span>
                           </div>
                           <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleInputChange('retail_price', suggestedRetailPrice)}
-                          className="text-xs h-6 px-2">
-
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleInputChange('retail_price', suggestedRetailPrice)}
+                            className="text-xs h-6 px-2">
                             Apply
                           </Button>
                         </div>
                         <p className="text-xs text-red-700 mt-1">
                           {formData.unit_price < 4 ? '+65%' :
-                        formData.unit_price < 6 ? '+55%' :
-                        formData.unit_price < 8 ? '+45%' :
-                        formData.unit_price < 10 ? '+35%' : '+25%'} markup, 
+                            formData.unit_price < 6 ? '+55%' :
+                            formData.unit_price < 8 ? '+45%' :
+                            formData.unit_price < 10 ? '+35%' : '+25%'} markup, 
                           rounded to .25/.49/.75/.99
                         </p>
                       </div>
@@ -1054,7 +1032,6 @@ const ProductForm = () => {
                         value={formData.profit_margin}
                         disabled
                         className="bg-muted" />
-
                       <Badge variant={formData.profit_margin > 20 ? 'default' : 'secondary'}>
                         {formData.profit_margin > 20 ? 'Good' : 'Low'}
                       </Badge>
@@ -1077,26 +1054,6 @@ const ProductForm = () => {
                       placeholder="Enter supplier name"
                       value={formData.supplier}
                       onChange={(e) => handleInputChange('supplier', e.target.value)} />
-
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Stock Information</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <NumberInput
-                        placeholder="Current Stock"
-                        value={formData.quantity_in_stock}
-                        onChange={(value) => handleInputChange('quantity_in_stock', value)}
-                        min={0} />
-
-                      <NumberInput
-                        placeholder="Min Stock"
-                        value={formData.minimum_stock}
-                        onChange={(value) => handleInputChange('minimum_stock', value)}
-                        min={0} />
-
-                    </div>
-                    <p className="text-xs text-muted-foreground">Current stock / Minimum stock level</p>
                   </div>
                 </div>
 
@@ -1108,7 +1065,6 @@ const ProductForm = () => {
                     rows={4}
                     value={formData.description}
                     onChange={(e) => handleInputChange('description', e.target.value)} />
-
                 </div>
 
                 {/* Barcode Scanning */}
@@ -1121,10 +1077,8 @@ const ProductForm = () => {
                         placeholder="Scan or enter case barcode"
                         value={formData.bar_code_case}
                         onChange={(e) => handleInputChange('bar_code_case', e.target.value)} />
-
                       <BarcodeScanner
                         onScanned={(barcode) => handleBarcodeScanned('bar_code_case', barcode)} />
-
                     </div>
                   </div>
 
@@ -1136,10 +1090,8 @@ const ProductForm = () => {
                         placeholder="Scan or enter unit barcode"
                         value={formData.bar_code_unit}
                         onChange={(e) => handleInputChange('bar_code_unit', e.target.value)} />
-
                       <BarcodeScanner
                         onScanned={(barcode) => handleBarcodeScanned('bar_code_unit', barcode)} />
-
                     </div>
                   </div>
                 </div>
@@ -1159,8 +1111,8 @@ const ProductForm = () => {
           </FormErrorBoundary>
         </CardContent>
       </Card>
-    </div>);
-
+    </div>
+  );
 };
 
 export default ProductForm;

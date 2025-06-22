@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Search, Package, Edit2, Trash2, Eye } from 'lucide-react';
@@ -19,8 +18,6 @@ interface Product {
   product_code: string;
   category: string;
   price: number;
-  quantity_in_stock: number;
-  minimum_stock: number;
   supplier: string;
   description: string;
   updated_at: string;
@@ -95,63 +92,39 @@ const ProductList: React.FC = () => {
     }
   };
 
-  const getStockStatus = (current: number, minimum: number) => {
-    if (current <= 0) return { label: 'Out of Stock', variant: 'destructive' as const };
-    if (current <= minimum) return { label: 'Low Stock', variant: 'destructive' as const };
-    if (current <= minimum * 2) return { label: 'Warning', variant: 'secondary' as const };
-    return { label: 'In Stock', variant: 'default' as const };
-  };
-
   const columns = [
-  {
-    key: 'product_name',
-    label: 'Product Name',
-    sortable: true,
-    render: (value: string, item: Product) =>
-    <div className="flex flex-col">
+    {
+      key: 'product_name',
+      label: 'Product Name',
+      sortable: true,
+      render: (value: string, item: Product) =>
+        <div className="flex flex-col">
           <span className="font-medium">{value}</span>
           <span className="text-xs text-gray-500">{item.product_code}</span>
         </div>
-
-  },
-  {
-    key: 'category',
-    label: 'Category',
-    sortable: true,
-    mobileHidden: true
-  },
-  {
-    key: 'price',
-    label: 'Price',
-    sortable: true,
-    render: (value: number) => `$${value.toFixed(2)}`
-  },
-  {
-    key: 'quantity_in_stock',
-    label: 'Stock',
-    sortable: true,
-    render: (value: number, item: Product) => {
-      const status = getStockStatus(value, item.minimum_stock);
-      return (
-        <div className="flex flex-col items-start">
-            <span className="font-medium">{value}</span>
-            <Badge variant={status.variant} className="text-xs">
-              {status.label}
-            </Badge>
-          </div>);
-
+    },
+    {
+      key: 'category',
+      label: 'Category',
+      sortable: true,
+      mobileHidden: true
+    },
+    {
+      key: 'price',
+      label: 'Price',
+      sortable: true,
+      render: (value: number) => `$${value.toFixed(2)}`
+    },
+    {
+      key: 'supplier',
+      label: 'Supplier',
+      sortable: true,
+      mobileHidden: true
     }
-  },
-  {
-    key: 'supplier',
-    label: 'Supplier',
-    sortable: true,
-    mobileHidden: true
-  }];
-
+  ];
 
   const renderActions = (product: Product) =>
-  <div className="flex items-center space-x-2">
+    <div className="flex items-center space-x-2">
       <Button variant="ghost" size="sm" asChild>
         <Link to={`/products/${product.id}/edit`}>
           <Edit2 className="w-4 h-4" />
@@ -159,16 +132,14 @@ const ProductList: React.FC = () => {
         </Link>
       </Button>
       <Button
-      variant="ghost"
-      size="sm"
-      onClick={() => handleDelete(product)}
-      className="text-red-600 hover:text-red-700">
-
+        variant="ghost"
+        size="sm"
+        onClick={() => handleDelete(product)}
+        className="text-red-600 hover:text-red-700">
         <Trash2 className="w-4 h-4" />
         {!device.isMobile && <span className="ml-1">Delete</span>}
       </Button>
     </div>;
-
 
   return (
     <motion.div
@@ -184,12 +155,12 @@ const ProductList: React.FC = () => {
 
         <div>
           <h1 className={`font-bold text-gray-900 dark:text-white ${
-          device.optimalFontSize === 'large' ? 'text-3xl' : 'text-2xl'}`
+            device.optimalFontSize === 'large' ? 'text-3xl' : 'text-2xl'}`
           }>
             Products
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Manage your inventory and product catalog
+            Manage your product catalog
           </p>
         </div>
         <div className="mt-4 sm:mt-0">
@@ -204,11 +175,11 @@ const ProductList: React.FC = () => {
 
       {/* Stats Cards - Only show on larger screens */}
       {!device.isMobile &&
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
           <AdaptiveCard>
             <div className="flex items-center">
@@ -219,6 +190,7 @@ const ProductList: React.FC = () => {
               </div>
             </div>
           </AdaptiveCard>
+          
           <AdaptiveCard>
             <div className="flex items-center">
               <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -226,35 +198,23 @@ const ProductList: React.FC = () => {
               </div>
               <div className="ml-4">
                 <p className="text-2xl font-bold text-green-600">
-                  {products.filter((p) => p.quantity_in_stock > p.minimum_stock * 2).length}
+                  {products.filter((p) => p.category).length}
                 </p>
-                <p className="text-gray-600 text-sm">In Stock</p>
+                <p className="text-gray-600 text-sm">Categorized</p>
               </div>
             </div>
           </AdaptiveCard>
+          
           <AdaptiveCard>
             <div className="flex items-center">
-              <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                <div className="w-4 h-4 bg-yellow-600 rounded-full"></div>
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <div className="w-4 h-4 bg-blue-600 rounded-full"></div>
               </div>
               <div className="ml-4">
-                <p className="text-2xl font-bold text-yellow-600">
-                  {products.filter((p) => p.quantity_in_stock <= p.minimum_stock * 2 && p.quantity_in_stock > p.minimum_stock).length}
+                <p className="text-2xl font-bold text-blue-600">
+                  {products.filter((p) => p.supplier).length}
                 </p>
-                <p className="text-gray-600 text-sm">Low Stock</p>
-              </div>
-            </div>
-          </AdaptiveCard>
-          <AdaptiveCard>
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                <div className="w-4 h-4 bg-red-600 rounded-full"></div>
-              </div>
-              <div className="ml-4">
-                <p className="text-2xl font-bold text-red-600">
-                  {products.filter((p) => p.quantity_in_stock <= p.minimum_stock).length}
-                </p>
-                <p className="text-gray-600 text-sm">Critical</p>
+                <p className="text-gray-600 text-sm">With Suppliers</p>
               </div>
             </div>
           </AdaptiveCard>
@@ -282,8 +242,8 @@ const ProductList: React.FC = () => {
           emptyMessage="No products found. Create your first product to get started." />
 
       </motion.div>
-    </motion.div>);
-
+    </motion.div>
+  );
 };
 
 export default ProductList;
