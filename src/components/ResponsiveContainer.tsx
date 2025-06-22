@@ -15,7 +15,7 @@ const ResponsiveContainer: React.FC<ResponsiveContainerProps> = ({
   className = '',
   enableScrollIndicator = false,
   fullHeight = false,
-  noPadding = false,
+  noPadding = false
 }) => {
   const device = useDeviceAdaptive();
 
@@ -25,12 +25,12 @@ const ResponsiveContainer: React.FC<ResponsiveContainerProps> = ({
     const heightClass = fullHeight ? 'min-h-full' : '';
     const paddingClass = noPadding ? '' : device.contentPadding;
     const spacingClass = noPadding ? '' : device.spacing;
-    
+
     // Max width based on screen size
     let maxWidthClass = 'max-w-6xl';
-    if (device.screenSize === 'xl') maxWidthClass = 'max-w-7xl';
-    else if (device.screenSize === 'small') maxWidthClass = 'max-w-sm';
-    else if (device.screenSize === 'medium') maxWidthClass = 'max-w-4xl';
+    if (device.screenSize === 'xl') maxWidthClass = 'max-w-7xl';else
+    if (device.screenSize === 'small') maxWidthClass = 'max-w-sm';else
+    if (device.screenSize === 'medium') maxWidthClass = 'max-w-4xl';
 
     return `${baseClasses} ${maxWidthClass} ${heightClass} ${paddingClass} ${spacingClass}`;
   };
@@ -58,25 +58,25 @@ const ResponsiveContainer: React.FC<ResponsiveContainerProps> = ({
   return (
     <motion.div
       className={`${getContainerClasses()} ${className}`}
-      {...getAnimationProps()}
-    >
+      {...getAnimationProps()}>
+
       {children}
       
       {/* Optional scroll indicator for mobile */}
-      {enableScrollIndicator && device.isMobile && (
-        <div className="fixed bottom-24 right-4 z-30">
+      {enableScrollIndicator && device.isMobile &&
+      <div className="fixed bottom-24 right-4 z-30">
           <div className="w-1 h-16 bg-gray-200 dark:bg-gray-700 rounded-full opacity-50">
             <motion.div
-              className="w-full bg-blue-500 rounded-full"
-              initial={{ height: '0%' }}
-              animate={{ height: '60%' }}
-              transition={{ duration: 0.5 }}
-            />
+            className="w-full bg-blue-500 rounded-full"
+            initial={{ height: '0%' }}
+            animate={{ height: '60%' }}
+            transition={{ duration: 0.5 }} />
+
           </div>
         </div>
-      )}
-    </motion.div>
-  );
+      }
+    </motion.div>);
+
 };
 
 export default ResponsiveContainer;

@@ -5,59 +5,59 @@ import { useResponsiveUtils } from '@/hooks/use-responsive-utils';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  Smartphone, 
-  Tablet, 
-  Monitor, 
-  Wifi, 
+import {
+  Smartphone,
+  Tablet,
+  Monitor,
+  Wifi,
   TouchpadOff,
   Hand,
   Eye,
-  Zap
-} from 'lucide-react';
+  Zap } from
+'lucide-react';
 
 const ResponsiveDemo: React.FC = () => {
   const device = useDeviceAdaptive();
   const { getCardClasses, getAnimationConfig, breakpoints } = useResponsiveUtils();
 
   const deviceFeatures = [
-    {
-      icon: device.deviceType === 'mobile' ? Smartphone : device.deviceType === 'tablet' ? Tablet : Monitor,
-      label: 'Device Type',
-      value: device.deviceType.charAt(0).toUpperCase() + device.deviceType.slice(1),
-      color: 'blue'
-    },
-    {
-      icon: device.hasTouch ? Hand : TouchpadOff,
-      label: 'Touch Support',
-      value: device.hasTouch ? 'Enabled' : 'Mouse/Trackpad',
-      color: device.hasTouch ? 'green' : 'gray'
-    },
-    {
-      icon: Eye,
-      label: 'Hover Support',
-      value: device.supportsHover ? 'Yes' : 'No',
-      color: device.supportsHover ? 'green' : 'gray'
-    },
-    {
-      icon: Wifi,
-      label: 'Connection',
-      value: device.connectionType.charAt(0).toUpperCase() + device.connectionType.slice(1),
-      color: device.connectionType === 'fast' ? 'green' : device.connectionType === 'slow' ? 'red' : 'gray'
-    },
-    {
-      icon: Zap,
-      label: 'Animations',
-      value: device.prefersReducedMotion ? 'Reduced' : 'Enabled',
-      color: device.prefersReducedMotion ? 'yellow' : 'green'
-    }
-  ];
+  {
+    icon: device.deviceType === 'mobile' ? Smartphone : device.deviceType === 'tablet' ? Tablet : Monitor,
+    label: 'Device Type',
+    value: device.deviceType.charAt(0).toUpperCase() + device.deviceType.slice(1),
+    color: 'blue'
+  },
+  {
+    icon: device.hasTouch ? Hand : TouchpadOff,
+    label: 'Touch Support',
+    value: device.hasTouch ? 'Enabled' : 'Mouse/Trackpad',
+    color: device.hasTouch ? 'green' : 'gray'
+  },
+  {
+    icon: Eye,
+    label: 'Hover Support',
+    value: device.supportsHover ? 'Yes' : 'No',
+    color: device.supportsHover ? 'green' : 'gray'
+  },
+  {
+    icon: Wifi,
+    label: 'Connection',
+    value: device.connectionType.charAt(0).toUpperCase() + device.connectionType.slice(1),
+    color: device.connectionType === 'fast' ? 'green' : device.connectionType === 'slow' ? 'red' : 'gray'
+  },
+  {
+    icon: Zap,
+    label: 'Animations',
+    value: device.prefersReducedMotion ? 'Reduced' : 'Enabled',
+    color: device.prefersReducedMotion ? 'yellow' : 'green'
+  }];
+
 
   return (
     <motion.div
       {...getAnimationConfig('fade')}
-      className="space-y-6"
-    >
+      className="space-y-6">
+
       <div className="text-center">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
           Responsive Experience Active
@@ -68,13 +68,13 @@ const ResponsiveDemo: React.FC = () => {
       </div>
 
       <div className={`grid gap-4 ${device.isMobile ? 'grid-cols-1' : 'grid-cols-2 lg:grid-cols-3'}`}>
-        {deviceFeatures.map((feature, index) => (
-          <motion.div
-            key={feature.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-          >
+        {deviceFeatures.map((feature, index) =>
+        <motion.div
+          key={feature.label}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.1 }}>
+
             <Card className={getCardClasses()}>
               <div className="flex items-center space-x-3">
                 <div className={`p-2 rounded-full bg-${feature.color}-100 text-${feature.color}-600`}>
@@ -91,7 +91,7 @@ const ResponsiveDemo: React.FC = () => {
               </div>
             </Card>
           </motion.div>
-        ))}
+        )}
       </div>
 
       <Card className={getCardClasses()}>
@@ -132,15 +132,15 @@ const ResponsiveDemo: React.FC = () => {
           Active Breakpoints
         </h3>
         <div className="flex flex-wrap gap-2">
-          {Object.entries(breakpoints).map(([key, isActive]) => (
-            <Badge 
-              key={key}
-              variant={isActive ? "default" : "secondary"}
-              className={isActive ? "bg-green-100 text-green-800" : ""}
-            >
+          {Object.entries(breakpoints).map(([key, isActive]) =>
+          <Badge
+            key={key}
+            variant={isActive ? "default" : "secondary"}
+            className={isActive ? "bg-green-100 text-green-800" : ""}>
+
               {key.replace('is', '')}
             </Badge>
-          ))}
+          )}
         </div>
       </Card>
 
@@ -148,13 +148,13 @@ const ResponsiveDemo: React.FC = () => {
         <Button
           size={device.hasTouch ? "lg" : "default"}
           onClick={() => window.location.reload()}
-          className={device.hasTouch ? "min-h-touch" : ""}
-        >
+          className={device.hasTouch ? "min-h-touch" : ""}>
+
           Refresh to Re-detect Device
         </Button>
       </div>
-    </motion.div>
-  );
+    </motion.div>);
+
 };
 
 export default ResponsiveDemo;

@@ -10,7 +10,7 @@ export const useResponsiveUtils = () => {
       case 'sidebar':
         return { paddingLeft: `${device.sidebarWidth}px` };
       case 'bottom':
-        return { 
+        return {
           paddingTop: `${device.navigationHeight}px`,
           paddingBottom: '80px' // Bottom nav height
         };
@@ -28,7 +28,7 @@ export const useResponsiveUtils = () => {
         paddingTop: 'max(env(safe-area-inset-top), 1rem)',
         paddingBottom: 'max(env(safe-area-inset-bottom), 1rem)',
         paddingLeft: 'env(safe-area-inset-left)',
-        paddingRight: 'env(safe-area-inset-right)',
+        paddingRight: 'env(safe-area-inset-right)'
       };
     }
     return {};
@@ -43,7 +43,7 @@ export const useResponsiveUtils = () => {
     fontSize: {
       small: device.optimalFontSize === 'small' ? 'text-sm' : 'text-base',
       medium: device.optimalFontSize === 'large' ? 'text-lg' : 'text-base',
-      large: device.optimalFontSize === 'large' ? 'text-xl' : 'text-lg',
+      large: device.optimalFontSize === 'large' ? 'text-xl' : 'text-lg'
     },
     touchTarget: device.hasTouch ? 'min-h-touch' : 'min-h-8',
     shadow: {
@@ -51,7 +51,7 @@ export const useResponsiveUtils = () => {
       subtle: 'shadow-sm',
       normal: 'shadow-md',
       strong: 'shadow-lg'
-    }[device.shadowIntensity],
+    }[device.shadowIntensity]
   }), [device]);
 
   // Animation utilities
@@ -89,11 +89,11 @@ export const useResponsiveUtils = () => {
   }, [device.prefersReducedMotion, device.animationDuration, device.isMobile]);
 
   // Grid utilities
-  const getGridClasses = useCallback((cols: { mobile: number; tablet: number; desktop: number }) => {
+  const getGridClasses = useCallback((cols: {mobile: number;tablet: number;desktop: number;}) => {
     const mobileClass = `grid-cols-${cols.mobile}`;
     const tabletClass = `md:grid-cols-${cols.tablet}`;
     const desktopClass = `lg:grid-cols-${cols.desktop}`;
-    
+
     return `grid ${mobileClass} ${tabletClass} ${desktopClass} gap-4 ${device.isMobile ? 'gap-2' : ''} ${device.isDesktop ? 'gap-6' : ''}`;
   }, [device.isMobile, device.isDesktop]);
 
@@ -107,9 +107,9 @@ export const useResponsiveUtils = () => {
   const getCardClasses = useCallback(() => {
     const baseClasses = `bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 ${device.borderRadius}`;
     const shadowClass = getResponsiveClasses.shadow;
-    const paddingClass = device.preferredCardSize === 'compact' ? 'p-4' : 
-                        device.preferredCardSize === 'large' ? 'p-8' : 'p-6';
-    
+    const paddingClass = device.preferredCardSize === 'compact' ? 'p-4' :
+    device.preferredCardSize === 'large' ? 'p-8' : 'p-6';
+
     return `${baseClasses} ${shadowClass} ${paddingClass}`;
   }, [device.borderRadius, device.preferredCardSize, getResponsiveClasses.shadow]);
 
@@ -118,7 +118,7 @@ export const useResponsiveUtils = () => {
     container: `space-y-${device.isMobile ? '4' : '6'}`,
     label: `block text-sm font-medium text-gray-700 dark:text-gray-300 mb-${device.isMobile ? '1' : '2'}`,
     input: `w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${device.hasTouch ? 'min-h-touch' : ''}`,
-    button: `px-4 py-2 ${device.hasTouch ? 'min-h-touch' : ''} rounded-md font-medium transition-colors`,
+    button: `px-4 py-2 ${device.hasTouch ? 'min-h-touch' : ''} rounded-md font-medium transition-colors`
   }), [device.isMobile, device.hasTouch]);
 
   // Breakpoint utilities
@@ -127,7 +127,7 @@ export const useResponsiveUtils = () => {
     isTablet: device.viewportWidth >= 768 && device.viewportWidth < 1024,
     isDesktop: device.viewportWidth >= 1024,
     isLargeDesktop: device.viewportWidth >= 1280,
-    isXLDesktop: device.viewportWidth >= 1536,
+    isXLDesktop: device.viewportWidth >= 1536
   }), [device.viewportWidth]);
 
   return {
@@ -140,6 +140,6 @@ export const useResponsiveUtils = () => {
     getButtonSize,
     getCardClasses,
     getFormClasses,
-    breakpoints,
+    breakpoints
   };
 };

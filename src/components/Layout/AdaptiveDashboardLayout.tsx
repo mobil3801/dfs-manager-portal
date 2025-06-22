@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { DeviceAdaptiveProvider } from '@/contexts/DeviceAdaptiveContext';
-import AdaptiveLayout from '@/components/AdaptiveLayout';
+import EnhancedAdaptiveLayout from '@/components/EnhancedAdaptiveLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'motion/react';
 
@@ -26,9 +25,9 @@ const AdaptiveDashboardLayout: React.FC = () => {
 
   return (
     <DeviceAdaptiveProvider>
-      <AdaptiveLayout>
+      <EnhancedAdaptiveLayout padding="none">
         <Outlet />
-      </AdaptiveLayout>
+      </EnhancedAdaptiveLayout>
     </DeviceAdaptiveProvider>);
 
 };
