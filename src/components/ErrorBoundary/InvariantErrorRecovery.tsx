@@ -244,6 +244,8 @@ class InvariantErrorRecovery extends Component<Props, State> {
 
 
 
+
+
               // Empty batch to flush pending updates
             });}} catch (e) {console.warn('Could not flush React updates:', e);}} // Clear any orphaned event listeners that might cause issues
       const elementsWithListeners = document.querySelectorAll('[onclick], [onchange], [onsubmit]');elementsWithListeners.forEach((element) => {element.removeAttribute('onclick');element.removeAttribute('onchange');element.removeAttribute('onsubmit');});console.log('Fixed render issues');resolve();});};private handleManualRetry = () => {this.setState({ hasError: false, error: null, errorInfo: null, isRecovering: false, retryCount: this.state.retryCount + 1 });};private handleForceReload = () => {window.location.reload();};render() {if (this.state.hasError) {const isInvariantError = this.state.error ? this.isInvariantError(this.state.error) : false;const canRetry = this.state.retryCount < this.maxRetries;return <Card className="w-full max-w-4xl mx-auto mt-8 border-red-200">
@@ -278,8 +280,7 @@ class InvariantErrorRecovery extends Component<Props, State> {
                   <div className="text-sm font-mono bg-gray-100 p-2 rounded">
                     {this.state.error?.message || 'Unknown error'}
                   </div>
-                  {isInvariantError &&
-                <div className="text-sm text-red-700">
+                  {isInvariantError && <div className="text-sm text-red-700">
                       This appears to be a React invariant violation, which typically occurs due to:
                       <ul className="list-disc list-inside mt-1 space-y-1">
                         <li>Duplicate React keys in lists</li>
@@ -287,8 +288,7 @@ class InvariantErrorRecovery extends Component<Props, State> {
                         <li>State mutations during render</li>
                         <li>Improper component lifecycle usage</li>
                       </ul>
-                    </div>
-                }
+                    </div>}
                 </div>
               </AlertDescription>
             </Alert>

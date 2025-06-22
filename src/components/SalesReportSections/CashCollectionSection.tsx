@@ -20,7 +20,7 @@ const CashCollectionSection: React.FC<CashCollectionSectionProps> = ({
   onChange
 }) => {
   // Use the totalShortOver passed from parent or calculate it
-  const shortOver = values.totalShortOver ?? (values.cashCollectionOnHand - (values.totalCashFromSales - values.totalCashFromExpenses));
+  const shortOver = values.totalShortOver ?? values.cashCollectionOnHand - (values.totalCashFromSales - values.totalCashFromExpenses);
   const isShort = shortOver < 0;
   const isOver = shortOver > 0;
   const expectedCash = values.totalCashFromSales - values.totalCashFromExpenses;
@@ -139,22 +139,22 @@ const CashCollectionSection: React.FC<CashCollectionSectionProps> = ({
         </div>
 
         {/* Formula Information */}
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-          <div className="flex items-start gap-2">
-            <Info className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-amber-800">
-              <p className="font-medium mb-1">Updated Calculation Formula:</p>
-              <p className="text-xs font-mono bg-white px-2 py-1 rounded border">
-                Cash Collection on Hand - (Gas Cash + Grocery Cash + Lottery Cash - Cash Expenses)
-              </p>
-              <p className="text-xs mt-1 text-amber-700">
-                • Positive result = Over (more cash than expected)<br />
-                • Negative result = Short (less cash than expected)<br />
-                • Cash expenses are subtracted from expected cash
-              </p>
-            </div>
-          </div>
-        </div>
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       </CardContent>
     </Card>);
 
