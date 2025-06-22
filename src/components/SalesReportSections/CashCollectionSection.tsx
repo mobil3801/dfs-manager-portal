@@ -10,6 +10,7 @@ interface CashCollectionSectionProps {
     cashCollectionOnHand: number;
     totalCashFromSales: number; // Gas Cash + Grocery Cash + Lottery Cash
     totalCashFromExpenses: number; // Cash expenses that reduce expected cash
+    totalShortOver?: number; // Passed from parent calculation
   };
   onChange: (field: string, value: number) => void;
 }
@@ -18,11 +19,11 @@ const CashCollectionSection: React.FC<CashCollectionSectionProps> = ({
   values,
   onChange
 }) => {
-  // Auto-calculate short/over: Cash on hand - (Total cash sales - Cash expenses)
-  const expectedCash = values.totalCashFromSales - values.totalCashFromExpenses;
-  const shortOver = values.cashCollectionOnHand - expectedCash;
+  // Use the totalShortOver passed from parent or calculate it
+  const shortOver = values.totalShortOver ?? (values.cashCollectionOnHand - (values.totalCashFromSales - values.totalCashFromExpenses));
   const isShort = shortOver < 0;
   const isOver = shortOver > 0;
+  const expectedCash = values.totalCashFromSales - values.totalCashFromExpenses;
 
   return (
     <Card className="bg-gray-50 border-gray-200">
@@ -65,7 +66,7 @@ const CashCollectionSection: React.FC<CashCollectionSectionProps> = ({
               <span className={`font-bold text-lg ${
               isShort ? 'text-red-600' : isOver ? 'text-green-600' : 'text-gray-700'}`
               }>
-                ${Math.abs(shortOver).toFixed(2)}
+                {isShort ? '-' : isOver ? '+' : ''}${Math.abs(shortOver).toFixed(2)}
               </span>
               {isShort && <TrendingDown className="w-5 h-5 text-red-600" />}
               {isOver && <TrendingUp className="w-5 h-5 text-green-600" />}
@@ -99,8 +100,22 @@ const CashCollectionSection: React.FC<CashCollectionSectionProps> = ({
           
           <div className="text-sm text-blue-800 space-y-2">
             <div className="flex justify-between">
-              <span>Gas & Grocery Cash Sales:</span>
+              <span>Total Cash from Sales:</span>
               <span className="font-medium">+${values.totalCashFromSales.toFixed(2)}</span>
+            </div>
+            <div className="text-xs text-blue-600 ml-4 space-y-1">
+              <div className="flex justify-between">
+                <span>• Gas & Grocery Cash:</span>
+                <span>Included above</span>
+              </div>
+              <div className="flex justify-between">
+                <span>• Grocery Breakdown Cash:</span>
+                <span>Included above</span>
+              </div>
+              <div className="flex justify-between">
+                <span>• NY Lottery Total Cash:</span>
+                <span>Included above</span>
+              </div>
             </div>
             <div className="flex justify-between">
               <span>Cash Expenses:</span>
@@ -118,7 +133,7 @@ const CashCollectionSection: React.FC<CashCollectionSectionProps> = ({
             isShort ? 'text-red-600' : isOver ? 'text-green-600' : 'text-blue-800'}`
             }>
               <span>Difference (Short/Over):</span>
-              <span>{isShort ? '-' : '+'}${Math.abs(shortOver).toFixed(2)}</span>
+              <span>{isShort ? '-' : isOver ? '+' : ''}${Math.abs(shortOver).toFixed(2)}</span>
             </div>
           </div>
         </div>
@@ -128,13 +143,14 @@ const CashCollectionSection: React.FC<CashCollectionSectionProps> = ({
           <div className="flex items-start gap-2">
             <Info className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
             <div className="text-sm text-amber-800">
-              <p className="font-medium mb-1">Calculation Formula:</p>
+              <p className="font-medium mb-1">Updated Calculation Formula:</p>
               <p className="text-xs font-mono bg-white px-2 py-1 rounded border">
                 Cash Collection on Hand - (Gas Cash + Grocery Cash + Lottery Cash - Cash Expenses)
               </p>
               <p className="text-xs mt-1 text-amber-700">
                 • Positive result = Over (more cash than expected)<br />
-                • Negative result = Short (less cash than expected)
+                • Negative result = Short (less cash than expected)<br />
+                • Cash expenses are subtracted from expected cash
               </p>
             </div>
           </div>

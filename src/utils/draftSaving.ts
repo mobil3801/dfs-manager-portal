@@ -27,7 +27,7 @@ export class DraftSavingService {
     try {
       const key = this.getDraftKey(stationName, reportDate);
       const timestamp = Date.now();
-      const expiresAt = timestamp + (DRAFT_EXPIRY_HOURS * 60 * 60 * 1000); // 12 hours from now
+      const expiresAt = timestamp + DRAFT_EXPIRY_HOURS * 60 * 60 * 1000; // 12 hours from now
 
       const draftData: DraftData = {
         data: formData,
@@ -36,7 +36,7 @@ export class DraftSavingService {
       };
 
       localStorage.setItem(key, JSON.stringify(draftData));
-      
+
       console.log(`✅ Draft saved successfully for ${stationName} on ${reportDate}`);
       return true;
     } catch (error) {
@@ -52,7 +52,7 @@ export class DraftSavingService {
     try {
       const key = this.getDraftKey(stationName, reportDate);
       const stored = localStorage.getItem(key);
-      
+
       if (!stored) {
         return null;
       }
@@ -95,7 +95,7 @@ export class DraftSavingService {
     try {
       const key = this.getDraftKey(stationName, reportDate);
       const stored = localStorage.getItem(key);
-      
+
       if (!stored) {
         return false;
       }
@@ -113,15 +113,15 @@ export class DraftSavingService {
   /**
    * Get draft info (timestamp, time remaining)
    */
-  static getDraftInfo(stationName: string, reportDate: string): { 
-    savedAt: Date; 
-    expiresAt: Date; 
-    timeRemainingHours: number; 
+  static getDraftInfo(stationName: string, reportDate: string): {
+    savedAt: Date;
+    expiresAt: Date;
+    timeRemainingHours: number;
   } | null {
     try {
       const key = this.getDraftKey(stationName, reportDate);
       const stored = localStorage.getItem(key);
-      
+
       if (!stored) {
         return null;
       }
@@ -152,10 +152,10 @@ export class DraftSavingService {
    */
   static cleanupExpiredDrafts(): number {
     let cleanedCount = 0;
-    
+
     try {
       const keys = Object.keys(localStorage);
-      const draftKeys = keys.filter(key => key.startsWith(DRAFT_KEY_PREFIX));
+      const draftKeys = keys.filter((key) => key.startsWith(DRAFT_KEY_PREFIX));
       const now = Date.now();
 
       for (const key of draftKeys) {
@@ -197,7 +197,7 @@ export class DraftSavingService {
   }> {
     try {
       const keys = Object.keys(localStorage);
-      const draftKeys = keys.filter(key => key.startsWith(DRAFT_KEY_PREFIX));
+      const draftKeys = keys.filter((key) => key.startsWith(DRAFT_KEY_PREFIX));
       const now = Date.now();
       const drafts = [];
 
@@ -206,7 +206,7 @@ export class DraftSavingService {
           const stored = localStorage.getItem(key);
           if (stored) {
             const draftData: DraftData = JSON.parse(stored);
-            
+
             // Skip expired drafts
             if (now > draftData.expiresAt) {
               continue;
