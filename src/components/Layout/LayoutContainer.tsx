@@ -102,74 +102,74 @@ const LayoutContainer: React.FC<LayoutContainerProps> = ({
       transition={{
         duration: 0.4,
         ease: 'easeOut'
-      }}
-    >
+      }}>
+
       {children}
-    </motion.div>
-  );
+    </motion.div>);
+
 };
 
 // Pre-configured layout containers for common use cases
-export const PageContainer: React.FC<{ children: React.ReactNode; className?: string }> = ({ 
-  children, 
-  className = '' 
-}) => (
-  <LayoutContainer
-    maxWidth="6xl"
-    padding="lg"
-    spacing="lg"
-    className={className}
-  >
-    {children}
-  </LayoutContainer>
-);
+export const PageContainer: React.FC<{children: React.ReactNode;className?: string;}> = ({
+  children,
+  className = ''
+}) =>
+<LayoutContainer
+  maxWidth="6xl"
+  padding="lg"
+  spacing="lg"
+  className={className}>
 
-export const ContentContainer: React.FC<{ children: React.ReactNode; className?: string }> = ({ 
-  children, 
-  className = '' 
-}) => (
-  <LayoutContainer
-    maxWidth="4xl"
-    padding="md"
-    spacing="md"
-    background="white"
-    shadow
-    rounded
-    className={className}
-  >
     {children}
-  </LayoutContainer>
-);
+  </LayoutContainer>;
 
-export const FormContainer: React.FC<{ children: React.ReactNode; className?: string }> = ({ 
-  children, 
-  className = '' 
-}) => (
-  <LayoutContainer
-    maxWidth="2xl"
-    padding="lg"
-    spacing="md"
-    background="white"
-    shadow
-    rounded
-    className={className}
-  >
-    {children}
-  </LayoutContainer>
-);
 
-export const ListContainer: React.FC<{ children: React.ReactNode; className?: string }> = ({ 
-  children, 
-  className = '' 
-}) => (
-  <LayoutContainer
-    maxWidth="7xl"
-    padding="md"
-    spacing="sm"
-    className={className}
-  >
+export const ContentContainer: React.FC<{children: React.ReactNode;className?: string;}> = ({
+  children,
+  className = ''
+}) =>
+<LayoutContainer
+  maxWidth="4xl"
+  padding="md"
+  spacing="md"
+  background="white"
+  shadow
+  rounded
+  className={className}>
+
     {children}
-  </LayoutContainer>
-);
+  </LayoutContainer>;
+
+
+export const FormContainer: React.FC<{children: React.ReactNode;className?: string;}> = ({
+  children,
+  className = ''
+}) =>
+<LayoutContainer
+  maxWidth="2xl"
+  padding="lg"
+  spacing="md"
+  background="white"
+  shadow
+  rounded
+  className={className}>
+
+    {children}
+  </LayoutContainer>;
+
+
+export const ListContainer: React.FC<{children: React.ReactNode;className?: string;}> = ({
+  children,
+  className = ''
+}) =>
+<LayoutContainer
+  maxWidth="7xl"
+  padding="md"
+  spacing="sm"
+  className={className}>
+
+    {children}
+  </LayoutContainer>;
+
 
 export default LayoutContainer;

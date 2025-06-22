@@ -51,7 +51,7 @@ const DesktopLayoutOptimizer: React.FC<DesktopLayoutOptimizerProps> = ({
   // Desktop layout optimization styles
   const getOptimizedStyles = (): React.CSSProperties => {
     const isDesktop = viewportDimensions.width >= 1024;
-    
+
     if (!isDesktop) return {};
 
     // Desktop-specific optimizations
@@ -114,25 +114,25 @@ const DesktopLayoutOptimizer: React.FC<DesktopLayoutOptimizerProps> = ({
       style={getOptimizedStyles()}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-    >
+      transition={{ duration: 0.3 }}>
+
       {/* Desktop Navigation Spacer - prevents content overlap */}
-      {viewportDimensions.width >= 1024 && (
-        <div 
-          className="desktop-nav-spacer"
-          style={{
-            height: '4px', // Minimal spacer
-            width: '100%',
-            flexShrink: 0
-          }}
-        />
-      )}
+      {viewportDimensions.width >= 1024 &&
+      <div
+        className="desktop-nav-spacer"
+        style={{
+          height: '4px', // Minimal spacer
+          width: '100%',
+          flexShrink: 0
+        }} />
+
+      }
 
       {/* Optimized Content Container */}
-      <div 
+      <div
         className="desktop-content-container flex-1"
-        style={getContentStyles()}
-      >
+        style={getContentStyles()}>
+
         {/* Grid Wrapper for responsive layouts */}
         <div className={`w-full ${getGridClasses()}`}>
           {children}
@@ -140,29 +140,29 @@ const DesktopLayoutOptimizer: React.FC<DesktopLayoutOptimizerProps> = ({
       </div>
 
       {/* Desktop Footer Spacer */}
-      {viewportDimensions.width >= 1024 && (
-        <div 
-          className="desktop-footer-spacer"
-          style={{
-            height: '2rem',
-            width: '100%',
-            flexShrink: 0
-          }}
-        />
-      )}
+      {viewportDimensions.width >= 1024 &&
+      <div
+        className="desktop-footer-spacer"
+        style={{
+          height: '2rem',
+          width: '100%',
+          flexShrink: 0
+        }} />
+
+      }
 
       {/* Viewport Information (Development Helper - remove in production) */}
-      {process.env.NODE_ENV === 'development' && (
-        <div 
-          className="fixed bottom-4 right-4 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded pointer-events-none z-50"
-          style={{ fontSize: '10px' }}
-        >
+      {process.env.NODE_ENV === 'development' &&
+      <div
+        className="fixed bottom-4 right-4 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded pointer-events-none z-50"
+        style={{ fontSize: '10px' }}>
+
           {viewportDimensions.width} × {viewportDimensions.height}
           {scrollbarWidth > 0 && ` | SB: ${scrollbarWidth}px`}
         </div>
-      )}
-    </motion.div>
-  );
+      }
+    </motion.div>);
+
 };
 
 export default DesktopLayoutOptimizer;

@@ -80,89 +80,89 @@ const ResponsiveGrid: React.FC<ResponsiveGridProps> = ({
       className={gridClasses}
       variants={staggerChildren ? containerVariants : undefined}
       initial={staggerChildren ? 'hidden' : undefined}
-      animate={staggerChildren ? 'visible' : undefined}
-    >
+      animate={staggerChildren ? 'visible' : undefined}>
+
       {React.Children.map(children, (child, index) => {
         if (staggerChildren) {
           return (
             <motion.div
               key={index}
               variants={itemVariants}
-              className={equalHeight ? 'h-full' : ''}
-            >
+              className={equalHeight ? 'h-full' : ''}>
+
               {child}
-            </motion.div>
-          );
+            </motion.div>);
+
         }
         return (
           <div
             key={index}
-            className={equalHeight ? 'h-full' : ''}
-          >
+            className={equalHeight ? 'h-full' : ''}>
+
             {child}
-          </div>
-        );
+          </div>);
+
       })}
-    </motion.div>
-  );
+    </motion.div>);
+
 };
 
 // Pre-configured grid components for common layouts
-export const CardsGrid: React.FC<{ children: React.ReactNode; className?: string }> = ({ 
-  children, 
-  className = '' 
-}) => (
-  <ResponsiveGrid
-    columns={{ mobile: 1, tablet: 2, desktop: 3, large: 4 }}
-    gap="lg"
-    equalHeight
-    staggerChildren
-    className={className}
-  >
-    {children}
-  </ResponsiveGrid>
-);
+export const CardsGrid: React.FC<{children: React.ReactNode;className?: string;}> = ({
+  children,
+  className = ''
+}) =>
+<ResponsiveGrid
+  columns={{ mobile: 1, tablet: 2, desktop: 3, large: 4 }}
+  gap="lg"
+  equalHeight
+  staggerChildren
+  className={className}>
 
-export const DashboardGrid: React.FC<{ children: React.ReactNode; className?: string }> = ({ 
-  children, 
-  className = '' 
-}) => (
-  <ResponsiveGrid
-    columns={{ mobile: 1, tablet: 2, desktop: 2, large: 3 }}
-    gap="xl"
-    equalHeight
-    staggerChildren
-    className={className}
-  >
     {children}
-  </ResponsiveGrid>
-);
+  </ResponsiveGrid>;
 
-export const ListGrid: React.FC<{ children: React.ReactNode; className?: string }> = ({ 
-  children, 
-  className = '' 
-}) => (
-  <ResponsiveGrid
-    columns={{ mobile: 1, tablet: 1, desktop: 1, large: 1 }}
-    gap="md"
-    staggerChildren
-    className={className}
-  >
-    {children}
-  </ResponsiveGrid>
-);
 
-export const FormGrid: React.FC<{ children: React.ReactNode; className?: string }> = ({ 
-  children, 
-  className = '' 
-}) => (
-  <ResponsiveGrid
-    columns={{ mobile: 1, tablet: 2, desktop: 2, large: 2 }}
-    gap="md"
-    className={className}
-  >
+export const DashboardGrid: React.FC<{children: React.ReactNode;className?: string;}> = ({
+  children,
+  className = ''
+}) =>
+<ResponsiveGrid
+  columns={{ mobile: 1, tablet: 2, desktop: 2, large: 3 }}
+  gap="xl"
+  equalHeight
+  staggerChildren
+  className={className}>
+
     {children}
-  </ResponsiveGrid>
-);
+  </ResponsiveGrid>;
+
+
+export const ListGrid: React.FC<{children: React.ReactNode;className?: string;}> = ({
+  children,
+  className = ''
+}) =>
+<ResponsiveGrid
+  columns={{ mobile: 1, tablet: 1, desktop: 1, large: 1 }}
+  gap="md"
+  staggerChildren
+  className={className}>
+
+    {children}
+  </ResponsiveGrid>;
+
+
+export const FormGrid: React.FC<{children: React.ReactNode;className?: string;}> = ({
+  children,
+  className = ''
+}) =>
+<ResponsiveGrid
+  columns={{ mobile: 1, tablet: 2, desktop: 2, large: 2 }}
+  gap="md"
+  className={className}>
+
+    {children}
+  </ResponsiveGrid>;
+
 
 export default ResponsiveGrid;
