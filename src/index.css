@@ -61,6 +61,12 @@
     --brand-800: 7 89 133;
     --brand-900: 12 74 110;
     --brand-950: 8 47 73;
+
+    /* Desktop Layout Variables */
+    --desktop-sidebar-width: 280px;
+    --desktop-header-height: 64px;
+    --desktop-content-padding: 2rem;
+    --desktop-max-content-width: 1400px;
   }
 
   .dark {
@@ -119,6 +125,8 @@
     /* Optimize for touch devices */
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
+    /* Prevent horizontal scroll on desktop */
+    overflow-x: hidden;
   }
 
   /* Ensure proper viewport handling */
@@ -126,6 +134,8 @@
     height: 100%;
     /* Fix iOS viewport issues */
     height: -webkit-fill-available;
+    /* Prevent zoom on double tap */
+    touch-action: manipulation;
   }
 
   body {
@@ -182,6 +192,28 @@
 
   .hover\:scrollbar-thumb-gray-400:hover::-webkit-scrollbar-thumb {
     background: rgb(156 163 175);
+  }
+
+  /* Desktop Layout Utilities */
+  .desktop-layout {
+    min-height: 100vh;
+    position: relative;
+  }
+
+  .desktop-sidebar-offset {
+    margin-left: var(--desktop-sidebar-width);
+    width: calc(100% - var(--desktop-sidebar-width));
+  }
+
+  .desktop-content-container {
+    max-width: var(--desktop-max-content-width);
+    margin-left: auto;
+    margin-right: auto;
+    padding: var(--desktop-content-padding);
+  }
+
+  .desktop-full-height {
+    min-height: calc(100vh - var(--desktop-header-height));
   }
 
   /* Navigation spacing utilities */
@@ -245,6 +277,23 @@
     font-size: clamp(1.25rem, 3.5vw, 1.5rem);
   }
 
+  /* Desktop-specific spacing */
+  .desktop-spacing-sm {
+    gap: 1rem;
+  }
+
+  .desktop-spacing-md {
+    gap: 1.5rem;
+  }
+
+  .desktop-spacing-lg {
+    gap: 2rem;
+  }
+
+  .desktop-spacing-xl {
+    gap: 3rem;
+  }
+
   /* Enhanced card shadows */
   .card-shadow-subtle {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -269,6 +318,26 @@
 
   .animate-slide-in-left {
     animation: slideInLeft 0.3s ease-out;
+  }
+
+  /* Content alignment utilities */
+  .content-center-desktop {
+    @media (min-width: 1024px) {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding-top: 2rem;
+    }
+  }
+
+  .page-container-desktop {
+    @media (min-width: 1024px) {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
   }
 
   /* Reduced motion utilities */
@@ -325,6 +394,40 @@
     padding-bottom: 80px;
   }
 
+  /* Desktop Layout Components */
+  .desktop-layout-wrapper {
+    display: flex;
+    min-height: 100vh;
+    background-color: rgb(249 250 251);
+  }
+
+  .desktop-sidebar-fixed {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: var(--desktop-sidebar-width);
+    z-index: 40;
+    background-color: white;
+    border-right: 1px solid rgb(229 231 235);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  .desktop-main-content {
+    flex: 1;
+    margin-left: var(--desktop-sidebar-width);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .desktop-content-area {
+    flex: 1;
+    padding: var(--desktop-content-padding);
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
   /* Mobile-specific overrides */
   @media (max-width: 767px) {
     .nav-layout-sidebar {
@@ -339,6 +442,24 @@
       padding-top: 56px;
       padding-bottom: 80px;
     }
+
+    .desktop-layout-wrapper {
+      display: block;
+    }
+
+    .desktop-sidebar-fixed {
+      position: relative;
+      width: 100%;
+      height: auto;
+    }
+
+    .desktop-main-content {
+      margin-left: 0;
+    }
+
+    .desktop-content-area {
+      padding: 1rem;
+    }
   }
 
   /* Tablet-specific overrides */
@@ -349,6 +470,20 @@
 
     .nav-layout-top {
       padding-top: 60px;
+    }
+
+    .desktop-layout-wrapper {
+      display: block;
+    }
+
+    .desktop-sidebar-fixed {
+      position: relative;
+      width: 100%;
+      height: auto;
+    }
+
+    .desktop-main-content {
+      margin-left: 0;
     }
   }
 
@@ -388,5 +523,81 @@
 
   .responsive-button-secondary {
     @apply responsive-button bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600;
+  }
+
+  /* Desktop grid layouts */
+  .desktop-grid-2 {
+    @media (min-width: 1024px) {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+  }
+
+  .desktop-grid-3 {
+    @media (min-width: 1024px) {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+  }
+
+  .desktop-grid-4 {
+    @media (min-width: 1024px) {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+    }
+  }
+
+  /* Desktop form layouts */
+  .desktop-form-2-col {
+    @media (min-width: 1024px) {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+  }
+
+  .desktop-form-3-col {
+    @media (min-width: 1024px) {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+  }
+}
+
+/* Keyframe animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }

@@ -205,8 +205,8 @@ export default function SalesReportForm() {
     scratchOffSales: formData.scratchOffSales,
     cashCollectionOnHand: formData.cashCollectionOnHand,
     cashExpenses: cashExpenses
-  }), [formData.cashAmount, formData.groceryCashSales, formData.lotteryNetSales, 
-       formData.scratchOffSales, formData.cashCollectionOnHand, cashExpenses]);
+  }), [formData.cashAmount, formData.groceryCashSales, formData.lotteryNetSales,
+  formData.scratchOffSales, formData.cashCollectionOnHand, cashExpenses]);
 
   const calculation = useMemo(() => {
     return calculateTotalShortOver(salesCalculationData);
@@ -446,8 +446,8 @@ export default function SalesReportForm() {
           <p className="text-gray-600 mt-2">Step 1: Select your station to begin</p>
         </div>
         <StationSelector onStationSelect={setSelectedStation} />
-      </EnhancedAdaptiveLayout>
-    );
+      </EnhancedAdaptiveLayout>);
+
   }
 
   return (
@@ -575,10 +575,10 @@ export default function SalesReportForm() {
           onChange={updateFormData} />
 
         {/* Enhanced Sales Calculation Display */}
-        <SalesCalculationDisplay 
-          calculation={calculation} 
-          showDetails={!device.isMobile} 
-        />
+        <SalesCalculationDisplay
+          calculation={calculation}
+          showDetails={!device.isMobile} />
+
 
         {/* Gas & Grocery Sales */}
         <GasGrocerySalesSection
@@ -747,6 +747,6 @@ export default function SalesReportForm() {
         currentStation={selectedStation}
         currentReportDate={formData.report_date} />
 
-    </EnhancedAdaptiveLayout>
-  );
+    </EnhancedAdaptiveLayout>);
+
 }

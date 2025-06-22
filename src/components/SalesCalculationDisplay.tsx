@@ -57,13 +57,13 @@ const SalesCalculationDisplay: React.FC<SalesCalculationDisplayProps> = ({
       </CardHeader>
       
       <CardContent>
-        {showDetails && (
-          <div className={getCardLayout()}>
-            <motion.div 
-              className="bg-white p-4 rounded-lg border border-green-200"
-              whileHover={device.supportsHover ? { scale: 1.02 } : {}}
-              transition={{ duration: 0.2 }}
-            >
+        {showDetails &&
+        <div className={getCardLayout()}>
+            <motion.div
+            className="bg-white p-4 rounded-lg border border-green-200"
+            whileHover={device.supportsHover ? { scale: 1.02 } : {}}
+            transition={{ duration: 0.2 }}>
+
               <div className="text-sm text-green-600 mb-1">Gas & Grocery Cash</div>
               <div className="text-2xl font-bold text-green-800">
                 {formatCurrency(calculation.gasCashAmount)}
@@ -71,11 +71,11 @@ const SalesCalculationDisplay: React.FC<SalesCalculationDisplayProps> = ({
               <div className="text-xs text-gray-500 mt-1">From Gas & Grocery Section</div>
             </motion.div>
 
-            <motion.div 
-              className="bg-white p-4 rounded-lg border border-green-200"
-              whileHover={device.supportsHover ? { scale: 1.02 } : {}}
-              transition={{ duration: 0.2 }}
-            >
+            <motion.div
+            className="bg-white p-4 rounded-lg border border-green-200"
+            whileHover={device.supportsHover ? { scale: 1.02 } : {}}
+            transition={{ duration: 0.2 }}>
+
               <div className="text-sm text-green-600 mb-1">Grocery Breakdown Cash</div>
               <div className="text-2xl font-bold text-green-800">
                 {formatCurrency(calculation.groceryCashAmount)}
@@ -83,11 +83,11 @@ const SalesCalculationDisplay: React.FC<SalesCalculationDisplayProps> = ({
               <div className="text-xs text-gray-500 mt-1">From Grocery Breakdown</div>
             </motion.div>
 
-            <motion.div 
-              className="bg-white p-4 rounded-lg border border-green-200"
-              whileHover={device.supportsHover ? { scale: 1.02 } : {}}
-              transition={{ duration: 0.2 }}
-            >
+            <motion.div
+            className="bg-white p-4 rounded-lg border border-green-200"
+            whileHover={device.supportsHover ? { scale: 1.02 } : {}}
+            transition={{ duration: 0.2 }}>
+
               <div className="text-sm text-green-600 mb-1">NY Lottery Total Cash</div>
               <div className="text-2xl font-bold text-green-800">
                 {formatCurrency(calculation.lotteryTotalCash)}
@@ -95,11 +95,11 @@ const SalesCalculationDisplay: React.FC<SalesCalculationDisplayProps> = ({
               <div className="text-xs text-gray-500 mt-1">Net Sales + Scratch Off</div>
             </motion.div>
 
-            <motion.div 
-              className="bg-white p-4 rounded-lg border border-red-200"
-              whileHover={device.supportsHover ? { scale: 1.02 } : {}}
-              transition={{ duration: 0.2 }}
-            >
+            <motion.div
+            className="bg-white p-4 rounded-lg border border-red-200"
+            whileHover={device.supportsHover ? { scale: 1.02 } : {}}
+            transition={{ duration: 0.2 }}>
+
               <div className="text-sm text-red-600 mb-1">Cash Expenses</div>
               <div className="text-2xl font-bold text-red-600">
                 -{formatCurrency(calculation.totalCashExpenses)}
@@ -107,7 +107,7 @@ const SalesCalculationDisplay: React.FC<SalesCalculationDisplayProps> = ({
               <div className="text-xs text-gray-500 mt-1">Subtracted from total</div>
             </motion.div>
           </div>
-        )}
+        }
         
         <div className="mt-4 p-4 bg-white rounded-lg border-2 border-green-300">
           <div className="text-sm text-green-600 mb-1">Expected Cash from Sales</div>
@@ -119,19 +119,19 @@ const SalesCalculationDisplay: React.FC<SalesCalculationDisplayProps> = ({
           </div>
         </div>
 
-        <motion.div 
+        <motion.div
           className={`mt-4 p-6 rounded-lg border-2 ${getStatusColor(50)}`}
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
+          transition={{ duration: 0.3 }}>
+
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <div className="text-sm mb-1">Final Short/Over Calculation</div>
               <div className={`text-4xl font-bold ${
-                calculation.statusColor === 'green' ? 'text-green-800' :
-                calculation.statusColor === 'red' ? 'text-red-800' : 'text-blue-800'
-              }`}>
+              calculation.statusColor === 'green' ? 'text-green-800' :
+              calculation.statusColor === 'red' ? 'text-red-800' : 'text-blue-800'}`
+              }>
                 {calculation.displayAmount}
               </div>
               <div className="text-xs mt-2 opacity-75">
@@ -140,18 +140,18 @@ const SalesCalculationDisplay: React.FC<SalesCalculationDisplayProps> = ({
             </div>
             <div className="flex flex-col items-center gap-2">
               {getStatusIcon()}
-              <Badge 
-                variant={calculation.isShort ? 'destructive' : 'default'} 
-                className="text-sm px-3 py-1"
-              >
+              <Badge
+                variant={calculation.isShort ? 'destructive' : 'default'}
+                className="text-sm px-3 py-1">
+
                 {calculation.statusText}
               </Badge>
             </div>
           </div>
         </motion.div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default SalesCalculationDisplay;

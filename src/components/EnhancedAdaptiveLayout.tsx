@@ -10,9 +10,9 @@ interface EnhancedAdaptiveLayoutProps {
   maxWidth?: 'full' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '4xl' | '6xl' | '7xl';
 }
 
-const EnhancedAdaptiveLayout: React.FC<EnhancedAdaptiveLayoutProps> = ({ 
-  children, 
-  className = '', 
+const EnhancedAdaptiveLayout: React.FC<EnhancedAdaptiveLayoutProps> = ({
+  children,
+  className = '',
   padding = 'medium',
   maxWidth = '6xl'
 }) => {
@@ -32,18 +32,21 @@ const EnhancedAdaptiveLayout: React.FC<EnhancedAdaptiveLayoutProps> = ({
       case 'sidebar':
         return {
           ...baseStyles,
-          marginLeft: `${device.sidebarWidth}px`,
-          // Ensure proper spacing from sidebar
+          // Fixed sidebar spacing - ensure content doesn't overlap
+          marginLeft: `${device.sidebarWidth + 16}px`, // Sidebar width + margin
+          width: `calc(100% - ${device.sidebarWidth + 32}px)`, // Account for both margins
           paddingLeft: '1rem',
-          paddingRight: '1rem'
+          paddingRight: '1rem',
+          paddingTop: '2rem',
+          paddingBottom: '2rem'
         };
       case 'bottom':
         return {
           ...baseStyles,
-          // Header spacing for mobile
-          paddingTop: `${device.navigationHeight + 16}px`,
+          // Header spacing for mobile with safe area
+          paddingTop: `${device.navigationHeight + 20}px`,
           // Bottom navigation spacing with extra margin
-          paddingBottom: '96px', // 80px nav + 16px margin
+          paddingBottom: '100px', // 80px nav + 20px margin
           paddingLeft: '1rem',
           paddingRight: '1rem'
         };
@@ -51,7 +54,7 @@ const EnhancedAdaptiveLayout: React.FC<EnhancedAdaptiveLayoutProps> = ({
         return {
           ...baseStyles,
           // Top navigation spacing with proper margin
-          paddingTop: `${device.navigationHeight + 24}px`,
+          paddingTop: `${device.navigationHeight + 32}px`, // Increased padding
           paddingLeft: '1rem',
           paddingRight: '1rem',
           paddingBottom: '2rem'
@@ -59,7 +62,7 @@ const EnhancedAdaptiveLayout: React.FC<EnhancedAdaptiveLayoutProps> = ({
       default:
         return {
           ...baseStyles,
-          padding: '1rem'
+          padding: '2rem'
         };
     }
   };
@@ -67,12 +70,12 @@ const EnhancedAdaptiveLayout: React.FC<EnhancedAdaptiveLayoutProps> = ({
   // Enhanced content container classes with responsive max-width
   const getContentContainerClasses = () => {
     const baseClasses = 'w-full mx-auto';
-    
+
     // Max width based on prop and device
     const maxWidthClasses = {
       'full': 'max-w-full',
       'sm': 'max-w-sm',
-      'md': 'max-w-md', 
+      'md': 'max-w-md',
       'lg': 'max-w-lg',
       'xl': 'max-w-xl',
       '2xl': 'max-w-2xl',
@@ -80,22 +83,23 @@ const EnhancedAdaptiveLayout: React.FC<EnhancedAdaptiveLayoutProps> = ({
       '6xl': 'max-w-6xl',
       '7xl': 'max-w-7xl'
     };
-    
+
     // Auto-adjust max width based on device
     let finalMaxWidth = maxWidth;
-    if (device.isMobile && maxWidth === '6xl') finalMaxWidth = '4xl';
+    if (device.isMobile && ['6xl', '7xl'].includes(maxWidth)) finalMaxWidth = '4xl';
     if (device.isTablet && maxWidth === '7xl') finalMaxWidth = '6xl';
-    
-    // Padding based on prop and device
+
+    // Enhanced padding based on device and navigation
     const paddingClasses = {
       'none': '',
-      'small': device.isMobile ? 'px-2 py-2' : 'px-4 py-4',
-      'medium': device.isMobile ? 'px-4 py-4' : device.isTablet ? 'px-6 py-6' : 'px-8 py-8',
-      'large': device.isMobile ? 'px-6 py-6' : device.isTablet ? 'px-8 py-8' : 'px-12 py-12'
+      'small': device.isMobile ? 'px-3 py-3' : 'px-6 py-6',
+      'medium': device.isMobile ? 'px-4 py-4' : device.isTablet ? 'px-8 py-8' : 'px-12 py-12',
+      'large': device.isMobile ? 'px-6 py-6' : device.isTablet ? 'px-12 py-12' : 'px-16 py-16'
     };
 
-    const spacingClass = device.isMobile ? 'space-y-4' : 
-                        device.isTablet ? 'space-y-6' : 'space-y-8';
+    // Enhanced spacing for better visual hierarchy
+    const spacingClass = device.isMobile ? 'space-y-6' :
+      device.isTablet ? 'space-y-8' : 'space-y-10';
 
     return `${baseClasses} ${maxWidthClasses[finalMaxWidth]} ${paddingClasses[padding]} ${spacingClass}`;
   };
@@ -149,13 +153,13 @@ const EnhancedAdaptiveLayout: React.FC<EnhancedAdaptiveLayoutProps> = ({
     if (!device.isMobile) return;
 
     let ticking = false;
-    
+
     const handleScroll = () => {
       if (!ticking) {
         requestAnimationFrame(() => {
           const scrollTop = window.scrollY;
           const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-          const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+          const progress = docHeight > 0 ? scrollTop / docHeight * 100 : 0;
           setScrollProgress(Math.min(100, Math.max(0, progress)));
           ticking = false;
         });
@@ -167,15 +171,16 @@ const EnhancedAdaptiveLayout: React.FC<EnhancedAdaptiveLayoutProps> = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, [device.isMobile]);
 
-  // Desktop-specific styles to prevent navigation obstruction
-  const getDesktopStyles = (): React.CSSProperties => {
+  // Desktop-specific container styles to prevent navigation obstruction
+  const getDesktopContainerStyles = (): React.CSSProperties => {
     if (device.isDesktop && device.preferredNavigation === 'sidebar') {
       return {
-        // Ensure content starts after sidebar
+        // Prevent content from going behind sidebar
         marginLeft: `${device.sidebarWidth}px`,
         width: `calc(100% - ${device.sidebarWidth}px)`,
-        // Add top margin to account for any fixed headers
-        paddingTop: '2rem'
+        minHeight: '100vh',
+        position: 'relative',
+        zIndex: 1
       };
     }
     return {};
@@ -184,7 +189,10 @@ const EnhancedAdaptiveLayout: React.FC<EnhancedAdaptiveLayoutProps> = ({
   return (
     <div
       className="min-h-screen bg-gray-50 dark:bg-gray-900"
-      style={{ ...getSafeAreaStyles(), ...getDesktopStyles() }}
+      style={{
+        ...getSafeAreaStyles(),
+        ...getDesktopContainerStyles()
+      }}
     >
       <AdaptiveNavigation />
       
@@ -199,7 +207,7 @@ const EnhancedAdaptiveLayout: React.FC<EnhancedAdaptiveLayoutProps> = ({
         
         {/* Enhanced scroll indicator for mobile */}
         {device.isMobile && device.preferredNavigation === 'bottom' && (
-          <div className="fixed bottom-28 right-4 w-1 h-16 bg-gray-200 dark:bg-gray-700 rounded-full opacity-50 pointer-events-none z-30">
+          <div className="fixed bottom-32 right-4 w-1 h-16 bg-gray-200 dark:bg-gray-700 rounded-full opacity-50 pointer-events-none z-30">
             <motion.div
               className="w-full bg-blue-500 rounded-full origin-top"
               style={{ height: `${scrollProgress}%` }}
@@ -214,7 +222,7 @@ const EnhancedAdaptiveLayout: React.FC<EnhancedAdaptiveLayoutProps> = ({
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            className="fixed bottom-28 left-4 w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg z-30 flex items-center justify-center"
+            className="fixed bottom-32 left-4 w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg z-30 flex items-center justify-center"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             aria-label="Back to top"
             whileTap={{ scale: 0.9 }}
@@ -223,18 +231,6 @@ const EnhancedAdaptiveLayout: React.FC<EnhancedAdaptiveLayoutProps> = ({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
             </svg>
           </motion.button>
-        )}
-
-        {/* Desktop content protection overlay - ensures content doesn't go behind navigation */}
-        {device.isDesktop && device.preferredNavigation === 'sidebar' && (
-          <div 
-            className="fixed top-0 left-0 pointer-events-none z-0" 
-            style={{ 
-              width: `${device.sidebarWidth}px`, 
-              height: '100vh',
-              background: 'transparent'
-            }} 
-          />
         )}
       </motion.main>
     </div>

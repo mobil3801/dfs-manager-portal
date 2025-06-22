@@ -77,38 +77,38 @@ export const detectDevice = () => {
   const width = window.innerWidth;
   const height = window.innerHeight;
   const userAgent = navigator.userAgent;
-  
+
   // Touch capabilities
   const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   const supportsHover = window.matchMedia('(hover: hover)').matches;
-  
+
   // Device type detection with enhanced logic
   const isMobileUA = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
   const isTabletUA = /iPad|Android(?!.*Mobile)|Tablet/i.test(userAgent);
-  
+
   // Screen size classification
   const breakpoints = defaultResponsiveConfig.breakpoints;
   let screenSize: 'mobile' | 'tablet' | 'desktop' | 'wide' = 'desktop';
-  
-  if (width < breakpoints.mobile) screenSize = 'mobile';
-  else if (width < breakpoints.tablet) screenSize = 'mobile';
-  else if (width < breakpoints.desktop) screenSize = 'tablet';
-  else if (width < breakpoints.wide) screenSize = 'desktop';
-  else screenSize = 'wide';
-  
+
+  if (width < breakpoints.mobile) screenSize = 'mobile';else
+  if (width < breakpoints.tablet) screenSize = 'mobile';else
+  if (width < breakpoints.desktop) screenSize = 'tablet';else
+  if (width < breakpoints.wide) screenSize = 'desktop';else
+  screenSize = 'wide';
+
   // Device classification with priority logic
-  const isMobile = screenSize === 'mobile' || (isMobileUA && !isTabletUA);
-  const isTablet = screenSize === 'tablet' || (isTabletUA && !isMobileUA);
+  const isMobile = screenSize === 'mobile' || isMobileUA && !isTabletUA;
+  const isTablet = screenSize === 'tablet' || isTabletUA && !isMobileUA;
   const isDesktop = screenSize === 'desktop' || screenSize === 'wide';
-  
+
   // Device type for UI decisions
   let deviceType: 'mobile' | 'tablet' | 'desktop' = 'desktop';
-  if (isMobile) deviceType = 'mobile';
-  else if (isTablet) deviceType = 'tablet';
-  
+  if (isMobile) deviceType = 'mobile';else
+  if (isTablet) deviceType = 'tablet';
+
   // Orientation
   const orientation = height > width ? 'portrait' : 'landscape';
-  
+
   // Performance indicators
   const connection = (navigator as any).connection;
   let connectionType: 'fast' | 'slow' | 'unknown' = 'unknown';
@@ -116,11 +116,11 @@ export const detectDevice = () => {
     const effectiveType = connection.effectiveType;
     connectionType = effectiveType === '4g' || connection.downlink > 10 ? 'fast' : 'slow';
   }
-  
+
   // User preferences
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  
+
   return {
     isMobile,
     isTablet,
@@ -153,11 +153,11 @@ export const getOptimalNavigation = (device: ReturnType<typeof detectDevice>) =>
  * Get responsive grid classes based on device and content type
  */
 export const getResponsiveGrid = (
-  device: ReturnType<typeof detectDevice>,
-  contentType: 'cards' | 'list' | 'form' | 'table' = 'cards'
-) => {
+device: ReturnType<typeof detectDevice>,
+contentType: 'cards' | 'list' | 'form' | 'table' = 'cards') =>
+{
   const { isMobile, isTablet, screenSize } = device;
-  
+
   const gridConfigs = {
     cards: {
       mobile: 'grid-cols-1',
@@ -180,7 +180,7 @@ export const getResponsiveGrid = (
       desktop: 'grid-cols-1'
     }
   };
-  
+
   if (isMobile) return gridConfigs[contentType].mobile;
   if (isTablet) return gridConfigs[contentType].tablet;
   return gridConfigs[contentType].desktop;
@@ -255,7 +255,7 @@ export const getOptimalFontSizes = (device: ReturnType<typeof detectDevice>) => 
       caption: 'text-xs'
     };
   }
-  
+
   if (device.isDesktop && device.screenSize === 'wide') {
     return {
       heading: 'text-4xl',
@@ -264,7 +264,7 @@ export const getOptimalFontSizes = (device: ReturnType<typeof detectDevice>) => 
       caption: 'text-base'
     };
   }
-  
+
   return {
     heading: 'text-3xl',
     subheading: 'text-xl',
@@ -286,7 +286,7 @@ export const getDesktopLayoutStyles = (device: ReturnType<typeof detectDevice>) 
       minHeight: 'calc(100vh - 2rem)'
     };
   }
-  
+
   return {};
 };
 

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { 
-  detectDevice, 
-  getOptimalNavigation, 
-  getResponsiveGrid, 
+import {
+  detectDevice,
+  getOptimalNavigation,
+  getResponsiveGrid,
   getResponsiveSpacing,
   getTouchTargetSize,
   getNavigationHeight,
@@ -10,8 +10,8 @@ import {
   getAnimationDuration,
   shouldSimplifyContent,
   getOptimalFontSizes,
-  getDesktopLayoutStyles
-} from '@/utils/responsiveHelper';
+  getDesktopLayoutStyles } from
+'@/utils/responsiveHelper';
 
 /**
  * Enhanced responsive design hook with automatic device detection
@@ -22,7 +22,7 @@ export const useResponsiveDesign = () => {
 
   useEffect(() => {
     let resizeTimeout: NodeJS.Timeout;
-    
+
     const handleResize = () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
@@ -43,7 +43,7 @@ export const useResponsiveDesign = () => {
     // Listen for reduced motion preference changes
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     const handleMotionChange = () => setDevice(detectDevice());
-    
+
     if (mediaQuery.addEventListener) {
       mediaQuery.addEventListener('change', handleMotionChange);
     }
@@ -107,7 +107,7 @@ export const useResponsiveDesign = () => {
   return {
     // Device information
     device,
-    
+
     // Computed properties
     optimalNavigation,
     responsiveSpacing,
@@ -118,15 +118,15 @@ export const useResponsiveDesign = () => {
     simplifyContent,
     fontSizes,
     desktopLayoutStyles,
-    
+
     // Helper functions
     getGrid,
     getResponsiveClasses,
-    
+
     // Configuration objects
     layoutConfig,
     performanceConfig,
-    
+
     // Quick access properties
     isMobile: device.isMobile,
     isTablet: device.isTablet,
