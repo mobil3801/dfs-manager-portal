@@ -16,43 +16,43 @@ export const useStationOptions = (includeAll: boolean = true) => {
 
   const stationOptions: StationOption[] = useMemo(() => {
     const baseStations: StationOption[] = [
-      { 
-        value: 'MOBIL', 
-        label: 'MOBIL', 
-        color: 'bg-blue-500' 
-      },
-      { 
-        value: 'AMOCO ROSEDALE', 
-        label: 'AMOCO ROSEDALE', 
-        color: 'bg-green-500' 
-      },
-      { 
-        value: 'AMOCO BROOKLYN', 
-        label: 'AMOCO BROOKLYN', 
-        color: 'bg-purple-500' 
-      }
-    ];
+    {
+      value: 'MOBIL',
+      label: 'MOBIL',
+      color: 'bg-blue-500'
+    },
+    {
+      value: 'AMOCO ROSEDALE',
+      label: 'AMOCO ROSEDALE',
+      color: 'bg-green-500'
+    },
+    {
+      value: 'AMOCO BROOKLYN',
+      label: 'AMOCO BROOKLYN',
+      color: 'bg-purple-500'
+    }];
+
 
     // Check if user should see ALL option
-    const canViewAll = userProfile?.role === 'Administrator' || 
-                      userProfile?.role === 'Management';
+    const canViewAll = userProfile?.role === 'Administrator' ||
+    userProfile?.role === 'Management';
 
     if (includeAll && canViewAll) {
       return [
-        { 
-          value: 'ALL', 
-          label: 'ALL', 
-          color: 'bg-gray-600' 
-        },
-        ...baseStations
-      ];
+      {
+        value: 'ALL',
+        label: 'ALL',
+        color: 'bg-gray-600'
+      },
+      ...baseStations];
+
     }
 
     return baseStations;
   }, [userProfile?.role, includeAll]);
 
   const getStationColor = (station: string): string => {
-    const option = stationOptions.find(opt => opt.value === station);
+    const option = stationOptions.find((opt) => opt.value === station);
     return option?.color || 'bg-gray-500';
   };
 
@@ -80,12 +80,12 @@ export const useStationFilter = (selectedStation: string) => {
       // This means we don't add a station filter, or we add multiple filters
       return null; // No station filter
     }
-    
+
     return [{ name: 'station', op: 'Equal', value: selectedStation }];
   }, [selectedStation, allStations]);
 
   const shouldFilterByStation = selectedStation && selectedStation !== 'ALL';
-  
+
   return {
     stationFilters: getStationFilters,
     shouldFilterByStation,

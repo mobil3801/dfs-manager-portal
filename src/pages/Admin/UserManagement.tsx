@@ -94,7 +94,7 @@ const UserManagement: React.FC = () => {
   });
 
   const roles = ['Administrator', 'Management', 'Employee'];
-  const stations = ['MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN'];
+  const stations = ['ALL', 'MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN'];
 
   const [formData, setFormData] = useState({
     user_id: 0,
@@ -412,6 +412,7 @@ const UserManagement: React.FC = () => {
 
   const getStationBadgeColor = (station: string) => {
     switch (station) {
+      case 'ALL':return 'bg-blue-100 text-blue-800';
       case 'MOBIL':return 'bg-purple-100 text-purple-800';
       case 'AMOCO ROSEDALE':return 'bg-orange-100 text-orange-800';
       case 'AMOCO BROOKLYN':return 'bg-teal-100 text-teal-800';

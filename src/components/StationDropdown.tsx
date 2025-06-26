@@ -33,46 +33,46 @@ const StationDropdown: React.FC<StationDropdownProps> = ({
 
   return (
     <div className={`space-y-2 ${className}`}>
-      {label && (
-        <Label htmlFor={id}>
+      {label &&
+      <Label htmlFor={id}>
           {label}
           {required && ' *'}
         </Label>
-      )}
-      <Select 
-        value={value} 
+      }
+      <Select
+        value={value}
         onValueChange={onValueChange}
-        disabled={disabled}
-      >
+        disabled={disabled}>
+
         <SelectTrigger id={id}>
           <SelectValue placeholder={placeholder}>
-            {value && showBadge ? (
-              <Badge className={`text-white ${getStationColor(value)}`}>
+            {value && showBadge ?
+            <Badge className={`text-white ${getStationColor(value)}`}>
                 {value}
-              </Badge>
-            ) : (
-              value || placeholder
-            )}
+              </Badge> :
+
+            value || placeholder
+            }
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
-          {stationOptions.map((station) => (
-            <SelectItem key={station.value} value={station.value}>
+          {stationOptions.map((station) =>
+          <SelectItem key={station.value} value={station.value}>
               <div className="flex items-center space-x-2">
-                {showBadge && (
-                  <div className={`w-3 h-3 rounded-full ${station.color}`} />
-                )}
+                {showBadge &&
+              <div className={`w-3 h-3 rounded-full ${station.color}`} />
+              }
                 <span>{station.label}</span>
-                {station.value === 'ALL' && (
-                  <span className="text-xs text-gray-500">(All Stations)</span>
-                )}
+                {station.value === 'ALL' &&
+              <span className="text-xs text-gray-500">(All Stations)</span>
+              }
               </div>
             </SelectItem>
-          ))}
+          )}
         </SelectContent>
       </Select>
-    </div>
-  );
+    </div>);
+
 };
 
 export default StationDropdown;

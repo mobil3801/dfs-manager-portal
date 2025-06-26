@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, User, Mail, Phone, Building2, Shield, Calendar, Eye, EyeOff } from 'lucide-react';
+import { Loader2, User, Mail, Phone, Building2, Shield, Calendar, Eye, EyeOff, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface CreateUserDialogProps {
@@ -45,10 +45,11 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
   });
 
   const roles = ['Administrator', 'Management', 'Employee'];
-  const stations = ['MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN'];
+  const stations = ['ALL', 'MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN'];
 
   const generateEmployeeId = () => {
-    const prefix = formData.station.split(' ')[0].substring(0, 3).toUpperCase();
+    // Handle ALL station case
+    const prefix = formData.station === 'ALL' ? 'ALL' : formData.station.split(' ')[0].substring(0, 3).toUpperCase();
     const timestamp = Date.now().toString().slice(-6);
     return `${prefix}-${timestamp}`;
   };
@@ -194,6 +195,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
 
       // Step 4: Send welcome email (optional)
       try {
+        const stationDisplay = formData.station === 'ALL' ? 'All Stations' : formData.station;
         const emailContent = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2 style="color: #1f2937;">Welcome to DFS Manager Portal</h2>
@@ -205,7 +207,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
               <p><strong>Email:</strong> ${formData.email}</p>
               <p><strong>Employee ID:</strong> ${formData.employee_id}</p>
               <p><strong>Role:</strong> ${formData.role}</p>
-              <p><strong>Station:</strong> ${formData.station}</p>
+              <p><strong>Station:</strong> ${stationDisplay}</p>
               <p><strong>Hire Date:</strong> ${new Date(formData.hire_date).toLocaleDateString()}</p>
             </div>
             
@@ -214,6 +216,13 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
               <p style="color: #92400e; margin-bottom: 0;"><strong>Temporary Password:</strong> ${formData.password}</p>
               <p style="color: #92400e; font-size: 14px;"><em>Please change your password after your first login for security purposes.</em></p>
             </div>
+            
+            ${formData.station === 'ALL' ? `
+            <div style="background-color: #dbeafe; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6; margin: 20px 0;">
+              <h4 style="color: #1e40af; margin-top: 0;">Multi-Station Access:</h4>
+              <p style="color: #1e40af; margin-bottom: 0;">You have been granted access to <strong>ALL stations</strong>. This means you can view, edit, and delete data from all locations based on your role permissions.</p>
+            </div>
+            ` : ''}
             
             <p>You can access the portal at: <a href="${window.location.origin}" style="color: #2563eb;">${window.location.origin}</a></p>
             
@@ -236,9 +245,10 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
         // Don't fail the entire process if email fails
       }
 
+      const stationText = formData.station === 'ALL' ? 'all stations' : formData.station;
       toast({
         title: "Success",
-        description: `User account created successfully for ${formData.firstName} ${formData.lastName}. Welcome email sent to ${formData.email}.`
+        description: `User account created successfully for ${formData.firstName} ${formData.lastName} with access to ${stationText}. Welcome email sent to ${formData.email}.`
       });
 
       // Reset form
@@ -273,6 +283,13 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
     if (!loading) {
       onClose();
     }
+  };
+
+  const getStationIcon = (station: string) => {
+    if (station === 'ALL') {
+      return <Globe className="w-4 h-4" />;
+    }
+    return <Building2 className="w-4 h-4" />;
   };
 
   return (
@@ -453,13 +470,21 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
                       {stations.map((station) =>
                       <SelectItem key={station} value={station}>
                           <div className="flex items-center space-x-2">
-                            <Building2 className="w-4 h-4" />
-                            <span>{station}</span>
+                            {getStationIcon(station)}
+                            <span>{station === 'ALL' ? 'ALL STATIONS' : station}</span>
                           </div>
                         </SelectItem>
                       )}
                     </SelectContent>
                   </Select>
+                  {formData.station === 'ALL' &&
+                  <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
+                      <p className="text-xs text-blue-700">
+                        <Globe className="w-3 h-3 inline mr-1" />
+                        This user will have access to data from all stations based on their role permissions.
+                      </p>
+                    </div>
+                  }
                 </div>
                 
                 <div className="md:col-span-2">
@@ -518,11 +543,25 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
                     {formData.role === 'Administrator' ? 'Full Access' : 'No Access'}
                   </Badge>
                 </div>
+                {formData.station === 'ALL' &&
+                <div className="flex items-center justify-between">
+                    <span className="text-sm">Station Access</span>
+                    <Badge variant="default" className="bg-blue-600">
+                      <Globe className="w-3 h-3 mr-1" />
+                      All Stations
+                    </Badge>
+                  </div>
+                }
               </div>
               
               <Alert className="mt-4">
                 <AlertDescription className="text-sm">
                   Permissions can be customized after user creation through the User Management interface.
+                  {formData.station === 'ALL' &&
+                  <span className="block mt-2 text-blue-700">
+                      <strong>Note:</strong> Multi-station access allows this user to work with data from all stations according to their role permissions.
+                    </span>
+                  }
                 </AlertDescription>
               </Alert>
             </CardContent>
