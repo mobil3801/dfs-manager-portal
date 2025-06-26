@@ -58,118 +58,118 @@ export const useOptimizedLoading = (options: LoadingOptions = {}) => {
    */
   const createDashboardTasks = useCallback((): LoadingTask[] => {
     return [
-      {
-        id: 'auth-check',
-        name: 'Verifying authentication',
-        priority: 'high' as const,
-        timeout: 5000,
-        retries: 2,
-        currentRetry: 0,
-        execute: async () => {
-          // Quick auth check
-          if (!window.ezsite?.apis) {
-            throw new Error('APIs not available');
-          }
-          return { authenticated: true };
+    {
+      id: 'auth-check',
+      name: 'Verifying authentication',
+      priority: 'high' as const,
+      timeout: 5000,
+      retries: 2,
+      currentRetry: 0,
+      execute: async () => {
+        // Quick auth check
+        if (!window.ezsite?.apis) {
+          throw new Error('APIs not available');
         }
-      },
-      {
-        id: 'critical-data',
-        name: 'Loading critical dashboard data',
-        priority: 'high' as const,
-        timeout: 10000,
-        retries: 3,
-        currentRetry: 0,
-        dependencies: ['auth-check'],
-        execute: async () => {
-          const criticalData = await Promise.allSettled([
-            // Sales reports (limited)
-            window.ezsite.apis.tablePage(12356, {
-              PageNo: 1,
-              PageSize: 10,
-              OrderByField: 'report_date',
-              IsAsc: false,
-              Filters: []
-            }),
-            // Products count
-            window.ezsite.apis.tablePage(11726, {
-              PageNo: 1,
-              PageSize: 1,
-              Filters: []
-            }),
-            // Employees count
-            window.ezsite.apis.tablePage(11727, {
-              PageNo: 1,
-              PageSize: 1,
-              Filters: [{ name: 'is_active', op: 'Equal', value: true }]
-            })
-          ]);
-
-          return criticalData.map(result => 
-            result.status === 'fulfilled' ? result.value : null
-          );
-        }
-      },
-      {
-        id: 'secondary-data',
-        name: 'Loading additional data',
-        priority: 'medium' as const,
-        timeout: 8000,
-        retries: 2,
-        currentRetry: 0,
-        dependencies: ['critical-data'],
-        execute: async () => {
-          const secondaryData = await Promise.allSettled([
-            // Orders
-            window.ezsite.apis.tablePage(11730, {
-              PageNo: 1,
-              PageSize: 10,
-              Filters: []
-            }),
-            // Deliveries
-            window.ezsite.apis.tablePage(12196, {
-              PageNo: 1,
-              PageSize: 10,
-              Filters: []
-            }),
-            // Licenses
-            window.ezsite.apis.tablePage(11731, {
-              PageNo: 1,
-              PageSize: 10,
-              Filters: []
-            })
-          ]);
-
-          return secondaryData.map(result => 
-            result.status === 'fulfilled' ? result.value : null
-          );
-        }
-      },
-      {
-        id: 'optional-data',
-        name: 'Loading optional features',
-        priority: 'low' as const,
-        timeout: 5000,
-        retries: 1,
-        currentRetry: 0,
-        dependencies: ['critical-data'],
-        execute: async () => {
-          // Optional data that doesn't block the dashboard
-          const optionalData = await Promise.allSettled([
-            // Vendors
-            window.ezsite.apis.tablePage(11729, {
-              PageNo: 1,
-              PageSize: 5,
-              Filters: [{ name: 'is_active', op: 'Equal', value: true }]
-            })
-          ]);
-
-          return optionalData.map(result => 
-            result.status === 'fulfilled' ? result.value : null
-          );
-        }
+        return { authenticated: true };
       }
-    ];
+    },
+    {
+      id: 'critical-data',
+      name: 'Loading critical dashboard data',
+      priority: 'high' as const,
+      timeout: 10000,
+      retries: 3,
+      currentRetry: 0,
+      dependencies: ['auth-check'],
+      execute: async () => {
+        const criticalData = await Promise.allSettled([
+        // Sales reports (limited)
+        window.ezsite.apis.tablePage(12356, {
+          PageNo: 1,
+          PageSize: 10,
+          OrderByField: 'report_date',
+          IsAsc: false,
+          Filters: []
+        }),
+        // Products count
+        window.ezsite.apis.tablePage(11726, {
+          PageNo: 1,
+          PageSize: 1,
+          Filters: []
+        }),
+        // Employees count
+        window.ezsite.apis.tablePage(11727, {
+          PageNo: 1,
+          PageSize: 1,
+          Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+        })]
+        );
+
+        return criticalData.map((result) =>
+        result.status === 'fulfilled' ? result.value : null
+        );
+      }
+    },
+    {
+      id: 'secondary-data',
+      name: 'Loading additional data',
+      priority: 'medium' as const,
+      timeout: 8000,
+      retries: 2,
+      currentRetry: 0,
+      dependencies: ['critical-data'],
+      execute: async () => {
+        const secondaryData = await Promise.allSettled([
+        // Orders
+        window.ezsite.apis.tablePage(11730, {
+          PageNo: 1,
+          PageSize: 10,
+          Filters: []
+        }),
+        // Deliveries
+        window.ezsite.apis.tablePage(12196, {
+          PageNo: 1,
+          PageSize: 10,
+          Filters: []
+        }),
+        // Licenses
+        window.ezsite.apis.tablePage(11731, {
+          PageNo: 1,
+          PageSize: 10,
+          Filters: []
+        })]
+        );
+
+        return secondaryData.map((result) =>
+        result.status === 'fulfilled' ? result.value : null
+        );
+      }
+    },
+    {
+      id: 'optional-data',
+      name: 'Loading optional features',
+      priority: 'low' as const,
+      timeout: 5000,
+      retries: 1,
+      currentRetry: 0,
+      dependencies: ['critical-data'],
+      execute: async () => {
+        // Optional data that doesn't block the dashboard
+        const optionalData = await Promise.allSettled([
+        // Vendors
+        window.ezsite.apis.tablePage(11729, {
+          PageNo: 1,
+          PageSize: 5,
+          Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+        })]
+        );
+
+        return optionalData.map((result) =>
+        result.status === 'fulfilled' ? result.value : null
+        );
+      }
+    }];
+
   }, []);
 
   /**
@@ -177,10 +177,10 @@ export const useOptimizedLoading = (options: LoadingOptions = {}) => {
    */
   const executeLoading = useCallback(async (tasks: LoadingTask[]): Promise<Map<string, any>> => {
     console.log('🚀 Starting optimized loading...');
-    
+
     // Create new abort controller
     abortControllerRef.current = new AbortController();
-    
+
     // Reset state
     resultsRef.current.clear();
     errorsRef.current.clear();
@@ -198,7 +198,7 @@ export const useOptimizedLoading = (options: LoadingOptions = {}) => {
     try {
       // Process tasks in dependency order with concurrency control
       const dependencyMap = new Map<string, string[]>();
-      tasks.forEach(task => {
+      tasks.forEach((task) => {
         if (task.dependencies) {
           dependencyMap.set(task.id, task.dependencies);
         }
@@ -210,9 +210,9 @@ export const useOptimizedLoading = (options: LoadingOptions = {}) => {
 
       while (taskQueue.length > 0 && !abortControllerRef.current.signal.aborted) {
         // Find tasks that can be executed (dependencies satisfied)
-        const readyTasks = taskQueue.filter(task => {
+        const readyTasks = taskQueue.filter((task) => {
           const deps = dependencyMap.get(task.id) || [];
-          return deps.every(dep => completed.has(dep) && !failed.has(dep));
+          return deps.every((dep) => completed.has(dep) && !failed.has(dep));
         });
 
         if (readyTasks.length === 0) {
@@ -222,7 +222,7 @@ export const useOptimizedLoading = (options: LoadingOptions = {}) => {
             break;
           }
           // Wait for running tasks
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 100));
           continue;
         }
 
@@ -233,52 +233,52 @@ export const useOptimizedLoading = (options: LoadingOptions = {}) => {
         });
 
         const tasksToRun = readyTasks.slice(0, maxConcurrency - runningTasksRef.current.size);
-        
+
         // Remove from queue
-        tasksToRun.forEach(task => {
-          const index = taskQueue.findIndex(t => t.id === task.id);
+        tasksToRun.forEach((task) => {
+          const index = taskQueue.findIndex((t) => t.id === task.id);
           if (index !== -1) taskQueue.splice(index, 1);
         });
 
         // Execute tasks
         const executePromises = tasksToRun.map(async (task) => {
           runningTasksRef.current.add(task.id);
-          
-          setLoadingState(prev => ({
+
+          setLoadingState((prev) => ({
             ...prev,
             currentTask: task.name
           }));
 
           try {
             console.log(`▶️ Executing: ${task.name}`);
-            
+
             const result = await Promise.race([
-              task.execute(),
-              new Promise((_, reject) => 
-                setTimeout(() => reject(new Error(`Timeout: ${task.name}`)), task.timeout)
-              )
-            ]);
+            task.execute(),
+            new Promise((_, reject) =>
+            setTimeout(() => reject(new Error(`Timeout: ${task.name}`)), task.timeout)
+            )]
+            );
 
             resultsRef.current.set(task.id, result);
             completed.add(task.id);
             task.onSuccess?.(result);
 
-            setLoadingState(prev => ({
+            setLoadingState((prev) => ({
               ...prev,
               completedTasks: [...prev.completedTasks, task.id],
-              progress: Math.round(((prev.completedTasks.length + 1) / tasks.length) * 100)
+              progress: Math.round((prev.completedTasks.length + 1) / tasks.length * 100)
             }));
 
             console.log(`✅ Completed: ${task.name}`);
 
           } catch (error) {
             const err = error instanceof Error ? error : new Error(String(error));
-            
+
             // Retry logic
             if (enableRetries && task.currentRetry < task.retries) {
               task.currentRetry++;
               console.log(`🔄 Retrying: ${task.name} (${task.currentRetry}/${task.retries})`);
-              
+
               // Re-add to queue with delay
               setTimeout(() => {
                 if (!abortControllerRef.current?.signal.aborted) {
@@ -290,7 +290,7 @@ export const useOptimizedLoading = (options: LoadingOptions = {}) => {
               failed.add(task.id);
               task.onError?.(err);
 
-              setLoadingState(prev => ({
+              setLoadingState((prev) => ({
                 ...prev,
                 failedTasks: [...prev.failedTasks, task.id],
                 errors: [...prev.errors, `${task.name}: ${err.message}`]
@@ -310,11 +310,11 @@ export const useOptimizedLoading = (options: LoadingOptions = {}) => {
       }
 
       // Check for critical failures
-      const criticalTasks = tasks.filter(t => t.priority === 'high');
-      const failedCritical = criticalTasks.filter(t => failed.has(t.id));
-      
+      const criticalTasks = tasks.filter((t) => t.priority === 'high');
+      const failedCritical = criticalTasks.filter((t) => failed.has(t.id));
+
       if (failedCritical.length > 0) {
-        throw new Error(`Critical tasks failed: ${failedCritical.map(t => t.name).join(', ')}`);
+        throw new Error(`Critical tasks failed: ${failedCritical.map((t) => t.name).join(', ')}`);
       }
 
       console.log('✅ Loading completed successfully');
@@ -324,7 +324,7 @@ export const useOptimizedLoading = (options: LoadingOptions = {}) => {
       console.error('❌ Loading failed:', error);
       throw error;
     } finally {
-      setLoadingState(prev => ({
+      setLoadingState((prev) => ({
         ...prev,
         isLoading: false
       }));
@@ -338,7 +338,7 @@ export const useOptimizedLoading = (options: LoadingOptions = {}) => {
     try {
       const tasks = createDashboardTasks();
       const results = await executeLoading(tasks);
-      
+
       if (showProgress) {
         toast({
           title: 'Dashboard Loaded',
@@ -346,11 +346,11 @@ export const useOptimizedLoading = (options: LoadingOptions = {}) => {
           variant: 'default'
         });
       }
-      
+
       return results;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to load dashboard';
-      
+
       if (showProgress) {
         toast({
           title: 'Loading Error',
@@ -358,7 +358,7 @@ export const useOptimizedLoading = (options: LoadingOptions = {}) => {
           variant: 'destructive'
         });
       }
-      
+
       throw error;
     }
   }, [createDashboardTasks, executeLoading, showProgress, toast]);
@@ -371,8 +371,8 @@ export const useOptimizedLoading = (options: LoadingOptions = {}) => {
       abortControllerRef.current.abort();
       console.log('⏹️ Loading cancelled');
     }
-    
-    setLoadingState(prev => ({
+
+    setLoadingState((prev) => ({
       ...prev,
       isLoading: false
     }));
@@ -386,7 +386,7 @@ export const useOptimizedLoading = (options: LoadingOptions = {}) => {
     resultsRef.current.clear();
     errorsRef.current.clear();
     runningTasksRef.current.clear();
-    
+
     setLoadingState({
       isLoading: false,
       progress: 0,

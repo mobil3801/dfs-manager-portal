@@ -74,7 +74,7 @@ const OptimizedLoadingManager: React.FC<OptimizedLoadingManagerProps> = ({
    */
   useEffect(() => {
     const dependencyMap = new Map<string, string[]>();
-    tasks.forEach(task => {
+    tasks.forEach((task) => {
       if (task.dependencies) {
         dependencyMap.set(task.id, task.dependencies);
       }
@@ -89,9 +89,9 @@ const OptimizedLoadingManager: React.FC<OptimizedLoadingManagerProps> = ({
     const dependencies = dependencyMapRef.current.get(taskId);
     if (!dependencies) return true;
 
-    return dependencies.every(depId => 
-      loadingState.completedTasks.includes(depId) && 
-      !loadingState.failedTasks.includes(depId)
+    return dependencies.every((depId) =>
+    loadingState.completedTasks.includes(depId) &&
+    !loadingState.failedTasks.includes(depId)
     );
   }, [loadingState.completedTasks, loadingState.failedTasks]);
 
@@ -99,11 +99,11 @@ const OptimizedLoadingManager: React.FC<OptimizedLoadingManagerProps> = ({
    * Get next available tasks that can be executed
    */
   const getAvailableTasks = useCallback((): LoadingTask[] => {
-    return taskQueueRef.current.filter(task => 
-      !runningTasksRef.current.has(task.id) &&
-      !loadingState.completedTasks.includes(task.id) &&
-      !loadingState.failedTasks.includes(task.id) &&
-      areDependenciesSatisfied(task.id)
+    return taskQueueRef.current.filter((task) =>
+    !runningTasksRef.current.has(task.id) &&
+    !loadingState.completedTasks.includes(task.id) &&
+    !loadingState.failedTasks.includes(task.id) &&
+    areDependenciesSatisfied(task.id)
     );
   }, [loadingState.completedTasks, loadingState.failedTasks, areDependenciesSatisfied]);
 
@@ -112,17 +112,17 @@ const OptimizedLoadingManager: React.FC<OptimizedLoadingManagerProps> = ({
    */
   const executeTask = async (task: LoadingTask): Promise<void> => {
     const { id, name, execute, onSuccess, onError: taskOnError, retries } = task;
-    
+
     runningTasksRef.current.add(id);
-    
-    setLoadingState(prev => ({
+
+    setLoadingState((prev) => ({
       ...prev,
       currentTask: name
     }));
 
     try {
       console.log(`🔄 Executing task: ${name}`);
-      
+
       // Create a timeout promise
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error(`Task ${name} timed out`)), task.timeout);
@@ -130,33 +130,33 @@ const OptimizedLoadingManager: React.FC<OptimizedLoadingManagerProps> = ({
 
       // Race between task execution and timeout
       const result = await Promise.race([
-        execute(),
-        timeoutPromise
-      ]);
+      execute(),
+      timeoutPromise]
+      );
 
       // Task successful
       resultsRef.current.set(id, result);
       onSuccess?.(result);
 
-      setLoadingState(prev => ({
+      setLoadingState((prev) => ({
         ...prev,
         completedTasks: [...prev.completedTasks, id],
-        progress: Math.round(((prev.completedTasks.length + 1) / prev.totalTasks) * 100)
+        progress: Math.round((prev.completedTasks.length + 1) / prev.totalTasks * 100)
       }));
 
       console.log(`✅ Task completed: ${name}`);
 
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
-      
+
       // Handle retry logic
       if (enableRetries && task.currentRetry < retries) {
         task.currentRetry++;
         console.log(`🔄 Retrying task: ${name} (${task.currentRetry}/${retries})`);
-        
+
         // Add delay before retry
-        await new Promise(resolve => setTimeout(resolve, 1000 * task.currentRetry));
-        
+        await new Promise((resolve) => setTimeout(resolve, 1000 * task.currentRetry));
+
         // Re-queue the task
         runningTasksRef.current.delete(id);
         return executeTask(task);
@@ -166,11 +166,11 @@ const OptimizedLoadingManager: React.FC<OptimizedLoadingManagerProps> = ({
       errorsRef.current.set(id, err);
       taskOnError?.(err);
 
-      setLoadingState(prev => ({
+      setLoadingState((prev) => ({
         ...prev,
         failedTasks: [...prev.failedTasks, id],
         errors: [...prev.errors, `${name}: ${err.message}`],
-        progress: Math.round(((prev.completedTasks.length + prev.failedTasks.length + 1) / prev.totalTasks) * 100)
+        progress: Math.round((prev.completedTasks.length + prev.failedTasks.length + 1) / prev.totalTasks * 100)
       }));
 
       console.error(`❌ Task failed: ${name}`, err);
@@ -185,14 +185,14 @@ const OptimizedLoadingManager: React.FC<OptimizedLoadingManagerProps> = ({
   const processTaskQueue = useCallback(async (): Promise<void> => {
     while (taskQueueRef.current.length > 0) {
       const availableTasks = getAvailableTasks();
-      
+
       if (availableTasks.length === 0) {
         // No tasks can be executed, wait for running tasks to complete
         if (runningTasksRef.current.size === 0) {
           // Deadlock or all tasks blocked by failed dependencies
           break;
         }
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
         continue;
       }
 
@@ -202,15 +202,15 @@ const OptimizedLoadingManager: React.FC<OptimizedLoadingManagerProps> = ({
 
       // Execute tasks up to concurrency limit
       const tasksToExecute = availableTasks.slice(0, maxConcurrency - runningTasksRef.current.size);
-      
+
       // Remove tasks from queue
-      taskQueueRef.current = taskQueueRef.current.filter(task => 
-        !tasksToExecute.find(t => t.id === task.id)
+      taskQueueRef.current = taskQueueRef.current.filter((task) =>
+      !tasksToExecute.find((t) => t.id === task.id)
       );
 
       // Start executing tasks
-      const executePromises = tasksToExecute.map(task => executeTask(task));
-      
+      const executePromises = tasksToExecute.map((task) => executeTask(task));
+
       // Wait for at least one task to complete before continuing
       if (executePromises.length > 0) {
         await Promise.race(executePromises);
@@ -223,7 +223,7 @@ const OptimizedLoadingManager: React.FC<OptimizedLoadingManagerProps> = ({
    */
   const startLoading = useCallback(async (): Promise<void> => {
     console.log('🚀 Starting optimized loading process...');
-    
+
     // Reset state
     resultsRef.current.clear();
     errorsRef.current.clear();
@@ -231,7 +231,7 @@ const OptimizedLoadingManager: React.FC<OptimizedLoadingManagerProps> = ({
     taskQueueRef.current = [...tasks];
 
     // Reset task retry counters
-    tasks.forEach(task => {
+    tasks.forEach((task) => {
       task.currentRetry = 0;
     });
 
@@ -254,7 +254,7 @@ const OptimizedLoadingManager: React.FC<OptimizedLoadingManagerProps> = ({
 
     loadingTimeoutRef.current = setTimeout(() => {
       console.error('⏰ Loading process timed out');
-      setLoadingState(prev => ({
+      setLoadingState((prev) => ({
         ...prev,
         isLoading: false,
         errors: [...prev.errors, 'Loading process timed out']
@@ -268,9 +268,9 @@ const OptimizedLoadingManager: React.FC<OptimizedLoadingManagerProps> = ({
 
       // Check results
       const hasErrors = errorsRef.current.size > 0;
-      const hasIncompleteRequiredTasks = tasks
-        .filter(task => task.priority === 'high')
-        .some(task => !resultsRef.current.has(task.id));
+      const hasIncompleteRequiredTasks = tasks.
+      filter((task) => task.priority === 'high').
+      some((task) => !resultsRef.current.has(task.id));
 
       if (hasErrors || hasIncompleteRequiredTasks) {
         console.warn('⚠️ Loading completed with errors');
@@ -286,7 +286,7 @@ const OptimizedLoadingManager: React.FC<OptimizedLoadingManagerProps> = ({
       errorsRef.current.set('process', err);
       onError(errorsRef.current);
     } finally {
-      setLoadingState(prev => ({
+      setLoadingState((prev) => ({
         ...prev,
         isLoading: false
       }));
@@ -306,12 +306,12 @@ const OptimizedLoadingManager: React.FC<OptimizedLoadingManagerProps> = ({
     const interval = setInterval(() => {
       const elapsed = Date.now() - loadingState.startTime;
       const progress = loadingState.progress / 100;
-      
+
       if (progress > 0) {
         const estimatedTotal = elapsed / progress;
         const remaining = Math.max(0, estimatedTotal - elapsed);
-        
-        setLoadingState(prev => ({
+
+        setLoadingState((prev) => ({
           ...prev,
           estimatedTimeRemaining: remaining
         }));
@@ -358,8 +358,8 @@ const OptimizedLoadingManager: React.FC<OptimizedLoadingManagerProps> = ({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-    >
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -384,11 +384,11 @@ const OptimizedLoadingManager: React.FC<OptimizedLoadingManagerProps> = ({
           </div>
 
           {/* Time Remaining */}
-          {loadingState.estimatedTimeRemaining > 0 && (
-            <div className="text-xs text-muted-foreground text-center">
+          {loadingState.estimatedTimeRemaining > 0 &&
+          <div className="text-xs text-muted-foreground text-center">
               Estimated time remaining: {formatTime(loadingState.estimatedTimeRemaining)}
             </div>
-          )}
+          }
 
           {/* Task Status */}
           <div className="flex justify-between text-xs">
@@ -400,30 +400,30 @@ const OptimizedLoadingManager: React.FC<OptimizedLoadingManagerProps> = ({
               <Loader2 className="h-3 w-3 animate-spin" />
               <span>{runningTasksRef.current.size} running</span>
             </div>
-            {loadingState.failedTasks.length > 0 && (
-              <div className="flex items-center gap-1">
+            {loadingState.failedTasks.length > 0 &&
+            <div className="flex items-center gap-1">
                 <AlertTriangle className="h-3 w-3 text-red-600" />
                 <span>{loadingState.failedTasks.length} failed</span>
               </div>
-            )}
+            }
           </div>
 
           {/* Errors */}
-          {loadingState.errors.length > 0 && (
-            <Alert variant="destructive">
+          {loadingState.errors.length > 0 &&
+          <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
                 <div className="space-y-1">
-                  {loadingState.errors.slice(0, 2).map((error, index) => (
-                    <div key={index} className="text-xs">{error}</div>
-                  ))}
-                  {loadingState.errors.length > 2 && (
-                    <div className="text-xs">+{loadingState.errors.length - 2} more errors</div>
-                  )}
+                  {loadingState.errors.slice(0, 2).map((error, index) =>
+                <div key={index} className="text-xs">{error}</div>
+                )}
+                  {loadingState.errors.length > 2 &&
+                <div className="text-xs">+{loadingState.errors.length - 2} more errors</div>
+                }
                 </div>
               </AlertDescription>
             </Alert>
-          )}
+          }
 
           {/* Status Badges */}
           <div className="flex justify-center gap-2">
@@ -436,8 +436,8 @@ const OptimizedLoadingManager: React.FC<OptimizedLoadingManagerProps> = ({
           </div>
         </CardContent>
       </Card>
-    </motion.div>
-  );
+    </motion.div>);
+
 };
 
 export default OptimizedLoadingManager;

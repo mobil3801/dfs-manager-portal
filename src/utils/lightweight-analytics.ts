@@ -38,10 +38,10 @@ export const calculateSimpleMetrics = (data: Map<string, any>): SimpleDashboardM
       average: 0,
       recent: 0
     };
-    
+
     if (salesStats.count > 0) {
       salesStats.average = salesStats.total / salesStats.count;
-      
+
       // Count recent sales (last 30 days)
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
       salesStats.recent = salesData.filter((item: any) => {
@@ -85,7 +85,7 @@ export const calculateSimpleMetrics = (data: Map<string, any>): SimpleDashboardM
     };
   } catch (error) {
     console.error('Error calculating simple metrics:', error);
-    
+
     // Return safe defaults
     const defaultStats: BasicStats = { count: 0, total: 0, average: 0, recent: 0 };
     return {
@@ -131,7 +131,7 @@ export const formatNumber = (num: number): string => {
  */
 export const calculatePercentageChange = (current: number, previous: number): number => {
   if (previous === 0) return current > 0 ? 100 : 0;
-  return ((current - previous) / previous) * 100;
+  return (current - previous) / previous * 100;
 };
 
 /**

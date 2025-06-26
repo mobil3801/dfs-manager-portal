@@ -15,10 +15,10 @@ const cleanupMemoryManagement = enableOptimizedMemoryManagement();
 // Enhanced error handling
 window.addEventListener('error', (event) => {
   console.error('Global error:', event.error);
-  
+
   // Prevent infinite error loops
-  if (event.error?.message?.includes('ResizeObserver') || 
-      event.error?.message?.includes('Non-Error promise rejection')) {
+  if (event.error?.message?.includes('ResizeObserver') ||
+  event.error?.message?.includes('Non-Error promise rejection')) {
     event.preventDefault();
     return false;
   }
@@ -26,11 +26,11 @@ window.addEventListener('error', (event) => {
 
 window.addEventListener('unhandledrejection', (event) => {
   console.error('Unhandled promise rejection:', event.reason);
-  
+
   // Prevent infinite loops from promise rejections
-  if (typeof event.reason === 'string' && 
-      (event.reason.includes('ResizeObserver') || 
-       event.reason.includes('fetch'))) {
+  if (typeof event.reason === 'string' && (
+  event.reason.includes('ResizeObserver') ||
+  event.reason.includes('fetch'))) {
     event.preventDefault();
     return false;
   }
@@ -45,7 +45,7 @@ window.addEventListener('beforeunload', () => {
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
+  </React.StrictMode>
 );
 
 // Log initialization time
@@ -64,7 +64,7 @@ if (process.env.NODE_ENV === 'development') {
           }
         }
       });
-      
+
       observer.observe({ entryTypes: ['measure', 'navigation'] });
     } catch (error) {
       console.warn('Performance observer setup failed:', error);

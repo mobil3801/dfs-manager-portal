@@ -91,10 +91,10 @@ const App: React.FC = () => {
       <TooltipProvider>
         <DeviceAdaptiveProvider>
           <AuthProvider>
-            <OptimizedRealTimeProvider 
+            <OptimizedRealTimeProvider
               refreshInterval={120000} // 2 minutes
-              enableAutoRefresh={true}
-            >
+              enableAutoRefresh={true}>
+
               <GlobalErrorBoundary>
                 <Router>
                   <div className="App">
@@ -179,8 +179,8 @@ const App: React.FC = () => {
           </AuthProvider>
         </DeviceAdaptiveProvider>
       </TooltipProvider>
-    </QueryClientProvider>
-  );
+    </QueryClientProvider>);
+
 };
 
 export default App;

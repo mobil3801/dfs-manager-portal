@@ -34,8 +34,8 @@ const DisabledPerformanceMonitor: React.FC = () => {
           <p>• Error boundaries: Active</p>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default DisabledPerformanceMonitor;

@@ -27,11 +27,11 @@ export const createOptimizedMemoryManager = (): OptimizedMemoryManager => {
       const memInfo = (performance as any).memory;
       const used = memInfo.usedJSHeapSize || 0;
       const total = memInfo.totalJSHeapSize || 1;
-      const percentage = (used / total) * 100;
-      
+      const percentage = used / total * 100;
+
       return { used, total, percentage };
     }
-    
+
     return { used: 0, total: 1, percentage: 0 };
   };
 
