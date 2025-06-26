@@ -1,429 +1,745 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Plus, Search, Package, Edit2, Trash2, Eye, DollarSign, RefreshCw } from 'lucide-react';
-import { motion } from 'motion/react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useDeviceAdaptive } from '@/contexts/DeviceAdaptiveContext';
-import { useToast } from '@/hooks/use-toast';
-import AdaptiveCard from '@/components/AdaptiveCard';
-import AdaptiveDataTable from '@/components/AdaptiveDataTable';
-import { TouchOptimizedButton } from '@/components/TouchOptimizedComponents';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { toast } from '@/hooks/use-toast';
+import { Plus, Search, Edit, Trash2, Package, FileText, Loader2, X, Save } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import ProductLogs from '@/components/ProductLogs';
+import HighlightText from '@/components/HighlightText';
+import { ResponsiveTable, ResponsiveStack } from '@/components/ResponsiveWrapper';
+import { useResponsiveLayout } from '@/hooks/use-mobile';
+import ProductCards from '@/components/ProductCards';
+import { generateSafeKey, safeMap } from '@/utils/invariantSafeHelper';
+
 
 interface Product {
-  id: number;
+  ID: number;
   product_name: string;
-  product_code: string;
   category: string;
-  price: number;
-  retail_price: number;
-  unit_price: number;
-  case_price: number;
-  supplier: string;
-  description: string;
-  updated_at: string;
   quantity_in_stock: number;
   minimum_stock: number;
+  supplier: string;
+  description: string;
+  created_by: number;
+  serial_number: number;
+  weight: number;
+  weight_unit: string;
+  department: string;
+  merchant_id: number;
+  bar_code_case: string;
+  bar_code_unit: string;
+  last_updated_date: string;
+  last_shopping_date: string;
+  case_price: number;
+  unit_per_case: number;
+  unit_price: number;
+  retail_price: number;
+  overdue: boolean;
 }
 
 const ProductList: React.FC = () => {
-  const { user } = useAuth();
-  const device = useDeviceAdaptive();
-  const { toast } = useToast();
+  const navigate = useNavigate();
+  const { userProfile } = useAuth();
+  const responsive = useResponsiveLayout();
+
   const [products, setProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  const [totalCount, setTotalCount] = useState(0);
+  const [logsModalOpen, setLogsModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<{id: number;name: string;} | null>(null);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasMoreProducts, setHasMoreProducts] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [savingProductId, setSavingProductId] = useState<number | null>(null);
 
-  const pageSize = device.isMobile ? 10 : 20;
+  const pageSize = 50; // Load more products per batch
+  const [loadedProductsCount, setLoadedProductsCount] = useState(pageSize);
 
-  const loadProducts = async (page: number = 1, search: string = '', forceRefresh: boolean = false) => {
+  // Ref for the loading trigger element
+  const loadingTriggerRef = useRef<HTMLDivElement>(null);
+
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setLoadedProductsCount(pageSize); // Reset loaded count when searching
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm, pageSize]);
+
+  // Load all products initially
+  useEffect(() => {
+    loadAllProducts();
+  }, []);
+
+  // Filter and slice products when search term or loaded count changes
+  useEffect(() => {
+    filterAndSliceProducts();
+  }, [debouncedSearchTerm, loadedProductsCount, allProducts]);
+
+  const loadAllProducts = async () => {
     try {
-      if (forceRefresh) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
+      setLoading(true);
 
-      const filters = search ? [{ name: 'product_name', op: 'StringContains', value: search }] : [];
-
-      // Ensure we get fresh data from database
-      const { data, error } = await window.ezsite.apis.tablePage(11726, {
-        PageNo: page,
-        PageSize: pageSize,
-        OrderByField: 'updated_at',
+      const { data, error } = await window.ezsite.apis.tablePage('11726', {
+        PageNo: 1,
+        PageSize: 1000, // Load a large number to get all products
+        OrderByField: 'ID',
         IsAsc: false,
-        Filters: filters
+        Filters: []
       });
 
       if (error) throw error;
 
-      const productList = data.List || [];
-
-      // Ensure all price fields are properly handled
-      const processedProducts = productList.map((product: any) => ({
-        ...product,
-        price: product.price || 0,
-        retail_price: product.retail_price || 0,
-        unit_price: product.unit_price || 0,
-        case_price: product.case_price || 0,
-        quantity_in_stock: product.quantity_in_stock || 0,
-        minimum_stock: product.minimum_stock || 0
-      }));
-
-      setProducts(processedProducts);
-      setTotalPages(Math.ceil((data.VirtualCount || 0) / pageSize));
-      setCurrentPage(page);
-      setLastRefresh(new Date());
-
-      if (forceRefresh) {
-        toast({
-          title: 'Updated',
-          description: 'Product pricing refreshed successfully.'
-        });
-      }
+      setAllProducts(data?.List || []);
     } catch (error) {
       console.error('Error loading products:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to load products. Please try again.',
-        variant: 'destructive'
+        title: "Error",
+        description: "Failed to load products",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
   };
 
-  useEffect(() => {
-    loadProducts(1, searchTerm);
-  }, [searchTerm, pageSize]);
+  const filterAndSliceProducts = () => {
+    setIsSearching(!!debouncedSearchTerm);
 
-  // Auto-refresh every 30 seconds to ensure real-time pricing
-  useEffect(() => {
-    const interval = setInterval(() => {
-      loadProducts(currentPage, searchTerm, true);
-    }, 30000);
+    let filteredProducts = allProducts;
 
-    return () => clearInterval(interval);
-  }, [currentPage, searchTerm]);
+    // Client-side filtering for keyword matching
+    if (debouncedSearchTerm) {
+      const searchKeywords = debouncedSearchTerm.toLowerCase().trim().split(/\s+/).filter((keyword) => keyword.length > 0);
 
-  const handleDelete = async (product: Product) => {
-    if (!confirm(`Are you sure you want to delete ${product.product_name}?`)) return;
+      filteredProducts = allProducts.filter((product) => {
+        const searchableText = [
+        product.product_name,
+        product.description,
+        product.category,
+        product.supplier,
+        product.department,
+        product.bar_code_case,
+        product.bar_code_unit,
+        product.serial_number?.toString()].
+        join(' ').toLowerCase();
+
+        // Check if all keywords are present in the searchable text
+        return searchKeywords.every((keyword) => searchableText.includes(keyword));
+      });
+    }
+
+    // Sort by serial number when not searching (show from serial 01)
+    if (!debouncedSearchTerm) {
+      filteredProducts = filteredProducts.sort((a, b) => {
+        const serialA = a.serial_number || 0;
+        const serialB = b.serial_number || 0;
+        return serialA - serialB;
+      });
+    }
+
+    // Slice products based on loaded count for infinite scroll
+    const slicedProducts = filteredProducts.slice(0, loadedProductsCount);
+
+    setProducts(slicedProducts);
+    setTotalCount(filteredProducts.length);
+    setHasMoreProducts(loadedProductsCount < filteredProducts.length);
+  };
+
+  const handleDelete = async (productId: number) => {
+    console.log('handleDelete called for product ID:', productId);
+
+    // Show confirmation dialog
+    const confirmed = confirm('Are you sure you want to delete this product? This action cannot be undone.');
+    console.log('User confirmed deletion:', confirmed);
+
+    if (!confirmed) {
+      console.log('Deletion cancelled by user');
+      return;
+    }
 
     try {
-      const { error } = await window.ezsite.apis.tableDelete(11726, { ID: product.id });
-      if (error) throw error;
+      console.log('Attempting to delete product with ID:', productId);
+      const { error } = await window.ezsite.apis.tableDelete('11726', { ID: productId });
 
+      if (error) {
+        console.error('API returned error:', error);
+        throw error;
+      }
+
+      console.log('Product deleted successfully');
       toast({
-        title: 'Success',
-        description: 'Product deleted successfully.'
+        title: "Success",
+        description: "Product deleted successfully"
       });
 
-      loadProducts(currentPage, searchTerm);
+      // Reload all products
+      loadAllProducts();
     } catch (error) {
       console.error('Error deleting product:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to delete product. Please try again.',
-        variant: 'destructive'
+        title: "Error",
+        description: `Failed to delete product: ${error}`,
+        variant: "destructive"
       });
     }
   };
 
-  const handleRefresh = () => {
-    loadProducts(currentPage, searchTerm, true);
-  };
+  const handleSaveProduct = async (productId: number | null = null) => {
+    console.log('handleSaveProduct called for product ID:', productId);
 
-  const formatPrice = (price: number) => {
-    return price > 0 ? `$${price.toFixed(2)}` : '$0.00';
-  };
-
-  const getPrimaryPrice = (product: Product) => {
-    // Priority: retail_price > unit_price > price > case_price
-    return product.retail_price > 0 ? product.retail_price :
-    product.unit_price > 0 ? product.unit_price :
-    product.price > 0 ? product.price :
-    product.case_price > 0 ? product.case_price : 0;
-  };
-
-  const getPriceType = (product: Product) => {
-    if (product.retail_price > 0) return 'Retail';
-    if (product.unit_price > 0) return 'Unit';
-    if (product.price > 0) return 'Base';
-    if (product.case_price > 0) return 'Case';
-    return 'No Price';
-  };
-
-  const columns = [
-  {
-    key: 'product_name',
-    label: 'Product Name',
-    sortable: true,
-    render: (value: string, item: Product) =>
-    <div className="flex flex-col">
-          <span className="font-medium">{value}</span>
-          <span className="text-xs text-gray-500">{item.product_code}</span>
-        </div>
-  },
-  {
-    key: 'category',
-    label: 'Category',
-    sortable: true,
-    mobileHidden: true
-  },
-  {
-    key: 'price',
-    label: 'Price',
-    sortable: true,
-    render: (value: number, item: Product) => {
-      const primaryPrice = getPrimaryPrice(item);
-      const priceType = getPriceType(item);
-      const isOutOfStock = item.quantity_in_stock <= item.minimum_stock;
-
-      return (
-        <div className="flex flex-col">
-            <div className="flex items-center space-x-2">
-              <span className="font-semibold text-green-600">
-                {formatPrice(primaryPrice)}
-              </span>
-              {isOutOfStock &&
-            <Badge variant="destructive" className="text-xs">
-                  Low Stock
-                </Badge>
-            }
-            </div>
-            <span className="text-xs text-gray-500">{priceType} Price</span>
-            {device.isMobile &&
-          <span className="text-xs text-gray-400">
-                Updated: {new Date(item.updated_at || lastRefresh).toLocaleTimeString()}
-              </span>
-          }
-          </div>);
-
+    if (!hasEditPermission) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to save product information.",
+        variant: "destructive"
+      });
+      return;
     }
-  },
-  {
-    key: 'supplier',
-    label: 'Supplier',
-    sortable: true,
-    mobileHidden: true
-  },
-  {
-    key: 'quantity_in_stock',
-    label: 'Stock',
-    sortable: true,
-    mobileHidden: device.isMobile,
-    render: (value: number, item: Product) => {
-      const isLowStock = value <= item.minimum_stock;
-      return (
-        <div className="flex items-center space-x-2">
-            <span className={isLowStock ? 'text-red-600 font-medium' : ''}>
-              {value}
-            </span>
-            {isLowStock &&
-          <Badge variant="destructive" className="text-xs">
-                Low
-              </Badge>
-          }
-          </div>);
 
-    }
-  }];
+    const isCreating = productId === null;
+    setSavingProductId(productId || -1); // Use -1 for new product creation
 
+    try {
+      if (isCreating) {
+        // Show confirmation dialog for creating new product
+        const confirmed = confirm('Create a new product entry? This will add a new product with default values that you can edit.');
+        if (!confirmed) {
+          console.log('Product creation cancelled by user');
+          setSavingProductId(null);
+          return;
+        }
 
-  const renderActions = (product: Product) =>
-  <div className="flex items-center space-x-2">
-      <Button variant="ghost" size="sm" asChild>
-        <Link to={`/products/${product.id}/edit`}>
-          <Edit2 className="w-4 h-4" />
-          {!device.isMobile && <span className="ml-1">Edit</span>}
-        </Link>
-      </Button>
-      <Button
-      variant="ghost"
-      size="sm"
-      onClick={() => handleDelete(product)}
-      className="text-red-600 hover:text-red-700">
-        <Trash2 className="w-4 h-4" />
-        {!device.isMobile && <span className="ml-1">Delete</span>}
-      </Button>
-    </div>;
+        // Create a new product with minimal required data
+        // Generate new serial number
+        const { data: serialData } = await window.ezsite.apis.tablePage('11726', {
+          PageNo: 1,
+          PageSize: 1,
+          OrderByField: 'serial_number',
+          IsAsc: false,
+          Filters: []
+        });
 
-  const totalValue = products.reduce((sum, product) => {
-    const price = getPrimaryPrice(product);
-    return sum + price * (product.quantity_in_stock || 0);
-  }, 0);
+        const lastSerial = serialData?.List?.[0]?.serial_number || 0;
+        const newSerial = lastSerial + 1;
 
-  const lowStockCount = products.filter((p) => p.quantity_in_stock <= p.minimum_stock).length;
+        const newProductData = {
+          serial_number: newSerial,
+          product_name: `New Product ${newSerial}`,
+          category: 'General',
+          quantity_in_stock: 0,
+          minimum_stock: 0,
+          supplier: '',
+          description: 'Please update this product information',
+          weight: 0,
+          weight_unit: 'lb',
+          department: 'Convenience Store',
+          merchant_id: null,
+          bar_code_case: '',
+          bar_code_unit: '',
+          last_updated_date: new Date().toISOString(),
+          last_shopping_date: null,
+          case_price: 0,
+          unit_per_case: 1,
+          unit_price: 0,
+          retail_price: 0,
+          overdue: false,
+          created_by: userProfile?.user_id || null
+        };
 
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-6">
+        console.log('Creating new product with data:', newProductData);
+        const { error } = await window.ezsite.apis.tableCreate('11726', newProductData);
 
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        if (error) {
+          console.error('API returned error:', error);
+          throw error;
+        }
 
-        <div>
-          <h1 className={`font-bold text-gray-900 dark:text-white ${
-          device.optimalFontSize === 'large' ? 'text-3xl' : 'text-2xl'}`
-          }>
-            Products
-          </h1>
-          <div className="flex items-center space-x-4 mt-1">
-            <p className="text-gray-600 dark:text-gray-400">
-              Manage your product catalog with real-time pricing
-            </p>
-            <div className="flex items-center text-xs text-gray-500">
-              <RefreshCw className="w-3 h-3 mr-1" />
-              Last updated: {lastRefresh.toLocaleTimeString()}
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            disabled={refreshing}>
+        console.log('New product created successfully with serial:', newSerial);
+        toast({
+          title: "Success",
+          description: `New product created with serial #${newSerial}. Please edit it to add complete information.`,
+          duration: 5000
+        });
+      } else {
+        // Update existing product
+        const product = products.find((p) => p.ID === productId);
+        if (!product) {
+          throw new Error('Product not found');
+        }
 
-            <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-          <TouchOptimizedButton asChild>
-            <Link to="/products/new">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Product
-            </Link>
-          </TouchOptimizedButton>
-        </div>
-      </motion.div>
+        // Show confirmation dialog for updating existing product
+        const confirmed = confirm(`Save updates to "${product.product_name}"? This will update the product information with current values.`);
+        if (!confirmed) {
+          console.log('Product update cancelled by user');
+          setSavingProductId(null);
+          return;
+        }
 
-      {/* Stats Cards - Only show on larger screens */}
-      {!device.isMobile &&
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        console.log('Updating product:', product);
 
-          <AdaptiveCard>
-            <div className="flex items-center">
-              <Package className="w-8 h-8 text-blue-600" />
-              <div className="ml-4">
-                <p className="text-2xl font-bold">{products.length}</p>
-                <p className="text-gray-600 text-sm">Total Products</p>
-              </div>
-            </div>
-          </AdaptiveCard>
-          
-          <AdaptiveCard>
-            <div className="flex items-center">
-              <DollarSign className="w-8 h-8 text-green-600" />
-              <div className="ml-4">
-                <p className="text-2xl font-bold text-green-600">
-                  ${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </p>
-                <p className="text-gray-600 text-sm">Total Inventory Value</p>
-              </div>
-            </div>
-          </AdaptiveCard>
-          
-          <AdaptiveCard>
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                <div className="w-4 h-4 bg-green-600 rounded-full"></div>
-              </div>
-              <div className="ml-4">
-                <p className="text-2xl font-bold text-green-600">
-                  {products.filter((p) => p.category).length}
-                </p>
-                <p className="text-gray-600 text-sm">Categorized</p>
-              </div>
-            </div>
-          </AdaptiveCard>
-          
-          <AdaptiveCard>
-            <div className="flex items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-            lowStockCount > 0 ? 'bg-red-100' : 'bg-blue-100'}`
-            }>
-                <div className={`w-4 h-4 rounded-full ${
-              lowStockCount > 0 ? 'bg-red-600' : 'bg-blue-600'}`
-              }></div>
-              </div>
-              <div className="ml-4">
-                <p className={`text-2xl font-bold ${
-              lowStockCount > 0 ? 'text-red-600' : 'text-blue-600'}`
-              }>
-                  {lowStockCount}
-                </p>
-                <p className="text-gray-600 text-sm">Low Stock Items</p>
-              </div>
-            </div>
-          </AdaptiveCard>
-        </motion.div>
+        // Prepare the data for saving (update existing product)
+        const updateData = {
+          ID: product.ID,
+          product_name: product.product_name,
+          category: product.category || '',
+          quantity_in_stock: product.quantity_in_stock || 0,
+          minimum_stock: product.minimum_stock || 0,
+          supplier: product.supplier || '',
+          description: product.description || '',
+          serial_number: product.serial_number || 0,
+          weight: product.weight || 0,
+          weight_unit: product.weight_unit || 'lb',
+          department: product.department || 'Convenience Store',
+          merchant_id: product.merchant_id || null,
+          bar_code_case: product.bar_code_case || '',
+          bar_code_unit: product.bar_code_unit || '',
+          last_updated_date: new Date().toISOString(),
+          last_shopping_date: product.last_shopping_date || null,
+          case_price: product.case_price || 0,
+          unit_per_case: product.unit_per_case || 1,
+          unit_price: product.unit_price || 0,
+          retail_price: product.retail_price || 0,
+          overdue: product.overdue || false,
+          created_by: product.created_by || userProfile?.user_id || null
+        };
+
+        console.log('Updating product with data:', updateData);
+        const { error } = await window.ezsite.apis.tableUpdate('11726', updateData);
+
+        if (error) {
+          console.error('API returned error:', error);
+          throw error;
+        }
+
+        console.log('Product updated successfully with ID:', product.ID);
+        toast({
+          title: "Success",
+          description: `"${product.product_name}" updated successfully`,
+          duration: 3000
+        });
       }
 
-      {/* Real-time pricing info banner */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-        className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-              <DollarSign className="w-4 h-4 text-blue-600" />
+      // Reload all products to reflect changes
+      loadAllProducts();
+    } catch (error) {
+      console.error('Error saving product:', error);
+      toast({
+        title: "Error",
+        description: `Failed to ${isCreating ? 'create' : 'update'} product: ${error}`,
+        variant: "destructive"
+      });
+    } finally {
+      setSavingProductId(null);
+    }
+  };
+
+  // Load more products function
+  const loadMoreProducts = useCallback(() => {
+    if (isLoadingMore || !hasMoreProducts) return;
+
+    setIsLoadingMore(true);
+
+    // Simulate loading delay for smooth UX
+    setTimeout(() => {
+      setLoadedProductsCount((prev) => prev + pageSize);
+      setIsLoadingMore(false);
+    }, 300);
+  }, [isLoadingMore, hasMoreProducts, pageSize]);
+
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const target = entries[0];
+        if (target.isIntersecting && hasMoreProducts && !isLoadingMore) {
+          loadMoreProducts();
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '100px'
+      }
+    );
+
+    const currentTrigger = loadingTriggerRef.current;
+    if (currentTrigger) {
+      observer.observe(currentTrigger);
+    }
+
+    return () => {
+      if (currentTrigger) {
+        observer.unobserve(currentTrigger);
+      }
+    };
+  }, [loadMoreProducts, hasMoreProducts, isLoadingMore]);
+
+  const handleViewLogs = (productId: number, productName: string) => {
+    console.log('handleViewLogs called for:', { productId, productName });
+    setSelectedProduct({ id: productId, name: productName });
+    setLogsModalOpen(true);
+    console.log('Logs modal should now be open');
+  };
+
+  // Visual editing enabled for all users
+  const hasEditPermission = true;
+
+  // Calculate display text for showing results
+  const getDisplayText = () => {
+    if (totalCount === 0) return '';
+
+    const currentlyShowing = Math.min(products.length, totalCount);
+
+    if (debouncedSearchTerm) {
+      return `Showing ${currentlyShowing} of ${totalCount} products matching "${debouncedSearchTerm}"`;
+    }
+
+    if (hasMoreProducts) {
+      return `Showing ${currentlyShowing} of ${totalCount} products - Scroll down to load more`;
+    }
+
+    return `Showing all ${totalCount} products`;
+  };
+
+  // Get search keywords and check if all match
+  const getSearchData = (text: string) => {
+    if (!debouncedSearchTerm || !text) {
+      return {
+        keywords: [],
+        allMatch: false,
+        highlightComponent: text
+      };
+    }
+
+    const searchKeywords = debouncedSearchTerm.toLowerCase().trim().split(/\s+/).filter((keyword) => keyword.length > 0);
+    const textLower = text.toLowerCase();
+
+    // Check if all keywords are present in this specific text
+    const allMatch = searchKeywords.every((keyword) => textLower.includes(keyword));
+
+    return {
+      keywords: searchKeywords,
+      allMatch,
+      highlightComponent:
+      <HighlightText
+        text={text}
+        searchTerms={searchKeywords}
+        allMatch={allMatch} />
+
+
+    };
+  };
+
+  // Clear search and reset to show all products from serial 01
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    setLoadedProductsCount(pageSize);
+  };
+
+  return (
+    <ResponsiveStack spacing="lg">
+      <Card>
+        <CardHeader>
+          <div className={`flex items-center ${
+          responsive.isMobile ? 'flex-col space-y-4' : 'justify-between'}`
+          }>
+            <div className={responsive.isMobile ? 'text-center' : ''}>
+              <CardTitle className="flex items-center space-x-2">
+                <Package className="w-6 h-6" />
+                <span>Products</span>
+              </CardTitle>
+              <CardDescription className={responsive.isMobile ? 'text-center mt-2' : ''}>
+                Manage your product inventory - Search across all product fields for similar items
+              </CardDescription>
             </div>
-            <div>
-              <h3 className="text-sm font-medium text-blue-800">
-                Real-time Pricing Active
-              </h3>
-              <p className="text-xs text-blue-600">
-                Prices are automatically refreshed every 30 seconds from the database
-              </p>
-            </div>
+            <Button
+              onClick={() => navigate('/products/new')}
+              className={`bg-brand-600 hover:bg-brand-700 text-white ${
+              responsive.isMobile ? 'w-full' : ''}`
+              }>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Product
+            </Button>
           </div>
-          <Badge variant="outline" className="text-blue-600 border-blue-300">
-            Live Data
-          </Badge>
-        </div>
-      </motion.div>
+        </CardHeader>
+        <CardContent>
+          {/* Search */}
+          <div className={`flex items-center mb-6 ${
+          responsive.isMobile ? 'flex-col space-y-3' : 'space-x-2'}`
+          }>
+            <div className={`relative ${
+            responsive.isMobile ? 'w-full' : 'flex-1 max-w-sm'}`
+            }>
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              {searchTerm &&
+              <button
+                onClick={handleClearSearch}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 w-4 h-4 flex items-center justify-center"
+                title="Clear search">
 
-      {/* Data Table */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}>
+                  <X className="w-4 h-4" />
+                </button>
+              }
+              <Input
+                placeholder={responsive.isMobile ?
+                "Search products..." :
+                "Search products by name, description, category, supplier, barcode..."
+                }
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={`pl-10 ${searchTerm ? 'pr-10' : 'pr-3'}`} />
+            </div>
+            {debouncedSearchTerm &&
+            <div className={`flex items-center space-x-2 ${
+            responsive.isMobile ? 'w-full justify-center' : ''}`
+            }>
+                <Badge variant="secondary">
+                  {totalCount} result{totalCount !== 1 ? 's' : ''} found
+                </Badge>
+                <Button
+                variant="outline"
+                size="sm"
+                onClick={handleClearSearch}>
+                  Clear
+                </Button>
+              </div>
+            }
+          </div>
 
-        <AdaptiveDataTable
-          data={products}
-          columns={columns}
-          searchPlaceholder="Search products..."
-          onRowClick={device.isMobile ? (product) => window.location.href = `/products/${product.id}/edit` : undefined}
-          actions={renderActions}
-          pagination={{
-            currentPage,
-            totalPages,
-            onPageChange: (page) => loadProducts(page, searchTerm)
-          }}
-          loading={loading}
-          emptyMessage="No products found. Create your first product to get started." />
+          {/* Products Display */}
+          {loading ?
+          <div className="space-y-4">
+              {[...Array(5)].map((_, i) =>
+            <div key={i} className={`bg-gray-100 rounded animate-pulse ${
+            responsive.isMobile ? 'h-32' : 'h-16'}`
+            }></div>
+            )}
+            </div> :
+          products.length === 0 ?
+          <div className="text-center py-8">
+              <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">
+                {debouncedSearchTerm ? `No products found matching "${debouncedSearchTerm}"` : 'No products found'}
+              </p>
+              <Button
+              variant="outline"
+              className="mt-4"
+              onClick={() => debouncedSearchTerm ? handleClearSearch() : navigate('/products/new')}>
+                {debouncedSearchTerm ? 'Clear Search' : 'Add Your First Product'}
+              </Button>
+            </div> :
 
-      </motion.div>
-    </motion.div>);
+          responsive.isMobile ?
+          <ProductCards
+            products={products}
+            searchTerm={debouncedSearchTerm}
+            onViewLogs={handleViewLogs}
+            onSaveProduct={handleSaveProduct}
+            onDeleteProduct={handleDelete}
+            savingProductId={savingProductId} /> :
 
+
+          <ResponsiveTable className="border rounded-lg overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Serial</TableHead>
+                    <TableHead>Product Name</TableHead>
+                    <TableHead>Weight</TableHead>
+                    <TableHead>Department</TableHead>
+                    <TableHead>Merchant</TableHead>
+                    <TableHead>Last Updated Date</TableHead>
+                    <TableHead>Last Shopping Date</TableHead>
+                    <TableHead>Case Price</TableHead>
+                    <TableHead>Unit Per Case</TableHead>
+                    <TableHead>Unit Price</TableHead>
+                    <TableHead>Retail Price</TableHead>
+                    <TableHead>Profit Margin</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {safeMap(products, (product, index) => {
+                  const formatDate = (dateString: string) => {
+                    if (!dateString) return '-';
+                    try {
+                      return new Date(dateString).toLocaleDateString();
+                    } catch {
+                      return '-';
+                    }
+                  };
+
+                  return (
+                    <TableRow key={generateSafeKey(product, index, 'product')}>
+                        <TableCell className="font-medium">{product.serial_number || '-'}</TableCell>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium">
+                              {debouncedSearchTerm ?
+                            getSearchData(product.product_name).highlightComponent :
+                            product.product_name
+                            }
+                            </p>
+                            {product.description &&
+                          <p className="text-sm text-gray-500 truncate max-w-xs">
+                                {debouncedSearchTerm ?
+                            getSearchData(product.description).highlightComponent :
+                            product.description
+                            }
+                              </p>
+                          }
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {product.weight && product.weight > 0 ?
+                        `${product.weight} ${product.weight_unit || 'lb'}` : '-'
+                        }
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">
+                            {debouncedSearchTerm ?
+                          getSearchData(product.department || 'Convenience Store').highlightComponent :
+                          product.department || 'Convenience Store'
+                          }
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {debouncedSearchTerm ?
+                        getSearchData(product.supplier || '-').highlightComponent :
+                        product.supplier || '-'
+                        }
+                        </TableCell>
+                        <TableCell>{formatDate(product.last_updated_date)}</TableCell>
+                        <TableCell>{formatDate(product.last_shopping_date)}</TableCell>
+                        <TableCell>
+                          {product.case_price ? `$${product.case_price.toFixed(2)}` : '-'}
+                        </TableCell>
+                        <TableCell>{product.unit_per_case || '-'}</TableCell>
+                        <TableCell>
+                          {product.unit_price ? `$${product.unit_price.toFixed(2)}` : '-'}
+                        </TableCell>
+                        <TableCell>
+                          {product.retail_price ? `$${product.retail_price.toFixed(2)}` : '-'}
+                        </TableCell>
+                        <TableCell>
+                          {(() => {
+                          if (product.unit_price && product.retail_price && product.retail_price > 0) {
+                            const margin = (product.retail_price - product.unit_price) / product.retail_price * 100;
+                            return (
+                              <Badge
+                                variant={margin > 20 ? 'default' : margin > 10 ? 'secondary' : 'destructive'}
+                                className="text-xs">
+                                  {margin.toFixed(1)}%
+                                </Badge>);
+                          }
+                          return '-';
+                        })()} 
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              console.log('Viewing logs for product:', product.ID, product.product_name);
+                              handleViewLogs(product.ID, product.product_name);
+                            }}
+                            title="View change logs">
+                              <FileText className="w-4 h-4" />
+                            </Button>
+                            <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              console.log('Saving product:', product.ID);
+                              handleSaveProduct(product.ID);
+                            }}
+                            disabled={savingProductId === product.ID}
+                            title="Save product">
+                              {savingProductId === product.ID ?
+                            <Loader2 className="w-4 h-4 animate-spin" /> :
+
+                            <Save className="w-4 h-4" />
+                            }
+                            </Button>
+                            <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              console.log('Deleting product:', product.ID);
+                              handleDelete(product.ID);
+                            }}
+                            className="text-red-600 hover:text-red-700"
+                            title="Delete product">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>);
+
+                })}
+                </TableBody>
+              </Table>
+            </ResponsiveTable>
+          }
+
+          {/* Loading Status and Infinite Scroll */}
+          {products.length > 0 &&
+          <div className="mt-6">
+              <p className="text-sm text-gray-700 text-center mb-4">
+                {getDisplayText()}
+              </p>
+              
+              {/* Loading trigger for infinite scroll */}
+              {hasMoreProducts &&
+            <div
+              ref={loadingTriggerRef}
+              className="flex items-center justify-center py-8">
+
+                  {isLoadingMore ?
+              <div className="flex items-center space-x-2 text-gray-500">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Loading more products...</span>
+                    </div> :
+
+              <div className="text-gray-400 text-sm">
+                      Scroll down to load more products
+                    </div>
+              }
+                </div>
+            }
+              
+              {!hasMoreProducts && totalCount > pageSize &&
+            <div className="text-center py-4 text-sm text-gray-500">
+                  You've reached the end - all {totalCount} products loaded
+                </div>
+            }
+            </div>
+          }
+        </CardContent>
+      </Card>
+
+      {/* Product Logs Modal */}
+      {selectedProduct &&
+      <ProductLogs
+        isOpen={logsModalOpen}
+        onClose={() => {
+          setLogsModalOpen(false);
+          setSelectedProduct(null);
+        }}
+        productId={selectedProduct.id}
+        productName={selectedProduct.name} />
+      }
+    </ResponsiveStack>);
 };
 
 export default ProductList;

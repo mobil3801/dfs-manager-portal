@@ -65,6 +65,8 @@ const ProductForm = () => {
     profit_margin: 0,
     category: '',
     supplier: '',
+    quantity_in_stock: 0,
+    minimum_stock: 0,
     description: '',
     bar_code_case: '',
     bar_code_unit: '',
@@ -250,6 +252,8 @@ const ProductForm = () => {
           profit_margin: 0, // Will be calculated by useEffect
           category: product.category || '',
           supplier: product.supplier || '',
+          quantity_in_stock: product.quantity_in_stock || 0,
+          minimum_stock: product.minimum_stock || 0,
           description: product.description || '',
           bar_code_case: product.bar_code_case || '',
           bar_code_unit: product.bar_code_unit || '',
@@ -453,6 +457,8 @@ const ProductForm = () => {
             category: productData.category || '',
             supplier: productData.supplier || '',
             description: productData.description || '',
+            quantity_in_stock: 0,
+            minimum_stock: 0,
             bar_code_case: '',
             bar_code_unit: '',
             created_by: userProfile.user_id
@@ -638,11 +644,6 @@ const ProductForm = () => {
     document.body.removeChild(a);
   };
 
-  // Filter out vendors with empty vendor_name
-  const validVendors = vendors.filter((vendor) => vendor.vendor_name && vendor.vendor_name.trim() !== '');
-  // Filter out categories with empty category_name
-  const validCategories = categories.filter((category) => category.category_name && category.category_name.trim() !== '');
-
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
@@ -655,7 +656,7 @@ const ProductForm = () => {
           <div>
             <h1 className="text-2xl font-bold">{isEdit ? 'Edit Product' : 'Add New Product'}</h1>
             <p className="text-muted-foreground">
-              {isEdit ? 'Update product information' : 'Add a new product to your catalog'}
+              {isEdit ? 'Update product information' : 'Add a new product to your inventory'}
             </p>
           </div>
         </div>
@@ -696,6 +697,7 @@ const ProductForm = () => {
                     accept=".csv"
                     onChange={handleBulkFileUpload}
                     className="max-w-xs mx-auto" />
+
                   </div>
                 </div>
                 
@@ -801,6 +803,8 @@ const ProductForm = () => {
                   profit_margin: 0,
                   category: '',
                   supplier: '',
+                  quantity_in_stock: 0,
+                  minimum_stock: 0,
                   description: '',
                   bar_code_case: '',
                   bar_code_unit: '',
@@ -822,6 +826,7 @@ const ProductForm = () => {
                     value={formData.product_name}
                     onChange={(e) => handleInputChange('product_name', e.target.value)}
                     required />
+
                 </div>
 
                 <div className="space-y-2">
@@ -829,11 +834,12 @@ const ProductForm = () => {
                   <Select
                     value={formData.category}
                     onValueChange={(value) => handleInputChange('category', value)}>
+
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
-                      {validCategories.map((cat) =>
+                      {categories.map((cat) =>
                       <SelectItem key={cat.id} value={cat.category_name}>
                           {cat.category_name}
                         </SelectItem>
@@ -853,6 +859,7 @@ const ProductForm = () => {
                     min={0}
                     value={formData.weight}
                     onChange={(value) => handleInputChange('weight', value)} />
+
                 </div>
 
                 <div className="space-y-2">
@@ -860,6 +867,7 @@ const ProductForm = () => {
                   <Select
                     value={formData.weight_unit}
                     onValueChange={(value) => handleInputChange('weight_unit', value)}>
+
                     <SelectTrigger>
                       <SelectValue placeholder="Select unit" />
                     </SelectTrigger>
@@ -881,6 +889,7 @@ const ProductForm = () => {
                   <Select
                     value={formData.department}
                     onValueChange={(value) => handleInputChange('department', value)}>
+
                     <SelectTrigger>
                       <SelectValue placeholder="Select department" />
                     </SelectTrigger>
@@ -902,11 +911,12 @@ const ProductForm = () => {
                   <Select
                     value={formData.merchant_id}
                     onValueChange={(value) => handleInputChange('merchant_id', value)}>
+
                     <SelectTrigger>
                       <SelectValue placeholder="Select merchant" />
                     </SelectTrigger>
                     <SelectContent>
-                      {validVendors.map((vendor) =>
+                      {vendors.map((vendor) =>
                       <SelectItem key={vendor.id} value={vendor.id.toString()}>
                           {vendor.vendor_name}
                         </SelectItem>
@@ -922,6 +932,7 @@ const ProductForm = () => {
                     type="date"
                     value={formData.last_updated_date}
                     onChange={(e) => handleInputChange('last_updated_date', e.target.value)} />
+
                 </div>
 
                 <div className="space-y-2">
@@ -931,6 +942,7 @@ const ProductForm = () => {
                     type="date"
                     value={formData.last_shopping_date}
                     onChange={(e) => handleInputChange('last_shopping_date', e.target.value)} />
+
                 </div>
               </div>
 
@@ -948,6 +960,7 @@ const ProductForm = () => {
                       min={0}
                       value={formData.case_price}
                       onChange={(value) => handleInputChange('case_price', value)} />
+
                   </div>
 
                   <div className="space-y-2">
@@ -957,6 +970,7 @@ const ProductForm = () => {
                       min={1}
                       value={formData.unit_per_case}
                       onChange={(value) => handleInputChange('unit_per_case', value)} />
+
                   </div>
 
                   <div className="space-y-2">
@@ -967,6 +981,7 @@ const ProductForm = () => {
                       min={0}
                       value={formData.unit_price}
                       onChange={(value) => handleInputChange('unit_price', value)} />
+
                     {formData.case_price > 0 && formData.unit_per_case > 0 &&
                     <p className="text-xs text-green-600 flex items-center">
                         <Calculator className="w-3 h-3 mr-1" />
@@ -985,6 +1000,7 @@ const ProductForm = () => {
                       min={0}
                       value={formData.retail_price}
                       onChange={(value) => handleInputChange('retail_price', value)} />
+
                     {/* Auto-calculation indicator */}
                     {formData.unit_price > 0 && Math.abs(formData.retail_price - suggestedRetailPrice) < 0.01 &&
                     <p className="text-xs text-green-600 flex items-center">
@@ -1009,6 +1025,7 @@ const ProductForm = () => {
                           variant="outline"
                           onClick={() => handleInputChange('retail_price', suggestedRetailPrice)}
                           className="text-xs h-6 px-2">
+
                             Apply
                           </Button>
                         </div>
@@ -1032,6 +1049,7 @@ const ProductForm = () => {
                         value={formData.profit_margin}
                         disabled
                         className="bg-muted" />
+
                       <Badge variant={formData.profit_margin > 20 ? 'default' : 'secondary'}>
                         {formData.profit_margin > 20 ? 'Good' : 'Low'}
                       </Badge>
@@ -1054,6 +1072,26 @@ const ProductForm = () => {
                       placeholder="Enter supplier name"
                       value={formData.supplier}
                       onChange={(e) => handleInputChange('supplier', e.target.value)} />
+
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Stock Information</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <NumberInput
+                        placeholder="Current Stock"
+                        value={formData.quantity_in_stock}
+                        onChange={(value) => handleInputChange('quantity_in_stock', value)}
+                        min={0} />
+
+                      <NumberInput
+                        placeholder="Min Stock"
+                        value={formData.minimum_stock}
+                        onChange={(value) => handleInputChange('minimum_stock', value)}
+                        min={0} />
+
+                    </div>
+                    <p className="text-xs text-muted-foreground">Current stock / Minimum stock level</p>
                   </div>
                 </div>
 
@@ -1065,6 +1103,7 @@ const ProductForm = () => {
                     rows={4}
                     value={formData.description}
                     onChange={(e) => handleInputChange('description', e.target.value)} />
+
                 </div>
 
                 {/* Barcode Scanning */}
@@ -1077,8 +1116,10 @@ const ProductForm = () => {
                         placeholder="Scan or enter case barcode"
                         value={formData.bar_code_case}
                         onChange={(e) => handleInputChange('bar_code_case', e.target.value)} />
+
                       <BarcodeScanner
                         onScanned={(barcode) => handleBarcodeScanned('bar_code_case', barcode)} />
+
                     </div>
                   </div>
 
@@ -1090,8 +1131,10 @@ const ProductForm = () => {
                         placeholder="Scan or enter unit barcode"
                         value={formData.bar_code_unit}
                         onChange={(e) => handleInputChange('bar_code_unit', e.target.value)} />
+
                       <BarcodeScanner
                         onScanned={(barcode) => handleBarcodeScanned('bar_code_unit', barcode)} />
+
                     </div>
                   </div>
                 </div>

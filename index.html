@@ -1,114 +1,15 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0369A1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="description" content="DFS Manager - Comprehensive gas station management system">
-    <meta name="keywords" content="gas station management, fuel management, inventory, sales reports">
-    
-    <!-- Favicon and App Icons -->
-    <link rel="icon" type="image/png" href="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png">
-    <link rel="apple-touch-icon" href="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png">
-    <link rel="manifest" href="/manifest.json">
-    
-    <!-- Preload important resources -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-    
-    <!-- Touch-friendly CSS variables -->
-    <style>
-      :root {
-        --touch-target-size: 44px;
-        --animation-duration: 0.3s;
-        --brand-primary: #0369A1;
-        --brand-secondary: #0284C7;
-        --brand-accent: #0EA5E9;
-      }
-      
-      @media (pointer: coarse) {
-        :root {
-          --touch-target-size: 48px;
-        }
-      }
-      
-      /* Prevent zoom on input focus on iOS */
-      @media screen and (-webkit-min-device-pixel-ratio: 0) {
-        select,
-        textarea,
-        input[type="text"],
-        input[type="password"],
-        input[type="datetime"],
-        input[type="datetime-local"],
-        input[type="date"],
-        input[type="month"],
-        input[type="time"],
-        input[type="week"],
-        input[type="number"],
-        input[type="email"],
-        input[type="url"],
-        input[type="search"],
-        input[type="tel"],
-        input[type="color"] {
-          font-size: 16px;
-        }
-      }
-      
-      /* Smooth scrolling */
-      html {
-        scroll-behavior: smooth;
-      }
-      
-      /* Improve touch responsiveness */
-      * {
-        -webkit-touch-callout: none;
-        -webkit-tap-highlight-color: transparent;
-      }
-      
-      /* Loading spinner with brand colors */
-      .loading-spinner {
-        width: 40px;
-        height: 40px;
-        border: 4px solid #e2e8f0;
-        border-top: 4px solid var(--brand-primary);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      }
-      
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-      
-      /* Loading logo animation */
-      .loading-logo {
-        max-width: 120px;
-        height: auto;
-        margin-bottom: 24px;
-        animation: pulse 2s ease-in-out infinite;
-      }
-      
-      @keyframes pulse {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.8; transform: scale(1.05); }
-      }
-    </style>
-    
-    <title>DFS Manager - Gas Station Management System</title>
-  </head>
-  <body>
-    <div id="root">
-      <!-- Enhanced loading fallback with branding -->
-      <div style="display: flex; align-items: center; justify-content: center; height: 100vh; flex-direction: column; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">
-        <img src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png" alt="DFS Manager" class="loading-logo">
-        <div class="loading-spinner"></div>
-        <p style="margin-top: 16px; color: #475569; font-family: system-ui, -apple-system, sans-serif; font-weight: 500;">Loading DFS Manager...</p>
-        <p style="margin-top: 8px; color: #94a3b8; font-family: system-ui, -apple-system, sans-serif; font-size: 14px;">Your gas station management system</p>
-      </div>
-    </div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DFS Manager Portal</title>
+<link rel="icon" href="https://newoaks.s3.us-west-1.amazonaws.com/NewOaks/2722/10d6f7ef-c068-401b-bf6f-d20d79ac35eb.png"></head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>

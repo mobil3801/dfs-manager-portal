@@ -210,46 +210,6 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -280,21 +240,61 @@ const PerformanceMonitoringSystem: React.FC = () => {
   */const getFirstContentfulPaint = (): number | null => {const entries = performance.getEntriesByName('first-contentful-paint');return entries.length > 0 ? entries[0].startTime : null;}; /**
   * Estimate event listener count
   */const getEventListenerCount = (): number => {// This is an approximation since there's no direct API
-    const elements = document.querySelectorAll('*');let count = 0;elements.forEach((element) => {const events = ['click', 'scroll', 'mouseover', 'keydown', 'resize'];events.forEach((eventType) => {if ((element as any)[`on${eventType}`]) count++;});});return count;}; /**
-  * Estimate active connections
-  */const estimateActiveConnections = (): number => {// Estimate based on recent network activity
-    const recentEntries = performance.getEntriesByType('resource').filter((entry) => Date.now() - entry.startTime < 10000 // Last 10 seconds
-    );return recentEntries.length;}; /**
-  * Calculate error rate from performance entries
-  */const calculateErrorRate = (entries: PerformanceEntry[]): number => {if (entries.length === 0) return 0;const errorEntries = entries.filter((entry) => {// This is a simplified check - in reality you'd need more sophisticated error detection
-        return entry.duration === 0 || entry.name.includes('error');});return errorEntries.length / entries.length * 100;}; /**
-  * Calculate cache hit rate
-  */const calculateCacheHitRate = (): number => {// This would integrate with your actual cache implementation
+    const elements = document.querySelectorAll('*');let count = 0;elements.forEach((element) => {
+      const events = ['click', 'scroll', 'mouseover', 'keydown', 'resize'];
+      events.forEach((eventType) => {
+        if ((element as any)[`on${eventType}`]) count++;
+      });
+    });
+
+    return count;
+  };
+
+  /**
+   * Estimate active connections
+   */
+  const estimateActiveConnections = (): number => {
+    // Estimate based on recent network activity
+    const recentEntries = performance.getEntriesByType('resource').filter(
+      (entry) => Date.now() - entry.startTime < 10000 // Last 10 seconds
+    );
+    return recentEntries.length;
+  };
+
+  /**
+   * Calculate error rate from performance entries
+   */
+  const calculateErrorRate = (entries: PerformanceEntry[]): number => {
+    if (entries.length === 0) return 0;
+
+    const errorEntries = entries.filter((entry) => {
+      // This is a simplified check - in reality you'd need more sophisticated error detection
+      return entry.duration === 0 || entry.name.includes('error');
+    });
+
+    return errorEntries.length / entries.length * 100;
+  };
+
+  /**
+   * Calculate cache hit rate
+   */
+  const calculateCacheHitRate = (): number => {
+    // This would integrate with your actual cache implementation
     // For now, return a mock value
-    return Math.random() * 100;}; /**
-  * Get background task count
-  */const getBackgroundTaskCount = (): number => {// Count various background activities
-    const intervals = (window as any).__intervals__ || [];const timeouts = (window as any).__timeouts__ || [];const observers = (window as any).__observers__ || [];return intervals.length + timeouts.length + observers.length;};
+    return Math.random() * 100;
+  };
+
+  /**
+   * Get background task count
+   */
+  const getBackgroundTaskCount = (): number => {
+    // Count various background activities
+    const intervals = (window as any).__intervals__ || [];
+    const timeouts = (window as any).__timeouts__ || [];
+    const observers = (window as any).__observers__ || [];
+
+    return intervals.length + timeouts.length + observers.length;
+  };
 
   /**
    * Analyze metrics and generate alerts
