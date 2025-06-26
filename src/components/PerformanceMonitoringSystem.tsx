@@ -210,6 +210,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -240,12 +242,10 @@ const PerformanceMonitoringSystem: React.FC = () => {
   */const getFirstContentfulPaint = (): number | null => {const entries = performance.getEntriesByName('first-contentful-paint');return entries.length > 0 ? entries[0].startTime : null;}; /**
   * Estimate event listener count
   */const getEventListenerCount = (): number => {// This is an approximation since there's no direct API
-    const elements = document.querySelectorAll('*');let count = 0;elements.forEach((element) => {
-      const events = ['click', 'scroll', 'mouseover', 'keydown', 'resize'];
-      events.forEach((eventType) => {
-        if ((element as any)[`on${eventType}`]) count++;
+    const elements = document.querySelectorAll('*');let count = 0;elements.forEach((element) => {const events = ['click', 'scroll', 'mouseover', 'keydown', 'resize'];events.forEach((eventType) => {
+          if ((element as any)[`on${eventType}`]) count++;
+        });
       });
-    });
 
     return count;
   };
