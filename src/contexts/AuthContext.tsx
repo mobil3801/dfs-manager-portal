@@ -70,7 +70,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     setAuthError(null);
   };
 
-  const safeFetchUserData = async (showErrors = false): Promise<{success: boolean; userData?: User}> => {
+  const safeFetchUserData = async (showErrors = false): Promise<{success: boolean;userData?: User;}> => {
     try {
       console.log('🔄 Attempting to fetch user data...');
 
@@ -112,8 +112,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
           PageNo: 1,
           PageSize: 1,
           Filters: [
-            { name: "user_id", op: "Equal", value: userResponse.data.ID }
-          ]
+          { name: "user_id", op: "Equal", value: userResponse.data.ID }]
+
         });
 
         if (profileResponse.error) {
@@ -238,7 +238,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       setLoginInProgress(true);
       setIsLoading(true);
       setAuthError(null); // Clear any previous errors
-      
+
       console.log('🔑 Attempting login for:', email);
 
       if (!window.ezsite?.apis) {
@@ -246,7 +246,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       }
 
       // Small delay to prevent rapid successive calls
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       const response = await window.ezsite.apis.login({ email, password });
 
@@ -263,10 +263,10 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       }
 
       console.log('✅ Login API successful, fetching user data...');
-      
+
       // Add delay to ensure server state is updated
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
       const userDataResult = await safeFetchUserData(true);
 
       if (userDataResult.success && userDataResult.userData) {
@@ -394,8 +394,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     if (userProfile.detailed_permissions) {
       try {
         const permissions = typeof userProfile.detailed_permissions === 'string' ?
-          JSON.parse(userProfile.detailed_permissions) :
-          userProfile.detailed_permissions;
+        JSON.parse(userProfile.detailed_permissions) :
+        userProfile.detailed_permissions;
 
         if (resource && permissions[resource] && permissions[resource][action]) {
           return true;

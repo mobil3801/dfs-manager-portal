@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 import { Building2, Save, ArrowLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import StationDropdown from '@/components/StationDropdown';
 
 interface VendorFormData {
   vendor_name: string;
@@ -42,31 +43,25 @@ const VendorForm: React.FC = () => {
   const { id } = useParams();
 
   const categories = [
-  'Fuel Supplier',
-  'Food & Beverages',
-  'Automotive',
-  'Maintenance',
-  'Office Supplies',
-  'Technology',
-  'Cleaning Services',
-  'Security Services',
-  'Other'];
-
+    'Fuel Supplier',
+    'Food & Beverages',
+    'Automotive',
+    'Maintenance',
+    'Office Supplies',
+    'Technology',
+    'Cleaning Services',
+    'Security Services',
+    'Other'
+  ];
 
   const paymentTermsOptions = [
-  'Net 30',
-  'Net 15',
-  'Payment on Delivery',
-  'Prepaid',
-  '2/10 Net 30',
-  'Custom Terms'];
-
-  const stations = [
-  'MOBIL',
-  'AMOCO ROSEDALE',
-  'AMOCO BROOKLYN'];
-
-
+    'Net 30',
+    'Net 15',
+    'Payment on Delivery',
+    'Prepaid',
+    '2/10 Net 30',
+    'Custom Terms'
+  ];
 
   useEffect(() => {
     if (id) {
@@ -189,179 +184,180 @@ const VendorForm: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {!selectedStation && !isEditing ?
-          <div className="space-y-6">
+          {!selectedStation && !isEditing ? (
+            <div className="space-y-6">
               <div className="text-center space-y-4">
                 <h3 className="text-lg font-semibold">Select Station First</h3>
                 <p className="text-gray-600">Please select a station before creating a vendor.</p>
               </div>
               
               <div className="max-w-md mx-auto space-y-4">
-                <Label htmlFor="station">Station *</Label>
-                <Select value={selectedStation} onValueChange={handleStationSelect}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a station" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {stations.map((station) =>
-                  <SelectItem key={station} value={station}>
-                        {station}
-                      </SelectItem>
-                  )}
-                  </SelectContent>
-                </Select>
+                <StationDropdown
+                  id="station"
+                  label="Station"
+                  value={selectedStation}
+                  onValueChange={handleStationSelect}
+                  placeholder="Select a station"
+                  required
+                  includeAll={true} // Vendors can be associated with ALL stations or specific ones
+                />
               </div>
-            </div> :
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-              {selectedStation &&
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {selectedStation && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-medium text-blue-900">Selected Station</h4>
-                      <p className="text-blue-700">{selectedStation}</p>
+                      <p className="text-blue-700">
+                        {selectedStation === 'ALL' ? 'All Stations' : selectedStation}
+                        {selectedStation === 'ALL' && (
+                          <span className="text-sm text-blue-600 ml-2">(Multi-station vendor)</span>
+                        )}
+                      </p>
                     </div>
-                    {!isEditing &&
+                    {!isEditing && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedStation('')}
+                      >
+                        Change Station
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="vendor_name">Vendor Name *</Label>
+                  <Input
+                    id="vendor_name"
+                    value={formData.vendor_name}
+                    onChange={(e) => handleInputChange('vendor_name', e.target.value)}
+                    placeholder="Enter vendor company name"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="contact_person">Contact Person *</Label>
+                  <Input
+                    id="contact_person"
+                    value={formData.contact_person}
+                    onChange={(e) => handleInputChange('contact_person', e.target.value)}
+                    placeholder="Enter primary contact name"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    placeholder="Enter email address"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    value={formData.phone}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    placeholder="Enter phone number"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="category">Category *</Label>
+                  <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select vendor category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="payment_terms">Payment Terms</Label>
+                  <Select value={formData.payment_terms} onValueChange={(value) => handleInputChange('payment_terms', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select payment terms" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {paymentTermsOptions.map((terms) => (
+                        <SelectItem key={terms} value={terms}>
+                          {terms}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="address">Address</Label>
+                <Textarea
+                  id="address"
+                  value={formData.address}
+                  onChange={(e) => handleInputChange('address', e.target.value)}
+                  placeholder="Enter full business address"
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="is_active">Active Status</Label>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="is_active"
+                    checked={formData.is_active}
+                    onCheckedChange={(checked) => handleInputChange('is_active', checked)}
+                  />
+                  <span className="text-sm text-gray-600">
+                    {formData.is_active ? 'Active vendor' : 'Inactive vendor'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end space-x-4">
                 <Button
                   type="button"
                   variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedStation('')}>
-
-                        Change Station
-                      </Button>
-                }
-                  </div>
-                </div>
-            }
-              
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="vendor_name">Vendor Name *</Label>
-                <Input
-                  id="vendor_name"
-                  value={formData.vendor_name}
-                  onChange={(e) => handleInputChange('vendor_name', e.target.value)}
-                  placeholder="Enter vendor company name"
-                  required />
-
+                  onClick={() => navigate('/vendors')}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? (
+                    'Saving...'
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4 mr-2" />
+                      {isEditing ? 'Update Vendor' : 'Create Vendor'}
+                    </>
+                  )}
+                </Button>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="contact_person">Contact Person *</Label>
-                <Input
-                  id="contact_person"
-                  value={formData.contact_person}
-                  onChange={(e) => handleInputChange('contact_person', e.target.value)}
-                  placeholder="Enter primary contact name"
-                  required />
-
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  placeholder="Enter email address" />
-
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  value={formData.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
-                  placeholder="Enter phone number" />
-
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="category">Category *</Label>
-                <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select vendor category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) =>
-                    <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="payment_terms">Payment Terms</Label>
-                <Select value={formData.payment_terms} onValueChange={(value) => handleInputChange('payment_terms', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select payment terms" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {paymentTermsOptions.map((terms) =>
-                    <SelectItem key={terms} value={terms}>
-                        {terms}
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="address">Address</Label>
-              <Textarea
-                id="address"
-                value={formData.address}
-                onChange={(e) => handleInputChange('address', e.target.value)}
-                placeholder="Enter full business address"
-                rows={3} />
-
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="is_active">Active Status</Label>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="is_active"
-                  checked={formData.is_active}
-                  onCheckedChange={(checked) => handleInputChange('is_active', checked)} />
-
-                <span className="text-sm text-gray-600">
-                  {formData.is_active ? 'Active vendor' : 'Inactive vendor'}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end space-x-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate('/vendors')}>
-
-                Cancel
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ?
-                'Saving...' :
-
-                <>
-                    <Save className="w-4 h-4 mr-2" />
-                    {isEditing ? 'Update Vendor' : 'Create Vendor'}
-                  </>
-                }
-              </Button>
-            </div>
-          </form>
-          }
+            </form>
+          )}
         </CardContent>
       </Card>
-    </div>);
-
+    </div>
+  );
 };
 
 export default VendorForm;

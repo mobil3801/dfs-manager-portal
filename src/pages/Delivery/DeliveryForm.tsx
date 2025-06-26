@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NumberInput } from '@/components/ui/number-input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Truck, Save, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import StationDropdown from '@/components/StationDropdown';
 
 interface DeliveryRecord {
   id?: number;
@@ -77,8 +77,6 @@ const DeliveryForm: React.FC = () => {
     has_discrepancy: false
   });
 
-  const stations = ['MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN'];
-
   // Calculate expected tank levels and discrepancies
   useEffect(() => {
     const regular_expected = formData.regular_tank_volume + formData.regular_delivered;
@@ -91,9 +89,9 @@ const DeliveryForm: React.FC = () => {
 
     const tolerance = 5; // 5 gallon tolerance
     const has_discrepancy =
-    Math.abs(regular_discrepancy) > tolerance ||
-    Math.abs(plus_discrepancy) > tolerance ||
-    Math.abs(super_discrepancy) > tolerance;
+      Math.abs(regular_discrepancy) > tolerance ||
+      Math.abs(plus_discrepancy) > tolerance ||
+      Math.abs(super_discrepancy) > tolerance;
 
     setDiscrepancyData({
       regular_expected,
@@ -104,8 +102,6 @@ const DeliveryForm: React.FC = () => {
       super_discrepancy,
       has_discrepancy
     });
-
-    // Auto-update verification status based on discrepancies - removed as verification_status field is no longer used
   }, [formData, afterDeliveryData.regular_tank_final, afterDeliveryData.plus_tank_final, afterDeliveryData.super_tank_final]);
 
   useEffect(() => {
@@ -177,6 +173,16 @@ const DeliveryForm: React.FC = () => {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields (Date, BOL Number, and Station)",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check if ALL station is selected (not allowed for delivery records)
+    if (formData.station === 'ALL') {
+      toast({
+        title: "Invalid Station Selection",
+        description: "Please select a specific station for delivery records. 'ALL' is not allowed.",
         variant: "destructive"
       });
       return;
@@ -283,8 +289,8 @@ const DeliveryForm: React.FC = () => {
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading delivery record...</p>
         </div>
-      </div>);
-
+      </div>
+    );
   }
 
   return (
@@ -293,8 +299,8 @@ const DeliveryForm: React.FC = () => {
         <Button
           onClick={() => navigate('/delivery')}
           variant="ghost"
-          className="mb-4">
-
+          className="mb-4"
+        >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Delivery List
         </Button>
@@ -322,8 +328,8 @@ const DeliveryForm: React.FC = () => {
                   type="date"
                   value={formData.delivery_date}
                   onChange={(e) => handleInputChange('delivery_date', e.target.value)}
-                  required />
-
+                  required
+                />
               </div>
               
               <div>
@@ -334,26 +340,20 @@ const DeliveryForm: React.FC = () => {
                   placeholder="Enter BOL Number"
                   value={formData.bol_number}
                   onChange={(e) => handleInputChange('bol_number', e.target.value)}
-                  required />
+                  required
+                />
               </div>
               
               <div>
-                <Label htmlFor="station">Station *</Label>
-                <Select
+                <StationDropdown
+                  id="station"
+                  label="Station"
                   value={formData.station}
-                  onValueChange={(value) => handleInputChange('station', value)}>
-
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select station" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {stations.map((station) =>
-                    <SelectItem key={station} value={station}>
-                        {station}
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
+                  onValueChange={(value) => handleInputChange('station', value)}
+                  placeholder="Select station"
+                  required
+                  includeAll={false} // Delivery records should be for specific stations only
+                />
               </div>
             </div>
           </CardContent>
@@ -372,8 +372,8 @@ const DeliveryForm: React.FC = () => {
                   id="regular_tank_volume"
                   step="0.01"
                   value={formData.regular_tank_volume}
-                  onChange={(value) => handleInputChange('regular_tank_volume', value)} />
-
+                  onChange={(value) => handleInputChange('regular_tank_volume', value)}
+                />
               </div>
               
               <div>
@@ -382,8 +382,8 @@ const DeliveryForm: React.FC = () => {
                   id="plus_tank_volume"
                   step="0.01"
                   value={formData.plus_tank_volume}
-                  onChange={(value) => handleInputChange('plus_tank_volume', value)} />
-
+                  onChange={(value) => handleInputChange('plus_tank_volume', value)}
+                />
               </div>
               
               <div>
@@ -392,8 +392,8 @@ const DeliveryForm: React.FC = () => {
                   id="super_tank_volume"
                   step="0.01"
                   value={formData.super_tank_volume}
-                  onChange={(value) => handleInputChange('super_tank_volume', value)} />
-
+                  onChange={(value) => handleInputChange('super_tank_volume', value)}
+                />
               </div>
             </div>
           </CardContent>
@@ -412,8 +412,8 @@ const DeliveryForm: React.FC = () => {
                   id="regular_delivered"
                   step="0.01"
                   value={formData.regular_delivered}
-                  onChange={(value) => handleInputChange('regular_delivered', value)} />
-
+                  onChange={(value) => handleInputChange('regular_delivered', value)}
+                />
               </div>
               
               <div>
@@ -422,8 +422,8 @@ const DeliveryForm: React.FC = () => {
                   id="plus_delivered"
                   step="0.01"
                   value={formData.plus_delivered}
-                  onChange={(value) => handleInputChange('plus_delivered', value)} />
-
+                  onChange={(value) => handleInputChange('plus_delivered', value)}
+                />
               </div>
               
               <div>
@@ -432,8 +432,8 @@ const DeliveryForm: React.FC = () => {
                   id="super_delivered"
                   step="0.01"
                   value={formData.super_delivered}
-                  onChange={(value) => handleInputChange('super_delivered', value)} />
-
+                  onChange={(value) => handleInputChange('super_delivered', value)}
+                />
               </div>
             </div>
           </CardContent>
@@ -452,8 +452,8 @@ const DeliveryForm: React.FC = () => {
                   id="regular_tank_final"
                   step="0.01"
                   value={afterDeliveryData.regular_tank_final}
-                  onChange={(value) => handleAfterDeliveryChange('regular_tank_final', value)} />
-
+                  onChange={(value) => handleAfterDeliveryChange('regular_tank_final', value)}
+                />
               </div>
               
               <div>
@@ -462,8 +462,8 @@ const DeliveryForm: React.FC = () => {
                   id="plus_tank_final"
                   step="0.01"
                   value={afterDeliveryData.plus_tank_final}
-                  onChange={(value) => handleAfterDeliveryChange('plus_tank_final', value)} />
-
+                  onChange={(value) => handleAfterDeliveryChange('plus_tank_final', value)}
+                />
               </div>
               
               <div>
@@ -472,8 +472,8 @@ const DeliveryForm: React.FC = () => {
                   id="super_tank_final"
                   step="0.01"
                   value={afterDeliveryData.super_tank_final}
-                  onChange={(value) => handleAfterDeliveryChange('super_tank_final', value)} />
-
+                  onChange={(value) => handleAfterDeliveryChange('super_tank_final', value)}
+                />
               </div>
             </div>
           </CardContent>
@@ -483,17 +483,17 @@ const DeliveryForm: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              {discrepancyData.has_discrepancy ?
-              <AlertTriangle className="h-5 w-5 text-red-500" /> :
-
-              <CheckCircle className="h-5 w-5 text-green-500" />
-              }
+              {discrepancyData.has_discrepancy ? (
+                <AlertTriangle className="h-5 w-5 text-red-500" />
+              ) : (
+                <CheckCircle className="h-5 w-5 text-green-500" />
+              )}
               Discrepancy Analysis
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {discrepancyData.has_discrepancy &&
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            {discrepancyData.has_discrepancy && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
                 <div className="flex items-center gap-2 mb-2">
                   <XCircle className="h-4 w-4 text-red-500" />
                   <span className="font-medium text-red-800">Discrepancies Detected</span>
@@ -502,10 +502,10 @@ const DeliveryForm: React.FC = () => {
                   One or more tank levels show discrepancies greater than 5 gallons. Please review and verify the measurements.
                 </p>
               </div>
-            }
+            )}
             
-            {!discrepancyData.has_discrepancy && (afterDeliveryData.regular_tank_final > 0 || afterDeliveryData.plus_tank_final > 0 || afterDeliveryData.super_tank_final > 0) &&
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+            {!discrepancyData.has_discrepancy && (afterDeliveryData.regular_tank_final > 0 || afterDeliveryData.plus_tank_final > 0 || afterDeliveryData.super_tank_final > 0) && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
                 <div className="flex items-center gap-2 mb-2">
                   <CheckCircle className="h-4 w-4 text-green-500" />
                   <span className="font-medium text-green-800">All Measurements Verified</span>
@@ -514,7 +514,7 @@ const DeliveryForm: React.FC = () => {
                   Tank levels are within acceptable tolerance limits (±5 gallons).
                 </p>
               </div>
-            }
+            )}
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -529,8 +529,8 @@ const DeliveryForm: React.FC = () => {
                     <span>{afterDeliveryData.regular_tank_final.toFixed(2)} gal</span>
                   </div>
                   <div className={`flex justify-between font-medium ${
-                  Math.abs(discrepancyData.regular_discrepancy) > 5 ? 'text-red-600' : 'text-green-600'}`
-                  }>
+                    Math.abs(discrepancyData.regular_discrepancy) > 5 ? 'text-red-600' : 'text-green-600'
+                  }`}>
                     <span>Difference:</span>
                     <span>{discrepancyData.regular_discrepancy >= 0 ? '+' : ''}{discrepancyData.regular_discrepancy.toFixed(2)} gal</span>
                   </div>
@@ -549,8 +549,8 @@ const DeliveryForm: React.FC = () => {
                     <span>{afterDeliveryData.plus_tank_final.toFixed(2)} gal</span>
                   </div>
                   <div className={`flex justify-between font-medium ${
-                  Math.abs(discrepancyData.plus_discrepancy) > 5 ? 'text-red-600' : 'text-green-600'}`
-                  }>
+                    Math.abs(discrepancyData.plus_discrepancy) > 5 ? 'text-red-600' : 'text-green-600'
+                  }`}>
                     <span>Difference:</span>
                     <span>{discrepancyData.plus_discrepancy >= 0 ? '+' : ''}{discrepancyData.plus_discrepancy.toFixed(2)} gal</span>
                   </div>
@@ -569,8 +569,8 @@ const DeliveryForm: React.FC = () => {
                     <span>{afterDeliveryData.super_tank_final.toFixed(2)} gal</span>
                   </div>
                   <div className={`flex justify-between font-medium ${
-                  Math.abs(discrepancyData.super_discrepancy) > 5 ? 'text-red-600' : 'text-green-600'}`
-                  }>
+                    Math.abs(discrepancyData.super_discrepancy) > 5 ? 'text-red-600' : 'text-green-600'
+                  }`}>
                     <span>Difference:</span>
                     <span>{discrepancyData.super_discrepancy >= 0 ? '+' : ''}{discrepancyData.super_discrepancy.toFixed(2)} gal</span>
                   </div>
@@ -599,8 +599,8 @@ const DeliveryForm: React.FC = () => {
                 value={formData.delivery_notes}
                 onChange={(e) => handleInputChange('delivery_notes', e.target.value)}
                 placeholder="Enter any additional notes about the delivery..."
-                rows={3} />
-
+                rows={3}
+              />
             </div>
           </CardContent>
         </Card>
@@ -610,8 +610,8 @@ const DeliveryForm: React.FC = () => {
           <Button
             type="button"
             variant="outline"
-            onClick={() => navigate('/delivery')}>
-
+            onClick={() => navigate('/delivery')}
+          >
             Cancel
           </Button>
           <Button type="submit" disabled={loading}>
@@ -620,8 +620,8 @@ const DeliveryForm: React.FC = () => {
           </Button>
         </div>
       </form>
-    </div>);
-
+    </div>
+  );
 };
 
 export default DeliveryForm;

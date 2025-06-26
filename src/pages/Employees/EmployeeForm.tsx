@@ -11,6 +11,7 @@ import { toast } from '@/hooks/use-toast';
 import { Users, Save, ArrowLeft, Upload } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import EnhancedFileUpload from '@/components/EnhancedFileUpload';
+import StationDropdown from '@/components/StationDropdown';
 
 interface EmployeeFormData {
   employee_id: string;
@@ -58,7 +59,6 @@ const EmployeeForm: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const stations = ['MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN'];
   const positions = ['Manager', 'Supervisor', 'Cashier', 'Attendant', 'Mechanic', 'Cleaner'];
   const idDocumentTypes = ['Driving License', 'Passport', 'Green Card', 'SSN', 'Work Permit'];
 
@@ -93,11 +93,11 @@ const EmployeeForm: React.FC = () => {
       // If there are existing DFS IDs, find the highest number and increment
       if (data && data.List && data.List.length > 0) {
         const existingNumbers = data.List.
-        map((emp) => {
-          const match = emp.employee_id.match(/^DFS(\d+)$/);
-          return match ? parseInt(match[1]) : 0;
-        }).
-        filter((num) => num > 0);
+          map((emp) => {
+            const match = emp.employee_id.match(/^DFS(\d+)$/);
+            return match ? parseInt(match[1]) : 0;
+          }).
+          filter((num) => num > 0);
 
         if (existingNumbers.length > 0) {
           nextNumber = Math.max(...existingNumbers) + 1;
@@ -208,6 +208,16 @@ const EmployeeForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate station selection - ALL is not allowed for individual employees
+    if (formData.station === 'ALL') {
+      toast({
+        title: "Invalid Station Selection",
+        description: "Please select a specific station for the employee. 'ALL' is not allowed for individual employee records.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -303,40 +313,37 @@ const EmployeeForm: React.FC = () => {
                       placeholder={isEditing ? "Enter employee ID" : "Auto-generated"}
                       readOnly={!isEditing}
                       className={!isEditing ? "bg-gray-50 cursor-not-allowed" : ""}
-                      required />
-                    {!isEditing &&
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={generateEmployeeId}
-                      className="shrink-0">
-
+                      required
+                    />
+                    {!isEditing && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={generateEmployeeId}
+                        className="shrink-0"
+                      >
                         Regenerate
                       </Button>
-                    }
+                    )}
                   </div>
-                  {!isEditing &&
-                  <p className="text-xs text-gray-500">
+                  {!isEditing && (
+                    <p className="text-xs text-gray-500">
                       Auto-generated format: DFS#### (sequential numbering starting from DFS1001)
                     </p>
-                  }
+                  )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="station">Station *</Label>
-                  <Select value={formData.station} onValueChange={(value) => handleInputChange('station', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select station" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {stations.map((station) =>
-                      <SelectItem key={station} value={station}>
-                          {station}
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
+                  <StationDropdown
+                    id="station"
+                    label="Station"
+                    value={formData.station}
+                    onValueChange={(value) => handleInputChange('station', value)}
+                    placeholder="Select station"
+                    required
+                    includeAll={false} // Individual employees should be assigned to specific stations
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -346,7 +353,8 @@ const EmployeeForm: React.FC = () => {
                     value={formData.first_name}
                     onChange={(e) => handleInputChange('first_name', e.target.value)}
                     placeholder="Enter first name"
-                    required />
+                    required
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -356,7 +364,8 @@ const EmployeeForm: React.FC = () => {
                     value={formData.last_name}
                     onChange={(e) => handleInputChange('last_name', e.target.value)}
                     placeholder="Enter last name"
-                    required />
+                    required
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -365,7 +374,8 @@ const EmployeeForm: React.FC = () => {
                     id="date_of_birth"
                     type="date"
                     value={formData.date_of_birth}
-                    onChange={(e) => handleInputChange('date_of_birth', e.target.value)} />
+                    onChange={(e) => handleInputChange('date_of_birth', e.target.value)}
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -375,7 +385,8 @@ const EmployeeForm: React.FC = () => {
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
-                    placeholder="Enter email address" />
+                    placeholder="Enter email address"
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -384,7 +395,8 @@ const EmployeeForm: React.FC = () => {
                     id="phone"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    placeholder="Enter phone number" />
+                    placeholder="Enter phone number"
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -393,7 +405,8 @@ const EmployeeForm: React.FC = () => {
                     id="reference_name"
                     value={formData.reference_name}
                     onChange={(e) => handleInputChange('reference_name', e.target.value)}
-                    placeholder="Enter reference name" />
+                    placeholder="Enter reference name"
+                  />
                 </div>
               </div>
             </div>
@@ -409,7 +422,8 @@ const EmployeeForm: React.FC = () => {
                     value={formData.current_address}
                     onChange={(e) => handleInputChange('current_address', e.target.value)}
                     placeholder="Enter current address"
-                    rows={3} />
+                    rows={3}
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -419,7 +433,8 @@ const EmployeeForm: React.FC = () => {
                     value={formData.mailing_address}
                     onChange={(e) => handleInputChange('mailing_address', e.target.value)}
                     placeholder="Enter mailing address"
-                    rows={3} />
+                    rows={3}
+                  />
                 </div>
               </div>
             </div>
@@ -435,11 +450,11 @@ const EmployeeForm: React.FC = () => {
                       <SelectValue placeholder="Select position" />
                     </SelectTrigger>
                     <SelectContent>
-                      {positions.map((position) =>
-                      <SelectItem key={position} value={position}>
+                      {positions.map((position) => (
+                        <SelectItem key={position} value={position}>
                           {position}
                         </SelectItem>
-                      )}
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -450,7 +465,8 @@ const EmployeeForm: React.FC = () => {
                     id="hire_date"
                     type="date"
                     value={formData.hire_date}
-                    onChange={(e) => handleInputChange('hire_date', e.target.value)} />
+                    onChange={(e) => handleInputChange('hire_date', e.target.value)}
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -460,7 +476,8 @@ const EmployeeForm: React.FC = () => {
                     step="0.01"
                     min="0"
                     value={formData.salary}
-                    onChange={(value) => handleInputChange('salary', value)} />
+                    onChange={(value) => handleInputChange('salary', value)}
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -469,7 +486,8 @@ const EmployeeForm: React.FC = () => {
                     <Switch
                       id="is_active"
                       checked={formData.is_active}
-                      onCheckedChange={(checked) => handleInputChange('is_active', checked)} />
+                      onCheckedChange={(checked) => handleInputChange('is_active', checked)}
+                    />
                     <span className="text-sm text-gray-600">
                       {formData.is_active ? 'Active' : 'Inactive'}
                     </span>
@@ -489,11 +507,11 @@ const EmployeeForm: React.FC = () => {
                       <SelectValue placeholder="Select ID document type" />
                     </SelectTrigger>
                     <SelectContent>
-                      {idDocumentTypes.map((type) =>
-                      <SelectItem key={type} value={type}>
+                      {idDocumentTypes.map((type) => (
+                        <SelectItem key={type} value={type}>
                           {type}
                         </SelectItem>
-                      )}
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -506,17 +524,17 @@ const EmployeeForm: React.FC = () => {
                     label="Upload ID Document or Take Photo"
                     currentFile={selectedFile?.name}
                     maxSize={10}
-                    allowCamera={true} />
-
-                  {selectedFile &&
-                  <div className="p-3 bg-gray-50 rounded-lg">
+                    allowCamera={true}
+                  />
+                  {selectedFile && (
+                    <div className="p-3 bg-gray-50 rounded-lg">
                       <p className="text-sm font-medium">Selected file:</p>
                       <p className="text-sm text-gray-600">{selectedFile.name}</p>
                       <p className="text-xs text-gray-500 mt-1">
                         {selectedFile.type.includes('image') ? 'Image file selected' : 'Document file selected'}
                       </p>
                     </div>
-                  }
+                  )}
                   <p className="text-xs text-gray-500">Supported formats: PDF, JPG, PNG (Max 10MB)</p>
                 </div>
               </div>
@@ -526,24 +544,26 @@ const EmployeeForm: React.FC = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/employees')}>
+                onClick={() => navigate('/employees')}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={loading || isUploading}>
-                {loading || isUploading ?
-                'Saving...' :
-                <>
+                {loading || isUploading ? (
+                  'Saving...'
+                ) : (
+                  <>
                     <Save className="w-4 h-4 mr-2" />
                     {isEditing ? 'Update Employee' : 'Create Employee'}
                   </>
-                }
+                )}
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
-    </div>);
-
+    </div>
+  );
 };
 
 export default EmployeeForm;

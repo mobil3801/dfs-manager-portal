@@ -6,10 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Search, Edit, Trash2, TrendingUp, DollarSign, Calendar, Printer } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, TrendingUp, DollarSign, Calendar, Printer, Filter } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import EnhancedSalesReportPrintDialog from '@/components/EnhancedSalesReportPrintDialog';
+import StationDropdown from '@/components/StationDropdown';
+import { useStationFilter } from '@/hooks/use-station-options';
 
 interface SalesReport {
   ID: number;
@@ -46,6 +48,7 @@ const SalesReportList: React.FC = () => {
   const [reports, setReports] = useState<SalesReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedStation, setSelectedStation] = useState('ALL');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [printDialogOpen, setPrintDialogOpen] = useState(false);
@@ -54,16 +57,25 @@ const SalesReportList: React.FC = () => {
   const { userProfile } = useAuth();
 
   const pageSize = 10;
+  
+  // Use station filter hook to handle ALL vs specific station filtering
+  const { stationFilters, isAllSelected } = useStationFilter(selectedStation);
 
   useEffect(() => {
     loadReports();
-  }, [currentPage, searchTerm]);
+  }, [currentPage, searchTerm, selectedStation]);
 
   const loadReports = async () => {
     try {
       setLoading(true);
       const filters = [];
 
+      // Add station filter based on selection
+      if (stationFilters) {
+        filters.push(...stationFilters);
+      }
+
+      // Add search filter if provided
       if (searchTerm) {
         filters.push({ name: 'station', op: 'StringContains', value: searchTerm });
       }
@@ -214,6 +226,9 @@ const SalesReportList: React.FC = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Sales</p>
                 <p className="text-2xl font-bold">{formatCurrency(totals.total_sales)}</p>
+                {isAllSelected && (
+                  <p className="text-xs text-blue-600">All Stations</p>
+                )}
               </div>
             </div>
           </CardContent>
@@ -226,6 +241,9 @@ const SalesReportList: React.FC = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Gallons</p>
                 <p className="text-2xl font-bold">{totals.total_gallons.toFixed(2)}</p>
+                {isAllSelected && (
+                  <p className="text-xs text-blue-600">All Stations</p>
+                )}
               </div>
             </div>
           </CardContent>
@@ -238,6 +256,9 @@ const SalesReportList: React.FC = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600">Grocery Sales</p>
                 <p className="text-2xl font-bold">{formatCurrency(totals.grocery_sales)}</p>
+                {isAllSelected && (
+                  <p className="text-xs text-blue-600">All Stations</p>
+                )}
               </div>
             </div>
           </CardContent>
@@ -250,6 +271,9 @@ const SalesReportList: React.FC = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600">Reports</p>
                 <p className="text-2xl font-bold">{totalCount}</p>
+                {isAllSelected && (
+                  <p className="text-xs text-blue-600">All Stations</p>
+                )}
               </div>
             </div>
           </CardContent>
@@ -263,55 +287,78 @@ const SalesReportList: React.FC = () => {
               <CardTitle className="flex items-center space-x-2">
                 <TrendingUp className="w-6 h-6" />
                 <span>Daily Sales Reports</span>
+                {isAllSelected && (
+                  <Badge variant="outline" className="ml-2">
+                    Viewing All Stations
+                  </Badge>
+                )}
               </CardTitle>
               <CardDescription>
-                Track daily sales performance across all stations
+                Track daily sales performance across {isAllSelected ? 'all stations' : 'selected station'}
               </CardDescription>
             </div>
-            {canAddReport &&
-            <Button onClick={() => navigate('/sales/new')} className="flex items-center space-x-2">
+            {canAddReport && (
+              <Button onClick={() => navigate('/sales/new')} className="flex items-center space-x-2">
                 <Plus className="w-4 h-4" />
                 <span>Add Report</span>
               </Button>
-            }
+            )}
           </div>
         </CardHeader>
         <CardContent>
-          {/* Search */}
-          <div className="flex items-center space-x-2 mb-6">
+          {/* Filters */}
+          <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-4 mb-6">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
                 placeholder="Search by station..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10" />
+                className="pl-10"
+              />
+            </div>
 
+            <div className="flex items-center space-x-2">
+              <Filter className="w-4 h-4 text-gray-500" />
+              <StationDropdown
+                value={selectedStation}
+                onValueChange={setSelectedStation}
+                placeholder="Filter by station"
+                includeAll={true}
+                showBadge={true}
+                className="min-w-[200px]"
+              />
             </div>
           </div>
 
           {/* Reports Table */}
-          {loading ?
-          <div className="space-y-4">
-              {[...Array(5)].map((_, i) =>
-            <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
-            )}
-            </div> :
-          reports.length === 0 ?
-          <div className="text-center py-8">
+          {loading ? (
+            <div className="space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
+              ))}
+            </div>
+          ) : reports.length === 0 ? (
+            <div className="text-center py-8">
               <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">No sales reports found</p>
-              {canAddReport &&
-            <Button
-              variant="outline"
-              className="mt-4"
-              onClick={() => navigate('/sales/new')}>
+              <p className="text-gray-500">
+                No sales reports found
+                {selectedStation !== 'ALL' && (
+                  <span> for {selectedStation}</span>
+                )}
+              </p>
+              {canAddReport && (
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                  onClick={() => navigate('/sales/new')}
+                >
                   Add Your First Sales Report
                 </Button>
-            }
-            </div> :
-
-          <div className="border rounded-lg overflow-hidden">
+              )}
+            </div>
+          ) : (
+            <div className="border rounded-lg overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -327,8 +374,8 @@ const SalesReportList: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {safeMap(reports, (report, index) =>
-                <TableRow key={generateSafeKey(report, index, 'report')}>
+                  {safeMap(reports, (report, index) => (
+                    <TableRow key={generateSafeKey(report, index, 'report')}>
                       <TableCell className="font-medium">
                         {formatDate(report.report_date)}
                       </TableCell>
@@ -346,19 +393,21 @@ const SalesReportList: React.FC = () => {
                         <div className="flex items-center space-x-2">
                           <span>{formatCurrency(report.total_sales)}</span>
                           {(() => {
-                        const total = parseFloat(report.total_sales) || 0;
-                        const cash = parseFloat(report.cash_amount) || 0;
-                        const credit = parseFloat(report.credit_card_amount) || 0;
-                        const debit = parseFloat(report.debit_card_amount) || 0;
-                        const mobile = parseFloat(report.mobile_amount) || 0;
-                        const grocery = parseFloat(report.grocery_sales) || 0;
-                        const paymentTotal = cash + credit + debit + mobile + grocery;
-                        const isPaymentCorrect = Math.abs(paymentTotal - total) <= 0.01;
+                            const total = parseFloat(report.total_sales) || 0;
+                            const cash = parseFloat(report.cash_amount) || 0;
+                            const credit = parseFloat(report.credit_card_amount) || 0;
+                            const debit = parseFloat(report.debit_card_amount) || 0;
+                            const mobile = parseFloat(report.mobile_amount) || 0;
+                            const grocery = parseFloat(report.grocery_sales) || 0;
+                            const paymentTotal = cash + credit + debit + mobile + grocery;
+                            const isPaymentCorrect = Math.abs(paymentTotal - total) <= 0.01;
 
-                        return isPaymentCorrect ?
-                        <span className="text-green-600 text-xs">✓</span> :
-                        <span className="text-red-600 text-xs" title={`Payment total: ${formatCurrency(paymentTotal)}`}>⚠️</span>;
-                      })()} 
+                            return isPaymentCorrect ? (
+                              <span className="text-green-600 text-xs">✓</span>
+                            ) : (
+                              <span className="text-red-600 text-xs" title={`Payment total: ${formatCurrency(paymentTotal)}`}>⚠️</span>
+                            );
+                          })()}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -383,107 +432,114 @@ const SalesReportList: React.FC = () => {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handlePrint(report)}
-                        title="Document Print">
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePrint(report)}
+                            title="Document Print"
+                          >
                             <Printer className="w-4 h-4" />
                           </Button>
-                          {isAdmin &&
-                      <>
+                          {isAdmin && (
+                            <>
                               <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => navigate(`/sales/edit/${report.ID}`)}
-                          title="Edit Report">
+                                variant="outline"
+                                size="sm"
+                                onClick={() => navigate(`/sales/edit/${report.ID}`)}
+                                title="Edit Report"
+                              >
                                 <Edit className="w-4 h-4" />
                               </Button>
                               <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDelete(report.ID)}
-                          className="text-red-600 hover:text-red-700"
-                          title="Delete Report">
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDelete(report.ID)}
+                                className="text-red-600 hover:text-red-700"
+                                title="Delete Report"
+                              >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </>
-                      }
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
-                )}
+                  ))}
                 
-                {/* Summary Row */}
-                {reports.length > 0 &&
-                <TableRow className="bg-gray-50 font-semibold border-t-2">
-                    <TableCell className="font-bold">TOTALS</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="text-xs">
-                        {reports.length} reports
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-gray-500">-</TableCell>
-                    <TableCell className="font-bold text-green-600">
-                      <div className="flex items-center space-x-2">
-                        <span>{formatCurrency(totals.total_sales)}</span>
-                        {Math.abs(summaryWithGrocery - totals.total_sales) <= 0.01 ?
-                      <span className="text-green-600 text-xs">✓</span> :
-                      <span className="text-red-600 text-xs">⚠️</span>
-                      }
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-bold text-blue-600">
-                      {totals.total_gallons.toFixed(2)}
-                    </TableCell>
-                    <TableCell className="font-bold text-purple-600">
-                      {formatCurrency(totals.grocery_sales)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1 text-xs">
-                        <div className="font-medium">Cash: {formatCurrency(totals.cash_amount)}</div>
-                        <div className="font-medium">Credit: {formatCurrency(totals.credit_card_amount)}</div>
-                        <div className="font-medium">Debit: {formatCurrency(totals.debit_card_amount)}</div>
-                        <div className="font-medium">Mobile: {formatCurrency(totals.mobile_amount)}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-gray-500">-</TableCell>
-                    <TableCell className="text-gray-500">-</TableCell>
-                  </TableRow>
-                }
+                  {/* Summary Row */}
+                  {reports.length > 0 && (
+                    <TableRow className="bg-gray-50 font-semibold border-t-2">
+                      <TableCell className="font-bold">TOTALS</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="text-xs">
+                          {reports.length} reports
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-gray-500">-</TableCell>
+                      <TableCell className="font-bold text-green-600">
+                        <div className="flex items-center space-x-2">
+                          <span>{formatCurrency(totals.total_sales)}</span>
+                          {Math.abs(summaryWithGrocery - totals.total_sales) <= 0.01 ? (
+                            <span className="text-green-600 text-xs">✓</span>
+                          ) : (
+                            <span className="text-red-600 text-xs">⚠️</span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-bold text-blue-600">
+                        {totals.total_gallons.toFixed(2)}
+                      </TableCell>
+                      <TableCell className="font-bold text-purple-600">
+                        {formatCurrency(totals.grocery_sales)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1 text-xs">
+                          <div className="font-medium">Cash: {formatCurrency(totals.cash_amount)}</div>
+                          <div className="font-medium">Credit: {formatCurrency(totals.credit_card_amount)}</div>
+                          <div className="font-medium">Debit: {formatCurrency(totals.debit_card_amount)}</div>
+                          <div className="font-medium">Mobile: {formatCurrency(totals.mobile_amount)}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-gray-500">-</TableCell>
+                      <TableCell className="text-gray-500">-</TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </div>
-          }
+          )}
 
           {/* Pagination */}
-          {totalPages > 1 &&
-          <div className="flex items-center justify-between mt-6">
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-6">
               <p className="text-sm text-gray-700">
                 Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} reports
+                {selectedStation !== 'ALL' && (
+                  <span> for {selectedStation}</span>
+                )}
               </p>
               <div className="flex items-center space-x-2">
                 <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}>
-
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                >
                   Previous
                 </Button>
                 <span className="text-sm">
                   Page {currentPage} of {totalPages}
                 </span>
                 <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}>
-
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                >
                   Next
                 </Button>
               </div>
             </div>
-          }
+          )}
         </CardContent>
       </Card>
 
@@ -491,10 +547,10 @@ const SalesReportList: React.FC = () => {
       <EnhancedSalesReportPrintDialog
         open={printDialogOpen}
         onOpenChange={setPrintDialogOpen}
-        report={selectedReport} />
-
-    </div>);
-
+        report={selectedReport}
+      />
+    </div>
+  );
 };
 
 export default SalesReportList;

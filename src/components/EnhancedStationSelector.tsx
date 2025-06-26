@@ -5,14 +5,14 @@ import { Badge } from '@/components/ui/badge';
 import { MapPin, Building2, Globe } from 'lucide-react';
 import { useStationOptions } from '@/hooks/use-station-options';
 
-interface StationSelectorProps {
+interface EnhancedStationSelectorProps {
   onStationSelect: (station: string) => void;
   title?: string;
   description?: string;
   includeAll?: boolean;
 }
 
-const StationSelector: React.FC<StationSelectorProps> = ({
+const EnhancedStationSelector: React.FC<EnhancedStationSelectorProps> = ({
   onStationSelect,
   title = "Select Station",
   description = "Choose the station to create a daily sales report for",
@@ -32,7 +32,7 @@ const StationSelector: React.FC<StationSelectorProps> = ({
     return <MapPin className="w-8 h-8" />;
   };
 
-  const getStationDescription = (stationValue: string) => {
+  const getStationDescription = (stationValue: string, stationLabel: string) => {
     if (stationValue === 'ALL') {
       return 'View and manage all stations';
     }
@@ -66,23 +66,6 @@ const StationSelector: React.FC<StationSelectorProps> = ({
     }
   };
 
-  const getButtonColorClass = (station: any) => {
-    if (station.value === 'ALL') {
-      return 'bg-gray-50 border-gray-300 hover:bg-gray-100';
-    }
-    
-    switch (station.value) {
-      case 'MOBIL':
-        return 'bg-blue-50 border-blue-200 hover:bg-blue-100';
-      case 'AMOCO ROSEDALE':
-        return 'bg-green-50 border-green-200 hover:bg-green-100';
-      case 'AMOCO BROOKLYN':
-        return 'bg-purple-50 border-purple-200 hover:bg-purple-100';
-      default:
-        return 'bg-gray-50 border-gray-200 hover:bg-gray-100';
-    }
-  };
-
   return (
     <Card>
       <CardHeader className="text-center">
@@ -100,12 +83,16 @@ const StationSelector: React.FC<StationSelectorProps> = ({
             <Button
               key={station.value}
               variant="outline"
-              className={`h-auto p-6 flex flex-col items-center space-y-3 ${getButtonColorClass(station)} transition-all duration-200`}
+              className={`h-auto p-6 flex flex-col items-center space-y-3 ${
+                station.value === 'ALL' 
+                  ? 'bg-gray-50 border-gray-300 hover:bg-gray-100' 
+                  : station.color?.replace('bg-', 'bg-') + '-50 border-' + station.color?.replace('bg-', '') + '-200 hover:bg-' + station.color?.replace('bg-', '') + '-100'
+              } transition-all duration-200`}
               onClick={() => onStationSelect(station.value)}
             >
               {getStationIcon(station.value)}
               <div className="text-center">
-                <div className="font-semibold text-lg flex items-center justify-center space-x-2">
+                <div className="font-semibold text-lg flex items-center space-x-2">
                   <span>{station.label}</span>
                   {station.value === 'ALL' && (
                     <Badge variant="secondary" className="text-xs">
@@ -117,7 +104,7 @@ const StationSelector: React.FC<StationSelectorProps> = ({
                   {getStationLocation(station.value)}
                 </div>
                 <div className="text-xs text-muted-foreground mt-1">
-                  {getStationDescription(station.value)}
+                  {getStationDescription(station.value, station.label)}
                 </div>
               </div>
             </Button>
@@ -136,4 +123,4 @@ const StationSelector: React.FC<StationSelectorProps> = ({
   );
 };
 
-export default StationSelector;
+export default EnhancedStationSelector;
