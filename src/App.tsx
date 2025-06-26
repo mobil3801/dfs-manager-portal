@@ -104,7 +104,7 @@ const App: React.FC = () => {
                     <Route path="/" element={<AdaptiveDashboardLayout />}>
                       <Route index element={<Navigate to="/dashboard" replace />} />
                       <Route path="dashboard" element={
-                        <DashboardErrorBoundary>
+                      <DashboardErrorBoundary>
                           <Dashboard />
                         </DashboardErrorBoundary>
                       } />
@@ -178,8 +178,8 @@ const App: React.FC = () => {
           </AuthProvider>
         </DeviceAdaptiveProvider>
       </TooltipProvider>
-    </QueryClientProvider>
-  );
+    </QueryClientProvider>);
+
 };
 
 export default App;

@@ -74,26 +74,26 @@ class DashboardErrorBoundary extends Component<Props, State> {
               </div>
               
               <div className="flex flex-col space-y-2">
-                <Button 
+                <Button
                   onClick={this.handleRetry}
                   className="w-full"
-                  variant="default"
-                >
+                  variant="default">
+
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Try Again
                 </Button>
                 
-                <Button 
+                <Button
                   onClick={() => window.location.href = '/login'}
                   variant="outline"
-                  className="w-full"
-                >
+                  className="w-full">
+
                   Go to Login
                 </Button>
               </div>
 
-              {process.env.NODE_ENV === 'development' && (
-                <details className="text-xs bg-gray-100 p-2 rounded">
+              {process.env.NODE_ENV === 'development' &&
+              <details className="text-xs bg-gray-100 p-2 rounded">
                   <summary className="cursor-pointer font-medium text-gray-700">
                     Debug Information
                   </summary>
@@ -101,11 +101,11 @@ class DashboardErrorBoundary extends Component<Props, State> {
                     {this.state.error?.stack}
                   </div>
                 </details>
-              )}
+              }
             </CardContent>
           </Card>
-        </div>
-      );
+        </div>);
+
     }
 
     return this.props.children;
