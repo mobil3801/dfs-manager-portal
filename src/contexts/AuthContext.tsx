@@ -61,7 +61,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
   const [isLoading, setIsLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
+  const [loginInProgress, setLoginInProgress] = useState(false); // Prevent multiple concurrent logins
   const { toast } = useToast();
 
   const isAuthenticated = !!user && !!userProfile;
@@ -70,7 +70,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     setAuthError(null);
   };
 
-  const safeFetchUserData = async (showErrors = false): Promise<boolean> => {
+  const safeFetchUserData = async (showErrors = false): Promise<{success: boolean; userData?: User}> => {
     try {
       console.log('🔄 Attempting to fetch user data...');
 
@@ -87,7 +87,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
         setUser(null);
         setUserProfile(GUEST_PROFILE);
         setAuthError(null);
-        return false;
+        return { success: false };
       }
 
       // Handle API errors
@@ -98,7 +98,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
         }
         setUser(null);
         setUserProfile(GUEST_PROFILE);
-        return false;
+        return { success: false };
       }
 
       console.log('✅ User data fetched successfully:', userResponse.data);
@@ -112,8 +112,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
           PageNo: 1,
           PageSize: 1,
           Filters: [
-          { name: "user_id", op: "Equal", value: userResponse.data.ID }]
-
+            { name: "user_id", op: "Equal", value: userResponse.data.ID }
+          ]
         });
 
         if (profileResponse.error) {
@@ -165,8 +165,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       }
 
       setAuthError(null);
-      setRetryCount(0);
-      return true;
+      return { success: true, userData: userResponse.data };
 
     } catch (error) {
       console.error('❌ Error fetching user data:', error);
@@ -181,7 +180,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       // Set guest state for any error
       setUser(null);
       setUserProfile(GUEST_PROFILE);
-      return false;
+      return { success: false };
     }
   };
 
@@ -229,20 +228,30 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    try {
-      setIsLoading(true);
-      setAuthError(null);
+    // Prevent multiple concurrent login attempts
+    if (loginInProgress) {
+      console.log('⏳ Login already in progress, ignoring duplicate request');
+      return false;
+    }
 
+    try {
+      setLoginInProgress(true);
+      setIsLoading(true);
+      setAuthError(null); // Clear any previous errors
+      
       console.log('🔑 Attempting login for:', email);
 
       if (!window.ezsite?.apis) {
         throw new Error('Authentication system not available');
       }
 
+      // Small delay to prevent rapid successive calls
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       const response = await window.ezsite.apis.login({ email, password });
 
       if (response.error) {
-        console.log('❌ Login failed:', response.error);
+        console.log('❌ Login API failed:', response.error);
         await auditLogger.logLogin(email, false, undefined, response.error);
         setAuthError(response.error);
         toast({
@@ -253,17 +262,23 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
         return false;
       }
 
-      console.log('✅ Login successful, fetching user data...');
-      const userDataFetched = await safeFetchUserData(true);
+      console.log('✅ Login API successful, fetching user data...');
+      
+      // Add delay to ensure server state is updated
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      const userDataResult = await safeFetchUserData(true);
 
-      if (userDataFetched && user) {
-        await auditLogger.logLogin(email, true, user.ID);
+      if (userDataResult.success && userDataResult.userData) {
+        console.log('✅ User data fetched successfully after login');
+        await auditLogger.logLogin(email, true, userDataResult.userData.ID);
         toast({
           title: "Login Successful",
           description: "Welcome back!"
         });
         return true;
       } else {
+        console.log('❌ Failed to fetch user data after successful login');
         throw new Error('Failed to load user information after login');
       }
 
@@ -280,6 +295,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       return false;
     } finally {
       setIsLoading(false);
+      setLoginInProgress(false);
     }
   };
 
@@ -378,8 +394,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     if (userProfile.detailed_permissions) {
       try {
         const permissions = typeof userProfile.detailed_permissions === 'string' ?
-        JSON.parse(userProfile.detailed_permissions) :
-        userProfile.detailed_permissions;
+          JSON.parse(userProfile.detailed_permissions) :
+          userProfile.detailed_permissions;
 
         if (resource && permissions[resource] && permissions[resource][action]) {
           return true;
