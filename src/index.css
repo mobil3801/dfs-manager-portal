@@ -13,7 +13,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
 
-    --primary: 208 100% 20%;
+    /* Updated primary colors for DFS branding */
+    --primary: 205 98% 32%; /* #0369A1 */
     --primary-foreground: 0 0% 98%;
 
     --secondary: 0 0% 96.1%;
@@ -22,7 +23,7 @@
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
 
-    --accent: 0 0% 96.1%;
+    --accent: 205 100% 45%; /* #0EA5E9 */
     --accent-foreground: 0 0% 9%;
 
     --destructive: 0 84.2% 60.2%;
@@ -30,18 +31,19 @@
 
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
+    --ring: 205 98% 32%;
 
     --radius: 0.5rem;
 
+    /* Updated sidebar colors for DFS branding */
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 208 100% 20%;
+    --sidebar-primary: 205 98% 32%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-accent: 205 100% 97%;
+    --sidebar-accent-foreground: 205 98% 20%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 205 100% 45%;
 
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
@@ -49,18 +51,18 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
 
-    /* Brand colors for DFS */
-    --brand-50: 240 249 255;
-    --brand-100: 224 242 254;
-    --brand-200: 186 230 253;
-    --brand-300: 125 211 252;
-    --brand-400: 56 189 248;
-    --brand-500: 14 165 233;
-    --brand-600: 2 132 199;
-    --brand-700: 3 105 161;
-    --brand-800: 7 89 133;
-    --brand-900: 12 74 110;
-    --brand-950: 8 47 73;
+    /* Enhanced DFS brand colors */
+    --brand-50: 205 100% 98%;
+    --brand-100: 205 100% 95%;
+    --brand-200: 205 100% 85%;
+    --brand-300: 205 100% 70%;
+    --brand-400: 205 100% 55%;
+    --brand-500: 205 100% 45%;
+    --brand-600: 205 98% 32%;
+    --brand-700: 205 87% 25%;
+    --brand-800: 205 78% 20%;
+    --brand-900: 205 72% 15%;
+    --brand-950: 205 68% 10%;
 
     /* Desktop Layout Variables */
     --desktop-sidebar-width: 280px;
@@ -70,41 +72,43 @@
   }
 
   .dark {
-    --background: 0 0% 3.9%;
+    --background: 205 30% 6%;
     --foreground: 0 0% 98%;
 
-    --card: 0 0% 3.9%;
+    --card: 205 25% 8%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 3.9%;
+    --popover: 205 25% 8%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
+    --primary: 205 100% 60%;
+    --primary-foreground: 205 30% 10%;
 
-    --secondary: 0 0% 14.9%;
+    --secondary: 205 20% 15%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 0 0% 14.9%;
+    --muted: 205 20% 15%;
     --muted-foreground: 0 0% 63.9%;
 
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 205 100% 50%;
+    --accent-foreground: 205 30% 10%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 208 100% 35%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 205 20% 15%;
+    --input: 205 20% 15%;
+    --ring: 205 100% 60%;
+    
+    --sidebar-background: 205 30% 8%;
+    --sidebar-foreground: 205 20% 90%;
+    --sidebar-primary: 205 100% 50%;
+    --sidebar-primary-foreground: 205 30% 10%;
+    --sidebar-accent: 205 25% 12%;
+    --sidebar-accent-foreground: 205 20% 90%;
+    --sidebar-border: 205 20% 15%;
+    --sidebar-ring: 205 100% 60%;
+    
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -144,23 +148,23 @@
     min-height: -webkit-fill-available;
   }
 
-  /* Improve focus visibility */
+  /* Improved focus visibility with brand colors */
   *:focus-visible {
-    @apply outline-2 outline-offset-2 outline-blue-500;
+    @apply outline-2 outline-offset-2 outline-brand-600;
   }
 
   /* Better button focus for touch devices */
   button:focus-visible,
   [role="button"]:focus-visible {
-    @apply outline-2 outline-offset-2 outline-blue-500;
+    @apply outline-2 outline-offset-2 outline-brand-600;
   }
 }
 
-/* Custom scrollbar styles */
+/* Custom scrollbar styles with brand colors */
 @layer utilities {
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: rgb(209 213 219) rgb(243 244 246);
+    scrollbar-color: rgb(56 189 248) rgb(248 250 252);
   }
 
   .scrollbar-thin::-webkit-scrollbar {
@@ -168,30 +172,43 @@
   }
 
   .scrollbar-thin::-webkit-scrollbar-track {
-    background: rgb(243 244 246);
+    background: rgb(248 250 252);
     border-radius: 4px;
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: rgb(209 213 219);
+    background: rgb(56 189 248);
     border-radius: 4px;
-    border: 1px solid rgb(243 244 246);
+    border: 1px solid rgb(248 250 252);
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: rgb(156 163 175);
+    background: rgb(14 165 233);
   }
 
-  .scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
-    background: rgb(209 213 219);
+  /* Brand gradient utilities */
+  .bg-brand-gradient {
+    background: linear-gradient(135deg, #0369A1 0%, #0284C7 50%, #0EA5E9 100%);
   }
 
-  .scrollbar-track-gray-100::-webkit-scrollbar-track {
-    background: rgb(243 244 246);
+  .bg-brand-gradient-subtle {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
   }
 
-  .hover\:scrollbar-thumb-gray-400:hover::-webkit-scrollbar-thumb {
-    background: rgb(156 163 175);
+  .text-brand-gradient {
+    background: linear-gradient(135deg, #0369A1 0%, #0284C7 50%, #0EA5E9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Enhanced card shadows with brand colors */
+  .card-shadow-brand {
+    box-shadow: 0 4px 6px -1px rgba(3, 105, 161, 0.1), 0 2px 4px -1px rgba(3, 105, 161, 0.06);
+  }
+
+  .card-shadow-brand-lg {
+    box-shadow: 0 10px 15px -3px rgba(3, 105, 161, 0.1), 0 4px 6px -2px rgba(3, 105, 161, 0.05);
   }
 
   /* Desktop Layout Utilities */
@@ -294,20 +311,7 @@
     gap: 3rem;
   }
 
-  /* Enhanced card shadows */
-  .card-shadow-subtle {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
-
-  .card-shadow-normal {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-
-  .card-shadow-strong {
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  }
-
-  /* Animation utilities */
+  /* Animation utilities with brand theme */
   .animate-fade-in-up {
     animation: fadeInUp 0.4s ease-out;
   }
@@ -318,6 +322,10 @@
 
   .animate-slide-in-left {
     animation: slideInLeft 0.3s ease-out;
+  }
+
+  .animate-brand-pulse {
+    animation: brandPulse 2s ease-in-out infinite;
   }
 
   /* Content alignment utilities */
@@ -344,7 +352,8 @@
   @media (prefers-reduced-motion: reduce) {
     .animate-fade-in-up,
     .animate-slide-in-right,
-    .animate-slide-in-left {
+    .animate-slide-in-left,
+    .animate-brand-pulse {
       animation: none;
     }
 
@@ -394,11 +403,11 @@
     padding-bottom: 80px;
   }
 
-  /* Desktop Layout Components */
+  /* Desktop Layout Components with brand styling */
   .desktop-layout-wrapper {
     display: flex;
     min-height: 100vh;
-    background-color: rgb(249 250 251);
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   }
 
   .desktop-sidebar-fixed {
@@ -409,8 +418,8 @@
     width: var(--desktop-sidebar-width);
     z-index: 40;
     background-color: white;
-    border-right: 1px solid rgb(229 231 235);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-right: 1px solid rgb(203 213 225);
+    box-shadow: 0 4px 6px -1px rgba(3, 105, 161, 0.1);
   }
 
   .desktop-main-content {
@@ -487,7 +496,7 @@
     }
   }
 
-  /* Enhanced responsive card component */
+  /* Enhanced responsive card component with brand styling */
   .responsive-card {
     @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg transition-all duration-200;
   }
@@ -504,21 +513,21 @@
     @apply responsive-card p-8;
   }
 
-  /* Enhanced form components */
+  /* Enhanced form components with brand colors */
   .responsive-form {
     @apply space-y-4 md:space-y-6;
   }
 
   .responsive-input {
-    @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 touch:min-h-touch;
+    @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 touch:min-h-touch;
   }
 
   .responsive-button {
-    @apply px-4 py-2 rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 touch:min-h-touch;
+    @apply px-4 py-2 rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 touch:min-h-touch;
   }
 
   .responsive-button-primary {
-    @apply responsive-button bg-blue-600 text-white hover:bg-blue-700;
+    @apply responsive-button bg-brand-600 text-white hover:bg-brand-700;
   }
 
   .responsive-button-secondary {
@@ -568,7 +577,7 @@
   }
 }
 
-/* Keyframe animations */
+/* Enhanced keyframe animations with brand theme */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -599,5 +608,16 @@
   to {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+@keyframes brandPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.02);
   }
 }

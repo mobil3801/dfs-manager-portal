@@ -1,11 +1,11 @@
 {
-  "name": "DFS Manager",
+  "name": "DFS Manager - Gas Station Management System",
   "short_name": "DFS Manager", 
-  "description": "Comprehensive gas station management system",
+  "description": "Comprehensive gas station management system for MOBIL, AMOCO ROSEDALE, and AMOCO BROOKLYN",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#2563eb",
+  "theme_color": "#0369A1",
   "orientation": "any",
   "icons": [
     {
@@ -21,7 +21,9 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["business", "productivity"],
+  "categories": ["business", "productivity", "utilities"],
   "lang": "en",
-  "dir": "ltr"
+  "dir": "ltr",
+  "scope": "/",
+  "prefer_related_applications": false
 }
