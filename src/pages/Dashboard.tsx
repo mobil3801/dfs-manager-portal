@@ -69,27 +69,27 @@ const Dashboard: React.FC = () => {
   }, [authLoading, isAuthenticated, navigate]);
 
   const safeApiCall = async (
-    tableId: number, 
-    params: any, 
-    tableName: string
-  ): Promise<{data?: any, error?: string}> => {
+  tableId: number,
+  params: any,
+  tableName: string)
+  : Promise<{data?: any;error?: string;}> => {
     try {
       console.log(`📊 Fetching ${tableName} data...`);
-      
+
       if (!window.ezsite?.apis) {
         throw new Error('APIs not available');
       }
 
       const response = await window.ezsite.apis.tablePage(tableId, params);
-      
+
       if (response.error) {
         console.warn(`⚠️ ${tableName} API error:`, response.error);
         return { error: response.error };
       }
-      
+
       console.log(`✅ ${tableName} data loaded:`, response.data?.VirtualCount || 0, 'records');
       return { data: response.data };
-      
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       console.error(`❌ ${tableName} fetch failed:`, errorMessage);
@@ -110,81 +110,81 @@ const Dashboard: React.FC = () => {
 
       // Load dashboard statistics with individual error handling
       const results = await Promise.allSettled([
-        // Sales reports (last 30 days)
-        safeApiCall(12356, {
-          PageNo: 1,
-          PageSize: 100,
-          OrderByField: 'report_date',
-          IsAsc: false,
-          Filters: []
-        }, 'Sales Reports'),
-        
-        // Products
-        safeApiCall(11726, {
-          PageNo: 1,
-          PageSize: 1,
-          Filters: []
-        }, 'Products'),
-        
-        // Employees
-        safeApiCall(11727, {
-          PageNo: 1,
-          PageSize: 1,
-          Filters: [{ name: 'is_active', op: 'Equal', value: true }]
-        }, 'Employees'),
-        
-        // Orders
-        safeApiCall(11730, {
-          PageNo: 1,
-          PageSize: 100,
-          OrderByField: 'order_date',
-          IsAsc: false,
-          Filters: []
-        }, 'Orders'),
-        
-        // Deliveries
-        safeApiCall(12196, {
-          PageNo: 1,
-          PageSize: 100,
-          OrderByField: 'delivery_date',
-          IsAsc: false,
-          Filters: []
-        }, 'Deliveries'),
-        
-        // Licenses
-        safeApiCall(11731, {
-          PageNo: 1,
-          PageSize: 100,
-          OrderByField: 'expiry_date',
-          IsAsc: true,
-          Filters: []
-        }, 'Licenses'),
-        
-        // Vendors
-        safeApiCall(11729, {
-          PageNo: 1,
-          PageSize: 1,
-          Filters: [{ name: 'is_active', op: 'Equal', value: true }]
-        }, 'Vendors')
-      ]);
+      // Sales reports (last 30 days)
+      safeApiCall(12356, {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: 'report_date',
+        IsAsc: false,
+        Filters: []
+      }, 'Sales Reports'),
+
+      // Products
+      safeApiCall(11726, {
+        PageNo: 1,
+        PageSize: 1,
+        Filters: []
+      }, 'Products'),
+
+      // Employees
+      safeApiCall(11727, {
+        PageNo: 1,
+        PageSize: 1,
+        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+      }, 'Employees'),
+
+      // Orders
+      safeApiCall(11730, {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: 'order_date',
+        IsAsc: false,
+        Filters: []
+      }, 'Orders'),
+
+      // Deliveries
+      safeApiCall(12196, {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: 'delivery_date',
+        IsAsc: false,
+        Filters: []
+      }, 'Deliveries'),
+
+      // Licenses
+      safeApiCall(11731, {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: 'expiry_date',
+        IsAsc: true,
+        Filters: []
+      }, 'Licenses'),
+
+      // Vendors
+      safeApiCall(11729, {
+        PageNo: 1,
+        PageSize: 1,
+        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+      }, 'Vendors')]
+      );
 
       // Process results safely
       const [
-        salesResult, 
-        productsResult, 
-        employeesResult, 
-        ordersResult,
-        deliveriesResult, 
-        licensesResult, 
-        vendorsResult
-      ] = results.map(result => 
-        result.status === 'fulfilled' ? result.value : { error: 'Failed to load' }
+      salesResult,
+      productsResult,
+      employeesResult,
+      ordersResult,
+      deliveriesResult,
+      licensesResult,
+      vendorsResult] =
+      results.map((result) =>
+      result.status === 'fulfilled' ? result.value : { error: 'Failed to load' }
       );
 
       // Calculate statistics with error handling
       let totalSales = 0;
       let recentSalesCount = 0;
-      
+
       if (salesResult.data?.List) {
         totalSales = salesResult.data.List.reduce((sum: number, report: any) => {
           const reportSales = parseFloat(report.total_sales) || 0;
@@ -201,7 +201,7 @@ const Dashboard: React.FC = () => {
       let pendingOrders = 0;
       if (ordersResult.data?.List) {
         pendingOrders = ordersResult.data.List.filter((order: any) =>
-          order.status?.toLowerCase() === 'pending'
+        order.status?.toLowerCase() === 'pending'
         ).length;
       }
 
@@ -252,9 +252,9 @@ const Dashboard: React.FC = () => {
         deliveriesResult.data.List.slice(0, 2).forEach((delivery: any, index: number) => {
           const deliveryDate = new Date(delivery.delivery_date);
           const timeAgo = getTimeAgo(deliveryDate);
-          const totalDelivered = (delivery.regular_delivered || 0) + 
-                               (delivery.plus_delivered || 0) + 
-                               (delivery.super_delivered || 0);
+          const totalDelivered = (delivery.regular_delivered || 0) + (
+          delivery.plus_delivered || 0) + (
+          delivery.super_delivered || 0);
           activities.push({
             id: `delivery-${delivery.id || index}`,
             action: 'Fuel delivery completed',
@@ -268,21 +268,21 @@ const Dashboard: React.FC = () => {
 
       // Add pending orders
       if (ordersResult.data?.List) {
-        ordersResult.data.List
-          .filter((order: any) => order.status?.toLowerCase() === 'pending')
-          .slice(0, 1)
-          .forEach((order: any, index: number) => {
-            const orderDate = new Date(order.order_date);
-            const timeAgo = getTimeAgo(orderDate);
-            activities.push({
-              id: `order-${order.id || index}`,
-              action: 'New order pending',
-              station: order.station || 'Unknown Station',
-              time: timeAgo,
-              type: 'order',
-              details: `Order #${order.order_number || 'N/A'}`
-            });
+        ordersResult.data.List.
+        filter((order: any) => order.status?.toLowerCase() === 'pending').
+        slice(0, 1).
+        forEach((order: any, index: number) => {
+          const orderDate = new Date(order.order_date);
+          const timeAgo = getTimeAgo(orderDate);
+          activities.push({
+            id: `order-${order.id || index}`,
+            action: 'New order pending',
+            station: order.station || 'Unknown Station',
+            time: timeAgo,
+            type: 'order',
+            details: `Order #${order.order_number || 'N/A'}`
           });
+        });
       }
 
       // Add expiring licenses
@@ -311,8 +311,8 @@ const Dashboard: React.FC = () => {
       // Sort activities by priority and set
       activities.sort((a, b) => {
         const typePriority = { alert: 0, sale: 1, inventory: 2, order: 3 };
-        return (typePriority[a.type as keyof typeof typePriority] || 4) - 
-               (typePriority[b.type as keyof typeof typePriority] || 4);
+        return (typePriority[a.type as keyof typeof typePriority] || 4) - (
+        typePriority[b.type as keyof typeof typePriority] || 4);
       });
 
       setRecentActivities(activities.slice(0, 4));
@@ -322,12 +322,12 @@ const Dashboard: React.FC = () => {
     } catch (error) {
       console.error('❌ Dashboard loading error:', error);
       setHasError(true);
-      
+
       const errorMessage = error instanceof Error ? error.message : 'Failed to load dashboard data';
-      
+
       if (retryCount < 3) {
         console.log(`🔄 Retrying dashboard load (${retryCount + 1}/3)...`);
-        setRetryCount(prev => prev + 1);
+        setRetryCount((prev) => prev + 1);
         setTimeout(() => loadDashboardData(), 1000 * (retryCount + 1));
       } else {
         toast({
@@ -355,39 +355,39 @@ const Dashboard: React.FC = () => {
   };
 
   const quickStats = [
-    {
-      label: 'Total Sales',
-      value: loading ? '...' : `$${stats.totalSales.toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
-      change: stats.recentSalesCount > 0 ? `${stats.recentSalesCount} this month` : 'No recent sales',
-      icon: DollarSign,
-      color: 'text-green-600',
-      onClick: () => navigate('/sales')
-    },
-    {
-      label: 'Products',
-      value: loading ? '...' : stats.totalProducts.toLocaleString(),
-      change: 'Active inventory',
-      icon: Package,
-      color: 'text-blue-600',
-      onClick: () => navigate('/products')
-    },
-    {
-      label: 'Employees',
-      value: loading ? '...' : stats.totalEmployees.toLocaleString(),
-      change: 'Active staff',
-      icon: Users,
-      color: 'text-purple-600',
-      onClick: () => navigate('/employees')
-    },
-    {
-      label: 'Orders',
-      value: loading ? '...' : stats.totalOrders.toLocaleString(),
-      change: stats.pendingOrders > 0 ? `${stats.pendingOrders} pending` : 'All processed',
-      icon: ShoppingCart,
-      color: 'text-orange-600',
-      onClick: () => navigate('/orders')
-    }
-  ];
+  {
+    label: 'Total Sales',
+    value: loading ? '...' : `$${stats.totalSales.toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
+    change: stats.recentSalesCount > 0 ? `${stats.recentSalesCount} this month` : 'No recent sales',
+    icon: DollarSign,
+    color: 'text-green-600',
+    onClick: () => navigate('/sales')
+  },
+  {
+    label: 'Products',
+    value: loading ? '...' : stats.totalProducts.toLocaleString(),
+    change: 'Active inventory',
+    icon: Package,
+    color: 'text-blue-600',
+    onClick: () => navigate('/products')
+  },
+  {
+    label: 'Employees',
+    value: loading ? '...' : stats.totalEmployees.toLocaleString(),
+    change: 'Active staff',
+    icon: Users,
+    color: 'text-purple-600',
+    onClick: () => navigate('/employees')
+  },
+  {
+    label: 'Orders',
+    value: loading ? '...' : stats.totalOrders.toLocaleString(),
+    change: stats.pendingOrders > 0 ? `${stats.pendingOrders} pending` : 'All processed',
+    icon: ShoppingCart,
+    color: 'text-orange-600',
+    onClick: () => navigate('/orders')
+  }];
+
 
   const getGridClasses = () => {
     if (device.isMobile) return 'grid-cols-1 gap-4';
@@ -397,23 +397,23 @@ const Dashboard: React.FC = () => {
 
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case 'sale': return TrendingUp;
-      case 'inventory': return Truck;
-      case 'alert': return AlertCircle;
-      case 'order': return ShoppingCart;
-      case 'license': return FileText;
-      default: return BarChart3;
+      case 'sale':return TrendingUp;
+      case 'inventory':return Truck;
+      case 'alert':return AlertCircle;
+      case 'order':return ShoppingCart;
+      case 'license':return FileText;
+      default:return BarChart3;
     }
   };
 
   const getActivityColor = (type: string) => {
     switch (type) {
-      case 'sale': return 'bg-green-100 text-green-800';
-      case 'inventory': return 'bg-blue-100 text-blue-800';
-      case 'alert': return 'bg-red-100 text-red-800';
-      case 'order': return 'bg-orange-100 text-orange-800';
-      case 'license': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'sale':return 'bg-green-100 text-green-800';
+      case 'inventory':return 'bg-blue-100 text-blue-800';
+      case 'alert':return 'bg-red-100 text-red-800';
+      case 'order':return 'bg-orange-100 text-orange-800';
+      case 'license':return 'bg-purple-100 text-purple-800';
+      default:return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -427,8 +427,8 @@ const Dashboard: React.FC = () => {
             <span className="text-gray-600">Initializing dashboard...</span>
           </div>
         </div>
-      </PerformanceOptimizedContainer>
-    );
+      </PerformanceOptimizedContainer>);
+
   }
 
   return (
@@ -441,8 +441,8 @@ const Dashboard: React.FC = () => {
           className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className={`font-bold text-gray-900 dark:text-white ${
-              device.optimalFontSize === 'large' ? 'text-3xl' : 'text-2xl'
-            }`}>
+            device.optimalFontSize === 'large' ? 'text-3xl' : 'text-2xl'}`
+            }>
               Welcome back, {user?.Name || 'User'}
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
@@ -450,18 +450,18 @@ const Dashboard: React.FC = () => {
             </p>
           </div>
           <div className="mt-4 sm:mt-0 flex items-center space-x-2">
-            {hasError && (
-              <Badge variant="destructive" className="text-sm">
+            {hasError &&
+            <Badge variant="destructive" className="text-sm">
                 <AlertCircle className="w-3 h-3 mr-1" />
                 Loading issues
               </Badge>
-            )}
-            {stats.expiringLicenses > 0 && !loading && (
-              <Badge variant="destructive" className="text-sm">
+            }
+            {stats.expiringLicenses > 0 && !loading &&
+            <Badge variant="destructive" className="text-sm">
                 <AlertCircle className="w-3 h-3 mr-1" />
                 {stats.expiringLicenses} license{stats.expiringLicenses > 1 ? 's' : ''} expiring
               </Badge>
-            )}
+            }
             <Badge variant="outline" className="text-sm">
               {device.deviceType} • {device.screenSize}
             </Badge>
@@ -469,54 +469,54 @@ const Dashboard: React.FC = () => {
         </motion.div>
 
         {/* Error State */}
-        {hasError && !loading && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-red-50 border border-red-200 rounded-lg p-4">
+        {hasError && !loading &&
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-red-50 border border-red-200 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <AlertCircle className="w-5 h-5 text-red-600" />
                 <span className="text-red-800">Some dashboard data failed to load</span>
               </div>
               <TouchOptimizedButton
-                variant="outline"
-                onClick={() => {
-                  setHasError(false);
-                  setRetryCount(0);
-                  loadDashboardData();
-                }}
-                className="text-red-600 border-red-300 hover:bg-red-50">
+              variant="outline"
+              onClick={() => {
+                setHasError(false);
+                setRetryCount(0);
+                loadDashboardData();
+              }}
+              className="text-red-600 border-red-300 hover:bg-red-50">
                 Retry
               </TouchOptimizedButton>
             </div>
           </motion.div>
-        )}
+        }
 
         {/* Quick Stats */}
         <div className={`grid ${getGridClasses()}`}>
-          {quickStats.map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}>
+          {quickStats.map((stat, index) =>
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}>
               <AdaptiveCard hoverable className="cursor-pointer transition-transform hover:scale-105" onClick={stat.onClick}>
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <p className={`text-gray-600 dark:text-gray-400 ${
-                      device.optimalFontSize === 'large' ? 'text-base' : 'text-sm'
-                    }`}>
+                  device.optimalFontSize === 'large' ? 'text-base' : 'text-sm'}`
+                  }>
                       {stat.label}
                     </p>
                     <p className={`font-bold text-gray-900 dark:text-white ${
-                      device.isMobile ? 'text-xl' : 'text-2xl'
-                    }`}>
+                  device.isMobile ? 'text-xl' : 'text-2xl'}`
+                  }>
                       {stat.value}
                     </p>
                     <p className={`text-gray-500 ${
-                      device.optimalFontSize === 'large' ? 'text-sm' : 'text-xs'
-                    }`}>
+                  device.optimalFontSize === 'large' ? 'text-sm' : 'text-xs'}`
+                  }>
                       {stat.change}
                     </p>
                   </div>
@@ -526,7 +526,7 @@ const Dashboard: React.FC = () => {
                 </div>
               </AdaptiveCard>
             </motion.div>
-          ))}
+          )}
         </div>
 
         {/* Secondary Stats */}
@@ -627,65 +627,65 @@ const Dashboard: React.FC = () => {
             className={device.isMobile ? '' : 'lg:col-span-2'}>
             <AdaptiveCard title="Recent Activity" description="Latest updates across all stations">
               <div className="space-y-4">
-                {loading ? (
-                  <div className="space-y-3">
-                    {[...Array(4)].map((_, i) => (
-                      <div key={i} className="flex items-center space-x-3">
+                {loading ?
+                <div className="space-y-3">
+                    {[...Array(4)].map((_, i) =>
+                  <div key={i} className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
                         <div className="flex-1 space-y-1">
                           <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
                           <div className="h-3 bg-gray-200 rounded w-2/3 animate-pulse"></div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : recentActivities.length > 0 ? (
-                  recentActivities.map((activity, index) => {
-                    const ActivityIcon = getActivityIcon(activity.type);
-                    return (
-                      <motion.div
-                        key={activity.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.8 + index * 0.1 }}
-                        className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                  )}
+                  </div> :
+                recentActivities.length > 0 ?
+                recentActivities.map((activity, index) => {
+                  const ActivityIcon = getActivityIcon(activity.type);
+                  return (
+                    <motion.div
+                      key={activity.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.8 + index * 0.1 }}
+                      className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                         <div className={`p-2 rounded-full ${getActivityColor(activity.type)}`}>
                           <ActivityIcon className="w-4 h-4" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className={`font-medium text-gray-900 dark:text-white ${
-                            device.optimalFontSize === 'large' ? 'text-base' : 'text-sm'
-                          }`}>
+                        device.optimalFontSize === 'large' ? 'text-base' : 'text-sm'}`
+                        }>
                             {activity.action}
                           </p>
                           <p className={`text-gray-600 dark:text-gray-400 ${
-                            device.optimalFontSize === 'large' ? 'text-sm' : 'text-xs'
-                          }`}>
+                        device.optimalFontSize === 'large' ? 'text-sm' : 'text-xs'}`
+                        }>
                             {activity.station} • {activity.time}
                             {activity.details && ` • ${activity.details}`}
                           </p>
                         </div>
-                      </motion.div>
-                    );
-                  })
-                ) : (
-                  <div className="text-center py-8">
+                      </motion.div>);
+
+                }) :
+
+                <div className="text-center py-8">
                     <Clock className="w-12 h-12 text-gray-400 mx-auto mb-2" />
                     <p className="text-gray-500">No recent activity</p>
                     <p className="text-xs text-gray-400 mt-1">Activity will appear here as you use the system</p>
                   </div>
-                )}
+                }
               </div>
             </AdaptiveCard>
           </motion.div>
         </div>
 
         {/* Device Debug Info (only in development) */}
-        {process.env.NODE_ENV === 'development' && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.0 }}>
+        {process.env.NODE_ENV === 'development' &&
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.0 }}>
             <AdaptiveCard title="Device Information" description="Current device detection results">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
@@ -707,10 +707,10 @@ const Dashboard: React.FC = () => {
               </div>
             </AdaptiveCard>
           </motion.div>
-        )}
+        }
       </div>
-    </PerformanceOptimizedContainer>
-  );
+    </PerformanceOptimizedContainer>);
+
 };
 
 export default Dashboard;
