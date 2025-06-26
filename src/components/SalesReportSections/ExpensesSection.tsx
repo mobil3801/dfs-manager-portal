@@ -34,7 +34,7 @@ interface ExpenseFormData {
 interface ExpensesSectionProps {
   station: string;
   reportDate: string;
-  onExpensesChange?: (totalExpenses: number) => void;
+  onExpensesChange?: (totalExpenses: number, cashExpenses: number) => void;
 }
 
 const ExpensesSection: React.FC<ExpensesSectionProps> = ({
@@ -58,7 +58,7 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
   // Calculate totals whenever expenses change
   useEffect(() => {
     const totals = calculateTotals();
-    onExpensesChange?.(totals.totalExpenses);
+    onExpensesChange?.(totals.totalExpenses, totals.cashExpense);
   }, [expenses, onExpensesChange]);
 
   const loadExpenses = async () => {
@@ -280,7 +280,7 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
                       <CreditCard className="h-3 w-3" />
                       Payment Type
                     </Label>
-                    <Badge variant="secondary" className="gap-1">
+                    <Badge variant={expense.payment_type === 'Cash' ? 'default' : 'secondary'} className="gap-1">
                       {getPaymentTypeIcon(expense.payment_type)}
                       {expense.payment_type}
                       {expense.payment_type === 'Cheque' && expense.cheque_number &&
@@ -333,6 +333,9 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
                 <div className="text-xl font-bold text-red-600">
                   ${cashExpense.toFixed(2)}
                 </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  Used in Short/Over calculation
+                </div>
               </div>
               
               <div className="bg-white p-3 rounded-lg border">
@@ -354,6 +357,16 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
                 <div className="text-2xl font-bold text-red-600">
                   ${totalExpenses.toFixed(2)}
                 </div>
+              </div>
+            </div>
+
+            {/* Explanation of calculation */}
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="text-sm text-blue-800">
+                <p className="font-medium mb-1">Short/Over Calculation:</p>
+                <p className="text-xs">
+                  Cash Collection on Hand - (Gas Cash + Grocery Cash + Lottery Cash - Cash Expenses)
+                </p>
               </div>
             </div>
           </Card>

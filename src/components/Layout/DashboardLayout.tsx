@@ -19,7 +19,6 @@ import {
 import { Logo } from '@/components/Logo';
 import { ComponentErrorBoundary } from '@/components/ErrorBoundary';
 import { useIsMobile } from '@/hooks/use-mobile';
-import RoleBasedNavigation from '@/components/Navigation/RoleBasedNavigation';
 
 const DashboardLayout = () => {
   const { user, logout, isAdmin, isManager } = useAuth();
@@ -140,11 +139,11 @@ const DashboardLayout = () => {
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 p-4">
-        <RoleBasedNavigation onItemClick={() => {
-          if (isMobile) setSidebarOpen(false);
-        }} />
-      </div>
+      <nav className="flex-1 p-4 space-y-1">
+        {navigationItems.map((item) =>
+      <NavigationItem key={item.href} item={item} />
+      )}
+      </nav>
 
       {/* User Section */}
       <div className="p-4 border-t border-gray-200">

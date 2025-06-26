@@ -37,7 +37,7 @@ import AlertSettings from '@/pages/Inventory/AlertSettings';
 import GasDeliveryInventory from '@/pages/Inventory/GasDeliveryInventory';
 import DeliveryList from '@/pages/Delivery/DeliveryList';
 import DeliveryForm from '@/pages/Delivery/DeliveryForm';
-import EnhancedAppSettings from '@/pages/Settings/EnhancedAppSettings';
+import AppSettings from '@/pages/Settings/AppSettings';
 
 // Admin Pages
 import AdminPanel from '@/pages/Admin/AdminPanel';
@@ -194,7 +194,7 @@ const AppRouter = () => {
             <Route path="delivery/:id/edit" element={<DeliveryForm />} />
             
             {/* Settings */}
-            <Route path="settings" element={<EnhancedAppSettings />} />
+            <Route path="settings" element={<AppSettings />} />
             
             {/* Admin Routes */}
             <Route path="admin" element={<AdminPanel />} />

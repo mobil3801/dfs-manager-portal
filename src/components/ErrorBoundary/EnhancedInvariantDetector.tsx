@@ -130,20 +130,20 @@ const EnhancedInvariantDetector: React.FC = () => {
 
 
 
+
+
+
+
+
+
+
+
           // Silent catch for individual element processing
         }});keyMap.forEach((data, key) => {if (data.count > 1) {violations.push({ type: 'duplicate-key', severity: 'high', message: `Duplicate React key detected: "${key}" used ${data.count} times. This can cause invariant violations.`, fixSuggestion: 'Use unique keys for each element in lists. Consider using item.id + index or UUID.', component: data.element.tagName?.toLowerCase() });}});} catch (error) {console.warn('Error detecting duplicate keys:', error);}return violations;}, []); // Enhanced React Fiber state detection
   const detectFiberInconsistencies = useCallback(() => {const violations: Omit<InvariantViolation, 'id' | 'timestamp'>[] = [];try {const reactRoots = document.querySelectorAll('[data-reactroot], #root, [id*="react"]');reactRoots.forEach((root) => {try {const fiber = (root as any)._reactInternalFiber || (root as any).__reactInternalInstance || (root as any)._reactRootContainer;if (fiber) {// Check for common fiber inconsistencies
                 const checkFiber = (fiberNode: any, depth = 0) => {if (!fiberNode || depth > 50) return; // Prevent infinite recursion
                   try {// Check for null child references that should exist
-                    if (fiberNode.child === null && fiberNode.memoizedProps?.children) {violations.push({
-                        type: 'fiber-error',
-                        severity: 'high',
-                        message: 'React Fiber tree inconsistency: null child with existing children props',
-                        fixSuggestion: 'Check for conditional rendering issues or improper component structure.'
-                      });
-                    }
-
-                    // Check for circular references
+                    if (fiberNode.child === null && fiberNode.memoizedProps?.children) {violations.push({ type: 'fiber-error', severity: 'high', message: 'React Fiber tree inconsistency: null child with existing children props', fixSuggestion: 'Check for conditional rendering issues or improper component structure.' });} // Check for circular references
                     if (fiberNode.return && fiberNode.return.child === fiberNode && fiberNode.sibling === fiberNode) {
                       violations.push({
                         type: 'fiber-error',
@@ -199,6 +199,14 @@ const EnhancedInvariantDetector: React.FC = () => {
 
 
 
+
+
+
+
+
+
+
+
                     // Silent catch for fiber inspection
                   }};if (fiber.current) {checkFiber(fiber.current);} else if (fiber.child) {checkFiber(fiber);}}} catch (e) {
 
@@ -212,27 +220,19 @@ const EnhancedInvariantDetector: React.FC = () => {
 
               // Silent catch for root processing
             }});} catch (error) {console.warn('Error detecting fiber inconsistencies:', error);}return violations;}, []); // Enhanced DOM nesting detection
-  const detectInvalidNesting = useCallback(() => {const violations: Omit<InvariantViolation, 'id' | 'timestamp'>[] = [];try {const invalidCombinations = [{ parent: 'p', child: 'div', message: 'Block elements cannot be nested inside paragraphs' }, { parent: 'p', child: 'p', message: 'Paragraphs cannot be nested inside other paragraphs' }, { parent: 'a', child: 'a', message: 'Anchor tags cannot be nested inside other anchor tags' }, { parent: 'button', child: 'button', message: 'Buttons cannot be nested inside other buttons' }, { parent: 'button', child: 'a', message: 'Interactive elements should not be nested' }, { parent: 'form', child: 'form', message: 'Forms cannot be nested inside other forms' }, { parent: 'table', child: 'div', message: 'Invalid table structure - div inside table without proper wrapper' }, { parent: 'tr', child: 'div', message: 'Table row cannot contain div elements directly' }, { parent: 'ul', child: 'div', message: 'List should only contain li elements' }, { parent: 'ol', child: 'div', message: 'Ordered list should only contain li elements' }];invalidCombinations.forEach(({ parent, child, message }) => {const invalidElements = document.querySelectorAll(`${parent} ${child}`);if (invalidElements.length > 0) {violations.push({ type: 'invalid-nesting', severity: 'medium', message: `Invalid DOM nesting: ${message} (${invalidElements.length} occurrences)`, fixSuggestion: `Review your component structure and ensure proper HTML semantics.` });}});} catch (error) {console.warn('Error detecting invalid nesting:', error);
+  const detectInvalidNesting = useCallback(() => {const violations: Omit<InvariantViolation, 'id' | 'timestamp'>[] = [];try {const invalidCombinations = [{ parent: 'p', child: 'div', message: 'Block elements cannot be nested inside paragraphs' }, { parent: 'p', child: 'p', message: 'Paragraphs cannot be nested inside other paragraphs' }, { parent: 'a', child: 'a', message: 'Anchor tags cannot be nested inside other anchor tags' }, { parent: 'button', child: 'button', message: 'Buttons cannot be nested inside other buttons' }, { parent: 'button', child: 'a', message: 'Interactive elements should not be nested' }, { parent: 'form', child: 'form', message: 'Forms cannot be nested inside other forms' }, { parent: 'table', child: 'div', message: 'Invalid table structure - div inside table without proper wrapper' }, { parent: 'tr', child: 'div', message: 'Table row cannot contain div elements directly' }, { parent: 'ul', child: 'div', message: 'List should only contain li elements' }, { parent: 'ol', child: 'div', message: 'Ordered list should only contain li elements' }];invalidCombinations.forEach(({ parent, child, message }) => {const invalidElements = document.querySelectorAll(`${parent} ${child}`);if (invalidElements.length > 0) {violations.push({ type: 'invalid-nesting', severity: 'medium', message: `Invalid DOM nesting: ${message} (${invalidElements.length} occurrences)`, fixSuggestion: `Review your component structure and ensure proper HTML semantics.` });}});} catch (error) {console.warn('Error detecting invalid nesting:', error);}return violations;}, []); // Component tracking for render cycles
+  const trackComponentRenders = useCallback(() => {renderCountRef.current++;
+      // If render count is excessive, it might indicate infinite render loops
+      if (renderCountRef.current > 1000) {
+        addViolation({
+          type: 'react-error',
+          severity: 'high',
+          message: `Excessive render cycles detected (${renderCountRef.current}). Possible infinite render loop.`,
+          fixSuggestion: 'Check for state updates during render or missing dependencies in useEffect.'
+        });
+        renderCountRef.current = 0; // Reset to prevent spam
       }
-
-      return violations;
-    }, []);
-
-  // Component tracking for render cycles
-  const trackComponentRenders = useCallback(() => {
-    renderCountRef.current++;
-
-    // If render count is excessive, it might indicate infinite render loops
-    if (renderCountRef.current > 1000) {
-      addViolation({
-        type: 'react-error',
-        severity: 'high',
-        message: `Excessive render cycles detected (${renderCountRef.current}). Possible infinite render loop.`,
-        fixSuggestion: 'Check for state updates during render or missing dependencies in useEffect.'
-      });
-      renderCountRef.current = 0; // Reset to prevent spam
-    }
-  }, [addViolation]);
+    }, [addViolation]);
 
   const scanForViolations = useCallback(() => {
     if (!isActive) return;

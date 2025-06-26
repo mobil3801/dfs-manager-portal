@@ -644,6 +644,11 @@ const ProductForm = () => {
     document.body.removeChild(a);
   };
 
+  // Filter out vendors with empty vendor_name
+  const validVendors = vendors.filter((vendor) => vendor.vendor_name && vendor.vendor_name.trim() !== '');
+  // Filter out categories with empty category_name
+  const validCategories = categories.filter((category) => category.category_name && category.category_name.trim() !== '');
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
@@ -839,7 +844,7 @@ const ProductForm = () => {
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
-                      {categories.map((cat) =>
+                      {validCategories.map((cat) =>
                       <SelectItem key={cat.id} value={cat.category_name}>
                           {cat.category_name}
                         </SelectItem>
@@ -916,7 +921,7 @@ const ProductForm = () => {
                       <SelectValue placeholder="Select merchant" />
                     </SelectTrigger>
                     <SelectContent>
-                      {vendors.map((vendor) =>
+                      {validVendors.map((vendor) =>
                       <SelectItem key={vendor.id} value={vendor.id.toString()}>
                           {vendor.vendor_name}
                         </SelectItem>

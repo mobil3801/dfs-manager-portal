@@ -70,7 +70,7 @@ const GasTankReportSection: React.FC<GasTankReportSectionProps> = ({
         
         <div className="pt-4 border-t border-red-200">
           <div className="flex items-center justify-between">
-            <Label className="text-lg font-semibold">Total Gallon Sold (Auto-calculated)</Label>
+            <Label className="peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-lg font-semibold">Total Gallon Sold</Label>
             <div className="text-2xl font-bold text-red-800">{totalGallonsSold.toFixed(2)} gal</div>
           </div>
           <div className="text-sm text-gray-600 mt-1">

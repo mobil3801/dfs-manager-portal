@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,15 +6,31 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Save, TrendingUp } from 'lucide-react';
+import {
+  ArrowLeft,
+  Save,
+  TrendingUp,
+  FileEdit,
+  Clock,
+  Calculator,
+  AlertTriangle,
+  CheckCircle2,
+  Folder,
+  RefreshCw } from
+'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import StationSelector from '@/components/StationSelector';
 import GasGrocerySalesSection from '@/components/SalesReportSections/GasGrocerySalesSection';
 import LotterySalesSection from '@/components/SalesReportSections/LotterySalesSection';
 import GasTankReportSection from '@/components/SalesReportSections/GasTankReportSection';
+import ExpensesSection from '@/components/SalesReportSections/ExpensesSection';
 import DocumentsUploadSection from '@/components/SalesReportSections/DocumentsUploadSection';
 import CashCollectionSection from '@/components/SalesReportSections/CashCollectionSection';
+import DraftManagementDialog from '@/components/DraftManagementDialog';
+import DraftSavingService from '@/utils/draftSaving';
 
 export default function SalesReportForm() {
   const navigate = useNavigate();
@@ -26,6 +42,15 @@ export default function SalesReportForm() {
   const [selectedStation, setSelectedStation] = useState('');
   const [employees, setEmployees] = useState<Array<{id: number;first_name: string;last_name: string;employee_id: string;}>>([]);
   const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
+  const [totalExpenses, setTotalExpenses] = useState(0);
+  const [cashExpenses, setCashExpenses] = useState(0);
+  const [showDraftDialog, setShowDraftDialog] = useState(false);
+  const [draftInfo, setDraftInfo] = useState<{
+    savedAt: Date;
+    expiresAt: Date;
+    timeRemainingHours: number;
+  } | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     report_date: new Date().toISOString().split('T')[0],
@@ -65,6 +90,7 @@ export default function SalesReportForm() {
     if (selectedStation) {
       setFormData((prev) => ({ ...prev, station: selectedStation }));
       loadEmployees(selectedStation);
+      checkForExistingDraft();
     }
   }, [selectedStation]);
 
@@ -73,6 +99,20 @@ export default function SalesReportForm() {
       loadExistingReport();
     }
   }, [isEditing, id]);
+
+  // Check for existing draft when form data changes
+  useEffect(() => {
+    if (selectedStation && formData.report_date) {
+      checkForExistingDraft();
+    }
+  }, [selectedStation, formData.report_date]);
+
+  const checkForExistingDraft = () => {
+    if (selectedStation && formData.report_date && !isEditing) {
+      const info = DraftSavingService.getDraftInfo(selectedStation, formData.report_date);
+      setDraftInfo(info);
+    }
+  };
 
   const loadExistingReport = async () => {
     try {
@@ -100,7 +140,6 @@ export default function SalesReportForm() {
           cashAmount: report.cash_amount,
           grocerySales: report.grocery_sales,
           ebtSales: report.ebt_sales,
-          // Initialize new grocery breakdown fields to 0 if not present
           groceryCashSales: 0,
           groceryCardSales: 0,
           lotteryNetSales: report.lottery_net_sales,
@@ -153,26 +192,132 @@ export default function SalesReportForm() {
     }
   };
 
-  // Auto-calculations according to new requirements
-  // Total Sales - Auto (Credit Card + Debit Card + Mobile Payment + Cash + Grocery)
+  // Calculations based on user requirements
   const totalSales = formData.creditCardAmount + formData.debitCardAmount + formData.mobileAmount + formData.cashAmount + formData.grocerySales;
-
-  // Total Gallon Sold - Auto (Regular + Super + Diesel)
   const totalGallons = formData.regularGallons + formData.superGallons + formData.dieselGallons;
-
-  // Total Sales Cash - Auto (Net Sales + Scratch Off Sales)
   const totalLotteryCash = formData.lotteryNetSales + formData.scratchOffSales;
-
-  // Total Grocery Sales - Auto (Cash Sales + Credit/Debit Card + EBT)
   const totalGrocerySales = formData.groceryCashSales + formData.groceryCardSales + formData.ebtSales;
 
-  // Expected Cash calculation: Cash Amount + Grocery Sales (cash portion) + NY Lottery Net Sales + Scratch Off Sales
-  const totalCashFromSales = formData.cashAmount + formData.groceryCashSales + formData.lotteryNetSales + formData.scratchOffSales;
-  // Removed expense calculations
-  const totalCashFromExpenses = 0;
+  // UPDATED CALCULATION as per user requirements:
+  // "Total (+/-) Short/Over" calculation based on:
+  // Sum: Gas & Grocery Sales → Cash Amount + Grocery Sales Breakdown → Cash Sales + NY Lottery Sales → Total Sales Cash
+  // Subtract: expenses marked with payment type "Cash"
+  const expectedCashFromSales = useMemo(() => {
+    return formData.cashAmount + formData.groceryCashSales + totalLotteryCash;
+  }, [formData.cashAmount, formData.groceryCashSales, totalLotteryCash]);
+
+  // Final Short/Over calculation: Cash Collection - (Expected Cash - Cash Expenses)
+  const totalShortOver = useMemo(() => {
+    return formData.cashCollectionOnHand - (expectedCashFromSales - cashExpenses);
+  }, [formData.cashCollectionOnHand, expectedCashFromSales, cashExpenses]);
+
+  const handleSaveAsDraft = () => {
+    try {
+      if (!selectedStation || !formData.report_date) {
+        toast({
+          title: 'Cannot Save Draft',
+          description: 'Please select a station and report date first',
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      const success = DraftSavingService.saveDraft(selectedStation, formData.report_date, {
+        ...formData,
+        totalExpenses,
+        cashExpenses,
+        calculatedValues: {
+          totalSales,
+          totalGallons,
+          totalLotteryCash,
+          totalGrocerySales,
+          expectedCashFromSales,
+          totalShortOver
+        }
+      });
+
+      if (success) {
+        toast({
+          title: 'Draft Saved',
+          description: `Form data saved for ${selectedStation} on ${formData.report_date}. Will expire in 12 hours.`
+        });
+        checkForExistingDraft();
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to save draft',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save draft',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleLoadDraft = (draftData: any, station: string, reportDate: string) => {
+    try {
+      setSelectedStation(station);
+      setFormData({
+        ...draftData,
+        station
+      });
+
+      if (draftData.totalExpenses) setTotalExpenses(draftData.totalExpenses);
+      if (draftData.cashExpenses) setCashExpenses(draftData.cashExpenses);
+
+      // Delete the draft after loading
+      DraftSavingService.deleteDraft(station, reportDate);
+      setDraftInfo(null);
+    } catch (error) {
+      console.error('Error loading draft:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load draft data',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      report_date: new Date().toISOString().split('T')[0],
+      station: selectedStation,
+      shift: 'DAY',
+      employee_name: '',
+      employee_id: '',
+      cashCollectionOnHand: 0,
+      creditCardAmount: 0,
+      debitCardAmount: 0,
+      mobileAmount: 0,
+      cashAmount: 0,
+      grocerySales: 0,
+      ebtSales: 0,
+      groceryCashSales: 0,
+      groceryCardSales: 0,
+      lotteryNetSales: 0,
+      scratchOffSales: 0,
+      regularGallons: 0,
+      superGallons: 0,
+      dieselGallons: 0,
+      dayReportFileId: undefined,
+      veederRootFileId: undefined,
+      lottoReportFileId: undefined,
+      scratchOffReportFileId: undefined,
+      notes: ''
+    });
+    setTotalExpenses(0);
+    setCashExpenses(0);
+    setDraftInfo(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     // Validate required documents
     const requiredDocs = ['dayReportFileId', 'veederRootFileId', 'lottoReportFileId', 'scratchOffReportFileId'];
@@ -184,6 +329,7 @@ export default function SalesReportForm() {
         description: 'Please upload all required documents before submitting.',
         variant: 'destructive'
       });
+      setIsSubmitting(false);
       return;
     }
 
@@ -194,7 +340,7 @@ export default function SalesReportForm() {
       employee_name: formData.employee_name,
       employee_id: formData.employee_id,
       cash_collection_on_hand: formData.cashCollectionOnHand,
-      total_short_over: formData.cashCollectionOnHand - (totalCashFromSales - totalCashFromExpenses),
+      total_short_over: totalShortOver,
       credit_card_amount: formData.creditCardAmount,
       debit_card_amount: formData.debitCardAmount,
       mobile_amount: formData.mobileAmount,
@@ -208,7 +354,7 @@ export default function SalesReportForm() {
       super_gallons: formData.superGallons,
       diesel_gallons: formData.dieselGallons,
       total_gallons: totalGallons,
-      expenses_data: '[]', // Empty expenses array
+      expenses_data: JSON.stringify({ total_expenses: totalExpenses, cash_expenses: cashExpenses }),
       day_report_file_id: formData.dayReportFileId,
       veeder_root_file_id: formData.veederRootFileId,
       lotto_report_file_id: formData.lottoReportFileId,
@@ -235,7 +381,22 @@ export default function SalesReportForm() {
         description: `Sales report has been ${isEditing ? 'updated' : 'created'} successfully.`
       });
 
-      navigate('/dashboard');
+      // Delete any existing draft after successful submission
+      if (selectedStation && formData.report_date) {
+        DraftSavingService.deleteDraft(selectedStation, formData.report_date);
+      }
+
+      // Reset form after successful submission (as requested)
+      if (!isEditing) {
+        resetForm();
+        toast({
+          title: 'Form Reset',
+          description: 'Form has been reset for new entry'
+        });
+      } else {
+        navigate('/dashboard');
+      }
+
     } catch (error) {
       console.error('Error saving report:', error);
       toast({
@@ -243,6 +404,8 @@ export default function SalesReportForm() {
         description: error instanceof Error ? error.message : 'Failed to save report',
         variant: 'destructive'
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -253,6 +416,13 @@ export default function SalesReportForm() {
   const handleDocumentUpload = (field: string, fileId: number) => {
     setFormData((prev) => ({ ...prev, [field]: fileId }));
   };
+
+  const handleExpensesChange = (totalExpenses: number, cashExpenses: number = 0) => {
+    setTotalExpenses(totalExpenses);
+    setCashExpenses(cashExpenses);
+  };
+
+  const validEmployees = employees.filter((employee) => employee.employee_id && employee.employee_id.trim() !== '');
 
   // If no station selected, show station selector
   if (!selectedStation) {
@@ -297,6 +467,30 @@ export default function SalesReportForm() {
           </div>
         </div>
 
+        {/* Draft Info Alert */}
+        {draftInfo && !isEditing &&
+        <Alert className="mb-6 border-amber-200 bg-amber-50">
+            <Clock className="h-4 w-4 text-amber-600" />
+            <AlertDescription className="text-amber-800">
+              <div className="flex items-center justify-between">
+                <span>
+                  You have a saved draft from {draftInfo.savedAt.toLocaleString()}. 
+                  Expires in {Math.floor(draftInfo.timeRemainingHours)} hours.
+                </span>
+                <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowDraftDialog(true)}
+                className="ml-4 text-amber-800 border-amber-300 hover:bg-amber-100">
+
+                  <Folder className="w-3 h-3 mr-1" />
+                  Manage Drafts
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        }
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information */}
           <Card>
@@ -339,7 +533,7 @@ export default function SalesReportForm() {
                   <Select
                     value={formData.employee_id}
                     onValueChange={(value) => {
-                      const selectedEmployee = employees.find((emp) => emp.employee_id === value);
+                      const selectedEmployee = validEmployees.find((emp) => emp.employee_id === value);
                       if (selectedEmployee) {
                         updateFormData('employee_id', value);
                         updateFormData('employee_name', `${selectedEmployee.first_name} ${selectedEmployee.last_name}`);
@@ -350,7 +544,12 @@ export default function SalesReportForm() {
                       <SelectValue placeholder={isLoadingEmployees ? "Loading employees..." : "Select employee"} />
                     </SelectTrigger>
                     <SelectContent>
-                      {employees.map((employee) =>
+                      {validEmployees.length === 0 && !isLoadingEmployees &&
+                      <div className="p-2 text-center text-gray-500">
+                          No active employees found for {selectedStation}
+                        </div>
+                      }
+                      {validEmployees.map((employee) =>
                       <SelectItem key={employee.id} value={employee.employee_id}>
                           {employee.first_name} {employee.last_name} (ID: {employee.employee_id})
                         </SelectItem>
@@ -362,14 +561,70 @@ export default function SalesReportForm() {
             </CardContent>
           </Card>
 
-          {/* Cash Collection */}
+          {/* Cash Collection with Enhanced Calculation Display */}
           <CashCollectionSection
             values={{
               cashCollectionOnHand: formData.cashCollectionOnHand,
-              totalCashFromSales: totalCashFromSales,
-              totalCashFromExpenses: totalCashFromExpenses
+              totalCashFromSales: expectedCashFromSales,
+              totalCashFromExpenses: cashExpenses,
+              totalShortOver: totalShortOver
             }}
             onChange={updateFormData} />
+
+          {/* Enhanced Short/Over Calculation Display */}
+          <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+            <CardHeader>
+              <CardTitle className="text-green-800 flex items-center gap-2">
+                <Calculator className="w-5 h-5" />
+                Total (+/-) Short/Over Calculation
+              </CardTitle>
+              <CardDescription className="text-green-700">
+                User Requirements: Gas Cash + Grocery Cash + Lottery Cash - Cash Expenses
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-white p-4 rounded-lg border border-green-200">
+                  <div className="text-sm text-green-600 mb-1">Gas & Grocery Cash</div>
+                  <div className="text-2xl font-bold text-green-800">${formData.cashAmount.toFixed(2)}</div>
+                  <div className="text-xs text-gray-500 mt-1">From Gas & Grocery Section</div>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-green-200">
+                  <div className="text-sm text-green-600 mb-1">Grocery Breakdown Cash</div>
+                  <div className="text-2xl font-bold text-green-800">${formData.groceryCashSales.toFixed(2)}</div>
+                  <div className="text-xs text-gray-500 mt-1">From Grocery Breakdown</div>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-green-200">
+                  <div className="text-sm text-green-600 mb-1">NY Lottery Total Cash</div>
+                  <div className="text-2xl font-bold text-green-800">${totalLotteryCash.toFixed(2)}</div>
+                  <div className="text-xs text-gray-500 mt-1">Net Sales + Scratch Off</div>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-red-200">
+                  <div className="text-sm text-red-600 mb-1">Cash Expenses</div>
+                  <div className="text-2xl font-bold text-red-600">-${cashExpenses.toFixed(2)}</div>
+                  <div className="text-xs text-gray-500 mt-1">Subtracted from total</div>
+                </div>
+              </div>
+              
+              <div className="mt-4 p-4 bg-white rounded-lg border-2 border-green-300">
+                <div className="text-sm text-green-600 mb-1">Expected Cash from Sales</div>
+                <div className="text-3xl font-bold text-green-800">${expectedCashFromSales.toFixed(2)}</div>
+                <div className="text-xs text-green-600 mt-1">
+                  Formula: ${formData.cashAmount.toFixed(2)} + ${formData.groceryCashSales.toFixed(2)} + ${totalLotteryCash.toFixed(2)}
+                </div>
+              </div>
+
+              <div className="mt-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-300">
+                <div className="text-sm text-blue-600 mb-1">Final Short/Over Calculation</div>
+                <div className={`text-3xl font-bold ${totalShortOver >= 0 ? 'text-green-800' : 'text-red-800'}`}>
+                  {totalShortOver >= 0 ? '+' : ''}${totalShortOver.toFixed(2)}
+                </div>
+                <div className="text-xs text-blue-600 mt-1">
+                  Cash Collection (${formData.cashCollectionOnHand.toFixed(2)}) - (Expected Cash - Cash Expenses) = {totalShortOver >= 0 ? 'Over' : 'Short'}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Gas & Grocery Sales */}
           <GasGrocerySalesSection
@@ -403,7 +658,11 @@ export default function SalesReportForm() {
             }}
             onChange={updateFormData} />
 
-          {/* Expenses Section Removed - No longer displayed */}
+          {/* Expenses Section */}
+          <ExpensesSection
+            station={selectedStation}
+            reportDate={formData.report_date}
+            onExpensesChange={handleExpensesChange} />
 
           {/* Documents Upload */}
           <DocumentsUploadSection
@@ -439,7 +698,7 @@ export default function SalesReportForm() {
               <CardTitle className="text-blue-800">Report Summary</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-blue-800">${totalSales.toFixed(2)}</div>
                   <div className="text-sm text-gray-600">Total Sales</div>
@@ -456,26 +715,84 @@ export default function SalesReportForm() {
                   <div className="text-2xl font-bold text-green-800">${totalGrocerySales.toFixed(2)}</div>
                   <div className="text-sm text-gray-600">Grocery Sales</div>
                 </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-red-800">${totalExpenses.toFixed(2)}</div>
+                  <div className="text-sm text-gray-600">Total Expenses</div>
+                </div>
               </div>
               
-              {/* Expense Summary Removed */}
+              {/* Additional Short/Over Summary */}
+              <div className="mt-6 pt-4 border-t border-blue-200">
+                <div className="text-center">
+                  <div className="text-sm text-blue-600 mb-1">Total (+/-) Short/Over</div>
+                  <div className={`text-4xl font-bold ${totalShortOver >= 0 ? 'text-green-800' : 'text-red-800'}`}>
+                    {totalShortOver >= 0 ? '+' : ''}${totalShortOver.toFixed(2)}
+                  </div>
+                  <Badge variant={totalShortOver >= 0 ? 'default' : 'destructive'} className="mt-2">
+                    {totalShortOver >= 0 ? 'Over' : 'Short'}
+                  </Badge>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
           {/* Submit Buttons */}
-          <div className="flex items-center justify-end space-x-4 pt-6">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate('/dashboard')}>
-              Cancel
-            </Button>
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
-              <Save className="w-4 h-4 mr-2" />
-              {isEditing ? 'Update' : 'Create'} Report
-            </Button>
+          <div className="flex items-center justify-between pt-6">
+            <div className="flex items-center space-x-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate('/dashboard')}>
+                Cancel
+              </Button>
+              
+              {!isEditing &&
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowDraftDialog(true)}
+                className="gap-2">
+                  <Folder className="w-4 h-4" />
+                  Manage Drafts
+                </Button>
+              }
+            </div>
+
+            <div className="flex items-center space-x-4">
+              {!isEditing &&
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleSaveAsDraft}
+                className="gap-2">
+                  <FileEdit className="w-4 h-4" />
+                  Save as Draft
+                </Button>
+              }
+              
+              <Button
+                type="submit"
+                className="bg-blue-600 hover:bg-blue-700 gap-2"
+                disabled={isSubmitting}>
+                {isSubmitting ?
+                <RefreshCw className="w-4 h-4 animate-spin" /> :
+
+                <Save className="w-4 h-4" />
+                }
+                {isEditing ? 'Update' : 'Create'} Report
+              </Button>
+            </div>
           </div>
         </form>
+
+        {/* Draft Management Dialog */}
+        <DraftManagementDialog
+          open={showDraftDialog}
+          onClose={() => setShowDraftDialog(false)}
+          onLoadDraft={handleLoadDraft}
+          currentStation={selectedStation}
+          currentReportDate={formData.report_date} />
+
       </div>
     </div>);
 

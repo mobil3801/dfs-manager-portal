@@ -87,6 +87,9 @@ const EmployeeSelector: React.FC<EmployeeSelectorProps> = ({
     }
   };
 
+  // Filter out employees with empty employee_id values
+  const validEmployees = employees.filter((employee) => employee.employee_id && employee.employee_id.trim() !== '');
+
   return (
     <div className={`space-y-2 ${className}`}>
       {showLabel &&
@@ -115,13 +118,13 @@ const EmployeeSelector: React.FC<EmployeeSelectorProps> = ({
 
         </SelectTrigger>
         <SelectContent>
-          {employees.length === 0 && !loading &&
+          {validEmployees.length === 0 && !loading &&
           <div className="p-2 text-center text-gray-500">
               {station ? `No active employees found for ${station}` : 'No active employees found'}
             </div>
           }
           
-          {employees.map((employee) =>
+          {validEmployees.map((employee) =>
           <SelectItem key={employee.id} value={employee.employee_id}>
               <div className="flex flex-col">
                 <span className="font-medium">
