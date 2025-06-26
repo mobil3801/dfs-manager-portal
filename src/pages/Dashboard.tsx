@@ -4,19 +4,19 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  BarChart3, 
-  Users, 
-  Package, 
-  DollarSign, 
+import {
+  BarChart3,
+  Users,
+  Package,
+  DollarSign,
   TrendingUp,
   AlertTriangle,
   CheckCircle,
   Calendar,
   Building2,
   Activity,
-  Shield
-} from 'lucide-react';
+  Shield } from
+'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -39,13 +39,13 @@ const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { 
-    hasPermission, 
-    isAdmin, 
-    isManager, 
-    userStation, 
+  const {
+    hasPermission,
+    isAdmin,
+    isManager,
+    userStation,
     hasAllStationsAccess,
-    loading: permissionsLoading 
+    loading: permissionsLoading
   } = useEnhancedPermissions();
 
   const [loading, setLoading] = useState(false);
@@ -81,13 +81,13 @@ const Dashboard: React.FC = () => {
             OrderByField: "report_date",
             IsAsc: false,
             Filters: userStation && userStation !== 'ALL' ? [
-              { name: "station", op: "Equal", value: userStation }
-            ] : []
-          }).then(response => {
+            { name: "station", op: "Equal", value: userStation }] :
+            []
+          }).then((response) => {
             if (response.data?.List) {
               const salesReports = response.data.List;
-              const totalSales = salesReports.reduce((sum: number, report: any) => 
-                sum + (report.total_sales || 0), 0
+              const totalSales = salesReports.reduce((sum: number, report: any) =>
+              sum + (report.total_sales || 0), 0
               );
               return { totalSales, recentSalesReports: salesReports.length };
             }
@@ -105,11 +105,11 @@ const Dashboard: React.FC = () => {
             OrderByField: "id",
             IsAsc: false,
             Filters: []
-          }).then(response => {
+          }).then((response) => {
             if (response.data?.List) {
               const products = response.data.List;
-              const lowStock = products.filter((product: any) => 
-                product.quantity_in_stock <= product.minimum_stock
+              const lowStock = products.filter((product: any) =>
+              product.quantity_in_stock <= product.minimum_stock
               ).length;
               return { totalProducts: products.length, lowStockProducts: lowStock };
             }
@@ -127,9 +127,9 @@ const Dashboard: React.FC = () => {
             OrderByField: "id",
             IsAsc: false,
             Filters: userStation && userStation !== 'ALL' ? [
-              { name: "station", op: "Equal", value: userStation }
-            ] : []
-          }).then(response => {
+            { name: "station", op: "Equal", value: userStation }] :
+            []
+          }).then((response) => {
             if (response.data?.List) {
               return { totalEmployees: response.data.List.length };
             }
@@ -147,9 +147,9 @@ const Dashboard: React.FC = () => {
             OrderByField: "order_date",
             IsAsc: false,
             Filters: userStation && userStation !== 'ALL' ? [
-              { name: "station", op: "Equal", value: userStation }
-            ] : []
-          }).then(response => {
+            { name: "station", op: "Equal", value: userStation }] :
+            []
+          }).then((response) => {
             if (response.data?.List) {
               const orders = response.data.List;
               const pending = orders.filter((order: any) => order.status === 'Pending').length;
@@ -169,13 +169,13 @@ const Dashboard: React.FC = () => {
             OrderByField: "expiry_date",
             IsAsc: true,
             Filters: userStation && userStation !== 'ALL' ? [
-              { name: "station", op: "Equal", value: userStation }
-            ] : []
-          }).then(response => {
+            { name: "station", op: "Equal", value: userStation }] :
+            []
+          }).then((response) => {
             if (response.data?.List) {
               const licenses = response.data.List;
-              const expired = licenses.filter((license: any) => 
-                new Date(license.expiry_date) < new Date()
+              const expired = licenses.filter((license: any) =>
+              new Date(license.expiry_date) < new Date()
               ).length;
               return { expiredLicenses: expired };
             }
@@ -186,15 +186,15 @@ const Dashboard: React.FC = () => {
 
       const results = await Promise.all(statsPromises);
       const combinedStats = results.reduce((acc, result) => ({ ...acc, ...result }), {});
-      
-      setStats(prev => ({ ...prev, ...combinedStats }));
+
+      setStats((prev) => ({ ...prev, ...combinedStats }));
 
     } catch (error) {
       console.error('Error loading dashboard data:', error);
       toast({
         title: "Error",
         description: "Failed to load dashboard data",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -205,8 +205,8 @@ const Dashboard: React.FC = () => {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -215,24 +215,24 @@ const Dashboard: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between"
-      >
+        className="flex items-center justify-between">
+
         <div>
           <h1 className="text-3xl font-bold">Welcome back, {user?.Name || 'User'}!</h1>
           <p className="text-muted-foreground flex items-center gap-2">
             <Building2 className="h-4 w-4" />
             {hasAllStationsAccess() ? 'All Stations Access' : `Station: ${userStation || 'Not Assigned'}`}
-            {isAdmin() && (
-              <Badge className="bg-red-500 text-white ml-2">
+            {isAdmin() &&
+            <Badge className="bg-red-500 text-white ml-2">
                 <Shield className="h-3 w-3 mr-1" />
                 Administrator
               </Badge>
-            )}
-            {isManager() && !isAdmin() && (
-              <Badge className="bg-blue-500 text-white ml-2">
+            }
+            {isManager() && !isAdmin() &&
+            <Badge className="bg-blue-500 text-white ml-2">
                 Manager
               </Badge>
-            )}
+            }
           </p>
         </div>
         <div className="text-right">
@@ -242,8 +242,8 @@ const Dashboard: React.FC = () => {
       </motion.div>
 
       {/* Admin Dashboard Tab - Only for Administrators */}
-      {isAdmin() && (
-        <Tabs defaultValue="overview" className="w-full">
+      {isAdmin() &&
+      <Tabs defaultValue="overview" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="admin">Admin Dashboard</TabsTrigger>
@@ -257,70 +257,70 @@ const Dashboard: React.FC = () => {
             <QuickAdminDashboard />
           </TabsContent>
         </Tabs>
-      )}
+      }
 
       {/* Regular Dashboard for Non-Admin Users */}
-      {!isAdmin() && (
-        <DashboardOverview stats={stats} loading={loading} hasPermission={hasPermission} navigate={navigate} />
-      )}
+      {!isAdmin() &&
+      <DashboardOverview stats={stats} loading={loading} hasPermission={hasPermission} navigate={navigate} />
+      }
 
       {/* System Alerts */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 }}
-        className="space-y-4"
-      >
-        {stats.expiredLicenses > 0 && hasPermission('licenses', 'view') && (
-          <Alert>
+        className="space-y-4">
+
+        {stats.expiredLicenses > 0 && hasPermission('licenses', 'view') &&
+        <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               <strong>{stats.expiredLicenses}</strong> license(s) have expired. 
-              <Button 
-                variant="link" 
-                className="p-0 h-auto ml-2"
-                onClick={() => navigate('/licenses')}
-              >
+              <Button
+              variant="link"
+              className="p-0 h-auto ml-2"
+              onClick={() => navigate('/licenses')}>
+
                 Review licenses
               </Button>
             </AlertDescription>
           </Alert>
-        )}
+        }
 
-        {stats.lowStockProducts > 0 && hasPermission('products', 'view') && (
-          <Alert>
+        {stats.lowStockProducts > 0 && hasPermission('products', 'view') &&
+        <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               <strong>{stats.lowStockProducts}</strong> product(s) are running low on stock.
-              <Button 
-                variant="link" 
-                className="p-0 h-auto ml-2"
-                onClick={() => navigate('/products')}
-              >
+              <Button
+              variant="link"
+              className="p-0 h-auto ml-2"
+              onClick={() => navigate('/products')}>
+
                 Check inventory
               </Button>
             </AlertDescription>
           </Alert>
-        )}
+        }
 
-        {stats.pendingOrders > 0 && hasPermission('orders', 'view') && (
-          <Alert>
+        {stats.pendingOrders > 0 && hasPermission('orders', 'view') &&
+        <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               <strong>{stats.pendingOrders}</strong> order(s) are pending approval.
-              <Button 
-                variant="link" 
-                className="p-0 h-auto ml-2"
-                onClick={() => navigate('/orders')}
-              >
+              <Button
+              variant="link"
+              className="p-0 h-auto ml-2"
+              onClick={() => navigate('/orders')}>
+
                 Review orders
               </Button>
             </AlertDescription>
           </Alert>
-        )}
+        }
       </motion.div>
-    </div>
-  );
+    </div>);
+
 };
 
 // Extracted Dashboard Overview Component
@@ -333,43 +333,43 @@ interface DashboardOverviewProps {
 
 const DashboardOverview: React.FC<DashboardOverviewProps> = ({ stats, loading, hasPermission, navigate }) => {
   const statsCards = [
-    {
-      title: "Total Sales",
-      value: `$${stats.totalSales.toLocaleString()}`,
-      icon: DollarSign,
-      color: "text-green-600",
-      bgColor: "bg-green-100",
-      permission: hasPermission('sales', 'view'),
-      onClick: () => navigate('/sales')
-    },
-    {
-      title: "Products",
-      value: stats.totalProducts.toString(),
-      icon: Package,
-      color: "text-blue-600",
-      bgColor: "bg-blue-100",
-      permission: hasPermission('products', 'view'),
-      onClick: () => navigate('/products')
-    },
-    {
-      title: "Employees",
-      value: stats.totalEmployees.toString(),
-      icon: Users,
-      color: "text-purple-600",
-      bgColor: "bg-purple-100",
-      permission: hasPermission('employees', 'view'),
-      onClick: () => navigate('/employees')
-    },
-    {
-      title: "Orders",
-      value: stats.totalOrders.toString(),
-      icon: BarChart3,
-      color: "text-orange-600",
-      bgColor: "bg-orange-100",
-      permission: hasPermission('orders', 'view'),
-      onClick: () => navigate('/orders')
-    }
-  ];
+  {
+    title: "Total Sales",
+    value: `$${stats.totalSales.toLocaleString()}`,
+    icon: DollarSign,
+    color: "text-green-600",
+    bgColor: "bg-green-100",
+    permission: hasPermission('sales', 'view'),
+    onClick: () => navigate('/sales')
+  },
+  {
+    title: "Products",
+    value: stats.totalProducts.toString(),
+    icon: Package,
+    color: "text-blue-600",
+    bgColor: "bg-blue-100",
+    permission: hasPermission('products', 'view'),
+    onClick: () => navigate('/products')
+  },
+  {
+    title: "Employees",
+    value: stats.totalEmployees.toString(),
+    icon: Users,
+    color: "text-purple-600",
+    bgColor: "bg-purple-100",
+    permission: hasPermission('employees', 'view'),
+    onClick: () => navigate('/employees')
+  },
+  {
+    title: "Orders",
+    value: stats.totalOrders.toString(),
+    icon: BarChart3,
+    color: "text-orange-600",
+    bgColor: "bg-orange-100",
+    permission: hasPermission('orders', 'view'),
+    onClick: () => navigate('/orders')
+  }];
+
 
   return (
     <>
@@ -377,16 +377,16 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ stats, loading, h
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statsCards.map((stat, index) => {
           if (!stat.permission) return null;
-          
+
           const Icon = stat.icon;
-          
+
           return (
             <motion.div
               key={stat.title}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
+              transition={{ delay: index * 0.1 }}>
+
               <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={stat.onClick}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
@@ -404,8 +404,8 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ stats, loading, h
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
-          );
+            </motion.div>);
+
         })}
       </div>
 
@@ -413,8 +413,8 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ stats, loading, h
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-      >
+        transition={{ delay: 0.5 }}>
+
         <Card>
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
@@ -422,55 +422,55 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ stats, loading, h
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {hasPermission('sales', 'create') && (
-                <Button
-                  variant="outline"
-                  className="h-16 flex flex-col gap-2"
-                  onClick={() => navigate('/sales/new')}
-                >
+              {hasPermission('sales', 'create') &&
+              <Button
+                variant="outline"
+                className="h-16 flex flex-col gap-2"
+                onClick={() => navigate('/sales/new')}>
+
                   <DollarSign className="h-5 w-5" />
                   <span className="text-sm">New Sales Report</span>
                 </Button>
-              )}
+              }
               
-              {hasPermission('products', 'create') && (
-                <Button
-                  variant="outline"
-                  className="h-16 flex flex-col gap-2"
-                  onClick={() => navigate('/products/new')}
-                >
+              {hasPermission('products', 'create') &&
+              <Button
+                variant="outline"
+                className="h-16 flex flex-col gap-2"
+                onClick={() => navigate('/products/new')}>
+
                   <Package className="h-5 w-5" />
                   <span className="text-sm">Add Product</span>
                 </Button>
-              )}
+              }
               
-              {hasPermission('orders', 'create') && (
-                <Button
-                  variant="outline"
-                  className="h-16 flex flex-col gap-2"
-                  onClick={() => navigate('/orders/new')}
-                >
+              {hasPermission('orders', 'create') &&
+              <Button
+                variant="outline"
+                className="h-16 flex flex-col gap-2"
+                onClick={() => navigate('/orders/new')}>
+
                   <BarChart3 className="h-5 w-5" />
                   <span className="text-sm">Create Order</span>
                 </Button>
-              )}
+              }
               
-              {hasPermission('delivery', 'create') && (
-                <Button
-                  variant="outline"
-                  className="h-16 flex flex-col gap-2"
-                  onClick={() => navigate('/delivery/new')}
-                >
+              {hasPermission('delivery', 'create') &&
+              <Button
+                variant="outline"
+                className="h-16 flex flex-col gap-2"
+                onClick={() => navigate('/delivery/new')}>
+
                   <TrendingUp className="h-5 w-5" />
                   <span className="text-sm">Log Delivery</span>
                 </Button>
-              )}
+              }
             </div>
           </CardContent>
         </Card>
       </motion.div>
-    </>
-  );
+    </>);
+
 };
 
 export default Dashboard;

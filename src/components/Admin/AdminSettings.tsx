@@ -8,21 +8,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Settings, 
-  Shield, 
-  Bell, 
-  Key, 
-  Users, 
-  Database, 
+import {
+  Settings,
+  Shield,
+  Bell,
+  Key,
+  Users,
+  Database,
   Activity,
   CheckCircle,
   AlertTriangle,
   Save,
   RefreshCw,
   Lock,
-  Unlock
-} from 'lucide-react';
+  Unlock } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAdminAccess } from '@/hooks/use-admin-access';
 import { motion } from 'motion/react';
@@ -51,7 +51,7 @@ interface SystemSettings {
 const AdminSettings: React.FC = () => {
   const { toast } = useToast();
   const { hasAdminAccess } = useAdminAccess();
-  
+
   const [loading, setLoading] = useState(false);
   const [securitySettings, setSecuritySettings] = useState<SecuritySettings>({
     require_2fa: false,
@@ -78,24 +78,24 @@ const AdminSettings: React.FC = () => {
   const saveSecuritySettings = async () => {
     try {
       setLoading(true);
-      
+
       // In a real implementation, this would save to a configuration table
       // For now, we'll simulate with localStorage
       localStorage.setItem('security_settings', JSON.stringify(securitySettings));
-      
+
       // Log audit event
       await logAuditEvent('Security Settings Updated', 'Administrator updated security configuration');
-      
+
       toast({
         title: "Success",
-        description: "Security settings saved successfully",
+        description: "Security settings saved successfully"
       });
     } catch (error) {
       console.error('Error saving security settings:', error);
       toast({
         title: "Error",
         description: "Failed to save security settings",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -105,21 +105,21 @@ const AdminSettings: React.FC = () => {
   const saveSystemSettings = async () => {
     try {
       setLoading(true);
-      
+
       localStorage.setItem('system_settings', JSON.stringify(systemSettings));
-      
+
       await logAuditEvent('System Settings Updated', 'Administrator updated system configuration');
-      
+
       toast({
         title: "Success",
-        description: "System settings saved successfully",
+        description: "System settings saved successfully"
       });
     } catch (error) {
       console.error('Error saving system settings:', error);
       toast({
         title: "Error",
         description: "Failed to save system settings",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -152,11 +152,11 @@ const AdminSettings: React.FC = () => {
       // Load saved settings
       const savedSecurity = localStorage.getItem('security_settings');
       const savedSystem = localStorage.getItem('system_settings');
-      
+
       if (savedSecurity) {
         setSecuritySettings(JSON.parse(savedSecurity));
       }
-      
+
       if (savedSystem) {
         setSystemSettings(JSON.parse(savedSystem));
       }
@@ -173,8 +173,8 @@ const AdminSettings: React.FC = () => {
             You don't have administrator privileges to access these settings.
           </p>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -182,8 +182,8 @@ const AdminSettings: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between"
-      >
+        className="flex items-center justify-between">
+
         <div>
           <h1 className="text-3xl font-bold">Admin Settings</h1>
           <p className="text-muted-foreground">
@@ -244,10 +244,10 @@ const AdminSettings: React.FC = () => {
                     <Switch
                       id="require_2fa"
                       checked={securitySettings.require_2fa}
-                      onCheckedChange={(checked) => 
-                        setSecuritySettings(prev => ({ ...prev, require_2fa: checked }))
-                      }
-                    />
+                      onCheckedChange={(checked) =>
+                      setSecuritySettings((prev) => ({ ...prev, require_2fa: checked }))
+                      } />
+
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
@@ -257,13 +257,13 @@ const AdminSettings: React.FC = () => {
                         id="session_timeout"
                         type="number"
                         value={securitySettings.session_timeout}
-                        onChange={(e) => 
-                          setSecuritySettings(prev => ({ 
-                            ...prev, 
-                            session_timeout: parseInt(e.target.value) || 30 
-                          }))
-                        }
-                      />
+                        onChange={(e) =>
+                        setSecuritySettings((prev) => ({
+                          ...prev,
+                          session_timeout: parseInt(e.target.value) || 30
+                        }))
+                        } />
+
                     </div>
                     <div>
                       <Label htmlFor="max_login_attempts">Max Login Attempts</Label>
@@ -271,13 +271,13 @@ const AdminSettings: React.FC = () => {
                         id="max_login_attempts"
                         type="number"
                         value={securitySettings.max_login_attempts}
-                        onChange={(e) => 
-                          setSecuritySettings(prev => ({ 
-                            ...prev, 
-                            max_login_attempts: parseInt(e.target.value) || 5 
-                          }))
-                        }
-                      />
+                        onChange={(e) =>
+                        setSecuritySettings((prev) => ({
+                          ...prev,
+                          max_login_attempts: parseInt(e.target.value) || 5
+                        }))
+                        } />
+
                     </div>
                   </div>
                 </div>
@@ -295,13 +295,13 @@ const AdminSettings: React.FC = () => {
                       id="password_expiry"
                       type="number"
                       value={securitySettings.password_expiry_days}
-                      onChange={(e) => 
-                        setSecuritySettings(prev => ({ 
-                          ...prev, 
-                          password_expiry_days: parseInt(e.target.value) || 90 
-                        }))
-                      }
-                    />
+                      onChange={(e) =>
+                      setSecuritySettings((prev) => ({
+                        ...prev,
+                        password_expiry_days: parseInt(e.target.value) || 90
+                      }))
+                      } />
+
                   </div>
                   
                   <div className="flex items-center justify-between">
@@ -314,10 +314,10 @@ const AdminSettings: React.FC = () => {
                     <Switch
                       id="auto_logout"
                       checked={securitySettings.auto_logout_inactive}
-                      onCheckedChange={(checked) => 
-                        setSecuritySettings(prev => ({ ...prev, auto_logout_inactive: checked }))
-                      }
-                    />
+                      onCheckedChange={(checked) =>
+                      setSecuritySettings((prev) => ({ ...prev, auto_logout_inactive: checked }))
+                      } />
+
                   </div>
                 </div>
               </div>
@@ -333,29 +333,29 @@ const AdminSettings: React.FC = () => {
                     id="audit_retention"
                     type="number"
                     value={securitySettings.audit_retention_days}
-                    onChange={(e) => 
-                      setSecuritySettings(prev => ({ 
-                        ...prev, 
-                        audit_retention_days: parseInt(e.target.value) || 365 
-                      }))
-                    }
-                  />
+                    onChange={(e) =>
+                    setSecuritySettings((prev) => ({
+                      ...prev,
+                      audit_retention_days: parseInt(e.target.value) || 365
+                    }))
+                    } />
+
                 </div>
               </div>
 
               <div className="flex justify-end">
                 <Button onClick={saveSecuritySettings} disabled={loading}>
-                  {loading ? (
-                    <>
+                  {loading ?
+                  <>
                       <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                       Saving...
-                    </>
-                  ) : (
-                    <>
+                    </> :
+
+                  <>
                       <Save className="h-4 w-4 mr-2" />
                       Save Security Settings
                     </>
-                  )}
+                  }
                 </Button>
               </div>
             </CardContent>
@@ -389,10 +389,10 @@ const AdminSettings: React.FC = () => {
                     <Switch
                       id="backup_enabled"
                       checked={systemSettings.backup_enabled}
-                      onCheckedChange={(checked) => 
-                        setSystemSettings(prev => ({ ...prev, backup_enabled: checked }))
-                      }
-                    />
+                      onCheckedChange={(checked) =>
+                      setSystemSettings((prev) => ({ ...prev, backup_enabled: checked }))
+                      } />
+
                   </div>
                 </div>
               </div>
@@ -413,10 +413,10 @@ const AdminSettings: React.FC = () => {
                     <Switch
                       id="cache_enabled"
                       checked={systemSettings.cache_enabled}
-                      onCheckedChange={(checked) => 
-                        setSystemSettings(prev => ({ ...prev, cache_enabled: checked }))
-                      }
-                    />
+                      onCheckedChange={(checked) =>
+                      setSystemSettings((prev) => ({ ...prev, cache_enabled: checked }))
+                      } />
+
                   </div>
                   
                   <div className="flex items-center justify-between">
@@ -429,10 +429,10 @@ const AdminSettings: React.FC = () => {
                     <Switch
                       id="auto_sync"
                       checked={systemSettings.auto_sync_enabled}
-                      onCheckedChange={(checked) => 
-                        setSystemSettings(prev => ({ ...prev, auto_sync_enabled: checked }))
-                      }
-                    />
+                      onCheckedChange={(checked) =>
+                      setSystemSettings((prev) => ({ ...prev, auto_sync_enabled: checked }))
+                      } />
+
                   </div>
                 </div>
               </div>
@@ -453,20 +453,20 @@ const AdminSettings: React.FC = () => {
                     <Switch
                       id="maintenance_mode"
                       checked={systemSettings.maintenance_mode}
-                      onCheckedChange={(checked) => 
-                        setSystemSettings(prev => ({ ...prev, maintenance_mode: checked }))
-                      }
-                    />
+                      onCheckedChange={(checked) =>
+                      setSystemSettings((prev) => ({ ...prev, maintenance_mode: checked }))
+                      } />
+
                   </div>
                   
-                  {systemSettings.maintenance_mode && (
-                    <Alert>
+                  {systemSettings.maintenance_mode &&
+                  <Alert>
                       <AlertTriangle className="h-4 w-4" />
                       <AlertDescription>
                         Maintenance mode will prevent non-admin users from accessing the system.
                       </AlertDescription>
                     </Alert>
-                  )}
+                  }
                   
                   <div className="flex items-center justify-between">
                     <div>
@@ -478,27 +478,27 @@ const AdminSettings: React.FC = () => {
                     <Switch
                       id="debug_mode"
                       checked={systemSettings.debug_mode}
-                      onCheckedChange={(checked) => 
-                        setSystemSettings(prev => ({ ...prev, debug_mode: checked }))
-                      }
-                    />
+                      onCheckedChange={(checked) =>
+                      setSystemSettings((prev) => ({ ...prev, debug_mode: checked }))
+                      } />
+
                   </div>
                 </div>
               </div>
 
               <div className="flex justify-end">
                 <Button onClick={saveSystemSettings} disabled={loading}>
-                  {loading ? (
-                    <>
+                  {loading ?
+                  <>
                       <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                       Saving...
-                    </>
-                  ) : (
-                    <>
+                    </> :
+
+                  <>
                       <Save className="h-4 w-4 mr-2" />
                       Save System Settings
                     </>
-                  )}
+                  }
                 </Button>
               </div>
             </CardContent>
@@ -576,8 +576,8 @@ const AdminSettings: React.FC = () => {
           </div>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AdminSettings;

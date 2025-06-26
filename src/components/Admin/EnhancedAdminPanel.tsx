@@ -13,14 +13,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Users, 
-  Shield, 
-  Settings, 
-  Search, 
-  UserPlus, 
-  Edit3, 
-  Trash2, 
+import {
+  Users,
+  Shield,
+  Settings,
+  Search,
+  UserPlus,
+  Edit3,
+  Trash2,
   Eye,
   CheckCircle,
   AlertCircle,
@@ -32,8 +32,8 @@ import {
   Unlock,
   UserCheck,
   Building2,
-  Activity
-} from 'lucide-react';
+  Activity } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAdminAccess } from '@/hooks/use-admin-access';
 import { motion, AnimatePresence } from 'motion/react';
@@ -66,17 +66,17 @@ interface AuditLog {
 }
 
 const ROLES = [
-  { value: 'Administrator', label: 'Administrator', color: 'bg-red-500' },
-  { value: 'Management', label: 'Management', color: 'bg-blue-500' },
-  { value: 'Employee', label: 'Employee', color: 'bg-green-500' }
-];
+{ value: 'Administrator', label: 'Administrator', color: 'bg-red-500' },
+{ value: 'Management', label: 'Management', color: 'bg-blue-500' },
+{ value: 'Employee', label: 'Employee', color: 'bg-green-500' }];
+
 
 const STATIONS = [
-  { value: 'ALL', label: 'All Stations' },
-  { value: 'MOBIL', label: 'MOBIL' },
-  { value: 'AMOCO ROSEDALE', label: 'AMOCO ROSEDALE' },
-  { value: 'AMOCO BROOKLYN', label: 'AMOCO BROOKLYN' }
-];
+{ value: 'ALL', label: 'All Stations' },
+{ value: 'MOBIL', label: 'MOBIL' },
+{ value: 'AMOCO ROSEDALE', label: 'AMOCO ROSEDALE' },
+{ value: 'AMOCO BROOKLYN', label: 'AMOCO BROOKLYN' }];
+
 
 const DEFAULT_PERMISSIONS = {
   Administrator: {
@@ -126,7 +126,7 @@ const DEFAULT_PERMISSIONS = {
 const EnhancedAdminPanel: React.FC = () => {
   const { toast } = useToast();
   const { hasAdminAccess, userRole } = useAdminAccess();
-  
+
   const [users, setUsers] = useState<User[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(false);
@@ -173,7 +173,7 @@ const EnhancedAdminPanel: React.FC = () => {
       toast({
         title: "Error",
         description: "Failed to load users",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -188,8 +188,8 @@ const EnhancedAdminPanel: React.FC = () => {
         OrderByField: "event_timestamp",
         IsAsc: false,
         Filters: [
-          { name: "event_type", op: "StringContains", value: "Permission" }
-        ]
+        { name: "event_type", op: "StringContains", value: "Permission" }]
+
       });
 
       if (response.error) throw response.error;
@@ -202,10 +202,10 @@ const EnhancedAdminPanel: React.FC = () => {
   const createUser = async () => {
     try {
       setLoading(true);
-      
+
       // Generate default permissions based on role
       const permissions = DEFAULT_PERMISSIONS[newUser.role as keyof typeof DEFAULT_PERMISSIONS] || DEFAULT_PERMISSIONS.Employee;
-      
+
       const userData = {
         ...newUser,
         detailed_permissions: JSON.stringify(permissions),
@@ -220,7 +220,7 @@ const EnhancedAdminPanel: React.FC = () => {
 
       toast({
         title: "Success",
-        description: "User created successfully",
+        description: "User created successfully"
       });
 
       setShowCreateUserDialog(false);
@@ -238,7 +238,7 @@ const EnhancedAdminPanel: React.FC = () => {
       toast({
         title: "Error",
         description: "Failed to create user",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -266,7 +266,7 @@ const EnhancedAdminPanel: React.FC = () => {
 
       toast({
         title: "Success",
-        description: "User role updated successfully",
+        description: "User role updated successfully"
       });
 
       loadUsers();
@@ -275,7 +275,7 @@ const EnhancedAdminPanel: React.FC = () => {
       toast({
         title: "Error",
         description: "Failed to update user role",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -296,7 +296,7 @@ const EnhancedAdminPanel: React.FC = () => {
 
       toast({
         title: "Success",
-        description: `User ${!isActive ? 'activated' : 'deactivated'} successfully`,
+        description: `User ${!isActive ? 'activated' : 'deactivated'} successfully`
       });
 
       loadUsers();
@@ -305,7 +305,7 @@ const EnhancedAdminPanel: React.FC = () => {
       toast({
         title: "Error",
         description: "Failed to update user status",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
@@ -331,13 +331,13 @@ const EnhancedAdminPanel: React.FC = () => {
     }
   };
 
-  const filteredUsers = users.filter(user => {
+  const filteredUsers = users.filter((user) => {
     const matchesSearch = user.employee_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.role?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.station?.toLowerCase().includes(searchTerm.toLowerCase());
+    user.role?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.station?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = !roleFilter || user.role === roleFilter;
     const matchesStation = !stationFilter || user.station === stationFilter;
-    
+
     return matchesSearch && matchesRole && matchesStation;
   });
 
@@ -351,8 +351,8 @@ const EnhancedAdminPanel: React.FC = () => {
             You don't have administrator privileges to access this panel.
           </p>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -361,8 +361,8 @@ const EnhancedAdminPanel: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between"
-      >
+        className="flex items-center justify-between">
+
         <div>
           <h1 className="text-3xl font-bold">Admin Panel</h1>
           <p className="text-muted-foreground">
@@ -374,15 +374,15 @@ const EnhancedAdminPanel: React.FC = () => {
             onClick={loadUsers}
             variant="outline"
             size="sm"
-            disabled={loading}
-          >
+            disabled={loading}>
+
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
           <Button
             onClick={() => setShowCreateUserDialog(true)}
-            disabled={loading}
-          >
+            disabled={loading}>
+
             <UserPlus className="h-4 w-4 mr-2" />
             Add User
           </Button>
@@ -418,8 +418,8 @@ const EnhancedAdminPanel: React.FC = () => {
                       placeholder="Search by employee ID, role, or station..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
+                      className="pl-10" />
+
                   </div>
                 </div>
                 <Select value={roleFilter} onValueChange={setRoleFilter}>
@@ -428,11 +428,11 @@ const EnhancedAdminPanel: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">All Roles</SelectItem>
-                    {ROLES.map(role => (
-                      <SelectItem key={role.value} value={role.value}>
+                    {ROLES.map((role) =>
+                    <SelectItem key={role.value} value={role.value}>
                         {role.label}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
                 <Select value={stationFilter} onValueChange={setStationFilter}>
@@ -441,11 +441,11 @@ const EnhancedAdminPanel: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">All Stations</SelectItem>
-                    {STATIONS.map(station => (
-                      <SelectItem key={station.value} value={station.value}>
+                    {STATIONS.map((station) =>
+                    <SelectItem key={station.value} value={station.value}>
                         {station.label}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -477,15 +477,15 @@ const EnhancedAdminPanel: React.FC = () => {
                   <TableBody>
                     <AnimatePresence>
                       {filteredUsers.map((user) => {
-                        const role = ROLES.find(r => r.value === user.role);
+                        const role = ROLES.find((r) => r.value === user.role);
                         return (
                           <motion.tr
                             key={user.id}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="group"
-                          >
+                            className="group">
+
                             <TableCell className="font-medium">
                               {user.employee_id}
                             </TableCell>
@@ -506,8 +506,8 @@ const EnhancedAdminPanel: React.FC = () => {
                                 <Switch
                                   checked={user.is_active}
                                   onCheckedChange={() => toggleUserStatus(user.id, user.is_active)}
-                                  disabled={loading}
-                                />
+                                  disabled={loading} />
+
                                 <span className={user.is_active ? 'text-green-600' : 'text-red-600'}>
                                   {user.is_active ? 'Active' : 'Inactive'}
                                 </span>
@@ -524,23 +524,23 @@ const EnhancedAdminPanel: React.FC = () => {
                                   onClick={() => {
                                     setSelectedUser(user);
                                     setShowPermissionDialog(true);
-                                  }}
-                                >
+                                  }}>
+
                                   <Edit3 className="h-4 w-4" />
                                 </Button>
                                 <Button
                                   size="sm"
                                   variant="outline"
                                   onClick={() => {
+
+
                                     // View user details
-                                  }}
-                                >
+                                  }}>
                                   <Eye className="h-4 w-4" />
                                 </Button>
                               </div>
                             </TableCell>
-                          </motion.tr>
-                        );
+                          </motion.tr>);
                       })}
                     </AnimatePresence>
                   </TableBody>
@@ -560,8 +560,8 @@ const EnhancedAdminPanel: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {ROLES.map(role => (
-                <div key={role.value} className="space-y-3">
+              {ROLES.map((role) =>
+              <div key={role.value} className="space-y-3">
                   <div className="flex items-center gap-2">
                     <Badge className={`${role.color} text-white`}>
                       {role.label}
@@ -569,26 +569,26 @@ const EnhancedAdminPanel: React.FC = () => {
                     <h4 className="font-semibold">Permissions</h4>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {Object.entries(DEFAULT_PERMISSIONS[role.value as keyof typeof DEFAULT_PERMISSIONS] || {}).map(([module, permissions]) => (
-                      <Card key={module} className="p-3">
+                    {Object.entries(DEFAULT_PERMISSIONS[role.value as keyof typeof DEFAULT_PERMISSIONS] || {}).map(([module, permissions]) =>
+                  <Card key={module} className="p-3">
                         <h5 className="font-medium mb-2 capitalize">{module}</h5>
                         <div className="space-y-1 text-sm">
-                          {Object.entries(permissions).map(([action, allowed]) => (
-                            <div key={action} className="flex items-center justify-between">
+                          {Object.entries(permissions).map(([action, allowed]) =>
+                      <div key={action} className="flex items-center justify-between">
                               <span className="capitalize">{action}</span>
-                              {allowed ? (
-                                <CheckCircle className="h-4 w-4 text-green-500" />
-                              ) : (
-                                <AlertCircle className="h-4 w-4 text-red-500" />
-                              )}
+                              {allowed ?
+                        <CheckCircle className="h-4 w-4 text-green-500" /> :
+
+                        <AlertCircle className="h-4 w-4 text-red-500" />
+                        }
                             </div>
-                          ))}
+                      )}
                         </div>
                       </Card>
-                    ))}
+                  )}
                   </div>
                 </div>
-              ))}
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -608,8 +608,8 @@ const EnhancedAdminPanel: React.FC = () => {
             <CardContent>
               <ScrollArea className="h-[500px]">
                 <div className="space-y-3">
-                  {auditLogs.map((log) => (
-                    <Card key={log.id} className="p-4">
+                  {auditLogs.map((log) =>
+                  <Card key={log.id} className="p-4">
                       <div className="flex items-start justify-between">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
@@ -626,12 +626,12 @@ const EnhancedAdminPanel: React.FC = () => {
                               <Clock className="h-3 w-3" />
                               {new Date(log.event_timestamp).toLocaleString()}
                             </span>
-                            {log.station && (
-                              <span className="flex items-center gap-1">
+                            {log.station &&
+                          <span className="flex items-center gap-1">
                                 <Building2 className="h-3 w-3" />
                                 {log.station}
                               </span>
-                            )}
+                          }
                           </div>
                         </div>
                         <Button size="sm" variant="ghost">
@@ -639,7 +639,7 @@ const EnhancedAdminPanel: React.FC = () => {
                         </Button>
                       </div>
                     </Card>
-                  ))}
+                  )}
                 </div>
               </ScrollArea>
             </CardContent>
@@ -662,37 +662,37 @@ const EnhancedAdminPanel: React.FC = () => {
               <Input
                 id="employee_id"
                 value={newUser.employee_id}
-                onChange={(e) => setNewUser(prev => ({ ...prev, employee_id: e.target.value }))}
-                placeholder="Enter employee ID"
-              />
+                onChange={(e) => setNewUser((prev) => ({ ...prev, employee_id: e.target.value }))}
+                placeholder="Enter employee ID" />
+
             </div>
             <div>
               <Label htmlFor="role">Role</Label>
-              <Select value={newUser.role} onValueChange={(value) => setNewUser(prev => ({ ...prev, role: value }))}>
+              <Select value={newUser.role} onValueChange={(value) => setNewUser((prev) => ({ ...prev, role: value }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
-                  {ROLES.map(role => (
-                    <SelectItem key={role.value} value={role.value}>
+                  {ROLES.map((role) =>
+                  <SelectItem key={role.value} value={role.value}>
                       {role.label}
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
             </div>
             <div>
               <Label htmlFor="station">Station Assignment</Label>
-              <Select value={newUser.station} onValueChange={(value) => setNewUser(prev => ({ ...prev, station: value }))}>
+              <Select value={newUser.station} onValueChange={(value) => setNewUser((prev) => ({ ...prev, station: value }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select station" />
                 </SelectTrigger>
                 <SelectContent>
-                  {STATIONS.map(station => (
-                    <SelectItem key={station.value} value={station.value}>
+                  {STATIONS.map((station) =>
+                  <SelectItem key={station.value} value={station.value}>
                       {station.label}
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -701,9 +701,9 @@ const EnhancedAdminPanel: React.FC = () => {
               <Input
                 id="phone"
                 value={newUser.phone}
-                onChange={(e) => setNewUser(prev => ({ ...prev, phone: e.target.value }))}
-                placeholder="Enter phone number"
-              />
+                onChange={(e) => setNewUser((prev) => ({ ...prev, phone: e.target.value }))}
+                placeholder="Enter phone number" />
+
             </div>
             <div>
               <Label htmlFor="hire_date">Hire Date</Label>
@@ -711,21 +711,21 @@ const EnhancedAdminPanel: React.FC = () => {
                 id="hire_date"
                 type="date"
                 value={newUser.hire_date}
-                onChange={(e) => setNewUser(prev => ({ ...prev, hire_date: e.target.value }))}
-              />
+                onChange={(e) => setNewUser((prev) => ({ ...prev, hire_date: e.target.value }))} />
+
             </div>
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
                 onClick={() => setShowCreateUserDialog(false)}
-                disabled={loading}
-              >
+                disabled={loading}>
+
                 Cancel
               </Button>
               <Button
                 onClick={createUser}
-                disabled={loading || !newUser.employee_id || !newUser.role || !newUser.station}
-              >
+                disabled={loading || !newUser.employee_id || !newUser.role || !newUser.station}>
+
                 {loading ? 'Creating...' : 'Create User'}
               </Button>
             </div>
@@ -742,8 +742,8 @@ const EnhancedAdminPanel: React.FC = () => {
               Modify user role and station assignment
             </DialogDescription>
           </DialogHeader>
-          {selectedUser && (
-            <div className="space-y-4">
+          {selectedUser &&
+          <div className="space-y-4">
               <div>
                 <Label>Employee ID</Label>
                 <Input value={selectedUser.employee_id} disabled />
@@ -751,75 +751,75 @@ const EnhancedAdminPanel: React.FC = () => {
               <div>
                 <Label>Current Role</Label>
                 <Select
-                  value={selectedUser.role}
-                  onValueChange={(value) => setSelectedUser(prev => prev ? { ...prev, role: value } : null)}
-                >
+                value={selectedUser.role}
+                onValueChange={(value) => setSelectedUser((prev) => prev ? { ...prev, role: value } : null)}>
+
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {ROLES.map(role => (
-                      <SelectItem key={role.value} value={role.value}>
+                    {ROLES.map((role) =>
+                  <SelectItem key={role.value} value={role.value}>
                         {role.label}
                       </SelectItem>
-                    ))}
+                  )}
                   </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label>Station Assignment</Label>
                 <Select
-                  value={selectedUser.station}
-                  onValueChange={(value) => setSelectedUser(prev => prev ? { ...prev, station: value } : null)}
-                >
+                value={selectedUser.station}
+                onValueChange={(value) => setSelectedUser((prev) => prev ? { ...prev, station: value } : null)}>
+
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {STATIONS.map(station => (
-                      <SelectItem key={station.value} value={station.value}>
+                    {STATIONS.map((station) =>
+                  <SelectItem key={station.value} value={station.value}>
                         {station.label}
                       </SelectItem>
-                    ))}
+                  )}
                   </SelectContent>
                 </Select>
               </div>
               
-              {selectedUser.station === 'ALL' && (
-                <Alert>
+              {selectedUser.station === 'ALL' &&
+            <Alert>
                   <Building2 className="h-4 w-4" />
                   <AlertDescription>
                     This user will have access to all stations and can manage cross-station operations.
                   </AlertDescription>
                 </Alert>
-              )}
+            }
 
               <div className="flex justify-end gap-2">
                 <Button
-                  variant="outline"
-                  onClick={() => setShowPermissionDialog(false)}
-                  disabled={loading}
-                >
+                variant="outline"
+                onClick={() => setShowPermissionDialog(false)}
+                disabled={loading}>
+
                   Cancel
                 </Button>
                 <Button
-                  onClick={() => {
-                    if (selectedUser) {
-                      updateUserRole(selectedUser.id, selectedUser.role, selectedUser.station);
-                      setShowPermissionDialog(false);
-                    }
-                  }}
-                  disabled={loading}
-                >
+                onClick={() => {
+                  if (selectedUser) {
+                    updateUserRole(selectedUser.id, selectedUser.role, selectedUser.station);
+                    setShowPermissionDialog(false);
+                  }
+                }}
+                disabled={loading}>
+
                   {loading ? 'Updating...' : 'Update Role'}
                 </Button>
               </div>
             </div>
-          )}
+          }
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 };
 
 export default EnhancedAdminPanel;

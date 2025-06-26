@@ -4,11 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Users, 
-  Shield, 
-  Activity, 
-  Database, 
+import {
+  Users,
+  Shield,
+  Activity,
+  Database,
   AlertTriangle,
   CheckCircle,
   UserPlus,
@@ -16,8 +16,8 @@ import {
   Eye,
   RefreshCw,
   TrendingUp,
-  Building2
-} from 'lucide-react';
+  Building2 } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAdminAccess } from '@/hooks/use-admin-access';
 import { motion } from 'motion/react';
@@ -45,7 +45,7 @@ const QuickAdminDashboard: React.FC = () => {
   const { toast } = useToast();
   const { hasAdminAccess } = useAdminAccess();
   const navigate = useNavigate();
-  
+
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
@@ -66,7 +66,7 @@ const QuickAdminDashboard: React.FC = () => {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      
+
       // Load user statistics
       const usersResponse = await window.ezsite.apis.tablePage(11725, {
         PageNo: 1,
@@ -80,8 +80,8 @@ const QuickAdminDashboard: React.FC = () => {
         const users = usersResponse.data.List;
         const activeUsers = users.filter((user: any) => user.is_active).length;
         const adminUsers = users.filter((user: any) => user.role === 'Administrator').length;
-        
-        setStats(prev => ({
+
+        setStats((prev) => ({
           ...prev,
           totalUsers: users.length,
           activeUsers,
@@ -100,17 +100,17 @@ const QuickAdminDashboard: React.FC = () => {
 
       if (auditResponse.data?.List) {
         setRecentActivity(auditResponse.data.List);
-        
+
         // Calculate login statistics
         const recentLogs = auditResponse.data.List;
-        const recentLogins = recentLogs.filter((log: any) => 
-          log.event_type === 'Login' && log.event_status === 'Success'
+        const recentLogins = recentLogs.filter((log: any) =>
+        log.event_type === 'Login' && log.event_status === 'Success'
         ).length;
-        const failedLogins = recentLogs.filter((log: any) => 
-          log.event_type === 'Login' && log.event_status === 'Failed'
+        const failedLogins = recentLogs.filter((log: any) =>
+        log.event_type === 'Login' && log.event_status === 'Failed'
         ).length;
-        
-        setStats(prev => ({
+
+        setStats((prev) => ({
           ...prev,
           recentLogins,
           failedLogins
@@ -121,7 +121,7 @@ const QuickAdminDashboard: React.FC = () => {
       toast({
         title: "Error",
         description: "Failed to load dashboard data",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -171,15 +171,15 @@ const QuickAdminDashboard: React.FC = () => {
             onClick={loadDashboardData}
             variant="outline"
             size="sm"
-            disabled={loading}
-          >
+            disabled={loading}>
+
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
           <Button
             onClick={() => navigate('/settings')}
-            size="sm"
-          >
+            size="sm">
+
             <Settings className="h-4 w-4 mr-2" />
             Full Admin Panel
           </Button>
@@ -191,8 +191,8 @@ const QuickAdminDashboard: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
+          transition={{ delay: 0.1 }}>
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -214,8 +214,8 @@ const QuickAdminDashboard: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
+          transition={{ delay: 0.2 }}>
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -237,8 +237,8 @@ const QuickAdminDashboard: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
+          transition={{ delay: 0.3 }}>
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -260,8 +260,8 @@ const QuickAdminDashboard: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
+          transition={{ delay: 0.4 }}>
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -285,8 +285,8 @@ const QuickAdminDashboard: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.5 }}
-        >
+          transition={{ delay: 0.5 }}>
+
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -299,8 +299,8 @@ const QuickAdminDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {recentActivity.slice(0, 5).map((activity) => (
-                  <div key={activity.id} className="flex items-center justify-between p-3 border rounded-lg">
+                {recentActivity.slice(0, 5).map((activity) =>
+                <div key={activity.id} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center gap-3">
                       {getActivityIcon(activity.event_type)}
                       <div>
@@ -312,13 +312,13 @@ const QuickAdminDashboard: React.FC = () => {
                     </div>
                     {getStatusBadge(activity.event_status)}
                   </div>
-                ))}
+                )}
                 
-                {recentActivity.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
+                {recentActivity.length === 0 &&
+                <div className="text-center py-8 text-muted-foreground">
                     No recent activity
                   </div>
-                )}
+                }
               </div>
             </CardContent>
           </Card>
@@ -328,8 +328,8 @@ const QuickAdminDashboard: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.6 }}
-        >
+          transition={{ delay: 0.6 }}>
+
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -389,8 +389,8 @@ const QuickAdminDashboard: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.7 }}
-      >
+        transition={{ delay: 0.7 }}>
+
         <Card>
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
@@ -403,32 +403,32 @@ const QuickAdminDashboard: React.FC = () => {
               <Button
                 onClick={() => navigate('/settings')}
                 variant="outline"
-                size="sm"
-              >
+                size="sm">
+
                 <Users className="h-4 w-4 mr-2" />
                 Manage Users
               </Button>
               <Button
                 onClick={() => navigate('/admin/system-logs')}
                 variant="outline"
-                size="sm"
-              >
+                size="sm">
+
                 <Eye className="h-4 w-4 mr-2" />
                 View Audit Logs
               </Button>
               <Button
                 onClick={() => navigate('/admin/security-settings')}
                 variant="outline"
-                size="sm"
-              >
+                size="sm">
+
                 <Shield className="h-4 w-4 mr-2" />
                 Security Settings
               </Button>
               <Button
                 onClick={() => navigate('/admin/database-monitoring')}
                 variant="outline"
-                size="sm"
-              >
+                size="sm">
+
                 <Database className="h-4 w-4 mr-2" />
                 System Health
               </Button>
@@ -436,8 +436,8 @@ const QuickAdminDashboard: React.FC = () => {
           </CardContent>
         </Card>
       </motion.div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default QuickAdminDashboard;

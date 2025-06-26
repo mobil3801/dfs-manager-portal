@@ -18,8 +18,8 @@ interface ProtectedRouteProps {
   redirectTo?: string;
 }
 
-const LoadingSkeleton: React.FC = () => (
-  <div className="space-y-4 p-6">
+const LoadingSkeleton: React.FC = () =>
+<div className="space-y-4 p-6">
     <div className="space-y-2">
       <Skeleton className="h-8 w-1/3" />
       <Skeleton className="h-4 w-2/3" />
@@ -46,8 +46,8 @@ const LoadingSkeleton: React.FC = () => (
         <Skeleton className="h-32 w-full" />
       </CardContent>
     </Card>
-  </div>
-);
+  </div>;
+
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
@@ -58,12 +58,12 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   redirectTo = '/login'
 }) => {
   const { isAuthenticated } = useAuth();
-  const { 
-    userRole, 
-    hasPermission, 
-    hasStationAccess, 
-    hasAllStationsAccess, 
-    loading 
+  const {
+    userRole,
+    hasPermission,
+    hasStationAccess,
+    hasAllStationsAccess,
+    loading
   } = useEnhancedPermissions();
   const location = useLocation();
 
@@ -82,7 +82,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     const roleHierarchy = { 'Employee': 1, 'Management': 2, 'Administrator': 3 };
     const userLevel = roleHierarchy[userRole as keyof typeof roleHierarchy] || 0;
     const requiredLevel = roleHierarchy[requiredRole];
-    
+
     if (userLevel < requiredLevel) {
       return <Navigate to="/unauthorized" replace />;
     }
@@ -112,26 +112,26 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         module={requiredPermission.module}
         action={requiredPermission.action}
         station={requiredStation}
-        requireAllStations={requireAllStations}
-      >
+        requireAllStations={requireAllStations}>
+
         {children}
-      </PermissionValidator>
-    );
+      </PermissionValidator>);
+
   }
 
   return <>{children}</>;
 };
 
 // Higher-order component for route protection
-export const withRouteProtection = <P extends object>(
-  Component: React.ComponentType<P>,
-  protectionProps: Omit<ProtectedRouteProps, 'children'>
-) => {
-  return (props: P) => (
-    <ProtectedRoute {...protectionProps}>
+export const withRouteProtection = <P extends object,>(
+Component: React.ComponentType<P>,
+protectionProps: Omit<ProtectedRouteProps, 'children'>) =>
+{
+  return (props: P) =>
+  <ProtectedRoute {...protectionProps}>
       <Component {...props} />
-    </ProtectedRoute>
-  );
+    </ProtectedRoute>;
+
 };
 
 export default ProtectedRoute;

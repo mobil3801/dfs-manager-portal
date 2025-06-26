@@ -25,8 +25,8 @@ interface EnhancedAuthContextType {
   user: User | null;
   userProfile: UserProfile | null;
   isAuthenticated: boolean;
-  login: (credentials: { email: string; password: string }) => Promise<string | null>;
-  register: (credentials: { email: string; password: string }) => Promise<string | null>;
+  login: (credentials: {email: string;password: string;}) => Promise<string | null>;
+  register: (credentials: {email: string;password: string;}) => Promise<string | null>;
   logout: () => Promise<string | null>;
   updateUserProfile: (profileData: Partial<UserProfile>) => Promise<void>;
   refreshUserData: () => Promise<void>;
@@ -87,8 +87,8 @@ export const EnhancedAuthProvider: React.FC<EnhancedAuthProviderProps> = ({ chil
         OrderByField: "id",
         IsAsc: false,
         Filters: [
-          { name: "user_id", op: "Equal", value: userId }
-        ]
+        { name: "user_id", op: "Equal", value: userId }]
+
       });
 
       if (response.data?.List?.[0]) {
@@ -99,51 +99,51 @@ export const EnhancedAuthProvider: React.FC<EnhancedAuthProviderProps> = ({ chil
     }
   };
 
-  const login = async (credentials: { email: string; password: string }): Promise<string | null> => {
+  const login = async (credentials: {email: string;password: string;}): Promise<string | null> => {
     try {
       setLoading(true);
       const response = await window.ezsite.apis.login(credentials);
-      
+
       if (response.error) {
         return response.error;
       }
 
       // Log audit event
       await logAuditEvent('Login', 'User logged in successfully', 'Success');
-      
+
       await checkAuthStatus();
       return null;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Login failed';
-      
+
       // Log failed login
       await logAuditEvent('Login', 'Login attempt failed', 'Failed', errorMessage);
-      
+
       return errorMessage;
     } finally {
       setLoading(false);
     }
   };
 
-  const register = async (credentials: { email: string; password: string }): Promise<string | null> => {
+  const register = async (credentials: {email: string;password: string;}): Promise<string | null> => {
     try {
       setLoading(true);
       const response = await window.ezsite.apis.register(credentials);
-      
+
       if (response.error) {
         return response.error;
       }
 
       // Log audit event
       await logAuditEvent('Registration', 'User registered successfully', 'Success');
-      
+
       return null;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Registration failed';
-      
+
       // Log failed registration
       await logAuditEvent('Registration', 'Registration attempt failed', 'Failed', errorMessage);
-      
+
       return errorMessage;
     } finally {
       setLoading(false);
@@ -153,12 +153,12 @@ export const EnhancedAuthProvider: React.FC<EnhancedAuthProviderProps> = ({ chil
   const logout = async (): Promise<string | null> => {
     try {
       setLoading(true);
-      
+
       // Log audit event before logout
       await logAuditEvent('Logout', 'User logged out', 'Success');
-      
+
       const response = await window.ezsite.apis.logout();
-      
+
       if (response.error) {
         return response.error;
       }
@@ -166,7 +166,7 @@ export const EnhancedAuthProvider: React.FC<EnhancedAuthProviderProps> = ({ chil
       setUser(null);
       setUserProfile(null);
       setIsAuthenticated(false);
-      
+
       return null;
     } catch (error) {
       return error instanceof Error ? error.message : 'Logout failed';
@@ -187,25 +187,25 @@ export const EnhancedAuthProvider: React.FC<EnhancedAuthProviderProps> = ({ chil
       if (response.error) throw new Error(response.error);
 
       // Update local state
-      setUserProfile(prev => prev ? { ...prev, ...profileData } : null);
-      
+      setUserProfile((prev) => prev ? { ...prev, ...profileData } : null);
+
       // Log audit event
       await logAuditEvent('Profile Update', 'User profile updated', 'Success');
-      
+
       toast({
         title: "Success",
-        description: "Profile updated successfully",
+        description: "Profile updated successfully"
       });
     } catch (error) {
       console.error('Error updating profile:', error);
-      
+
       // Log failed update
       await logAuditEvent('Profile Update', 'Profile update failed', 'Failed');
-      
+
       toast({
         title: "Error",
         description: "Failed to update profile",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
@@ -218,11 +218,11 @@ export const EnhancedAuthProvider: React.FC<EnhancedAuthProviderProps> = ({ chil
   };
 
   const logAuditEvent = async (
-    eventType: string, 
-    actionPerformed: string, 
-    status: 'Success' | 'Failed' = 'Success',
-    failureReason?: string
-  ) => {
+  eventType: string,
+  actionPerformed: string,
+  status: 'Success' | 'Failed' = 'Success',
+  failureReason?: string) =>
+  {
     try {
       await window.ezsite.apis.tableCreate(12706, {
         event_type: eventType,
@@ -237,7 +237,7 @@ export const EnhancedAuthProvider: React.FC<EnhancedAuthProviderProps> = ({ chil
         failure_reason: failureReason || '',
         session_id: Date.now().toString(),
         risk_level: status === 'Failed' ? 'Medium' : 'Low',
-        additional_data: JSON.stringify({ 
+        additional_data: JSON.stringify({
           module: 'EnhancedAuth',
           timestamp: Date.now()
         }),
@@ -267,8 +267,8 @@ export const EnhancedAuthProvider: React.FC<EnhancedAuthProviderProps> = ({ chil
   return (
     <EnhancedAuthContext.Provider value={value}>
       {children}
-    </EnhancedAuthContext.Provider>
-  );
+    </EnhancedAuthContext.Provider>);
+
 };
 
 export const useEnhancedAuth = (): EnhancedAuthContextType => {

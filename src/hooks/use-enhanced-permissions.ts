@@ -58,7 +58,7 @@ const DEFAULT_PERMISSIONS: UserPermissions = {
 export const useEnhancedPermissions = (): UseEnhancedPermissionsReturn => {
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
-  
+
   const [permissions, setPermissions] = useState<UserPermissions | null>(null);
   const [userRole, setUserRole] = useState<string>('Employee');
   const [userStation, setUserStation] = useState<string>('');
@@ -82,8 +82,8 @@ export const useEnhancedPermissions = (): UseEnhancedPermissionsReturn => {
         OrderByField: "id",
         IsAsc: false,
         Filters: [
-          { name: "user_id", op: "Equal", value: user.ID }
-        ]
+        { name: "user_id", op: "Equal", value: user.ID }]
+
       });
 
       if (response.error) {
@@ -91,17 +91,17 @@ export const useEnhancedPermissions = (): UseEnhancedPermissionsReturn => {
       }
 
       const userProfile = response.data?.List?.[0];
-      
+
       if (userProfile) {
         setUserRole(userProfile.role || 'Employee');
         setUserStation(userProfile.station || '');
-        
+
         // Parse detailed permissions
         try {
-          const detailedPermissions = userProfile.detailed_permissions 
-            ? JSON.parse(userProfile.detailed_permissions)
-            : DEFAULT_PERMISSIONS;
-          
+          const detailedPermissions = userProfile.detailed_permissions ?
+          JSON.parse(userProfile.detailed_permissions) :
+          DEFAULT_PERMISSIONS;
+
           setPermissions({
             ...DEFAULT_PERMISSIONS,
             ...detailedPermissions
@@ -136,11 +136,11 @@ export const useEnhancedPermissions = (): UseEnhancedPermissionsReturn => {
       console.error('Error loading user permissions:', error);
       setError(error instanceof Error ? error.message : 'Failed to load permissions');
       setPermissions(DEFAULT_PERMISSIONS);
-      
+
       toast({
         title: "Permission Error",
         description: "Failed to load user permissions. Using default settings.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -153,21 +153,21 @@ export const useEnhancedPermissions = (): UseEnhancedPermissionsReturn => {
 
   const hasPermission = useCallback((module: string, action: 'view' | 'create' | 'edit' | 'delete'): boolean => {
     if (!permissions) return false;
-    
+
     const modulePermissions = permissions[module];
     if (!modulePermissions) return false;
-    
+
     return modulePermissions[action] === true;
   }, [permissions]);
 
   const hasStationAccess = useCallback((station: string): boolean => {
     if (!userStation) return false;
-    
+
     // Admin and users with "ALL" station access can access any station
     if (userRole === 'Administrator' || userStation === 'ALL') {
       return true;
     }
-    
+
     // Otherwise, check if user's station matches the requested station
     return userStation === station;
   }, [userRole, userStation]);

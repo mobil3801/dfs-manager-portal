@@ -10,11 +10,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Settings, 
-  Bell, 
-  Database, 
-  Shield, 
+import {
+  Settings,
+  Bell,
+  Database,
+  Shield,
   Users,
   Palette,
   Globe,
@@ -24,8 +24,8 @@ import {
   Save,
   RefreshCw,
   CheckCircle,
-  AlertTriangle
-} from 'lucide-react';
+  AlertTriangle } from
+'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useEnhancedPermissions } from '@/hooks/use-enhanced-permissions';
@@ -51,7 +51,7 @@ const AppSettings: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { hasPermission, isAdmin } = useEnhancedPermissions();
-  
+
   const [loading, setLoading] = useState(false);
   const [settings, setSettings] = useState<AppSettingsData>({
     theme: 'light',
@@ -94,27 +94,27 @@ const AppSettings: React.FC = () => {
   const saveSettings = async () => {
     try {
       setLoading(true);
-      
+
       // Save to localStorage (in a real app, this would be saved to the database)
       localStorage.setItem('app_settings', JSON.stringify(settings));
-      
+
       // Apply theme if changed
       if (settings.theme === 'dark') {
         document.documentElement.classList.add('dark');
       } else {
         document.documentElement.classList.remove('dark');
       }
-      
+
       toast({
         title: "Success",
-        description: "Settings saved successfully",
+        description: "Settings saved successfully"
       });
     } catch (error) {
       console.error('Error saving settings:', error);
       toast({
         title: "Error",
         description: "Failed to save settings",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -152,8 +152,8 @@ const AppSettings: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between"
-      >
+        className="flex items-center justify-between">
+
         <div>
           <h1 className="text-3xl font-bold">Settings</h1>
           <p className="text-muted-foreground">
@@ -161,28 +161,28 @@ const AppSettings: React.FC = () => {
           </p>
         </div>
         <Button onClick={saveSettings} disabled={loading}>
-          {loading ? (
-            <>
+          {loading ?
+          <>
               <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
               Saving...
-            </>
-          ) : (
-            <>
+            </> :
+
+          <>
               <Save className="h-4 w-4 mr-2" />
               Save Changes
             </>
-          )}
+          }
         </Button>
       </motion.div>
 
       <Tabs defaultValue={isAdmin() ? "admin" : "general"} className="w-full">
         <TabsList className={`grid w-full ${isAdmin() ? 'grid-cols-5' : 'grid-cols-4'}`}>
-          {isAdmin() && (
-            <TabsTrigger value="admin" className="flex items-center gap-2">
+          {isAdmin() &&
+          <TabsTrigger value="admin" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               Admin Panel
             </TabsTrigger>
-          )}
+          }
           <TabsTrigger value="general" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             General
@@ -202,19 +202,19 @@ const AppSettings: React.FC = () => {
         </TabsList>
 
         {/* Admin Panel Tab - Only visible to administrators */}
-        {isAdmin() && (
-          <TabsContent value="admin">
+        {isAdmin() &&
+        <TabsContent value="admin">
             <AdminSettings />
           </TabsContent>
-        )}
+        }
 
         {/* General Settings */}
         <TabsContent value="general" className="space-y-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
+            transition={{ delay: 0.1 }}>
+
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -229,7 +229,7 @@ const AppSettings: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="theme">Theme</Label>
-                    <Select value={settings.theme} onValueChange={(value) => setSettings(prev => ({ ...prev, theme: value }))}>
+                    <Select value={settings.theme} onValueChange={(value) => setSettings((prev) => ({ ...prev, theme: value }))}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select theme" />
                       </SelectTrigger>
@@ -243,7 +243,7 @@ const AppSettings: React.FC = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="language">Language</Label>
-                    <Select value={settings.language} onValueChange={(value) => setSettings(prev => ({ ...prev, language: value }))}>
+                    <Select value={settings.language} onValueChange={(value) => setSettings((prev) => ({ ...prev, language: value }))}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select language" />
                       </SelectTrigger>
@@ -257,7 +257,7 @@ const AppSettings: React.FC = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="timezone">Timezone</Label>
-                    <Select value={settings.timezone} onValueChange={(value) => setSettings(prev => ({ ...prev, timezone: value }))}>
+                    <Select value={settings.timezone} onValueChange={(value) => setSettings((prev) => ({ ...prev, timezone: value }))}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select timezone" />
                       </SelectTrigger>
@@ -272,7 +272,7 @@ const AppSettings: React.FC = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="currency">Currency</Label>
-                    <Select value={settings.currency} onValueChange={(value) => setSettings(prev => ({ ...prev, currency: value }))}>
+                    <Select value={settings.currency} onValueChange={(value) => setSettings((prev) => ({ ...prev, currency: value }))}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select currency" />
                       </SelectTrigger>
@@ -286,7 +286,7 @@ const AppSettings: React.FC = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="date_format">Date Format</Label>
-                    <Select value={settings.date_format} onValueChange={(value) => setSettings(prev => ({ ...prev, date_format: value }))}>
+                    <Select value={settings.date_format} onValueChange={(value) => setSettings((prev) => ({ ...prev, date_format: value }))}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select date format" />
                       </SelectTrigger>
@@ -300,7 +300,7 @@ const AppSettings: React.FC = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="default_station">Default Station</Label>
-                    <Select value={settings.default_station} onValueChange={(value) => setSettings(prev => ({ ...prev, default_station: value }))}>
+                    <Select value={settings.default_station} onValueChange={(value) => setSettings((prev) => ({ ...prev, default_station: value }))}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select default station" />
                       </SelectTrigger>
@@ -322,8 +322,8 @@ const AppSettings: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
+            transition={{ delay: 0.1 }}>
+
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -348,8 +348,8 @@ const AppSettings: React.FC = () => {
                     <Switch
                       id="notification_email"
                       checked={settings.notification_email}
-                      onCheckedChange={(checked) => setSettings(prev => ({ ...prev, notification_email: checked }))}
-                    />
+                      onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, notification_email: checked }))} />
+
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -364,8 +364,8 @@ const AppSettings: React.FC = () => {
                     <Switch
                       id="notification_sms"
                       checked={settings.notification_sms}
-                      onCheckedChange={(checked) => setSettings(prev => ({ ...prev, notification_sms: checked }))}
-                    />
+                      onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, notification_sms: checked }))} />
+
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -380,8 +380,8 @@ const AppSettings: React.FC = () => {
                     <Switch
                       id="notification_in_app"
                       checked={settings.notification_in_app}
-                      onCheckedChange={(checked) => setSettings(prev => ({ ...prev, notification_in_app: checked }))}
-                    />
+                      onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, notification_in_app: checked }))} />
+
                   </div>
                 </div>
               </CardContent>
@@ -395,8 +395,8 @@ const AppSettings: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="space-y-6"
-          >
+            className="space-y-6">
+
             {/* System Status */}
             <Card>
               <CardHeader>
@@ -454,14 +454,14 @@ const AppSettings: React.FC = () => {
                   <Switch
                     id="auto_backup"
                     checked={settings.auto_backup}
-                    onCheckedChange={(checked) => setSettings(prev => ({ ...prev, auto_backup: checked }))}
-                  />
+                    onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, auto_backup: checked }))} />
+
                 </div>
 
-                {settings.auto_backup && (
-                  <div className="space-y-2">
+                {settings.auto_backup &&
+                <div className="space-y-2">
                     <Label htmlFor="backup_frequency">Backup Frequency</Label>
-                    <Select value={settings.backup_frequency} onValueChange={(value) => setSettings(prev => ({ ...prev, backup_frequency: value }))}>
+                    <Select value={settings.backup_frequency} onValueChange={(value) => setSettings((prev) => ({ ...prev, backup_frequency: value }))}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select frequency" />
                       </SelectTrigger>
@@ -473,7 +473,7 @@ const AppSettings: React.FC = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
           </motion.div>
@@ -484,8 +484,8 @@ const AppSettings: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
+            transition={{ delay: 0.1 }}>
+
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -503,31 +503,31 @@ const AppSettings: React.FC = () => {
                     id="session_timeout"
                     type="number"
                     value={settings.session_timeout}
-                    onChange={(e) => setSettings(prev => ({ ...prev, session_timeout: parseInt(e.target.value) || 30 }))}
+                    onChange={(e) => setSettings((prev) => ({ ...prev, session_timeout: parseInt(e.target.value) || 30 }))}
                     min="5"
-                    max="480"
-                  />
+                    max="480" />
+
                   <p className="text-sm text-muted-foreground">
                     Automatically log out after this period of inactivity
                   </p>
                 </div>
 
-                {!isAdmin() && (
-                  <Alert>
+                {!isAdmin() &&
+                <Alert>
                     <Shield className="h-4 w-4" />
                     <AlertDescription>
                       Advanced security settings are only available to administrators.
                       Contact your system administrator for additional security configurations.
                     </AlertDescription>
                   </Alert>
-                )}
+                }
               </CardContent>
             </Card>
           </motion.div>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AppSettings;
