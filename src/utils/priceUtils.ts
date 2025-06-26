@@ -17,9 +17,9 @@ export interface PriceData {
  */
 export const getPrimaryPrice = (product: PriceData): number => {
   return product.retail_price && product.retail_price > 0 ? product.retail_price :
-         product.unit_price && product.unit_price > 0 ? product.unit_price :
-         product.price && product.price > 0 ? product.price :
-         product.case_price && product.case_price > 0 ? product.case_price : 0;
+  product.unit_price && product.unit_price > 0 ? product.unit_price :
+  product.price && product.price > 0 ? product.price :
+  product.case_price && product.case_price > 0 ? product.case_price : 0;
 };
 
 /**
@@ -43,15 +43,15 @@ export const formatPrice = (price: number): string => {
 /**
  * Format price with type indicator
  */
-export const formatPriceWithType = (product: PriceData): { 
-  formattedPrice: string; 
-  priceType: string; 
-  price: number 
+export const formatPriceWithType = (product: PriceData): {
+  formattedPrice: string;
+  priceType: string;
+  price: number;
 } => {
   const price = getPrimaryPrice(product);
   const priceType = getPriceType(product);
   const formattedPrice = formatPrice(price);
-  
+
   return { formattedPrice, priceType, price };
 };
 
@@ -69,7 +69,7 @@ export const isLowStock = (product: PriceData): boolean => {
 export const calculateInventoryValue = (products: PriceData[]): number => {
   return products.reduce((sum, product) => {
     const price = getPrimaryPrice(product);
-    return sum + (price * (product.quantity_in_stock || 0));
+    return sum + price * (product.quantity_in_stock || 0);
   }, 0);
 };
 
@@ -78,7 +78,7 @@ export const calculateInventoryValue = (products: PriceData[]): number => {
  */
 export const getAllPriceInfo = (product: PriceData) => {
   const prices = [];
-  
+
   if (product.retail_price && product.retail_price > 0) {
     prices.push({ type: 'Retail', price: product.retail_price, primary: true });
   }
@@ -91,7 +91,7 @@ export const getAllPriceInfo = (product: PriceData) => {
   if (product.case_price && product.case_price > 0) {
     prices.push({ type: 'Case', price: product.case_price, primary: !prices.length });
   }
-  
+
   return prices;
 };
 
@@ -107,7 +107,7 @@ export const isValidPrice = (price: any): boolean => {
  */
 export const calculateProfitMargin = (unitPrice: number, retailPrice: number): number => {
   if (!unitPrice || !retailPrice || retailPrice <= 0) return 0;
-  return ((retailPrice - unitPrice) / retailPrice) * 100;
+  return (retailPrice - unitPrice) / retailPrice * 100;
 };
 
 /**
@@ -118,11 +118,11 @@ export const getPriceStatus = (product: PriceData): {
   message: string;
 } => {
   const primaryPrice = getPrimaryPrice(product);
-  
+
   if (primaryPrice === 0) {
     return { status: 'error', message: 'No price set' };
   }
-  
+
   if (product.unit_price && product.retail_price) {
     const margin = calculateProfitMargin(product.unit_price, product.retail_price);
     if (margin < 10) {
@@ -132,7 +132,7 @@ export const getPriceStatus = (product: PriceData): {
       return { status: 'warning', message: 'High markup' };
     }
   }
-  
+
   return { status: 'good', message: 'Price configured' };
 };
 
@@ -150,7 +150,7 @@ export const fetchRealTimePricing = async (productId: number): Promise<PriceData
     });
 
     if (error) throw error;
-    
+
     if (data?.List?.[0]) {
       const product = data.List[0];
       return {
@@ -162,7 +162,7 @@ export const fetchRealTimePricing = async (productId: number): Promise<PriceData
         minimum_stock: product.minimum_stock || 0
       };
     }
-    
+
     return null;
   } catch (error) {
     console.error('Error fetching real-time pricing:', error);

@@ -64,7 +64,7 @@ const ProductList: React.FC = () => {
       if (error) throw error;
 
       const productList = data.List || [];
-      
+
       // Ensure all price fields are properly handled
       const processedProducts = productList.map((product: any) => ({
         ...product,
@@ -147,9 +147,9 @@ const ProductList: React.FC = () => {
   const getPrimaryPrice = (product: Product) => {
     // Priority: retail_price > unit_price > price > case_price
     return product.retail_price > 0 ? product.retail_price :
-           product.unit_price > 0 ? product.unit_price :
-           product.price > 0 ? product.price :
-           product.case_price > 0 ? product.case_price : 0;
+    product.unit_price > 0 ? product.unit_price :
+    product.price > 0 ? product.price :
+    product.case_price > 0 ? product.case_price : 0;
   };
 
   const getPriceType = (product: Product) => {
@@ -161,84 +161,84 @@ const ProductList: React.FC = () => {
   };
 
   const columns = [
-    {
-      key: 'product_name',
-      label: 'Product Name',
-      sortable: true,
-      render: (value: string, item: Product) =>
-        <div className="flex flex-col">
+  {
+    key: 'product_name',
+    label: 'Product Name',
+    sortable: true,
+    render: (value: string, item: Product) =>
+    <div className="flex flex-col">
           <span className="font-medium">{value}</span>
           <span className="text-xs text-gray-500">{item.product_code}</span>
         </div>
-    },
-    {
-      key: 'category',
-      label: 'Category',
-      sortable: true,
-      mobileHidden: true
-    },
-    {
-      key: 'price',
-      label: 'Price',
-      sortable: true,
-      render: (value: number, item: Product) => {
-        const primaryPrice = getPrimaryPrice(item);
-        const priceType = getPriceType(item);
-        const isOutOfStock = item.quantity_in_stock <= item.minimum_stock;
-        
-        return (
-          <div className="flex flex-col">
+  },
+  {
+    key: 'category',
+    label: 'Category',
+    sortable: true,
+    mobileHidden: true
+  },
+  {
+    key: 'price',
+    label: 'Price',
+    sortable: true,
+    render: (value: number, item: Product) => {
+      const primaryPrice = getPrimaryPrice(item);
+      const priceType = getPriceType(item);
+      const isOutOfStock = item.quantity_in_stock <= item.minimum_stock;
+
+      return (
+        <div className="flex flex-col">
             <div className="flex items-center space-x-2">
               <span className="font-semibold text-green-600">
                 {formatPrice(primaryPrice)}
               </span>
-              {isOutOfStock && (
-                <Badge variant="destructive" className="text-xs">
+              {isOutOfStock &&
+            <Badge variant="destructive" className="text-xs">
                   Low Stock
                 </Badge>
-              )}
+            }
             </div>
             <span className="text-xs text-gray-500">{priceType} Price</span>
-            {device.isMobile && (
-              <span className="text-xs text-gray-400">
+            {device.isMobile &&
+          <span className="text-xs text-gray-400">
                 Updated: {new Date(item.updated_at || lastRefresh).toLocaleTimeString()}
               </span>
-            )}
-          </div>
-        );
-      }
-    },
-    {
-      key: 'supplier',
-      label: 'Supplier',
-      sortable: true,
-      mobileHidden: true
-    },
-    {
-      key: 'quantity_in_stock',
-      label: 'Stock',
-      sortable: true,
-      mobileHidden: device.isMobile,
-      render: (value: number, item: Product) => {
-        const isLowStock = value <= item.minimum_stock;
-        return (
-          <div className="flex items-center space-x-2">
+          }
+          </div>);
+
+    }
+  },
+  {
+    key: 'supplier',
+    label: 'Supplier',
+    sortable: true,
+    mobileHidden: true
+  },
+  {
+    key: 'quantity_in_stock',
+    label: 'Stock',
+    sortable: true,
+    mobileHidden: device.isMobile,
+    render: (value: number, item: Product) => {
+      const isLowStock = value <= item.minimum_stock;
+      return (
+        <div className="flex items-center space-x-2">
             <span className={isLowStock ? 'text-red-600 font-medium' : ''}>
               {value}
             </span>
-            {isLowStock && (
-              <Badge variant="destructive" className="text-xs">
+            {isLowStock &&
+          <Badge variant="destructive" className="text-xs">
                 Low
               </Badge>
-            )}
-          </div>
-        );
-      }
+          }
+          </div>);
+
     }
-  ];
+  }];
+
 
   const renderActions = (product: Product) =>
-    <div className="flex items-center space-x-2">
+  <div className="flex items-center space-x-2">
       <Button variant="ghost" size="sm" asChild>
         <Link to={`/products/${product.id}/edit`}>
           <Edit2 className="w-4 h-4" />
@@ -246,10 +246,10 @@ const ProductList: React.FC = () => {
         </Link>
       </Button>
       <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => handleDelete(product)}
-        className="text-red-600 hover:text-red-700">
+      variant="ghost"
+      size="sm"
+      onClick={() => handleDelete(product)}
+      className="text-red-600 hover:text-red-700">
         <Trash2 className="w-4 h-4" />
         {!device.isMobile && <span className="ml-1">Delete</span>}
       </Button>
@@ -257,10 +257,10 @@ const ProductList: React.FC = () => {
 
   const totalValue = products.reduce((sum, product) => {
     const price = getPrimaryPrice(product);
-    return sum + (price * (product.quantity_in_stock || 0));
+    return sum + price * (product.quantity_in_stock || 0);
   }, 0);
 
-  const lowStockCount = products.filter(p => p.quantity_in_stock <= p.minimum_stock).length;
+  const lowStockCount = products.filter((p) => p.quantity_in_stock <= p.minimum_stock).length;
 
   return (
     <motion.div
@@ -276,7 +276,7 @@ const ProductList: React.FC = () => {
 
         <div>
           <h1 className={`font-bold text-gray-900 dark:text-white ${
-            device.optimalFontSize === 'large' ? 'text-3xl' : 'text-2xl'}`
+          device.optimalFontSize === 'large' ? 'text-3xl' : 'text-2xl'}`
           }>
             Products
           </h1>
@@ -291,12 +291,12 @@ const ProductList: React.FC = () => {
           </div>
         </div>
         <div className="flex items-center space-x-2 mt-4 sm:mt-0">
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={handleRefresh}
-            disabled={refreshing}
-          >
+            disabled={refreshing}>
+
             <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
@@ -311,11 +311,11 @@ const ProductList: React.FC = () => {
 
       {/* Stats Cards - Only show on larger screens */}
       {!device.isMobile &&
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="grid grid-cols-1 md:grid-cols-4 gap-4">
 
           <AdaptiveCard>
             <div className="flex items-center">
@@ -356,16 +356,16 @@ const ProductList: React.FC = () => {
           <AdaptiveCard>
             <div className="flex items-center">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                lowStockCount > 0 ? 'bg-red-100' : 'bg-blue-100'
-              }`}>
+            lowStockCount > 0 ? 'bg-red-100' : 'bg-blue-100'}`
+            }>
                 <div className={`w-4 h-4 rounded-full ${
-                  lowStockCount > 0 ? 'bg-red-600' : 'bg-blue-600'
-                }`}></div>
+              lowStockCount > 0 ? 'bg-red-600' : 'bg-blue-600'}`
+              }></div>
               </div>
               <div className="ml-4">
                 <p className={`text-2xl font-bold ${
-                  lowStockCount > 0 ? 'text-red-600' : 'text-blue-600'
-                }`}>
+              lowStockCount > 0 ? 'text-red-600' : 'text-blue-600'}`
+              }>
                   {lowStockCount}
                 </p>
                 <p className="text-gray-600 text-sm">Low Stock Items</p>
@@ -422,8 +422,8 @@ const ProductList: React.FC = () => {
           emptyMessage="No products found. Create your first product to get started." />
 
       </motion.div>
-    </motion.div>
-  );
+    </motion.div>);
+
 };
 
 export default ProductList;

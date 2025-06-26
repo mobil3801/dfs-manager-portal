@@ -29,9 +29,9 @@ interface PriceHistoryEntry {
 }
 
 export const useRealtimePricing = (
-  productIds: number[] = [],
-  options: RealtimePricingOptions = {}
-) => {
+productIds: number[] = [],
+options: RealtimePricingOptions = {}) =>
+{
   const {
     autoRefresh = true,
     refreshInterval = 30000, // 30 seconds
@@ -86,7 +86,7 @@ export const useRealtimePricing = (
       const validResults = results.filter((result): result is PriceData => result !== null);
 
       // Update products map and check for price changes
-      setProducts(prevProducts => {
+      setProducts((prevProducts) => {
         const newProducts = new Map(prevProducts);
         const priceChanges: Array<{
           productId: number;
@@ -96,7 +96,7 @@ export const useRealtimePricing = (
           priceType: string;
         }> = [];
 
-        validResults.forEach(newProduct => {
+        validResults.forEach((newProduct) => {
           const oldProduct = prevProducts.get(newProduct.id);
           const newPrice = getPrimaryPrice(newProduct);
           const newPriceType = getPriceType(newProduct);
@@ -114,7 +114,7 @@ export const useRealtimePricing = (
 
               // Add to price history if tracking is enabled
               if (trackPriceHistory) {
-                setPriceHistory(prev => [...prev, {
+                setPriceHistory((prev) => [...prev, {
                   timestamp: new Date(),
                   price: newPrice,
                   priceType: newPriceType,
@@ -129,7 +129,7 @@ export const useRealtimePricing = (
 
         // Show toast notifications for price changes
         if (showToastOnUpdate && priceChanges.length > 0) {
-          priceChanges.forEach(change => {
+          priceChanges.forEach((change) => {
             toast({
               title: 'Price Updated',
               description: `${change.productName}: $${change.oldPrice.toFixed(2)} → $${change.newPrice.toFixed(2)}`,
@@ -146,7 +146,7 @@ export const useRealtimePricing = (
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch pricing data';
       setError(errorMessage);
       console.error('Error fetching real-time pricing:', err);
-      
+
       if (!silent) {
         toast({
           title: 'Error',
@@ -201,7 +201,7 @@ export const useRealtimePricing = (
 
   // Get price history for a specific product
   const getProductPriceHistory = useCallback((productId: number): PriceHistoryEntry[] => {
-    return priceHistory.filter(entry => entry.productId === productId);
+    return priceHistory.filter((entry) => entry.productId === productId);
   }, [priceHistory]);
 
   return {
@@ -217,7 +217,7 @@ export const useRealtimePricing = (
     // Computed values
     totalProducts: products.size,
     hasError: !!error,
-    isStale: lastUpdated ? (Date.now() - lastUpdated.getTime()) > refreshInterval * 2 : true
+    isStale: lastUpdated ? Date.now() - lastUpdated.getTime() > refreshInterval * 2 : true
   };
 };
 

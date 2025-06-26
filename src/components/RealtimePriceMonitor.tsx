@@ -49,7 +49,7 @@ const RealtimePriceMonitor: React.FC<RealtimePriceMonitorProps> = ({
 
     try {
       setLoading(true);
-      
+
       const { data, error } = await window.ezsite.apis.tablePage(11726, {
         PageNo: 1,
         PageSize: 1,
@@ -78,14 +78,14 @@ const RealtimePriceMonitor: React.FC<RealtimePriceMonitorProps> = ({
         if (priceData) {
           const oldPrice = getPrimaryPrice(priceData);
           const newPrice = getPrimaryPrice(newPriceData);
-          
+
           if (oldPrice !== newPrice) {
-            setPriceHistory(prev => [...prev, {
+            setPriceHistory((prev) => [...prev, {
               timestamp: new Date(),
               price: newPrice,
               type: getPriceType(newPriceData)
             }].slice(-10)); // Keep last 10 price changes
-            
+
             if (showToast) {
               toast({
                 title: 'Price Updated',
@@ -141,8 +141,8 @@ const RealtimePriceMonitor: React.FC<RealtimePriceMonitorProps> = ({
             No product selected for price monitoring
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   if (!priceData) {
@@ -154,8 +154,8 @@ const RealtimePriceMonitor: React.FC<RealtimePriceMonitorProps> = ({
             <span>Loading price data...</span>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   const primaryPrice = getPrimaryPrice(priceData);
@@ -166,8 +166,8 @@ const RealtimePriceMonitor: React.FC<RealtimePriceMonitorProps> = ({
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.2 }}
-    >
+      transition={{ duration: 0.2 }}>
+
       <Card className={className}>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
@@ -183,8 +183,8 @@ const RealtimePriceMonitor: React.FC<RealtimePriceMonitorProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={handleManualRefresh}
-                disabled={loading}
-              >
+                disabled={loading}>
+
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               </Button>
             </div>
@@ -195,12 +195,12 @@ const RealtimePriceMonitor: React.FC<RealtimePriceMonitorProps> = ({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Current {priceType} Price</span>
-              {lowStock && (
-                <Badge variant="destructive" className="text-xs">
+              {lowStock &&
+              <Badge variant="destructive" className="text-xs">
                   <AlertTriangle className="w-3 h-3 mr-1" />
                   Low Stock
                 </Badge>
-              )}
+              }
             </div>
             <div className="text-3xl font-bold text-green-600">
               {formatPrice(primaryPrice)}
@@ -211,37 +211,37 @@ const RealtimePriceMonitor: React.FC<RealtimePriceMonitorProps> = ({
           </div>
 
           {/* Detailed Price Information */}
-          {showDetailedInfo && (
-            <div className="space-y-3 border-t pt-3">
+          {showDetailedInfo &&
+          <div className="space-y-3 border-t pt-3">
               <h4 className="text-sm font-medium">All Prices</h4>
               <div className="grid grid-cols-2 gap-3 text-sm">
-                {priceData.retail_price > 0 && (
-                  <div className="flex justify-between">
+                {priceData.retail_price > 0 &&
+              <div className="flex justify-between">
                     <span className="text-gray-600">Retail:</span>
                     <span className="font-medium">{formatPrice(priceData.retail_price)}</span>
                   </div>
-                )}
-                {priceData.unit_price > 0 && (
-                  <div className="flex justify-between">
+              }
+                {priceData.unit_price > 0 &&
+              <div className="flex justify-between">
                     <span className="text-gray-600">Unit:</span>
                     <span className="font-medium">{formatPrice(priceData.unit_price)}</span>
                   </div>
-                )}
-                {priceData.price > 0 && (
-                  <div className="flex justify-between">
+              }
+                {priceData.price > 0 &&
+              <div className="flex justify-between">
                     <span className="text-gray-600">Base:</span>
                     <span className="font-medium">{formatPrice(priceData.price)}</span>
                   </div>
-                )}
-                {priceData.case_price > 0 && (
-                  <div className="flex justify-between">
+              }
+                {priceData.case_price > 0 &&
+              <div className="flex justify-between">
                     <span className="text-gray-600">Case:</span>
                     <span className="font-medium">{formatPrice(priceData.case_price)}</span>
                   </div>
-                )}
+              }
               </div>
             </div>
-          )}
+          }
 
           {/* Stock Information */}
           <div className="space-y-2 border-t pt-3">
@@ -258,15 +258,15 @@ const RealtimePriceMonitor: React.FC<RealtimePriceMonitorProps> = ({
           </div>
 
           {/* Price History */}
-          {priceHistory.length > 0 && (
-            <div className="space-y-2 border-t pt-3">
+          {priceHistory.length > 0 &&
+          <div className="space-y-2 border-t pt-3">
               <div className="flex items-center space-x-2">
                 <TrendingUp className="w-4 h-4 text-blue-600" />
                 <span className="text-sm font-medium">Recent Changes</span>
               </div>
               <div className="space-y-1 max-h-32 overflow-y-auto">
-                {priceHistory.slice(-5).reverse().map((entry, index) => (
-                  <div key={index} className="flex justify-between text-xs">
+                {priceHistory.slice(-5).reverse().map((entry, index) =>
+              <div key={index} className="flex justify-between text-xs">
                     <span className="text-gray-500">
                       {entry.timestamp.toLocaleTimeString()}
                     </span>
@@ -274,22 +274,22 @@ const RealtimePriceMonitor: React.FC<RealtimePriceMonitorProps> = ({
                       {formatPrice(entry.price)} ({entry.type})
                     </span>
                   </div>
-                ))}
+              )}
               </div>
             </div>
-          )}
+          }
 
           {/* Auto-refresh indicator */}
-          {autoRefresh && (
-            <div className="flex items-center justify-center text-xs text-gray-500 pt-2">
+          {autoRefresh &&
+          <div className="flex items-center justify-center text-xs text-gray-500 pt-2">
               <RefreshCw className="w-3 h-3 mr-1" />
               Auto-refreshing every {refreshInterval / 1000}s
             </div>
-          )}
+          }
         </CardContent>
       </Card>
-    </motion.div>
-  );
+    </motion.div>);
+
 };
 
 export default RealtimePriceMonitor;
