@@ -1,88 +1,73 @@
-import { createRoot } from 'react-dom/client';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
-import { initializeMemoryLeakDetection } from './utils/memoryLeakIntegration';
-import { setupInvalidCharacterErrorMonitor } from './utils/errorPreventionHelper';
 
-// Performance API Polyfill for environments that don't support it
-if (typeof window !== 'undefined' && !window.performance) {
-  console.warn('Performance API not available, providing minimal polyfill');
-  (window as any).performance = {
-    now: () => Date.now(),
-    mark: () => {},
-    measure: () => {},
-    getEntriesByType: () => [],
-    memory: null
-  };
-} else if (typeof window !== 'undefined' && window.performance && !(window.performance as any).getEntriesByType) {
-  console.warn('Performance.getEntriesByType not available, providing polyfill');
-  (window.performance as any).getEntriesByType = () => [];
-}
+// Import optimized memory management
+import { enableOptimizedMemoryManagement } from './utils/optimized-memory-management';
 
-// Enhanced global error handler for Performance API errors
-const originalError = window.onerror;
-window.onerror = (message, source, lineno, colno, error) => {
-  // Check for Performance API related errors
-  if (typeof message === 'string' && (
-  message.includes('getEntriesByType is not a function') ||
-  message.includes('getEntriesByType is not defined') ||
-  message.includes('performance') ||
-  message.includes('PerformanceEntry') ||
-  message.includes('usedJSHeapSize') ||
-  message.includes('totalJSHeapSize') ||
-  message.includes('jsHeapSizeLimit'))) {
-    console.warn('Performance API error detected and handled:', message);
-    // Prevent Performance API errors from crashing the app
-    return true;
-  }
+// Performance monitoring setup
+const startTime = performance.now();
 
-  // Handle general memory monitoring errors
-  if (error && error.stack && (
-  error.stack.includes('performance') ||
-  error.stack.includes('memory') ||
-  error.stack.includes('getEntriesByType'))) {
-    console.warn('Memory monitoring error detected and handled:', error);
-    return true;
-  }
+// Enable optimized memory management
+const cleanupMemoryManagement = enableOptimizedMemoryManagement();
 
-  // Call original error handler if it exists
-  if (originalError) {
-    return originalError(message, source, lineno, colno, error);
-  }
-
-  return false;
-};
-
-// Enhanced global unhandled promise rejection handler
-window.addEventListener('unhandledrejection', (event) => {
-  if (event.reason) {
-    const reason = event.reason;
-    const reasonStr = typeof reason === 'string' ? reason :
-    reason.message || reason.toString();
-
-    if (reasonStr.includes('getEntriesByType') ||
-    reasonStr.includes('performance') ||
-    reasonStr.includes('memory') ||
-    reasonStr.includes('PerformanceEntry') ||
-    reasonStr.includes('usedJSHeapSize')) {
-      console.warn('Performance/Memory API promise rejection handled:', reason);
-      event.preventDefault();
-    }
+// Enhanced error handling
+window.addEventListener('error', (event) => {
+  console.error('Global error:', event.error);
+  
+  // Prevent infinite error loops
+  if (event.error?.message?.includes('ResizeObserver') || 
+      event.error?.message?.includes('Non-Error promise rejection')) {
+    event.preventDefault();
+    return false;
   }
 });
 
-// Initialize memory leak detection with error handling
-try {
-  initializeMemoryLeakDetection();
-} catch (error) {
-  console.warn('Memory leak detection initialization failed:', error);
-}
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('Unhandled promise rejection:', event.reason);
+  
+  // Prevent infinite loops from promise rejections
+  if (typeof event.reason === 'string' && 
+      (event.reason.includes('ResizeObserver') || 
+       event.reason.includes('fetch'))) {
+    event.preventDefault();
+    return false;
+  }
+});
 
-// Initialize InvalidCharacterError monitoring
-try {
-  setupInvalidCharacterErrorMonitor();
-} catch (error) {
-  console.warn('Invalid character error monitoring initialization failed:', error);
-}
+// Cleanup on page unload
+window.addEventListener('beforeunload', () => {
+  cleanupMemoryManagement();
+});
 
-createRoot(document.getElementById("root")!).render(<App />);
+// Initialize React app
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+);
+
+// Log initialization time
+const endTime = performance.now();
+console.log(`🚀 App initialized in ${Math.round(endTime - startTime)}ms`);
+
+// Performance monitoring
+if (process.env.NODE_ENV === 'development') {
+  // Monitor for slow renders
+  if ('PerformanceObserver' in window) {
+    try {
+      const observer = new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          if (entry.duration > 100) {
+            console.warn(`🐌 Slow operation detected: ${entry.name} (${Math.round(entry.duration)}ms)`);
+          }
+        }
+      });
+      
+      observer.observe({ entryTypes: ['measure', 'navigation'] });
+    } catch (error) {
+      console.warn('Performance observer setup failed:', error);
+    }
+  }
+}

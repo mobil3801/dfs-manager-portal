@@ -7,33 +7,33 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  CheckCircle, 
-  XCircle, 
-  User, 
-  Shield, 
-  Clock, 
+import {
+  CheckCircle,
+  XCircle,
+  User,
+  Shield,
+  Clock,
   AlertCircle,
   TestTube,
   LogIn,
-  LogOut
-} from 'lucide-react';
+  LogOut } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const AuthenticationTest: React.FC = () => {
-  const { 
-    user, 
-    userProfile, 
-    isAuthenticated, 
-    isLoading, 
+  const {
+    user,
+    userProfile,
+    isAuthenticated,
+    isLoading,
     authError,
-    login, 
+    login,
     logout,
     isAdmin,
     isManager,
     hasPermission
   } = useAuth();
-  
+
   const [testEmail, setTestEmail] = useState('test@example.com');
   const [testPassword, setTestPassword] = useState('password123');
   const [testResult, setTestResult] = useState<string | null>(null);
@@ -43,11 +43,11 @@ const AuthenticationTest: React.FC = () => {
   const runLoginTest = async () => {
     setTesting(true);
     setTestResult(null);
-    
+
     try {
       console.log('🧪 Running authentication test...');
       const result = await login(testEmail, testPassword);
-      
+
       if (result) {
         setTestResult('success');
         toast({
@@ -57,7 +57,7 @@ const AuthenticationTest: React.FC = () => {
       } else {
         setTestResult('failed');
         toast({
-          title: "Test Failed", 
+          title: "Test Failed",
           description: "Login test failed - check credentials",
           variant: "destructive"
         });
@@ -96,12 +96,12 @@ const AuthenticationTest: React.FC = () => {
     }
   };
 
-  const getStatusBadge = (condition: boolean, trueText: string, falseText: string) => (
-    <Badge variant={condition ? "default" : "secondary"} className="flex items-center gap-1">
+  const getStatusBadge = (condition: boolean, trueText: string, falseText: string) =>
+  <Badge variant={condition ? "default" : "secondary"} className="flex items-center gap-1">
       {condition ? <CheckCircle className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
       {condition ? trueText : falseText}
-    </Badge>
-  );
+    </Badge>;
+
 
   return (
     <div className="space-y-6">
@@ -134,18 +134,18 @@ const AuthenticationTest: React.FC = () => {
             </div>
           </div>
 
-          {authError && (
-            <Alert variant="destructive">
+          {authError &&
+          <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{authError}</AlertDescription>
             </Alert>
-          )}
+          }
         </CardContent>
       </Card>
 
       {/* User Information */}
-      {isAuthenticated && user && (
-        <Card>
+      {isAuthenticated && user &&
+      <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <User className="h-5 w-5 text-brand-600" />
@@ -174,8 +174,8 @@ const AuthenticationTest: React.FC = () => {
               </div>
             </div>
 
-            {userProfile && (
-              <>
+            {userProfile &&
+          <>
                 <Separator />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -196,14 +196,14 @@ const AuthenticationTest: React.FC = () => {
                   </div>
                 </div>
               </>
-            )}
+          }
           </CardContent>
         </Card>
-      )}
+      }
 
       {/* Permission Testing */}
-      {isAuthenticated && (
-        <Card>
+      {isAuthenticated &&
+      <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shield className="h-5 w-5 text-brand-600" />
@@ -229,7 +229,7 @@ const AuthenticationTest: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-      )}
+      }
 
       {/* Authentication Testing */}
       <Card>
@@ -243,58 +243,58 @@ const AuthenticationTest: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {!isAuthenticated ? (
-            <div className="space-y-4">
+          {!isAuthenticated ?
+          <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="testEmail">Test Email</Label>
                   <Input
-                    id="testEmail"
-                    type="email"
-                    value={testEmail}
-                    onChange={(e) => setTestEmail(e.target.value)}
-                    placeholder="test@example.com"
-                  />
+                  id="testEmail"
+                  type="email"
+                  value={testEmail}
+                  onChange={(e) => setTestEmail(e.target.value)}
+                  placeholder="test@example.com" />
+
                 </div>
                 <div>
                   <Label htmlFor="testPassword">Test Password</Label>
                   <Input
-                    id="testPassword"
-                    type="password"
-                    value={testPassword}
-                    onChange={(e) => setTestPassword(e.target.value)}
-                    placeholder="password123"
-                  />
+                  id="testPassword"
+                  type="password"
+                  value={testPassword}
+                  onChange={(e) => setTestPassword(e.target.value)}
+                  placeholder="password123" />
+
                 </div>
               </div>
               
-              <Button 
-                onClick={runLoginTest}
-                disabled={testing || isLoading}
-                className="w-full bg-brand-600 hover:bg-brand-700"
-              >
+              <Button
+              onClick={runLoginTest}
+              disabled={testing || isLoading}
+              className="w-full bg-brand-600 hover:bg-brand-700">
+
                 <LogIn className="h-4 w-4 mr-2" />
                 {testing ? 'Testing Login...' : 'Test Login'}
               </Button>
-            </div>
-          ) : (
-            <Button 
-              onClick={runLogoutTest}
-              disabled={testing}
-              variant="outline"
-              className="w-full"
-            >
+            </div> :
+
+          <Button
+            onClick={runLogoutTest}
+            disabled={testing}
+            variant="outline"
+            className="w-full">
+
               <LogOut className="h-4 w-4 mr-2" />
               {testing ? 'Testing Logout...' : 'Test Logout'}
             </Button>
-          )}
+          }
 
-          {testResult && (
-            <Alert variant={testResult.includes('success') ? "default" : "destructive"}>
-              {testResult.includes('success') ? 
-                <CheckCircle className="h-4 w-4" /> : 
-                <XCircle className="h-4 w-4" />
-              }
+          {testResult &&
+          <Alert variant={testResult.includes('success') ? "default" : "destructive"}>
+              {testResult.includes('success') ?
+            <CheckCircle className="h-4 w-4" /> :
+            <XCircle className="h-4 w-4" />
+            }
               <AlertDescription>
                 {testResult === 'success' && 'Login test completed successfully!'}
                 {testResult === 'failed' && 'Login test failed - check credentials or system status'}
@@ -302,7 +302,7 @@ const AuthenticationTest: React.FC = () => {
                 {testResult === 'logout_success' && 'Logout test completed successfully!'}
               </AlertDescription>
             </Alert>
-          )}
+          }
         </CardContent>
       </Card>
 
@@ -337,8 +337,8 @@ const AuthenticationTest: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AuthenticationTest;

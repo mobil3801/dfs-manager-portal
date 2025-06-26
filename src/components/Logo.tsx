@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const Logo: React.FC<{className?: string; size?: 'sm' | 'md' | 'lg';}> = ({ 
+export const Logo: React.FC<{className?: string;size?: 'sm' | 'md' | 'lg';}> = ({
   className = "",
   size = 'md'
 }) => {
@@ -21,8 +21,8 @@ export const Logo: React.FC<{className?: string; size?: 'sm' | 'md' | 'lg';}> = 
           const target = e.target as HTMLImageElement;
           target.style.display = 'none';
           target.nextElementSibling?.classList.remove('hidden');
-        }}
-      />
+        }} />
+
       
       {/* Fallback text logo - hidden by default, shown if image fails */}
       <div className="hidden">
@@ -33,8 +33,8 @@ export const Logo: React.FC<{className?: string; size?: 'sm' | 'md' | 'lg';}> = 
           <span className="ml-2 text-gray-800 dark:text-gray-200 font-semibold">Manager Portal</span>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Logo;

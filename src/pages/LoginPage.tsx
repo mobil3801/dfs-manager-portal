@@ -242,8 +242,8 @@ const LoginPage: React.FC = () => {
           }
         </motion.div>
       </motion.div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default LoginPage;
