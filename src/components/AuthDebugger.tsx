@@ -4,14 +4,19 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
-import { useAdminAccessDebug } from '@/hooks/use-admin-access';
+import { useAdminAccess } from '@/hooks/use-admin-access';
 import { AlertTriangle, CheckCircle, User, Shield, Settings } from 'lucide-react';
 
 const AuthDebugger: React.FC = () => {
   const auth = useAuth();
-  const adminAccess = useAdminAccessDebug();
+  const adminAccess = useAdminAccess();
   const [isExpanded, setIsExpanded] = useState(false);
   const [testResult, setTestResult] = useState<string | null>(null);
+
+  // Only render for authenticated admin users
+  if (!auth.isAuthenticated || !auth.user || !adminAccess.isAdmin) {
+    return null;
+  }
 
   const runAuthTest = async () => {
     try {
@@ -58,7 +63,6 @@ const AuthDebugger: React.FC = () => {
       <Badge variant={status ? "default" : "destructive"} className="ml-2">
         {status ? trueText : falseText}
       </Badge>);
-
   };
 
   if (!isExpanded) {
@@ -69,12 +73,10 @@ const AuthDebugger: React.FC = () => {
           variant="outline"
           size="sm"
           className="bg-white shadow-lg">
-
           <Settings className="h-4 w-4 mr-2" />
           Auth Debug
         </Button>
       </div>);
-
   }
 
   return (
@@ -89,7 +91,6 @@ const AuthDebugger: React.FC = () => {
             onClick={() => setIsExpanded(false)}
             variant="ghost"
             size="sm">
-
             ×
           </Button>
         </div>
@@ -181,7 +182,6 @@ const AuthDebugger: React.FC = () => {
               variant="outline"
               size="sm"
               className="w-full text-xs">
-
               Run Auth Test
             </Button>
             <Button
@@ -189,7 +189,6 @@ const AuthDebugger: React.FC = () => {
               variant="outline"
               size="sm"
               className="w-full text-xs">
-
               Refresh User Data
             </Button>
             {auth.authError &&
@@ -198,7 +197,6 @@ const AuthDebugger: React.FC = () => {
               variant="outline"
               size="sm"
               className="w-full text-xs">
-
                 Clear Error
               </Button>
             }
@@ -206,7 +204,6 @@ const AuthDebugger: React.FC = () => {
         </div>
       </Card>
     </div>);
-
 };
 
 export default AuthDebugger;
