@@ -21,6 +21,9 @@ import ComprehensivePermissionDialog from '@/components/ComprehensivePermissionD
 import AccessDenied from '@/components/AccessDenied';
 import useAdminAccess from '@/hooks/use-admin-access';
 import CreateUserDialog from '@/components/CreateUserDialog';
+import SimpleRoleAssignment from '@/components/SimpleRoleAssignment';
+import BulkRoleManager from '@/components/BulkRoleManager';
+import RoleOverview from '@/components/RoleOverview';
 import {
   Users,
   Plus,
@@ -523,6 +526,43 @@ const UserManagement: React.FC = () => {
         </TabsList>
 
         <TabsContent value="profiles" className="space-y-6">
+          {/* Easy Role Assignment Section */}
+          <Card className="border-blue-200 bg-blue-50">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2 text-blue-800">
+                <Shield className="w-5 h-5" />
+                <span>Easy Role Assignment</span>
+                <Badge className="bg-blue-100 text-blue-800">Simplified</Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap items-center gap-3">
+                <SimpleRoleAssignment
+                  onRoleAssigned={() => {
+                    fetchUserProfiles();
+                    toast({
+                      title: "Success",
+                      description: "Role assignment completed successfully"
+                    });
+                  }}
+                />
+                <BulkRoleManager
+                  onRolesAssigned={() => {
+                    fetchUserProfiles();
+                    toast({
+                      title: "Success", 
+                      description: "Bulk role assignment completed successfully"
+                    });
+                  }}
+                />
+                <RoleOverview />
+                <div className="text-sm text-blue-700 max-w-md">
+                  Use these simplified tools to quickly assign roles without dealing with complex permission settings.
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* User Action Buttons */}
           <div className="flex items-center justify-end space-x-3">
             <Button
@@ -900,6 +940,25 @@ const UserManagement: React.FC = () => {
                             onClick={() => handleEditProfile(profile)}>
                                 <Edit3 className="w-4 h-4" />
                               </Button>
+                              <SimpleRoleAssignment
+                                selectedUserId={profile.id}
+                                trigger={
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-green-600 hover:text-green-700"
+                                    title="Quick Role Assignment">
+                                    <Shield className="w-4 h-4" />
+                                  </Button>
+                                }
+                                onRoleAssigned={() => {
+                                  fetchUserProfiles();
+                                  toast({
+                                    title: "Success",
+                                    description: "Role updated successfully"
+                                  });
+                                }}
+                              />
                               <ComprehensivePermissionDialog
                             selectedUserId={profile.id}
                             trigger={
@@ -907,8 +966,8 @@ const UserManagement: React.FC = () => {
                               size="sm"
                               variant="outline"
                               className="text-blue-600 hover:text-blue-700"
-                              title="Real-Time Permission Management">
-                                    <Shield className="w-4 h-4" />
+                              title="Advanced Permission Management">
+                                    <Settings className="w-4 h-4" />
                                   </Button>
                             } />
 
