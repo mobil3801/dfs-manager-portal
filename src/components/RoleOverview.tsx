@@ -18,8 +18,8 @@ import {
   Database,
   FileText,
   Package,
-  DollarSign
-} from 'lucide-react';
+  DollarSign } from
+'lucide-react';
 
 const ROLE_DEFINITIONS = {
   'Super Admin': {
@@ -28,12 +28,12 @@ const ROLE_DEFINITIONS = {
     level: 5,
     description: 'Complete system access with all permissions',
     responsibilities: [
-      'Manage all users and their permissions',
-      'Configure system settings and security',
-      'Access all data and operations',
-      'System maintenance and monitoring',
-      'Final approval authority'
-    ],
+    'Manage all users and their permissions',
+    'Configure system settings and security',
+    'Access all data and operations',
+    'System maintenance and monitoring',
+    'Final approval authority'],
+
     access: {
       dashboard: '✓ Full Access',
       products: '✓ All Operations',
@@ -58,12 +58,12 @@ const ROLE_DEFINITIONS = {
     level: 4,
     description: 'Full operational access with limited admin features',
     responsibilities: [
-      'Oversee daily business operations',
-      'Manage sales, inventory, and orders',
-      'View and generate reports',
-      'Supervise employee activities',
-      'Handle vendor relationships'
-    ],
+    'Oversee daily business operations',
+    'Manage sales, inventory, and orders',
+    'View and generate reports',
+    'Supervise employee activities',
+    'Handle vendor relationships'],
+
     access: {
       dashboard: '✓ Full Access',
       products: '✓ All Operations',
@@ -88,12 +88,12 @@ const ROLE_DEFINITIONS = {
     level: 3,
     description: 'Department oversight with specific area management',
     responsibilities: [
-      'Supervise specific departments',
-      'Review and approve reports',
-      'Train and guide employees',
-      'Monitor daily operations',
-      'Assist with inventory management'
-    ],
+    'Supervise specific departments',
+    'Review and approve reports',
+    'Train and guide employees',
+    'Monitor daily operations',
+    'Assist with inventory management'],
+
     access: {
       dashboard: '✓ View Only',
       products: '✓ View, Edit',
@@ -118,12 +118,12 @@ const ROLE_DEFINITIONS = {
     level: 2,
     description: 'Daily operations access for routine tasks',
     responsibilities: [
-      'Process sales transactions',
-      'Handle delivery records',
-      'Basic inventory monitoring',
-      'Customer service',
-      'Follow established procedures'
-    ],
+    'Process sales transactions',
+    'Handle delivery records',
+    'Basic inventory monitoring',
+    'Customer service',
+    'Follow established procedures'],
+
     access: {
       dashboard: '✓ View Only',
       products: '✓ View Only',
@@ -148,12 +148,12 @@ const ROLE_DEFINITIONS = {
     level: 1,
     description: 'View-only access for monitoring and reporting',
     responsibilities: [
-      'View reports and data',
-      'Monitor business metrics',
-      'Export data for analysis',
-      'Audit and compliance review',
-      'Read-only system access'
-    ],
+    'View reports and data',
+    'Monitor business metrics',
+    'Export data for analysis',
+    'Audit and compliance review',
+    'Read-only system access'],
+
     access: {
       dashboard: '✓ View Only',
       products: '✓ View Only',
@@ -196,12 +196,12 @@ interface RoleOverviewProps {
 }
 
 const RoleOverview: React.FC<RoleOverviewProps> = ({ trigger }) => {
-  const defaultTrigger = (
-    <Button variant="outline" className="border-gray-300">
+  const defaultTrigger =
+  <Button variant="outline" className="border-gray-300">
       <Info className="w-4 h-4 mr-2" />
       Role Guide
-    </Button>
-  );
+    </Button>;
+
 
   const getAccessIcon = (access: string) => {
     if (access.startsWith('✓')) return <CheckCircle2 className="w-4 h-4 text-green-600" />;
@@ -237,8 +237,8 @@ const RoleOverview: React.FC<RoleOverviewProps> = ({ trigger }) => {
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between bg-gradient-to-r from-red-50 to-gray-50 p-4 rounded-lg">
-                  {Object.entries(ROLE_DEFINITIONS).map(([role, definition], index) => (
-                    <div key={role} className="flex items-center">
+                  {Object.entries(ROLE_DEFINITIONS).map(([role, definition], index) =>
+                  <div key={role} className="flex items-center">
                       <div className="text-center">
                         <div className={`p-3 rounded-lg border-2 ${definition.color}`}>
                           <definition.icon className="w-6 h-6 mx-auto" />
@@ -248,19 +248,19 @@ const RoleOverview: React.FC<RoleOverviewProps> = ({ trigger }) => {
                           <div className="text-xs text-gray-500">Level {definition.level}</div>
                         </div>
                       </div>
-                      {index < Object.keys(ROLE_DEFINITIONS).length - 1 && (
-                        <ArrowRight className="w-5 h-5 text-gray-400 mx-4" />
-                      )}
+                      {index < Object.keys(ROLE_DEFINITIONS).length - 1 &&
+                    <ArrowRight className="w-5 h-5 text-gray-400 mx-4" />
+                    }
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
 
             {/* Detailed Role Information */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {Object.entries(ROLE_DEFINITIONS).map(([role, definition]) => (
-                <Card key={role} className="border-l-4" style={{ borderLeftColor: definition.color.includes('red') ? '#ef4444' : definition.color.includes('blue') ? '#3b82f6' : definition.color.includes('purple') ? '#8b5cf6' : definition.color.includes('green') ? '#10b981' : '#6b7280' }}>
+              {Object.entries(ROLE_DEFINITIONS).map(([role, definition]) =>
+              <Card key={role} className="border-l-4" style={{ borderLeftColor: definition.color.includes('red') ? '#ef4444' : definition.color.includes('blue') ? '#3b82f6' : definition.color.includes('purple') ? '#8b5cf6' : definition.color.includes('green') ? '#10b981' : '#6b7280' }}>
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-3">
                       <definition.icon className="w-6 h-6" />
@@ -290,12 +290,12 @@ const RoleOverview: React.FC<RoleOverviewProps> = ({ trigger }) => {
                     <div>
                       <h4 className="font-semibold text-sm mb-2">Key Responsibilities:</h4>
                       <ul className="space-y-1">
-                        {definition.responsibilities.map((responsibility, index) => (
-                          <li key={index} className="text-sm text-gray-600 flex items-start space-x-2">
+                        {definition.responsibilities.map((responsibility, index) =>
+                      <li key={index} className="text-sm text-gray-600 flex items-start space-x-2">
                             <CheckCircle2 className="w-3 h-3 text-green-600 mt-0.5 flex-shrink-0" />
                             <span>{responsibility}</span>
                           </li>
-                        ))}
+                      )}
                       </ul>
                     </div>
 
@@ -304,9 +304,9 @@ const RoleOverview: React.FC<RoleOverviewProps> = ({ trigger }) => {
                       <h4 className="font-semibold text-sm mb-2">System Access:</h4>
                       <div className="grid grid-cols-1 gap-1">
                         {Object.entries(definition.access).map(([area, access]) => {
-                          const IconComponent = ACCESS_ICONS[area as keyof typeof ACCESS_ICONS] || Settings;
-                          return (
-                            <div key={area} className="flex items-center justify-between text-xs p-2 bg-gray-50 rounded">
+                        const IconComponent = ACCESS_ICONS[area as keyof typeof ACCESS_ICONS] || Settings;
+                        return (
+                          <div key={area} className="flex items-center justify-between text-xs p-2 bg-gray-50 rounded">
                               <div className="flex items-center space-x-2">
                                 <IconComponent className="w-3 h-3 text-gray-600" />
                                 <span className="capitalize">{area.replace(/([A-Z])/g, ' $1').trim()}</span>
@@ -317,14 +317,14 @@ const RoleOverview: React.FC<RoleOverviewProps> = ({ trigger }) => {
                                   {access.replace('✓ ', '').replace('✗ ', '')}
                                 </span>
                               </div>
-                            </div>
-                          );
-                        })}
+                            </div>);
+
+                      })}
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              )}
             </div>
 
             {/* Quick Reference */}
@@ -367,8 +367,8 @@ const RoleOverview: React.FC<RoleOverviewProps> = ({ trigger }) => {
           </div>
         </ScrollArea>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default RoleOverview;

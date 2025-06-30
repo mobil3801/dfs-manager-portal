@@ -61,7 +61,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
   const [isLoading, setIsLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [loginInProgress, setLoginInProgress] = useState(false); // Prevent multiple concurrent logins
+  const [loginInProgress, setLoginInProgress] = useState(false);
   const { toast } = useToast();
 
   const isAuthenticated = !!user && !!userProfile;
@@ -70,7 +70,14 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     setAuthError(null);
   };
 
-  const safeFetchUserData = async (showErrors = false): Promise<{success: boolean;userData?: User;}> => {
+  const clearUserData = () => {
+    console.log('🧹 Clearing user data');
+    setUser(null);
+    setUserProfile(GUEST_PROFILE);
+    setAuthError(null);
+  };
+
+  const safeFetchUserData = async (showErrors = false): Promise<{success: boolean; userData?: User;}> => {
     try {
       console.log('🔄 Attempting to fetch user data...');
 
@@ -79,14 +86,15 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
         throw new Error('EZSite APIs not available');
       }
 
+      // Clear any existing data first to prevent stale data issues
+      clearUserData();
+
       const userResponse = await window.ezsite.apis.getUserInfo();
+      console.log('📡 Raw user API response:', userResponse);
 
       // Handle response with no data (user not authenticated)
       if (!userResponse.data) {
         console.log('👤 No user data - user not authenticated');
-        setUser(null);
-        setUserProfile(GUEST_PROFILE);
-        setAuthError(null);
         return { success: false };
       }
 
@@ -96,32 +104,37 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
         if (showErrors) {
           setAuthError(`Authentication failed: ${userResponse.error}`);
         }
-        setUser(null);
-        setUserProfile(GUEST_PROFILE);
         return { success: false };
       }
 
-      console.log('✅ User data fetched successfully:', userResponse.data);
-      setUser(userResponse.data);
+      const currentUser = userResponse.data;
+      console.log('✅ User data fetched successfully:', currentUser);
+      console.log('🔍 User ID for profile lookup:', currentUser.ID);
+      console.log('📧 User Email:', currentUser.Email);
 
-      // Fetch user profile with retries
+      // Set user data immediately
+      setUser(currentUser);
+
+      // Fetch user profile with the correct user ID
       try {
-        console.log('🔄 Fetching user profile for user ID:', userResponse.data.ID);
+        console.log('🔄 Fetching user profile for user ID:', currentUser.ID);
 
         const profileResponse = await window.ezsite.apis.tablePage(11725, {
           PageNo: 1,
           PageSize: 1,
           Filters: [
-          { name: "user_id", op: "Equal", value: userResponse.data.ID }]
-
+            { name: "user_id", op: "Equal", value: currentUser.ID }
+          ]
         });
+
+        console.log('📡 Raw profile API response:', profileResponse);
 
         if (profileResponse.error) {
           console.log('⚠️ Profile fetch error:', profileResponse.error);
           // Use default profile for authenticated user without profile
-          setUserProfile({
+          const defaultProfile = {
             id: 0,
-            user_id: userResponse.data.ID,
+            user_id: currentUser.ID, // Use the CORRECT user ID
             role: 'Employee',
             station: 'MOBIL',
             employee_id: '',
@@ -129,16 +142,43 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
             hire_date: new Date().toISOString(),
             is_active: true,
             detailed_permissions: {}
-          });
+          };
+          console.log('📝 Using default profile:', defaultProfile);
+          setUserProfile(defaultProfile);
         } else if (profileResponse.data?.List?.length > 0) {
-          console.log('✅ User profile found:', profileResponse.data.List[0]);
-          setUserProfile(profileResponse.data.List[0]);
+          const foundProfile = profileResponse.data.List[0];
+          console.log('✅ User profile found:', foundProfile);
+          console.log('🔍 Profile user_id:', foundProfile.user_id, 'should match current user ID:', currentUser.ID);
+          
+          // Verify the profile belongs to the current user
+          if (foundProfile.user_id === currentUser.ID) {
+            console.log('✅ Profile user_id matches current user - setting profile');
+            setUserProfile(foundProfile);
+          } else {
+            console.error('❌ CRITICAL: Profile user_id does not match current user!');
+            console.error('Profile user_id:', foundProfile.user_id);
+            console.error('Current user ID:', currentUser.ID);
+            
+            // Use default profile to prevent wrong user data
+            const defaultProfile = {
+              id: 0,
+              user_id: currentUser.ID,
+              role: 'Employee',
+              station: 'MOBIL',
+              employee_id: '',
+              phone: '',
+              hire_date: new Date().toISOString(),
+              is_active: true,
+              detailed_permissions: {}
+            };
+            setUserProfile(defaultProfile);
+          }
         } else {
           console.log('⚠️ No profile found, creating default profile');
           // Create default profile for user without one
-          setUserProfile({
+          const defaultProfile = {
             id: 0,
-            user_id: userResponse.data.ID,
+            user_id: currentUser.ID, // Use the CORRECT user ID
             role: 'Employee',
             station: 'MOBIL',
             employee_id: '',
@@ -146,14 +186,16 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
             hire_date: new Date().toISOString(),
             is_active: true,
             detailed_permissions: {}
-          });
+          };
+          console.log('📝 Using default profile for new user:', defaultProfile);
+          setUserProfile(defaultProfile);
         }
       } catch (profileError) {
         console.log('⚠️ Profile fetch failed, using default:', profileError);
         // Use default profile if profile fetch fails
-        setUserProfile({
+        const defaultProfile = {
           id: 0,
-          user_id: userResponse.data.ID,
+          user_id: currentUser.ID, // Use the CORRECT user ID
           role: 'Employee',
           station: 'MOBIL',
           employee_id: '',
@@ -161,11 +203,12 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
           hire_date: new Date().toISOString(),
           is_active: true,
           detailed_permissions: {}
-        });
+        };
+        setUserProfile(defaultProfile);
       }
 
       setAuthError(null);
-      return { success: true, userData: userResponse.data };
+      return { success: true, userData: currentUser };
 
     } catch (error) {
       console.error('❌ Error fetching user data:', error);
@@ -178,8 +221,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       }
 
       // Set guest state for any error
-      setUser(null);
-      setUserProfile(GUEST_PROFILE);
+      clearUserData();
       return { success: false };
     }
   };
@@ -214,8 +256,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     } catch (error) {
       console.error('❌ Auth initialization failed:', error);
       setAuthError(`Initialization failed: ${error instanceof Error ? error.message : String(error)}`);
-      setUser(null);
-      setUserProfile(GUEST_PROFILE);
+      clearUserData();
     } finally {
       setIsLoading(false);
       setIsInitialized(true);
@@ -237,13 +278,16 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     try {
       setLoginInProgress(true);
       setIsLoading(true);
-      setAuthError(null); // Clear any previous errors
+      setAuthError(null);
 
       console.log('🔑 Attempting login for:', email);
 
       if (!window.ezsite?.apis) {
         throw new Error('Authentication system not available');
       }
+
+      // Clear any existing user data before login
+      clearUserData();
 
       // Small delay to prevent rapid successive calls
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -265,12 +309,13 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       console.log('✅ Login API successful, fetching user data...');
 
       // Add delay to ensure server state is updated
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
       const userDataResult = await safeFetchUserData(true);
 
       if (userDataResult.success && userDataResult.userData) {
         console.log('✅ User data fetched successfully after login');
+        console.log('👤 Logged in user:', userDataResult.userData.Email, 'ID:', userDataResult.userData.ID);
         await auditLogger.logLogin(email, true, userDataResult.userData.ID);
         toast({
           title: "Login Successful",
@@ -312,9 +357,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
         await window.ezsite.apis.logout();
       }
 
-      setUser(null);
-      setUserProfile(GUEST_PROFILE);
-      setAuthError(null);
+      clearUserData();
 
       toast({
         title: "Logged Out",
@@ -325,9 +368,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     } catch (error) {
       console.error('⚠️ Logout error (non-critical):', error);
       // Still clear local state even if API call fails
-      setUser(null);
-      setUserProfile(GUEST_PROFILE);
-      setAuthError(null);
+      clearUserData();
     }
   };
 

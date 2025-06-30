@@ -255,6 +255,8 @@ class InvariantErrorRecovery extends Component<Props, State> {
 
 
 
+
+
               // Empty batch to flush pending updates
             });}} catch (e) {console.warn('Could not flush React updates:', e);}} // Clear any orphaned event listeners that might cause issues
       const elementsWithListeners = document.querySelectorAll('[onclick], [onchange], [onsubmit]');elementsWithListeners.forEach((element) => {element.removeAttribute('onclick');element.removeAttribute('onchange');element.removeAttribute('onsubmit');});console.log('Fixed render issues');resolve();});};private handleManualRetry = () => {this.setState({ hasError: false, error: null, errorInfo: null, isRecovering: false, retryCount: this.state.retryCount + 1 });};private handleForceReload = () => {window.location.reload();};render() {if (this.state.hasError) {const isInvariantError = this.state.error ? this.isInvariantError(this.state.error) : false;const canRetry = this.state.retryCount < this.maxRetries;return <Card className="w-full max-w-4xl mx-auto mt-8 border-red-200">
@@ -329,9 +331,7 @@ class InvariantErrorRecovery extends Component<Props, State> {
                 {this.state.isRecovering ? 'Recovering...' : `Retry (${this.maxRetries - this.state.retryCount} left)`}
               </Button>
               
-              {isInvariantError && canRetry && <Button onClick={() => this.attemptAutoRecovery(this.state.error!)}
-            disabled={this.state.isRecovering}
-            variant="outline">
+              {isInvariantError && canRetry && <Button onClick={() => this.attemptAutoRecovery(this.state.error!)} disabled={this.state.isRecovering} variant="outline">
 
                   <Shield className="h-4 w-4 mr-2" />
                   Auto-Recover
