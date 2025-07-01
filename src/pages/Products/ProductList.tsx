@@ -457,8 +457,8 @@ const ProductList: React.FC = () => {
                 <Package className="w-6 h-6" />
                 <span>Products</span>
               </CardTitle>
-              <CardDescription className={responsive.isMobile ? 'text-center mt-2' : ''}>
-                Manage your product inventory - Search across all product fields for similar items
+              <CardDescription className="p-6">
+                Manage your products information- Search across all product fields for similar items
               </CardDescription>
             </div>
             <Button

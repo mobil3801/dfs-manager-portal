@@ -213,7 +213,7 @@ const DashboardLayout = () => {
 
         {/* Page Content */}
         <main className="flex-1 overflow-auto">
-          <div className="p-6">
+          <div className="text-sm text-muted-foreground">
             <ComponentErrorBoundary>
               <Outlet />
             </ComponentErrorBoundary>

@@ -77,7 +77,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     setAuthError(null);
   };
 
-  const safeFetchUserData = async (showErrors = false): Promise<{success: boolean; userData?: User;}> => {
+  const safeFetchUserData = async (showErrors = false): Promise<{success: boolean;userData?: User;}> => {
     try {
       console.log('🔄 Attempting to fetch user data...');
 
@@ -123,8 +123,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
           PageNo: 1,
           PageSize: 1,
           Filters: [
-            { name: "user_id", op: "Equal", value: currentUser.ID }
-          ]
+          { name: "user_id", op: "Equal", value: currentUser.ID }]
+
         });
 
         console.log('📡 Raw profile API response:', profileResponse);
@@ -149,7 +149,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
           const foundProfile = profileResponse.data.List[0];
           console.log('✅ User profile found:', foundProfile);
           console.log('🔍 Profile user_id:', foundProfile.user_id, 'should match current user ID:', currentUser.ID);
-          
+
           // Verify the profile belongs to the current user
           if (foundProfile.user_id === currentUser.ID) {
             console.log('✅ Profile user_id matches current user - setting profile');
@@ -158,7 +158,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
             console.error('❌ CRITICAL: Profile user_id does not match current user!');
             console.error('Profile user_id:', foundProfile.user_id);
             console.error('Current user ID:', currentUser.ID);
-            
+
             // Use default profile to prevent wrong user data
             const defaultProfile = {
               id: 0,

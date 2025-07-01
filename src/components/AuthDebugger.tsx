@@ -21,7 +21,7 @@ const AuthDebugger: React.FC = () => {
     try {
       // Get current user info
       const userResponse = await window.ezsite.apis.getUserInfo();
-      
+
       // Get all user profiles
       const allProfilesResponse = await window.ezsite.apis.tablePage(11725, {
         PageNo: 1,
@@ -36,8 +36,8 @@ const AuthDebugger: React.FC = () => {
           PageNo: 1,
           PageSize: 1,
           Filters: [
-            { name: "user_id", op: "Equal", value: userResponse.data.ID }
-          ]
+          { name: "user_id", op: "Equal", value: userResponse.data.ID }]
+
         });
       }
 
@@ -73,24 +73,24 @@ const AuthDebugger: React.FC = () => {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex gap-2">
-          <Button 
+          <Button
             onClick={runAuthDebug}
             disabled={isDebugging}
             size="sm"
-            variant="outline"
-          >
+            variant="outline">
+
             <Database className="h-4 w-4 mr-2" />
             {isDebugging ? 'Debugging...' : 'Run Auth Debug'}
           </Button>
-          {debugData && (
-            <Button 
-              onClick={clearDebugData}
-              size="sm"
-              variant="ghost"
-            >
+          {debugData &&
+          <Button
+            onClick={clearDebugData}
+            size="sm"
+            variant="ghost">
+
               Clear
             </Button>
-          )}
+          }
         </div>
 
         {/* Current Auth State */}
@@ -105,35 +105,35 @@ const AuthDebugger: React.FC = () => {
             </Badge></div>
           </div>
           
-          {user && (
-            <div className="p-2 bg-white rounded border text-xs">
+          {user &&
+          <div className="p-2 bg-white rounded border text-xs">
               <div><strong>User:</strong> {user.Email} (ID: {user.ID})</div>
               <div><strong>Name:</strong> {user.Name}</div>
             </div>
-          )}
+          }
           
-          {userProfile && (
-            <div className="p-2 bg-white rounded border text-xs">
+          {userProfile &&
+          <div className="p-2 bg-white rounded border text-xs">
               <div><strong>Profile ID:</strong> {userProfile.id}</div>
               <div><strong>User ID:</strong> {userProfile.user_id}</div>
               <div><strong>Role:</strong> {userProfile.role}</div>
               <div><strong>Station:</strong> {userProfile.station}</div>
             </div>
-          )}
+          }
         </div>
 
-        {debugData && (
-          <>
+        {debugData &&
+        <>
             <Separator />
             <div className="space-y-3">
               <h4 className="font-semibold text-sm">Debug Results:</h4>
               
-              {debugData.error ? (
-                <div className="p-2 bg-red-50 border border-red-200 rounded text-xs text-red-800">
+              {debugData.error ?
+            <div className="p-2 bg-red-50 border border-red-200 rounded text-xs text-red-800">
                   Error: {debugData.error}
-                </div>
-              ) : (
-                <div className="space-y-3">
+                </div> :
+
+            <div className="space-y-3">
                   {/* Current User API Response */}
                   <div>
                     <h5 className="font-medium text-xs mb-1">Current User API:</h5>
@@ -184,9 +184,9 @@ const AuthDebugger: React.FC = () => {
                   </div>
 
                   {/* Mismatch Detection */}
-                  {(user?.ID !== debugData.currentUser?.data?.ID || 
-                    userProfile?.user_id !== debugData.currentProfile?.data?.List?.[0]?.user_id) && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded">
+                  {(user?.ID !== debugData.currentUser?.data?.ID ||
+              userProfile?.user_id !== debugData.currentProfile?.data?.List?.[0]?.user_id) &&
+              <div className="p-3 bg-red-50 border border-red-200 rounded">
                       <div className="flex items-center gap-2 text-red-800 font-semibold text-sm">
                         <AlertTriangle className="h-4 w-4" />
                         MISMATCH DETECTED!
@@ -195,15 +195,15 @@ const AuthDebugger: React.FC = () => {
                         The context data doesn't match the API response. This indicates an authentication bug.
                       </div>
                     </div>
-                  )}
+              }
                 </div>
-              )}
+            }
             </div>
           </>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default AuthDebugger;

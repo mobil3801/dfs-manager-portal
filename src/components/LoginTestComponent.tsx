@@ -32,10 +32,10 @@ const LoginTestComponent: React.FC = () => {
 
     try {
       console.log('🧪 Starting login test for:', testEmail);
-      
+
       // Clear any existing session first
       await logout();
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Get initial state
       const beforeLogin = {
@@ -46,9 +46,9 @@ const LoginTestComponent: React.FC = () => {
 
       // Attempt login
       const loginSuccess = await login(testEmail, testPassword);
-      
+
       // Small delay to let state update
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Get post-login state
       const afterLogin = {
@@ -59,15 +59,15 @@ const LoginTestComponent: React.FC = () => {
 
       // Test API responses directly
       const directUserResponse = await window.ezsite.apis.getUserInfo();
-      
+
       let directProfileResponse = null;
       if (directUserResponse.data?.ID) {
         directProfileResponse = await window.ezsite.apis.tablePage(11725, {
           PageNo: 1,
           PageSize: 1,
           Filters: [
-            { name: "user_id", op: "Equal", value: directUserResponse.data.ID }
-          ]
+          { name: "user_id", op: "Equal", value: directUserResponse.data.ID }]
+
         });
       }
 
@@ -160,8 +160,8 @@ const LoginTestComponent: React.FC = () => {
               value={testEmail}
               onChange={(e) => setTestEmail(e.target.value)}
               placeholder="Enter email to test login"
-              className="text-sm"
-            />
+              className="text-sm" />
+
           </div>
           <div>
             <Label htmlFor="test-password" className="text-sm">Test Password:</Label>
@@ -171,89 +171,89 @@ const LoginTestComponent: React.FC = () => {
               value={testPassword}
               onChange={(e) => setTestPassword(e.target.value)}
               placeholder="Enter password to test login"
-              className="text-sm"
-            />
+              className="text-sm" />
+
           </div>
           <div className="flex gap-2">
-            <Button 
+            <Button
               onClick={runLoginTest}
               disabled={isTestingLogin}
-              size="sm"
-            >
+              size="sm">
+
               <Lock className="h-4 w-4 mr-2" />
               {isTestingLogin ? 'Testing...' : 'Test Login'}
             </Button>
-            {testResults && (
-              <Button 
-                onClick={clearTestResults}
-                size="sm"
-                variant="ghost"
-              >
+            {testResults &&
+            <Button
+              onClick={clearTestResults}
+              size="sm"
+              variant="ghost">
+
                 Clear Results
               </Button>
-            )}
+            }
           </div>
         </div>
 
         {/* Test Results */}
-        {testResults && (
-          <div className="space-y-3">
+        {testResults &&
+        <div className="space-y-3">
             <h4 className="font-semibold text-sm">Test Results:</h4>
             
-            {testResults.error ? (
-              <Alert className="border-red-200 bg-red-50">
+            {testResults.error ?
+          <Alert className="border-red-200 bg-red-50">
                 <AlertTriangle className="h-4 w-4 text-red-600" />
                 <AlertDescription className="text-red-800">
                   Test Error: {testResults.error}
                 </AlertDescription>
-              </Alert>
-            ) : (
-              <div className="space-y-3">
+              </Alert> :
+
+          <div className="space-y-3">
                 {/* Login Success Status */}
-                <div className={`p-3 rounded border ${testResults.loginAttempt?.success ? 
-                  'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                <div className={`p-3 rounded border ${testResults.loginAttempt?.success ?
+            'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
                   <div className="flex items-center gap-2 font-semibold text-sm">
-                    {testResults.loginAttempt?.success ? (
-                      <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    ) : (
-                      <AlertTriangle className="h-4 w-4 text-red-600" />
-                    )}
+                    {testResults.loginAttempt?.success ?
+                <CheckCircle2 className="h-4 w-4 text-green-600" /> :
+
+                <AlertTriangle className="h-4 w-4 text-red-600" />
+                }
                     Login {testResults.loginAttempt?.success ? 'Successful' : 'Failed'}
                   </div>
                 </div>
 
                 {/* Consistency Check */}
-                {testResults.consistencyCheck && (
-                  <div className="p-3 bg-white rounded border">
+                {testResults.consistencyCheck &&
+            <div className="p-3 bg-white rounded border">
                     <h5 className="font-medium text-xs mb-2">Data Consistency Check:</h5>
                     <div className="space-y-1 text-xs">
                       <div className="flex items-center gap-2">
-                        {testResults.consistencyCheck.userIdMatch ? (
-                          <CheckCircle2 className="h-3 w-3 text-green-600" />
-                        ) : (
-                          <AlertTriangle className="h-3 w-3 text-red-600" />
-                        )}
+                        {testResults.consistencyCheck.userIdMatch ?
+                  <CheckCircle2 className="h-3 w-3 text-green-600" /> :
+
+                  <AlertTriangle className="h-3 w-3 text-red-600" />
+                  }
                         User ID Match: {testResults.consistencyCheck.userIdMatch ? 'PASS' : 'FAIL'}
                       </div>
                       <div className="flex items-center gap-2">
-                        {testResults.consistencyCheck.profileUserIdMatch ? (
-                          <CheckCircle2 className="h-3 w-3 text-green-600" />
-                        ) : (
-                          <AlertTriangle className="h-3 w-3 text-red-600" />
-                        )}
+                        {testResults.consistencyCheck.profileUserIdMatch ?
+                  <CheckCircle2 className="h-3 w-3 text-green-600" /> :
+
+                  <AlertTriangle className="h-3 w-3 text-red-600" />
+                  }
                         Profile User ID Match: {testResults.consistencyCheck.profileUserIdMatch ? 'PASS' : 'FAIL'}
                       </div>
                       <div className="flex items-center gap-2">
-                        {testResults.consistencyCheck.emailMatch ? (
-                          <CheckCircle2 className="h-3 w-3 text-green-600" />
-                        ) : (
-                          <AlertTriangle className="h-3 w-3 text-red-600" />
-                        )}
+                        {testResults.consistencyCheck.emailMatch ?
+                  <CheckCircle2 className="h-3 w-3 text-green-600" /> :
+
+                  <AlertTriangle className="h-3 w-3 text-red-600" />
+                  }
                         Email Match: {testResults.consistencyCheck.emailMatch ? 'PASS' : 'FAIL'}
                       </div>
                     </div>
                   </div>
-                )}
+            }
 
                 {/* Detailed Results */}
                 <div className="p-3 bg-white rounded border">
@@ -266,32 +266,32 @@ const LoginTestComponent: React.FC = () => {
                 </div>
 
                 {/* Issue Detection */}
-                {!testResults.consistencyCheck?.userIdMatch || 
-                 !testResults.consistencyCheck?.profileUserIdMatch || 
-                 !testResults.consistencyCheck?.emailMatch ? (
-                  <Alert className="border-red-200 bg-red-50">
+                {!testResults.consistencyCheck?.userIdMatch ||
+            !testResults.consistencyCheck?.profileUserIdMatch ||
+            !testResults.consistencyCheck?.emailMatch ?
+            <Alert className="border-red-200 bg-red-50">
                     <AlertTriangle className="h-4 w-4 text-red-600" />
                     <AlertDescription className="text-red-800">
                       <strong>AUTHENTICATION BUG DETECTED!</strong> The user data is inconsistent. 
                       Context data doesn't match API responses, indicating the authentication system 
                       is not correctly identifying users.
                     </AlertDescription>
-                  </Alert>
-                ) : testResults.loginAttempt?.success && (
-                  <Alert className="border-green-200 bg-green-50">
+                  </Alert> :
+            testResults.loginAttempt?.success &&
+            <Alert className="border-green-200 bg-green-50">
                     <CheckCircle2 className="h-4 w-4 text-green-600" />
                     <AlertDescription className="text-green-800">
                       Authentication working correctly! All data is consistent.
                     </AlertDescription>
                   </Alert>
-                )}
+            }
               </div>
-            )}
+          }
           </div>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default LoginTestComponent;
