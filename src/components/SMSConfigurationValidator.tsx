@@ -7,17 +7,17 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  CheckCircle, 
-  AlertCircle, 
-  Settings, 
-  Phone, 
+import {
+  CheckCircle,
+  AlertCircle,
+  Settings,
+  Phone,
   Key,
   ExternalLink,
   RefreshCw,
   Shield,
-  Zap
-} from 'lucide-react';
+  Zap } from
+'lucide-react';
 
 interface ConfigStatus {
   isValid: boolean;
@@ -39,7 +39,7 @@ const SMSConfigurationValidator = () => {
     fromNumber: '',
     testMode: true
   });
-  
+
   const [validation, setValidation] = useState<{
     accountSid: ConfigStatus;
     authToken: ConfigStatus;
@@ -51,7 +51,7 @@ const SMSConfigurationValidator = () => {
     fromNumber: { isValid: false, message: 'Not configured' },
     connection: { isValid: false, message: 'Not tested' }
   });
-  
+
   const [isValidating, setIsValidating] = useState(false);
   const { toast } = useToast();
 
@@ -69,7 +69,7 @@ const SMSConfigurationValidator = () => {
         fromNumber: process.env.REACT_APP_TWILIO_FROM_NUMBER || '',
         testMode: true
       };
-      
+
       setConfig(mockConfig);
       validateConfiguration(mockConfig);
     } catch (error) {
@@ -156,17 +156,17 @@ const SMSConfigurationValidator = () => {
 
   const testConnection = async () => {
     setIsValidating(true);
-    
+
     try {
       // Simulate connection test
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const allValid = validation.accountSid.isValid && 
-                      validation.authToken.isValid && 
-                      validation.fromNumber.isValid;
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      const allValid = validation.accountSid.isValid &&
+      validation.authToken.isValid &&
+      validation.fromNumber.isValid;
+
       if (allValid) {
-        setValidation(prev => ({
+        setValidation((prev) => ({
           ...prev,
           connection: {
             isValid: true,
@@ -174,13 +174,13 @@ const SMSConfigurationValidator = () => {
             details: 'Twilio API is accessible with current credentials'
           }
         }));
-        
+
         toast({
           title: "✅ Connection Successful",
           description: "SMS service is properly configured and ready to use"
         });
       } else {
-        setValidation(prev => ({
+        setValidation((prev) => ({
           ...prev,
           connection: {
             isValid: false,
@@ -188,7 +188,7 @@ const SMSConfigurationValidator = () => {
             details: 'Fix configuration errors above before testing connection'
           }
         }));
-        
+
         toast({
           title: "❌ Connection Failed",
           description: "Please fix configuration issues before testing",
@@ -196,7 +196,7 @@ const SMSConfigurationValidator = () => {
         });
       }
     } catch (error) {
-      setValidation(prev => ({
+      setValidation((prev) => ({
         ...prev,
         connection: {
           isValid: false,
@@ -204,7 +204,7 @@ const SMSConfigurationValidator = () => {
           details: error instanceof Error ? error.message : 'Unknown error occurred'
         }
       }));
-      
+
       toast({
         title: "Connection Error",
         description: "Failed to test SMS service connection",
@@ -216,17 +216,17 @@ const SMSConfigurationValidator = () => {
   };
 
   const getValidationIcon = (status: ConfigStatus) => {
-    return status.isValid ? 
-      <CheckCircle className="w-5 h-5 text-green-500" /> : 
-      <AlertCircle className="w-5 h-5 text-red-500" />;
+    return status.isValid ?
+    <CheckCircle className="w-5 h-5 text-green-500" /> :
+    <AlertCircle className="w-5 h-5 text-red-500" />;
   };
 
   const getValidationBadge = (status: ConfigStatus) => {
     return (
       <Badge variant={status.isValid ? "default" : "destructive"}>
         {status.isValid ? "Valid" : "Invalid"}
-      </Badge>
-    );
+      </Badge>);
+
   };
 
   return (
@@ -306,15 +306,15 @@ const SMSConfigurationValidator = () => {
                     validateConfiguration(newConfig);
                   }}
                   placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                  className="font-mono"
-                />
+                  className="font-mono" />
+
                 {getValidationBadge(validation.accountSid)}
               </div>
-              {validation.accountSid.details && (
-                <p className="text-sm text-muted-foreground mt-1">
+              {validation.accountSid.details &&
+              <p className="text-sm text-muted-foreground mt-1">
                   {validation.accountSid.details}
                 </p>
-              )}
+              }
             </div>
 
             <div>
@@ -330,15 +330,15 @@ const SMSConfigurationValidator = () => {
                     validateConfiguration(newConfig);
                   }}
                   placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                  className="font-mono"
-                />
+                  className="font-mono" />
+
                 {getValidationBadge(validation.authToken)}
               </div>
-              {validation.authToken.details && (
-                <p className="text-sm text-muted-foreground mt-1">
+              {validation.authToken.details &&
+              <p className="text-sm text-muted-foreground mt-1">
                   {validation.authToken.details}
                 </p>
-              )}
+              }
             </div>
 
             <div>
@@ -353,15 +353,15 @@ const SMSConfigurationValidator = () => {
                     validateConfiguration(newConfig);
                   }}
                   placeholder="+1234567890"
-                  className="font-mono"
-                />
+                  className="font-mono" />
+
                 {getValidationBadge(validation.fromNumber)}
               </div>
-              {validation.fromNumber.details && (
-                <p className="text-sm text-muted-foreground mt-1">
+              {validation.fromNumber.details &&
+              <p className="text-sm text-muted-foreground mt-1">
                   {validation.fromNumber.details}
                 </p>
-              )}
+              }
             </div>
           </CardContent>
         </Card>
@@ -380,17 +380,17 @@ const SMSConfigurationValidator = () => {
                 <div className="space-y-2">
                   <div><strong>Current Mode: {config.testMode ? 'Test Mode' : 'Production Mode'}</strong></div>
                   <div className="text-sm">
-                    {config.testMode ? (
-                      <>
+                    {config.testMode ?
+                    <>
                         🧪 <strong>Test Mode Active:</strong> SMS will only be sent to verified phone numbers in your Twilio account.
                         This is safer for testing but may cause confusion if real phone numbers aren't verified.
-                      </>
-                    ) : (
-                      <>
+                      </> :
+
+                    <>
                         🚀 <strong>Production Mode:</strong> SMS can be sent to any valid phone number.
                         Make sure all phone numbers are correct to avoid sending messages to wrong recipients.
                       </>
-                    )}
+                    }
                   </div>
                 </div>
               </AlertDescription>
@@ -418,22 +418,22 @@ const SMSConfigurationValidator = () => {
               </div>
             </div>
 
-            <Button 
-              onClick={testConnection} 
+            <Button
+              onClick={testConnection}
               disabled={isValidating}
-              className="w-full"
-            >
-              {isValidating ? (
-                <>
+              className="w-full">
+
+              {isValidating ?
+              <>
                   <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
                   Testing Connection...
-                </>
-              ) : (
-                <>
+                </> :
+
+              <>
                   <Phone className="w-4 h-4 mr-2" />
                   Test SMS Connection
                 </>
-              )}
+              }
             </Button>
           </CardContent>
         </Card>
@@ -451,22 +451,22 @@ const SMSConfigurationValidator = () => {
               <div className="space-y-2 text-sm">
                 <div className="flex items-center space-x-2">
                   <ExternalLink className="w-4 h-4" />
-                  <a href="https://console.twilio.com" target="_blank" rel="noopener noreferrer" 
-                     className="text-blue-600 hover:underline">
+                  <a href="https://console.twilio.com" target="_blank" rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline">
                     Twilio Console
                   </a>
                 </div>
                 <div className="flex items-center space-x-2">
                   <ExternalLink className="w-4 h-4" />
                   <a href="https://www.twilio.com/docs/sms/quickstart" target="_blank" rel="noopener noreferrer"
-                     className="text-blue-600 hover:underline">
+                  className="text-blue-600 hover:underline">
                     SMS Quickstart Guide
                   </a>
                 </div>
                 <div className="flex items-center space-x-2">
                   <ExternalLink className="w-4 h-4" />
                   <a href="https://support.twilio.com/hc/en-us/articles/223183068-Twilio-international-phone-number-availability-and-their-capabilities"
-                     target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                  target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                     International Phone Numbers
                   </a>
                 </div>
@@ -485,8 +485,8 @@ const SMSConfigurationValidator = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SMSConfigurationValidator;
