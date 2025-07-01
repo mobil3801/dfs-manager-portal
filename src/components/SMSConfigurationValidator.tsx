@@ -9,19 +9,19 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  CheckCircle, 
-  AlertCircle, 
-  Settings, 
-  Phone, 
-  Key, 
+import {
+  CheckCircle,
+  AlertCircle,
+  Settings,
+  Phone,
+  Key,
   Server,
   Shield,
   Zap,
   RefreshCw,
   Eye,
-  EyeOff
-} from 'lucide-react';
+  EyeOff } from
+'lucide-react';
 
 interface SMSConfig {
   twilio_account_sid: string;
@@ -49,7 +49,7 @@ const SMSConfigurationValidator: React.FC = () => {
     daily_limit: 100,
     monthly_limit: 1000
   });
-  
+
   const [validationResults, setValidationResults] = useState<{
     credentials: ValidationResult;
     phoneNumber: ValidationResult;
@@ -61,7 +61,7 @@ const SMSConfigurationValidator: React.FC = () => {
     connection: { isValid: false, message: 'Not validated' },
     balance: { isValid: false, message: 'Not validated' }
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [showAuthToken, setShowAuthToken] = useState(false);
   const { toast } = useToast();
@@ -85,10 +85,10 @@ const SMSConfigurationValidator: React.FC = () => {
   const saveConfiguration = async () => {
     try {
       setLoading(true);
-      
+
       // Save to local storage (in production, this would be saved to your backend)
       localStorage.setItem('sms_configuration', JSON.stringify(config));
-      
+
       toast({
         title: "Configuration Saved",
         description: "SMS configuration has been saved successfully."
@@ -106,7 +106,7 @@ const SMSConfigurationValidator: React.FC = () => {
 
   const validateCredentials = async () => {
     if (!config.twilio_account_sid || !config.twilio_auth_token) {
-      setValidationResults(prev => ({
+      setValidationResults((prev) => ({
         ...prev,
         credentials: {
           isValid: false,
@@ -118,7 +118,7 @@ const SMSConfigurationValidator: React.FC = () => {
     }
 
     if (!config.twilio_account_sid.startsWith('AC')) {
-      setValidationResults(prev => ({
+      setValidationResults((prev) => ({
         ...prev,
         credentials: {
           isValid: false,
@@ -130,7 +130,7 @@ const SMSConfigurationValidator: React.FC = () => {
     }
 
     // Simulate credential validation
-    setValidationResults(prev => ({
+    setValidationResults((prev) => ({
       ...prev,
       credentials: {
         isValid: true,
@@ -142,7 +142,7 @@ const SMSConfigurationValidator: React.FC = () => {
 
   const validatePhoneNumber = async () => {
     if (!config.twilio_phone_number) {
-      setValidationResults(prev => ({
+      setValidationResults((prev) => ({
         ...prev,
         phoneNumber: {
           isValid: false,
@@ -155,7 +155,7 @@ const SMSConfigurationValidator: React.FC = () => {
 
     const phoneRegex = /^\+1\d{10}$/;
     if (!phoneRegex.test(config.twilio_phone_number)) {
-      setValidationResults(prev => ({
+      setValidationResults((prev) => ({
         ...prev,
         phoneNumber: {
           isValid: false,
@@ -166,7 +166,7 @@ const SMSConfigurationValidator: React.FC = () => {
       return;
     }
 
-    setValidationResults(prev => ({
+    setValidationResults((prev) => ({
       ...prev,
       phoneNumber: {
         isValid: true,
@@ -180,9 +180,9 @@ const SMSConfigurationValidator: React.FC = () => {
     setLoading(true);
     try {
       // Simulate connection test
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      setValidationResults(prev => ({
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      setValidationResults((prev) => ({
         ...prev,
         connection: {
           isValid: true,
@@ -191,7 +191,7 @@ const SMSConfigurationValidator: React.FC = () => {
         }
       }));
     } catch (error) {
-      setValidationResults(prev => ({
+      setValidationResults((prev) => ({
         ...prev,
         connection: {
           isValid: false,
@@ -208,11 +208,11 @@ const SMSConfigurationValidator: React.FC = () => {
     setLoading(true);
     try {
       // Simulate balance check
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       const mockBalance = (Math.random() * 50 + 10).toFixed(2);
-      
-      setValidationResults(prev => ({
+
+      setValidationResults((prev) => ({
         ...prev,
         balance: {
           isValid: parseFloat(mockBalance) > 5,
@@ -221,7 +221,7 @@ const SMSConfigurationValidator: React.FC = () => {
         }
       }));
     } catch (error) {
-      setValidationResults(prev => ({
+      setValidationResults((prev) => ({
         ...prev,
         balance: {
           isValid: false,
@@ -241,7 +241,7 @@ const SMSConfigurationValidator: React.FC = () => {
       await validatePhoneNumber();
       await testConnection();
       await checkBalance();
-      
+
       toast({
         title: "Validation Complete",
         description: "SMS configuration validation has been completed."
@@ -251,25 +251,25 @@ const SMSConfigurationValidator: React.FC = () => {
     }
   };
 
-  const ValidationStatus = ({ result }: { result: ValidationResult }) => (
-    <div className="flex items-center space-x-2">
-      {result.isValid ? (
-        <CheckCircle className="w-4 h-4 text-green-500" />
-      ) : (
-        <AlertCircle className="w-4 h-4 text-red-500" />
-      )}
+  const ValidationStatus = ({ result }: {result: ValidationResult;}) =>
+  <div className="flex items-center space-x-2">
+      {result.isValid ?
+    <CheckCircle className="w-4 h-4 text-green-500" /> :
+
+    <AlertCircle className="w-4 h-4 text-red-500" />
+    }
       <div>
         <div className={`text-sm font-medium ${result.isValid ? 'text-green-700' : 'text-red-700'}`}>
           {result.message}
         </div>
-        {result.details && (
-          <div className="text-xs text-muted-foreground">
+        {result.details &&
+      <div className="text-xs text-muted-foreground">
             {result.details}
           </div>
-        )}
+      }
       </div>
-    </div>
-  );
+    </div>;
+
 
   return (
     <div className="space-y-6">
@@ -305,10 +305,10 @@ const SMSConfigurationValidator: React.FC = () => {
                 </div>
                 <Switch
                   checked={config.service_enabled}
-                  onCheckedChange={(checked) => 
-                    setConfig(prev => ({ ...prev, service_enabled: checked }))
-                  }
-                />
+                  onCheckedChange={(checked) =>
+                  setConfig((prev) => ({ ...prev, service_enabled: checked }))
+                  } />
+
               </div>
 
               <div className="flex items-center justify-between">
@@ -320,10 +320,10 @@ const SMSConfigurationValidator: React.FC = () => {
                 </div>
                 <Switch
                   checked={config.test_mode}
-                  onCheckedChange={(checked) => 
-                    setConfig(prev => ({ ...prev, test_mode: checked }))
-                  }
-                />
+                  onCheckedChange={(checked) =>
+                  setConfig((prev) => ({ ...prev, test_mode: checked }))
+                  } />
+
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -336,10 +336,10 @@ const SMSConfigurationValidator: React.FC = () => {
                     id="account_sid"
                     placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
                     value={config.twilio_account_sid}
-                    onChange={(e) => 
-                      setConfig(prev => ({ ...prev, twilio_account_sid: e.target.value }))
-                    }
-                  />
+                    onChange={(e) =>
+                    setConfig((prev) => ({ ...prev, twilio_account_sid: e.target.value }))
+                    } />
+
                   <p className="text-xs text-muted-foreground">
                     Find this in your Twilio Console Dashboard
                   </p>
@@ -356,22 +356,22 @@ const SMSConfigurationValidator: React.FC = () => {
                       type={showAuthToken ? "text" : "password"}
                       placeholder="Your Twilio Auth Token"
                       value={config.twilio_auth_token}
-                      onChange={(e) => 
-                        setConfig(prev => ({ ...prev, twilio_auth_token: e.target.value }))
-                      }
-                    />
+                      onChange={(e) =>
+                      setConfig((prev) => ({ ...prev, twilio_auth_token: e.target.value }))
+                      } />
+
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       className="absolute right-0 top-0 h-full px-3"
-                      onClick={() => setShowAuthToken(!showAuthToken)}
-                    >
-                      {showAuthToken ? (
-                        <EyeOff className="w-4 h-4" />
-                      ) : (
-                        <Eye className="w-4 h-4" />
-                      )}
+                      onClick={() => setShowAuthToken(!showAuthToken)}>
+
+                      {showAuthToken ?
+                      <EyeOff className="w-4 h-4" /> :
+
+                      <Eye className="w-4 h-4" />
+                      }
                     </Button>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -389,10 +389,10 @@ const SMSConfigurationValidator: React.FC = () => {
                   id="phone_number"
                   placeholder="+1234567890"
                   value={config.twilio_phone_number}
-                  onChange={(e) => 
-                    setConfig(prev => ({ ...prev, twilio_phone_number: e.target.value }))
-                  }
-                />
+                  onChange={(e) =>
+                  setConfig((prev) => ({ ...prev, twilio_phone_number: e.target.value }))
+                  } />
+
                 <p className="text-xs text-muted-foreground">
                   The phone number you purchased from Twilio (E.164 format)
                 </p>
@@ -423,12 +423,12 @@ const SMSConfigurationValidator: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <ValidationStatus result={validationResults.credentials} />
-                <Button 
-                  onClick={validateCredentials} 
-                  className="w-full mt-4" 
+                <Button
+                  onClick={validateCredentials}
+                  className="w-full mt-4"
                   variant="outline"
-                  size="sm"
-                >
+                  size="sm">
+
                   Validate Credentials
                 </Button>
               </CardContent>
@@ -443,12 +443,12 @@ const SMSConfigurationValidator: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <ValidationStatus result={validationResults.phoneNumber} />
-                <Button 
-                  onClick={validatePhoneNumber} 
-                  className="w-full mt-4" 
+                <Button
+                  onClick={validatePhoneNumber}
+                  className="w-full mt-4"
                   variant="outline"
-                  size="sm"
-                >
+                  size="sm">
+
                   Validate Phone Number
                 </Button>
               </CardContent>
@@ -463,13 +463,13 @@ const SMSConfigurationValidator: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <ValidationStatus result={validationResults.connection} />
-                <Button 
-                  onClick={testConnection} 
-                  className="w-full mt-4" 
+                <Button
+                  onClick={testConnection}
+                  className="w-full mt-4"
                   variant="outline"
                   size="sm"
-                  disabled={loading}
-                >
+                  disabled={loading}>
+
                   {loading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : null}
                   Test Connection
                 </Button>
@@ -485,13 +485,13 @@ const SMSConfigurationValidator: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <ValidationStatus result={validationResults.balance} />
-                <Button 
-                  onClick={checkBalance} 
-                  className="w-full mt-4" 
+                <Button
+                  onClick={checkBalance}
+                  className="w-full mt-4"
                   variant="outline"
                   size="sm"
-                  disabled={loading}
-                >
+                  disabled={loading}>
+
                   {loading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : null}
                   Check Balance
                 </Button>
@@ -543,10 +543,10 @@ const SMSConfigurationValidator: React.FC = () => {
                     id="daily_limit"
                     type="number"
                     value={config.daily_limit}
-                    onChange={(e) => 
-                      setConfig(prev => ({ ...prev, daily_limit: parseInt(e.target.value) || 0 }))
-                    }
-                  />
+                    onChange={(e) =>
+                    setConfig((prev) => ({ ...prev, daily_limit: parseInt(e.target.value) || 0 }))
+                    } />
+
                   <p className="text-xs text-muted-foreground">
                     Maximum SMS messages per day
                   </p>
@@ -558,10 +558,10 @@ const SMSConfigurationValidator: React.FC = () => {
                     id="monthly_limit"
                     type="number"
                     value={config.monthly_limit}
-                    onChange={(e) => 
-                      setConfig(prev => ({ ...prev, monthly_limit: parseInt(e.target.value) || 0 }))
-                    }
-                  />
+                    onChange={(e) =>
+                    setConfig((prev) => ({ ...prev, monthly_limit: parseInt(e.target.value) || 0 }))
+                    } />
+
                   <p className="text-xs text-muted-foreground">
                     Maximum SMS messages per month
                   </p>
@@ -583,8 +583,8 @@ const SMSConfigurationValidator: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SMSConfigurationValidator;

@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { 
-  AlertTriangle, 
-  CheckCircle, 
-  ChevronDown, 
+import {
+  AlertTriangle,
+  CheckCircle,
+  ChevronDown,
   ChevronRight,
   Phone,
   CreditCard,
@@ -19,8 +19,8 @@ import {
   HelpCircle,
   ExternalLink,
   Copy,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface TroubleshootingItem {
@@ -31,7 +31,7 @@ interface TroubleshootingItem {
   category: string;
   solution: string[];
   code?: string;
-  links?: { title: string; url: string }[];
+  links?: {title: string;url: string;}[];
 }
 
 const SMSTroubleshootingGuide: React.FC = () => {
@@ -40,10 +40,10 @@ const SMSTroubleshootingGuide: React.FC = () => {
   const { toast } = useToast();
 
   const toggleItem = (id: string) => {
-    setOpenItems(prev => 
-      prev.includes(id) 
-        ? prev.filter(item => item !== id)
-        : [...prev, id]
+    setOpenItems((prev) =>
+    prev.includes(id) ?
+    prev.filter((item) => item !== id) :
+    [...prev, id]
     );
   };
 
@@ -57,147 +57,147 @@ const SMSTroubleshootingGuide: React.FC = () => {
 
   const runDiagnostics = async () => {
     setRunningDiagnostics(true);
-    
+
     // Simulate diagnostic process
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
     toast({
       title: "Diagnostics Complete",
       description: "Check the results below for potential issues."
     });
-    
+
     setRunningDiagnostics(false);
   };
 
   const troubleshootingItems: TroubleshootingItem[] = [
-    {
-      id: 'sms-not-sending',
-      title: 'SMS Messages Not Sending',
-      description: 'Messages appear as "sent" but recipients don\'t receive them',
-      severity: 'high',
-      category: 'delivery',
-      solution: [
-        'Check if your Twilio account is in trial mode - trial accounts can only send to verified numbers',
-        'Verify that the recipient phone number is in E.164 format (+1234567890)',
-        'Ensure your Twilio account has sufficient balance',
-        'Check if the recipient number is on Twilio\'s blocklist',
-        'Verify your Twilio phone number is active and not suspended'
-      ],
-      code: `// Correct phone number format
+  {
+    id: 'sms-not-sending',
+    title: 'SMS Messages Not Sending',
+    description: 'Messages appear as "sent" but recipients don\'t receive them',
+    severity: 'high',
+    category: 'delivery',
+    solution: [
+    'Check if your Twilio account is in trial mode - trial accounts can only send to verified numbers',
+    'Verify that the recipient phone number is in E.164 format (+1234567890)',
+    'Ensure your Twilio account has sufficient balance',
+    'Check if the recipient number is on Twilio\'s blocklist',
+    'Verify your Twilio phone number is active and not suspended'],
+
+    code: `// Correct phone number format
 const phoneNumber = "+1234567890"; // ✅ Correct
 const phoneNumber = "234-567-8890"; // ❌ Wrong`,
-      links: [
-        { title: 'Twilio Phone Number Formats', url: 'https://www.twilio.com/docs/glossary/what-e164' }
-      ]
-    },
-    {
-      id: 'auth-failed',
-      title: 'Authentication Failed Error',
-      description: 'Getting 401 Unauthorized errors when sending SMS',
-      severity: 'high',
-      category: 'authentication',
-      solution: [
-        'Double-check your Twilio Account SID - it should start with "AC"',
-        'Verify your Auth Token is correct and hasn\'t been regenerated',
-        'Ensure there are no extra spaces in your credentials',
-        'Check if your Twilio account is active and not suspended',
-        'Try regenerating your Auth Token in Twilio Console'
-      ],
-      code: `// Check your credentials format
+    links: [
+    { title: 'Twilio Phone Number Formats', url: 'https://www.twilio.com/docs/glossary/what-e164' }]
+
+  },
+  {
+    id: 'auth-failed',
+    title: 'Authentication Failed Error',
+    description: 'Getting 401 Unauthorized errors when sending SMS',
+    severity: 'high',
+    category: 'authentication',
+    solution: [
+    'Double-check your Twilio Account SID - it should start with "AC"',
+    'Verify your Auth Token is correct and hasn\'t been regenerated',
+    'Ensure there are no extra spaces in your credentials',
+    'Check if your Twilio account is active and not suspended',
+    'Try regenerating your Auth Token in Twilio Console'],
+
+    code: `// Check your credentials format
 Account SID: ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 Auth Token: your_auth_token_here`,
-      links: [
-        { title: 'Twilio Console', url: 'https://console.twilio.com/' }
-      ]
-    },
-    {
-      id: 'invalid-phone',
-      title: 'Invalid Phone Number Error',
-      description: 'Getting errors about invalid or unreachable phone numbers',
-      severity: 'medium',
-      category: 'phone-format',
-      solution: [
-        'Use E.164 format for all phone numbers (+country_code + number)',
-        'Remove any spaces, dashes, or parentheses from phone numbers',
-        'Verify the country code is correct',
-        'Check if the number is a valid mobile number (not landline)',
-        'Test with a known valid number first'
-      ],
-      code: `// Phone number format examples
+    links: [
+    { title: 'Twilio Console', url: 'https://console.twilio.com/' }]
+
+  },
+  {
+    id: 'invalid-phone',
+    title: 'Invalid Phone Number Error',
+    description: 'Getting errors about invalid or unreachable phone numbers',
+    severity: 'medium',
+    category: 'phone-format',
+    solution: [
+    'Use E.164 format for all phone numbers (+country_code + number)',
+    'Remove any spaces, dashes, or parentheses from phone numbers',
+    'Verify the country code is correct',
+    'Check if the number is a valid mobile number (not landline)',
+    'Test with a known valid number first'],
+
+    code: `// Phone number format examples
 US: +12345678901
 UK: +441234567890
 Canada: +15551234567`,
-      links: [
-        { title: 'International Phone Formats', url: 'https://en.wikipedia.org/wiki/E.164' }
-      ]
-    },
-    {
-      id: 'twilio-balance',
-      title: 'Insufficient Twilio Balance',
-      description: 'Messages fail to send due to low account balance',
-      severity: 'high',
-      category: 'billing',
-      solution: [
-        'Check your Twilio account balance in the Console',
-        'Add funds to your Twilio account',
-        'Set up automatic recharge to prevent future issues',
-        'Monitor usage to estimate monthly costs',
-        'Consider setting up balance alerts'
-      ],
-      links: [
-        { title: 'Twilio Billing Console', url: 'https://console.twilio.com/billing' }
-      ]
-    },
-    {
-      id: 'test-mode-issues',
-      title: 'Test Mode Limitations',
-      description: 'SMS only works for certain numbers in test mode',
-      severity: 'medium',
-      category: 'configuration',
-      solution: [
-        'In trial mode, SMS only works with verified phone numbers',
-        'Add phone numbers to your verified list in Twilio Console',
-        'Consider upgrading to a paid account for unrestricted sending',
-        'Test with verified numbers first',
-        'Check the trial account limitations in Twilio docs'
-      ],
-      links: [
-        { title: 'Twilio Trial Account Info', url: 'https://www.twilio.com/docs/usage/tutorials/how-to-use-your-free-trial-account' }
-      ]
-    },
-    {
-      id: 'rate-limiting',
-      title: 'Rate Limiting Issues',
-      description: 'Messages fail after sending many SMS in short time',
-      severity: 'medium',
-      category: 'limits',
-      solution: [
-        'Implement delays between SMS messages',
-        'Check Twilio\'s rate limits for your account type',
-        'Consider upgrading your account for higher limits',
-        'Batch SMS sending with appropriate delays',
-        'Monitor your sending patterns'
-      ],
-      code: `// Add delay between messages
+    links: [
+    { title: 'International Phone Formats', url: 'https://en.wikipedia.org/wiki/E.164' }]
+
+  },
+  {
+    id: 'twilio-balance',
+    title: 'Insufficient Twilio Balance',
+    description: 'Messages fail to send due to low account balance',
+    severity: 'high',
+    category: 'billing',
+    solution: [
+    'Check your Twilio account balance in the Console',
+    'Add funds to your Twilio account',
+    'Set up automatic recharge to prevent future issues',
+    'Monitor usage to estimate monthly costs',
+    'Consider setting up balance alerts'],
+
+    links: [
+    { title: 'Twilio Billing Console', url: 'https://console.twilio.com/billing' }]
+
+  },
+  {
+    id: 'test-mode-issues',
+    title: 'Test Mode Limitations',
+    description: 'SMS only works for certain numbers in test mode',
+    severity: 'medium',
+    category: 'configuration',
+    solution: [
+    'In trial mode, SMS only works with verified phone numbers',
+    'Add phone numbers to your verified list in Twilio Console',
+    'Consider upgrading to a paid account for unrestricted sending',
+    'Test with verified numbers first',
+    'Check the trial account limitations in Twilio docs'],
+
+    links: [
+    { title: 'Twilio Trial Account Info', url: 'https://www.twilio.com/docs/usage/tutorials/how-to-use-your-free-trial-account' }]
+
+  },
+  {
+    id: 'rate-limiting',
+    title: 'Rate Limiting Issues',
+    description: 'Messages fail after sending many SMS in short time',
+    severity: 'medium',
+    category: 'limits',
+    solution: [
+    'Implement delays between SMS messages',
+    'Check Twilio\'s rate limits for your account type',
+    'Consider upgrading your account for higher limits',
+    'Batch SMS sending with appropriate delays',
+    'Monitor your sending patterns'],
+
+    code: `// Add delay between messages
 await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay`
-    },
-    {
-      id: 'webhook-failures',
-      title: 'Delivery Status Not Updating',
-      description: 'SMS delivery status remains "sent" without updates',
-      severity: 'low',
-      category: 'webhooks',
-      solution: [
-        'Set up Twilio webhooks for delivery status updates',
-        'Verify webhook URL is accessible from internet',
-        'Check webhook endpoint for proper response codes',
-        'Monitor webhook logs for failures',
-        'Ensure webhook URL uses HTTPS'
-      ],
-      code: `// Webhook URL example
+  },
+  {
+    id: 'webhook-failures',
+    title: 'Delivery Status Not Updating',
+    description: 'SMS delivery status remains "sent" without updates',
+    severity: 'low',
+    category: 'webhooks',
+    solution: [
+    'Set up Twilio webhooks for delivery status updates',
+    'Verify webhook URL is accessible from internet',
+    'Check webhook endpoint for proper response codes',
+    'Monitor webhook logs for failures',
+    'Ensure webhook URL uses HTTPS'],
+
+    code: `// Webhook URL example
 https://yourdomain.com/webhook/sms-status`
-    }
-  ];
+  }];
+
 
   const getStatusIcon = (severity: string) => {
     switch (severity) {
@@ -247,11 +247,11 @@ https://yourdomain.com/webhook/sms-status`
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">SMS Troubleshooting</h2>
         <Button onClick={runDiagnostics} disabled={runningDiagnostics}>
-          {runningDiagnostics ? (
-            <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-          ) : (
-            <Settings className="w-4 h-4 mr-2" />
-          )}
+          {runningDiagnostics ?
+          <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> :
+
+          <Settings className="w-4 h-4 mr-2" />
+          }
           {runningDiagnostics ? 'Running...' : 'Run Diagnostics'}
         </Button>
       </div>
@@ -266,22 +266,22 @@ https://yourdomain.com/webhook/sms-status`
         <TabsContent value="common-issues">
           <div className="space-y-4">
             {Object.entries(categories).map(([categoryKey, categoryName]) => {
-              const categoryItems = troubleshootingItems.filter(item => item.category === categoryKey);
-              
+              const categoryItems = troubleshootingItems.filter((item) => item.category === categoryKey);
+
               if (categoryItems.length === 0) return null;
-              
+
               return (
                 <Card key={categoryKey}>
                   <CardHeader>
                     <CardTitle className="text-lg">{categoryName}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {categoryItems.map((item) => (
-                      <Collapsible key={item.id}>
+                    {categoryItems.map((item) =>
+                    <Collapsible key={item.id}>
                         <CollapsibleTrigger
-                          onClick={() => toggleItem(item.id)}
-                          className="flex items-center justify-between w-full p-3 text-left bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                        >
+                        onClick={() => toggleItem(item.id)}
+                        className="flex items-center justify-between w-full p-3 text-left bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+
                           <div className="flex items-center space-x-3">
                             {getStatusIcon(item.severity)}
                             <div>
@@ -293,11 +293,11 @@ https://yourdomain.com/webhook/sms-status`
                             <Badge variant={getStatusColor(item.severity) as any}>
                               {item.severity.toUpperCase()}
                             </Badge>
-                            {openItems.includes(item.id) ? (
-                              <ChevronDown className="w-4 h-4" />
-                            ) : (
-                              <ChevronRight className="w-4 h-4" />
-                            )}
+                            {openItems.includes(item.id) ?
+                          <ChevronDown className="w-4 h-4" /> :
+
+                          <ChevronRight className="w-4 h-4" />
+                          }
                           </div>
                         </CollapsibleTrigger>
                         <CollapsibleContent className="px-3 pb-3">
@@ -305,21 +305,21 @@ https://yourdomain.com/webhook/sms-status`
                             <div>
                               <h4 className="font-medium mb-2">Solution Steps:</h4>
                               <ol className="list-decimal list-inside space-y-1 text-sm">
-                                {item.solution.map((step, index) => (
-                                  <li key={index} className="text-gray-700">{step}</li>
-                                ))}
+                                {item.solution.map((step, index) =>
+                              <li key={index} className="text-gray-700">{step}</li>
+                              )}
                               </ol>
                             </div>
                             
-                            {item.code && (
-                              <div>
+                            {item.code &&
+                          <div>
                                 <div className="flex items-center justify-between mb-2">
                                   <h4 className="font-medium">Code Example:</h4>
                                   <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => copyToClipboard(item.code!)}
-                                  >
+                                size="sm"
+                                variant="outline"
+                                onClick={() => copyToClipboard(item.code!)}>
+
                                     <Copy className="w-3 h-3 mr-1" />
                                     Copy
                                   </Button>
@@ -328,34 +328,34 @@ https://yourdomain.com/webhook/sms-status`
                                   <code>{item.code}</code>
                                 </pre>
                               </div>
-                            )}
+                          }
                             
-                            {item.links && item.links.length > 0 && (
-                              <div>
+                            {item.links && item.links.length > 0 &&
+                          <div>
                                 <h4 className="font-medium mb-2">Helpful Links:</h4>
                                 <div className="space-y-1">
-                                  {item.links.map((link, index) => (
-                                    <a
-                                      key={index}
-                                      href={link.url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="flex items-center text-sm text-blue-600 hover:text-blue-800"
-                                    >
+                                  {item.links.map((link, index) =>
+                              <a
+                                key={index}
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center text-sm text-blue-600 hover:text-blue-800">
+
                                       <ExternalLink className="w-3 h-3 mr-1" />
                                       {link.title}
                                     </a>
-                                  ))}
+                              )}
                                 </div>
                               </div>
-                            )}
+                          }
                           </div>
                         </CollapsibleContent>
                       </Collapsible>
-                    ))}
+                    )}
                   </CardContent>
-                </Card>
-              );
+                </Card>);
+
             })}
           </div>
         </TabsContent>
@@ -461,8 +461,8 @@ https://yourdomain.com/webhook/sms-status`
                   href="https://www.twilio.com/docs/sms"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between p-3 border rounded hover:bg-gray-50"
-                >
+                  className="flex items-center justify-between p-3 border rounded hover:bg-gray-50">
+
                   <div>
                     <div className="font-medium">SMS API Docs</div>
                     <div className="text-sm text-muted-foreground">Complete SMS API reference</div>
@@ -474,8 +474,8 @@ https://yourdomain.com/webhook/sms-status`
                   href="https://www.twilio.com/docs/sms/troubleshooting"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between p-3 border rounded hover:bg-gray-50"
-                >
+                  className="flex items-center justify-between p-3 border rounded hover:bg-gray-50">
+
                   <div>
                     <div className="font-medium">SMS Troubleshooting</div>
                     <div className="text-sm text-muted-foreground">Official troubleshooting guide</div>
@@ -487,8 +487,8 @@ https://yourdomain.com/webhook/sms-status`
                   href="https://console.twilio.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-between p-3 border rounded hover:bg-gray-50"
-                >
+                  className="flex items-center justify-between p-3 border rounded hover:bg-gray-50">
+
                   <div>
                     <div className="font-medium">Twilio Console</div>
                     <div className="text-sm text-muted-foreground">Manage your account</div>
@@ -546,8 +546,8 @@ https://yourdomain.com/webhook/sms-status`
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SMSTroubleshootingGuide;
