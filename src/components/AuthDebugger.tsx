@@ -4,17 +4,17 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  User, 
-  Shield, 
-  CheckCircle2, 
-  AlertTriangle, 
-  RefreshCw, 
+import {
+  User,
+  Shield,
+  CheckCircle2,
+  AlertTriangle,
+  RefreshCw,
   Database,
   Clock,
   Eye,
-  EyeOff
-} from 'lucide-react';
+  EyeOff } from
+'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const AuthDebugger: React.FC = () => {
@@ -78,9 +78,9 @@ const AuthDebugger: React.FC = () => {
       const response = await window.ezsite.apis.getUserInfo();
       toast({
         title: "Auth Test",
-        description: response.error ? 
-          `Error: ${response.error}` : 
-          "Authentication endpoint working correctly",
+        description: response.error ?
+        `Error: ${response.error}` :
+        "Authentication endpoint working correctly",
         variant: response.error ? "destructive" : "default"
       });
     } catch (error) {
@@ -131,8 +131,8 @@ const AuthDebugger: React.FC = () => {
           <Alert>
             <Clock className="h-4 w-4" />
             <AlertDescription>
-              <strong>Last Updated:</strong> {authState?.timestamp ? 
-                new Date(authState.timestamp).toLocaleTimeString() : 'Unknown'}
+              <strong>Last Updated:</strong> {authState?.timestamp ?
+              new Date(authState.timestamp).toLocaleTimeString() : 'Unknown'}
             </AlertDescription>
           </Alert>
         </div>
@@ -144,23 +144,23 @@ const AuthDebugger: React.FC = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setShowSensitive(!showSensitive)}
-            >
+              onClick={() => setShowSensitive(!showSensitive)}>
+
               {showSensitive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               {showSensitive ? 'Hide' : 'Show'} Details
             </Button>
           </div>
 
-          {showSensitive && authState && (
-            <div className="bg-gray-50 p-4 rounded-lg">
+          {showSensitive && authState &&
+          <div className="bg-gray-50 p-4 rounded-lg">
               <pre className="text-xs overflow-auto max-h-64">
                 {JSON.stringify(authState, null, 2)}
               </pre>
             </div>
-          )}
+          }
 
-          {!showSensitive && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {!showSensitive &&
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <div className="text-sm">
                   <strong>User ID:</strong> {user?.ID || 'Not available'}
@@ -184,7 +184,7 @@ const AuthDebugger: React.FC = () => {
                 </div>
               </div>
             </div>
-          )}
+          }
         </div>
 
         {/* Quick Actions */}
@@ -193,8 +193,8 @@ const AuthDebugger: React.FC = () => {
             onClick={handleRefresh}
             disabled={refreshing}
             variant="outline"
-            className="flex items-center space-x-2"
-          >
+            className="flex items-center space-x-2">
+
             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             <span>Refresh State</span>
           </Button>
@@ -202,34 +202,34 @@ const AuthDebugger: React.FC = () => {
           <Button
             onClick={testAuthEndpoint}
             variant="outline"
-            className="flex items-center space-x-2"
-          >
+            className="flex items-center space-x-2">
+
             <Database className="w-4 h-4" />
             <span>Test Auth API</span>
           </Button>
         </div>
 
         {/* Warnings */}
-        {!isAuthenticated && (
-          <Alert>
+        {!isAuthenticated &&
+        <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               User is not authenticated. This may indicate a session issue.
             </AlertDescription>
           </Alert>
-        )}
+        }
 
-        {isAuthenticated && !userProfile && (
-          <Alert>
+        {isAuthenticated && !userProfile &&
+        <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               User is authenticated but profile is missing. Check user profile data.
             </AlertDescription>
           </Alert>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default AuthDebugger;

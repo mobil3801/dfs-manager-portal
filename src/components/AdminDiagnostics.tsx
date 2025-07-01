@@ -5,19 +5,19 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Activity, 
-  Database, 
-  Server, 
-  Zap, 
-  CheckCircle2, 
-  AlertTriangle, 
+import {
+  Activity,
+  Database,
+  Server,
+  Zap,
+  CheckCircle2,
+  AlertTriangle,
   RefreshCw,
   Clock,
   HardDrive,
   Wifi,
-  Shield
-} from 'lucide-react';
+  Shield } from
+'lucide-react';
 
 interface SystemMetrics {
   databaseStatus: 'online' | 'offline' | 'slow';
@@ -57,21 +57,21 @@ const AdminDiagnostics: React.FC = () => {
     setLoading(true);
     try {
       const startTime = Date.now();
-      
+
       // Test database connectivity
       const dbTests = await Promise.allSettled([
-        testDatabaseTable('11725', 'User Profiles'),
-        testDatabaseTable('11726', 'Products'),
-        testDatabaseTable('11727', 'Employees'),
-        testDatabaseTable('12356', 'Sales Reports'),
-        testDatabaseTable('11731', 'Licenses')
-      ]);
+      testDatabaseTable('11725', 'User Profiles'),
+      testDatabaseTable('11726', 'Products'),
+      testDatabaseTable('11727', 'Employees'),
+      testDatabaseTable('12356', 'Sales Reports'),
+      testDatabaseTable('11731', 'Licenses')]
+      );
 
       const responseTime = Date.now() - startTime;
-      
+
       // Calculate system health
-      const healthyTests = dbTests.filter(test => test.status === 'fulfilled').length;
-      const systemHealth = (healthyTests / dbTests.length) * 100;
+      const healthyTests = dbTests.filter((test) => test.status === 'fulfilled').length;
+      const systemHealth = healthyTests / dbTests.length * 100;
 
       // Mock some additional metrics
       const totalRecords = dbTests.reduce((sum, test) => {
@@ -124,7 +124,7 @@ const AdminDiagnostics: React.FC = () => {
       });
 
       if (error) throw new Error(error);
-      
+
       return {
         tableId,
         tableName,
@@ -197,8 +197,8 @@ const AdminDiagnostics: React.FC = () => {
             Running system diagnostics...
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -213,8 +213,8 @@ const AdminDiagnostics: React.FC = () => {
             onClick={handleRefresh}
             disabled={refreshing}
             variant="outline"
-            size="sm"
-          >
+            size="sm">
+
             <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
@@ -265,10 +265,10 @@ const AdminDiagnostics: React.FC = () => {
             <span className="text-sm font-medium">System Health Score</span>
             <span className="text-sm font-medium">{metrics.systemHealth.toFixed(1)}%</span>
           </div>
-          <Progress 
-            value={metrics.systemHealth} 
-            className="h-2"
-          />
+          <Progress
+            value={metrics.systemHealth}
+            className="h-2" />
+
         </div>
 
         {/* Memory Usage */}
@@ -277,10 +277,10 @@ const AdminDiagnostics: React.FC = () => {
             <span className="text-sm font-medium">Memory Usage</span>
             <span className="text-sm font-medium">{metrics.memoryUsage.toFixed(1)}%</span>
           </div>
-          <Progress 
-            value={metrics.memoryUsage} 
-            className="h-2"
-          />
+          <Progress
+            value={metrics.memoryUsage}
+            className="h-2" />
+
         </div>
 
         {/* API Endpoints Status */}
@@ -290,13 +290,13 @@ const AdminDiagnostics: React.FC = () => {
             <span>Database Tables Status</span>
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {metrics.apiEndpoints.map((endpoint, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            {metrics.apiEndpoints.map((endpoint, index) =>
+            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center space-x-2">
-                  {endpoint.status === 'healthy' ? 
-                    <CheckCircle2 className="w-4 h-4 text-green-500" /> :
-                    <AlertTriangle className="w-4 h-4 text-red-500" />
-                  }
+                  {endpoint.status === 'healthy' ?
+                <CheckCircle2 className="w-4 h-4 text-green-500" /> :
+                <AlertTriangle className="w-4 h-4 text-red-500" />
+                }
                   <span className="text-sm font-medium">{endpoint.name}</span>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -308,7 +308,7 @@ const AdminDiagnostics: React.FC = () => {
                   </span>
                 </div>
               </div>
-            ))}
+            )}
           </div>
         </div>
 
@@ -341,26 +341,26 @@ const AdminDiagnostics: React.FC = () => {
         </div>
 
         {/* Health Alerts */}
-        {metrics.systemHealth < 80 && (
-          <Alert>
+        {metrics.systemHealth < 80 &&
+        <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               System health is below optimal levels. Consider checking individual components.
             </AlertDescription>
           </Alert>
-        )}
+        }
 
-        {metrics.memoryUsage > 80 && (
-          <Alert>
+        {metrics.memoryUsage > 80 &&
+        <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               High memory usage detected. System performance may be affected.
             </AlertDescription>
           </Alert>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default AdminDiagnostics;
