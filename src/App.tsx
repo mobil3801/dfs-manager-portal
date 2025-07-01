@@ -5,7 +5,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
-import AuthDebugger from '@/components/AuthDebugger';
+
 
 // Layout
 import DashboardLayout from '@/components/Layout/DashboardLayout';
@@ -46,7 +46,7 @@ import SiteManagement from '@/pages/Admin/SiteManagement';
 import SystemLogs from '@/pages/Admin/SystemLogs';
 import SecuritySettings from '@/pages/Admin/SecuritySettings';
 import SMSAlertManagement from '@/pages/Admin/SMSAlertManagement';
-import DatabaseMonitoring from '@/pages/Admin/DatabaseMonitoring';
+
 import AuditMonitoring from '@/pages/Admin/AuditMonitoring';
 
 import './App.css';
@@ -203,7 +203,7 @@ const AppRouter = () => {
             <Route path="admin/logs" element={<SystemLogs />} />
             <Route path="admin/security" element={<SecuritySettings />} />
             <Route path="admin/sms" element={<SMSAlertManagement />} />
-            <Route path="admin/database" element={<DatabaseMonitoring />} />
+
             <Route path="admin/audit" element={<AuditMonitoring />} />
           </Route>
           
@@ -211,8 +211,7 @@ const AppRouter = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
         
-        {/* Auth Debugger - Only show in development or for debugging */}
-        <AuthDebugger />
+
       </div>
     </Router>);
 

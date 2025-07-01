@@ -27,9 +27,9 @@ class ErrorPreventionHelper {
    */
   private getErrorType(error: any): ErrorInfo['type'] {
     if (!error) return 'Other';
-    
+
     const message = typeof error === 'string' ? error : error.message || error.toString();
-    
+
     if (message.includes('Invalid character') || message.includes('InvalidCharacterError')) {
       return 'InvalidCharacterError';
     }
@@ -42,7 +42,7 @@ class ErrorPreventionHelper {
     if (message.includes('is not defined') || message.includes('ReferenceError')) {
       return 'ReferenceError';
     }
-    
+
     return 'Other';
   }
 
@@ -84,13 +84,13 @@ class ErrorPreventionHelper {
     try {
       const error = event.error || event.message;
       const errorType = this.getErrorType(error);
-      
+
       // Check if this is an error we should handle
       if (this.shouldHandleError(error, errorType)) {
         this.logError(error, errorType, true);
         return true; // Prevent default error handling
       }
-      
+
       this.logError(error, errorType, false);
       return false; // Allow default error handling
     } catch (handlerError) {
@@ -106,7 +106,7 @@ class ErrorPreventionHelper {
     try {
       const error = event.reason;
       const errorType = this.getErrorType(error);
-      
+
       if (this.shouldHandleError(error, errorType)) {
         this.logError(error, errorType, true);
         event.preventDefault(); // Prevent unhandled rejection
@@ -123,24 +123,24 @@ class ErrorPreventionHelper {
    */
   private shouldHandleError(error: any, errorType: ErrorInfo['type']): boolean {
     const message = typeof error === 'string' ? error : error.message || error.toString();
-    
+
     // Handle specific error patterns
     const handleablePatterns = [
-      'Invalid character',
-      'InvalidCharacterError',
-      'Unexpected token',
-      'JSON.parse',
-      'getEntriesByType is not a function',
-      'performance',
-      'memory',
-      'PerformanceEntry',
-      'usedJSHeapSize',
-      'totalJSHeapSize',
-      'jsHeapSizeLimit'
-    ];
-    
-    return handleablePatterns.some(pattern => 
-      message.toLowerCase().includes(pattern.toLowerCase())
+    'Invalid character',
+    'InvalidCharacterError',
+    'Unexpected token',
+    'JSON.parse',
+    'getEntriesByType is not a function',
+    'performance',
+    'memory',
+    'PerformanceEntry',
+    'usedJSHeapSize',
+    'totalJSHeapSize',
+    'jsHeapSizeLimit'];
+
+
+    return handleablePatterns.some((pattern) =>
+    message.toLowerCase().includes(pattern.toLowerCase())
     );
   }
 
@@ -151,13 +151,13 @@ class ErrorPreventionHelper {
     if (typeof input !== 'string') {
       return String(input || '');
     }
-    
+
     try {
       // Remove or replace invalid characters
-      return input
-        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '') // Remove control characters
-        .replace(/[\uFFFE\uFFFF]/g, '') // Remove non-characters
-        .trim();
+      return input.
+      replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '') // Remove control characters
+      .replace(/[\uFFFE\uFFFF]/g, '') // Remove non-characters
+      .trim();
     } catch (error) {
       console.warn('Error sanitizing input:', error);
       return '';
@@ -172,7 +172,7 @@ class ErrorPreventionHelper {
       if (typeof jsonString !== 'string') {
         return defaultValue;
       }
-      
+
       const sanitized = this.sanitizeInput(jsonString);
       return JSON.parse(sanitized);
     } catch (error) {
@@ -211,7 +211,7 @@ class ErrorPreventionHelper {
 
       // Set up global error handler
       window.addEventListener('error', this.handleError);
-      
+
       // Set up unhandled promise rejection handler
       window.addEventListener('unhandledrejection', this.handlePromiseRejection);
 
@@ -246,10 +246,10 @@ class ErrorPreventionHelper {
   /**
    * Get error statistics
    */
-  public getErrorStats(): { total: number; byType: Record<string, number>; recent: ErrorInfo[] } {
+  public getErrorStats(): {total: number;byType: Record<string, number>;recent: ErrorInfo[];} {
     const byType: Record<string, number> = {};
-    
-    this.errorLog.forEach(error => {
+
+    this.errorLog.forEach((error) => {
       byType[error.type] = (byType[error.type] || 0) + 1;
     });
 
@@ -301,10 +301,10 @@ export function getErrorPreventionHelper(): ErrorPreventionHelper {
  */
 export const safeOperations = {
   sanitizeInput: (input: string) => errorPreventionHelper.sanitizeInput(input),
-  safeJsonParse: (jsonString: string, defaultValue?: any) => 
-    errorPreventionHelper.safeJsonParse(jsonString, defaultValue),
-  safeStringOperation: (operation: () => string, defaultValue?: string) => 
-    errorPreventionHelper.safeStringOperation(operation, defaultValue)
+  safeJsonParse: (jsonString: string, defaultValue?: any) =>
+  errorPreventionHelper.safeJsonParse(jsonString, defaultValue),
+  safeStringOperation: (operation: () => string, defaultValue?: string) =>
+  errorPreventionHelper.safeStringOperation(operation, defaultValue)
 };
 
 export default errorPreventionHelper;

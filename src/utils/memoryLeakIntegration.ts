@@ -44,7 +44,7 @@ class MemoryLeakDetector {
     } catch (error) {
       console.warn('Failed to get memory info:', error);
     }
-    
+
     return {};
   }
 
@@ -94,22 +94,22 @@ class MemoryLeakDetector {
 
     try {
       const recent = this.measurements.slice(-10);
-      const hasMemoryData = recent.some(m => m.memoryInfo.usedJSHeapSize);
-      
+      const hasMemoryData = recent.some((m) => m.memoryInfo.usedJSHeapSize);
+
       if (!hasMemoryData) return;
 
-      const memoryValues = recent
-        .map(m => m.memoryInfo.usedJSHeapSize || 0)
-        .filter(v => v > 0);
+      const memoryValues = recent.
+      map((m) => m.memoryInfo.usedJSHeapSize || 0).
+      filter((v) => v > 0);
 
       if (memoryValues.length < 5) return;
 
       const firstValue = memoryValues[0];
       const lastValue = memoryValues[memoryValues.length - 1];
-      
+
       // Check if memory usage has increased significantly
-      const percentageIncrease = ((lastValue - firstValue) / firstValue) * 100;
-      
+      const percentageIncrease = (lastValue - firstValue) / firstValue * 100;
+
       if (percentageIncrease > 50) {
         console.warn('Potential memory leak detected:', {
           initialMemory: firstValue,
@@ -153,7 +153,7 @@ class MemoryLeakDetector {
   /**
    * Get memory statistics
    */
-  public getMemoryStats(): { current: MemoryInfo; history: MemoryMeasurement[] } {
+  public getMemoryStats(): {current: MemoryInfo;history: MemoryMeasurement[];} {
     return {
       current: this.getMemoryInfo(),
       history: [...this.measurements]
@@ -197,7 +197,7 @@ export function initializeMemoryLeakDetection(): void {
 
     // Start monitoring with 30 second intervals
     memoryLeakDetector.startMonitoring(30000);
-    
+
     // Cleanup on page unload
     window.addEventListener('beforeunload', () => {
       memoryLeakDetector.stopMonitoring();
