@@ -10,10 +10,10 @@
  * @returns A safe string key
  */
 export const generateSafeKey = (
-  item: any, 
-  index: number, 
-  prefix: string = 'item'
-): string => {
+item: any,
+index: number,
+prefix: string = 'item')
+: string => {
   try {
     // Try to use a unique identifier from the item
     if (item && typeof item === 'object') {
@@ -21,7 +21,7 @@ export const generateSafeKey = (
       if (item.id) return `${prefix}-${item.id}`;
       if (item.key) return `${prefix}-${item.key}`;
     }
-    
+
     // Fallback to index-based key
     return `${prefix}-${index}`;
   } catch (error) {
@@ -37,14 +37,14 @@ export const generateSafeKey = (
  * @returns The mapped array or empty array if input is invalid
  */
 export const safeMap = <T, R>(
-  array: T[] | null | undefined,
-  callback: (item: T, index: number, array: T[]) => R
-): R[] => {
+array: T[] | null | undefined,
+callback: (item: T, index: number, array: T[]) => R)
+: R[] => {
   try {
     if (!Array.isArray(array)) {
       return [];
     }
-    
+
     return array.map((item, index, arr) => {
       try {
         return callback(item, index, arr);
@@ -69,25 +69,25 @@ export const safeMap = <T, R>(
  * @returns The value at the path or the default value
  */
 export const safeGet = (
-  obj: any, 
-  path: string, 
-  defaultValue: any = undefined
-): any => {
+obj: any,
+path: string,
+defaultValue: any = undefined)
+: any => {
   try {
     if (!obj || typeof obj !== 'object') {
       return defaultValue;
     }
-    
+
     const keys = path.split('.');
     let current = obj;
-    
+
     for (const key of keys) {
       if (current === null || current === undefined) {
         return defaultValue;
       }
       current = current[key];
     }
-    
+
     return current !== undefined ? current : defaultValue;
   } catch (error) {
     console.error('Error in safeGet:', error);
@@ -112,7 +112,7 @@ export const safeString = {
       return defaultValue;
     }
   },
-  
+
   /**
    * Safely trims a string
    */
@@ -124,7 +124,7 @@ export const safeString = {
       return defaultValue;
     }
   },
-  
+
   /**
    * Safely converts to lowercase
    */
@@ -156,7 +156,7 @@ export const safeNumber = {
       return defaultValue;
     }
   },
-  
+
   /**
    * Safely formats a number to fixed decimal places
    */
@@ -177,7 +177,7 @@ export const safeArray = {
   /**
    * Safely ensures a value is an array
    */
-  ensureArray: <T>(value: any, defaultValue: T[] = []): T[] => {
+  ensureArray: <T,>(value: any, defaultValue: T[] = []): T[] => {
     try {
       if (Array.isArray(value)) {
         return value;
@@ -187,7 +187,7 @@ export const safeArray = {
       return defaultValue;
     }
   },
-  
+
   /**
    * Safely gets array length
    */
@@ -201,11 +201,11 @@ export const safeArray = {
       return defaultValue;
     }
   },
-  
+
   /**
    * Safely gets array item at index
    */
-  getItem: <T>(array: any, index: number, defaultValue: T | null = null): T | null => {
+  getItem: <T,>(array: any, index: number, defaultValue: T | null = null): T | null => {
     try {
       if (Array.isArray(array) && index >= 0 && index < array.length) {
         return array[index];

@@ -13,13 +13,13 @@ interface ResponsiveTableProps {
   className?: string;
 }
 
-const ResponsiveStack: React.FC<ResponsiveStackProps> = ({ 
-  children, 
-  spacing = 'md', 
-  className 
+const ResponsiveStack: React.FC<ResponsiveStackProps> = ({
+  children,
+  spacing = 'md',
+  className
 }) => {
   const responsive = useResponsiveLayout();
-  
+
   const spacingClasses = {
     sm: responsive.isMobile ? 'space-y-2' : 'space-y-3',
     md: responsive.isMobile ? 'space-y-3' : 'space-y-4',
@@ -34,13 +34,13 @@ const ResponsiveStack: React.FC<ResponsiveStackProps> = ({
       className
     )}>
       {children}
-    </div>
-  );
+    </div>);
+
 };
 
-const ResponsiveTable: React.FC<ResponsiveTableProps> = ({ 
-  children, 
-  className 
+const ResponsiveTable: React.FC<ResponsiveTableProps> = ({
+  children,
+  className
 }) => {
   const responsive = useResponsiveLayout();
 
@@ -53,8 +53,8 @@ const ResponsiveTable: React.FC<ResponsiveTableProps> = ({
       <div className={responsive.isMobile ? 'min-w-[800px]' : ''}>
         {children}
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export { ResponsiveStack, ResponsiveTable };

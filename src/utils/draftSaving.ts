@@ -34,8 +34,8 @@ class DraftSavingService {
   saveDraft(station: string, reportDate: string, formData: any): boolean {
     try {
       const now = new Date();
-      const expiresAt = new Date(now.getTime() + (DRAFT_EXPIRY_HOURS * 60 * 60 * 1000));
-      
+      const expiresAt = new Date(now.getTime() + DRAFT_EXPIRY_HOURS * 60 * 60 * 1000);
+
       const draftData: DraftData = {
         formData,
         savedAt: now.toISOString(),
@@ -46,7 +46,7 @@ class DraftSavingService {
 
       const key = this.generateDraftKey(station, reportDate);
       localStorage.setItem(key, JSON.stringify(draftData));
-      
+
       console.log(`Draft saved for ${station} on ${reportDate}`);
       return true;
     } catch (error) {
@@ -62,17 +62,17 @@ class DraftSavingService {
     try {
       const key = this.generateDraftKey(station, reportDate);
       const stored = localStorage.getItem(key);
-      
+
       if (!stored) {
         return null;
       }
 
       const draftData: DraftData = JSON.parse(stored);
-      
+
       // Check if draft has expired
       const now = new Date();
       const expiresAt = new Date(draftData.expiresAt);
-      
+
       if (now > expiresAt) {
         // Draft has expired, remove it
         this.deleteDraft(station, reportDate);
@@ -108,7 +108,7 @@ class DraftSavingService {
     try {
       const key = this.generateDraftKey(station, reportDate);
       const stored = localStorage.getItem(key);
-      
+
       if (!stored) {
         return null;
       }
@@ -117,7 +117,7 @@ class DraftSavingService {
       const now = new Date();
       const savedAt = new Date(draftData.savedAt);
       const expiresAt = new Date(draftData.expiresAt);
-      
+
       // Check if draft has expired
       if (now > expiresAt) {
         this.deleteDraft(station, reportDate);
@@ -141,14 +141,14 @@ class DraftSavingService {
   /**
    * Get all drafts for all stations
    */
-  getAllDrafts(): Array<{ station: string; reportDate: string; draftInfo: DraftInfo }> {
+  getAllDrafts(): Array<{station: string;reportDate: string;draftInfo: DraftInfo;}> {
     try {
-      const drafts: Array<{ station: string; reportDate: string; draftInfo: DraftInfo }> = [];
-      
+      const drafts: Array<{station: string;reportDate: string;draftInfo: DraftInfo;}> = [];
+
       // Iterate through all localStorage keys
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        
+
         if (key && key.startsWith(DRAFT_PREFIX)) {
           const stored = localStorage.getItem(key);
           if (stored) {
@@ -156,7 +156,7 @@ class DraftSavingService {
               const draftData: DraftData = JSON.parse(stored);
               const now = new Date();
               const expiresAt = new Date(draftData.expiresAt);
-              
+
               // Skip expired drafts
               if (now > expiresAt) {
                 localStorage.removeItem(key);
@@ -199,17 +199,17 @@ class DraftSavingService {
     try {
       let cleanedCount = 0;
       const now = new Date();
-      
+
       for (let i = localStorage.length - 1; i >= 0; i--) {
         const key = localStorage.key(i);
-        
+
         if (key && key.startsWith(DRAFT_PREFIX)) {
           const stored = localStorage.getItem(key);
           if (stored) {
             try {
               const draftData: DraftData = JSON.parse(stored);
               const expiresAt = new Date(draftData.expiresAt);
-              
+
               if (now > expiresAt) {
                 localStorage.removeItem(key);
                 cleanedCount++;
@@ -257,14 +257,14 @@ class DraftSavingService {
   /**
    * Get total storage usage for all drafts
    */
-  getTotalDraftStorageUsage(): { count: number; totalSize: number; sizeInKB: number } {
+  getTotalDraftStorageUsage(): {count: number;totalSize: number;sizeInKB: number;} {
     try {
       let count = 0;
       let totalSize = 0;
 
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        
+
         if (key && key.startsWith(DRAFT_PREFIX)) {
           const stored = localStorage.getItem(key);
           if (stored) {
