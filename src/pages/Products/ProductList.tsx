@@ -10,10 +10,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import ProductLogs from '@/components/ProductLogs';
 import HighlightText from '@/components/HighlightText';
-
+import { ResponsiveTable, ResponsiveStack } from '@/components/ResponsiveWrapper';
 import { useResponsiveLayout } from '@/hooks/use-mobile';
 import ProductCards from '@/components/ProductCards';
-
+import { generateSafeKey, safeMap } from '@/utils/invariantSafeHelper';
 
 
 interface Product {
@@ -446,7 +446,7 @@ const ProductList: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <ResponsiveStack spacing="lg">
       <Card>
         <CardHeader>
           <div className={`flex items-center ${
@@ -548,7 +548,7 @@ const ProductList: React.FC = () => {
             savingProductId={savingProductId} /> :
 
 
-          <div className="border rounded-lg overflow-hidden">
+          <ResponsiveTable className="border rounded-lg overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -689,7 +689,7 @@ const ProductList: React.FC = () => {
                 })}
                 </TableBody>
               </Table>
-            </div>
+            </ResponsiveTable>
           }
 
           {/* Loading Status and Infinite Scroll */}
@@ -739,7 +739,7 @@ const ProductList: React.FC = () => {
         productId={selectedProduct.id}
         productName={selectedProduct.name} />
       }
-    </div>);
+    </ResponsiveStack>);
 };
 
 export default ProductList;
