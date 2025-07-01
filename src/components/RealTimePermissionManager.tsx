@@ -24,8 +24,8 @@ import {
   AlertCircle,
   Search,
   Filter,
-  Activity
-} from 'lucide-react';
+  Activity } from
+'lucide-react';
 
 interface UserProfile {
   id: number;
@@ -51,22 +51,22 @@ interface PermissionGroup {
 }
 
 const CONTENT_AREAS = [
-  { name: 'dashboard', displayName: 'Dashboard' },
-  { name: 'products', displayName: 'Products' },
-  { name: 'employees', displayName: 'Employees' },
-  { name: 'sales_reports', displayName: 'Sales Reports' },
-  { name: 'vendors', displayName: 'Vendors' },
-  { name: 'orders', displayName: 'Orders' },
-  { name: 'licenses', displayName: 'Licenses' },
-  { name: 'salary', displayName: 'Salary' },
-  { name: 'inventory', displayName: 'Inventory' },
-  { name: 'delivery', displayName: 'Delivery' },
-  { name: 'settings', displayName: 'Settings' },
-  { name: 'user_management', displayName: 'User Management' },
-  { name: 'site_management', displayName: 'Site Management' },
-  { name: 'system_logs', displayName: 'System Logs' },
-  { name: 'security_settings', displayName: 'Security Settings' }
-];
+{ name: 'dashboard', displayName: 'Dashboard' },
+{ name: 'products', displayName: 'Products' },
+{ name: 'employees', displayName: 'Employees' },
+{ name: 'sales_reports', displayName: 'Sales Reports' },
+{ name: 'vendors', displayName: 'Vendors' },
+{ name: 'orders', displayName: 'Orders' },
+{ name: 'licenses', displayName: 'Licenses' },
+{ name: 'salary', displayName: 'Salary' },
+{ name: 'inventory', displayName: 'Inventory' },
+{ name: 'delivery', displayName: 'Delivery' },
+{ name: 'settings', displayName: 'Settings' },
+{ name: 'user_management', displayName: 'User Management' },
+{ name: 'site_management', displayName: 'Site Management' },
+{ name: 'system_logs', displayName: 'System Logs' },
+{ name: 'security_settings', displayName: 'Security Settings' }];
+
 
 const RealTimePermissionManager: React.FC = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
@@ -134,7 +134,7 @@ const RealTimePermissionManager: React.FC = () => {
   };
 
   const handlePermissionChange = (area: string, permission: string, value: boolean) => {
-    setPermissions(prev => ({
+    setPermissions((prev) => ({
       ...prev,
       [area]: {
         ...prev[area],
@@ -173,32 +173,32 @@ const RealTimePermissionManager: React.FC = () => {
   const getPermissionSummary = (user: UserProfile) => {
     const userPermissions = parsePermissions(user.detailed_permissions);
     const totalAreas = CONTENT_AREAS.length;
-    const areasWithAccess = CONTENT_AREAS.filter(area => 
-      userPermissions[area.name]?.view
+    const areasWithAccess = CONTENT_AREAS.filter((area) =>
+    userPermissions[area.name]?.view
     ).length;
 
     return {
       areasWithAccess,
       totalAreas,
-      percentage: totalAreas > 0 ? Math.round((areasWithAccess / totalAreas) * 100) : 0
+      percentage: totalAreas > 0 ? Math.round(areasWithAccess / totalAreas * 100) : 0
     };
   };
 
-  const filteredUsers = users.filter(user => {
+  const filteredUsers = users.filter((user) => {
     const matchesSearch = user.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.phone.toLowerCase().includes(searchTerm.toLowerCase());
+    user.phone.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === 'All' || user.role === roleFilter;
     return matchesSearch && matchesRole;
   });
 
-  const roles = ['All', ...Array.from(new Set(users.map(user => user.role)))];
+  const roles = ['All', ...Array.from(new Set(users.map((user) => user.role)))];
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-64">
         <div className="text-lg">Loading real-time permission manager...</div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -254,9 +254,9 @@ const RealTimePermissionManager: React.FC = () => {
                 <SelectValue placeholder="Filter by role" />
               </SelectTrigger>
               <SelectContent>
-                {roles.map((role) => (
-                  <SelectItem key={role} value={role}>{role}</SelectItem>
-                ))}
+                {roles.map((role) =>
+                <SelectItem key={role} value={role}>{role}</SelectItem>
+                )}
               </SelectContent>
             </Select>
             <Button
@@ -291,8 +291,8 @@ const RealTimePermissionManager: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.length === 0 ? (
-                  <TableRow>
+                {filteredUsers.length === 0 ?
+                <TableRow>
                     <TableCell colSpan={6} className="text-center py-8">
                       <div className="flex flex-col items-center space-y-3">
                         <Database className="w-12 h-12 text-gray-300" />
@@ -302,12 +302,12 @@ const RealTimePermissionManager: React.FC = () => {
                         </div>
                       </div>
                     </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredUsers.map((user) => {
-                    const summary = getPermissionSummary(user);
-                    return (
-                      <TableRow key={user.id}>
+                  </TableRow> :
+
+                filteredUsers.map((user) => {
+                  const summary = getPermissionSummary(user);
+                  return (
+                    <TableRow key={user.id}>
                         <TableCell>
                           <div>
                             <div className="font-medium">{user.employee_id}</div>
@@ -316,10 +316,10 @@ const RealTimePermissionManager: React.FC = () => {
                         </TableCell>
                         <TableCell>
                           <Badge className={
-                            user.role === 'Administrator' ? 'bg-red-100 text-red-800' :
-                            user.role === 'Management' ? 'bg-blue-100 text-blue-800' :
-                            'bg-green-100 text-green-800'
-                          }>
+                        user.role === 'Administrator' ? 'bg-red-100 text-red-800' :
+                        user.role === 'Management' ? 'bg-blue-100 text-blue-800' :
+                        'bg-green-100 text-green-800'
+                        }>
                             {user.role}
                           </Badge>
                         </TableCell>
@@ -328,11 +328,11 @@ const RealTimePermissionManager: React.FC = () => {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">
-                            {summary.areasWithAccess > 0 ? (
-                              <CheckCircle className="w-4 h-4 text-green-600" />
-                            ) : (
-                              <AlertCircle className="w-4 h-4 text-orange-600" />
-                            )}
+                            {summary.areasWithAccess > 0 ?
+                          <CheckCircle className="w-4 h-4 text-green-600" /> :
+
+                          <AlertCircle className="w-4 h-4 text-orange-600" />
+                          }
                             <span className="text-sm">
                               {summary.areasWithAccess}/{summary.totalAreas} areas
                             </span>
@@ -342,30 +342,30 @@ const RealTimePermissionManager: React.FC = () => {
                           <div className="flex items-center space-x-2">
                             <div className="w-16 bg-gray-200 rounded-full h-2">
                               <div
-                                className={`h-2 rounded-full ${
-                                  summary.percentage >= 70 ? 'bg-green-500' :
-                                  summary.percentage >= 40 ? 'bg-yellow-500' :
-                                  'bg-red-500'
-                                }`}
-                                style={{ width: `${summary.percentage}%` }}
-                              />
+                              className={`h-2 rounded-full ${
+                              summary.percentage >= 70 ? 'bg-green-500' :
+                              summary.percentage >= 40 ? 'bg-yellow-500' :
+                              'bg-red-500'}`
+                              }
+                              style={{ width: `${summary.percentage}%` }} />
+
                             </div>
                             <span className="text-sm font-medium">{summary.percentage}%</span>
                           </div>
                         </TableCell>
                         <TableCell>
                           <Button
-                            size="sm"
-                            onClick={() => handleUserSelect(user)}
-                            className="bg-blue-600 hover:bg-blue-700">
+                          size="sm"
+                          onClick={() => handleUserSelect(user)}
+                          className="bg-blue-600 hover:bg-blue-700">
                             <Settings className="w-4 h-4 mr-2" />
                             Manage
                           </Button>
                         </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
+                      </TableRow>);
+
+                })
+                }
               </TableBody>
             </Table>
           </div>
@@ -424,39 +424,39 @@ const RealTimePermissionManager: React.FC = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {CONTENT_AREAS.map((area) => (
-                          <TableRow key={area.name}>
+                        {CONTENT_AREAS.map((area) =>
+                        <TableRow key={area.name}>
                             <TableCell className="font-medium">{area.displayName}</TableCell>
                             <TableCell className="text-center">
                               <Checkbox
-                                checked={permissions[area.name]?.view || false}
-                                onCheckedChange={(checked) => 
-                                  handlePermissionChange(area.name, 'view', checked as boolean)
-                                } />
+                              checked={permissions[area.name]?.view || false}
+                              onCheckedChange={(checked) =>
+                              handlePermissionChange(area.name, 'view', checked as boolean)
+                              } />
                             </TableCell>
                             <TableCell className="text-center">
                               <Checkbox
-                                checked={permissions[area.name]?.edit || false}
-                                onCheckedChange={(checked) => 
-                                  handlePermissionChange(area.name, 'edit', checked as boolean)
-                                } />
+                              checked={permissions[area.name]?.edit || false}
+                              onCheckedChange={(checked) =>
+                              handlePermissionChange(area.name, 'edit', checked as boolean)
+                              } />
                             </TableCell>
                             <TableCell className="text-center">
                               <Checkbox
-                                checked={permissions[area.name]?.create || false}
-                                onCheckedChange={(checked) => 
-                                  handlePermissionChange(area.name, 'create', checked as boolean)
-                                } />
+                              checked={permissions[area.name]?.create || false}
+                              onCheckedChange={(checked) =>
+                              handlePermissionChange(area.name, 'create', checked as boolean)
+                              } />
                             </TableCell>
                             <TableCell className="text-center">
                               <Checkbox
-                                checked={permissions[area.name]?.delete || false}
-                                onCheckedChange={(checked) => 
-                                  handlePermissionChange(area.name, 'delete', checked as boolean)
-                                } />
+                              checked={permissions[area.name]?.delete || false}
+                              onCheckedChange={(checked) =>
+                              handlePermissionChange(area.name, 'delete', checked as boolean)
+                              } />
                             </TableCell>
                           </TableRow>
-                        ))}
+                        )}
                       </TableBody>
                     </Table>
                   </div>
@@ -476,8 +476,8 @@ const RealTimePermissionManager: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 };
 
 export default RealTimePermissionManager;

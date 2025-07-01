@@ -20,8 +20,8 @@ import {
   Info,
   Building2,
   UserCheck,
-  Shield
-} from 'lucide-react';
+  Shield } from
+'lucide-react';
 
 interface BulkRoleManagerProps {
   trigger?: React.ReactNode;
@@ -176,10 +176,10 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
   };
 
   const handleUserToggle = (userId: number) => {
-    setSelectedUsers(prev => 
-      prev.includes(userId) 
-        ? prev.filter(id => id !== userId)
-        : [...prev, userId]
+    setSelectedUsers((prev) =>
+    prev.includes(userId) ?
+    prev.filter((id) => id !== userId) :
+    [...prev, userId]
     );
   };
 
@@ -187,7 +187,7 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
     if (selectedUsers.length === filteredUsers.length) {
       setSelectedUsers([]);
     } else {
-      setSelectedUsers(filteredUsers.map(user => user.id));
+      setSelectedUsers(filteredUsers.map((user) => user.id));
     }
   };
 
@@ -213,7 +213,7 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
     try {
       setSaving(true);
       const roleTemplate = ROLE_TEMPLATES[selectedRole as keyof typeof ROLE_TEMPLATES];
-      
+
       // Update all selected users
       for (const userId of selectedUsers) {
         const { error } = await window.ezsite.apis.tableUpdate(11725, {
@@ -235,7 +235,7 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
       setIsOpen(false);
       setSelectedUsers([]);
       setSelectedRole('');
-      
+
       if (onRolesAssigned) {
         onRolesAssigned();
       }
@@ -250,22 +250,22 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
     }
   };
 
-  const filteredUsers = users.filter(user => {
+  const filteredUsers = users.filter((user) => {
     const matchesRole = filterRole === 'All' || user.role === filterRole;
     const matchesStation = filterStation === 'All' || user.station === filterStation;
     return matchesRole && matchesStation;
   });
 
-  const roles = ['All', ...Array.from(new Set(users.map(user => user.role)))];
-  const stations = ['All', ...Array.from(new Set(users.map(user => user.station)))];
+  const roles = ['All', ...Array.from(new Set(users.map((user) => user.role)))];
+  const stations = ['All', ...Array.from(new Set(users.map((user) => user.station)))];
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      {trigger && (
-        <DialogTrigger asChild>
+      {trigger &&
+      <DialogTrigger asChild>
           {trigger}
         </DialogTrigger>
-      )}
+      }
       
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
@@ -294,9 +294,9 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {roles.map((role) => (
-                    <SelectItem key={role} value={role}>{role}</SelectItem>
-                  ))}
+                  {roles.map((role) =>
+                  <SelectItem key={role} value={role}>{role}</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -308,9 +308,9 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {stations.map((station) => (
-                    <SelectItem key={station} value={station}>{station}</SelectItem>
-                  ))}
+                  {stations.map((station) =>
+                  <SelectItem key={station} value={station}>{station}</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -322,21 +322,21 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
                   <SelectValue placeholder="Choose new role" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.entries(ROLE_TEMPLATES).map(([key, template]) => (
-                    <SelectItem key={key} value={key}>
+                  {Object.entries(ROLE_TEMPLATES).map(([key, template]) =>
+                  <SelectItem key={key} value={key}>
                       <div className="flex items-center space-x-2">
                         <span>{template.name}</span>
                         <Badge className={template.color}>{template.name}</Badge>
                       </div>
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
             </div>
 
             <div className="flex items-end">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => {
                   setFilterRole('All');
                   setFilterStation('All');
@@ -358,8 +358,8 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
                       {selectedUsers.length} of {filteredUsers.length} users selected
                     </span>
                   </div>
-                  {selectedRole && (
-                    <div className="flex items-center space-x-2">
+                  {selectedRole &&
+                  <div className="flex items-center space-x-2">
                       <Shield className="w-4 h-4 text-green-600" />
                       <span className="text-sm">
                         Will assign: <Badge className={ROLE_TEMPLATES[selectedRole as keyof typeof ROLE_TEMPLATES].color}>
@@ -367,7 +367,7 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
                         </Badge>
                       </span>
                     </div>
-                  )}
+                  }
                 </div>
                 <Button
                   variant="outline"
@@ -387,19 +387,19 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
             </CardHeader>
             <CardContent className="overflow-hidden">
               <ScrollArea className="h-64">
-                {loading ? (
-                  <div className="flex items-center justify-center py-8">
+                {loading ?
+                <div className="flex items-center justify-center py-8">
                     <div className="text-gray-500">Loading users...</div>
-                  </div>
-                ) : (
-                  <Table>
+                  </div> :
+
+                <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead className="w-12">
                           <Checkbox
-                            checked={filteredUsers.length > 0 && selectedUsers.length === filteredUsers.length}
-                            onCheckedChange={handleSelectAll}
-                            aria-label="Select all users" />
+                          checked={filteredUsers.length > 0 && selectedUsers.length === filteredUsers.length}
+                          onCheckedChange={handleSelectAll}
+                          aria-label="Select all users" />
                         </TableHead>
                         <TableHead>Employee</TableHead>
                         <TableHead>Current Role</TableHead>
@@ -408,22 +408,22 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredUsers.length === 0 ? (
-                        <TableRow>
+                      {filteredUsers.length === 0 ?
+                    <TableRow>
                           <TableCell colSpan={5} className="text-center py-8">
                             <div className="text-gray-500">No users match current filters</div>
                           </TableCell>
-                        </TableRow>
-                      ) : (
-                        filteredUsers.map((user) => (
-                          <TableRow 
-                            key={user.id}
-                            className={selectedUsers.includes(user.id) ? 'bg-blue-50' : ''}>
+                        </TableRow> :
+
+                    filteredUsers.map((user) =>
+                    <TableRow
+                      key={user.id}
+                      className={selectedUsers.includes(user.id) ? 'bg-blue-50' : ''}>
                             <TableCell>
                               <Checkbox
-                                checked={selectedUsers.includes(user.id)}
-                                onCheckedChange={() => handleUserToggle(user.id)}
-                                aria-label={`Select ${user.employee_id}`} />
+                          checked={selectedUsers.includes(user.id)}
+                          onCheckedChange={() => handleUserToggle(user.id)}
+                          aria-label={`Select ${user.employee_id}`} />
                             </TableCell>
                             <TableCell>
                               <div>
@@ -433,10 +433,10 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
                             </TableCell>
                             <TableCell>
                               <Badge className={
-                                user.role === 'Administrator' ? 'bg-red-100 text-red-800' :
-                                user.role === 'Management' ? 'bg-blue-100 text-blue-800' :
-                                'bg-green-100 text-green-800'
-                              }>
+                        user.role === 'Administrator' ? 'bg-red-100 text-red-800' :
+                        user.role === 'Management' ? 'bg-blue-100 text-blue-800' :
+                        'bg-green-100 text-green-800'
+                        }>
                                 {user.role}
                               </Badge>
                             </TableCell>
@@ -452,11 +452,11 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
                               </Badge>
                             </TableCell>
                           </TableRow>
-                        ))
-                      )}
+                    )
+                    }
                     </TableBody>
                   </Table>
-                )}
+                }
               </ScrollArea>
             </CardContent>
           </Card>
@@ -466,7 +466,7 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
             <Button variant="outline" onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleBulkAssign}
               disabled={selectedUsers.length === 0 || !selectedRole || saving}
               className="bg-orange-600 hover:bg-orange-700">
@@ -476,8 +476,8 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
           </div>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default BulkRoleManager;

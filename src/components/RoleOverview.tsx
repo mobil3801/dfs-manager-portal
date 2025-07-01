@@ -19,8 +19,8 @@ import {
   Building2,
   Crown,
   UserCheck,
-  FileText
-} from 'lucide-react';
+  FileText } from
+'lucide-react';
 
 interface RoleOverviewProps {
   trigger?: React.ReactNode;
@@ -34,19 +34,19 @@ const ROLE_DETAILS = {
     color: 'bg-red-100 text-red-800 border-red-200',
     headerColor: 'bg-red-50',
     features: [
-      'Full access to all system areas',
-      'User management and role assignment',
-      'System configuration and security settings',
-      'Complete audit trail access',
-      'Advanced reporting and analytics',
-      'Database management capabilities'
-    ],
+    'Full access to all system areas',
+    'User management and role assignment',
+    'System configuration and security settings',
+    'Complete audit trail access',
+    'Advanced reporting and analytics',
+    'Database management capabilities'],
+
     bestFor: [
-      'System administrators',
-      'IT managers',
-      'Business owners',
-      'Technical support leads'
-    ],
+    'System administrators',
+    'IT managers',
+    'Business owners',
+    'Technical support leads'],
+
     permissions: {
       dashboard: { view: true, edit: true, create: true, delete: true },
       products: { view: true, edit: true, create: true, delete: true },
@@ -72,19 +72,19 @@ const ROLE_DETAILS = {
     color: 'bg-blue-100 text-blue-800 border-blue-200',
     headerColor: 'bg-blue-50',
     features: [
-      'Business operations management',
-      'Staff oversight and scheduling',
-      'Financial reporting access',
-      'Inventory and vendor management',
-      'Limited user management',
-      'Performance analytics'
-    ],
+    'Business operations management',
+    'Staff oversight and scheduling',
+    'Financial reporting access',
+    'Inventory and vendor management',
+    'Limited user management',
+    'Performance analytics'],
+
     bestFor: [
-      'Store managers',
-      'Operations supervisors',
-      'Department heads',
-      'Assistant managers'
-    ],
+    'Store managers',
+    'Operations supervisors',
+    'Department heads',
+    'Assistant managers'],
+
     permissions: {
       dashboard: { view: true, edit: true, create: true, delete: true },
       products: { view: true, edit: true, create: true, delete: true },
@@ -110,19 +110,19 @@ const ROLE_DETAILS = {
     color: 'bg-green-100 text-green-800 border-green-200',
     headerColor: 'bg-green-50',
     features: [
-      'Daily operations management',
-      'Sales reporting and tracking',
-      'Inventory updates',
-      'Order processing',
-      'Product information access',
-      'Delivery management'
-    ],
+    'Daily operations management',
+    'Sales reporting and tracking',
+    'Inventory updates',
+    'Order processing',
+    'Product information access',
+    'Delivery management'],
+
     bestFor: [
-      'Store clerks',
-      'Shift supervisors',
-      'Sales associates',
-      'Inventory staff'
-    ],
+    'Store clerks',
+    'Shift supervisors',
+    'Sales associates',
+    'Inventory staff'],
+
     permissions: {
       dashboard: { view: true, edit: false, create: false, delete: false },
       products: { view: true, edit: true, create: false, delete: false },
@@ -148,19 +148,19 @@ const ROLE_DETAILS = {
     color: 'bg-gray-100 text-gray-800 border-gray-200',
     headerColor: 'bg-gray-50',
     features: [
-      'Dashboard monitoring',
-      'Product catalog viewing',
-      'Sales report access',
-      'Inventory status checking',
-      'Order status tracking',
-      'Basic system information'
-    ],
+    'Dashboard monitoring',
+    'Product catalog viewing',
+    'Sales report access',
+    'Inventory status checking',
+    'Order status tracking',
+    'Basic system information'],
+
     bestFor: [
-      'Auditors',
-      'Temporary staff',
-      'Consultants',
-      'Trainees'
-    ],
+    'Auditors',
+    'Temporary staff',
+    'Consultants',
+    'Trainees'],
+
     permissions: {
       dashboard: { view: true, edit: false, create: false, delete: false },
       products: { view: true, edit: false, create: false, delete: false },
@@ -182,29 +182,29 @@ const ROLE_DETAILS = {
 };
 
 const CONTENT_AREAS = [
-  { name: 'dashboard', displayName: 'Dashboard' },
-  { name: 'products', displayName: 'Products' },
-  { name: 'employees', displayName: 'Employees' },
-  { name: 'sales_reports', displayName: 'Sales Reports' },
-  { name: 'vendors', displayName: 'Vendors' },
-  { name: 'orders', displayName: 'Orders' },
-  { name: 'licenses', displayName: 'Licenses' },
-  { name: 'salary', displayName: 'Salary' },
-  { name: 'inventory', displayName: 'Inventory' },
-  { name: 'delivery', displayName: 'Delivery' },
-  { name: 'settings', displayName: 'Settings' },
-  { name: 'user_management', displayName: 'User Management' },
-  { name: 'site_management', displayName: 'Site Management' },
-  { name: 'system_logs', displayName: 'System Logs' },
-  { name: 'security_settings', displayName: 'Security Settings' }
-];
+{ name: 'dashboard', displayName: 'Dashboard' },
+{ name: 'products', displayName: 'Products' },
+{ name: 'employees', displayName: 'Employees' },
+{ name: 'sales_reports', displayName: 'Sales Reports' },
+{ name: 'vendors', displayName: 'Vendors' },
+{ name: 'orders', displayName: 'Orders' },
+{ name: 'licenses', displayName: 'Licenses' },
+{ name: 'salary', displayName: 'Salary' },
+{ name: 'inventory', displayName: 'Inventory' },
+{ name: 'delivery', displayName: 'Delivery' },
+{ name: 'settings', displayName: 'Settings' },
+{ name: 'user_management', displayName: 'User Management' },
+{ name: 'site_management', displayName: 'Site Management' },
+{ name: 'system_logs', displayName: 'System Logs' },
+{ name: 'security_settings', displayName: 'Security Settings' }];
 
-const PermissionIcon: React.FC<{ hasPermission: boolean }> = ({ hasPermission }) => {
-  return hasPermission ? (
-    <CheckCircle className="w-4 h-4 text-green-600" />
-  ) : (
-    <XCircle className="w-4 h-4 text-gray-300" />
-  );
+
+const PermissionIcon: React.FC<{hasPermission: boolean;}> = ({ hasPermission }) => {
+  return hasPermission ?
+  <CheckCircle className="w-4 h-4 text-green-600" /> :
+
+  <XCircle className="w-4 h-4 text-gray-300" />;
+
 };
 
 const RoleOverview: React.FC<RoleOverviewProps> = ({ trigger }) => {
@@ -212,11 +212,11 @@ const RoleOverview: React.FC<RoleOverviewProps> = ({ trigger }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      {trigger && (
-        <DialogTrigger asChild>
+      {trigger &&
+      <DialogTrigger asChild>
           {trigger}
         </DialogTrigger>
-      )}
+      }
       
       <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden flex flex-col">
         <DialogHeader>
@@ -246,8 +246,8 @@ const RoleOverview: React.FC<RoleOverviewProps> = ({ trigger }) => {
             </Card>
 
             {/* Role Details */}
-            {Object.entries(ROLE_DETAILS).map(([key, role]) => (
-              <Card key={key} className={`border-2 ${role.color.includes('border') ? '' : 'border-gray-200'}`}>
+            {Object.entries(ROLE_DETAILS).map(([key, role]) =>
+            <Card key={key} className={`border-2 ${role.color.includes('border') ? '' : 'border-gray-200'}`}>
                 <CardHeader className={role.headerColor}>
                   <CardTitle className="flex items-center space-x-3">
                     <div className="text-2xl">{role.icon}</div>
@@ -269,12 +269,12 @@ const RoleOverview: React.FC<RoleOverviewProps> = ({ trigger }) => {
                         <span>Key Features</span>
                       </h4>
                       <ul className="space-y-2">
-                        {role.features.map((feature, index) => (
-                          <li key={index} className="flex items-start space-x-2 text-sm">
+                        {role.features.map((feature, index) =>
+                      <li key={index} className="flex items-start space-x-2 text-sm">
                             <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                             <span>{feature}</span>
                           </li>
-                        ))}
+                      )}
                       </ul>
                     </div>
 
@@ -285,12 +285,12 @@ const RoleOverview: React.FC<RoleOverviewProps> = ({ trigger }) => {
                         <span>Best For</span>
                       </h4>
                       <ul className="space-y-2">
-                        {role.bestFor.map((position, index) => (
-                          <li key={index} className="flex items-start space-x-2 text-sm">
+                        {role.bestFor.map((position, index) =>
+                      <li key={index} className="flex items-start space-x-2 text-sm">
                             <UserCheck className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                             <span>{position}</span>
                           </li>
-                        ))}
+                      )}
                       </ul>
                     </div>
                   </div>
@@ -313,9 +313,9 @@ const RoleOverview: React.FC<RoleOverviewProps> = ({ trigger }) => {
                       </div>
                       <div className="space-y-1">
                         {CONTENT_AREAS.map((area) => {
-                          const permissions = role.permissions[area.name as keyof typeof role.permissions];
-                          return (
-                            <div key={area.name} className="grid grid-cols-5 gap-2 text-xs py-1 border-b border-gray-100">
+                        const permissions = role.permissions[area.name as keyof typeof role.permissions];
+                        return (
+                          <div key={area.name} className="grid grid-cols-5 gap-2 text-xs py-1 border-b border-gray-100">
                               <div className="font-medium">{area.displayName}</div>
                               <div className="text-center">
                                 <PermissionIcon hasPermission={permissions.view} />
@@ -329,15 +329,15 @@ const RoleOverview: React.FC<RoleOverviewProps> = ({ trigger }) => {
                               <div className="text-center">
                                 <PermissionIcon hasPermission={permissions.delete} />
                               </div>
-                            </div>
-                          );
-                        })}
+                            </div>);
+
+                      })}
                       </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            )}
 
             {/* Permission Legend */}
             <Card>
@@ -389,8 +389,8 @@ const RoleOverview: React.FC<RoleOverviewProps> = ({ trigger }) => {
           </Button>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default RoleOverview;

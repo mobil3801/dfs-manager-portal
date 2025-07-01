@@ -500,5 +500,4 @@ class ProductionSMSService extends SMSService {
 
 export const productionSmsService = new ProductionSMSService();
 
-// Also export the enhanced service
-export { enhancedSmsService } from './enhancedSmsService';
+// Enhanced SMS service available through productionSmsService

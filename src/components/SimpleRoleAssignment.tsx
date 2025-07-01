@@ -14,8 +14,8 @@ import {
   Star,
   CheckCircle,
   Info,
-  AlertCircle
-} from 'lucide-react';
+  AlertCircle } from
+'lucide-react';
 
 interface SimpleRoleAssignmentProps {
   selectedUserId?: number;
@@ -189,14 +189,14 @@ const SimpleRoleAssignment: React.FC<SimpleRoleAssignmentProps> = ({
     try {
       setSaving(true);
       const userId = parseInt(selectedUser);
-      const user = users.find(u => u.id === userId);
-      
+      const user = users.find((u) => u.id === userId);
+
       if (!user) {
         throw new Error('User not found');
       }
 
       const roleTemplate = ROLE_TEMPLATES[selectedRole as keyof typeof ROLE_TEMPLATES];
-      
+
       // Update both role and permissions
       const { error } = await window.ezsite.apis.tableUpdate(11725, {
         id: userId,
@@ -214,7 +214,7 @@ const SimpleRoleAssignment: React.FC<SimpleRoleAssignmentProps> = ({
       setIsOpen(false);
       setSelectedUser('');
       setSelectedRole('');
-      
+
       if (onRoleAssigned) {
         onRoleAssigned();
       }
@@ -229,16 +229,16 @@ const SimpleRoleAssignment: React.FC<SimpleRoleAssignmentProps> = ({
     }
   };
 
-  const selectedUserData = users.find(u => u.id === parseInt(selectedUser));
+  const selectedUserData = users.find((u) => u.id === parseInt(selectedUser));
   const selectedRoleTemplate = selectedRole ? ROLE_TEMPLATES[selectedRole as keyof typeof ROLE_TEMPLATES] : null;
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      {trigger && (
-        <DialogTrigger asChild>
+      {trigger &&
+      <DialogTrigger asChild>
           {trigger}
         </DialogTrigger>
-      )}
+      }
       
       <DialogContent className="max-w-2xl">
         <DialogHeader>
@@ -261,34 +261,34 @@ const SimpleRoleAssignment: React.FC<SimpleRoleAssignmentProps> = ({
           {/* User Selection */}
           <div className="space-y-2">
             <Label htmlFor="user-select">Select User</Label>
-            <Select 
-              value={selectedUser} 
+            <Select
+              value={selectedUser}
               onValueChange={setSelectedUser}
               disabled={loading || !!selectedUserId}>
               <SelectTrigger>
                 <SelectValue placeholder={loading ? "Loading users..." : "Choose a user"} />
               </SelectTrigger>
               <SelectContent>
-                {users.map((user) => (
-                  <SelectItem key={user.id} value={user.id.toString()}>
+                {users.map((user) =>
+                <SelectItem key={user.id} value={user.id.toString()}>
                     <div className="flex items-center space-x-2">
                       <span>{user.employee_id}</span>
                       <Badge className={
-                        user.role === 'Administrator' ? 'bg-red-100 text-red-800' :
-                        user.role === 'Management' ? 'bg-blue-100 text-blue-800' :
-                        'bg-green-100 text-green-800'
-                      }>
+                    user.role === 'Administrator' ? 'bg-red-100 text-red-800' :
+                    user.role === 'Management' ? 'bg-blue-100 text-blue-800' :
+                    'bg-green-100 text-green-800'
+                    }>
                         {user.role}
                       </Badge>
                       <span className="text-sm text-gray-500">({user.station})</span>
                     </div>
                   </SelectItem>
-                ))}
+                )}
               </SelectContent>
             </Select>
             
-            {selectedUserData && (
-              <Card>
+            {selectedUserData &&
+            <Card>
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div>
@@ -298,30 +298,30 @@ const SimpleRoleAssignment: React.FC<SimpleRoleAssignmentProps> = ({
                     <div className="text-right">
                       <div className="text-sm text-gray-600">Current Role</div>
                       <Badge className={
-                        selectedUserData.role === 'Administrator' ? 'bg-red-100 text-red-800' :
-                        selectedUserData.role === 'Management' ? 'bg-blue-100 text-blue-800' :
-                        'bg-green-100 text-green-800'
-                      }>
+                    selectedUserData.role === 'Administrator' ? 'bg-red-100 text-red-800' :
+                    selectedUserData.role === 'Management' ? 'bg-blue-100 text-blue-800' :
+                    'bg-green-100 text-green-800'
+                    }>
                         {selectedUserData.role}
                       </Badge>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            )}
+            }
           </div>
 
           {/* Role Selection */}
           <div className="space-y-2">
             <Label htmlFor="role-select">Select New Role</Label>
             <div className="grid grid-cols-1 gap-3">
-              {Object.entries(ROLE_TEMPLATES).map(([key, template]) => (
-                <Card 
-                  key={key}
-                  className={`cursor-pointer transition-all ${
-                    selectedRole === key ? 'ring-2 ring-blue-500 border-blue-300' : 'hover:border-gray-300'
-                  }`}
-                  onClick={() => setSelectedRole(key)}>
+              {Object.entries(ROLE_TEMPLATES).map(([key, template]) =>
+              <Card
+                key={key}
+                className={`cursor-pointer transition-all ${
+                selectedRole === key ? 'ring-2 ring-blue-500 border-blue-300' : 'hover:border-gray-300'}`
+                }
+                onClick={() => setSelectedRole(key)}>
                   <CardContent className="p-4">
                     <div className="flex items-center space-x-3">
                       <div className="text-2xl">{template.icon}</div>
@@ -329,22 +329,22 @@ const SimpleRoleAssignment: React.FC<SimpleRoleAssignmentProps> = ({
                         <div className="flex items-center space-x-2">
                           <span className="font-medium">{template.name}</span>
                           <Badge className={template.color}>{template.name}</Badge>
-                          {selectedRole === key && (
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                          )}
+                          {selectedRole === key &&
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        }
                         </div>
                         <p className="text-sm text-gray-600 mt-1">{template.description}</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              )}
             </div>
           </div>
 
           {/* Role Preview */}
-          {selectedRoleTemplate && (
-            <Card className="border-green-200 bg-green-50">
+          {selectedRoleTemplate &&
+          <Card className="border-green-200 bg-green-50">
               <CardContent className="p-4">
                 <div className="flex items-center space-x-2 mb-2">
                   <Star className="w-4 h-4 text-green-600" />
@@ -356,14 +356,14 @@ const SimpleRoleAssignment: React.FC<SimpleRoleAssignmentProps> = ({
                 </div>
               </CardContent>
             </Card>
-          )}
+          }
 
           {/* Action Buttons */}
           <div className="flex justify-end space-x-2 pt-4 border-t">
             <Button variant="outline" onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleAssignRole}
               disabled={!selectedUser || !selectedRole || saving}
               className="bg-green-600 hover:bg-green-700">
@@ -373,8 +373,8 @@ const SimpleRoleAssignment: React.FC<SimpleRoleAssignmentProps> = ({
           </div>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default SimpleRoleAssignment;

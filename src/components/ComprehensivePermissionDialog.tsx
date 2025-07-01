@@ -22,8 +22,8 @@ import {
   AlertCircle,
   Info,
   Lock,
-  Unlock
-} from 'lucide-react';
+  Unlock } from
+'lucide-react';
 
 interface ComprehensivePermissionDialogProps {
   selectedUserId?: number;
@@ -43,74 +43,74 @@ interface UserProfile {
 }
 
 const CONTENT_AREAS = [
-  { name: 'dashboard', displayName: 'Dashboard', description: 'Main dashboard access and overview' },
-  { name: 'products', displayName: 'Products', description: 'Product inventory and management' },
-  { name: 'employees', displayName: 'Employees', description: 'Employee information and records' },
-  { name: 'sales_reports', displayName: 'Sales Reports', description: 'Sales data and reporting' },
-  { name: 'vendors', displayName: 'Vendors', description: 'Vendor management and contracts' },
-  { name: 'orders', displayName: 'Orders', description: 'Order processing and tracking' },
-  { name: 'licenses', displayName: 'Licenses', description: 'License management and renewals' },
-  { name: 'salary', displayName: 'Salary', description: 'Payroll and salary management' },
-  { name: 'inventory', displayName: 'Inventory', description: 'Stock management and alerts' },
-  { name: 'delivery', displayName: 'Delivery', description: 'Delivery tracking and logistics' },
-  { name: 'settings', displayName: 'Settings', description: 'Application settings and configuration' },
-  { name: 'user_management', displayName: 'User Management', description: 'User accounts and permissions' },
-  { name: 'site_management', displayName: 'Site Management', description: 'Site administration and setup' },
-  { name: 'system_logs', displayName: 'System Logs', description: 'System monitoring and audit logs' },
-  { name: 'security_settings', displayName: 'Security Settings', description: 'Security policies and access control' }
-];
+{ name: 'dashboard', displayName: 'Dashboard', description: 'Main dashboard access and overview' },
+{ name: 'products', displayName: 'Products', description: 'Product inventory and management' },
+{ name: 'employees', displayName: 'Employees', description: 'Employee information and records' },
+{ name: 'sales_reports', displayName: 'Sales Reports', description: 'Sales data and reporting' },
+{ name: 'vendors', displayName: 'Vendors', description: 'Vendor management and contracts' },
+{ name: 'orders', displayName: 'Orders', description: 'Order processing and tracking' },
+{ name: 'licenses', displayName: 'Licenses', description: 'License management and renewals' },
+{ name: 'salary', displayName: 'Salary', description: 'Payroll and salary management' },
+{ name: 'inventory', displayName: 'Inventory', description: 'Stock management and alerts' },
+{ name: 'delivery', displayName: 'Delivery', description: 'Delivery tracking and logistics' },
+{ name: 'settings', displayName: 'Settings', description: 'Application settings and configuration' },
+{ name: 'user_management', displayName: 'User Management', description: 'User accounts and permissions' },
+{ name: 'site_management', displayName: 'Site Management', description: 'Site administration and setup' },
+{ name: 'system_logs', displayName: 'System Logs', description: 'System monitoring and audit logs' },
+{ name: 'security_settings', displayName: 'Security Settings', description: 'Security policies and access control' }];
+
 
 const PERMISSION_TEMPLATES = {
   'Administrator': {
     name: 'Full Administrator',
     description: 'Complete access to all areas with full permissions',
     permissions: Object.fromEntries(
-      CONTENT_AREAS.map(area => [area.name, { view: true, edit: true, create: true, delete: true }])
+      CONTENT_AREAS.map((area) => [area.name, { view: true, edit: true, create: true, delete: true }])
     )
   },
   'Management': {
     name: 'Management',
     description: 'Management level access with most permissions except system administration',
     permissions: Object.fromEntries(
-      CONTENT_AREAS.map(area => [
-        area.name, 
-        {
-          view: true,
-          edit: !['user_management', 'system_logs', 'security_settings'].includes(area.name),
-          create: !['user_management', 'system_logs', 'security_settings'].includes(area.name),
-          delete: !['user_management', 'system_logs', 'security_settings', 'employees'].includes(area.name)
-        }
-      ])
+      CONTENT_AREAS.map((area) => [
+      area.name,
+      {
+        view: true,
+        edit: !['user_management', 'system_logs', 'security_settings'].includes(area.name),
+        create: !['user_management', 'system_logs', 'security_settings'].includes(area.name),
+        delete: !['user_management', 'system_logs', 'security_settings', 'employees'].includes(area.name)
+      }]
+      )
     )
   },
   'Employee': {
     name: 'Standard Employee',
     description: 'Basic employee access with limited edit permissions',
     permissions: Object.fromEntries(
-      CONTENT_AREAS.map(area => [
-        area.name,
-        {
-          view: !['user_management', 'system_logs', 'security_settings', 'salary'].includes(area.name),
-          edit: ['products', 'sales_reports', 'inventory', 'delivery'].includes(area.name),
-          create: ['sales_reports', 'delivery'].includes(area.name),
-          delete: false
-        }
-      ])
+      CONTENT_AREAS.map((area) => [
+      area.name,
+      {
+        view: !['user_management', 'system_logs', 'security_settings', 'salary'].includes(area.name),
+        edit: ['products', 'sales_reports', 'inventory', 'delivery'].includes(area.name),
+        create: ['sales_reports', 'delivery'].includes(area.name),
+        delete: false
+      }]
+      )
     )
   },
   'Read Only': {
     name: 'Read Only Access',
     description: 'View-only access to basic areas',
     permissions: Object.fromEntries(
-      CONTENT_AREAS.map(area => [
-        area.name,
-        {
-          view: ['dashboard', 'products', 'sales_reports', 'inventory'].includes(area.name),
-          edit: false,
-          create: false,
-          delete: false
-        }
-      ])
+      CONTENT_AREAS.map((area) => [
+      area.name,
+      {
+        view: ['dashboard', 'products', 'sales_reports', 'inventory'].includes(area.name),
+        edit: false,
+        create: false,
+        delete: false
+      }]
+      )
     )
   }
 };
@@ -146,7 +146,7 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
       });
 
       if (error) throw error;
-      
+
       const userData = data?.List?.[0];
       if (userData) {
         setUser(userData);
@@ -173,7 +173,7 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
   };
 
   const handlePermissionChange = (area: string, permission: string, value: boolean) => {
-    setPermissions(prev => ({
+    setPermissions((prev) => ({
       ...prev,
       [area]: {
         ...prev[area],
@@ -225,10 +225,10 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
 
   const getPermissionSummary = () => {
     const totalAreas = CONTENT_AREAS.length;
-    const areasWithView = CONTENT_AREAS.filter(area => permissions[area.name]?.view).length;
-    const areasWithEdit = CONTENT_AREAS.filter(area => permissions[area.name]?.edit).length;
-    const areasWithCreate = CONTENT_AREAS.filter(area => permissions[area.name]?.create).length;
-    const areasWithDelete = CONTENT_AREAS.filter(area => permissions[area.name]?.delete).length;
+    const areasWithView = CONTENT_AREAS.filter((area) => permissions[area.name]?.view).length;
+    const areasWithEdit = CONTENT_AREAS.filter((area) => permissions[area.name]?.edit).length;
+    const areasWithCreate = CONTENT_AREAS.filter((area) => permissions[area.name]?.create).length;
+    const areasWithDelete = CONTENT_AREAS.filter((area) => permissions[area.name]?.delete).length;
 
     return { totalAreas, areasWithView, areasWithEdit, areasWithCreate, areasWithDelete };
   };
@@ -237,29 +237,29 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      {trigger && (
-        <DialogTrigger asChild>
+      {trigger &&
+      <DialogTrigger asChild>
           {trigger}
         </DialogTrigger>
-      )}
+      }
       
       <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Shield className="w-5 h-5" />
             <span>Comprehensive Permission Management</span>
-            {user && (
-              <Badge variant="outline">{user.employee_id}</Badge>
-            )}
+            {user &&
+            <Badge variant="outline">{user.employee_id}</Badge>
+            }
           </DialogTitle>
         </DialogHeader>
 
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
+        {loading ?
+        <div className="flex items-center justify-center py-12">
             <div className="text-lg">Loading permission data...</div>
-          </div>
-        ) : user ? (
-          <div className="flex-1 overflow-hidden flex flex-col space-y-4">
+          </div> :
+        user ?
+        <div className="flex-1 overflow-hidden flex flex-col space-y-4">
             {/* User Info and Summary */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <Card>
@@ -275,10 +275,10 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
                     <div>
                       <Label className="text-gray-600">Role</Label>
                       <Badge className={
-                        user.role === 'Administrator' ? 'bg-red-100 text-red-800' :
-                        user.role === 'Management' ? 'bg-blue-100 text-blue-800' :
-                        'bg-green-100 text-green-800'
-                      }>
+                    user.role === 'Administrator' ? 'bg-red-100 text-red-800' :
+                    user.role === 'Management' ? 'bg-blue-100 text-blue-800' :
+                    'bg-green-100 text-green-800'
+                    }>
                         {user.role}
                       </Badge>
                     </div>
@@ -333,17 +333,17 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                  {Object.entries(PERMISSION_TEMPLATES).map(([key, template]) => (
-                    <Button
-                      key={key}
-                      variant={selectedTemplate === key ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => applyTemplate(key)}
-                      className="text-left h-auto p-3 flex flex-col items-start space-y-1">
+                  {Object.entries(PERMISSION_TEMPLATES).map(([key, template]) =>
+                <Button
+                  key={key}
+                  variant={selectedTemplate === key ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => applyTemplate(key)}
+                  className="text-left h-auto p-3 flex flex-col items-start space-y-1">
                       <div className="font-medium text-sm">{template.name}</div>
                       <div className="text-xs text-gray-500 text-left">{template.description}</div>
                     </Button>
-                  ))}
+                )}
                 </div>
               </CardContent>
             </Card>
@@ -386,8 +386,8 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {CONTENT_AREAS.map((area) => (
-                        <TableRow key={area.name}>
+                      {CONTENT_AREAS.map((area) =>
+                    <TableRow key={area.name}>
                           <TableCell>
                             <div>
                               <div className="font-medium">{area.displayName}</div>
@@ -396,34 +396,34 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
                           </TableCell>
                           <TableCell className="text-center">
                             <Checkbox
-                              checked={permissions[area.name]?.view || false}
-                              onCheckedChange={(checked) => 
-                                handlePermissionChange(area.name, 'view', checked as boolean)
-                              } />
+                          checked={permissions[area.name]?.view || false}
+                          onCheckedChange={(checked) =>
+                          handlePermissionChange(area.name, 'view', checked as boolean)
+                          } />
                           </TableCell>
                           <TableCell className="text-center">
                             <Checkbox
-                              checked={permissions[area.name]?.edit || false}
-                              onCheckedChange={(checked) => 
-                                handlePermissionChange(area.name, 'edit', checked as boolean)
-                              } />
+                          checked={permissions[area.name]?.edit || false}
+                          onCheckedChange={(checked) =>
+                          handlePermissionChange(area.name, 'edit', checked as boolean)
+                          } />
                           </TableCell>
                           <TableCell className="text-center">
                             <Checkbox
-                              checked={permissions[area.name]?.create || false}
-                              onCheckedChange={(checked) => 
-                                handlePermissionChange(area.name, 'create', checked as boolean)
-                              } />
+                          checked={permissions[area.name]?.create || false}
+                          onCheckedChange={(checked) =>
+                          handlePermissionChange(area.name, 'create', checked as boolean)
+                          } />
                           </TableCell>
                           <TableCell className="text-center">
                             <Checkbox
-                              checked={permissions[area.name]?.delete || false}
-                              onCheckedChange={(checked) => 
-                                handlePermissionChange(area.name, 'delete', checked as boolean)
-                              } />
+                          checked={permissions[area.name]?.delete || false}
+                          onCheckedChange={(checked) =>
+                          handlePermissionChange(area.name, 'delete', checked as boolean)
+                          } />
                           </TableCell>
                         </TableRow>
-                      ))}
+                    )}
                     </TableBody>
                   </Table>
                 </ScrollArea>
@@ -435,26 +435,26 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
               <Button variant="outline" onClick={() => setIsOpen(false)}>
                 Cancel
               </Button>
-              <Button 
-                onClick={handleSavePermissions} 
-                disabled={loading}
-                className="bg-green-600 hover:bg-green-700">
+              <Button
+              onClick={handleSavePermissions}
+              disabled={loading}
+              className="bg-green-600 hover:bg-green-700">
                 <Save className="w-4 h-4 mr-2" />
                 Save Comprehensive Permissions
               </Button>
             </div>
-          </div>
-        ) : (
-          <div className="flex items-center justify-center py-12">
+          </div> :
+
+        <div className="flex items-center justify-center py-12">
             <div className="text-center space-y-2">
               <AlertCircle className="w-12 h-12 text-gray-400 mx-auto" />
               <p className="text-gray-500">No user selected</p>
             </div>
           </div>
-        )}
+        }
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default ComprehensivePermissionDialog;
