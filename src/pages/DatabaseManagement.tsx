@@ -6,8 +6,8 @@ const DatabaseManagement: React.FC = () => {
   return (
     <DashboardLayout>
       <QuickDataEntry />
-    </DashboardLayout>
-  );
+    </DashboardLayout>);
+
 };
 
 export default DatabaseManagement;

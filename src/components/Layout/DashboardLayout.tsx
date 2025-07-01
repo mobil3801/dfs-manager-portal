@@ -111,21 +111,21 @@ const DashboardLayout = () => {
     const Icon = item.icon;
     const isActive = isActiveRoute(item.href);
 
-    return (
-      <button
-        onClick={() => {
-          navigate(item.href);
-          if (isMobile) setSidebarOpen(false);
-        }}
-        className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
-        isActive ?
-        'bg-blue-100 text-blue-700 font-medium' :
-        'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`
-        }>
+    return;
 
-        <Icon className="h-5 w-5" />
-        <span>{item.name}</span>
-      </button>);
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   };
 

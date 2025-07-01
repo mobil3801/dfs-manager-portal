@@ -33,7 +33,7 @@ const DataManager: React.FC<DataManagerProps> = ({ tableName, tableId, fields, o
   const { toast } = useToast();
 
   const handleInputChange = (fieldName: string, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [fieldName]: value
     }));
@@ -41,21 +41,21 @@ const DataManager: React.FC<DataManagerProps> = ({ tableName, tableId, fields, o
 
   const validateForm = () => {
     const errors: string[] = [];
-    
-    fields.forEach(field => {
+
+    fields.forEach((field) => {
       const value = formData[field.name];
-      
+
       if (field.type === 'Number' || field.type === 'Integer') {
         if (value !== undefined && value !== '' && isNaN(Number(value))) {
           errors.push(`${field.name} must be a valid number`);
         }
       }
-      
+
       if (field.type === 'DateTime' && value && !(value instanceof Date)) {
         errors.push(`${field.name} must be a valid date`);
       }
     });
-    
+
     return errors;
   };
 
@@ -71,13 +71,13 @@ const DataManager: React.FC<DataManagerProps> = ({ tableName, tableId, fields, o
     }
 
     setLoading(true);
-    
+
     try {
       // Prepare data for saving
       const dataToSave = { ...formData };
-      
+
       // Convert data types
-      fields.forEach(field => {
+      fields.forEach((field) => {
         const value = dataToSave[field.name];
         if (value !== undefined && value !== '') {
           switch (field.type) {
@@ -102,23 +102,23 @@ const DataManager: React.FC<DataManagerProps> = ({ tableName, tableId, fields, o
       });
 
       const { error } = await window.ezsite.apis.tableCreate(tableId, dataToSave);
-      
+
       if (error) {
         throw new Error(error);
       }
 
       toast({
         title: "Success",
-        description: `Data saved to ${tableName} successfully!`,
+        description: `Data saved to ${tableName} successfully!`
       });
 
       // Reset form
       setFormData({});
-      
+
       if (onDataSaved) {
         onDataSaved();
       }
-      
+
     } catch (error) {
       console.error('Error saving data:', error);
       toast({
@@ -141,11 +141,11 @@ const DataManager: React.FC<DataManagerProps> = ({ tableName, tableId, fields, o
             <Switch
               id={field.name}
               checked={Boolean(value)}
-              onCheckedChange={(checked) => handleInputChange(field.name, checked)}
-            />
+              onCheckedChange={(checked) => handleInputChange(field.name, checked)} />
+
             <Label htmlFor={field.name}>{field.name.replace(/_/g, ' ')}</Label>
-          </div>
-        );
+          </div>);
+
 
       case 'DateTime':
         return (
@@ -158,8 +158,8 @@ const DataManager: React.FC<DataManagerProps> = ({ tableName, tableId, fields, o
                   className={cn(
                     "w-full justify-start text-left font-normal",
                     !value && "text-muted-foreground"
-                  )}
-                >
+                  )}>
+
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {value ? format(value, "PPP") : "Pick a date"}
                 </Button>
@@ -169,12 +169,12 @@ const DataManager: React.FC<DataManagerProps> = ({ tableName, tableId, fields, o
                   mode="single"
                   selected={value}
                   onSelect={(date) => handleInputChange(field.name, date)}
-                  initialFocus
-                />
+                  initialFocus />
+
               </PopoverContent>
             </Popover>
-          </div>
-        );
+          </div>);
+
 
       case 'Number':
       case 'Integer':
@@ -187,10 +187,10 @@ const DataManager: React.FC<DataManagerProps> = ({ tableName, tableId, fields, o
               step={field.type === 'Number' ? "0.01" : "1"}
               value={value}
               onChange={(e) => handleInputChange(field.name, e.target.value)}
-              placeholder={`Enter ${field.name.replace(/_/g, ' ')}`}
-            />
-          </div>
-        );
+              placeholder={`Enter ${field.name.replace(/_/g, ' ')}`} />
+
+          </div>);
+
 
       default: // String
         if (field.description && field.description.length > 100) {
@@ -202,12 +202,12 @@ const DataManager: React.FC<DataManagerProps> = ({ tableName, tableId, fields, o
                 value={value}
                 onChange={(e) => handleInputChange(field.name, e.target.value)}
                 placeholder={`Enter ${field.name.replace(/_/g, ' ')}`}
-                rows={3}
-              />
-            </div>
-          );
+                rows={3} />
+
+            </div>);
+
         }
-        
+
         // Special handling for select fields based on field names
         if (field.name === 'station') {
           return (
@@ -223,8 +223,8 @@ const DataManager: React.FC<DataManagerProps> = ({ tableName, tableId, fields, o
                   <SelectItem value="AMOCO BROOKLYN">AMOCO BROOKLYN</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-          );
+            </div>);
+
         }
 
         if (field.name === 'status' && tableName === 'licenses_certificates') {
@@ -241,8 +241,8 @@ const DataManager: React.FC<DataManagerProps> = ({ tableName, tableId, fields, o
                   <SelectItem value="Pending Renewal">Pending Renewal</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-          );
+            </div>);
+
         }
 
         return (
@@ -253,60 +253,60 @@ const DataManager: React.FC<DataManagerProps> = ({ tableName, tableId, fields, o
               type="text"
               value={value}
               onChange={(e) => handleInputChange(field.name, e.target.value)}
-              placeholder={`Enter ${field.name.replace(/_/g, ' ')}`}
-            />
-          </div>
-        );
+              placeholder={`Enter ${field.name.replace(/_/g, ' ')}`} />
+
+          </div>);
+
     }
   };
 
   // Filter out ID field and system fields
-  const editableFields = fields.filter(field => 
-    field.name !== 'id' && 
-    field.name !== 'created_by' && 
-    !field.name.includes('_file_id') // Skip file fields for this basic form
+  const editableFields = fields.filter((field) =>
+  field.name !== 'id' &&
+  field.name !== 'created_by' &&
+  !field.name.includes('_file_id') // Skip file fields for this basic form
   );
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>Add New {tableName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</CardTitle>
+        <CardTitle>Add New {tableName.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}</CardTitle>
         <CardDescription>
           Fill in the form below to add new data to the {tableName} table.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-4">
-          {editableFields.map((field) => (
-            <div key={field.name}>
+          {editableFields.map((field) =>
+          <div key={field.name}>
               {renderField(field)}
-              {field.description && (
-                <p className="text-sm text-muted-foreground mt-1">
+              {field.description &&
+            <p className="text-sm text-muted-foreground mt-1">
                   {field.description}
                 </p>
-              )}
+            }
             </div>
-          ))}
+          )}
         </div>
         
         <div className="flex justify-end pt-4">
           <Button onClick={handleSave} disabled={loading}>
-            {loading ? (
-              <>
+            {loading ?
+            <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Saving...
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 <Save className="mr-2 h-4 w-4" />
                 Save Data
               </>
-            )}
+            }
           </Button>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default DataManager;
