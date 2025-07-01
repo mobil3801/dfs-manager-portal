@@ -6,17 +6,17 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  TestTube, 
-  Send, 
-  CheckCircle, 
-  AlertCircle, 
-  Phone, 
+import {
+  TestTube,
+  Send,
+  CheckCircle,
+  AlertCircle,
+  Phone,
   MessageSquare,
   Clock,
   RefreshCw,
-  Zap
-} from 'lucide-react';
+  Zap } from
+'lucide-react';
 
 interface TestResult {
   id: string;
@@ -73,11 +73,11 @@ const EnhancedSMSTestManager: React.FC = () => {
       status: 'pending'
     };
 
-    setTestResults(prev => [newTest, ...prev]);
+    setTestResults((prev) => [newTest, ...prev]);
 
     try {
       // Simulate SMS sending with variable delay
-      await new Promise(resolve => setTimeout(resolve, Math.random() * 2000 + 1000));
+      await new Promise((resolve) => setTimeout(resolve, Math.random() * 2000 + 1000));
 
       // Simulate success/failure (90% success rate)
       const isSuccess = Math.random() > 0.1;
@@ -90,8 +90,8 @@ const EnhancedSMSTestManager: React.FC = () => {
         error: isSuccess ? undefined : 'Simulated delivery failure for testing purposes'
       };
 
-      setTestResults(prev => prev.map(test => 
-        test.id === testId ? updatedTest : test
+      setTestResults((prev) => prev.map((test) =>
+      test.id === testId ? updatedTest : test
       ));
 
       // Log to SMS history
@@ -111,7 +111,7 @@ const EnhancedSMSTestManager: React.FC = () => {
       if (isSuccess) {
         toast({
           title: '✅ Test SMS Sent',
-          description: `SMS sent to ${testPhoneNumber} in ${deliveryTime}ms`,
+          description: `SMS sent to ${testPhoneNumber} in ${deliveryTime}ms`
         });
       } else {
         toast({
@@ -128,8 +128,8 @@ const EnhancedSMSTestManager: React.FC = () => {
         error: error instanceof Error ? error.message : 'Unknown error occurred'
       };
 
-      setTestResults(prev => prev.map(test => 
-        test.id === testId ? updatedTest : test
+      setTestResults((prev) => prev.map((test) =>
+      test.id === testId ? updatedTest : test
       ));
 
       toast({
@@ -184,12 +184,12 @@ const EnhancedSMSTestManager: React.FC = () => {
           status: 'pending'
         };
 
-        setTestResults(prev => [newTest, ...prev]);
+        setTestResults((prev) => [newTest, ...prev]);
 
         try {
           // Simulate delivery
-          await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500));
-          
+          await new Promise((resolve) => setTimeout(resolve, Math.random() * 1000 + 500));
+
           const isSuccess = Math.random() > 0.15; // 85% success rate for bulk
           const deliveryTime = Date.now() - startTime;
 
@@ -200,8 +200,8 @@ const EnhancedSMSTestManager: React.FC = () => {
             error: isSuccess ? undefined : 'Bulk test delivery failure'
           };
 
-          setTestResults(prev => prev.map(test => 
-            test.id === testId ? updatedTest : test
+          setTestResults((prev) => prev.map((test) =>
+          test.id === testId ? updatedTest : test
           ));
 
           if (isSuccess) {
@@ -212,8 +212,8 @@ const EnhancedSMSTestManager: React.FC = () => {
 
         } catch (error) {
           failureCount++;
-          setTestResults(prev => prev.map(test => 
-            test.id === testId ? { ...test, status: 'failed', error: 'Test execution error' } : test
+          setTestResults((prev) => prev.map((test) =>
+          test.id === testId ? { ...test, status: 'failed', error: 'Test execution error' } : test
           ));
         }
       }
@@ -291,8 +291,8 @@ const EnhancedSMSTestManager: React.FC = () => {
                   type="tel"
                   placeholder="+1234567890"
                   value={testPhoneNumber}
-                  onChange={(e) => setTestPhoneNumber(e.target.value)}
-                />
+                  onChange={(e) => setTestPhoneNumber(e.target.value)} />
+
               </div>
               <div className="space-y-2">
                 <Label htmlFor="testMessage">Test Message</Label>
@@ -300,15 +300,15 @@ const EnhancedSMSTestManager: React.FC = () => {
                   id="testMessage"
                   value={customMessage}
                   onChange={(e) => setCustomMessage(e.target.value)}
-                  maxLength={160}
-                />
+                  maxLength={160} />
+
               </div>
             </div>
             <Button
               onClick={runSingleTest}
               disabled={isRunningTest}
-              className="w-full md:w-auto"
-            >
+              className="w-full md:w-auto">
+
               <Send className="w-4 h-4 mr-2" />
               {isRunningTest ? 'Sending Test SMS...' : 'Send Test SMS'}
             </Button>
@@ -321,8 +321,8 @@ const EnhancedSMSTestManager: React.FC = () => {
               <Button
                 variant="outline"
                 onClick={runBulkTest}
-                disabled={isRunningTest}
-              >
+                disabled={isRunningTest}>
+
                 <Zap className="w-4 h-4 mr-2" />
                 Test All Contacts
               </Button>
@@ -337,36 +337,36 @@ const EnhancedSMSTestManager: React.FC = () => {
           </div>
 
           {/* Quick Stats */}
-          {testResults.length > 0 && (
-            <div className="border-t pt-4">
+          {testResults.length > 0 &&
+          <div className="border-t pt-4">
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
                   <div className="text-2xl font-bold text-green-600">
-                    {testResults.filter(t => t.status === 'success').length}
+                    {testResults.filter((t) => t.status === 'success').length}
                   </div>
                   <div className="text-sm text-gray-600">Successful</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-red-600">
-                    {testResults.filter(t => t.status === 'failed').length}
+                    {testResults.filter((t) => t.status === 'failed').length}
                   </div>
                   <div className="text-sm text-gray-600">Failed</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-blue-600">
-                    {testResults.filter(t => t.status === 'pending').length}
+                    {testResults.filter((t) => t.status === 'pending').length}
                   </div>
                   <div className="text-sm text-gray-600">Pending</div>
                 </div>
               </div>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
       {/* Test Results */}
-      {testResults.length > 0 && (
-        <Card>
+      {testResults.length > 0 &&
+      <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center">
@@ -380,11 +380,11 @@ const EnhancedSMSTestManager: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3 max-h-96 overflow-y-auto">
-              {testResults.map((result) => (
-                <div 
-                  key={result.id} 
-                  className="flex items-center justify-between p-3 border rounded-lg"
-                >
+              {testResults.map((result) =>
+            <div
+              key={result.id}
+              className="flex items-center justify-between p-3 border rounded-lg">
+
                   <div className="flex items-center space-x-3">
                     {getStatusIcon(result.status)}
                     <div>
@@ -393,20 +393,20 @@ const EnhancedSMSTestManager: React.FC = () => {
                         {result.timestamp.toLocaleTimeString()}
                         {result.deliveryTime && ` • ${result.deliveryTime}ms`}
                       </div>
-                      {result.error && (
-                        <div className="text-sm text-red-600">{result.error}</div>
-                      )}
+                      {result.error &&
+                  <div className="text-sm text-red-600">{result.error}</div>
+                  }
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
                     {getStatusBadge(result.status)}
                   </div>
                 </div>
-              ))}
+            )}
             </div>
           </CardContent>
         </Card>
-      )}
+      }
 
       {/* Testing Guidelines */}
       <Card className="bg-yellow-50 border-yellow-200">
@@ -422,8 +422,8 @@ const EnhancedSMSTestManager: React.FC = () => {
           <div>• Test during different times to check consistency</div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default EnhancedSMSTestManager;

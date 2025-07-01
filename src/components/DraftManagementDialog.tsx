@@ -4,8 +4,8 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  DialogTitle } from
+'@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,8 +20,8 @@ import {
   AlertTriangle,
   CheckCircle2,
   Calendar,
-  Building2
-} from 'lucide-react';
+  Building2 } from
+'lucide-react';
 import draftSavingService from '@/utils/draftSaving';
 
 interface DraftManagementDialogProps {
@@ -59,7 +59,7 @@ const DraftManagementDialog: React.FC<DraftManagementDialogProps> = ({
     try {
       const allDrafts = draftSavingService.getAllDrafts();
       setDrafts(allDrafts);
-      
+
       const usage = draftSavingService.getTotalDraftStorageUsage();
       setStorageInfo({ count: usage.count, sizeInKB: usage.sizeInKB });
     } catch (error) {
@@ -156,7 +156,7 @@ const DraftManagementDialog: React.FC<DraftManagementDialogProps> = ({
       const minutes = Math.floor(hours * 60);
       return `${minutes}m`;
     }
-    return `${Math.floor(hours)}h ${Math.floor((hours % 1) * 60)}m`;
+    return `${Math.floor(hours)}h ${Math.floor(hours % 1 * 60)}m`;
   };
 
   const isCurrentDraft = (draft: DraftItem) => {
@@ -192,16 +192,16 @@ const DraftManagementDialog: React.FC<DraftManagementDialogProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={loadDrafts}
-                disabled={isLoading}
-              >
+                disabled={isLoading}>
+
                 <RefreshCw className={`w-4 h-4 mr-1 ${isLoading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleCleanupExpired}
-              >
+                onClick={handleCleanupExpired}>
+
                 <Trash2 className="w-4 h-4 mr-1" />
                 Cleanup Expired
               </Button>
@@ -209,13 +209,13 @@ const DraftManagementDialog: React.FC<DraftManagementDialogProps> = ({
           </div>
 
           {/* Drafts List */}
-          {isLoading ? (
-            <div className="flex items-center justify-center py-8">
+          {isLoading ?
+          <div className="flex items-center justify-center py-8">
               <RefreshCw className="w-6 h-6 animate-spin mr-2" />
               Loading drafts...
-            </div>
-          ) : drafts.length === 0 ? (
-            <Card>
+            </div> :
+          drafts.length === 0 ?
+          <Card>
               <CardContent className="flex flex-col items-center justify-center py-8 text-center">
                 <Folder className="w-12 h-12 text-gray-400 mb-4" />
                 <h3 className="text-lg font-semibold text-gray-600 mb-2">No Drafts Found</h3>
@@ -223,11 +223,11 @@ const DraftManagementDialog: React.FC<DraftManagementDialogProps> = ({
                   You don't have any saved drafts. Drafts are automatically saved when you use the "Save as Draft" feature.
                 </p>
               </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-3">
-              {drafts.map((draft, index) => (
-                <Card key={index} className={`${isCurrentDraft(draft) ? 'border-blue-300 bg-blue-50' : ''}`}>
+            </Card> :
+
+          <div className="space-y-3">
+              {drafts.map((draft, index) =>
+            <Card key={index} className={`${isCurrentDraft(draft) ? 'border-blue-300 bg-blue-50' : ''}`}>
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -241,15 +241,15 @@ const DraftManagementDialog: React.FC<DraftManagementDialogProps> = ({
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        {isCurrentDraft(draft) && (
-                          <Badge variant="outline" className="text-blue-600 border-blue-300">
+                        {isCurrentDraft(draft) &&
+                    <Badge variant="outline" className="text-blue-600 border-blue-300">
                             Current Form
                           </Badge>
-                        )}
-                        <Badge 
-                          variant={draft.draftInfo.timeRemainingHours > 2 ? 'default' : 'destructive'}
-                          className="flex items-center gap-1"
-                        >
+                    }
+                        <Badge
+                      variant={draft.draftInfo.timeRemainingHours > 2 ? 'default' : 'destructive'}
+                      className="flex items-center gap-1">
+
                           <Clock className="w-3 h-3" />
                           {formatTimeRemaining(draft.draftInfo.timeRemainingHours)}
                         </Badge>
@@ -264,20 +264,20 @@ const DraftManagementDialog: React.FC<DraftManagementDialogProps> = ({
                       </div>
                       <div className="flex gap-2">
                         <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleLoadDraft(draft)}
-                          className="flex items-center gap-1"
-                        >
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleLoadDraft(draft)}
+                      className="flex items-center gap-1">
+
                           <Download className="w-4 h-4" />
                           Load
                         </Button>
                         <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteDraft(draft)}
-                          className="flex items-center gap-1 text-red-600 hover:text-red-700"
-                        >
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDeleteDraft(draft)}
+                      className="flex items-center gap-1 text-red-600 hover:text-red-700">
+
                           <Trash2 className="w-4 h-4" />
                           Delete
                         </Button>
@@ -285,19 +285,19 @@ const DraftManagementDialog: React.FC<DraftManagementDialogProps> = ({
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+            )}
             </div>
-          )}
+          }
 
           {/* Warning for expiring drafts */}
-          {drafts.some(draft => draft.draftInfo.timeRemainingHours < 2) && (
-            <Alert className="border-amber-200 bg-amber-50">
+          {drafts.some((draft) => draft.draftInfo.timeRemainingHours < 2) &&
+          <Alert className="border-amber-200 bg-amber-50">
               <AlertTriangle className="h-4 w-4 text-amber-600" />
               <AlertDescription className="text-amber-800">
                 Some drafts will expire soon. Load them now to preserve your work.
               </AlertDescription>
             </Alert>
-          )}
+          }
         </div>
 
         <div className="flex justify-end pt-4 border-t">
@@ -306,8 +306,8 @@ const DraftManagementDialog: React.FC<DraftManagementDialogProps> = ({
           </Button>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default DraftManagementDialog;

@@ -42,8 +42,8 @@ const CustomSMSSendingForm: React.FC = () => {
         OrderByField: 'contact_name',
         IsAsc: true,
         Filters: [
-          { name: 'is_active', op: 'Equal', value: true }
-        ]
+        { name: 'is_active', op: 'Equal', value: true }]
+
       });
       if (error) throw error;
       setContacts(data?.List || []);
@@ -63,7 +63,7 @@ const CustomSMSSendingForm: React.FC = () => {
     if (checked) {
       setSelectedContacts([...selectedContacts, contactId]);
     } else {
-      setSelectedContacts(selectedContacts.filter(id => id !== contactId));
+      setSelectedContacts(selectedContacts.filter((id) => id !== contactId));
     }
   };
 
@@ -83,7 +83,7 @@ const CustomSMSSendingForm: React.FC = () => {
       return;
     }
 
-    let recipients: { name: string; phone: string }[] = [];
+    let recipients: {name: string;phone: string;}[] = [];
 
     if (sendingMethod === 'contacts') {
       if (selectedContacts.length === 0) {
@@ -95,12 +95,12 @@ const CustomSMSSendingForm: React.FC = () => {
         return;
       }
 
-      recipients = contacts
-        .filter(contact => selectedContacts.includes(contact.id))
-        .map(contact => ({
-          name: contact.contact_name,
-          phone: contact.mobile_number
-        }));
+      recipients = contacts.
+      filter((contact) => selectedContacts.includes(contact.id)).
+      map((contact) => ({
+        name: contact.contact_name,
+        phone: contact.mobile_number
+      }));
     } else {
       if (!phoneNumber.trim()) {
         toast({
@@ -148,8 +148,8 @@ const CustomSMSSendingForm: React.FC = () => {
           // Create history record
           await window.ezsite.apis.tableCreate('12613', {
             license_id: 0, // Custom SMS
-            contact_id: sendingMethod === 'contacts' ? 
-              contacts.find(c => c.mobile_number === recipient.phone)?.id || 0 : 0,
+            contact_id: sendingMethod === 'contacts' ?
+            contacts.find((c) => c.mobile_number === recipient.phone)?.id || 0 : 0,
             mobile_number: recipient.phone,
             message_content: message,
             sent_date: new Date().toISOString(),
@@ -167,7 +167,7 @@ const CustomSMSSendingForm: React.FC = () => {
       if (successCount > 0 && failureCount === 0) {
         toast({
           title: '✅ SMS Sent Successfully',
-          description: `Message sent to ${successCount} recipient(s)`,
+          description: `Message sent to ${successCount} recipient(s)`
         });
       } else if (successCount > 0 && failureCount > 0) {
         toast({
@@ -236,25 +236,25 @@ const CustomSMSSendingForm: React.FC = () => {
             </div>
 
             {/* Manual Phone Number Entry */}
-            {sendingMethod === 'manual' && (
-              <div className="space-y-2">
+            {sendingMethod === 'manual' &&
+            <div className="space-y-2">
                 <Label htmlFor="phoneNumber">Phone Number</Label>
                 <Input
-                  id="phoneNumber"
-                  type="tel"
-                  placeholder="+1234567890"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                />
+                id="phoneNumber"
+                type="tel"
+                placeholder="+1234567890"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)} />
+
                 <p className="text-sm text-gray-600">
                   Enter phone number in E.164 format (e.g., +1234567890)
                 </p>
               </div>
-            )}
+            }
 
             {/* Contact Selection */}
-            {sendingMethod === 'contacts' && (
-              <div className="space-y-4">
+            {sendingMethod === 'contacts' &&
+            <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <Label>Select Recipients</Label>
                   <Badge variant="outline">
@@ -262,59 +262,59 @@ const CustomSMSSendingForm: React.FC = () => {
                   </Badge>
                 </div>
 
-                {loadingContacts ? (
-                  <div className="text-center py-4">Loading contacts...</div>
-                ) : contacts.length === 0 ? (
-                  <div className="text-center py-6 text-gray-500">
+                {loadingContacts ?
+              <div className="text-center py-4">Loading contacts...</div> :
+              contacts.length === 0 ?
+              <div className="text-center py-6 text-gray-500">
                     <Phone className="w-8 h-8 mx-auto mb-2" />
                     <p>No active contacts found.</p>
                     <p className="text-sm">Add contacts in the SMS Contacts tab first.</p>
-                  </div>
-                ) : (
-                  <div className="max-h-60 overflow-y-auto space-y-3 border rounded-lg p-4">
-                    {contacts.map((contact) => (
-                      <div key={contact.id} className="flex items-center space-x-3">
+                  </div> :
+
+              <div className="max-h-60 overflow-y-auto space-y-3 border rounded-lg p-4">
+                    {contacts.map((contact) =>
+                <div key={contact.id} className="flex items-center space-x-3">
                         <Checkbox
-                          id={`contact-${contact.id}`}
-                          checked={selectedContacts.includes(contact.id)}
-                          onCheckedChange={(checked) => 
-                            handleContactSelection(contact.id, checked as boolean)
-                          }
-                        />
-                        <label 
-                          htmlFor={`contact-${contact.id}`}
-                          className="flex-1 cursor-pointer"
-                        >
+                    id={`contact-${contact.id}`}
+                    checked={selectedContacts.includes(contact.id)}
+                    onCheckedChange={(checked) =>
+                    handleContactSelection(contact.id, checked as boolean)
+                    } />
+
+                        <label
+                    htmlFor={`contact-${contact.id}`}
+                    className="flex-1 cursor-pointer">
+
                           <div className="font-medium">{contact.contact_name}</div>
                           <div className="text-sm text-gray-600">
                             {contact.mobile_number} • {contact.station} • {contact.contact_role}
                           </div>
                         </label>
                       </div>
-                    ))}
-                  </div>
                 )}
+                  </div>
+              }
 
-                {contacts.length > 0 && (
-                  <div className="flex space-x-2">
+                {contacts.length > 0 &&
+              <div className="flex space-x-2">
                     <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedContacts(contacts.map(c => c.id))}
-                    >
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedContacts(contacts.map((c) => c.id))}>
+
                       Select All
                     </Button>
                     <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedContacts([])}
-                    >
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedContacts([])}>
+
                       Clear All
                     </Button>
                   </div>
-                )}
+              }
               </div>
-            )}
+            }
 
             {/* Message Input */}
             <div className="space-y-2">
@@ -325,8 +325,8 @@ const CustomSMSSendingForm: React.FC = () => {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 rows={4}
-                maxLength={160}
-              />
+                maxLength={160} />
+
               <div className="flex justify-between text-sm text-gray-600">
                 <span>SMS messages are limited to 160 characters</span>
                 <span>{message.length}/160</span>
@@ -334,20 +334,20 @@ const CustomSMSSendingForm: React.FC = () => {
             </div>
 
             {/* SMS Preview */}
-            {message.trim() && (
-              <div className="bg-gray-50 border rounded-lg p-3">
+            {message.trim() &&
+            <div className="bg-gray-50 border rounded-lg p-3">
                 <Label className="text-sm font-medium text-gray-700">Message Preview:</Label>
                 <div className="mt-1 text-sm text-gray-900">{message}</div>
               </div>
-            )}
+            }
 
             {/* Send Button */}
             <div className="flex justify-end space-x-3">
               <Button
                 onClick={handleSendSMS}
                 disabled={loading || !message.trim()}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
+                className="bg-blue-600 hover:bg-blue-700">
+
                 <Send className="w-4 h-4 mr-2" />
                 {loading ? 'Sending...' : 'Send SMS'}
               </Button>
@@ -366,29 +366,29 @@ const CustomSMSSendingForm: React.FC = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setMessage('🔔 Reminder: Your license expires soon. Please renew to avoid any business disruptions.')}
-            >
+              onClick={() => setMessage('🔔 Reminder: Your license expires soon. Please renew to avoid any business disruptions.')}>
+
               License Reminder
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setMessage('⚠️ URGENT: Your license expires in 3 days. Immediate action required.')}
-            >
+              onClick={() => setMessage('⚠️ URGENT: Your license expires in 3 days. Immediate action required.')}>
+
               Urgent Alert
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setMessage('✅ Test message from DFS Manager - SMS system is working correctly!')}
-            >
+              onClick={() => setMessage('✅ Test message from DFS Manager - SMS system is working correctly!')}>
+
               Test Message
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setMessage('📋 Please check your DFS Manager dashboard for important updates.')}
-            >
+              onClick={() => setMessage('📋 Please check your DFS Manager dashboard for important updates.')}>
+
               Dashboard Update
             </Button>
           </div>
@@ -411,8 +411,8 @@ const CustomSMSSendingForm: React.FC = () => {
           <div>• Respect opt-out requests and local regulations</div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default CustomSMSSendingForm;
