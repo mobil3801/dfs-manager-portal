@@ -16,6 +16,7 @@ import LoginPage from '@/pages/LoginPage';
 import OnAuthSuccessPage from '@/pages/OnAuthSuccessPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import NotFound from '@/pages/NotFound';
+import DatabaseManagement from '@/pages/DatabaseManagement';
 
 // Feature Pages
 import ProductList from '@/pages/Products/ProductList';
@@ -147,6 +148,7 @@ const AppRouter = () => {
           <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
+            <Route path="database" element={<DatabaseManagement />} />
             
             {/* Products */}
             <Route path="products" element={<ProductList />} />

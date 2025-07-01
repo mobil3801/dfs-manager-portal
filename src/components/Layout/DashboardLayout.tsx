@@ -14,7 +14,8 @@ import {
   Calendar,
   Settings,
   LogOut,
-  Shield } from
+  Shield,
+  Database } from
 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { ComponentErrorBoundary } from '@/components/ErrorBoundary';
@@ -32,6 +33,12 @@ const DashboardLayout = () => {
     name: 'Dashboard',
     href: '/dashboard',
     icon: Home,
+    requiredRole: null
+  },
+  {
+    name: 'Database',
+    href: '/database',
+    icon: Database,
     requiredRole: null
   },
   {
