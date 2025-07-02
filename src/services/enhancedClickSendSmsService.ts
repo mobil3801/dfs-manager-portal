@@ -1,7 +1,6 @@
-// Legacy Enhanced SMS Service - DEPRECATED: Use enhancedClickSendSmsService.ts instead
-// This file is kept for backward compatibility
+// Enhanced ClickSend SMS Service with advanced features
 
-import { smsService, SMSResponse, SMSMessage, SinchClickSendConfig } from './smsService';
+import { clickSendSmsService, SMSResponse, SMSMessage, ClickSendConfig } from './clickSendSmsService';
 
 export interface AdvancedSMSOptions {
   priority?: 'low' | 'normal' | 'high';
@@ -19,8 +18,8 @@ export interface SMSAnalytics {
   totalFailed: number;
   deliveryRate: number;
   averageCost: number;
-  topRecipients: {phone: string;count: number;}[];
-  dailyStats: {date: string;sent: number;delivered: number;}[];
+  topRecipients: {phone: string; count: number;}[];
+  dailyStats: {date: string; sent: number; delivered: number;}[];
 }
 
 export interface BulkSMSJob {
@@ -34,17 +33,17 @@ export interface BulkSMSJob {
   error?: string;
 }
 
-class EnhancedSMSService {
+class EnhancedClickSendSMSService {
   private jobQueue: Map<string, BulkSMSJob> = new Map();
-  private retryQueue: Array<{message: SMSMessage;attempts: number;maxAttempts: number;}> = [];
+  private retryQueue: Array<{message: SMSMessage; attempts: number; maxAttempts: number;}> = [];
 
-  constructor(private baseService = smsService) {}
+  constructor(private baseService = clickSendSmsService) {}
 
   async sendAdvancedSMS(
-  phoneNumber: string,
-  message: string,
-  options: AdvancedSMSOptions = {})
-  : Promise<SMSResponse> {
+    phoneNumber: string,
+    message: string,
+    options: AdvancedSMSOptions = {}
+  ): Promise<SMSResponse> {
     try {
       // Process template variables if provided
       let processedMessage = message;
@@ -98,10 +97,10 @@ class EnhancedSMSService {
   }
 
   private async scheduleMessage(
-  phoneNumber: string,
-  message: string,
-  options: AdvancedSMSOptions)
-  : Promise<SMSResponse> {
+    phoneNumber: string,
+    message: string,
+    options: AdvancedSMSOptions
+  ): Promise<SMSResponse> {
     // In a real implementation, this would integrate with a job scheduler
     // For now, we'll use setTimeout for simple scheduling
     const delay = options.scheduledTime!.getTime() - Date.now();
@@ -161,8 +160,8 @@ class EnhancedSMSService {
   }
 
   async sendBulkSMSWithProgress(
-  messages: Array<{phoneNumber: string;message: string;options?: AdvancedSMSOptions;}>)
-  : Promise<BulkSMSJob> {
+    messages: Array<{phoneNumber: string; message: string; options?: AdvancedSMSOptions;}>
+  ): Promise<BulkSMSJob> {
     const jobId = `bulk_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     const job: BulkSMSJob = {
@@ -183,9 +182,9 @@ class EnhancedSMSService {
   }
 
   private async processBulkJob(
-  jobId: string,
-  messages: Array<{phoneNumber: string;message: string;options?: AdvancedSMSOptions;}>)
-  : Promise<void> {
+    jobId: string,
+    messages: Array<{phoneNumber: string; message: string; options?: AdvancedSMSOptions;}>
+  ): Promise<void> {
     const job = this.jobQueue.get(jobId);
     if (!job) return;
 
@@ -217,7 +216,7 @@ class EnhancedSMSService {
     return this.jobQueue.get(jobId) || null;
   }
 
-  async getSMSAnalytics(dateRange?: {start: Date;end: Date;}): Promise<SMSAnalytics> {
+  async getSMSAnalytics(dateRange?: {start: Date; end: Date;}): Promise<SMSAnalytics> {
     try {
       // Build date filter
       const filters: any[] = [];
@@ -256,10 +255,10 @@ class EnhancedSMSService {
         return acc;
       }, {});
 
-      const topRecipients = Object.entries(recipientCounts).
-      map(([phone, count]) => ({ phone, count: count as number })).
-      sort((a, b) => b.count - a.count).
-      slice(0, 10);
+      const topRecipients = Object.entries(recipientCounts)
+        .map(([phone, count]) => ({ phone, count: count as number }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10);
 
       // Daily stats (last 30 days)
       const dailyStats = this.calculateDailyStats(messages);
@@ -279,8 +278,8 @@ class EnhancedSMSService {
     }
   }
 
-  private calculateDailyStats(messages: any[]): {date: string;sent: number;delivered: number;}[] {
-    const dailyMap = new Map<string, {sent: number;delivered: number;}>();
+  private calculateDailyStats(messages: any[]): {date: string; sent: number; delivered: number;}[] {
+    const dailyMap = new Map<string, {sent: number; delivered: number;}>();
 
     messages.forEach((message) => {
       const date = message.sent_at?.split('T')[0];
@@ -297,18 +296,18 @@ class EnhancedSMSService {
       }
     });
 
-    return Array.from(dailyMap.entries()).
-    map(([date, stats]) => ({ date, ...stats })).
-    sort((a, b) => a.date.localeCompare(b.date)).
-    slice(-30); // Last 30 days
+    return Array.from(dailyMap.entries())
+      .map(([date, stats]) => ({ date, ...stats }))
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(-30); // Last 30 days
   }
 
   private async logAdvancedAnalytics(
-  phoneNumber: string,
-  message: string,
-  response: SMSResponse,
-  options: AdvancedSMSOptions)
-  : Promise<void> {
+    phoneNumber: string,
+    message: string,
+    response: SMSResponse,
+    options: AdvancedSMSOptions
+  ): Promise<void> {
     // This would integrate with your analytics service
     // For now, we'll just log to console
     console.log('SMS Analytics:', {
@@ -322,9 +321,9 @@ class EnhancedSMSService {
   }
 
   async sendEmergencyAlert(
-  message: string,
-  options: AdvancedSMSOptions = {})
-  : Promise<SMSResponse[]> {
+    message: string,
+    options: AdvancedSMSOptions = {}
+  ): Promise<SMSResponse[]> {
     try {
       // Get emergency contacts from settings
       const { data, error } = await window.ezsite.apis.tablePage(24061, {
@@ -333,9 +332,9 @@ class EnhancedSMSService {
         OrderByField: 'id',
         IsAsc: false,
         Filters: [
-        { name: 'is_emergency', op: 'Equal', value: true },
-        { name: 'is_active', op: 'Equal', value: true }]
-
+          { name: 'is_emergency', op: 'Equal', value: true },
+          { name: 'is_active', op: 'Equal', value: true }
+        ]
       });
 
       if (error) throw new Error(error);
@@ -362,7 +361,7 @@ class EnhancedSMSService {
     }
   }
 
-  async validatePhoneNumbers(phoneNumbers: string[]): Promise<{valid: string[];invalid: string[];}> {
+  async validatePhoneNumbers(phoneNumbers: string[]): Promise<{valid: string[]; invalid: string[];}> {
     const valid: string[] = [];
     const invalid: string[] = [];
 
@@ -413,8 +412,8 @@ class EnhancedSMSService {
         OrderByField: 'sent_at',
         IsAsc: false,
         Filters: [
-        { name: 'sent_at', op: 'GreaterThanOrEqual', value: yesterday.toISOString() }]
-
+          { name: 'sent_at', op: 'GreaterThanOrEqual', value: yesterday.toISOString() }
+        ]
       });
 
       const messages = recentMessages?.List || [];
@@ -451,10 +450,10 @@ class EnhancedSMSService {
 
   // Template management
   async createMessageTemplate(
-  name: string,
-  content: string,
-  type: string = 'custom')
-  : Promise<void> {
+    name: string,
+    content: string,
+    type: string = 'custom'
+  ): Promise<void> {
     try {
       await window.ezsite.apis.tableCreate('sms_templates', {
         template_name: name,
@@ -489,5 +488,8 @@ class EnhancedSMSService {
   }
 }
 
-export const enhancedSmsService = new EnhancedSMSService();
-export default enhancedSmsService;
+export const enhancedClickSendSmsService = new EnhancedClickSendSMSService();
+export default enhancedClickSendSmsService;
+
+// Export for backward compatibility
+export const enhancedSmsService = enhancedClickSendSmsService;
