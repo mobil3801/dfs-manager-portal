@@ -3,7 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { EnhancedAuthProvider, useEnhancedAuth } from '@/contexts/EnhancedAuthContext';
+import AuthErrorBoundary from '@/components/AuthErrorBoundary';
 import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
@@ -51,6 +52,7 @@ import SecuritySettings from '@/pages/Admin/SecuritySettings';
 import SMSAlertManagement from '@/pages/Admin/SMSAlertManagement';
 
 import AuditMonitoring from '@/pages/Admin/AuditMonitoring';
+import AuthSystemHealthPage from '@/pages/Admin/AuthSystemHealth';
 
 import './App.css';
 
@@ -110,7 +112,7 @@ const AuthError = ({ error, onRetry }: {error: string;onRetry: () => void;}) =>
 
 // Main App Router Component
 const AppRouter = () => {
-  const { isInitialized } = useAuth();
+  const { isInitialized } = useEnhancedAuth();
 
   // Show loading during initial authentication setup
   if (!isInitialized) {
@@ -189,6 +191,7 @@ const AppRouter = () => {
             <Route path="admin/sms" element={<SMSAlertManagement />} />
 
             <Route path="admin/audit" element={<AuditMonitoring />} />
+            <Route path="admin/auth-health" element={<AuthSystemHealthPage />} />
           </Route>
           
           {/* 404 */}
@@ -206,9 +209,11 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <GlobalErrorBoundary>
-          <AuthProvider>
-            <AppRouter />
-          </AuthProvider>
+          <AuthErrorBoundary>
+            <EnhancedAuthProvider>
+              <AppRouter />
+            </EnhancedAuthProvider>
+          </AuthErrorBoundary>
         </GlobalErrorBoundary>
       </TooltipProvider>
       <Toaster />

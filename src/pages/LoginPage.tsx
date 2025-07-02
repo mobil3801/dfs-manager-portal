@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useEnhancedAuth } from '@/contexts/EnhancedAuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,7 +25,7 @@ const LoginPage: React.FC = () => {
   const [messageType, setMessageType] = useState<'error' | 'success'>('error');
   const [lastSubmitTime, setLastSubmitTime] = useState(0); // Debounce rapid submissions
 
-  const { login, register, clearError, authError } = useAuth();
+  const { login, register, clearError, authError } = useEnhancedAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
