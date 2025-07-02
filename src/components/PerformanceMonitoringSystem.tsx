@@ -247,6 +247,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -292,7 +293,6 @@ const PerformanceMonitoringSystem: React.FC = () => {
   * Get background task count
   */const getBackgroundTaskCount = (): number => {// Count various background activities
     const intervals = (window as any).__intervals__ || [];const timeouts = (window as any).__timeouts__ || [];const observers = (window as any).__observers__ || [];
-
     return intervals.length + timeouts.length + observers.length;
   };
 

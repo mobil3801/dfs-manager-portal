@@ -18,8 +18,8 @@ import {
   Phone,
   Key,
   User,
-  Shield
-} from 'lucide-react';
+  Shield } from
+'lucide-react';
 
 interface ClickSendConfig {
   id?: number;
@@ -272,22 +272,22 @@ const ClickSendConfigManager: React.FC = () => {
           <Badge variant="secondary" className="text-green-700 bg-green-100">
             <CheckCircle className="h-3 w-3 mr-1" />
             Connected
-          </Badge>
-        );
+          </Badge>);
+
       case 'error':
         return (
           <Badge variant="destructive">
             <AlertCircle className="h-3 w-3 mr-1" />
             Connection Failed
-          </Badge>
-        );
+          </Badge>);
+
       default:
         return (
           <Badge variant="outline">
             <Settings className="h-3 w-3 mr-1" />
             Testing...
-          </Badge>
-        );
+          </Badge>);
+
     }
   };
 
@@ -342,8 +342,8 @@ const ClickSendConfigManager: React.FC = () => {
                   </CardContent>
                 </Card>
 
-                {accountBalance !== null && (
-                  <Card>
+                {accountBalance !== null &&
+                <Card>
                     <CardContent className="p-4">
                       <div className="flex items-center gap-2">
                         <DollarSign className="h-5 w-5 text-green-500" />
@@ -354,7 +354,7 @@ const ClickSendConfigManager: React.FC = () => {
                       </div>
                     </CardContent>
                   </Card>
-                )}
+                }
               </div>
 
               <Alert>
@@ -382,8 +382,8 @@ const ClickSendConfigManager: React.FC = () => {
                     type="text"
                     value={config.username}
                     disabled
-                    className="bg-gray-50"
-                  />
+                    className="bg-gray-50" />
+
                   <p className="text-xs text-muted-foreground">Pre-configured</p>
                 </div>
 
@@ -397,8 +397,8 @@ const ClickSendConfigManager: React.FC = () => {
                     type="password"
                     value={config.api_key}
                     disabled
-                    className="bg-gray-50"
-                  />
+                    className="bg-gray-50" />
+
                   <p className="text-xs text-muted-foreground">Pre-configured</p>
                 </div>
 
@@ -412,8 +412,8 @@ const ClickSendConfigManager: React.FC = () => {
                     type="text"
                     placeholder="DFS"
                     value={config.from_number}
-                    onChange={(e) => setConfig({ ...config, from_number: e.target.value })}
-                  />
+                    onChange={(e) => setConfig({ ...config, from_number: e.target.value })} />
+
                 </div>
               </div>
 
@@ -421,8 +421,8 @@ const ClickSendConfigManager: React.FC = () => {
                 <Button
                   onClick={saveConfiguration}
                   disabled={loading}
-                  className="flex items-center gap-2"
-                >
+                  className="flex items-center gap-2">
+
                   <Settings className="h-4 w-4" />
                   {loading ? 'Saving...' : 'Save Configuration'}
                 </Button>
@@ -430,8 +430,8 @@ const ClickSendConfigManager: React.FC = () => {
                   variant="outline"
                   onClick={checkConnection}
                   disabled={loading}
-                  className="flex items-center gap-2"
-                >
+                  className="flex items-center gap-2">
+
                   <CheckCircle className="h-4 w-4" />
                   Test Connection
                 </Button>
@@ -449,8 +449,8 @@ const ClickSendConfigManager: React.FC = () => {
                   </div>
                   <Switch
                     checked={config.is_enabled}
-                    onCheckedChange={(checked) => setConfig({ ...config, is_enabled: checked })}
-                  />
+                    onCheckedChange={(checked) => setConfig({ ...config, is_enabled: checked })} />
+
                 </div>
 
                 <div className="space-y-2">
@@ -461,8 +461,8 @@ const ClickSendConfigManager: React.FC = () => {
                     min="1"
                     max="1000"
                     value={config.daily_limit}
-                    onChange={(e) => setConfig({ ...config, daily_limit: parseInt(e.target.value) || 100 })}
-                  />
+                    onChange={(e) => setConfig({ ...config, daily_limit: parseInt(e.target.value) || 100 })} />
+
                   <p className="text-sm text-muted-foreground">
                     Maximum number of SMS messages that can be sent per day
                   </p>
@@ -479,8 +479,8 @@ const ClickSendConfigManager: React.FC = () => {
                     type="text"
                     placeholder="+1234567890"
                     value={testPhone}
-                    onChange={(e) => setTestPhone(e.target.value)}
-                  />
+                    onChange={(e) => setTestPhone(e.target.value)} />
+
                   <p className="text-sm text-muted-foreground">
                     Enter a phone number in E.164 format to send a test message
                   </p>
@@ -489,36 +489,36 @@ const ClickSendConfigManager: React.FC = () => {
                 <Button
                   onClick={sendTestSMS}
                   disabled={testing || !config.is_enabled || !testPhone}
-                  className="flex items-center gap-2"
-                >
+                  className="flex items-center gap-2">
+
                   <Send className="h-4 w-4" />
                   {testing ? 'Sending...' : 'Send Test SMS'}
                 </Button>
 
-                {connectionStatus === 'connected' && (
-                  <Alert>
+                {connectionStatus === 'connected' &&
+                <Alert>
                     <CheckCircle className="h-4 w-4" />
                     <AlertDescription>
                       ClickSend is configured and ready to send SMS messages with your provided credentials.
                     </AlertDescription>
                   </Alert>
-                )}
+                }
 
-                {connectionStatus === 'error' && (
-                  <Alert variant="destructive">
+                {connectionStatus === 'error' &&
+                <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
                       Connection to ClickSend failed. Please check your network connection.
                     </AlertDescription>
                   </Alert>
-                )}
+                }
               </div>
             </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ClickSendConfigManager;

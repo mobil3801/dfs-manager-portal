@@ -48,7 +48,6 @@ import SecuritySettings from '@/pages/Admin/SecuritySettings';
 
 import DatabaseMonitoring from '@/pages/Admin/DatabaseMonitoring';
 import AuditMonitoring from '@/pages/Admin/AuditMonitoring';
-import ClickSendTestPage from '@/pages/Admin/ClickSendTestPage';
 
 import './App.css';
 
@@ -206,7 +205,6 @@ const AppRouter = () => {
 
             <Route path="admin/database" element={<DatabaseMonitoring />} />
             <Route path="admin/audit" element={<AuditMonitoring />} />
-            <Route path="admin/clicksend-test" element={<ClickSendTestPage />} />
           </Route>
           
           {/* 404 */}

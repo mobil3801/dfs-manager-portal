@@ -3,12 +3,32 @@
 // Maintained for backward compatibility
 
 import { clickSendSmsService } from './clickSendSmsService';
-import type { SMSResponse, SMSMessage, ClickSendConfig } from './clickSendSmsService';
 
-// Re-export types for backward compatibility
-export type { SMSResponse, SMSMessage, ClickSendConfig };
+// Type definitions for backward compatibility
+export interface ClickSendConfig {
+  username: string;
+  apiKey: string;
+  fromNumber: string;
+  testMode: boolean;
+  webhookUrl?: string;
+}
 
-export interface SinchClickSendConfig extends ClickSendConfig {} // Deprecated alias
+export interface SMSResponse {
+  success: boolean;
+  messageId?: string;
+  error?: string;
+  cost?: number;
+  status?: string;
+  clickSendMessageId?: string;
+}
+
+export interface SMSMessage {
+  to: string;
+  message: string;
+  type?: string;
+  templateId?: number;
+  placeholders?: Record<string, string>;
+}
 
 export interface SMSTemplate {
   id: number;
@@ -18,6 +38,8 @@ export interface SMSTemplate {
   is_active: boolean;
   priority_level: string;
 }
+
+export interface SinchClickSendConfig extends ClickSendConfig {} // Deprecated alias
 
 // Legacy SMS Service class that redirects to ClickSend
 class LegacySMSService {
@@ -43,7 +65,7 @@ class LegacySMSService {
     return clickSendSmsService.sendBulkSMS(messages);
   }
 
-  async getDeliveryStatus(messageId: string): Promise<{status: string; delivered: boolean;}> {
+  async getDeliveryStatus(messageId: string): Promise<{status: string;delivered: boolean;}> {
     return clickSendSmsService.getDeliveryStatus(messageId);
   }
 
@@ -63,7 +85,7 @@ class LegacySMSService {
     return clickSendSmsService.getTestNumbers();
   }
 
-  async getDailyUsage(): Promise<{used: number; limit: number; percentage: number;}> {
+  async getDailyUsage(): Promise<{used: number;limit: number;percentage: number;}> {
     return clickSendSmsService.getDailyUsage();
   }
 
@@ -75,7 +97,7 @@ class LegacySMSService {
     return clickSendSmsService.getConfiguration();
   }
 
-  async getServiceStatus(): Promise<{available: boolean; message: string; providers?: any; quota?: any;}> {
+  async getServiceStatus(): Promise<{available: boolean;message: string;providers?: any;quota?: any;}> {
     return clickSendSmsService.getServiceStatus();
   }
 
@@ -83,7 +105,7 @@ class LegacySMSService {
     return clickSendSmsService.sendSimpleSMS(phoneNumber, message, fromNumber);
   }
 
-  async getAvailableFromNumbers(): Promise<{number: string; provider: string; isActive: boolean; testMode: boolean;}[]> {
+  async getAvailableFromNumbers(): Promise<{number: string;provider: string;isActive: boolean;testMode: boolean;}[]> {
     return clickSendSmsService.getAvailableFromNumbers();
   }
 
