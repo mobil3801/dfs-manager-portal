@@ -23,8 +23,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         <ComponentErrorBoundary>
           {children}
         </ComponentErrorBoundary>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -38,8 +38,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           {children}
         </ComponentErrorBoundary>
       </main>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AppLayout;
