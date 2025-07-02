@@ -989,11 +989,11 @@ const ProductForm = () => {
                       value={formData.unit_price}
                       onChange={(value) => handleInputChange('unit_price', value)} />
 
-                    {formData.case_price > 0 && formData.unit_per_case > 0 &&
-                    <p className="text-xs text-green-600 flex items-center">
-                        <Calculator className="w-3 h-3 mr-1" />
-                        Auto-calculated from case price
-                      </p>
+                    {formData.case_price > 0 && formData.unit_per_case > 0
+
+
+
+
                     }
                   </div>
                 </div>
@@ -1009,11 +1009,11 @@ const ProductForm = () => {
                       onChange={(value) => handleInputChange('retail_price', value)} />
 
                     {/* Auto-calculation indicator */}
-                    {formData.unit_price > 0 && Math.abs(formData.retail_price - suggestedRetailPrice) < 0.01 &&
-                    <p className="text-xs text-green-600 flex items-center">
-                        <Calculator className="w-3 h-3 mr-1" />
-                        Auto-calculated from unit price
-                      </p>
+                    {formData.unit_price > 0 && Math.abs(formData.retail_price - suggestedRetailPrice) < 0.01
+
+
+
+
                     }
                     
                     {/* Pricing Suggestion */}
@@ -1061,7 +1061,7 @@ const ProductForm = () => {
                         {formData.profit_margin > 20 ? 'Good' : 'Low'}
                       </Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground">Auto-calculated from unit and retail price</p>
+                    
                   </div>
                 </div>
               </div>
@@ -1071,36 +1071,36 @@ const ProductForm = () => {
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Additional Information</h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="supplier">Supplier</Label>
-                    <Input
-                      id="supplier"
-                      placeholder="Enter supplier name"
-                      value={formData.supplier}
-                      onChange={(e) => handleInputChange('supplier', e.target.value)} />
+                
 
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label>Stock Information</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <NumberInput
-                        placeholder="Current Stock"
-                        value={formData.quantity_in_stock}
-                        onChange={(value) => handleInputChange('quantity_in_stock', value)}
-                        min={0} />
 
-                      <NumberInput
-                        placeholder="Min Stock"
-                        value={formData.minimum_stock}
-                        onChange={(value) => handleInputChange('minimum_stock', value)}
-                        min={0} />
 
-                    </div>
-                    <p className="text-xs text-muted-foreground">Current stock / Minimum stock level</p>
-                  </div>
-                </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                 <div className="space-y-2">
                   <Label htmlFor="description">Description</Label>
