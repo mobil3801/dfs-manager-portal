@@ -64,7 +64,7 @@ const LoginPage = () => {
               Enter your credentials to access the system
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="bg-[#93bded1f] p-6 pt-0">
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="login-email">Email Address</Label>
