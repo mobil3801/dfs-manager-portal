@@ -69,13 +69,13 @@ const Dashboard = () => {
               <h1 className="text-3xl font-bold text-gray-900">
                 Welcome back, {userProfile?.full_name || user?.Name || 'User'}!
               </h1>
-              <p className="text-gray-600 mt-1">
-                Here's what's happening with your business today.
-              </p>
+              
+
+
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <p className="text-sm text-gray-500">Current Role</p>
+                
                 {userProfile?.role &&
                 <Badge className="mt-1">
                     {userProfile.role.charAt(0).toUpperCase() + userProfile.role.slice(1)}
@@ -221,7 +221,7 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Status</label>
-                  <Badge variant={userProfile.status === 'active' ? 'default' : 'secondary'}>
+                  <Badge variant={userProfile.status === 'active' ? 'default' : 'secondary'} className="text-[18px] py-[20px] text-justify mx-[18px] px-[26px] inline-flex items-center rounded-md border text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80">
                     {userProfile.status}
                   </Badge>
                 </div>
