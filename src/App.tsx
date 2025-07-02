@@ -3,10 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { EnhancedAuthProvider, useEnhancedAuth } from '@/contexts/EnhancedAuthContext';
+import { DatabaseAuthProvider, useDatabaseAuth } from '@/contexts/DatabaseAuthContext';
 import AuthErrorBoundary from '@/components/AuthErrorBoundary';
 import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import DatabaseProtectedRoute from '@/components/DatabaseProtectedRoute';
 
 
 
@@ -18,6 +18,7 @@ import Dashboard from '@/pages/Dashboard';
 import LoginPage from '@/pages/LoginPage';
 import OnAuthSuccessPage from '@/pages/OnAuthSuccessPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
+import AdminSetup from '@/pages/AdminSetup';
 import NotFound from '@/pages/NotFound';
 import DatabaseManagement from '@/pages/DatabaseManagement';
 
@@ -52,7 +53,6 @@ import SecuritySettings from '@/pages/Admin/SecuritySettings';
 import SMSAlertManagement from '@/pages/Admin/SMSAlertManagement';
 
 import AuditMonitoring from '@/pages/Admin/AuditMonitoring';
-import AuthSystemHealthPage from '@/pages/Admin/AuthSystemHealth';
 
 import './App.css';
 
@@ -112,10 +112,10 @@ const AuthError = ({ error, onRetry }: {error: string;onRetry: () => void;}) =>
 
 // Main App Router Component
 const AppRouter = () => {
-  const { isInitialized } = useEnhancedAuth();
+  const { loading } = useDatabaseAuth();
 
   // Show loading during initial authentication setup
-  if (!isInitialized) {
+  if (loading) {
     return <LoadingSpinner />;
   }
 
@@ -127,9 +127,10 @@ const AppRouter = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
           <Route path="/resetpassword" element={<ResetPasswordPage />} />
+          <Route path="/admin-setup" element={<AdminSetup />} />
           
           {/* Protected Routes */}
-          <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+          <Route path="/" element={<DatabaseProtectedRoute><DashboardLayout /></DatabaseProtectedRoute>}>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="database" element={<DatabaseManagement />} />
@@ -191,7 +192,6 @@ const AppRouter = () => {
             <Route path="admin/sms" element={<SMSAlertManagement />} />
 
             <Route path="admin/audit" element={<AuditMonitoring />} />
-            <Route path="admin/auth-health" element={<AuthSystemHealthPage />} />
           </Route>
           
           {/* 404 */}
@@ -210,9 +210,9 @@ function App() {
       <TooltipProvider>
         <GlobalErrorBoundary>
           <AuthErrorBoundary>
-            <EnhancedAuthProvider>
+            <DatabaseAuthProvider>
               <AppRouter />
-            </EnhancedAuthProvider>
+            </DatabaseAuthProvider>
           </AuthErrorBoundary>
         </GlobalErrorBoundary>
       </TooltipProvider>

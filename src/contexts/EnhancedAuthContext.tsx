@@ -85,29 +85,29 @@ export const EnhancedAuthProvider: React.FC<{children: React.ReactNode;}> = ({ c
 
   // Enhanced error handling with automatic retry
   const withRetry = async <T,>(
-    operation: () => Promise<T>,
-    maxRetries: number = 3,
-    delayMs: number = 1000
-  ): Promise<T> => {
+  operation: () => Promise<T>,
+  maxRetries: number = 3,
+  delayMs: number = 1000)
+  : Promise<T> => {
     let lastError: any;
-    
+
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         return await operation();
       } catch (error) {
         lastError = error;
         console.warn(`⚠️ Operation failed (attempt ${attempt}/${maxRetries}):`, error);
-        
+
         if (attempt < maxRetries) {
-          await new Promise(resolve => setTimeout(resolve, delayMs * attempt));
+          await new Promise((resolve) => setTimeout(resolve, delayMs * attempt));
         }
       }
     }
-    
+
     throw lastError;
   };
 
-  const safeFetchUserData = async (showErrors = false): Promise<{success: boolean; userData?: User;}> => {
+  const safeFetchUserData = async (showErrors = false): Promise<{success: boolean;userData?: User;}> => {
     try {
       console.log('🔄 Attempting to fetch user data...');
 
@@ -148,7 +148,7 @@ export const EnhancedAuthProvider: React.FC<{children: React.ReactNode;}> = ({ c
 
       const currentUser = userResponse.data;
       console.log('✅ User data fetched successfully:', currentUser);
-      
+
       // Set user data immediately
       setUser(currentUser);
 
@@ -185,7 +185,7 @@ export const EnhancedAuthProvider: React.FC<{children: React.ReactNode;}> = ({ c
         } else if (profileResponse.data?.List?.length > 0) {
           const foundProfile = profileResponse.data.List[0];
           console.log('✅ User profile found:', foundProfile);
-          
+
           // Verify the profile belongs to the current user
           if (foundProfile.user_id === currentUser.ID) {
             console.log('✅ Profile user_id matches current user - setting profile');
@@ -278,7 +278,7 @@ export const EnhancedAuthProvider: React.FC<{children: React.ReactNode;}> = ({ c
       // Wait for APIs to be available with enhanced retry logic
       let attempts = 0;
       const maxAttempts = 60; // Wait up to 1 minute
-      
+
       while (!window.ezsite?.apis && attempts < maxAttempts) {
         console.log(`⏳ Waiting for EZSite APIs... (attempt ${attempts + 1}/${maxAttempts})`);
         await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -307,7 +307,7 @@ export const EnhancedAuthProvider: React.FC<{children: React.ReactNode;}> = ({ c
   useEffect(() => {
     const handleStatusChange = (status: ServiceStatus) => {
       setServiceStatus(status);
-      
+
       if (!status.isHealthy && status.consecutiveFailures >= 3) {
         setAuthError(`Authentication service is experiencing issues: ${status.error}`);
         toast({
@@ -319,13 +319,13 @@ export const EnhancedAuthProvider: React.FC<{children: React.ReactNode;}> = ({ c
         setAuthError(null);
         toast({
           title: "Authentication Service Restored",
-          description: "The authentication service is now working normally.",
+          description: "The authentication service is now working normally."
         });
       }
     };
 
     authServiceMonitor.addStatusListener(handleStatusChange);
-    
+
     return () => {
       authServiceMonitor.removeStatusListener(handleStatusChange);
     };
@@ -333,7 +333,7 @@ export const EnhancedAuthProvider: React.FC<{children: React.ReactNode;}> = ({ c
 
   useEffect(() => {
     initializeAuth();
-    
+
     return () => {
       // Cleanup monitoring on unmount
       authServiceMonitor.stopMonitoring();
@@ -516,20 +516,20 @@ export const EnhancedAuthProvider: React.FC<{children: React.ReactNode;}> = ({ c
   const restartAuthService = async (): Promise<void> => {
     console.log('🔄 Restarting authentication service...');
     setIsLoading(true);
-    
+
     try {
       // Stop current monitoring
       authServiceMonitor.stopMonitoring();
-      
+
       // Wait a moment
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       // Restart monitoring
       await authServiceMonitor.startMonitoring();
-      
+
       // Re-initialize auth
       await initializeAuth();
-      
+
       toast({
         title: "Service Restarted",
         description: "Authentication service has been restarted successfully"
@@ -560,8 +560,8 @@ export const EnhancedAuthProvider: React.FC<{children: React.ReactNode;}> = ({ c
     if (userProfile.detailed_permissions) {
       try {
         const permissions = typeof userProfile.detailed_permissions === 'string' ?
-          JSON.parse(userProfile.detailed_permissions) :
-          userProfile.detailed_permissions;
+        JSON.parse(userProfile.detailed_permissions) :
+        userProfile.detailed_permissions;
 
         if (resource && permissions[resource] && permissions[resource][action]) {
           return true;

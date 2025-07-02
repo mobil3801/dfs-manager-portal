@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Eye, EyeOff, Lock, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { useToast } from '@/hooks/use-toast';
+import { useDatabaseAuth } from '@/contexts/DatabaseAuthContext';
 
 const ResetPasswordPage: React.FC = () => {
   const [password, setPassword] = useState('');
@@ -23,6 +24,7 @@ const ResetPasswordPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { resetPassword } = useDatabaseAuth();
 
   useEffect(() => {
     const tokenFromUrl = searchParams.get('token');
@@ -59,10 +61,7 @@ const ResetPasswordPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const { error } = await window.ezsite.apis.resetPassword({
-        token,
-        password
-      });
+      const { error } = await resetPassword(token, password);
 
       if (error) {
         setMessage(error);

@@ -5,28 +5,28 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { useEnhancedAuth } from '@/contexts/EnhancedAuthContext';
-import { 
-  CheckCircle, 
-  XCircle, 
-  AlertTriangle, 
-  RefreshCw, 
+import {
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  RefreshCw,
   Activity,
   Clock,
   Shield,
   Server,
   Wifi,
-  WifiOff
-} from 'lucide-react';
+  WifiOff } from
+'lucide-react';
 
 const AuthStatusDashboard: React.FC = () => {
-  const { 
-    serviceStatus, 
-    isAuthenticated, 
-    user, 
+  const {
+    serviceStatus,
+    isAuthenticated,
+    user,
     isLoading,
     authError,
     checkServiceHealth,
-    restartAuthService 
+    restartAuthService
   } = useEnhancedAuth();
 
   const [isChecking, setIsChecking] = useState(false);
@@ -38,7 +38,7 @@ const AuthStatusDashboard: React.FC = () => {
       // Calculate uptime percentage based on consecutive failures
       const maxFailures = 10;
       const failures = Math.min(serviceStatus.consecutiveFailures, maxFailures);
-      const uptime = ((maxFailures - failures) / maxFailures) * 100;
+      const uptime = (maxFailures - failures) / maxFailures * 100;
       setUptimeProgress(uptime);
     }
   }, [serviceStatus]);
@@ -86,16 +86,16 @@ const AuthStatusDashboard: React.FC = () => {
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffSeconds = Math.floor(diffMs / 1000);
-    
+
     if (diffSeconds < 60) {
       return `${diffSeconds} seconds ago`;
     }
-    
+
     const diffMinutes = Math.floor(diffSeconds / 60);
     if (diffMinutes < 60) {
       return `${diffMinutes} minutes ago`;
     }
-    
+
     const diffHours = Math.floor(diffMinutes / 60);
     return `${diffHours} hours ago`;
   };
@@ -154,11 +154,11 @@ const AuthStatusDashboard: React.FC = () => {
               <span className="text-sm text-gray-600">{uptimeProgress.toFixed(1)}%</span>
             </div>
             <Progress value={uptimeProgress} className="h-2" />
-            {serviceStatus?.consecutiveFailures > 0 && (
-              <p className="text-xs text-red-600">
+            {serviceStatus?.consecutiveFailures > 0 &&
+            <p className="text-xs text-red-600">
                 {serviceStatus.consecutiveFailures} consecutive failures detected
               </p>
-            )}
+            }
           </div>
 
           {/* Authentication Status */}
@@ -168,75 +168,75 @@ const AuthStatusDashboard: React.FC = () => {
               <span className="text-sm font-medium">User Authentication</span>
             </div>
             <div className="text-right">
-              {isAuthenticated ? (
-                <div>
+              {isAuthenticated ?
+              <div>
                   <Badge className="bg-blue-100 text-blue-800">Authenticated</Badge>
                   <p className="text-xs text-gray-600 mt-1">{user?.Email}</p>
-                </div>
-              ) : (
-                <Badge variant="secondary">Not Authenticated</Badge>
-              )}
+                </div> :
+
+              <Badge variant="secondary">Not Authenticated</Badge>
+              }
             </div>
           </div>
 
           {/* Error Display */}
-          {authError && (
-            <Alert variant="destructive">
+          {authError &&
+          <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
                 {authError}
               </AlertDescription>
             </Alert>
-          )}
+          }
 
-          {serviceStatus?.error && (
-            <Alert variant="destructive">
+          {serviceStatus?.error &&
+          <Alert variant="destructive">
               <XCircle className="h-4 w-4" />
               <AlertDescription>
                 Service Error: {serviceStatus.error}
               </AlertDescription>
             </Alert>
-          )}
+          }
 
           {/* Action Buttons */}
           <div className="flex gap-2 pt-4">
-            <Button 
-              onClick={handleManualHealthCheck} 
+            <Button
+              onClick={handleManualHealthCheck}
               disabled={isChecking || isLoading}
               variant="outline"
-              size="sm"
-            >
-              {isChecking ? (
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Activity className="h-4 w-4 mr-2" />
-              )}
+              size="sm">
+
+              {isChecking ?
+              <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> :
+
+              <Activity className="h-4 w-4 mr-2" />
+              }
               Check Health
             </Button>
 
-            <Button 
+            <Button
               onClick={handleRestartService}
               disabled={isLoading}
               variant="outline"
               size="sm"
-              className="text-orange-600 hover:text-orange-700"
-            >
+              className="text-orange-600 hover:text-orange-700">
+
               <RefreshCw className="h-4 w-4 mr-2" />
               Restart Service
             </Button>
           </div>
 
-          {lastManualCheck && (
-            <p className="text-xs text-gray-500">
+          {lastManualCheck &&
+          <p className="text-xs text-gray-500">
               Last manual check: {formatLastCheck(lastManualCheck)}
             </p>
-          )}
+          }
         </CardContent>
       </Card>
 
       {/* Detailed Service Information */}
-      {serviceStatus?.details && (
-        <Card>
+      {serviceStatus?.details &&
+      <Card>
           <CardHeader>
             <CardTitle className="text-sm">Service Details</CardTitle>
           </CardHeader>
@@ -246,9 +246,9 @@ const AuthStatusDashboard: React.FC = () => {
             </pre>
           </CardContent>
         </Card>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default AuthStatusDashboard;

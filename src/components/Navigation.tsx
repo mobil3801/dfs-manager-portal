@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useEnhancedAuth } from '@/contexts/EnhancedAuthContext';
+import { useDatabaseAuth } from '@/contexts/DatabaseAuthContext';
 import { Button } from '@/components/ui/button';
 import {
   Home,
@@ -26,7 +26,7 @@ import {
 '@/components/ui/dropdown-menu';
 
 const Navigation = () => {
-  const { user, logout, isAdmin, isManager } = useAuth();
+  const { user, profile, logout } = useDatabaseAuth();
   const location = useLocation();
 
   const navigationItems = [
@@ -75,7 +75,7 @@ const Navigation = () => {
 
 
   // Add admin-only items
-  if (isAdmin()) {
+  if (profile?.role === 'Administrator') {
     navigationItems.push({
       name: 'Admin',
       href: '/admin',
@@ -95,8 +95,10 @@ const Navigation = () => {
 
   const canAccessRoute = (requiredRole: string | null) => {
     if (!requiredRole) return true;
-    if (requiredRole === 'admin') return isAdmin();
-    if (requiredRole === 'manager') return isManager();
+    if (!profile) return false;
+    
+    if (requiredRole === 'admin') return profile.role === 'Administrator';
+    if (requiredRole === 'manager') return profile.role === 'Management' || profile.role === 'Administrator';
     return true;
   };
 
@@ -184,11 +186,11 @@ const Navigation = () => {
 
                   <div className="w-8 h-8 bg-blue-700 rounded-full flex items-center justify-center">
                     <span className="text-sm font-medium text-white">
-                      {user?.Name?.charAt(0)?.toUpperCase() || 'U'}
+                      {user?.name?.charAt(0)?.toUpperCase() || 'U'}
                     </span>
                   </div>
                   <span className="hidden sm:block text-sm font-medium">
-                    {user?.Name || 'User'}
+                    {user?.name || 'User'}
                   </span>
                   <ChevronDown className="h-4 w-4" />
                 </Button>
@@ -196,8 +198,11 @@ const Navigation = () => {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>
                   <div>
-                    <p className="font-medium">{user?.Name || 'User'}</p>
-                    <p className="text-sm text-gray-500">{user?.Email}</p>
+                    <p className="font-medium">{user?.name || 'User'}</p>
+                    <p className="text-sm text-gray-500">{user?.email}</p>
+                    {profile && (
+                      <p className="text-xs text-blue-600">{profile.role} - {profile.station}</p>
+                    )}
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />

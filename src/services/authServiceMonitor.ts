@@ -23,11 +23,11 @@ class AuthServiceMonitor {
   }
 
   public removeStatusListener(callback: (status: ServiceStatus) => void): void {
-    this.listeners = this.listeners.filter(listener => listener !== callback);
+    this.listeners = this.listeners.filter((listener) => listener !== callback);
   }
 
   private notifyListeners(status: ServiceStatus): void {
-    this.listeners.forEach(listener => {
+    this.listeners.forEach((listener) => {
       try {
         listener(status);
       } catch (error) {
@@ -83,7 +83,7 @@ class AuthServiceMonitor {
       if (status.isHealthy) {
         this.consecutiveFailures = 0;
         this.recoveryAttempts = 0;
-        
+
         this.notifyListeners({
           ...status,
           responseTime,
@@ -109,7 +109,7 @@ class AuthServiceMonitor {
     } catch (error) {
       console.error('❌ Health check error:', error);
       this.consecutiveFailures++;
-      
+
       this.notifyListeners({
         isHealthy: false,
         error: `Health check failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -120,7 +120,7 @@ class AuthServiceMonitor {
     }
   }
 
-  private async checkServiceHealth(): Promise<{ isHealthy: boolean; error?: string; details?: any }> {
+  private async checkServiceHealth(): Promise<{isHealthy: boolean;error?: string;details?: any;}> {
     try {
       // Check if ezsite APIs are available
       if (!window.ezsite?.apis) {
@@ -131,12 +131,12 @@ class AuthServiceMonitor {
       }
 
       // Test a simple API call to verify service is responsive
-      const testResponse = await Promise.race([
-        window.ezsite.apis.getUserInfo(),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Health check timeout')), 5000)
-        )
-      ]) as any;
+      const testResponse = (await Promise.race([
+      window.ezsite.apis.getUserInfo(),
+      new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Health check timeout')), 5000)
+      )]
+      )) as any;
 
       // The getUserInfo call should either return user data or an auth error
       // Both are valid responses that indicate the service is working
@@ -164,12 +164,12 @@ class AuthServiceMonitor {
 
     this.recoveryAttempts++;
     const delay = this.baseRetryDelay * Math.pow(2, this.recoveryAttempts - 1); // Exponential backoff
-    
+
     console.log(`🔄 Attempting service recovery (${this.recoveryAttempts}/${this.maxRecoveryAttempts})...`);
 
     try {
       // Wait before retry
-      await new Promise(resolve => setTimeout(resolve, delay));
+      await new Promise((resolve) => setTimeout(resolve, delay));
 
       // Attempt to reinitialize the service
       await this.reinitializeAuthService();
@@ -198,7 +198,7 @@ class AuthServiceMonitor {
 
     while (!window.ezsite?.apis && attempts < maxAttempts) {
       console.log(`⏳ Waiting for EZSite APIs to become available... (${attempts + 1}/${maxAttempts})`);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       attempts++;
     }
 

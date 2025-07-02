@@ -6,10 +6,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEnhancedAuth } from '@/contexts/EnhancedAuthContext';
 import AuthStatusDashboard from '@/components/AuthStatusDashboard';
-import { 
-  Shield, 
-  Activity, 
-  AlertTriangle, 
+import {
+  Shield,
+  Activity,
+  AlertTriangle,
   CheckCircle,
   RefreshCw,
   Settings,
@@ -18,13 +18,13 @@ import {
   Server,
   Users,
   Eye,
-  EyeOff
-} from 'lucide-react';
+  EyeOff } from
+'lucide-react';
 
 const AuthSystemHealthPage: React.FC = () => {
-  const { 
-    isAuthenticated, 
-    user, 
+  const {
+    isAuthenticated,
+    user,
     userProfile,
     serviceStatus,
     authError,
@@ -40,28 +40,28 @@ const AuthSystemHealthPage: React.FC = () => {
   useEffect(() => {
     // Simulate system logs - in a real app, this would come from your logging service
     const mockLogs = [
-      {
-        id: 1,
-        timestamp: new Date(Date.now() - 300000),
-        level: 'INFO',
-        message: 'Authentication service started successfully',
-        source: 'AuthService'
-      },
-      {
-        id: 2,
-        timestamp: new Date(Date.now() - 120000),
-        level: 'WARN',
-        message: 'High response time detected: 2.5s',
-        source: 'HealthMonitor'
-      },
-      {
-        id: 3,
-        timestamp: new Date(Date.now() - 60000),
-        level: 'INFO',
-        message: 'User authentication successful',
-        source: 'AuthService'
-      }
-    ];
+    {
+      id: 1,
+      timestamp: new Date(Date.now() - 300000),
+      level: 'INFO',
+      message: 'Authentication service started successfully',
+      source: 'AuthService'
+    },
+    {
+      id: 2,
+      timestamp: new Date(Date.now() - 120000),
+      level: 'WARN',
+      message: 'High response time detected: 2.5s',
+      source: 'HealthMonitor'
+    },
+    {
+      id: 3,
+      timestamp: new Date(Date.now() - 60000),
+      level: 'INFO',
+      message: 'User authentication successful',
+      source: 'AuthService'
+    }];
+
     setSystemLogs(mockLogs);
   }, []);
 
@@ -69,11 +69,11 @@ const AuthSystemHealthPage: React.FC = () => {
     const isHealthy = serviceStatus?.isHealthy ?? false;
     const responseTime = serviceStatus?.responseTime ?? 0;
     const consecutiveFailures = serviceStatus?.consecutiveFailures ?? 0;
-    
+
     return {
       status: isHealthy ? 'Healthy' : 'Unhealthy',
       statusColor: isHealthy ? 'text-green-600' : 'text-red-600',
-      uptime: Math.max(0, 100 - (consecutiveFailures * 10)),
+      uptime: Math.max(0, 100 - consecutiveFailures * 10),
       responseTime: responseTime < 1000 ? 'Good' : responseTime < 3000 ? 'Fair' : 'Poor',
       responseTimeColor: responseTime < 1000 ? 'text-green-600' : responseTime < 3000 ? 'text-yellow-600' : 'text-red-600'
     };
@@ -112,16 +112,16 @@ const AuthSystemHealthPage: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setShowTechnicalDetails(!showTechnicalDetails)}
-          >
+            onClick={() => setShowTechnicalDetails(!showTechnicalDetails)}>
+
             {showTechnicalDetails ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
             Technical Details
           </Button>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setRealTimeMonitoring(!realTimeMonitoring)}
-          >
+            onClick={() => setRealTimeMonitoring(!realTimeMonitoring)}>
+
             <Activity className="h-4 w-4 mr-2" />
             {realTimeMonitoring ? 'Disable' : 'Enable'} Real-time
           </Button>
@@ -188,28 +188,28 @@ const AuthSystemHealthPage: React.FC = () => {
       </div>
 
       {/* Error Alerts */}
-      {authError && (
-        <Alert variant="destructive">
+      {authError &&
+      <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
             <strong>Authentication Error:</strong> {authError}
           </AlertDescription>
         </Alert>
-      )}
+      }
 
-      {serviceStatus && !serviceStatus.isHealthy && (
-        <Alert variant="destructive">
+      {serviceStatus && !serviceStatus.isHealthy &&
+      <Alert variant="destructive">
           <Server className="h-4 w-4" />
           <AlertDescription>
             <strong>Service Health Issue:</strong> {serviceStatus.error}
-            {serviceStatus.consecutiveFailures > 0 && (
-              <span className="ml-2">
+            {serviceStatus.consecutiveFailures > 0 &&
+          <span className="ml-2">
                 ({serviceStatus.consecutiveFailures} consecutive failures)
               </span>
-            )}
+          }
           </AlertDescription>
         </Alert>
-      )}
+      }
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="dashboard" className="space-y-4">
@@ -230,11 +230,11 @@ const AuthSystemHealthPage: React.FC = () => {
               <CardTitle className="flex items-center gap-2">
                 <Activity className="h-5 w-5" />
                 System Logs
-                {realTimeMonitoring && (
-                  <Badge variant="default" className="bg-green-100 text-green-800">
+                {realTimeMonitoring &&
+                <Badge variant="default" className="bg-green-100 text-green-800">
                     Live
                   </Badge>
-                )}
+                }
               </CardTitle>
               <CardDescription>
                 Recent authentication system events and status changes
@@ -242,8 +242,8 @@ const AuthSystemHealthPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {systemLogs.map((log) => (
-                  <div key={log.id} className="flex items-center justify-between p-3 border rounded-lg">
+                {systemLogs.map((log) =>
+                <div key={log.id} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center gap-3">
                       {getLevelBadge(log.level)}
                       <div>
@@ -254,7 +254,7 @@ const AuthSystemHealthPage: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -269,8 +269,8 @@ const AuthSystemHealthPage: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {isAuthenticated ? (
-                <div className="space-y-3">
+              {isAuthenticated ?
+              <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <CheckCircle className="h-5 w-5 text-green-500" />
                     <Badge className="bg-green-100 text-green-800">Authenticated</Badge>
@@ -297,13 +297,13 @@ const AuthSystemHealthPage: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <div className="text-center py-8">
+                </div> :
+
+              <div className="text-center py-8">
                   <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-600">No user currently authenticated</p>
                 </div>
-              )}
+              }
             </CardContent>
           </Card>
         </TabsContent>
@@ -325,8 +325,8 @@ const AuthSystemHealthPage: React.FC = () => {
                   onClick={checkServiceHealth}
                   disabled={isLoading}
                   variant="outline"
-                  className="h-20 flex flex-col items-center justify-center"
-                >
+                  className="h-20 flex flex-col items-center justify-center">
+
                   <Activity className="h-6 w-6 mb-2" />
                   Run Health Check
                 </Button>
@@ -335,15 +335,15 @@ const AuthSystemHealthPage: React.FC = () => {
                   onClick={restartAuthService}
                   disabled={isLoading}
                   variant="outline"
-                  className="h-20 flex flex-col items-center justify-center text-orange-600 hover:text-orange-700"
-                >
+                  className="h-20 flex flex-col items-center justify-center text-orange-600 hover:text-orange-700">
+
                   <RefreshCw className="h-6 w-6 mb-2" />
                   Restart Service
                 </Button>
               </div>
 
-              {showTechnicalDetails && (
-                <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+              {showTechnicalDetails &&
+              <div className="mt-6 p-4 bg-gray-50 rounded-lg">
                   <h4 className="font-semibold mb-2">Technical Information</h4>
                   <div className="space-y-2 text-sm">
                     <p><strong>Service Status:</strong> {JSON.stringify(serviceStatus, null, 2)}</p>
@@ -352,13 +352,13 @@ const AuthSystemHealthPage: React.FC = () => {
                     <p><strong>Timestamp:</strong> {new Date().toISOString()}</p>
                   </div>
                 </div>
-              )}
+              }
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AuthSystemHealthPage;

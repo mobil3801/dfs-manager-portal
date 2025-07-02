@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useEnhancedAuth } from '@/contexts/EnhancedAuthContext';
+import { useDatabaseAuth } from '@/contexts/DatabaseAuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,30 +25,20 @@ const LoginPage: React.FC = () => {
   const [messageType, setMessageType] = useState<'error' | 'success'>('error');
   const [lastSubmitTime, setLastSubmitTime] = useState(0); // Debounce rapid submissions
 
-  const { login, register, clearError, authError } = useEnhancedAuth();
+  const { login, register, sendResetPwdEmail } = useDatabaseAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Clear error when switching auth modes or on component mount
+  // Clear messages when switching auth modes
   useEffect(() => {
-    clearError();
     setMessage('');
-  }, [authMode, clearError]);
-
-  // Display auth errors from context
-  useEffect(() => {
-    if (authError) {
-      setMessage(authError);
-      setMessageType('error');
-    }
-  }, [authError]);
+  }, [authMode]);
 
   const clearForm = () => {
     setEmail('');
     setPassword('');
     setConfirmPassword('');
     setMessage('');
-    clearError();
   };
 
   const handleForgotPassword = async (e: React.FormEvent) => {
@@ -63,7 +53,7 @@ const LoginPage: React.FC = () => {
     setMessage(''); // Clear previous messages
 
     try {
-      const { error } = await window.ezsite.apis.sendResetPwdEmail({ email });
+      const { error } = await sendResetPwdEmail(email);
       if (error) {
         setMessage(error);
         setMessageType('error');
@@ -109,9 +99,8 @@ const LoginPage: React.FC = () => {
     }
     setLastSubmitTime(now);
 
-    // Clear previous messages and errors
+    // Clear previous messages
     setMessage('');
-    clearError();
 
     if (authMode === 'forgot-password') {
       return handleForgotPassword(e);
@@ -128,26 +117,39 @@ const LoginPage: React.FC = () => {
     try {
       if (authMode === 'login') {
         console.log('🔑 Initiating login attempt for:', email);
-        const success = await login(email, password);
-        if (success) {
+        const { error } = await login(email, password);
+        if (error) {
+          setMessage(error);
+          setMessageType('error');
+          toast({
+            title: "Login Failed",
+            description: error,
+            variant: "destructive"
+          });
+        } else {
           console.log('✅ Login successful, navigating to dashboard');
           toast({
             title: "Welcome back!",
             description: "Successfully logged in"
           });
           navigate('/dashboard');
-        } else {
-          console.log('❌ Login failed - check authError state');
-          // Error will be handled by useEffect watching authError
         }
       } else if (authMode === 'register') {
-        const success = await register(email, password, email.split('@')[0]);
-        if (success) {
-          setMessage('Account created successfully! Please check your email for verification.');
+        const { error } = await register(email, password, email.split('@')[0]);
+        if (error) {
+          setMessage(error);
+          setMessageType('error');
+          toast({
+            title: "Registration Failed",
+            description: error,
+            variant: "destructive"
+          });
+        } else {
+          setMessage('Account created successfully! You can now log in.');
           setMessageType('success');
           toast({
             title: "Account Created",
-            description: "Please check your email for verification"
+            description: "You can now log in with your credentials"
           });
           setTimeout(() => {
             setAuthMode('login');
@@ -329,7 +331,6 @@ const LoginPage: React.FC = () => {
                       setAuthMode('forgot-password');
                       setPassword('');
                       setMessage('');
-                      clearError();
                     }}>
                       Forgot password?
                     </Button>

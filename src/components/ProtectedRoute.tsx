@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useEnhancedAuth } from '@/contexts/EnhancedAuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -59,7 +59,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     refreshUserData,
     userProfile,
     hasPermission
-  } = useEnhancedAuth();
+  } = useAuth();
 
   // Show loading while initializing
   if (!isInitialized || isLoading && showLoading) {

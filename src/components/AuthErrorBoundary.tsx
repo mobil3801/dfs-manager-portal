@@ -36,7 +36,7 @@ class AuthErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('AuthErrorBoundary caught an error:', error, errorInfo);
-    
+
     this.setState({
       error,
       errorInfo,
@@ -45,7 +45,7 @@ class AuthErrorBoundary extends Component<Props, State> {
 
     // Log the error for monitoring
     this.logAuthError(error, errorInfo);
-    
+
     // Attempt automatic recovery for auth-related errors
     if (this.isAuthRelatedError(error)) {
       this.attemptAutoRecovery();
@@ -54,21 +54,21 @@ class AuthErrorBoundary extends Component<Props, State> {
 
   private isAuthRelatedError(error: Error): boolean {
     const authErrorPatterns = [
-      'authentication',
-      'login',
-      'auth',
-      'token',
-      'session',
-      'ezsite',
-      'getUserInfo',
-      'not available'
-    ];
+    'authentication',
+    'login',
+    'auth',
+    'token',
+    'session',
+    'ezsite',
+    'getUserInfo',
+    'not available'];
+
 
     const errorMessage = error.message.toLowerCase();
     const errorStack = error.stack?.toLowerCase() || '';
 
-    return authErrorPatterns.some(pattern => 
-      errorMessage.includes(pattern) || errorStack.includes(pattern)
+    return authErrorPatterns.some((pattern) =>
+    errorMessage.includes(pattern) || errorStack.includes(pattern)
     );
   }
 
@@ -89,7 +89,7 @@ class AuthErrorBoundary extends Component<Props, State> {
     };
 
     console.error('Authentication Error Report:', errorReport);
-    
+
     // In a real application, you would send this to your error tracking service
     // Example: errorTrackingService.logError(errorReport);
   }
@@ -101,30 +101,30 @@ class AuthErrorBoundary extends Component<Props, State> {
     }
 
     this.setState({ isRecovering: true });
-    
+
     try {
       console.log(`Attempting automatic recovery (${this.state.retryCount + 1}/${this.maxRetries})`);
-      
+
       // Wait a moment before retrying
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       // Try to reinitialize the authentication system
       if (window.ezsite?.apis) {
         // Test if the API is responsive
         await window.ezsite.apis.getUserInfo();
       }
-      
+
       // If we get here, the service might be working again
       this.handleRetry();
-      
+
     } catch (recoveryError) {
       console.error('Auto recovery failed:', recoveryError);
-      
-      this.setState(prevState => ({
+
+      this.setState((prevState) => ({
         retryCount: prevState.retryCount + 1,
         isRecovering: false
       }));
-      
+
       // Try again after a longer delay
       if (this.state.retryCount < this.maxRetries - 1) {
         this.retryTimeout = setTimeout(() => {
@@ -187,9 +187,9 @@ class AuthErrorBoundary extends Component<Props, State> {
                   {isAuthError ? 'Authentication System Error' : 'Application Error'}
                 </CardTitle>
                 <CardDescription>
-                  {isAuthError 
-                    ? 'The authentication system encountered an error and needs to be restored.'
-                    : 'An unexpected error occurred. Please try refreshing the page.'
+                  {isAuthError ?
+                  'The authentication system encountered an error and needs to be restored.' :
+                  'An unexpected error occurred. Please try refreshing the page.'
                   }
                 </CardDescription>
               </CardHeader>
@@ -203,73 +203,73 @@ class AuthErrorBoundary extends Component<Props, State> {
                 </Alert>
 
                 {/* Recovery Status */}
-                {this.state.isRecovering && (
-                  <Alert>
+                {this.state.isRecovering &&
+                <Alert>
                     <RefreshCw className="h-4 w-4 animate-spin" />
                     <AlertDescription>
                       Attempting to recover the authentication system... 
                       (Attempt {this.state.retryCount + 1} of {this.maxRetries})
                     </AlertDescription>
                   </Alert>
-                )}
+                }
 
                 {/* Retry Information */}
-                {this.state.retryCount > 0 && !this.state.isRecovering && (
-                  <Alert>
+                {this.state.retryCount > 0 && !this.state.isRecovering &&
+                <Alert>
                     <Shield className="h-4 w-4" />
                     <AlertDescription>
                       Automatic recovery attempts: {this.state.retryCount} of {this.maxRetries}
                       {this.state.retryCount >= this.maxRetries && ' (Max attempts reached)'}
                     </AlertDescription>
                   </Alert>
-                )}
+                }
 
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <Button 
+                  <Button
                     onClick={this.handleRetry}
                     disabled={this.state.isRecovering}
-                    className="flex-1"
-                  >
-                    {this.state.isRecovering ? (
-                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                    ) : (
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                    )}
+                    className="flex-1">
+
+                    {this.state.isRecovering ?
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> :
+
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    }
                     Try Again
                   </Button>
 
-                  <Button 
+                  <Button
                     onClick={this.handleForceReload}
                     variant="outline"
-                    className="flex-1"
-                  >
+                    className="flex-1">
+
                     <RefreshCw className="h-4 w-4 mr-2" />
                     Reload Page
                   </Button>
                 </div>
 
-                {isAuthError && (
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <Button 
-                      onClick={this.handleGoToLogin}
-                      variant="outline"
-                      className="flex-1"
-                    >
+                {isAuthError &&
+                <div className="flex flex-col sm:flex-row gap-2">
+                    <Button
+                    onClick={this.handleGoToLogin}
+                    variant="outline"
+                    className="flex-1">
+
                       <LogIn className="h-4 w-4 mr-2" />
                       Go to Login
                     </Button>
 
-                    <Button 
-                      onClick={this.handleGoHome}
-                      variant="outline"
-                      className="flex-1"
-                    >
+                    <Button
+                    onClick={this.handleGoHome}
+                    variant="outline"
+                    className="flex-1">
+
                       <Home className="h-4 w-4 mr-2" />
                       Go to Home
                     </Button>
                   </div>
-                )}
+                }
 
                 {/* Technical Details (collapsible) */}
                 <details className="mt-4">
@@ -293,22 +293,22 @@ class AuthErrorBoundary extends Component<Props, State> {
                       <div>
                         <strong>URL:</strong> {window.location.href}
                       </div>
-                      {this.state.error?.stack && (
-                        <div>
+                      {this.state.error?.stack &&
+                      <div>
                           <strong>Stack Trace:</strong>
                           <pre className="mt-1 whitespace-pre-wrap text-xs">
                             {this.state.error.stack}
                           </pre>
                         </div>
-                      )}
+                      }
                     </div>
                   </div>
                 </details>
               </CardContent>
             </Card>
           </div>
-        </div>
-      );
+        </div>);
+
     }
 
     return this.props.children;
