@@ -48,7 +48,6 @@ import SecuritySettings from '@/pages/Admin/SecuritySettings';
 import SMSAlertManagement from '@/pages/Admin/SMSAlertManagement';
 import DatabaseMonitoring from '@/pages/Admin/DatabaseMonitoring';
 import AuditMonitoring from '@/pages/Admin/AuditMonitoring';
-import AdminSetupPage from '@/pages/AdminSetupPage';
 
 import './App.css';
 
@@ -143,7 +142,6 @@ const AppRouter = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
           <Route path="/resetpassword" element={<ResetPasswordPage />} />
-          <Route path="/admin-setup" element={<AdminSetupPage />} />
           
           {/* Protected Routes */}
           <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>

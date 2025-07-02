@@ -424,8 +424,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
   };
 
   const isManager = (): boolean => {
-    return userProfile?.role === 'Management' || userProfile?.role === 'Manager' || 
-           userProfile?.role === 'Administrator' || userProfile?.role === 'Admin';
+    return userProfile?.role === 'Management' || userProfile?.role === 'Manager' ||
+    userProfile?.role === 'Administrator' || userProfile?.role === 'Admin';
   };
 
   const value: AuthContextType = {

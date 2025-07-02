@@ -1,14 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import AdminUserSetup from '@/components/AdminUserSetup';
-import AdminAccessFixer from '@/components/AdminAccessFixer';
 import { Logo } from '@/components/Logo';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const AdminSetupPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl space-y-6">
+      <div className="w-full max-w-md space-y-6">
         {/* Logo and Company Name */}
         <div className="text-center">
           <div className="flex flex-col items-center">
@@ -22,38 +19,15 @@ const AdminSetupPage: React.FC = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="fix-access" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="fix-access">Fix Admin Access</TabsTrigger>
-            <TabsTrigger value="create-new">Create New Admin</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="fix-access" className="space-y-4">
-            <AdminAccessFixer />
-          </TabsContent>
-          
-          <TabsContent value="create-new" className="space-y-4">
-            <AdminUserSetup />
-          </TabsContent>
-        </Tabs>
-
-        <div className="text-center">
-          <Button 
-            variant="link" 
-            onClick={() => window.location.href = '/login'}
-            className="text-blue-600 hover:text-blue-800"
-          >
-            ← Back to Login
-          </Button>
-        </div>
+        <AdminUserSetup />
 
         {/* Footer */}
         <div className="text-center text-sm text-slate-500">
           <p>&copy; 2024 DFS Management Systems. All rights reserved.</p>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AdminSetupPage;

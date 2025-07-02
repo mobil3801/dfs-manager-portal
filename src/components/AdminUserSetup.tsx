@@ -29,8 +29,8 @@ const AdminUserSetup: React.FC = () => {
         PageNo: 1,
         PageSize: 1,
         Filters: [
-          { name: 'role', op: 'Equal', value: 'Admin' }
-        ]
+        { name: 'role', op: 'Equal', value: 'Admin' }]
+
       });
 
       if (profileResponse.data?.List?.length > 0) {
@@ -43,8 +43,8 @@ const AdminUserSetup: React.FC = () => {
           PageNo: 1,
           PageSize: 1,
           Filters: [
-            { name: 'role', op: 'Equal', value: 'Administrator' }
-          ]
+          { name: 'role', op: 'Equal', value: 'Administrator' }]
+
         });
 
         if (adminResponse.data?.List?.length > 0) {
@@ -87,7 +87,7 @@ const AdminUserSetup: React.FC = () => {
       }
 
       // Wait a moment for user to be created
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Get the user info to find the user ID
       const loginResponse = await window.ezsite.apis.login({
@@ -101,7 +101,7 @@ const AdminUserSetup: React.FC = () => {
 
       // Get user info to get the ID
       const userInfoResponse = await window.ezsite.apis.getUserInfo();
-      
+
       if (userInfoResponse.error || !userInfoResponse.data) {
         throw new Error('Failed to get user info after login');
       }
@@ -139,7 +139,7 @@ const AdminUserSetup: React.FC = () => {
       setMessage('Admin user created successfully! You can now login with admin privileges.');
       setMessageType('success');
       setHasAdmin(true);
-      
+
       toast({
         title: 'Success',
         description: 'Admin user created successfully'
@@ -153,7 +153,7 @@ const AdminUserSetup: React.FC = () => {
       const errorMessage = error instanceof Error ? error.message : 'Failed to create admin user';
       setMessage(errorMessage);
       setMessageType('error');
-      
+
       toast({
         title: 'Error',
         description: errorMessage,
@@ -172,8 +172,8 @@ const AdminUserSetup: React.FC = () => {
           <CardTitle>Checking Admin Status</CardTitle>
           <CardDescription>Please wait while we check for admin users...</CardDescription>
         </CardHeader>
-      </Card>
-    );
+      </Card>);
+
   }
 
   if (hasAdmin) {
@@ -192,17 +192,17 @@ const AdminUserSetup: React.FC = () => {
             </AlertDescription>
           </Alert>
           <div className="mt-4 text-center">
-            <Button 
+            <Button
               onClick={checkAdminExists}
               variant="outline"
-              className="mr-2"
-            >
+              className="mr-2">
+
               Refresh Status
             </Button>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -215,18 +215,18 @@ const AdminUserSetup: React.FC = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {message && (
-          <Alert className={`${messageType === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-            {messageType === 'success' ? (
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-            ) : (
-              <AlertCircle className="h-4 w-4 text-red-600" />
-            )}
+        {message &&
+        <Alert className={`${messageType === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+            {messageType === 'success' ?
+          <CheckCircle2 className="h-4 w-4 text-green-600" /> :
+
+          <AlertCircle className="h-4 w-4 text-red-600" />
+          }
             <AlertDescription className={messageType === 'success' ? 'text-green-800' : 'text-red-800'}>
               {message}
             </AlertDescription>
           </Alert>
-        )}
+        }
 
         <div className="space-y-2">
           <Label htmlFor="adminEmail">Admin Email</Label>
@@ -236,8 +236,8 @@ const AdminUserSetup: React.FC = () => {
             value={adminEmail}
             onChange={(e) => setAdminEmail(e.target.value)}
             placeholder="admin@dfs-portal.com"
-            disabled={isLoading}
-          />
+            disabled={isLoading} />
+
         </div>
 
         <div className="space-y-2">
@@ -249,8 +249,8 @@ const AdminUserSetup: React.FC = () => {
             onChange={(e) => setAdminPassword(e.target.value)}
             placeholder="Enter secure password"
             disabled={isLoading}
-            minLength={6}
-          />
+            minLength={6} />
+
           <p className="text-sm text-muted-foreground">
             Password must be at least 6 characters long
           </p>
@@ -259,34 +259,34 @@ const AdminUserSetup: React.FC = () => {
         <Button
           onClick={createAdminUser}
           disabled={isLoading || !adminEmail || !adminPassword}
-          className="w-full"
-        >
-          {isLoading ? (
-            <>
+          className="w-full">
+
+          {isLoading ?
+          <>
               <UserPlus className="mr-2 h-4 w-4 animate-spin" />
               Creating Admin User...
-            </>
-          ) : (
-            <>
+            </> :
+
+          <>
               <UserPlus className="mr-2 h-4 w-4" />
               Create Admin User
             </>
-          )}
+          }
         </Button>
 
         <div className="text-center">
-          <Button 
+          <Button
             onClick={checkAdminExists}
             variant="link"
             disabled={isLoading}
-            className="text-sm"
-          >
+            className="text-sm">
+
             Check Again
           </Button>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default AdminUserSetup;
