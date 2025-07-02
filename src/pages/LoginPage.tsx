@@ -48,8 +48,8 @@ const LoginPage = () => {
           <img
             src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
             alt="Logo"
-            className="h-16 w-auto mx-auto mb-4"
-          />
+            className="h-16 w-auto mx-auto mb-4" />
+
           <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
           <p className="text-gray-600 mt-2">Sign in to access your dashboard</p>
         </div>
@@ -75,8 +75,8 @@ const LoginPage = () => {
                   value={loginData.email}
                   onChange={(e) => setLoginData((prev) => ({ ...prev, email: e.target.value }))}
                   disabled={isSubmitting}
-                  required
-                />
+                  required />
+
               </div>
               
               <div className="space-y-2">
@@ -89,15 +89,15 @@ const LoginPage = () => {
                     value={loginData.password}
                     onChange={(e) => setLoginData((prev) => ({ ...prev, password: e.target.value }))}
                     disabled={isSubmitting}
-                    required
-                  />
+                    required />
+
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
                     className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
+                    onClick={() => setShowPassword(!showPassword)}>
+
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
@@ -106,8 +106,8 @@ const LoginPage = () => {
               <div className="text-right">
                 <Link
                   to="/resetpassword"
-                  className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
-                >
+                  className="text-sm text-blue-600 hover:text-blue-800 hover:underline">
+
                   Forgot password?
                 </Link>
               </div>
@@ -115,19 +115,19 @@ const LoginPage = () => {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={isSubmitting || isLoading}
-              >
-                {isSubmitting ? (
-                  <div className="flex items-center">
+                disabled={isSubmitting || isLoading}>
+
+                {isSubmitting ?
+                <div className="flex items-center">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                     Signing In...
-                  </div>
-                ) : (
-                  <>
+                  </div> :
+
+                <>
                     <LogIn className="w-4 h-4 mr-2" />
                     Sign In
                   </>
-                )}
+                }
               </Button>
             </form>
 
@@ -143,8 +143,8 @@ const LoginPage = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default LoginPage;

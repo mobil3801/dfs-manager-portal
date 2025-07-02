@@ -13,10 +13,10 @@ interface CreateUserDialogProps {
   onUserCreated: () => void;
 }
 
-const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ 
-  open, 
-  onOpenChange, 
-  onUserCreated 
+const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
+  open,
+  onOpenChange,
+  onUserCreated
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -55,9 +55,9 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
     setIsSubmitting(true);
     try {
       // Register the user
-      const { error: registerError } = await window.ezsite.apis.register({ 
-        email: formData.email, 
-        password: formData.password 
+      const { error: registerError } = await window.ezsite.apis.register({
+        email: formData.email,
+        password: formData.password
       });
 
       if (registerError) {
@@ -71,7 +71,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
       // For now, we'll create the profile record assuming the user will verify later
 
       toast.success('User account created successfully. User will need to verify their email.');
-      
+
       // Reset form
       setFormData({
         email: '',
@@ -132,10 +132,10 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
                 type="text"
                 placeholder="User's full name"
                 value={formData.fullName}
-                onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, fullName: e.target.value }))}
                 disabled={isSubmitting}
-                required
-              />
+                required />
+
             </div>
             <div className="space-y-2">
               <Label htmlFor="username">Username</Label>
@@ -144,9 +144,9 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
                 type="text"
                 placeholder="Optional username"
                 value={formData.username}
-                onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
-                disabled={isSubmitting}
-              />
+                onChange={(e) => setFormData((prev) => ({ ...prev, username: e.target.value }))}
+                disabled={isSubmitting} />
+
             </div>
           </div>
 
@@ -157,10 +157,10 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
               type="email"
               placeholder="user@example.com"
               value={formData.email}
-              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
               disabled={isSubmitting}
-              required
-            />
+              required />
+
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -172,17 +172,17 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Choose a password"
                   value={formData.password}
-                  onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
                   disabled={isSubmitting}
-                  required
-                />
+                  required />
+
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
                   className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
+                  onClick={() => setShowPassword(!showPassword)}>
+
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
@@ -195,17 +195,17 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
                   type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="Confirm password"
                   value={formData.confirmPassword}
-                  onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, confirmPassword: e.target.value }))}
                   disabled={isSubmitting}
-                  required
-                />
+                  required />
+
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
                   className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+
                   {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
@@ -215,7 +215,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
-              <Select value={formData.role} onValueChange={(value) => setFormData(prev => ({ ...prev, role: value }))}>
+              <Select value={formData.role} onValueChange={(value) => setFormData((prev) => ({ ...prev, role: value }))}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -229,7 +229,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
             </div>
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
-              <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
+              <Select value={formData.status} onValueChange={(value) => setFormData((prev) => ({ ...prev, status: value }))}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -250,9 +250,9 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
                 type="text"
                 placeholder="e.g., IT, Sales"
                 value={formData.department}
-                onChange={(e) => setFormData(prev => ({ ...prev, department: e.target.value }))}
-                disabled={isSubmitting}
-              />
+                onChange={(e) => setFormData((prev) => ({ ...prev, department: e.target.value }))}
+                disabled={isSubmitting} />
+
             </div>
             <div className="space-y-2">
               <Label htmlFor="phone">Phone Number</Label>
@@ -261,9 +261,9 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
                 type="tel"
                 placeholder="+1 (555) 000-0000"
                 value={formData.phone}
-                onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                disabled={isSubmitting}
-              />
+                onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
+                disabled={isSubmitting} />
+
             </div>
           </div>
 
@@ -272,23 +272,23 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <div className="flex items-center">
+              {isSubmitting ?
+              <div className="flex items-center">
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                   Creating User...
-                </div>
-              ) : (
-                <>
+                </div> :
+
+              <>
                   <UserPlus className="w-4 h-4 mr-2" />
                   Create User
                 </>
-              )}
+              }
             </Button>
           </div>
         </form>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default CreateUserDialog;

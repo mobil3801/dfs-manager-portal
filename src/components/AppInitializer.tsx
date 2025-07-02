@@ -55,13 +55,13 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ children }) => {
           <img
             src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
             alt="Logo"
-            className="h-16 w-auto mx-auto mb-4"
-          />
+            className="h-16 w-auto mx-auto mb-4" />
+
           <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Initializing application...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   if (isFirstTimeSetup) {
