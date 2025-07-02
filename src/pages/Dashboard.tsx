@@ -221,7 +221,7 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Status</label>
-                  <Badge variant={userProfile.status === 'active' ? 'default' : 'secondary'} className="text-[18px] py-[20px] text-justify mx-[18px] px-[26px] inline-flex items-center rounded-md border text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80">
+                  <Badge variant={userProfile.status === 'active' ? 'default' : 'secondary'} className="px-[20px] py-[11px] text-justify mx-[18px] inline-flex items-center rounded-md border text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80">
                     {userProfile.status}
                   </Badge>
                 </div>

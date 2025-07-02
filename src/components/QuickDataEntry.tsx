@@ -228,6 +228,10 @@ const QuickDataEntry: React.FC = () => {
 
 
 
+
+
+
+
               // Optionally switch to view tab after saving
               // setActiveTab('view');
             }} />
