@@ -1,4 +1,5 @@
 // Enhanced ClickSend SMS Service with advanced features
+// Updated to use the main ClickSend service with provided credentials
 
 import { clickSendSmsService, SMSResponse, SMSMessage, ClickSendConfig } from './clickSendSmsService';
 
@@ -37,7 +38,19 @@ class EnhancedClickSendSMSService {
   private jobQueue: Map<string, BulkSMSJob> = new Map();
   private retryQueue: Array<{message: SMSMessage; attempts: number; maxAttempts: number;}> = [];
 
-  constructor(private baseService = clickSendSmsService) {}
+  constructor(private baseService = clickSendSmsService) {
+    // Initialize the base service with provided credentials
+    this.initializeBaseService();
+  }
+
+  private async initializeBaseService() {
+    try {
+      // The base service auto-initializes with provided credentials
+      console.log('🔧 Enhanced ClickSend SMS service initialized');
+    } catch (error) {
+      console.error('❌ Failed to initialize enhanced SMS service:', error);
+    }
+  }
 
   async sendAdvancedSMS(
     phoneNumber: string,
@@ -63,7 +76,7 @@ class EnhancedClickSendSMSService {
         type: options.priority || 'normal'
       };
 
-      // Send SMS
+      // Send SMS using ClickSend
       const response = await this.baseService.sendSMS(smsMessage);
 
       // Handle retry logic for failed messages
@@ -485,6 +498,27 @@ class EnhancedClickSendSMSService {
       console.error('Error getting message templates:', error);
       return [];
     }
+  }
+
+  // Wrapper methods to use the base ClickSend service
+  async sendSMS(message: SMSMessage): Promise<SMSResponse> {
+    return this.baseService.sendSMS(message);
+  }
+
+  async testSMS(phoneNumber: string): Promise<SMSResponse> {
+    return this.baseService.testSMS(phoneNumber);
+  }
+
+  async getAccountBalance(): Promise<number> {
+    return this.baseService.getAccountBalance();
+  }
+
+  async getServiceStatus() {
+    return this.baseService.getServiceStatus();
+  }
+
+  isServiceConfigured(): boolean {
+    return this.baseService.isServiceConfigured();
   }
 }
 

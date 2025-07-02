@@ -1,30 +1,14 @@
-// Legacy SMS Service - DEPRECATED: Use clickSendSmsService.ts instead
-// This file is kept for backward compatibility
+// Legacy SMS Service - REDIRECTS TO CLICKSEND
+// This file redirects all SMS functionality to use ClickSend exclusively
+// Maintained for backward compatibility
 
-export interface SMSResponse {
-  success: boolean;
-  messageId?: string;
-  error?: string;
-  cost?: number;
-  status?: string;
-  sinchMessageId?: string;
-}
+import { clickSendSmsService } from './clickSendSmsService';
+import type { SMSResponse, SMSMessage, ClickSendConfig } from './clickSendSmsService';
 
-export interface SMSMessage {
-  to: string;
-  message: string;
-  type?: string;
-  templateId?: number;
-  placeholders?: Record<string, string>;
-}
+// Re-export types for backward compatibility
+export type { SMSResponse, SMSMessage, ClickSendConfig };
 
-export interface SinchClickSendConfig {
-  apiKey: string;
-  username: string;
-  fromNumber: string;
-  testMode: boolean;
-  webhookUrl?: string;
-}
+export interface SinchClickSendConfig extends ClickSendConfig {} // Deprecated alias
 
 export interface SMSTemplate {
   id: number;
@@ -35,558 +19,112 @@ export interface SMSTemplate {
   priority_level: string;
 }
 
-class SMSService {
-  private config: SinchClickSendConfig | null = null;
-  private isConfigured: boolean = false;
-  private testNumbers: string[] = []; // Verified test numbers
-  private apiBaseUrl = 'https://rest.clicksend.com/v3';
+// Legacy SMS Service class that redirects to ClickSend
+class LegacySMSService {
+  constructor() {
+    console.log('🔄 Legacy SMS Service initialized - All requests will be handled by ClickSend');
+  }
 
-  async configure(config: SinchClickSendConfig) {
-    this.config = config;
-    this.isConfigured = true;
-
-    // Validate Sinch ClickSend credentials
-    try {
-      await this.validateCredentials();
-      console.log('Sinch ClickSend SMS service configured successfully');
-    } catch (error) {
-      console.error('Failed to configure Sinch ClickSend:', error);
-      this.isConfigured = false;
-      throw error;
-    }
+  // All methods redirect to ClickSend service
+  async configure(config: SinchClickSendConfig | ClickSendConfig) {
+    console.log('🔄 Redirecting configuration to ClickSend service');
+    return clickSendSmsService.configure(config);
   }
 
   async loadConfiguration(): Promise<void> {
-    try {
-      const { data, error } = await window.ezsite.apis.tablePage(24060, {
-        PageNo: 1,
-        PageSize: 1,
-        OrderByField: 'id',
-        IsAsc: false,
-        Filters: [{ name: 'is_enabled', op: 'Equal', value: true }]
-      });
-
-      if (error) throw new Error(error);
-
-      if (data?.List && data.List.length > 0) {
-        const config = data.List[0];
-        await this.configure({
-          apiKey: config.api_key,
-          username: config.username,
-          fromNumber: config.from_number,
-          testMode: config.test_mode || false,
-          webhookUrl: config.webhook_url
-        });
-      }
-    } catch (error) {
-      console.error('Error loading SMS configuration:', error);
-    }
-  }
-
-  private async validateCredentials(): Promise<boolean> {
-    if (!this.config) return false;
-
-    try {
-      // Test Sinch ClickSend API connection
-      const response = await this.makeSinchRequest('GET', '/account');
-      return response.success;
-    } catch (error) {
-      console.error('Sinch ClickSend credential validation failed:', error);
-      return false;
-    }
-  }
-
-  private async makeSinchRequest(method: string, endpoint: string, data?: any): Promise<any> {
-    if (!this.config) {
-      throw new Error('SMS service not configured');
-    }
-
-    const url = `${this.apiBaseUrl}${endpoint}`;
-    const credentials = btoa(`${this.config.username}:${this.config.apiKey}`);
-
-    try {
-      const options: RequestInit = {
-        method,
-        headers: {
-          'Authorization': `Basic ${credentials}`,
-          'Content-Type': 'application/json'
-        }
-      };
-
-      if (data && (method === 'POST' || method === 'PUT')) {
-        options.body = JSON.stringify(data);
-      }
-
-      const response = await fetch(url, options);
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || `HTTP ${response.status}`);
-      }
-
-      return { success: true, data: result };
-    } catch (error) {
-      console.error('Sinch ClickSend API request failed:', error);
-      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
-    }
+    return clickSendSmsService.loadConfiguration();
   }
 
   async sendSMS(message: SMSMessage): Promise<SMSResponse> {
-    if (!this.isConfigured || !this.config) {
-      return {
-        success: false,
-        error: 'SMS service not configured. Please configure Sinch ClickSend settings.'
-      };
-    }
-
-    // Validate phone number format
-    if (!this.isValidPhoneNumber(message.to)) {
-      return {
-        success: false,
-        error: 'Invalid phone number format. Use E.164 format (+1234567890)'
-      };
-    }
-
-    // Check test mode restrictions
-    if (this.config.testMode && !this.testNumbers.includes(message.to)) {
-      return {
-        success: false,
-        error: 'Test mode is enabled. Phone number must be verified for testing.'
-      };
-    }
-
-    try {
-      // Check daily limits
-      await this.checkDailyLimit();
-
-      // Process template if templateId is provided
-      let finalMessage = message.message;
-      if (message.templateId) {
-        finalMessage = await this.processTemplate(message.templateId, message.placeholders || {});
-      }
-
-      // Send SMS via Sinch ClickSend
-      const response = await this.sendToSinchClickSend({
-        to: message.to,
-        message: finalMessage,
-        type: message.type
-      });
-
-      // Log to SMS history
-      await this.logSMSHistory({
-        recipient_phone: message.to,
-        message_content: finalMessage,
-        status: response.success ? 'Sent' : 'Failed',
-        sent_at: new Date().toISOString(),
-        sms_provider_id: response.sinchMessageId,
-        error_message: response.error,
-        cost: response.cost || 0
-      });
-
-      // Update daily count
-      if (response.success) {
-        await this.updateDailyCount();
-      }
-
-      return response;
-    } catch (error) {
-      console.error('SMS sending error:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred'
-      };
-    }
-  }
-
-  private async sendToSinchClickSend(message: SMSMessage): Promise<SMSResponse> {
-    try {
-      const smsData = {
-        messages: [
-        {
-          from: this.config?.fromNumber || '',
-          to: message.to,
-          body: message.message,
-          source: 'javascript'
-        }]
-
-      };
-
-      const response = await this.makeSinchRequest('POST', '/sms/send', smsData);
-
-      if (response.success && response.data) {
-        const messageResult = response.data.data.messages[0];
-
-        return {
-          success: messageResult.status === 'SUCCESS',
-          messageId: messageResult.message_id,
-          sinchMessageId: messageResult.message_id,
-          cost: messageResult.message_price,
-          status: messageResult.status,
-          error: messageResult.status !== 'SUCCESS' ? messageResult.custom_string : undefined
-        };
-      }
-
-      return {
-        success: false,
-        error: response.error || 'Failed to send SMS'
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred'
-      };
-    }
-  }
-
-  private async processTemplate(templateId: number, placeholders: Record<string, string>): Promise<string> {
-    try {
-      const { data, error } = await window.ezsite.apis.tablePage('sms_templates', {
-        PageNo: 1,
-        PageSize: 1,
-        OrderByField: 'id',
-        IsAsc: false,
-        Filters: [{ name: 'id', op: 'Equal', value: templateId }]
-      });
-
-      if (error) throw new Error(error);
-
-      if (data?.List && data.List.length > 0) {
-        let message = data.List[0].message_content;
-
-        // Replace placeholders
-        Object.entries(placeholders).forEach(([key, value]) => {
-          message = message.replace(new RegExp(`{${key}}`, 'g'), value);
-        });
-
-        return message;
-      }
-
-      throw new Error('Template not found');
-    } catch (error) {
-      console.error('Error processing template:', error);
-      throw error;
-    }
-  }
-
-  private async checkDailyLimit(): Promise<void> {
-    try {
-      const { data, error } = await window.ezsite.apis.tablePage(24060, {
-        PageNo: 1,
-        PageSize: 1,
-        OrderByField: 'id',
-        IsAsc: false,
-        Filters: [{ name: 'is_enabled', op: 'Equal', value: true }]
-      });
-
-      if (error) throw new Error(error);
-
-      if (data?.List && data.List.length > 0) {
-        const config = data.List[0];
-        const today = new Date().toISOString().split('T')[0];
-
-        // Count today's SMS messages
-        const { data: historyData } = await window.ezsite.apis.tablePage(24062, {
-          PageNo: 1,
-          PageSize: 1,
-          OrderByField: 'id',
-          IsAsc: false,
-          Filters: [
-          { name: 'sent_at', op: 'StringStartsWith', value: today },
-          { name: 'status', op: 'Equal', value: 'Sent' }]
-
-        });
-
-        const todayCount = historyData?.VirtualCount || 0;
-
-        if (todayCount >= config.daily_limit) {
-          throw new Error('Daily SMS limit exceeded. Please contact administrator or wait for tomorrow.');
-        }
-      }
-    } catch (error) {
-      console.error('Error checking daily limit:', error);
-      throw error;
-    }
-  }
-
-  private async updateDailyCount(): Promise<void> {
-
-
-
-
-
-
-
-
-
-
-
-
-    // This is handled by counting records in the history table
-    // No need for a separate counter field
-  }private async logSMSHistory(historyData: any): Promise<void> {try {await window.ezsite.apis.tableCreate(24062, { ...historyData, sent_by: 1 // This should be the current user ID
-        });} catch (error) {console.error('Error logging SMS history:', error);}}private isValidPhoneNumber(phoneNumber: string): boolean {
-    // E.164 format validation
-    const e164Regex = /^\+[1-9]\d{1,14}$/;
-    return e164Regex.test(phoneNumber);
+    return clickSendSmsService.sendSMS(message);
   }
 
   async sendBulkSMS(messages: SMSMessage[]): Promise<SMSResponse[]> {
-    const results = [];
-    for (const message of messages) {
-      try {
-        const result = await this.sendSMS(message);
-        results.push(result);
-        // Add small delay between messages to respect rate limits
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      } catch (error) {
-        results.push({
-          success: false,
-          error: error instanceof Error ? error.message : 'Unknown error'
-        });
-      }
-    }
-    return results;
+    return clickSendSmsService.sendBulkSMS(messages);
   }
 
-  async getDeliveryStatus(messageId: string): Promise<{status: string;delivered: boolean;}> {
-    if (!this.isConfigured) {
-      throw new Error('SMS service not configured');
-    }
-
-    try {
-      const response = await this.makeSinchRequest('GET', `/sms/history/${messageId}`);
-
-      if (response.success && response.data) {
-        const status = response.data.data.status;
-        return {
-          status: status,
-          delivered: status === 'Delivered'
-        };
-      }
-
-      return {
-        status: 'unknown',
-        delivered: false
-      };
-    } catch (error) {
-      console.error('Error getting delivery status:', error);
-      return {
-        status: 'error',
-        delivered: false
-      };
-    }
+  async getDeliveryStatus(messageId: string): Promise<{status: string; delivered: boolean;}> {
+    return clickSendSmsService.getDeliveryStatus(messageId);
   }
 
   async testSMS(phoneNumber: string): Promise<SMSResponse> {
-    const testMessage = {
-      to: phoneNumber,
-      message: `DFS Manager SMS Test - ${new Date().toLocaleString()}. If you receive this message, Sinch ClickSend SMS is working correctly.`,
-      type: 'test'
-    };
-
-    return this.sendSMS(testMessage);
+    return clickSendSmsService.testSMS(phoneNumber);
   }
 
   async addTestNumber(phoneNumber: string): Promise<void> {
-    if (this.isValidPhoneNumber(phoneNumber)) {
-      this.testNumbers.push(phoneNumber);
-    } else {
-      throw new Error('Invalid phone number format');
-    }
+    return clickSendSmsService.addTestNumber(phoneNumber);
   }
 
   async removeTestNumber(phoneNumber: string): Promise<void> {
-    this.testNumbers = this.testNumbers.filter((num) => num !== phoneNumber);
+    return clickSendSmsService.removeTestNumber(phoneNumber);
   }
 
   getTestNumbers(): string[] {
-    return [...this.testNumbers];
+    return clickSendSmsService.getTestNumbers();
   }
 
-  async getDailyUsage(): Promise<{used: number;limit: number;percentage: number;}> {
-    try {
-      const { data, error } = await window.ezsite.apis.tablePage(24060, {
-        PageNo: 1,
-        PageSize: 1,
-        OrderByField: 'id',
-        IsAsc: false,
-        Filters: [{ name: 'is_enabled', op: 'Equal', value: true }]
-      });
-
-      if (error) throw new Error(error);
-
-      if (data?.List && data.List.length > 0) {
-        const config = data.List[0];
-        const today = new Date().toISOString().split('T')[0];
-
-        // Count today's SMS messages
-        const { data: historyData } = await window.ezsite.apis.tablePage(24062, {
-          PageNo: 1,
-          PageSize: 1,
-          OrderByField: 'id',
-          IsAsc: false,
-          Filters: [
-          { name: 'sent_at', op: 'StringStartsWith', value: today },
-          { name: 'status', op: 'Equal', value: 'Sent' }]
-
-        });
-
-        const used = historyData?.VirtualCount || 0;
-        const limit = config.daily_limit;
-        const percentage = used / limit * 100;
-
-        return { used, limit, percentage };
-      }
-
-      return { used: 0, limit: 100, percentage: 0 };
-    } catch (error) {
-      console.error('Error getting daily usage:', error);
-      return { used: 0, limit: 100, percentage: 0 };
-    }
+  async getDailyUsage(): Promise<{used: number; limit: number; percentage: number;}> {
+    return clickSendSmsService.getDailyUsage();
   }
 
   isServiceConfigured(): boolean {
-    return this.isConfigured;
+    return clickSendSmsService.isServiceConfigured();
   }
 
-  getConfiguration(): SinchClickSendConfig | null {
-    return this.config;
+  getConfiguration(): ClickSendConfig | null {
+    return clickSendSmsService.getConfiguration();
   }
 
-  async getServiceStatus(): Promise<{available: boolean;message: string;providers?: any;quota?: any;}> {
-    try {
-      if (!this.isConfigured) {
-        return {
-          available: false,
-          message: 'SMS service not configured. Please configure Sinch ClickSend settings.'
-        };
-      }
-
-      const accountResponse = await this.makeSinchRequest('GET', '/account');
-
-      const providers = [
-      { name: 'Sinch ClickSend', available: this.isConfigured && accountResponse.success }];
-
-
-      const quota = {
-        quotaRemaining: accountResponse.success ? accountResponse.data?.data?.balance || 0 : 0
-      };
-
-      return {
-        available: accountResponse.success,
-        message: accountResponse.success ? 'Sinch ClickSend SMS service is configured and ready' : 'Sinch ClickSend connection failed',
-        providers,
-        quota
-      };
-    } catch (error) {
-      console.error('Error checking service status:', error);
-      return {
-        available: false,
-        message: 'Error checking service status'
-      };
-    }
+  async getServiceStatus(): Promise<{available: boolean; message: string; providers?: any; quota?: any;}> {
+    return clickSendSmsService.getServiceStatus();
   }
 
   async sendSimpleSMS(phoneNumber: string, message: string, fromNumber?: string): Promise<SMSResponse> {
-    const originalConfig = this.config;
-    if (fromNumber && this.config) {
-      this.config = { ...this.config, fromNumber };
-    }
-
-    try {
-      const result = await this.sendSMS({
-        to: phoneNumber,
-        message: message,
-        type: 'custom'
-      });
-      return result;
-    } finally {
-      if (originalConfig) {
-        this.config = originalConfig;
-      }
-    }
+    return clickSendSmsService.sendSimpleSMS(phoneNumber, message, fromNumber);
   }
 
-  async getAvailableFromNumbers(): Promise<{number: string;provider: string;isActive: boolean;testMode: boolean;}[]> {
-    try {
-      const { data, error } = await window.ezsite.apis.tablePage(24060, {
-        PageNo: 1,
-        PageSize: 10,
-        OrderByField: 'id',
-        IsAsc: false,
-        Filters: []
-      });
-
-      if (error) throw new Error(error);
-
-      return (data?.List || []).map((provider: any) => ({
-        number: provider.from_number,
-        provider: 'Sinch ClickSend',
-        isActive: provider.is_enabled,
-        testMode: provider.test_mode || false
-      }));
-    } catch (error) {
-      console.error('Error getting available from numbers:', error);
-      return [];
-    }
+  async getAvailableFromNumbers(): Promise<{number: string; provider: string; isActive: boolean; testMode: boolean;}[]> {
+    return clickSendSmsService.getAvailableFromNumbers();
   }
 
   async sendCustomSMS(phoneNumber: string, message: string, fromNumber: string): Promise<SMSResponse> {
-    return this.sendSimpleSMS(phoneNumber, message, fromNumber);
+    return clickSendSmsService.sendCustomSMS(phoneNumber, message, fromNumber);
   }
 
   async getAccountBalance(): Promise<number> {
-    try {
-      const response = await this.makeSinchRequest('GET', '/account');
-      if (response.success && response.data) {
-        return response.data.data.balance || 0;
-      }
-      return 0;
-    } catch (error) {
-      console.error('Error getting account balance:', error);
-      return 0;
-    }
+    return clickSendSmsService.getAccountBalance();
   }
 }
 
-export const smsService = new SMSService();
-
-// Enhanced SMS Service with production features
-class ProductionSMSService extends SMSService {
+// Legacy SMS Service with production features
+class LegacyProductionSMSService extends LegacySMSService {
   async loadEnvironmentConfig(): Promise<void> {
-    try {
-      // Load from environment variables first
-      const envConfig = {
-        apiKey: import.meta.env.VITE_SINCH_API_KEY,
-        username: import.meta.env.VITE_SINCH_USERNAME,
-        fromNumber: import.meta.env.VITE_SINCH_FROM_NUMBER,
-        testMode: import.meta.env.VITE_SMS_TEST_MODE === 'true',
-        webhookUrl: import.meta.env.VITE_SMS_WEBHOOK_URL
-      };
-
-      if (envConfig.apiKey && envConfig.username && envConfig.fromNumber) {
-        await this.configure(envConfig);
-        console.log('📱 Sinch ClickSend SMS service configured from environment variables');
-      } else {
-        // Fallback to database configuration
-        await this.loadConfiguration();
-        console.log('📱 Sinch ClickSend SMS service configured from database');
-      }
-    } catch (error) {
-      console.error('Error loading SMS configuration:', error);
-      throw error;
-    }
+    console.log('🔄 Legacy production service redirecting to ClickSend production service');
+    // Always use ClickSend with provided credentials
+    await clickSendSmsService.loadConfiguration();
   }
 
   async initializeForProduction(): Promise<void> {
-    try {
-      await this.loadEnvironmentConfig();
-      console.log('🚀 Production Sinch ClickSend SMS service initialized');
-    } catch (error) {
-      console.error('❌ Failed to initialize production SMS service:', error);
-      throw error;
-    }
+    console.log('🚀 Legacy production SMS service redirected to ClickSend production service');
+    await this.loadEnvironmentConfig();
   }
 }
 
-export const productionSmsService = new ProductionSMSService();
+// Export instances that redirect to ClickSend
+export const smsService = new LegacySMSService();
+export const productionSmsService = new LegacyProductionSMSService();
+
+// Export the actual ClickSend service as well for direct access
+export { clickSendSmsService } from './clickSendSmsService';
+export { enhancedClickSendSmsService } from './enhancedClickSendSmsService';
+
+// Default export is the ClickSend service
+export default clickSendSmsService;
+
+// Deprecation warning
+console.warn(`
+⚠️  DEPRECATION NOTICE: smsService.ts is deprecated
+📱 All SMS functionality now uses ClickSend exclusively
+🔄 Please migrate to: import { clickSendSmsService } from './clickSendSmsService'
+✅ Your provided ClickSend credentials are active: mobil3801beach@gmail.com
+`);

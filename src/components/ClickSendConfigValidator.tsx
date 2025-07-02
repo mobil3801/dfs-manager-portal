@@ -22,8 +22,8 @@ import {
   ExternalLink,
   Copy,
   Eye,
-  EyeOff
-} from 'lucide-react';
+  EyeOff } from
+'lucide-react';
 
 interface ValidationResult {
   field: string;
@@ -250,10 +250,10 @@ const ClickSendConfigValidator: React.FC = () => {
     }
   };
 
-  const testClickSendConnection = async (): Promise<{success: boolean; error?: string;}> => {
+  const testClickSendConnection = async (): Promise<{success: boolean;error?: string;}> => {
     try {
       const credentials = btoa(`${config.username}:${config.apiKey}`);
-      
+
       const response = await fetch('https://rest.clicksend.com/v3/account', {
         method: 'GET',
         headers: {
@@ -380,14 +380,14 @@ const ClickSendConfigValidator: React.FC = () => {
                     id="username"
                     placeholder="Your ClickSend username"
                     value={config.username}
-                    onChange={(e) => setConfig((prev) => ({ ...prev, username: e.target.value }))}
-                  />
+                    onChange={(e) => setConfig((prev) => ({ ...prev, username: e.target.value }))} />
+
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => copyToClipboard(config.username)}
-                    disabled={!config.username}
-                  >
+                    disabled={!config.username}>
+
                     <Copy className="w-4 h-4" />
                   </Button>
                 </div>
@@ -404,13 +404,13 @@ const ClickSendConfigValidator: React.FC = () => {
                     type={showApiKey ? "text" : "password"}
                     placeholder="Your ClickSend API key"
                     value={config.apiKey}
-                    onChange={(e) => setConfig((prev) => ({ ...prev, apiKey: e.target.value }))}
-                  />
+                    onChange={(e) => setConfig((prev) => ({ ...prev, apiKey: e.target.value }))} />
+
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setShowApiKey(!showApiKey)}
-                  >
+                    onClick={() => setShowApiKey(!showApiKey)}>
+
                     {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </Button>
                 </div>
@@ -425,8 +425,8 @@ const ClickSendConfigValidator: React.FC = () => {
                   id="fromNumber"
                   placeholder="+1234567890"
                   value={config.fromNumber}
-                  onChange={(e) => setConfig((prev) => ({ ...prev, fromNumber: e.target.value }))}
-                />
+                  onChange={(e) => setConfig((prev) => ({ ...prev, fromNumber: e.target.value }))} />
+
               </div>
 
               <div className="space-y-2">
@@ -435,16 +435,16 @@ const ClickSendConfigValidator: React.FC = () => {
                   id="webhookUrl"
                   placeholder="https://your-app.com/webhooks/sms"
                   value={config.webhookUrl}
-                  onChange={(e) => setConfig((prev) => ({ ...prev, webhookUrl: e.target.value }))}
-                />
+                  onChange={(e) => setConfig((prev) => ({ ...prev, webhookUrl: e.target.value }))} />
+
               </div>
             </div>
 
             <div className="flex items-center space-x-2">
               <Switch
                 checked={config.testMode}
-                onCheckedChange={(checked) => setConfig((prev) => ({ ...prev, testMode: checked }))}
-              />
+                onCheckedChange={(checked) => setConfig((prev) => ({ ...prev, testMode: checked }))} />
+
               <Label>Test Mode (Only verified numbers can receive SMS)</Label>
             </div>
 
@@ -452,41 +452,41 @@ const ClickSendConfigValidator: React.FC = () => {
               <Button
                 onClick={validateConfiguration}
                 disabled={validating}
-                className="flex-1"
-              >
-                {validating ? (
-                  <>
+                className="flex-1">
+
+                {validating ?
+                <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Validating...
-                  </>
-                ) : (
-                  <>
+                  </> :
+
+                <>
                     <CheckCircle className="w-4 h-4 mr-2" />
                     Validate Configuration
                   </>
-                )}
+                }
               </Button>
 
               <Button
                 onClick={saveConfiguration}
                 disabled={saving || !validation?.overall}
-                variant="default"
-              >
-                {saving ? (
-                  <>
+                variant="default">
+
+                {saving ?
+                <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Saving...
-                  </>
-                ) : (
-                  "Save Configuration"
-                )}
+                  </> :
+
+                "Save Configuration"
+                }
               </Button>
             </div>
           </TabsContent>
 
           <TabsContent value="validation" className="space-y-4">
-            {validation ? (
-              <div className="space-y-4">
+            {validation ?
+            <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-medium">Validation Results</h3>
                   <div className="flex items-center space-x-2">
@@ -498,20 +498,20 @@ const ClickSendConfigValidator: React.FC = () => {
                 </div>
 
                 <Alert className={validation.overall ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"}>
-                  {validation.overall ? (
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                  ) : (
-                    <AlertCircle className="h-4 w-4 text-red-600" />
-                  )}
+                  {validation.overall ?
+                <CheckCircle className="h-4 w-4 text-green-600" /> :
+
+                <AlertCircle className="h-4 w-4 text-red-600" />
+                }
                   <AlertDescription>
                     <div className={validation.overall ? "text-green-800" : "text-red-800"}>
                       <div className="font-medium">
                         {validation.overall ? "✅ Configuration Valid" : "❌ Configuration Issues Found"}
                       </div>
                       <div className="mt-1">
-                        {validation.overall
-                          ? "Your ClickSend configuration is valid and ready to use."
-                          : "Please fix the issues below before proceeding."}
+                        {validation.overall ?
+                      "Your ClickSend configuration is valid and ready to use." :
+                      "Please fix the issues below before proceeding."}
                       </div>
                     </div>
                   </AlertDescription>
@@ -519,51 +519,51 @@ const ClickSendConfigValidator: React.FC = () => {
 
                 <div className="space-y-3">
                   <h4 className="font-medium">Validation Details</h4>
-                  {validation.issues.map((issue, index) => (
-                    <Card key={index} className={issue.valid ? "border-green-200" : "border-red-200"}>
+                  {validation.issues.map((issue, index) =>
+                <Card key={index} className={issue.valid ? "border-green-200" : "border-red-200"}>
                       <CardContent className="pt-4">
                         <div className="flex items-start space-x-2">
-                          {issue.valid ? (
-                            <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
-                          ) : (
-                            <AlertCircle className="w-4 h-4 text-red-600 mt-0.5" />
-                          )}
+                          {issue.valid ?
+                      <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" /> :
+
+                      <AlertCircle className="w-4 h-4 text-red-600 mt-0.5" />
+                      }
                           <div className="flex-1">
                             <div className="font-medium capitalize">{issue.field}</div>
                             <div className={`text-sm ${issue.valid ? 'text-green-800' : 'text-red-800'}`}>
                               {issue.message}
                             </div>
-                            {issue.suggestion && (
-                              <div className="text-sm text-muted-foreground mt-1">
+                            {issue.suggestion &&
+                        <div className="text-sm text-muted-foreground mt-1">
                                 💡 {issue.suggestion}
                               </div>
-                            )}
+                        }
                           </div>
                         </div>
                       </CardContent>
                     </Card>
-                  ))}
+                )}
                 </div>
 
-                {validation.recommendations.length > 0 && (
-                  <div className="space-y-2">
+                {validation.recommendations.length > 0 &&
+              <div className="space-y-2">
                     <h4 className="font-medium">Recommendations</h4>
                     <ul className="space-y-1">
-                      {validation.recommendations.map((rec, index) => (
-                        <li key={index} className="text-sm text-muted-foreground flex items-start">
+                      {validation.recommendations.map((rec, index) =>
+                  <li key={index} className="text-sm text-muted-foreground flex items-start">
                           <span className="mr-2">•</span>
                           {rec}
                         </li>
-                      ))}
+                  )}
                     </ul>
                   </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
+              }
+              </div> :
+
+            <div className="text-center py-8 text-muted-foreground">
                 Click "Validate Configuration" to check your ClickSend settings.
               </div>
-            )}
+            }
           </TabsContent>
 
           <TabsContent value="help" className="space-y-4">
@@ -622,8 +622,8 @@ const ClickSendConfigValidator: React.FC = () => {
           </TabsContent>
         </Tabs>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default ClickSendConfigValidator;

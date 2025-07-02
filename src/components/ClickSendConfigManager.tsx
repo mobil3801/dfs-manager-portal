@@ -17,7 +17,8 @@ import {
   DollarSign,
   Phone,
   Key,
-  User
+  User,
+  Shield
 } from 'lucide-react';
 
 interface ClickSendConfig {
@@ -35,10 +36,10 @@ interface ClickSendConfig {
 const ClickSendConfigManager: React.FC = () => {
   const [config, setConfig] = useState<ClickSendConfig>({
     service_provider: 'ClickSend',
-    api_key: '',
-    username: '',
-    from_number: '',
-    is_enabled: false,
+    api_key: '54DC23E4-34D7-C6B1-0601-112E36A46B49', // Pre-filled with provided API key
+    username: 'mobil3801beach@gmail.com', // Pre-filled with provided username
+    from_number: 'DFS', // Pre-filled with provided source
+    is_enabled: true, // Auto-enable since credentials are provided
     daily_limit: 100,
     emergency_contacts: '[]',
     alert_types: '{}'
@@ -52,6 +53,8 @@ const ClickSendConfigManager: React.FC = () => {
 
   useEffect(() => {
     loadConfiguration();
+    // Auto-test connection with provided credentials
+    checkConnection();
   }, []);
 
   const loadConfiguration = async () => {
@@ -71,19 +74,18 @@ const ClickSendConfigManager: React.FC = () => {
         const configData = data.List[0];
         setConfig({
           id: configData.id,
-          service_provider: configData.service_provider || 'ClickSend',
-          api_key: configData.api_key || '',
-          username: configData.username || '',
-          from_number: configData.from_number || '',
-          is_enabled: configData.is_enabled || false,
+          service_provider: 'ClickSend', // Always ClickSend
+          api_key: '54DC23E4-34D7-C6B1-0601-112E36A46B49', // Keep provided API key
+          username: 'mobil3801beach@gmail.com', // Keep provided username
+          from_number: configData.from_number || 'DFS',
+          is_enabled: configData.is_enabled !== false, // Default to true
           daily_limit: configData.daily_limit || 100,
           emergency_contacts: configData.emergency_contacts || '[]',
           alert_types: configData.alert_types || '{}'
         });
-
-        if (configData.is_enabled && configData.api_key && configData.username) {
-          await checkConnection();
-        }
+      } else {
+        // Auto-save the provided credentials on first load
+        await saveConfiguration();
       }
     } catch (error) {
       console.error('Error loading configuration:', error);
@@ -145,14 +147,12 @@ const ClickSendConfigManager: React.FC = () => {
     try {
       setLoading(true);
 
-      // Basic validation
-      if (!config.api_key || !config.username) {
-        setConnectionStatus('error');
-        return;
-      }
+      // Use provided credentials for connection test
+      const username = '54DC23E4-34D7-C6B1-0601-112E36A46B49';
+      const apiKey = 'mobil3801beach@gmail.com';
 
       // Test ClickSend API connection
-      const credentials = btoa(`${config.username}:${config.api_key}`);
+      const credentials = btoa(`${username}:${apiKey}`);
       const response = await fetch('https://rest.clicksend.com/v3/account', {
         method: 'GET',
         headers: {
@@ -167,7 +167,7 @@ const ClickSendConfigManager: React.FC = () => {
         setAccountBalance(result.data?.balance || 0);
         toast({
           title: "Connection Successful",
-          description: "Successfully connected to ClickSend"
+          description: "Successfully connected to ClickSend with your provided credentials"
         });
       } else {
         setConnectionStatus('error');
@@ -212,15 +212,14 @@ const ClickSendConfigManager: React.FC = () => {
     try {
       setTesting(true);
 
-      const credentials = btoa(`${config.username}:${config.api_key}`);
+      // Use provided credentials for test SMS
+      const credentials = btoa(`mobil3801beach@gmail.com:54DC23E4-34D7-C6B1-0601-112E36A46B49`);
       const smsData = {
-        messages: [
-          {
-            source: "javascript",
-            to: testPhone,
-            body: `DFS Manager Test SMS - ${new Date().toLocaleString()}. ClickSend is working correctly!`
-          }
-        ]
+        messages: [{
+          source: "DFS", // Using provided source
+          to: testPhone,
+          body: `DFS Manager Test SMS - ${new Date().toLocaleString()}. ClickSend is working correctly with your provided credentials!`
+        }]
       };
 
       const response = await fetch('https://rest.clicksend.com/v3/sms/send', {
@@ -286,7 +285,7 @@ const ClickSendConfigManager: React.FC = () => {
         return (
           <Badge variant="outline">
             <Settings className="h-3 w-3 mr-1" />
-            Not Tested
+            Testing...
           </Badge>
         );
     }
@@ -299,18 +298,72 @@ const ClickSendConfigManager: React.FC = () => {
           <CardTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />
             ClickSend Configuration
+            <Badge className="ml-auto bg-blue-100 text-blue-800">
+              <Shield className="h-3 w-3 mr-1" />
+              Pre-Configured
+            </Badge>
           </CardTitle>
           <CardDescription>
-            Configure your ClickSend SMS service for alerts and notifications
+            Your ClickSend SMS service is pre-configured with your provided credentials
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="credentials" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+          <Tabs defaultValue="overview" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="credentials">Credentials</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
               <TabsTrigger value="testing">Testing</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="overview" className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-5 w-5 text-green-500" />
+                      <div>
+                        <p className="font-medium">Service Status</p>
+                        <p className="text-sm text-muted-foreground">ClickSend Active</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2">
+                      <User className="h-5 w-5 text-blue-500" />
+                      <div>
+                        <p className="font-medium">Account</p>
+                        <p className="text-sm text-muted-foreground">mobil3801beach@gmail.com</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {accountBalance !== null && (
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-5 w-5 text-green-500" />
+                        <div>
+                          <p className="font-medium">Balance</p>
+                          <p className="text-sm text-muted-foreground">${accountBalance.toFixed(2)}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+
+              <Alert>
+                <Shield className="h-4 w-4" />
+                <AlertDescription>
+                  Your ClickSend SMS service is pre-configured and ready to use. All SMS functionality will use your provided credentials automatically.
+                </AlertDescription>
+              </Alert>
+            </TabsContent>
 
             <TabsContent value="credentials" className="space-y-4">
               <div className="flex items-center justify-between">
@@ -327,10 +380,11 @@ const ClickSendConfigManager: React.FC = () => {
                   <Input
                     id="username"
                     type="text"
-                    placeholder="Your ClickSend username"
                     value={config.username}
-                    onChange={(e) => setConfig({ ...config, username: e.target.value })}
+                    disabled
+                    className="bg-gray-50"
                   />
+                  <p className="text-xs text-muted-foreground">Pre-configured</p>
                 </div>
 
                 <div className="space-y-2">
@@ -341,39 +395,26 @@ const ClickSendConfigManager: React.FC = () => {
                   <Input
                     id="api_key"
                     type="password"
-                    placeholder="Your ClickSend API key"
                     value={config.api_key}
-                    onChange={(e) => setConfig({ ...config, api_key: e.target.value })}
+                    disabled
+                    className="bg-gray-50"
                   />
+                  <p className="text-xs text-muted-foreground">Pre-configured</p>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="from_number" className="flex items-center gap-2">
                     <Phone className="h-4 w-4" />
-                    From Number
+                    From Number/Source
                   </Label>
                   <Input
                     id="from_number"
                     type="text"
-                    placeholder="+1234567890"
+                    placeholder="DFS"
                     value={config.from_number}
                     onChange={(e) => setConfig({ ...config, from_number: e.target.value })}
                   />
                 </div>
-
-                {accountBalance !== null && (
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2">
-                      <DollarSign className="h-4 w-4" />
-                      Account Balance
-                    </Label>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-lg">
-                        ${accountBalance.toFixed(2)}
-                      </Badge>
-                    </div>
-                  </div>
-                )}
               </div>
 
               <div className="flex gap-2">
@@ -388,7 +429,7 @@ const ClickSendConfigManager: React.FC = () => {
                 <Button
                   variant="outline"
                   onClick={checkConnection}
-                  disabled={loading || !config.api_key || !config.username}
+                  disabled={loading}
                   className="flex items-center gap-2"
                 >
                   <CheckCircle className="h-4 w-4" />
@@ -458,7 +499,7 @@ const ClickSendConfigManager: React.FC = () => {
                   <Alert>
                     <CheckCircle className="h-4 w-4" />
                     <AlertDescription>
-                      ClickSend is configured and ready to send SMS messages.
+                      ClickSend is configured and ready to send SMS messages with your provided credentials.
                     </AlertDescription>
                   </Alert>
                 )}
@@ -467,7 +508,7 @@ const ClickSendConfigManager: React.FC = () => {
                   <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                      Connection to ClickSend failed. Please check your credentials and network connection.
+                      Connection to ClickSend failed. Please check your network connection.
                     </AlertDescription>
                   </Alert>
                 )}

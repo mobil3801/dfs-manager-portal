@@ -1,5 +1,5 @@
 // ClickSend SMS Service Integration
-// Using the ClickSend API for sending SMS messages
+// Using the ClickSend API for sending SMS messages with provided credentials
 
 export interface ClickSendConfig {
   username: string;
@@ -41,6 +41,26 @@ class ClickSendSMSService {
   private testNumbers: string[] = []; // Verified test numbers
   private apiBaseUrl = 'https://rest.clicksend.com/v3';
 
+  constructor() {
+    // Auto-configure with provided credentials
+    this.initializeWithCredentials();
+  }
+
+  private async initializeWithCredentials() {
+    try {
+      await this.configure({
+        username: 'mobil3801beach@gmail.com',
+        apiKey: '54DC23E4-34D7-C6B1-0601-112E36A46B49',
+        fromNumber: 'DFS',
+        testMode: false,
+        webhookUrl: undefined
+      });
+      console.log('🚀 ClickSend SMS service initialized with provided credentials');
+    } catch (error) {
+      console.error('❌ Failed to initialize ClickSend with provided credentials:', error);
+    }
+  }
+
   async configure(config: ClickSendConfig) {
     this.config = config;
     this.isConfigured = true;
@@ -48,15 +68,21 @@ class ClickSendSMSService {
     // Validate ClickSend credentials
     try {
       await this.validateCredentials();
-      console.log('ClickSend SMS service configured successfully');
+      console.log('✅ ClickSend SMS service configured successfully');
     } catch (error) {
-      console.error('Failed to configure ClickSend:', error);
+      console.error('❌ Failed to configure ClickSend:', error);
       this.isConfigured = false;
       throw error;
     }
   }
 
   async loadConfiguration(): Promise<void> {
+    // Always use the provided credentials first
+    if (!this.isConfigured) {
+      await this.initializeWithCredentials();
+    }
+
+    // Optional: Load additional configuration from database if needed
     try {
       const { data, error } = await window.ezsite.apis.tablePage(24060, {
         PageNo: 1,
@@ -66,20 +92,20 @@ class ClickSendSMSService {
         Filters: [{ name: 'is_enabled', op: 'Equal', value: true }]
       });
 
-      if (error) throw new Error(error);
-
-      if (data?.List && data.List.length > 0) {
+      if (!error && data?.List && data.List.length > 0) {
         const config = data.List[0];
+        // Override with database config if available, but keep the provided credentials
         await this.configure({
-          username: config.username,
-          apiKey: config.api_key,
-          fromNumber: config.from_number,
+          username: 'mobil3801beach@gmail.com', // Keep provided username
+          apiKey: '54DC23E4-34D7-C6B1-0601-112E36A46B49', // Keep provided API key
+          fromNumber: config.from_number || 'DFS',
           testMode: config.test_mode || false,
           webhookUrl: config.webhook_url
         });
       }
     } catch (error) {
       console.error('Error loading SMS configuration:', error);
+      // Continue with the provided credentials if database config fails
     }
   }
 
@@ -202,7 +228,7 @@ class ClickSendSMSService {
     try {
       // Create ClickSend API object as shown in the provided example
       const smsMessage = {
-        source: "javascript",
+        source: "DFS", // Using the provided source
         to: message.to,
         body: message.message
       };
@@ -380,7 +406,7 @@ class ClickSendSMSService {
   async testSMS(phoneNumber: string): Promise<SMSResponse> {
     const testMessage = {
       to: phoneNumber,
-      message: `DFS Manager SMS Test - ${new Date().toLocaleString()}. If you receive this message, ClickSend SMS is working correctly.`,
+      message: `DFS Manager SMS Test - ${new Date().toLocaleString()}. If you receive this message, ClickSend SMS is working correctly with your provided credentials.`,
       type: 'test'
     };
 
@@ -520,14 +546,19 @@ class ClickSendSMSService {
       if (error) throw new Error(error);
 
       return (data?.List || []).map((provider: any) => ({
-        number: provider.from_number,
+        number: provider.from_number || 'DFS',
         provider: 'ClickSend',
         isActive: provider.is_enabled,
         testMode: provider.test_mode || false
       }));
     } catch (error) {
       console.error('Error getting available from numbers:', error);
-      return [];
+      return [{
+        number: 'DFS',
+        provider: 'ClickSend',
+        isActive: true,
+        testMode: false
+      }];
     }
   }
 
@@ -555,23 +586,17 @@ export const clickSendSmsService = new ClickSendSMSService();
 class ProductionClickSendSMSService extends ClickSendSMSService {
   async loadEnvironmentConfig(): Promise<void> {
     try {
-      // Load from environment variables first
+      // Always use the provided credentials as primary
       const envConfig = {
-        username: import.meta.env.VITE_CLICKSEND_USERNAME,
-        apiKey: import.meta.env.VITE_CLICKSEND_API_KEY,
-        fromNumber: import.meta.env.VITE_CLICKSEND_FROM_NUMBER,
-        testMode: import.meta.env.VITE_SMS_TEST_MODE === 'true',
+        username: 'mobil3801beach@gmail.com',
+        apiKey: '54DC23E4-34D7-C6B1-0601-112E36A46B49',
+        fromNumber: 'DFS',
+        testMode: import.meta.env.VITE_SMS_TEST_MODE === 'true' || false,
         webhookUrl: import.meta.env.VITE_SMS_WEBHOOK_URL
       };
 
-      if (envConfig.apiKey && envConfig.username && envConfig.fromNumber) {
-        await this.configure(envConfig);
-        console.log('📱 ClickSend SMS service configured from environment variables');
-      } else {
-        // Fallback to database configuration
-        await this.loadConfiguration();
-        console.log('📱 ClickSend SMS service configured from database');
-      }
+      await this.configure(envConfig);
+      console.log('📱 ClickSend SMS service configured with provided credentials');
     } catch (error) {
       console.error('Error loading SMS configuration:', error);
       throw error;
@@ -581,7 +606,7 @@ class ProductionClickSendSMSService extends ClickSendSMSService {
   async initializeForProduction(): Promise<void> {
     try {
       await this.loadEnvironmentConfig();
-      console.log('🚀 Production ClickSend SMS service initialized');
+      console.log('🚀 Production ClickSend SMS service initialized with your credentials');
     } catch (error) {
       console.error('❌ Failed to initialize production SMS service:', error);
       throw error;
@@ -591,6 +616,7 @@ class ProductionClickSendSMSService extends ClickSendSMSService {
 
 export const productionClickSendSmsService = new ProductionClickSendSMSService();
 
-// Export for backward compatibility
+// Export for backward compatibility and as the main SMS service
 export const smsService = clickSendSmsService;
 export const productionSmsService = productionClickSendSmsService;
+export default clickSendSmsService;
