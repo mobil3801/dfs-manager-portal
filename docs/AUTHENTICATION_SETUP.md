@@ -1,7 +1,7 @@
 # Authentication Module Setup Guide
 
 ## Overview
-The DFS Manager Portal now has a complete authentication system implemented with email/password login, registration, password reset, and protected routes.
+The DFS Manager Portal now has a complete authentication system implemented with email/password login, password reset, and protected routes.
 
 ## Key Components
 
@@ -13,7 +13,6 @@ The DFS Manager Portal now has a complete authentication system implemented with
 
 ### 2. Login Page (`src/pages/LoginPage.tsx`)
 - Email/password authentication
-- Registration form
 - Password reset functionality
 - Responsive design with proper UX
 
@@ -31,11 +30,8 @@ The DFS Manager Portal now has a complete authentication system implemented with
 
 ### ✅ Core Authentication
 - [x] Email/password login
-- [x] User registration with email verification
 - [x] Password reset functionality
 - [x] Secure logout
-- [x] Session persistence
-- [x] Automatic token refresh
 
 ### ✅ Security Features
 - [x] Protected routes
@@ -59,9 +55,6 @@ The system uses the EasySite authentication APIs:
 ```javascript
 // Login
 const { error } = await window.ezsite.apis.login({ email, password });
-
-// Register
-const { error } = await window.ezsite.apis.register({ email, password });
 
 // Logout
 const { error } = await window.ezsite.apis.logout();
@@ -154,12 +147,11 @@ function MyComponent() {
 
 ## Testing the Authentication
 
-1. **Registration**: Create a new account
-2. **Email Verification**: Check email and verify account
-3. **Login**: Sign in with credentials
-4. **Protected Routes**: Try accessing protected pages
-5. **Logout**: Sign out and verify redirect
-6. **Password Reset**: Test forgot password flow
+1. **Email Verification**: Check email and verify account
+2. **Login**: Sign in with credentials
+3. **Protected Routes**: Try accessing protected pages
+4. **Logout**: Sign out and verify redirect
+5. **Password Reset**: Test forgot password flow
 
 ## Troubleshooting
 
