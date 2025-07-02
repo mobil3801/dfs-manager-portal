@@ -1,235 +1,336 @@
-import React from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import Navigation from '@/components/Navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
+import React, { useState, useEffect } from 'react';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
+  BarChart3,
   Users,
   Package,
   FileText,
+  Truck,
+  Calendar,
   AlertTriangle,
   TrendingUp,
-  DollarSign,
-  ShoppingCart,
   Activity } from
 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+
+interface DashboardStats {
+  totalEmployees: number;
+  activeProducts: number;
+  todayReports: number;
+  pendingDeliveries: number;
+  expiringLicenses: number;
+  totalSales: number;
+}
 
 const Dashboard = () => {
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, isAdmin, isManager } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [stats, setStats] = useState<DashboardStats>({
+    totalEmployees: 0,
+    activeProducts: 0,
+    todayReports: 0,
+    pendingDeliveries: 0,
+    expiringLicenses: 0,
+    totalSales: 0
+  });
+  const [loading, setLoading] = useState(true);
 
-  const stats = [
-  {
-    title: 'Total Products',
-    value: '1,234',
-    change: '+12%',
-    icon: Package,
-    color: 'text-blue-600'
-  },
-  {
-    title: 'Total Sales',
-    value: '$45,231',
-    change: '+8.5%',
-    icon: DollarSign,
-    color: 'text-green-600'
-  },
-  {
-    title: 'Active Orders',
-    value: '89',
-    change: '+3.2%',
-    icon: ShoppingCart,
-    color: 'text-orange-600'
-  },
-  {
-    title: 'Pending Alerts',
-    value: '12',
-    change: '-2.1%',
-    icon: AlertTriangle,
-    color: 'text-red-600'
-  }];
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+
+      // Fetch employees count
+      const employeesResponse = await window.ezsite.apis.tablePage(11727, {
+        PageNo: 1,
+        PageSize: 1,
+        Filters: [{ name: "is_active", op: "Equal", value: true }]
+      });
+
+      // Fetch active products count
+      const productsResponse = await window.ezsite.apis.tablePage(11726, {
+        PageNo: 1,
+        PageSize: 1
+      });
+
+      // Fetch today's sales reports
+      const today = new Date().toISOString().split('T')[0];
+      const salesResponse = await window.ezsite.apis.tablePage(12356, {
+        PageNo: 1,
+        PageSize: 10,
+        Filters: [{ name: "report_date", op: "StringStartsWith", value: today }]
+      });
+
+      // Fetch pending deliveries
+      const deliveriesResponse = await window.ezsite.apis.tablePage(12196, {
+        PageNo: 1,
+        PageSize: 1
+      });
+
+      // Fetch expiring licenses (next 30 days)
+      const thirtyDaysFromNow = new Date();
+      thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+      const licensesResponse = await window.ezsite.apis.tablePage(11731, {
+        PageNo: 1,
+        PageSize: 1,
+        Filters: [
+        { name: "expiry_date", op: "LessThanOrEqual", value: thirtyDaysFromNow.toISOString() },
+        { name: "status", op: "Equal", value: "Active" }]
+
+      });
+
+      // Calculate total sales from today's reports
+      let totalSales = 0;
+      if (salesResponse.data?.List) {
+        totalSales = salesResponse.data.List.reduce((sum: number, report: any) =>
+        sum + (report.total_sales || 0), 0
+        );
+      }
+
+      setStats({
+        totalEmployees: employeesResponse.data?.VirtualCount || 0,
+        activeProducts: productsResponse.data?.VirtualCount || 0,
+        todayReports: salesResponse.data?.VirtualCount || 0,
+        pendingDeliveries: deliveriesResponse.data?.VirtualCount || 0,
+        expiringLicenses: licensesResponse.data?.VirtualCount || 0,
+        totalSales
+      });
+
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load dashboard data",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+    // Refresh data every 5 minutes
+    const interval = setInterval(fetchDashboardData, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const QuickStatCard = ({
+    title,
+    value,
+    icon: Icon,
+    color,
+    onClick
 
 
-  const recentActivities = [
-  { action: 'New product added', item: 'Premium Gas', time: '2 hours ago' },
-  { action: 'Sales report generated', item: 'Daily Report', time: '4 hours ago' },
-  { action: 'Inventory alert', item: 'Low stock warning', time: '6 hours ago' },
-  { action: 'User registered', item: 'John Doe', time: '8 hours ago' },
-  { action: 'Order completed', item: 'Order #1234', time: '1 day ago' }];
+
+
+
+
+  }: {title: string;value: number | string;icon: any;color: string;onClick?: () => void;}) =>
+  <Card
+    className={`p-6 cursor-pointer hover:shadow-lg transition-shadow ${onClick ? 'hover:bg-gray-50' : ''}`}
+    onClick={onClick}>
+
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-gray-600">{title}</p>
+          <p className="text-2xl font-bold">{loading ? '...' : value}</p>
+        </div>
+        <Icon className={`h-8 w-8 ${color}`} />
+      </div>
+    </Card>;
+
+
+  const QuickAction = ({
+    title,
+    description,
+    icon: Icon,
+    onClick,
+    color = "text-blue-600"
+
+
+
+
+
+
+  }: {title: string;description: string;icon: any;onClick: () => void;color?: string;}) =>
+  <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={onClick}>
+      <div className="flex items-start space-x-3">
+        <Icon className={`h-6 w-6 ${color} mt-1`} />
+        <div>
+          <h4 className="font-semibold">{title}</h4>
+          <p className="text-sm text-gray-600">{description}</p>
+        </div>
+      </div>
+    </Card>;
 
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navigation />
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Welcome back, {userProfile?.full_name || user?.Name || 'User'}!
-              </h1>
-              
-
-
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                
-                {userProfile?.role &&
-                <Badge className="mt-1">
-                    {userProfile.role.charAt(0).toUpperCase() + userProfile.role.slice(1)}
-                  </Badge>
-                }
-              </div>
-              <Avatar className="w-12 h-12">
-                <AvatarImage src={userProfile?.avatar_url} alt={userProfile?.full_name || user?.Name} />
-                <AvatarFallback>
-                  {(userProfile?.full_name || user?.Name || user?.Email || '').
-                  split(' ').
-                  map((n) => n[0]).
-                  join('').
-                  toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-            </div>
-          </div>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <Card key={index}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">
-                    {stat.title}
-                  </CardTitle>
-                  <Icon className={`w-5 h-5 ${stat.color}`} />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                  <p className="text-sm text-green-600 flex items-center mt-1">
-                    <TrendingUp className="w-4 h-4 mr-1" />
-                    {stat.change} from last month
-                  </p>
-                </CardContent>
-              </Card>);
-
-          })}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Recent Activity */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Activity className="w-5 h-5 mr-2" />
-                Recent Activity
-              </CardTitle>
-              <CardDescription>
-                Latest actions and updates in your system
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentActivities.map((activity, index) =>
-                <div key={index} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">{activity.action}</p>
-                      <p className="text-sm text-gray-600">{activity.item}</p>
-                    </div>
-                    <div className="text-xs text-gray-500">{activity.time}</div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>
-                Common tasks and shortcuts
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <button className="w-full p-3 text-left bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
-                <div className="flex items-center">
-                  <Package className="w-5 h-5 text-blue-600 mr-3" />
-                  <div>
-                    <p className="font-medium text-gray-900">Add Product</p>
-                    <p className="text-sm text-gray-600">Add new inventory item</p>
-                  </div>
-                </div>
-              </button>
-              
-              <button className="w-full p-3 text-left bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
-                <div className="flex items-center">
-                  <FileText className="w-5 h-5 text-green-600 mr-3" />
-                  <div>
-                    <p className="font-medium text-gray-900">Sales Report</p>
-                    <p className="text-sm text-gray-600">Generate daily report</p>
-                  </div>
-                </div>
-              </button>
-              
-              <button className="w-full p-3 text-left bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors">
-                <div className="flex items-center">
-                  <Users className="w-5 h-5 text-orange-600 mr-3" />
-                  <div>
-                    <p className="font-medium text-gray-900">Manage Staff</p>
-                    <p className="text-sm text-gray-600">Add or edit employees</p>
-                  </div>
-                </div>
-              </button>
-              
-              <button className="w-full p-3 text-left bg-red-50 hover:bg-red-100 rounded-lg transition-colors">
-                <div className="flex items-center">
-                  <AlertTriangle className="w-5 h-5 text-red-600 mr-3" />
-                  <div>
-                    <p className="font-medium text-gray-900">View Alerts</p>
-                    <p className="text-sm text-gray-600">Check system alerts</p>
-                  </div>
-                </div>
-              </button>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* User Profile Info (for debugging/info) */}
-        {userProfile &&
-        <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Profile Information</CardTitle>
-              <CardDescription>
-                Your current profile details and permissions
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Username</label>
-                  <p className="text-gray-900">{userProfile.username}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Department</label>
-                  <p className="text-gray-900">{userProfile.department || 'Not set'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Status</label>
-                  <Badge variant={userProfile.status === 'active' ? 'default' : 'secondary'} className="px-[20px] py-[11px] text-justify mx-[18px] inline-flex items-center rounded-md border text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80">
-                    {userProfile.status}
-                  </Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        }
+    <div className="space-y-6">
+      {/* Welcome Header */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white">
+        <h1 className="text-2xl font-bold">Welcome back, {user?.Name || 'User'}!</h1>
+        <p className="opacity-90">
+          {userProfile?.station || 'All Stations'} • {userProfile?.role || 'User'}
+        </p>
       </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <QuickStatCard
+          title="Employees"
+          value={stats.totalEmployees}
+          icon={Users}
+          color="text-blue-600"
+          onClick={() => navigate('/employees')} />
+
+        <QuickStatCard
+          title="Products"
+          value={stats.activeProducts}
+          icon={Package}
+          color="text-green-600"
+          onClick={() => navigate('/products')} />
+
+        <QuickStatCard
+          title="Today's Reports"
+          value={stats.todayReports}
+          icon={FileText}
+          color="text-purple-600"
+          onClick={() => navigate('/sales')} />
+
+        <QuickStatCard
+          title="Deliveries"
+          value={stats.pendingDeliveries}
+          icon={Truck}
+          color="text-orange-600"
+          onClick={() => navigate('/delivery')} />
+
+        <QuickStatCard
+          title="Expiring Licenses"
+          value={stats.expiringLicenses}
+          icon={AlertTriangle}
+          color="text-red-600"
+          onClick={() => navigate('/licenses')} />
+
+        <QuickStatCard
+          title="Today's Sales"
+          value={`$${stats.totalSales.toLocaleString()}`}
+          icon={TrendingUp}
+          color="text-emerald-600" />
+
+      </div>
+
+      {/* Main Content Tabs */}
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList className="grid w-full lg:w-[400px] grid-cols-2">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="quick-actions">Quick Actions</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-4">
+          {/* Alerts and Notifications */}
+          {stats.expiringLicenses > 0 &&
+          <Card className="p-4 border-orange-200 bg-orange-50">
+              <div className="flex items-center space-x-2">
+                <AlertTriangle className="h-5 w-5 text-orange-600" />
+                <div>
+                  <h4 className="font-semibold text-orange-800">License Expiry Alert</h4>
+                  <p className="text-sm text-orange-700">
+                    {stats.expiringLicenses} license(s) expiring within 30 days
+                  </p>
+                </div>
+                <Button
+                variant="outline"
+                size="sm"
+                className="ml-auto"
+                onClick={() => navigate('/licenses')}>
+
+                  View Licenses
+                </Button>
+              </div>
+            </Card>
+          }
+
+          {/* Recent Activity */}
+          <Card className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <Activity className="h-5 w-5" />
+              <h3 className="text-lg font-semibold">System Status</h3>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Database Connection</span>
+                <Badge variant="default" className="bg-green-100 text-green-800">Active</Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Last Data Sync</span>
+                <span className="text-sm text-gray-500">
+                  {new Date().toLocaleTimeString()}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm">User Session</span>
+                <Badge variant="default" className="bg-blue-100 text-blue-800">Active</Badge>
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="quick-actions" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <QuickAction
+              title="New Sales Report"
+              description="Create a daily sales report"
+              icon={FileText}
+              onClick={() => navigate('/sales/new')} />
+
+            <QuickAction
+              title="Record Delivery"
+              description="Log a new fuel delivery"
+              icon={Truck}
+              onClick={() => navigate('/delivery/new')} />
+
+            <QuickAction
+              title="Add Product"
+              description="Register a new product"
+              icon={Package}
+              onClick={() => navigate('/products/new')} />
+
+            {isManager() &&
+            <>
+                <QuickAction
+                title="Manage Employees"
+                description="View and edit employee records"
+                icon={Users}
+                onClick={() => navigate('/employees')} />
+
+                <QuickAction
+                title="Check Licenses"
+                description="Review license status and renewals"
+                icon={Calendar}
+                onClick={() => navigate('/licenses')} />
+
+              </>
+            }
+            {isAdmin() &&
+            <QuickAction
+              title="Admin Panel"
+              description="System administration and settings"
+              icon={BarChart3}
+              onClick={() => navigate('/admin')}
+              color="text-red-600" />
+
+            }
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>);
 
 };

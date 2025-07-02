@@ -2,35 +2,84 @@ import React from 'react';
 import { useResponsiveLayout } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
-interface ResponsiveStackProps {
+interface ResponsiveWrapperProps {
   children: React.ReactNode;
-  spacing?: 'sm' | 'md' | 'lg' | 'xl';
+  className?: string;
+  mobileClassName?: string;
+  tabletClassName?: string;
+  desktopClassName?: string;
+}
+
+export const ResponsiveWrapper: React.FC<ResponsiveWrapperProps> = ({
+  children,
+  className = '',
+  mobileClassName = '',
+  tabletClassName = '',
+  desktopClassName = ''
+}) => {
+  const responsive = useResponsiveLayout();
+
+  const responsiveClass = cn(
+    className,
+    responsive.isMobile && mobileClassName,
+    responsive.isTablet && tabletClassName,
+    responsive.isDesktop && desktopClassName
+  );
+
+  return (
+    <div className={responsiveClass}>
+      {children}
+    </div>);
+
+};
+
+interface ResponsiveGridProps {
+  children: React.ReactNode;
   className?: string;
 }
+
+export const ResponsiveGrid: React.FC<ResponsiveGridProps> = ({
+  children,
+  className = ''
+}) => {
+  const responsive = useResponsiveLayout();
+
+  const gridClass = cn(
+    'grid gap-4',
+    responsive.isMobile && 'grid-cols-1',
+    responsive.isTablet && 'grid-cols-2',
+    responsive.isDesktop && 'grid-cols-3 lg:grid-cols-4',
+    className
+  );
+
+  return (
+    <div className={gridClass}>
+      {children}
+    </div>);
+
+};
 
 interface ResponsiveTableProps {
   children: React.ReactNode;
   className?: string;
+  fallbackComponent?: React.ReactNode;
 }
 
-const ResponsiveStack: React.FC<ResponsiveStackProps> = ({
+export const ResponsiveTable: React.FC<ResponsiveTableProps> = ({
   children,
-  spacing = 'md',
-  className
+  className = '',
+  fallbackComponent
 }) => {
   const responsive = useResponsiveLayout();
 
-  const spacingClasses = {
-    sm: responsive.isMobile ? 'space-y-2' : 'space-y-3',
-    md: responsive.isMobile ? 'space-y-3' : 'space-y-4',
-    lg: responsive.isMobile ? 'space-y-4' : 'space-y-6',
-    xl: responsive.isMobile ? 'space-y-6' : 'space-y-8'
-  };
+  if (responsive.isMobile && fallbackComponent) {
+    return <>{fallbackComponent}</>;
+  }
 
   return (
     <div className={cn(
-      'flex flex-col',
-      spacingClasses[spacing],
+      'overflow-x-auto',
+      responsive.isMobile && 'overflow-x-scroll',
       className
     )}>
       {children}
@@ -38,23 +87,63 @@ const ResponsiveStack: React.FC<ResponsiveStackProps> = ({
 
 };
 
-const ResponsiveTable: React.FC<ResponsiveTableProps> = ({
+interface ResponsiveCardGridProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export const ResponsiveCardGrid: React.FC<ResponsiveCardGridProps> = ({
   children,
-  className
+  className = ''
 }) => {
   const responsive = useResponsiveLayout();
 
+  const gridClass = cn(
+    'grid gap-4 sm:gap-6',
+    responsive.isMobile && 'grid-cols-1',
+    responsive.isTablet && 'grid-cols-2',
+    responsive.isDesktop && 'grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
+    className
+  );
+
   return (
-    <div className={cn(
-      'w-full',
-      responsive.isMobile ? 'overflow-x-auto' : '',
-      className
-    )}>
-      <div className={responsive.isMobile ? 'min-w-[800px]' : ''}>
-        {children}
-      </div>
+    <div className={gridClass}>
+      {children}
     </div>);
 
 };
 
-export { ResponsiveStack, ResponsiveTable };
+interface ResponsiveStackProps {
+  children: React.ReactNode;
+  className?: string;
+  spacing?: 'sm' | 'md' | 'lg';
+}
+
+export const ResponsiveStack: React.FC<ResponsiveStackProps> = ({
+  children,
+  className = '',
+  spacing = 'md'
+}) => {
+  const responsive = useResponsiveLayout();
+
+  const spacingClass = {
+    sm: 'space-y-2 sm:space-y-3',
+    md: 'space-y-4 sm:space-y-6',
+    lg: 'space-y-6 sm:space-y-8'
+  }[spacing];
+
+  const stackClass = cn(
+    'flex flex-col',
+    spacingClass,
+    responsive.isMobile && 'px-1',
+    className
+  );
+
+  return (
+    <div className={stackClass}>
+      {children}
+    </div>);
+
+};
+
+export default ResponsiveWrapper;

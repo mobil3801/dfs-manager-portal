@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
+import { generateSafeKey, safeMap } from '@/utils/invariantSafeHelper';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -374,8 +374,8 @@ const SalesReportList: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {reports.map((report, index) =>
-                <TableRow key={`report-${report.ID}-${index}`}>
+                  {safeMap(reports, (report, index) =>
+                <TableRow key={generateSafeKey(report, index, 'report')}>
                       <TableCell className="font-medium">
                         {formatDate(report.report_date)}
                       </TableCell>

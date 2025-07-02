@@ -3,426 +3,649 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import {
   TestTube,
-  Send,
   CheckCircle,
   AlertCircle,
+  Send,
+  Loader2,
   Phone,
-  MessageSquare,
+  Settings,
+  Bug,
   Clock,
   RefreshCw,
-  Zap } from
+  AlertTriangle,
+  Info } from
 'lucide-react';
+import { enhancedSmsService } from '@/services/enhancedSmsService';
 
 interface TestResult {
-  id: string;
+  success: boolean;
+  message: string;
   timestamp: Date;
   phoneNumber: string;
-  message: string;
-  status: 'pending' | 'success' | 'failed';
-  deliveryTime?: number;
-  error?: string;
+  messageId?: string;
+  errorCode?: string;
+  details?: any;
+  deliveryStatus?: any;
 }
 
 const EnhancedSMSTestManager: React.FC = () => {
-  const { toast } = useToast();
-  const [testPhoneNumber, setTestPhoneNumber] = useState('');
-  const [customMessage, setCustomMessage] = useState('🧪 Test SMS from DFS Manager - SMS system is working correctly!');
-  const [isRunningTest, setIsRunningTest] = useState(false);
+  const [testNumber, setTestNumber] = useState('');
+  const [customMessage, setCustomMessage] = useState('');
+  const [testing, setTesting] = useState(false);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
-  const [lastTestTime, setLastTestTime] = useState<Date | null>(null);
+  const [serviceStatus, setServiceStatus] = useState<any>(null);
+  const [configLoading, setConfigLoading] = useState(false);
+  const [deliveryTracking, setDeliveryTracking] = useState<Record<string, any>>({});
+  const { toast } = useToast();
 
-  const validatePhoneNumber = (phone: string): boolean => {
-    const phoneRegex = /^\+[1-9]\d{1,14}$/;
-    return phoneRegex.test(phone);
+  useEffect(() => {
+    loadServiceStatus();
+  }, []);
+
+  const loadServiceStatus = async () => {
+    try {
+      setConfigLoading(true);
+      await enhancedSmsService.loadConfiguration();
+      const status = await enhancedSmsService.getServiceStatus();
+      setServiceStatus(status);
+    } catch (error) {
+      console.error('Error loading service status:', error);
+      setServiceStatus({
+        available: false,
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    } finally {
+      setConfigLoading(false);
+    }
   };
 
-  const runSingleTest = async () => {
-    if (!testPhoneNumber.trim()) {
+  const runBasicTest = async () => {
+    if (!testNumber.trim()) {
       toast({
-        title: 'Phone Number Required',
-        description: 'Please enter a phone number to test',
-        variant: 'destructive'
+        title: "Phone Number Required",
+        description: "Please enter a phone number to test",
+        variant: "destructive"
       });
       return;
     }
-
-    if (!validatePhoneNumber(testPhoneNumber)) {
-      toast({
-        title: 'Invalid Phone Number',
-        description: 'Please enter a valid phone number in E.164 format (e.g., +1234567890)',
-        variant: 'destructive'
-      });
-      return;
-    }
-
-    setIsRunningTest(true);
-    const testId = `test-${Date.now()}`;
-    const startTime = Date.now();
-
-    // Create initial test result
-    const newTest: TestResult = {
-      id: testId,
-      timestamp: new Date(),
-      phoneNumber: testPhoneNumber,
-      message: customMessage,
-      status: 'pending'
-    };
-
-    setTestResults((prev) => [newTest, ...prev]);
 
     try {
-      // Simulate SMS sending with variable delay
-      await new Promise((resolve) => setTimeout(resolve, Math.random() * 2000 + 1000));
+      setTesting(true);
 
-      // Simulate success/failure (90% success rate)
-      const isSuccess = Math.random() > 0.1;
-      const deliveryTime = Date.now() - startTime;
+      const result = await enhancedSmsService.testSMS(testNumber);
 
-      const updatedTest: TestResult = {
-        ...newTest,
-        status: isSuccess ? 'success' : 'failed',
-        deliveryTime,
-        error: isSuccess ? undefined : 'Simulated delivery failure for testing purposes'
+      const testResult: TestResult = {
+        success: result.success,
+        message: result.success ?
+        `Test SMS sent successfully to ${testNumber}` :
+        result.error || 'Unknown error',
+        timestamp: new Date(),
+        phoneNumber: testNumber,
+        messageId: result.messageId,
+        errorCode: result.errorCode,
+        details: result
       };
 
-      setTestResults((prev) => prev.map((test) =>
-      test.id === testId ? updatedTest : test
-      ));
+      setTestResults((prev) => [testResult, ...prev]);
 
-      // Log to SMS history
-      await window.ezsite.apis.tableCreate('12613', {
-        license_id: 0,
-        contact_id: 0,
-        mobile_number: testPhoneNumber,
-        message_content: customMessage,
-        sent_date: new Date().toISOString(),
-        delivery_status: isSuccess ? 'Test Sent' : `Test Failed - ${updatedTest.error}`,
-        days_before_expiry: 0,
-        created_by: 1
-      });
+      // Track delivery status if message was sent
+      if (result.success && result.messageId) {
+        trackDeliveryStatus(result.messageId, testNumber);
+      }
 
-      setLastTestTime(new Date());
-
-      if (isSuccess) {
+      if (result.success) {
         toast({
-          title: '✅ Test SMS Sent',
-          description: `SMS sent to ${testPhoneNumber} in ${deliveryTime}ms`
+          title: "✅ Test SMS Sent",
+          description: `Test message sent to ${testNumber}. Check your phone!`
         });
       } else {
         toast({
-          title: '❌ Test SMS Failed',
-          description: updatedTest.error,
-          variant: 'destructive'
+          title: "❌ Test Failed",
+          description: result.error || 'Failed to send test SMS',
+          variant: "destructive"
         });
       }
 
     } catch (error) {
-      const updatedTest: TestResult = {
-        ...newTest,
-        status: 'failed',
-        error: error instanceof Error ? error.message : 'Unknown error occurred'
+      console.error('SMS test error:', error);
+      const testResult: TestResult = {
+        success: false,
+        message: error instanceof Error ? error.message : 'Unknown error occurred',
+        timestamp: new Date(),
+        phoneNumber: testNumber
+      };
+      setTestResults((prev) => [testResult, ...prev]);
+
+      toast({
+        title: "❌ Test Failed",
+        description: error instanceof Error ? error.message : 'Unknown error occurred',
+        variant: "destructive"
+      });
+    } finally {
+      setTesting(false);
+    }
+  };
+
+  const runAdvancedTest = async () => {
+    if (!testNumber.trim()) {
+      toast({
+        title: "Phone Number Required",
+        description: "Please enter a phone number to test",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setTesting(true);
+
+      const testData = await enhancedSmsService.testSMSWithDetails(testNumber);
+
+      const testResult: TestResult = {
+        success: testData.response.success,
+        message: testData.response.success ?
+        `Advanced test completed for ${testNumber}` :
+        testData.response.error || 'Unknown error',
+        timestamp: new Date(),
+        phoneNumber: testNumber,
+        messageId: testData.response.messageId,
+        errorCode: testData.response.errorCode,
+        details: testData,
+        deliveryStatus: testData.deliveryStatus
       };
 
-      setTestResults((prev) => prev.map((test) =>
-      test.id === testId ? updatedTest : test
-      ));
+      setTestResults((prev) => [testResult, ...prev]);
 
-      toast({
-        title: 'Error',
-        description: `Failed to send test SMS: ${updatedTest.error}`,
-        variant: 'destructive'
-      });
-    } finally {
-      setIsRunningTest(false);
-    }
-  };
-
-  const runBulkTest = async () => {
-    // Get all active contacts for bulk testing
-    try {
-      const { data, error } = await window.ezsite.apis.tablePage('12612', {
-        PageNo: 1,
-        PageSize: 10,
-        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
-      });
-
-      if (error) throw error;
-
-      const contacts = data?.List || [];
-      if (contacts.length === 0) {
+      if (testData.response.success) {
         toast({
-          title: 'No Active Contacts',
-          description: 'Add active SMS contacts before running bulk test',
-          variant: 'destructive'
+          title: "✅ Advanced Test Completed",
+          description: `Comprehensive test completed for ${testNumber}`
         });
-        return;
+      } else {
+        toast({
+          title: "❌ Advanced Test Failed",
+          description: testData.response.error || 'Failed to complete advanced test',
+          variant: "destructive"
+        });
       }
-
-      setIsRunningTest(true);
-      toast({
-        title: 'Running Bulk Test',
-        description: `Testing SMS delivery to ${contacts.length} contact(s)...`
-      });
-
-      let successCount = 0;
-      let failureCount = 0;
-
-      for (const contact of contacts) {
-        const testId = `bulk-${contact.id}-${Date.now()}`;
-        const startTime = Date.now();
-
-        const newTest: TestResult = {
-          id: testId,
-          timestamp: new Date(),
-          phoneNumber: contact.mobile_number,
-          message: `Bulk test to ${contact.contact_name}: ${customMessage}`,
-          status: 'pending'
-        };
-
-        setTestResults((prev) => [newTest, ...prev]);
-
-        try {
-          // Simulate delivery
-          await new Promise((resolve) => setTimeout(resolve, Math.random() * 1000 + 500));
-
-          const isSuccess = Math.random() > 0.15; // 85% success rate for bulk
-          const deliveryTime = Date.now() - startTime;
-
-          const updatedTest: TestResult = {
-            ...newTest,
-            status: isSuccess ? 'success' : 'failed',
-            deliveryTime,
-            error: isSuccess ? undefined : 'Bulk test delivery failure'
-          };
-
-          setTestResults((prev) => prev.map((test) =>
-          test.id === testId ? updatedTest : test
-          ));
-
-          if (isSuccess) {
-            successCount++;
-          } else {
-            failureCount++;
-          }
-
-        } catch (error) {
-          failureCount++;
-          setTestResults((prev) => prev.map((test) =>
-          test.id === testId ? { ...test, status: 'failed', error: 'Test execution error' } : test
-          ));
-        }
-      }
-
-      toast({
-        title: 'Bulk Test Complete',
-        description: `${successCount} successful, ${failureCount} failed out of ${contacts.length} tests`,
-        variant: failureCount > 0 ? 'destructive' : 'default'
-      });
 
     } catch (error) {
+      console.error('Advanced SMS test error:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to run bulk test',
-        variant: 'destructive'
+        title: "❌ Advanced Test Failed",
+        description: error instanceof Error ? error.message : 'Unknown error occurred',
+        variant: "destructive"
       });
     } finally {
-      setIsRunningTest(false);
+      setTesting(false);
     }
   };
 
-  const clearTestResults = () => {
-    setTestResults([]);
-    toast({
-      title: 'Test Results Cleared',
-      description: 'All test results have been cleared'
-    });
-  };
+  const sendCustomMessage = async () => {
+    if (!testNumber.trim() || !customMessage.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter both phone number and message",
+        variant: "destructive"
+      });
+      return;
+    }
 
-  const getStatusIcon = (status: TestResult['status']) => {
-    switch (status) {
-      case 'pending':
-        return <RefreshCw className="w-4 h-4 animate-spin text-blue-500" />;
-      case 'success':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
-      case 'failed':
-        return <AlertCircle className="w-4 h-4 text-red-500" />;
-      default:
-        return null;
+    try {
+      setTesting(true);
+
+      const result = await enhancedSmsService.sendSMS({
+        to: testNumber,
+        message: customMessage,
+        type: 'custom'
+      });
+
+      const testResult: TestResult = {
+        success: result.success,
+        message: result.success ?
+        `Custom message sent to ${testNumber}` :
+        result.error || 'Unknown error',
+        timestamp: new Date(),
+        phoneNumber: testNumber,
+        messageId: result.messageId,
+        errorCode: result.errorCode,
+        details: result
+      };
+
+      setTestResults((prev) => [testResult, ...prev]);
+
+      if (result.success) {
+        toast({
+          title: "✅ Custom Message Sent",
+          description: `Message sent to ${testNumber}`
+        });
+        setCustomMessage(''); // Clear after successful send
+      } else {
+        toast({
+          title: "❌ Send Failed",
+          description: result.error || 'Failed to send message',
+          variant: "destructive"
+        });
+      }
+
+    } catch (error) {
+      console.error('Custom SMS error:', error);
+      toast({
+        title: "❌ Send Failed",
+        description: error instanceof Error ? error.message : 'Unknown error occurred',
+        variant: "destructive"
+      });
+    } finally {
+      setTesting(false);
     }
   };
 
-  const getStatusBadge = (status: TestResult['status']) => {
-    switch (status) {
-      case 'pending':
-        return <Badge variant="outline" className="text-blue-600">Sending...</Badge>;
-      case 'success':
-        return <Badge className="bg-green-100 text-green-800">Success</Badge>;
-      case 'failed':
-        return <Badge variant="destructive">Failed</Badge>;
-      default:
-        return null;
+  const trackDeliveryStatus = async (messageId: string, phoneNumber: string) => {
+    try {
+      // Initial status
+      setDeliveryTracking((prev) => ({
+        ...prev,
+        [messageId]: { status: 'checking', phoneNumber }
+      }));
+
+      // Check status after a delay
+      setTimeout(async () => {
+        try {
+          const status = await enhancedSmsService.getDeliveryStatus(messageId);
+          setDeliveryTracking((prev) => ({
+            ...prev,
+            [messageId]: { ...status, phoneNumber }
+          }));
+        } catch (error) {
+          console.error('Error tracking delivery:', error);
+          setDeliveryTracking((prev) => ({
+            ...prev,
+            [messageId]: {
+              status: 'error',
+              phoneNumber,
+              error: error instanceof Error ? error.message : 'Unknown error'
+            }
+          }));
+        }
+      }, 10000); // Check after 10 seconds
+    } catch (error) {
+      console.error('Error setting up delivery tracking:', error);
     }
+  };
+
+  const addToTestNumbers = async () => {
+    if (!testNumber.trim()) return;
+
+    try {
+      await enhancedSmsService.addTestNumber(testNumber);
+      toast({
+        title: "✅ Test Number Added",
+        description: `${testNumber} added to verified test numbers`
+      });
+      await loadServiceStatus(); // Refresh status
+    } catch (error) {
+      toast({
+        title: "❌ Failed to Add",
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: "destructive"
+      });
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'delivered':return 'text-green-600';
+      case 'sent':case 'queued':return 'text-blue-600';
+      case 'failed':case 'undelivered':return 'text-red-600';
+      default:return 'text-yellow-600';
+    }
+  };
+
+  const getStatusIcon = (success: boolean) => {
+    return success ?
+    <CheckCircle className="h-4 w-4 text-green-600" /> :
+    <AlertCircle className="h-4 w-4 text-red-600" />;
   };
 
   return (
-    <div className="space-y-6">
-      {/* Test Controls */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center">
             <TestTube className="w-5 h-5 mr-2" />
-            SMS Testing Suite
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Single Test */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Single Phone Test</h3>
+            Enhanced SMS Testing & Debugging
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={loadServiceStatus}
+            disabled={configLoading}>
+
+            {configLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+          </Button>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="testing" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="testing">Testing</TabsTrigger>
+            <TabsTrigger value="status">Status</TabsTrigger>
+            <TabsTrigger value="results">Results</TabsTrigger>
+            <TabsTrigger value="tracking">Tracking</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="testing" className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="testNumber">Phone Number</Label>
+              <Input
+                id="testNumber"
+                type="tel"
+                placeholder="+1234567890"
+                value={testNumber}
+                onChange={(e) => setTestNumber(e.target.value)} />
+
+              <p className="text-sm text-muted-foreground">
+                Enter phone number in E.164 format (+1234567890)
+              </p>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="testPhone">Test Phone Number</Label>
-                <Input
-                  id="testPhone"
-                  type="tel"
-                  placeholder="+1234567890"
-                  value={testPhoneNumber}
-                  onChange={(e) => setTestPhoneNumber(e.target.value)} />
-
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="testMessage">Test Message</Label>
-                <Input
-                  id="testMessage"
-                  value={customMessage}
-                  onChange={(e) => setCustomMessage(e.target.value)}
-                  maxLength={160} />
-
-              </div>
-            </div>
-            <Button
-              onClick={runSingleTest}
-              disabled={isRunningTest}
-              className="w-full md:w-auto">
-
-              <Send className="w-4 h-4 mr-2" />
-              {isRunningTest ? 'Sending Test SMS...' : 'Send Test SMS'}
-            </Button>
-          </div>
-
-          {/* Bulk Test */}
-          <div className="border-t pt-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Bulk Contact Test</h3>
               <Button
+                onClick={runBasicTest}
+                disabled={testing || !testNumber.trim()}
+                className="w-full">
+
+                {testing ?
+                <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Testing...
+                  </> :
+                <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Basic Test
+                  </>
+                }
+              </Button>
+
+              <Button
+                onClick={runAdvancedTest}
+                disabled={testing || !testNumber.trim()}
                 variant="outline"
-                onClick={runBulkTest}
-                disabled={isRunningTest}>
+                className="w-full">
 
-                <Zap className="w-4 h-4 mr-2" />
-                Test All Contacts
+                {testing ?
+                <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Testing...
+                  </> :
+                <>
+                    <Bug className="w-4 h-4 mr-2" />
+                    Advanced Test
+                  </>
+                }
               </Button>
             </div>
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                This will send a test SMS to all active contacts in your system. 
-                Use sparingly to avoid SMS charges.
-              </AlertDescription>
-            </Alert>
-          </div>
 
-          {/* Quick Stats */}
-          {testResults.length > 0 &&
-          <div className="border-t pt-4">
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <div className="text-2xl font-bold text-green-600">
-                    {testResults.filter((t) => t.status === 'success').length}
-                  </div>
-                  <div className="text-sm text-gray-600">Successful</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-red-600">
-                    {testResults.filter((t) => t.status === 'failed').length}
-                  </div>
-                  <div className="text-sm text-gray-600">Failed</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-blue-600">
-                    {testResults.filter((t) => t.status === 'pending').length}
-                  </div>
-                  <div className="text-sm text-gray-600">Pending</div>
-                </div>
-              </div>
-            </div>
-          }
-        </CardContent>
-      </Card>
+            {serviceStatus?.testMode &&
+            <Button
+              onClick={addToTestNumbers}
+              disabled={!testNumber.trim()}
+              variant="outline"
+              size="sm"
+              className="w-full">
 
-      {/* Test Results */}
-      {testResults.length > 0 &&
-      <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center">
-                <Clock className="w-5 h-5 mr-2" />
-                Test Results ({testResults.length})
-              </CardTitle>
-              <Button variant="outline" size="sm" onClick={clearTestResults}>
-                Clear Results
+                <Phone className="w-4 h-4 mr-2" />
+                Add to Verified Test Numbers
+              </Button>
+            }
+
+            <div className="border-t pt-4 space-y-2">
+              <Label htmlFor="customMessage">Custom Message (Optional)</Label>
+              <Textarea
+                id="customMessage"
+                placeholder="Enter custom message to test..."
+                value={customMessage}
+                onChange={(e) => setCustomMessage(e.target.value)}
+                rows={3} />
+
+              
+              <Button
+                onClick={sendCustomMessage}
+                disabled={testing || !testNumber.trim() || !customMessage.trim()}
+                variant="secondary"
+                className="w-full">
+
+                {testing ?
+                <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Sending...
+                  </> :
+                <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Send Custom Message
+                  </>
+                }
               </Button>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              {testResults.map((result) =>
-            <div
-              key={result.id}
-              className="flex items-center justify-between p-3 border rounded-lg">
+          </TabsContent>
 
-                  <div className="flex items-center space-x-3">
-                    {getStatusIcon(result.status)}
-                    <div>
-                      <div className="font-medium">{result.phoneNumber}</div>
-                      <div className="text-sm text-gray-600">
-                        {result.timestamp.toLocaleTimeString()}
-                        {result.deliveryTime && ` • ${result.deliveryTime}ms`}
+          <TabsContent value="status" className="space-y-4">
+            {configLoading ?
+            <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin mr-2" />
+                Loading service status...
+              </div> :
+            serviceStatus ?
+            <div className="space-y-4">
+                <Alert className={serviceStatus.available ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"}>
+                  {serviceStatus.available ?
+                <CheckCircle className="h-4 w-4 text-green-600" /> :
+                <AlertCircle className="h-4 w-4 text-red-600" />
+                }
+                  <AlertDescription>
+                    <div className={serviceStatus.available ? "text-green-800" : "text-red-800"}>
+                      <div className="font-medium">
+                        {serviceStatus.available ? "✅ SMS Service Active" : "❌ SMS Service Inactive"}
                       </div>
-                      {result.error &&
-                  <div className="text-sm text-red-600">{result.error}</div>
-                  }
+                      <div className="mt-1">{serviceStatus.message}</div>
                     </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    {getStatusBadge(result.status)}
-                  </div>
-                </div>
-            )}
-            </div>
-          </CardContent>
-        </Card>
-      }
+                  </AlertDescription>
+                </Alert>
 
-      {/* Testing Guidelines */}
-      <Card className="bg-yellow-50 border-yellow-200">
-        <CardHeader>
-          <CardTitle className="text-yellow-800">Testing Best Practices</CardTitle>
-        </CardHeader>
-        <CardContent className="text-yellow-700 space-y-2">
-          <div>• Start with single phone tests before bulk testing</div>
-          <div>• Use your own phone number for initial tests</div>
-          <div>• Check phone number format (E.164: +1234567890)</div>
-          <div>• Monitor delivery times for performance issues</div>
-          <div>• Verify messages appear correctly on receiving device</div>
-          <div>• Test during different times to check consistency</div>
-        </CardContent>
-      </Card>
-    </div>);
+                {serviceStatus.configuration &&
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Card>
+                      <CardContent className="pt-4">
+                        <div className="space-y-2">
+                          <div className="text-sm font-medium">Configuration</div>
+                          <div className="space-y-1 text-sm">
+                            <div>From Number: {serviceStatus.configuration.fromNumber}</div>
+                            <div>
+                              Test Mode: 
+                              <Badge variant={serviceStatus.configuration.testMode ? "secondary" : "default"} className="ml-1">
+                                {serviceStatus.configuration.testMode ? "Enabled" : "Disabled"}
+                              </Badge>
+                            </div>
+                            {serviceStatus.configuration.testNumbers?.length > 0 &&
+                        <div>
+                                Test Numbers: {serviceStatus.configuration.testNumbers.length}
+                              </div>
+                        }
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {serviceStatus.quota &&
+                <Card>
+                        <CardContent className="pt-4">
+                          <div className="space-y-2">
+                            <div className="text-sm font-medium">Account Status</div>
+                            <div className="space-y-1 text-sm">
+                              <div>Balance: {serviceStatus.quota.quotaRemaining}</div>
+                              <div>Provider: Twilio</div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                }
+                  </div>
+              }
+
+                {serviceStatus.testMode &&
+              <Alert>
+                    <Info className="h-4 w-4" />
+                    <AlertDescription>
+                      <div className="font-medium">Test Mode is Enabled</div>
+                      <div className="mt-1">
+                        Only verified phone numbers can receive SMS messages. 
+                        Add your phone number to the verified list using the "Add to Verified Test Numbers" button.
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+              }
+              </div> :
+
+            <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  Unable to load service status. Please check your configuration.
+                </AlertDescription>
+              </Alert>
+            }
+          </TabsContent>
+
+          <TabsContent value="results" className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium">Test Results</h3>
+              <Badge variant="outline">{testResults.length} tests</Badge>
+            </div>
+
+            {testResults.length === 0 ?
+            <div className="text-center py-8 text-muted-foreground">
+                No test results yet. Run a test to see results here.
+              </div> :
+
+            <div className="space-y-3">
+                {testResults.map((result, index) =>
+              <Card key={index} className={result.success ? "border-green-200" : "border-red-200"}>
+                    <CardContent className="pt-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center space-x-2">
+                          {getStatusIcon(result.success)}
+                          <div>
+                            <div className="font-medium">{result.phoneNumber}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {result.timestamp.toLocaleString()}
+                            </div>
+                          </div>
+                        </div>
+                        <Badge variant={result.success ? "default" : "destructive"}>
+                          {result.success ? "Success" : "Failed"}
+                        </Badge>
+                      </div>
+
+                      <div className="mt-3 space-y-2">
+                        <div className="text-sm">{result.message}</div>
+                        
+                        {result.messageId &&
+                    <div className="text-xs text-muted-foreground">
+                            Message ID: {result.messageId}
+                          </div>
+                    }
+
+                        {result.errorCode &&
+                    <Badge variant="destructive" className="text-xs">
+                            Error: {result.errorCode}
+                          </Badge>
+                    }
+
+                        {result.details &&
+                    <details className="text-xs">
+                            <summary className="cursor-pointer text-muted-foreground">
+                              View Details
+                            </summary>
+                            <pre className="mt-2 p-2 bg-muted rounded text-xs overflow-x-auto">
+                              {JSON.stringify(result.details, null, 2)}
+                            </pre>
+                          </details>
+                    }
+                      </div>
+                    </CardContent>
+                  </Card>
+              )}
+              </div>
+            }
+          </TabsContent>
+
+          <TabsContent value="tracking" className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium">Delivery Tracking</h3>
+              <Badge variant="outline">{Object.keys(deliveryTracking).length} messages</Badge>
+            </div>
+
+            {Object.keys(deliveryTracking).length === 0 ?
+            <div className="text-center py-8 text-muted-foreground">
+                No delivery tracking data. Send a test message to see tracking information.
+              </div> :
+
+            <div className="space-y-3">
+                {Object.entries(deliveryTracking).map(([messageId, tracking]) =>
+              <Card key={messageId}>
+                    <CardContent className="pt-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="font-medium">{tracking.phoneNumber}</div>
+                          <Badge className={getStatusColor(tracking.status)}>
+                            {tracking.status}
+                          </Badge>
+                        </div>
+                        
+                        <div className="text-sm text-muted-foreground">
+                          Message ID: {messageId}
+                        </div>
+
+                        {tracking.deliveredAt &&
+                    <div className="text-sm">
+                            <Clock className="w-3 h-3 inline mr-1" />
+                            Delivered: {new Date(tracking.deliveredAt).toLocaleString()}
+                          </div>
+                    }
+
+                        {tracking.errorMessage &&
+                    <Alert variant="destructive" className="mt-2">
+                            <AlertDescription className="text-sm">
+                              {tracking.errorMessage}
+                            </AlertDescription>
+                          </Alert>
+                    }
+
+                        {tracking.status === 'checking' &&
+                    <div className="flex items-center space-x-2">
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                            <span className="text-sm text-muted-foreground">
+                              Checking delivery status...
+                            </span>
+                          </div>
+                    }
+                      </div>
+                    </CardContent>
+                  </Card>
+              )}
+              </div>
+            }
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>);
 
 };
 

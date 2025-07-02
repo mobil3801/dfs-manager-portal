@@ -5,12 +5,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { Send, Phone, MessageSquare, Users, AlertCircle } from 'lucide-react';
+import { Send, Phone, MessageSquare, AlertCircle, CheckCircle, Loader2, User } from 'lucide-react';
+import { smsService } from '@/services/smsService';
+import SMSTestConnection from '@/components/SMSTestConnection';
 
-interface Contact {
+interface SMSContact {
   id: number;
   contact_name: string;
   mobile_number: string;
@@ -19,398 +22,447 @@ interface Contact {
   contact_role: string;
 }
 
+interface SMSProvider {
+  id: number;
+  provider_name: string;
+  from_number: string;
+  is_active: boolean;
+  test_mode: boolean;
+  monthly_limit: number;
+  current_month_count: number;
+}
+
 const CustomSMSSendingForm: React.FC = () => {
-  const { toast } = useToast();
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [selectedContacts, setSelectedContacts] = useState<number[]>([]);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [message, setMessage] = useState('');
-  const [sendingMethod, setSendingMethod] = useState<'contacts' | 'manual'>('contacts');
+  const [fromNumber, setFromNumber] = useState('');
+  const [contacts, setContacts] = useState<SMSContact[]>([]);
+  const [providers, setProviders] = useState<SMSProvider[]>([]);
   const [loading, setLoading] = useState(false);
-  const [loadingContacts, setLoadingContacts] = useState(false);
+  const [sendingProgress, setSendingProgress] = useState(0);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [lastSentMessage, setLastSentMessage] = useState<any>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     loadContacts();
+    loadProviders();
+    loadSMSService();
   }, []);
 
+  const loadSMSService = async () => {
+    try {
+      await smsService.loadConfiguration();
+    } catch (error) {
+      console.error('Error loading SMS service:', error);
+    }
+  };
+
   const loadContacts = async () => {
-    setLoadingContacts(true);
     try {
       const { data, error } = await window.ezsite.apis.tablePage('12612', {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'contact_name',
         IsAsc: true,
-        Filters: [
-        { name: 'is_active', op: 'Equal', value: true }]
-
+        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
       });
       if (error) throw error;
       setContacts(data?.List || []);
     } catch (error) {
       console.error('Error loading contacts:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to load SMS contacts',
-        variant: 'destructive'
+        title: "Error",
+        description: "Failed to load SMS contacts",
+        variant: "destructive"
       });
-    } finally {
-      setLoadingContacts(false);
     }
   };
 
-  const handleContactSelection = (contactId: number, checked: boolean) => {
-    if (checked) {
-      setSelectedContacts([...selectedContacts, contactId]);
-    } else {
-      setSelectedContacts(selectedContacts.filter((id) => id !== contactId));
-    }
-  };
+  const loadProviders = async () => {
+    try {
+      const { data, error } = await window.ezsite.apis.tablePage('12640', {
+        PageNo: 1,
+        PageSize: 10,
+        OrderByField: 'id',
+        IsAsc: false,
+        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+      });
+      if (error) throw error;
+      const providerList = data?.List || [];
+      setProviders(providerList);
 
-  const validatePhoneNumber = (phone: string): boolean => {
-    // Basic E.164 format validation
-    const phoneRegex = /^\+[1-9]\d{1,14}$/;
-    return phoneRegex.test(phone);
-  };
-
-  const handleSendSMS = async () => {
-    if (!message.trim()) {
+      // Auto-select the first active provider
+      if (providerList.length > 0 && !fromNumber) {
+        setFromNumber(providerList[0].from_number);
+      }
+    } catch (error) {
+      console.error('Error loading providers:', error);
       toast({
-        title: 'Message Required',
-        description: 'Please enter a message to send',
-        variant: 'destructive'
+        title: "Error",
+        description: "Failed to load SMS providers",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const errors: string[] = [];
+
+    if (!phoneNumber.trim()) {
+      errors.push('Phone number is required');
+    } else if (!isValidPhoneNumber(phoneNumber)) {
+      errors.push('Please enter a valid phone number (e.g., +1234567890 or 1234567890)');
+    }
+
+    if (!message.trim()) {
+      errors.push('Message content is required');
+    } else if (message.length > 1600) {
+      errors.push('Message is too long (maximum 1600 characters)');
+    }
+
+    if (!fromNumber) {
+      errors.push('Please select a sender number');
+    }
+
+    setValidationErrors(errors);
+    return errors.length === 0;
+  };
+
+  const isValidPhoneNumber = (phone: string): boolean => {
+    // Remove all non-digit characters
+    const cleaned = phone.replace(/[^\d]/g, '');
+
+    // Check if it's a valid length (10-15 digits)
+    if (cleaned.length < 10 || cleaned.length > 15) {
+      return false;
+    }
+
+    // US phone number validation (10 or 11 digits)
+    if (cleaned.length === 10 || cleaned.length === 11 && cleaned.startsWith('1')) {
+      return true;
+    }
+
+    // International numbers (10-15 digits)
+    return cleaned.length >= 10 && cleaned.length <= 15;
+  };
+
+  const formatPhoneNumber = (phone: string): string => {
+    const cleaned = phone.replace(/[^\d]/g, '');
+
+    // Add + prefix if not present
+    if (!phone.startsWith('+')) {
+      if (cleaned.length === 10) {
+        return `+1${cleaned}`;
+      } else if (cleaned.length === 11 && cleaned.startsWith('1')) {
+        return `+${cleaned}`;
+      } else {
+        return `+${cleaned}`;
+      }
+    }
+
+    return phone;
+  };
+
+  const selectContact = (contact: SMSContact) => {
+    setPhoneNumber(contact.mobile_number);
+    toast({
+      title: "Contact Selected",
+      description: `Selected ${contact.contact_name} (${contact.mobile_number})`
+    });
+  };
+
+  const sendCustomSMS = async () => {
+    if (!validateForm()) {
+      toast({
+        title: "Validation Error",
+        description: "Please fix the errors below",
+        variant: "destructive"
       });
       return;
     }
 
-    let recipients: {name: string;phone: string;}[] = [];
-
-    if (sendingMethod === 'contacts') {
-      if (selectedContacts.length === 0) {
-        toast({
-          title: 'No Recipients',
-          description: 'Please select at least one contact',
-          variant: 'destructive'
-        });
-        return;
-      }
-
-      recipients = contacts.
-      filter((contact) => selectedContacts.includes(contact.id)).
-      map((contact) => ({
-        name: contact.contact_name,
-        phone: contact.mobile_number
-      }));
-    } else {
-      if (!phoneNumber.trim()) {
-        toast({
-          title: 'Phone Number Required',
-          description: 'Please enter a phone number',
-          variant: 'destructive'
-        });
-        return;
-      }
-
-      if (!validatePhoneNumber(phoneNumber)) {
-        toast({
-          title: 'Invalid Phone Number',
-          description: 'Please enter a valid phone number in E.164 format (e.g., +1234567890)',
-          variant: 'destructive'
-        });
-        return;
-      }
-
-      recipients = [{ name: 'Manual Entry', phone: phoneNumber }];
-    }
-
-    setLoading(true);
     try {
-      let successCount = 0;
-      let failureCount = 0;
+      setLoading(true);
+      setSendingProgress(0);
 
-      // Send SMS to each recipient
-      for (const recipient of recipients) {
-        try {
-          // Simulate SMS sending (replace with actual SMS service call)
-          const smsResult = {
-            success: Math.random() > 0.1, // 90% success rate for simulation
-            error: Math.random() > 0.1 ? null : 'Simulated failure for testing'
-          };
+      // Format phone number
+      const formattedPhone = formatPhoneNumber(phoneNumber);
 
-          if (smsResult.success) {
-            successCount++;
-            console.log(`✅ SMS sent successfully to ${recipient.name} (${recipient.phone})`);
-          } else {
-            failureCount++;
-            console.error(`❌ SMS failed to ${recipient.name} (${recipient.phone}):`, smsResult.error);
+      // Progress simulation
+      const progressInterval = setInterval(() => {
+        setSendingProgress((prev) => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
           }
+          return prev + 10;
+        });
+      }, 200);
 
-          // Create history record
-          await window.ezsite.apis.tableCreate('12613', {
-            license_id: 0, // Custom SMS
-            contact_id: sendingMethod === 'contacts' ?
-            contacts.find((c) => c.mobile_number === recipient.phone)?.id || 0 : 0,
-            mobile_number: recipient.phone,
-            message_content: message,
-            sent_date: new Date().toISOString(),
-            delivery_status: smsResult.success ? 'Sent' : `Failed - ${smsResult.error}`,
-            days_before_expiry: 0,
-            created_by: 1
-          });
-        } catch (error) {
-          failureCount++;
-          console.error(`Error sending SMS to ${recipient.name}:`, error);
+      // Send SMS using the service with selected from number
+      const result = await smsService.sendCustomSMS(formattedPhone, message, fromNumber);
+
+      clearInterval(progressInterval);
+      setSendingProgress(100);
+
+      if (result.success) {
+        // Log to SMS history
+        await window.ezsite.apis.tableCreate('12613', {
+          license_id: 0, // Custom message
+          contact_id: 0, // Manual entry
+          mobile_number: formattedPhone,
+          message_content: message,
+          sent_date: new Date().toISOString(),
+          delivery_status: 'Sent',
+          days_before_expiry: 0,
+          created_by: 1
+        });
+
+        setLastSentMessage({
+          phone: formattedPhone,
+          message: message,
+          timestamp: new Date(),
+          messageId: result.messageId
+        });
+
+        toast({
+          title: "✅ SMS Sent Successfully",
+          description: `Message sent to ${formattedPhone}`
+        });
+
+        // Clear form
+        setMessage('');
+        if (!contacts.find((c) => c.mobile_number === formattedPhone)) {
+          setPhoneNumber('');
         }
-      }
-
-      // Show results
-      if (successCount > 0 && failureCount === 0) {
-        toast({
-          title: '✅ SMS Sent Successfully',
-          description: `Message sent to ${successCount} recipient(s)`
-        });
-      } else if (successCount > 0 && failureCount > 0) {
-        toast({
-          title: '⚠️ Partial Success',
-          description: `${successCount} sent successfully, ${failureCount} failed`,
-          variant: 'destructive'
-        });
       } else {
-        toast({
-          title: '❌ All SMS Failed',
-          description: 'Failed to send SMS to any recipients',
-          variant: 'destructive'
-        });
+        throw new Error(result.error || 'Failed to send SMS');
       }
-
-      // Reset form
-      setMessage('');
-      setPhoneNumber('');
-      setSelectedContacts([]);
-
     } catch (error) {
-      console.error('Error sending SMS:', error);
+      console.error('Error sending custom SMS:', error);
       toast({
-        title: 'Error',
-        description: `Failed to send SMS: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: 'destructive'
+        title: "❌ SMS Failed",
+        description: error instanceof Error ? error.message : 'Failed to send SMS',
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
+      setSendingProgress(0);
     }
   };
 
+  const getCharacterCount = () => {
+    const count = message.length;
+    const smsLength = 160;
+    const segments = Math.ceil(count / smsLength);
+
+    return {
+      count,
+      segments,
+      remaining: smsLength - (count % smsLength || smsLength),
+      isLong: segments > 1
+    };
+  };
+
+  const charInfo = getCharacterCount();
+
   return (
     <div className="space-y-6">
-      {/* Sending Method Selection */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <MessageSquare className="w-5 h-5 mr-2" />
-            Send Custom SMS
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <Label>Sending Method</Label>
-              <Select value={sendingMethod} onValueChange={(value: 'contacts' | 'manual') => setSendingMethod(value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="contacts">
-                    <div className="flex items-center">
-                      <Users className="w-4 h-4 mr-2" />
-                      Send to Saved Contacts
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <MessageSquare className="w-5 h-5 mr-2" />
+                Send Custom SMS
+              </CardTitle>
+            </CardHeader>
+      <CardContent className="space-y-6">
+        {validationErrors.length > 0 &&
+              <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              <ul className="list-disc list-inside space-y-1">
+                {validationErrors.map((error, index) =>
+                    <li key={index}>{error}</li>
+                    )}
+              </ul>
+            </AlertDescription>
+          </Alert>
+              }
+
+        {/* Provider Selection */}
+        <div className="space-y-2">
+          <Label htmlFor="fromNumber">Send From Number</Label>
+          <Select value={fromNumber} onValueChange={setFromNumber}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select sender number" />
+            </SelectTrigger>
+            <SelectContent>
+              {providers.map((provider) =>
+                    <SelectItem key={provider.id} value={provider.from_number}>
+                  <div className="flex items-center justify-between w-full">
+                    <span>{provider.from_number}</span>
+                    <div className="flex items-center space-x-2 ml-4">
+                      <Badge variant={provider.test_mode ? "outline" : "default"} className="text-xs">
+                        {provider.provider_name}
+                      </Badge>
+                      {provider.test_mode &&
+                          <Badge variant="secondary" className="text-xs">TEST</Badge>
+                          }
                     </div>
-                  </SelectItem>
-                  <SelectItem value="manual">
-                    <div className="flex items-center">
-                      <Phone className="w-4 h-4 mr-2" />
-                      Manual Phone Number Entry
+                  </div>
+                </SelectItem>
+                    )}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Quick Contact Selection */}
+        {contacts.length > 0 &&
+              <div className="space-y-2">
+            <Label>Quick Select Contact</Label>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+              {contacts.slice(0, 6).map((contact) =>
+                  <Button
+                    key={contact.id}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => selectContact(contact)}
+                    className="justify-start text-left h-auto p-3">
+
+                  <div className="flex items-center space-x-2">
+                    <User className="w-4 h-4" />
+                    <div>
+                      <div className="font-medium text-sm">{contact.contact_name}</div>
+                      <div className="text-xs text-muted-foreground">{contact.mobile_number}</div>
+                      <Badge variant="outline" className="text-xs mt-1">{contact.station}</Badge>
                     </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+                  </div>
+                </Button>
+                  )}
             </div>
+          </div>
+              }
 
-            {/* Manual Phone Number Entry */}
-            {sendingMethod === 'manual' &&
-            <div className="space-y-2">
-                <Label htmlFor="phoneNumber">Phone Number</Label>
-                <Input
-                id="phoneNumber"
-                type="tel"
-                placeholder="+1234567890"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)} />
+        {/* Phone Number Input */}
+        <div className="space-y-2">
+          <Label htmlFor="phoneNumber">
+            Recipient Phone Number
+            <span className="text-red-500 ml-1">*</span>
+          </Label>
+          <Input
+                  id="phoneNumber"
+                  type="tel"
+                  placeholder="+1234567890 or 1234567890"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className={validationErrors.some((e) => e.includes('Phone')) ? "border-red-500" : ""} />
 
-                <p className="text-sm text-gray-600">
-                  Enter phone number in E.164 format (e.g., +1234567890)
-                </p>
-              </div>
-            }
+          <p className="text-sm text-muted-foreground">
+            Enter a valid phone number (US: 1234567890, International: +1234567890)
+          </p>
+        </div>
 
-            {/* Contact Selection */}
-            {sendingMethod === 'contacts' &&
-            <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label>Select Recipients</Label>
-                  <Badge variant="outline">
-                    {selectedContacts.length} of {contacts.length} selected
-                  </Badge>
+        {/* Message Input */}
+        <div className="space-y-2">
+          <Label htmlFor="message">
+            Message Content
+            <span className="text-red-500 ml-1">*</span>
+          </Label>
+          <Textarea
+                  id="message"
+                  placeholder="Type your custom SMS message here..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  rows={4}
+                  className={validationErrors.some((e) => e.includes('Message')) ? "border-red-500" : ""} />
+
+          <div className="flex justify-between items-center text-sm">
+            <span className={`${charInfo.count > 1500 ? 'text-red-500' : 'text-muted-foreground'}`}>
+              {charInfo.count}/1600 characters
+            </span>
+            <div className="flex items-center space-x-2">
+              {charInfo.isLong &&
+                    <Badge variant="outline" className="text-xs">
+                  {charInfo.segments} SMS segments
+                </Badge>
+                    }
+              <span className="text-muted-foreground">
+                {charInfo.remaining} remaining in current segment
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Sending Progress */}
+        {loading &&
+              <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span className="text-sm">Sending SMS...</span>
+            </div>
+            <Progress value={sendingProgress} className="w-full" />
+          </div>
+              }
+
+        {/* Last Sent Message Info */}
+        {lastSentMessage &&
+              <Alert className="border-green-200 bg-green-50">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            <AlertDescription>
+              <div className="text-green-800">
+                <strong>Last message sent successfully:</strong>
+                <div className="mt-2 space-y-1 text-sm">
+                  <div><strong>To:</strong> {lastSentMessage.phone}</div>
+                  <div><strong>At:</strong> {lastSentMessage.timestamp.toLocaleString()}</div>
+                  <div><strong>Message ID:</strong> {lastSentMessage.messageId}</div>
                 </div>
-
-                {loadingContacts ?
-              <div className="text-center py-4">Loading contacts...</div> :
-              contacts.length === 0 ?
-              <div className="text-center py-6 text-gray-500">
-                    <Phone className="w-8 h-8 mx-auto mb-2" />
-                    <p>No active contacts found.</p>
-                    <p className="text-sm">Add contacts in the SMS Contacts tab first.</p>
-                  </div> :
-
-              <div className="max-h-60 overflow-y-auto space-y-3 border rounded-lg p-4">
-                    {contacts.map((contact) =>
-                <div key={contact.id} className="flex items-center space-x-3">
-                        <Checkbox
-                    id={`contact-${contact.id}`}
-                    checked={selectedContacts.includes(contact.id)}
-                    onCheckedChange={(checked) =>
-                    handleContactSelection(contact.id, checked as boolean)
-                    } />
-
-                        <label
-                    htmlFor={`contact-${contact.id}`}
-                    className="flex-1 cursor-pointer">
-
-                          <div className="font-medium">{contact.contact_name}</div>
-                          <div className="text-sm text-gray-600">
-                            {contact.mobile_number} • {contact.station} • {contact.contact_role}
-                          </div>
-                        </label>
-                      </div>
-                )}
-                  </div>
+              </div>
+            </AlertDescription>
+          </Alert>
               }
 
-                {contacts.length > 0 &&
-              <div className="flex space-x-2">
-                    <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedContacts(contacts.map((c) => c.id))}>
+        {/* Send Button */}
+        <Button
+                onClick={sendCustomSMS}
+                disabled={loading || !phoneNumber || !message || !fromNumber}
+                className="w-full"
+                size="lg">
 
-                      Select All
-                    </Button>
-                    <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedContacts([])}>
+          <Send className="w-4 h-4 mr-2" />
+          {loading ? 'Sending...' : 'Send SMS'}
+        </Button>
 
-                      Clear All
-                    </Button>
-                  </div>
+        {/* Usage Info */}
+        {providers.length > 0 &&
+              <div className="pt-4 border-t">
+            <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
+              <div>
+                <strong>Service Status:</strong>
+                <div className="flex items-center mt-1">
+                  <CheckCircle className="w-4 h-4 text-green-500 mr-1" />
+                  SMS Service Active
+                </div>
+              </div>
+              <div>
+                <strong>Monthly Usage:</strong>
+                <div className="mt-1">
+                  {providers[0]?.current_month_count || 0} / {providers[0]?.monthly_limit || 1000} messages
+                </div>
+              </div>
+            </div>
+          </div>
               }
-              </div>
-            }
-
-            {/* Message Input */}
-            <div className="space-y-2">
-              <Label htmlFor="message">Message</Label>
-              <Textarea
-                id="message"
-                placeholder="Enter your custom message here..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                rows={4}
-                maxLength={160} />
-
-              <div className="flex justify-between text-sm text-gray-600">
-                <span>SMS messages are limited to 160 characters</span>
-                <span>{message.length}/160</span>
-              </div>
-            </div>
-
-            {/* SMS Preview */}
-            {message.trim() &&
-            <div className="bg-gray-50 border rounded-lg p-3">
-                <Label className="text-sm font-medium text-gray-700">Message Preview:</Label>
-                <div className="mt-1 text-sm text-gray-900">{message}</div>
-              </div>
-            }
-
-            {/* Send Button */}
-            <div className="flex justify-end space-x-3">
-              <Button
-                onClick={handleSendSMS}
-                disabled={loading || !message.trim()}
-                className="bg-blue-600 hover:bg-blue-700">
-
-                <Send className="w-4 h-4 mr-2" />
-                {loading ? 'Sending...' : 'Send SMS'}
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Quick Templates */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Message Templates</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setMessage('🔔 Reminder: Your license expires soon. Please renew to avoid any business disruptions.')}>
-
-              License Reminder
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setMessage('⚠️ URGENT: Your license expires in 3 days. Immediate action required.')}>
-
-              Urgent Alert
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setMessage('✅ Test message from DFS Manager - SMS system is working correctly!')}>
-
-              Test Message
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setMessage('📋 Please check your DFS Manager dashboard for important updates.')}>
-
-              Dashboard Update
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* SMS Guidelines */}
-      <Card className="bg-blue-50 border-blue-200">
-        <CardHeader>
-          <CardTitle className="flex items-center text-blue-800">
-            <AlertCircle className="w-5 h-5 mr-2" />
-            SMS Best Practices
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-blue-700 space-y-2">
-          <div>• Keep messages under 160 characters for single SMS delivery</div>
-          <div>• Use clear, actionable language</div>
-          <div>• Include your business name for identification</div>
-          <div>• Test with a small group before sending to all contacts</div>
-          <div>• Respect opt-out requests and local regulations</div>
-        </CardContent>
-      </Card>
+      </CardContent>
+    </Card>
+        </div>
+        
+        <div className="space-y-6">
+          <SMSTestConnection />
+        </div>
+      </div>
     </div>);
 
 };

@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Edit, FileText, Trash2 } from 'lucide-react';
+import { FileText, Save, Trash2, Loader2 } from 'lucide-react';
 import HighlightText from '@/components/HighlightText';
 
 interface Product {
@@ -33,17 +33,19 @@ interface Product {
 interface ProductCardsProps {
   products: Product[];
   searchTerm: string;
-  onEdit: (id: number) => void;
-  onViewChangelog: (id: number, name: string) => void;
+  onViewLogs: (id: number, name: string) => void;
+  onSaveProduct: (id: number) => void;
   onDeleteProduct: (id: number) => void;
+  savingProductId: number | null;
 }
 
 const ProductCards: React.FC<ProductCardsProps> = ({
   products,
   searchTerm,
-  onEdit,
-  onViewChangelog,
-  onDeleteProduct
+  onViewLogs,
+  onSaveProduct,
+  onDeleteProduct,
+  savingProductId
 }) => {
   const formatDate = (dateString: string) => {
     if (!dateString) return '-';
@@ -123,18 +125,24 @@ const ProductCards: React.FC<ProductCardsProps> = ({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => onEdit(product.ID)}
+                    onClick={() => onViewLogs(product.ID, product.product_name)}
                     className="p-2"
-                    title="Edit product">
-                    <Edit className="w-4 h-4" />
+                    title="View logs">
+
+                    <FileText className="w-4 h-4" />
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => onViewChangelog(product.ID, product.product_name)}
+                    onClick={() => onSaveProduct(product.ID)}
+                    disabled={savingProductId === product.ID}
                     className="p-2"
-                    title="View changelog">
-                    <FileText className="w-4 h-4" />
+                    title="Save product">
+
+                    {savingProductId === product.ID ?
+                    <Loader2 className="w-4 h-4 animate-spin" /> :
+                    <Save className="w-4 h-4" />
+                    }
                   </Button>
                   <Button
                     variant="outline"
@@ -142,6 +150,7 @@ const ProductCards: React.FC<ProductCardsProps> = ({
                     onClick={() => onDeleteProduct(product.ID)}
                     className="p-2 text-red-600 hover:text-red-700"
                     title="Delete product">
+
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>

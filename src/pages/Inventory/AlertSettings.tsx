@@ -1,476 +1,446 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import {
-  Settings,
-  Bell,
-  Mail,
-  Smartphone,
-  Clock,
-  AlertTriangle,
-  Save,
-  Plus,
-  Trash2 } from
-'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { ArrowLeft, Save, Bell, Mail, AlertTriangle, Settings } from 'lucide-react';
 
-interface AlertRule {
-  id: string;
-  name: string;
-  type: 'low_stock' | 'out_of_stock' | 'expiring' | 'expired';
-  threshold: number;
-  isEnabled: boolean;
-  notificationMethods: string[];
-  priority: 'high' | 'medium' | 'low';
-}
-
-interface NotificationSettings {
-  emailEnabled: boolean;
-  smsEnabled: boolean;
-  inAppEnabled: boolean;
-  emailAddress: string;
-  phoneNumber: string;
-  quietHours: {
-    enabled: boolean;
-    startTime: string;
-    endTime: string;
-  };
+interface AlertSettings {
+  lowStockThreshold: number;
+  criticalStockThreshold: number;
+  emailNotifications: boolean;
+  autoReorderSuggestions: boolean;
+  alertFrequency: string;
+  notificationEmails: string[];
+  businessHoursOnly: boolean;
+  weekendsIncluded: boolean;
 }
 
 const AlertSettingsPage: React.FC = () => {
-  const [alertRules, setAlertRules] = useState<AlertRule[]>([]);
-  const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>();
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const navigate = useNavigate();
   const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [settings, setSettings] = useState<AlertSettings>({
+    lowStockThreshold: 10,
+    criticalStockThreshold: 5,
+    emailNotifications: true,
+    autoReorderSuggestions: true,
+    alertFrequency: 'daily',
+    notificationEmails: ['manager@gasstation.com'],
+    businessHoursOnly: false,
+    weekendsIncluded: true
+  });
 
-  // Mock data initialization
   useEffect(() => {
-    const mockRules: AlertRule[] = [
-    {
-      id: '1',
-      name: 'Low Stock Alert',
-      type: 'low_stock',
-      threshold: 10,
-      isEnabled: true,
-      notificationMethods: ['email', 'app'],
-      priority: 'medium'
-    },
-    {
-      id: '2',
-      name: 'Out of Stock Alert',
-      type: 'out_of_stock',
-      threshold: 0,
-      isEnabled: true,
-      notificationMethods: ['email', 'sms', 'app'],
-      priority: 'high'
-    },
-    {
-      id: '3',
-      name: 'Expiring Products',
-      type: 'expiring',
-      threshold: 7, // days
-      isEnabled: true,
-      notificationMethods: ['email'],
-      priority: 'medium'
-    }];
-
-
-    const mockNotificationSettings: NotificationSettings = {
-      emailEnabled: true,
-      smsEnabled: false,
-      inAppEnabled: true,
-      emailAddress: 'manager@gasstation.com',
-      phoneNumber: '+1234567890',
-      quietHours: {
-        enabled: true,
-        startTime: '22:00',
-        endTime: '06:00'
-      }
-    };
-
-    setTimeout(() => {
-      setAlertRules(mockRules);
-      setNotificationSettings(mockNotificationSettings);
-      setLoading(false);
-    }, 1000);
+    loadSettings();
   }, []);
 
-  const handleSaveSettings = async () => {
-    setSaving(true);
+  const loadSettings = () => {
+    const saved = localStorage.getItem('inventoryAlertSettings');
+    if (saved) {
+      try {
+        const parsedSettings = JSON.parse(saved);
+        setSettings({ ...settings, ...parsedSettings });
+      } catch (error) {
+        console.error('Error parsing saved settings:', error);
+      }
+    }
+  };
+
+  const handleInputChange = (field: keyof AlertSettings, value: string | number | boolean | string[]) => {
+    setSettings((prev) => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleEmailListChange = (emails: string) => {
+    const emailArray = emails.split(',').map((email) => email.trim()).filter((email) => email);
+    handleInputChange('notificationEmails', emailArray);
+  };
+
+  const validateSettings = (): boolean => {
+    if (settings.criticalStockThreshold >= settings.lowStockThreshold) {
+      toast({
+        title: 'Validation Error',
+        description: 'Critical stock threshold must be lower than low stock threshold',
+        variant: 'destructive'
+      });
+      return false;
+    }
+
+    if (settings.criticalStockThreshold < 0 || settings.lowStockThreshold < 0) {
+      toast({
+        title: 'Validation Error',
+        description: 'Stock thresholds must be positive numbers',
+        variant: 'destructive'
+      });
+      return false;
+    }
+
+    if (settings.emailNotifications && settings.notificationEmails.length === 0) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please provide at least one email address for notifications',
+        variant: 'destructive'
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSave = async () => {
+    if (!validateSettings()) return;
+
+    setLoading(true);
     try {
-      // In a real app, this would save to the backend
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      localStorage.setItem('inventoryAlertSettings', JSON.stringify(settings));
 
       toast({
-        title: "Settings saved",
-        description: "Alert settings have been saved successfully."
+        title: 'Settings Saved',
+        description: 'Alert settings have been updated successfully'
       });
+
+      // Optional: Send a test email to verify settings
+      if (settings.emailNotifications) {
+        try {
+          await window.ezsite.apis.sendEmail({
+            from: 'support@ezsite.ai',
+            to: settings.notificationEmails,
+            subject: '✅ Inventory Alert Settings Updated',
+            html: `
+              <h2>Inventory Alert Settings Updated</h2>
+              <p>Your inventory alert settings have been successfully updated with the following configuration:</p>
+              <ul>
+                <li><strong>Low Stock Threshold:</strong> ${settings.lowStockThreshold} units</li>
+                <li><strong>Critical Stock Threshold:</strong> ${settings.criticalStockThreshold} units</li>
+                <li><strong>Email Notifications:</strong> ${settings.emailNotifications ? 'Enabled' : 'Disabled'}</li>
+                <li><strong>Alert Frequency:</strong> ${settings.alertFrequency}</li>
+                <li><strong>Auto Reorder Suggestions:</strong> ${settings.autoReorderSuggestions ? 'Enabled' : 'Disabled'}</li>
+              </ul>
+              <p>This is a confirmation email to verify that notifications are working correctly.</p>
+              <p><em>Generated at: ${new Date().toLocaleString()}</em></p>
+            `
+          });
+        } catch (emailError) {
+          console.error('Error sending confirmation email:', emailError);
+          toast({
+            title: 'Warning',
+            description: 'Settings saved but failed to send confirmation email',
+            variant: 'destructive'
+          });
+        }
+      }
+
+      setTimeout(() => navigate('/inventory/alerts'), 1000);
     } catch (error) {
+      console.error('Error saving settings:', error);
       toast({
-        title: "Error",
-        description: "Failed to save settings. Please try again.",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to save alert settings',
+        variant: 'destructive'
       });
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
   };
 
-  const updateAlertRule = (id: string, updates: Partial<AlertRule>) => {
-    setAlertRules((prev) => prev.map((rule) =>
-    rule.id === id ? { ...rule, ...updates } : rule
-    ));
-  };
+  const sendTestAlert = async () => {
+    try {
+      await window.ezsite.apis.sendEmail({
+        from: 'support@ezsite.ai',
+        to: settings.notificationEmails,
+        subject: '🧪 Test Inventory Alert',
+        html: `
+          <h2>🧪 Test Inventory Alert</h2>
+          <p>This is a test alert to verify your email notification settings are working correctly.</p>
+          
+          <div style="background-color: #fee; border: 1px solid #fcc; padding: 15px; border-radius: 5px; margin: 15px 0;">
+            <h3 style="color: #c53030; margin: 0 0 10px 0;">⚠️ Simulated Critical Stock Alert</h3>
+            <p><strong>Product:</strong> Test Product ABC</p>
+            <p><strong>Current Stock:</strong> 2 units</p>
+            <p><strong>Minimum Stock:</strong> 10 units</p>
+            <p><strong>Supplier:</strong> Test Supplier</p>
+          </div>
+          
+          <div style="background-color: #fef5e7; border: 1px solid #fbd38d; padding: 15px; border-radius: 5px; margin: 15px 0;">
+            <h3 style="color: #c05621; margin: 0 0 10px 0;">📉 Simulated Low Stock Alert</h3>
+            <p><strong>Product:</strong> Test Product XYZ</p>
+            <p><strong>Current Stock:</strong> 8 units</p>
+            <p><strong>Minimum Stock:</strong> 15 units</p>
+            <p><strong>Supplier:</strong> Test Supplier</p>
+          </div>
+          
+          <p><strong>Alert Settings:</strong></p>
+          <ul>
+            <li>Low Stock Threshold: ${settings.lowStockThreshold} units</li>
+            <li>Critical Stock Threshold: ${settings.criticalStockThreshold} units</li>
+            <li>Alert Frequency: ${settings.alertFrequency}</li>
+          </ul>
+          
+          <p>If you received this email, your alert notifications are configured correctly!</p>
+          <p><em>Test sent at: ${new Date().toLocaleString()}</em></p>
+        `
+      });
 
-  const addNewRule = () => {
-    const newRule: AlertRule = {
-      id: Date.now().toString(),
-      name: 'New Alert Rule',
-      type: 'low_stock',
-      threshold: 5,
-      isEnabled: true,
-      notificationMethods: ['app'],
-      priority: 'medium'
-    };
-    setAlertRules((prev) => [...prev, newRule]);
-  };
-
-  const deleteRule = (id: string) => {
-    setAlertRules((prev) => prev.filter((rule) => rule.id !== id));
-    toast({
-      title: "Rule deleted",
-      description: "Alert rule has been removed."
-    });
-  };
-
-  const getTypeLabel = (type: string) => {
-    switch (type) {
-      case 'low_stock':return 'Low Stock';
-      case 'out_of_stock':return 'Out of Stock';
-      case 'expiring':return 'Expiring Soon';
-      case 'expired':return 'Expired';
-      default:return type;
+      toast({
+        title: 'Test Alert Sent',
+        description: 'Check your email to verify notifications are working'
+      });
+    } catch (error) {
+      console.error('Error sending test alert:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to send test alert email',
+        variant: 'destructive'
+      });
     }
   };
-
-  if (loading) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      </div>);
-
-  }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Alert Settings</h1>
-          <p className="text-muted-foreground">
-            Configure inventory alerts and notification preferences
-          </p>
-        </div>
-        <Button onClick={handleSaveSettings} disabled={saving} className="flex items-center space-x-2">
-          <Save className="h-4 w-4" />
-          <span>{saving ? 'Saving...' : 'Save Settings'}</span>
+    <div className="space-y-6">
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" onClick={() => navigate('/inventory/alerts')}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Alerts
         </Button>
+        <div>
+          <h1 className="text-3xl font-bold">Alert Settings</h1>
+          <p className="text-muted-foreground">Configure inventory alert thresholds and notifications</p>
+        </div>
       </div>
 
-      <Tabs defaultValue="rules" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="rules">Alert Rules</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
-        </TabsList>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Stock Thresholds */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              Stock Thresholds
+            </CardTitle>
+            <CardDescription>
+              Set the stock levels that trigger low stock and critical stock alerts
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="lowStockThreshold">Low Stock Threshold</Label>
+                <Input
+                  id="lowStockThreshold"
+                  type="number"
+                  min="1"
+                  value={settings.lowStockThreshold}
+                  onChange={(e) => handleInputChange('lowStockThreshold', parseInt(e.target.value) || 0)} />
 
-        <TabsContent value="rules" className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Alert Rules</h2>
-            <Button onClick={addNewRule} className="flex items-center space-x-2">
-              <Plus className="h-4 w-4" />
-              <span>Add Rule</span>
-            </Button>
-          </div>
+                <p className="text-sm text-muted-foreground">
+                  Alert when stock falls below this level
+                </p>
+              </div>
 
-          <div className="grid gap-4">
-            {alertRules.map((rule) =>
-            <Card key={rule.id}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Switch
-                      checked={rule.isEnabled}
-                      onCheckedChange={(checked) => updateAlertRule(rule.id, { isEnabled: checked })} />
+              <div className="space-y-2">
+                <Label htmlFor="criticalStockThreshold">Critical Stock Threshold</Label>
+                <Input
+                  id="criticalStockThreshold"
+                  type="number"
+                  min="1"
+                  value={settings.criticalStockThreshold}
+                  onChange={(e) => handleInputChange('criticalStockThreshold', parseInt(e.target.value) || 0)} />
 
-                      <div>
-                        <CardTitle className="text-lg">{rule.name}</CardTitle>
-                        <CardDescription className="flex items-center space-x-2">
-                          <Badge variant="outline">{getTypeLabel(rule.type)}</Badge>
-                          <Badge variant={rule.priority === 'high' ? 'destructive' : 'secondary'}>
-                            {rule.priority.toUpperCase()}
-                          </Badge>
-                        </CardDescription>
-                      </div>
-                    </div>
-                    <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteRule(rule.id)}
-                    className="text-destructive hover:text-destructive">
-
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor={`name-${rule.id}`}>Rule Name</Label>
-                      <Input
-                      id={`name-${rule.id}`}
-                      value={rule.name}
-                      onChange={(e) => updateAlertRule(rule.id, { name: e.target.value })} />
-
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor={`type-${rule.id}`}>Alert Type</Label>
-                      <Select
-                      value={rule.type}
-                      onValueChange={(value) => updateAlertRule(rule.id, { type: value as AlertRule['type'] })}>
-
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="low_stock">Low Stock</SelectItem>
-                          <SelectItem value="out_of_stock">Out of Stock</SelectItem>
-                          <SelectItem value="expiring">Expiring Soon</SelectItem>
-                          <SelectItem value="expired">Expired</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor={`threshold-${rule.id}`}>
-                        Threshold {rule.type === 'expiring' ? '(days)' : '(quantity)'}
-                      </Label>
-                      <Input
-                      id={`threshold-${rule.id}`}
-                      type="number"
-                      value={rule.threshold}
-                      onChange={(e) => updateAlertRule(rule.id, { threshold: parseInt(e.target.value) || 0 })} />
-
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor={`priority-${rule.id}`}>Priority</Label>
-                      <Select
-                      value={rule.priority}
-                      onValueChange={(value) => updateAlertRule(rule.id, { priority: value as AlertRule['priority'] })}>
-
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="low">Low</SelectItem>
-                          <SelectItem value="medium">Medium</SelectItem>
-                          <SelectItem value="high">High</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="md:col-span-2 space-y-2">
-                      <Label>Notification Methods</Label>
-                      <div className="flex items-center space-x-4">
-                        {['email', 'sms', 'app'].map((method) =>
-                      <label key={method} className="flex items-center space-x-2 cursor-pointer">
-                            <input
-                          type="checkbox"
-                          checked={rule.notificationMethods.includes(method)}
-                          onChange={(e) => {
-                            const methods = e.target.checked ?
-                            [...rule.notificationMethods, method] :
-                            rule.notificationMethods.filter((m) => m !== method);
-                            updateAlertRule(rule.id, { notificationMethods: methods });
-                          }}
-                          className="rounded" />
-
-                            <span className="capitalize">{method === 'app' ? 'In-App' : method}</span>
-                          </label>
-                      )}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="notifications" className="space-y-6">
-          <h2 className="text-xl font-semibold">Notification Settings</h2>
-          
-          {notificationSettings &&
-          <div className="grid gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Mail className="h-5 w-5" />
-                    <span>Email Notifications</span>
-                  </CardTitle>
-                  <CardDescription>Configure email alert settings</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="email-enabled">Enable Email Notifications</Label>
-                    <Switch
-                    id="email-enabled"
-                    checked={notificationSettings.emailEnabled}
-                    onCheckedChange={(checked) =>
-                    setNotificationSettings((prev) => prev ? { ...prev, emailEnabled: checked } : undefined)
-                    } />
-
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email-address">Email Address</Label>
-                    <Input
-                    id="email-address"
-                    type="email"
-                    value={notificationSettings.emailAddress}
-                    onChange={(e) =>
-                    setNotificationSettings((prev) => prev ? { ...prev, emailAddress: e.target.value } : undefined)
-                    }
-                    disabled={!notificationSettings.emailEnabled} />
-
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Smartphone className="h-5 w-5" />
-                    <span>SMS Notifications</span>
-                  </CardTitle>
-                  <CardDescription>Configure SMS alert settings</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="sms-enabled">Enable SMS Notifications</Label>
-                    <Switch
-                    id="sms-enabled"
-                    checked={notificationSettings.smsEnabled}
-                    onCheckedChange={(checked) =>
-                    setNotificationSettings((prev) => prev ? { ...prev, smsEnabled: checked } : undefined)
-                    } />
-
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone-number">Phone Number</Label>
-                    <Input
-                    id="phone-number"
-                    type="tel"
-                    value={notificationSettings.phoneNumber}
-                    onChange={(e) =>
-                    setNotificationSettings((prev) => prev ? { ...prev, phoneNumber: e.target.value } : undefined)
-                    }
-                    disabled={!notificationSettings.smsEnabled} />
-
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Bell className="h-5 w-5" />
-                    <span>In-App Notifications</span>
-                  </CardTitle>
-                  <CardDescription>Configure in-app alert settings</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="app-enabled">Enable In-App Notifications</Label>
-                    <Switch
-                    id="app-enabled"
-                    checked={notificationSettings.inAppEnabled}
-                    onCheckedChange={(checked) =>
-                    setNotificationSettings((prev) => prev ? { ...prev, inAppEnabled: checked } : undefined)
-                    } />
-
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Clock className="h-5 w-5" />
-                    <span>Quiet Hours</span>
-                  </CardTitle>
-                  <CardDescription>Set quiet hours to avoid notifications during specific times</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="quiet-enabled">Enable Quiet Hours</Label>
-                    <Switch
-                    id="quiet-enabled"
-                    checked={notificationSettings.quietHours.enabled}
-                    onCheckedChange={(checked) =>
-                    setNotificationSettings((prev) => prev ? {
-                      ...prev,
-                      quietHours: { ...prev.quietHours, enabled: checked }
-                    } : undefined)
-                    } />
-
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="start-time">Start Time</Label>
-                      <Input
-                      id="start-time"
-                      type="time"
-                      value={notificationSettings.quietHours.startTime}
-                      onChange={(e) =>
-                      setNotificationSettings((prev) => prev ? {
-                        ...prev,
-                        quietHours: { ...prev.quietHours, startTime: e.target.value }
-                      } : undefined)
-                      }
-                      disabled={!notificationSettings.quietHours.enabled} />
-
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="end-time">End Time</Label>
-                      <Input
-                      id="end-time"
-                      type="time"
-                      value={notificationSettings.quietHours.endTime}
-                      onChange={(e) =>
-                      setNotificationSettings((prev) => prev ? {
-                        ...prev,
-                        quietHours: { ...prev.quietHours, endTime: e.target.value }
-                      } : undefined)
-                      }
-                      disabled={!notificationSettings.quietHours.enabled} />
-
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                <p className="text-sm text-muted-foreground">
+                  Urgent alert when stock falls below this level
+                </p>
+              </div>
             </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h4 className="font-medium text-blue-900 mb-2">Threshold Guidelines</h4>
+              <ul className="text-sm text-blue-700 space-y-1">
+                <li>• Critical threshold should be lower than low stock threshold</li>
+                <li>• Consider your supplier lead times when setting thresholds</li>
+                <li>• Higher-volume products may need higher thresholds</li>
+                <li>• Review and adjust thresholds based on sales patterns</li>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Stats Preview */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Current Status</CardTitle>
+            <CardDescription>Preview of how your settings will work</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-200">
+              <div>
+                <div className="font-medium text-red-900">Critical Alert</div>
+                <div className="text-sm text-red-700">≤ {settings.criticalStockThreshold} units</div>
+              </div>
+              <AlertTriangle className="h-6 w-6 text-red-600" />
+            </div>
+
+            <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg border border-orange-200">
+              <div>
+                <div className="font-medium text-orange-900">Low Stock Alert</div>
+                <div className="text-sm text-orange-700">≤ {settings.lowStockThreshold} units</div>
+              </div>
+              <Bell className="h-6 w-6 text-orange-600" />
+            </div>
+
+            <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+              <div>
+                <div className="font-medium text-green-900">Good Stock</div>
+                <div className="text-sm text-green-700">&gt; {settings.lowStockThreshold} units</div>
+              </div>
+              <div className="h-6 w-6 bg-green-600 rounded-full"></div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Email Notifications */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5" />
+              Email Notifications
+            </CardTitle>
+            <CardDescription>
+              Configure how and when you receive alert notifications
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>Enable Email Notifications</Label>
+                <p className="text-sm text-muted-foreground">
+                  Receive alerts via email when stock levels are low
+                </p>
+              </div>
+              <Switch
+                checked={settings.emailNotifications}
+                onCheckedChange={(checked) => handleInputChange('emailNotifications', checked)} />
+
+            </div>
+
+            {settings.emailNotifications &&
+            <>
+                <div className="space-y-2">
+                  <Label htmlFor="notificationEmails">Notification Email Addresses</Label>
+                  <Input
+                  id="notificationEmails"
+                  type="email"
+                  value={settings.notificationEmails.join(', ')}
+                  onChange={(e) => handleEmailListChange(e.target.value)}
+                  placeholder="manager@example.com, assistant@example.com" />
+
+                  <p className="text-sm text-muted-foreground">
+                    Enter multiple email addresses separated by commas
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Business Hours Only</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Only send alerts during business hours (9 AM - 6 PM)
+                    </p>
+                  </div>
+                  <Switch
+                  checked={settings.businessHoursOnly}
+                  onCheckedChange={(checked) => handleInputChange('businessHoursOnly', checked)} />
+
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Include Weekends</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Send alerts on weekends and holidays
+                    </p>
+                  </div>
+                  <Switch
+                  checked={settings.weekendsIncluded}
+                  onCheckedChange={(checked) => handleInputChange('weekendsIncluded', checked)} />
+
+                </div>
+
+                <Button variant="outline" onClick={sendTestAlert} className="w-full">
+                  <Mail className="h-4 w-4 mr-2" />
+                  Send Test Alert Email
+                </Button>
+              </>
+            }
+          </CardContent>
+        </Card>
+
+        {/* Additional Features */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              Additional Features
+            </CardTitle>
+            <CardDescription>Extra automation and suggestions</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>Auto Reorder Suggestions</Label>
+                <p className="text-sm text-muted-foreground">
+                  Suggest reorder quantities based on sales history
+                </p>
+              </div>
+              <Switch
+                checked={settings.autoReorderSuggestions}
+                onCheckedChange={(checked) => handleInputChange('autoReorderSuggestions', checked)} />
+
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="alertFrequency">Alert Frequency</Label>
+              <select
+                id="alertFrequency"
+                value={settings.alertFrequency}
+                onChange={(e) => handleInputChange('alertFrequency', e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+                <option value="realtime">Real-time</option>
+                <option value="hourly">Hourly</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+              </select>
+              <p className="text-sm text-muted-foreground">
+                How often to check and send alerts
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Save Actions */}
+      <div className="flex justify-end gap-4">
+        <Button variant="outline" onClick={() => navigate('/inventory/alerts')}>
+          Cancel
+        </Button>
+        <Button onClick={handleSave} disabled={loading}>
+          {loading ?
+          <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              Saving...
+            </> :
+
+          <>
+              <Save className="h-4 w-4 mr-2" />
+              Save Settings
+            </>
           }
-        </TabsContent>
-      </Tabs>
+        </Button>
+      </div>
     </div>);
 
 };

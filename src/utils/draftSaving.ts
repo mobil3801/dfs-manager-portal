@@ -1,66 +1,56 @@
+
 /**
- * Draft Saving Service for Sales Report Forms
- * Manages local storage of draft reports with expiration
+ * Draft saving utility functions for form data
+ * Handles temporary storage with 12-hour expiration
  */
 
-const DRAFT_PREFIX = 'sales-report-draft-';
-const DRAFT_EXPIRY_HOURS = 12;
-
 interface DraftData {
-  formData: any;
-  savedAt: string;
-  expiresAt: string;
-  station: string;
-  reportDate: string;
+  data: any;
+  timestamp: number;
+  expiresAt: number;
 }
 
-interface DraftInfo {
-  savedAt: Date;
-  expiresAt: Date;
-  timeRemainingHours: number;
-}
+const DRAFT_EXPIRY_HOURS = 12;
+const DRAFT_KEY_PREFIX = 'sales_report_draft_';
 
-class DraftSavingService {
-  /**
-   * Generate a unique key for a draft
-   */
-  private generateDraftKey(station: string, reportDate: string): string {
-    return `${DRAFT_PREFIX}${station}-${reportDate}`;
+export class DraftSavingService {
+  private static getDraftKey(stationName: string, reportDate: string): string {
+    const sanitizedStation = stationName.replace(/\s+/g, '_').toLowerCase();
+    const sanitizedDate = reportDate.replace(/[^0-9-]/g, '');
+    return `${DRAFT_KEY_PREFIX}${sanitizedStation}_${sanitizedDate}`;
   }
 
   /**
-   * Save a draft to local storage
+   * Save form data as draft with 12-hour expiration
    */
-  saveDraft(station: string, reportDate: string, formData: any): boolean {
+  static saveDraft(stationName: string, reportDate: string, formData: any): boolean {
     try {
-      const now = new Date();
-      const expiresAt = new Date(now.getTime() + DRAFT_EXPIRY_HOURS * 60 * 60 * 1000);
+      const key = this.getDraftKey(stationName, reportDate);
+      const timestamp = Date.now();
+      const expiresAt = timestamp + DRAFT_EXPIRY_HOURS * 60 * 60 * 1000; // 12 hours from now
 
       const draftData: DraftData = {
-        formData,
-        savedAt: now.toISOString(),
-        expiresAt: expiresAt.toISOString(),
-        station,
-        reportDate
+        data: formData,
+        timestamp,
+        expiresAt
       };
 
-      const key = this.generateDraftKey(station, reportDate);
       localStorage.setItem(key, JSON.stringify(draftData));
 
-      console.log(`Draft saved for ${station} on ${reportDate}`);
+      console.log(`✅ Draft saved successfully for ${stationName} on ${reportDate}`);
       return true;
     } catch (error) {
-      console.error('Error saving draft:', error);
+      console.error('❌ Error saving draft:', error);
       return false;
     }
   }
 
   /**
-   * Load a draft from local storage
+   * Load draft data if it exists and hasn't expired
    */
-  loadDraft(station: string, reportDate: string): any | null {
+  static loadDraft(stationName: string, reportDate: string): any | null {
     try {
-      const key = this.generateDraftKey(station, reportDate);
+      const key = this.getDraftKey(stationName, reportDate);
       const stored = localStorage.getItem(key);
 
       if (!stored) {
@@ -68,45 +58,68 @@ class DraftSavingService {
       }
 
       const draftData: DraftData = JSON.parse(stored);
+      const now = Date.now();
 
       // Check if draft has expired
-      const now = new Date();
-      const expiresAt = new Date(draftData.expiresAt);
-
-      if (now > expiresAt) {
-        // Draft has expired, remove it
-        this.deleteDraft(station, reportDate);
+      if (now > draftData.expiresAt) {
+        console.log(`⏰ Draft expired for ${stationName} on ${reportDate}, removing...`);
+        this.deleteDraft(stationName, reportDate);
         return null;
       }
 
-      return draftData.formData;
+      console.log(`✅ Draft loaded for ${stationName} on ${reportDate}`);
+      return draftData.data;
     } catch (error) {
-      console.error('Error loading draft:', error);
+      console.error('❌ Error loading draft:', error);
       return null;
     }
   }
 
   /**
-   * Delete a draft from local storage
+   * Delete draft data
    */
-  deleteDraft(station: string, reportDate: string): boolean {
+  static deleteDraft(stationName: string, reportDate: string): void {
     try {
-      const key = this.generateDraftKey(station, reportDate);
+      const key = this.getDraftKey(stationName, reportDate);
       localStorage.removeItem(key);
-      console.log(`Draft deleted for ${station} on ${reportDate}`);
-      return true;
+      console.log(`🗑️ Draft deleted for ${stationName} on ${reportDate}`);
     } catch (error) {
-      console.error('Error deleting draft:', error);
+      console.error('❌ Error deleting draft:', error);
+    }
+  }
+
+  /**
+   * Check if draft exists and hasn't expired
+   */
+  static hasDraft(stationName: string, reportDate: string): boolean {
+    try {
+      const key = this.getDraftKey(stationName, reportDate);
+      const stored = localStorage.getItem(key);
+
+      if (!stored) {
+        return false;
+      }
+
+      const draftData: DraftData = JSON.parse(stored);
+      const now = Date.now();
+
+      return now <= draftData.expiresAt;
+    } catch (error) {
+      console.error('❌ Error checking draft:', error);
       return false;
     }
   }
 
   /**
-   * Get information about an existing draft
+   * Get draft info (timestamp, time remaining)
    */
-  getDraftInfo(station: string, reportDate: string): DraftInfo | null {
+  static getDraftInfo(stationName: string, reportDate: string): {
+    savedAt: Date;
+    expiresAt: Date;
+    timeRemainingHours: number;
+  } | null {
     try {
-      const key = this.generateDraftKey(station, reportDate);
+      const key = this.getDraftKey(stationName, reportDate);
       const stored = localStorage.getItem(key);
 
       if (!stored) {
@@ -114,182 +127,118 @@ class DraftSavingService {
       }
 
       const draftData: DraftData = JSON.parse(stored);
-      const now = new Date();
-      const savedAt = new Date(draftData.savedAt);
-      const expiresAt = new Date(draftData.expiresAt);
+      const now = Date.now();
 
-      // Check if draft has expired
-      if (now > expiresAt) {
-        this.deleteDraft(station, reportDate);
+      if (now > draftData.expiresAt) {
         return null;
       }
 
-      const timeRemainingMs = expiresAt.getTime() - now.getTime();
-      const timeRemainingHours = timeRemainingMs / (1000 * 60 * 60);
+      const timeRemainingMs = draftData.expiresAt - now;
+      const timeRemainingHours = timeRemainingMs / (60 * 60 * 1000);
 
       return {
-        savedAt,
-        expiresAt,
+        savedAt: new Date(draftData.timestamp),
+        expiresAt: new Date(draftData.expiresAt),
         timeRemainingHours
       };
     } catch (error) {
-      console.error('Error getting draft info:', error);
+      console.error('❌ Error getting draft info:', error);
       return null;
     }
   }
 
   /**
-   * Get all drafts for all stations
+   * Clean up all expired drafts
    */
-  getAllDrafts(): Array<{station: string;reportDate: string;draftInfo: DraftInfo;}> {
+  static cleanupExpiredDrafts(): number {
+    let cleanedCount = 0;
+
     try {
-      const drafts: Array<{station: string;reportDate: string;draftInfo: DraftInfo;}> = [];
+      const keys = Object.keys(localStorage);
+      const draftKeys = keys.filter((key) => key.startsWith(DRAFT_KEY_PREFIX));
+      const now = Date.now();
 
-      // Iterate through all localStorage keys
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-
-        if (key && key.startsWith(DRAFT_PREFIX)) {
+      for (const key of draftKeys) {
+        try {
           const stored = localStorage.getItem(key);
           if (stored) {
-            try {
-              const draftData: DraftData = JSON.parse(stored);
-              const now = new Date();
-              const expiresAt = new Date(draftData.expiresAt);
-
-              // Skip expired drafts
-              if (now > expiresAt) {
-                localStorage.removeItem(key);
-                continue;
-              }
-
-              const savedAt = new Date(draftData.savedAt);
-              const timeRemainingMs = expiresAt.getTime() - now.getTime();
-              const timeRemainingHours = timeRemainingMs / (1000 * 60 * 60);
-
-              drafts.push({
-                station: draftData.station,
-                reportDate: draftData.reportDate,
-                draftInfo: {
-                  savedAt,
-                  expiresAt,
-                  timeRemainingHours
-                }
-              });
-            } catch (parseError) {
-              console.error('Error parsing draft data:', parseError);
-              // Remove corrupted draft
-              localStorage.removeItem(key);
-            }
-          }
-        }
-      }
-
-      return drafts.sort((a, b) => b.draftInfo.savedAt.getTime() - a.draftInfo.savedAt.getTime());
-    } catch (error) {
-      console.error('Error getting all drafts:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Clean up expired drafts
-   */
-  cleanupExpiredDrafts(): number {
-    try {
-      let cleanedCount = 0;
-      const now = new Date();
-
-      for (let i = localStorage.length - 1; i >= 0; i--) {
-        const key = localStorage.key(i);
-
-        if (key && key.startsWith(DRAFT_PREFIX)) {
-          const stored = localStorage.getItem(key);
-          if (stored) {
-            try {
-              const draftData: DraftData = JSON.parse(stored);
-              const expiresAt = new Date(draftData.expiresAt);
-
-              if (now > expiresAt) {
-                localStorage.removeItem(key);
-                cleanedCount++;
-              }
-            } catch (parseError) {
-              // Remove corrupted data
+            const draftData: DraftData = JSON.parse(stored);
+            if (now > draftData.expiresAt) {
               localStorage.removeItem(key);
               cleanedCount++;
             }
           }
+        } catch (error) {
+          // If we can't parse the data, remove it
+          localStorage.removeItem(key);
+          cleanedCount++;
         }
       }
 
       if (cleanedCount > 0) {
-        console.log(`Cleaned up ${cleanedCount} expired drafts`);
+        console.log(`🧹 Cleaned up ${cleanedCount} expired drafts`);
       }
-
-      return cleanedCount;
     } catch (error) {
-      console.error('Error cleaning up expired drafts:', error);
-      return 0;
+      console.error('❌ Error during draft cleanup:', error);
     }
+
+    return cleanedCount;
   }
 
   /**
-   * Check if a draft exists for the given station and date
+   * Get all available drafts
    */
-  hasDraft(station: string, reportDate: string): boolean {
-    return this.getDraftInfo(station, reportDate) !== null;
-  }
-
-  /**
-   * Get draft size information
-   */
-  getDraftSize(station: string, reportDate: string): number {
+  static getAllDrafts(): Array<{
+    station: string;
+    reportDate: string;
+    savedAt: Date;
+    expiresAt: Date;
+    timeRemainingHours: number;
+  }> {
     try {
-      const key = this.generateDraftKey(station, reportDate);
-      const stored = localStorage.getItem(key);
-      return stored ? stored.length : 0;
-    } catch (error) {
-      return 0;
-    }
-  }
+      const keys = Object.keys(localStorage);
+      const draftKeys = keys.filter((key) => key.startsWith(DRAFT_KEY_PREFIX));
+      const now = Date.now();
+      const drafts = [];
 
-  /**
-   * Get total storage usage for all drafts
-   */
-  getTotalDraftStorageUsage(): {count: number;totalSize: number;sizeInKB: number;} {
-    try {
-      let count = 0;
-      let totalSize = 0;
-
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-
-        if (key && key.startsWith(DRAFT_PREFIX)) {
+      for (const key of draftKeys) {
+        try {
           const stored = localStorage.getItem(key);
           if (stored) {
-            count++;
-            totalSize += stored.length;
+            const draftData: DraftData = JSON.parse(stored);
+
+            // Skip expired drafts
+            if (now > draftData.expiresAt) {
+              continue;
+            }
+
+            // Parse station and date from key
+            const keyParts = key.replace(DRAFT_KEY_PREFIX, '').split('_');
+            const reportDate = keyParts.pop() || '';
+            const station = keyParts.join(' ').toUpperCase();
+
+            const timeRemainingMs = draftData.expiresAt - now;
+            const timeRemainingHours = timeRemainingMs / (60 * 60 * 1000);
+
+            drafts.push({
+              station,
+              reportDate,
+              savedAt: new Date(draftData.timestamp),
+              expiresAt: new Date(draftData.expiresAt),
+              timeRemainingHours
+            });
           }
+        } catch (error) {
+          console.error('Error parsing draft:', error);
         }
       }
 
-      return {
-        count,
-        totalSize,
-        sizeInKB: Math.round(totalSize / 1024 * 100) / 100
-      };
+      return drafts.sort((a, b) => b.savedAt.getTime() - a.savedAt.getTime());
     } catch (error) {
-      console.error('Error calculating storage usage:', error);
-      return { count: 0, totalSize: 0, sizeInKB: 0 };
+      console.error('❌ Error getting all drafts:', error);
+      return [];
     }
   }
 }
 
-// Export singleton instance
-const draftSavingService = new DraftSavingService();
-
-// Auto-cleanup expired drafts on service initialization
-draftSavingService.cleanupExpiredDrafts();
-
-export default draftSavingService;
+export default DraftSavingService;

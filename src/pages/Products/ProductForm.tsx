@@ -13,12 +13,11 @@ import { useErrorHandler } from '@/hooks/use-error-handler';
 import { ArrowLeft, Save, Calculator, Upload, Eye, Plus, Download, FileText, AlertTriangle, DollarSign } from 'lucide-react';
 import BarcodeScanner from '@/components/BarcodeScanner';
 import { useAuth } from '@/contexts/AuthContext';
-import { ComponentErrorBoundary } from '@/components/ErrorBoundary';
+import { FormErrorBoundary } from '@/components/ErrorBoundary';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { useProductChangelog } from '@/hooks/use-product-changelog';
 
 interface Vendor {
   id: number;
@@ -42,7 +41,6 @@ const ProductForm = () => {
     component: 'ProductForm',
     severity: 'high'
   });
-  const { logChange, logMultipleChanges, logProductCreation } = useProductChangelog();
 
   const isEdit = !!id;
   const [isLoading, setIsLoading] = useState(false);
@@ -572,65 +570,28 @@ const ProductForm = () => {
         created_by: userProfile.user_id
       };
 
-      let createdProductId = null;
+      const { error } = isEdit ?
+      await window.ezsite.apis.tableUpdate('11726', { id: parseInt(id!), ...payload }) :
+      await window.ezsite.apis.tableCreate('11726', payload);
 
-      if (isEdit) {
-        const { error } = await window.ezsite.apis.tableUpdate('11726', { ID: parseInt(id!), ...payload });
-        if (error) throw error;
-        createdProductId = parseInt(id!);
-      } else {
-        // For creation, we need to get the created product ID
-        const { error } = await window.ezsite.apis.tableCreate('11726', payload);
-        if (error) throw error;
-
-        // Get the newly created product by serial number to log creation
-        if (userProfile) {
-          try {
-            const { data } = await window.ezsite.apis.tablePage('11726', {
-              PageNo: 1,
-              PageSize: 1,
-              OrderByField: 'serial_number',
-              IsAsc: false,
-              Filters: [{ name: 'serial_number', op: 'Equal', value: formData.serial_number }]
-            });
-            if (data?.List?.[0]) {
-              createdProductId = data.List[0].ID;
-            }
-          } catch (error) {
-            console.error('Error getting created product ID:', error);
-          }
-        }
-      }
+      if (error) throw error;
 
       // Log changes for existing products
-      if (isEdit && originalData && userProfile && createdProductId) {
+      if (isEdit && originalData && userProfile) {
         const fieldsToTrack = [
-        'product_name',
-        'category',
-        'supplier',
-        'description',
-        'weight',
-        'weight_unit',
-        'department',
         'last_shopping_date',
         'case_price',
         'unit_per_case',
         'unit_price',
-        'retail_price',
-        'quantity_in_stock',
-        'minimum_stock'];
+        'retail_price'];
 
-        const changes = [];
+
         for (const field of fieldsToTrack) {
           const oldValue = originalData[field];
           const newValue = formData[field];
 
           if (oldValue !== newValue) {
-            changes.push({
-              fieldName: field,
-              oldValue: oldValue,
-              newValue: newValue
-            });
+            await logFieldChange(parseInt(id!), field, oldValue, newValue, userProfile.user_id);
           }
         }
 
@@ -640,20 +601,8 @@ const ProductForm = () => {
         const newProfitMargin = formData.profit_margin;
 
         if (Math.abs(oldProfitMargin - newProfitMargin) > 0.01) {
-          changes.push({
-            fieldName: 'profit_margin',
-            oldValue: oldProfitMargin.toFixed(2),
-            newValue: newProfitMargin.toFixed(2)
-          });
+          await logFieldChange(parseInt(id!), 'profit_margin', oldProfitMargin.toFixed(2), newProfitMargin.toFixed(2), userProfile.user_id);
         }
-
-        // Log all changes at once
-        if (changes.length > 0) {
-          await logMultipleChanges(createdProductId, changes, 'update');
-        }
-      } else if (!isEdit && userProfile && createdProductId) {
-        // Log product creation
-        await logProductCreation(createdProductId, formData);
       }
 
       toast({
@@ -837,7 +786,39 @@ const ProductForm = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ComponentErrorBoundary componentName="Product Form">
+          <FormErrorBoundary
+            formName="Product Form"
+            showDataRecovery={true}
+            onFormReset={() => {
+              if (isEdit) {
+                fetchProduct();
+              } else {
+                setFormData({
+                  product_name: '',
+                  weight: 0,
+                  weight_unit: 'lb',
+                  department: 'Convenience Store',
+                  merchant_id: '',
+                  last_updated_date: new Date().toISOString().split('T')[0],
+                  last_shopping_date: '',
+                  case_price: 0,
+                  unit_per_case: 1,
+                  unit_price: 0,
+                  retail_price: 0,
+                  profit_margin: 0,
+                  category: '',
+                  supplier: '',
+                  quantity_in_stock: 0,
+                  minimum_stock: 0,
+                  description: '',
+                  bar_code_case: '',
+                  bar_code_unit: '',
+                  serial_number: 0,
+                  overdue: false
+                });
+                generateSerialNumber();
+              }
+            }}>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Basic Information */}
@@ -853,7 +834,24 @@ const ProductForm = () => {
 
                 </div>
 
+                <div className="space-y-2">
+                  <Label htmlFor="category">Category</Label>
+                  <Select
+                    value={formData.category}
+                    onValueChange={(value) => handleInputChange('category', value)}>
 
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {validCategories.map((cat) =>
+                      <SelectItem key={cat.id} value={cat.category_name}>
+                          {cat.category_name}
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               {/* Weight and Measurement */}
@@ -989,11 +987,11 @@ const ProductForm = () => {
                       value={formData.unit_price}
                       onChange={(value) => handleInputChange('unit_price', value)} />
 
-                    {formData.case_price > 0 && formData.unit_per_case > 0
-
-
-
-
+                    {formData.case_price > 0 && formData.unit_per_case > 0 &&
+                    <p className="text-xs text-green-600 flex items-center">
+                        <Calculator className="w-3 h-3 mr-1" />
+                        Auto-calculated from case price
+                      </p>
                     }
                   </div>
                 </div>
@@ -1009,11 +1007,11 @@ const ProductForm = () => {
                       onChange={(value) => handleInputChange('retail_price', value)} />
 
                     {/* Auto-calculation indicator */}
-                    {formData.unit_price > 0 && Math.abs(formData.retail_price - suggestedRetailPrice) < 0.01
-
-
-
-
+                    {formData.unit_price > 0 && Math.abs(formData.retail_price - suggestedRetailPrice) < 0.01 &&
+                    <p className="text-xs text-green-600 flex items-center">
+                        <Calculator className="w-3 h-3 mr-1" />
+                        Auto-calculated from unit price
+                      </p>
                     }
                     
                     {/* Pricing Suggestion */}
@@ -1061,7 +1059,7 @@ const ProductForm = () => {
                         {formData.profit_margin > 20 ? 'Good' : 'Low'}
                       </Badge>
                     </div>
-                    
+                    <p className="text-xs text-muted-foreground">Auto-calculated from unit and retail price</p>
                   </div>
                 </div>
               </div>
@@ -1071,36 +1069,36 @@ const ProductForm = () => {
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Additional Information</h3>
                 
-                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="supplier">Supplier</Label>
+                    <Input
+                      id="supplier"
+                      placeholder="Enter supplier name"
+                      value={formData.supplier}
+                      onChange={(e) => handleInputChange('supplier', e.target.value)} />
 
+                  </div>
 
+                  <div className="space-y-2">
+                    <Label>Stock Information</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <NumberInput
+                        placeholder="Current Stock"
+                        value={formData.quantity_in_stock}
+                        onChange={(value) => handleInputChange('quantity_in_stock', value)}
+                        min={0} />
 
+                      <NumberInput
+                        placeholder="Min Stock"
+                        value={formData.minimum_stock}
+                        onChange={(value) => handleInputChange('minimum_stock', value)}
+                        min={0} />
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                    </div>
+                    <p className="text-xs text-muted-foreground">Current stock / Minimum stock level</p>
+                  </div>
+                </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="description">Description</Label>
@@ -1158,7 +1156,7 @@ const ProductForm = () => {
                 </Button>
               </div>
             </form>
-          </ComponentErrorBoundary>
+          </FormErrorBoundary>
         </CardContent>
       </Card>
     </div>);

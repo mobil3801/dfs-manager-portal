@@ -1,321 +1,481 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  AlertTriangle,
-  Package,
-  TrendingDown,
-  Clock,
-  CheckCircle,
-  XCircle,
-  Bell,
-  Eye,
-  Archive } from
-'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { AlertTriangle, Bell, Mail, Settings, Package, TrendingDown, RefreshCw, Eye, Plus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-interface InventoryAlert {
-  id: string;
-  productName: string;
-  productId: string;
-  alertType: 'low_stock' | 'out_of_stock' | 'expiring' | 'expired';
-  currentStock: number;
-  minThreshold: number;
-  expiryDate?: string;
-  priority: 'high' | 'medium' | 'low';
-  createdAt: string;
-  isRead: boolean;
-  isResolved: boolean;
+interface Product {
+  id: number;
+  product_name: string;
+  category: string;
+  quantity_in_stock: number;
+  minimum_stock: number;
+  supplier: string;
+  department: string;
+  retail_price: number;
+  last_updated_date: string;
+  overdue: boolean;
+}
+
+interface AlertSettings {
+  lowStockThreshold: number;
+  criticalStockThreshold: number;
+  emailNotifications: boolean;
+  autoReorderSuggestions: boolean;
 }
 
 const InventoryAlerts: React.FC = () => {
-  const [alerts, setAlerts] = useState<InventoryAlert[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [lowStockProducts, setLowStockProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('all');
+  const [refreshing, setRefreshing] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [severityFilter, setSeverityFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [alertSettings, setAlertSettings] = useState<AlertSettings>({
+    lowStockThreshold: 10,
+    criticalStockThreshold: 5,
+    emailNotifications: true,
+    autoReorderSuggestions: true
+  });
   const { toast } = useToast();
 
-  // Mock data for demonstration
+  const pageSize = 20;
+  const PRODUCTS_TABLE_ID = '11726';
+
   useEffect(() => {
-    const mockAlerts: InventoryAlert[] = [
-    {
-      id: '1',
-      productName: 'Regular Gasoline',
-      productId: 'GAS001',
-      alertType: 'low_stock',
-      currentStock: 5,
-      minThreshold: 10,
-      priority: 'high',
-      createdAt: new Date().toISOString(),
-      isRead: false,
-      isResolved: false
-    },
-    {
-      id: '2',
-      productName: 'Motor Oil 5W-30',
-      productId: 'OIL001',
-      alertType: 'out_of_stock',
-      currentStock: 0,
-      minThreshold: 20,
-      priority: 'high',
-      createdAt: new Date(Date.now() - 3600000).toISOString(),
-      isRead: true,
-      isResolved: false
-    },
-    {
-      id: '3',
-      productName: 'Energy Drink',
-      productId: 'BEV001',
-      alertType: 'expiring',
-      currentStock: 50,
-      minThreshold: 25,
-      expiryDate: new Date(Date.now() + 7 * 24 * 3600000).toISOString(),
-      priority: 'medium',
-      createdAt: new Date(Date.now() - 7200000).toISOString(),
-      isRead: false,
-      isResolved: false
-    },
-    {
-      id: '4',
-      productName: 'Snack Bar',
-      productId: 'SNK001',
-      alertType: 'expired',
-      currentStock: 15,
-      minThreshold: 10,
-      expiryDate: new Date(Date.now() - 24 * 3600000).toISOString(),
-      priority: 'high',
-      createdAt: new Date(Date.now() - 86400000).toISOString(),
-      isRead: true,
-      isResolved: true
-    }];
+    fetchProducts();
+    loadAlertSettings();
+  }, [currentPage, categoryFilter, severityFilter, searchTerm]);
 
+  const loadAlertSettings = () => {
+    const saved = localStorage.getItem('inventoryAlertSettings');
+    if (saved) {
+      setAlertSettings(JSON.parse(saved));
+    }
+  };
 
-    setTimeout(() => {
-      setAlerts(mockAlerts);
+  const saveAlertSettings = (newSettings: AlertSettings) => {
+    setAlertSettings(newSettings);
+    localStorage.setItem('inventoryAlertSettings', JSON.stringify(newSettings));
+    toast({
+      title: 'Settings Saved',
+      description: 'Alert settings have been updated successfully'
+    });
+  };
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const filters = [];
+
+      if (categoryFilter !== 'all') {
+        filters.push({ name: 'category', op: 'Equal', value: categoryFilter });
+      }
+
+      if (searchTerm) {
+        filters.push({ name: 'product_name', op: 'StringContains', value: searchTerm });
+      }
+
+      const { data, error } = await window.ezsite.apis.tablePage(PRODUCTS_TABLE_ID, {
+        PageNo: currentPage,
+        PageSize: pageSize,
+        OrderByField: 'quantity_in_stock',
+        IsAsc: true,
+        Filters: filters
+      });
+
+      if (error) throw error;
+
+      const allProducts = data?.List || [];
+      setProducts(allProducts);
+      setTotalRecords(data?.VirtualCount || 0);
+
+      // Filter products that need attention
+      const alertProducts = allProducts.filter((product) => {
+        const stockRatio = product.quantity_in_stock / (product.minimum_stock || 1);
+
+        if (severityFilter === 'critical') {
+          return product.quantity_in_stock <= alertSettings.criticalStockThreshold;
+        } else if (severityFilter === 'low') {
+          return product.quantity_in_stock <= alertSettings.lowStockThreshold &&
+          product.quantity_in_stock > alertSettings.criticalStockThreshold;
+        } else if (severityFilter === 'reorder') {
+          return product.quantity_in_stock <= product.minimum_stock;
+        } else if (severityFilter === 'overdue') {
+          return product.overdue;
+        }
+
+        return product.quantity_in_stock <= alertSettings.lowStockThreshold ||
+        product.quantity_in_stock <= product.minimum_stock ||
+        product.overdue;
+      });
+
+      setLowStockProducts(alertProducts);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch inventory data',
+        variant: 'destructive'
+      });
+    } finally {
       setLoading(false);
-    }, 1000);
-  }, []);
-
-  const getAlertIcon = (type: string) => {
-    switch (type) {
-      case 'low_stock':
-        return <TrendingDown className="h-4 w-4" />;
-      case 'out_of_stock':
-        return <XCircle className="h-4 w-4" />;
-      case 'expiring':
-        return <Clock className="h-4 w-4" />;
-      case 'expired':
-        return <AlertTriangle className="h-4 w-4" />;
-      default:
-        return <Package className="h-4 w-4" />;
     }
   };
 
-  const getAlertColor = (type: string, priority: string) => {
-    if (type === 'expired' || type === 'out_of_stock') return 'destructive';
-    if (priority === 'high') return 'destructive';
-    if (priority === 'medium') return 'default';
-    return 'secondary';
-  };
-
-  const getAlertTitle = (type: string) => {
-    switch (type) {
-      case 'low_stock':
-        return 'Low Stock';
-      case 'out_of_stock':
-        return 'Out of Stock';
-      case 'expiring':
-        return 'Expiring Soon';
-      case 'expired':
-        return 'Expired';
-      default:
-        return 'Alert';
-    }
-  };
-
-  const filteredAlerts = alerts.filter((alert) => {
-    switch (activeTab) {
-      case 'unread':
-        return !alert.isRead;
-      case 'resolved':
-        return alert.isResolved;
-      case 'high':
-        return alert.priority === 'high' && !alert.isResolved;
-      default:
-        return true;
-    }
-  });
-
-  const markAsRead = (alertId: string) => {
-    setAlerts((prev) => prev.map((alert) =>
-    alert.id === alertId ? { ...alert, isRead: true } : alert
-    ));
+  const refreshData = async () => {
+    setRefreshing(true);
+    await fetchProducts();
+    setRefreshing(false);
     toast({
-      title: "Alert marked as read",
-      description: "The alert has been marked as read."
+      title: 'Data Refreshed',
+      description: 'Inventory data has been updated'
     });
   };
 
-  const markAsResolved = (alertId: string) => {
-    setAlerts((prev) => prev.map((alert) =>
-    alert.id === alertId ? { ...alert, isResolved: true, isRead: true } : alert
-    ));
-    toast({
-      title: "Alert resolved",
-      description: "The alert has been marked as resolved."
-    });
+  const sendLowStockAlert = async () => {
+    if (lowStockProducts.length === 0) {
+      toast({
+        title: 'No Alerts to Send',
+        description: 'All products are adequately stocked'
+      });
+      return;
+    }
+
+    try {
+      const criticalItems = lowStockProducts.filter((p) => p.quantity_in_stock <= alertSettings.criticalStockThreshold);
+      const lowItems = lowStockProducts.filter((p) =>
+      p.quantity_in_stock <= alertSettings.lowStockThreshold &&
+      p.quantity_in_stock > alertSettings.criticalStockThreshold
+      );
+
+      const emailContent = `
+        <h2>🚨 Inventory Alert Report</h2>
+        <p>The following products require immediate attention:</p>
+        
+        ${criticalItems.length > 0 ? `
+        <h3 style="color: #dc2626;">⚠️ Critical Stock Levels (${criticalItems.length} items)</h3>
+        <ul>
+          ${criticalItems.map((item) => `
+            <li><strong>${item.product_name}</strong> - Only ${item.quantity_in_stock} units remaining (Supplier: ${item.supplier})</li>
+          `).join('')}
+        </ul>
+        ` : ''}
+        
+        ${lowItems.length > 0 ? `
+        <h3 style="color: #ea580c;">📉 Low Stock Levels (${lowItems.length} items)</h3>
+        <ul>
+          ${lowItems.map((item) => `
+            <li><strong>${item.product_name}</strong> - ${item.quantity_in_stock} units remaining (Min: ${item.minimum_stock})</li>
+          `).join('')}
+        </ul>
+        ` : ''}
+        
+        <p><strong>Report generated:</strong> ${new Date().toLocaleString()}</p>
+        <p>Please review and take appropriate action to restock these items.</p>
+      `;
+
+      const { error } = await window.ezsite.apis.sendEmail({
+        from: 'support@ezsite.ai',
+        to: ['manager@gasstation.com'], // Replace with actual manager email
+        subject: `🚨 Inventory Alert: ${lowStockProducts.length} products need attention`,
+        html: emailContent
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Alert Sent',
+        description: `Email alert sent for ${lowStockProducts.length} products`
+      });
+    } catch (error) {
+      console.error('Error sending alert:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to send email alert',
+        variant: 'destructive'
+      });
+    }
   };
 
-  const unreadCount = alerts.filter((alert) => !alert.isRead).length;
-  const highPriorityCount = alerts.filter((alert) => alert.priority === 'high' && !alert.isResolved).length;
+  const getStockSeverity = (product: Product) => {
+    if (product.quantity_in_stock <= alertSettings.criticalStockThreshold) return 'critical';
+    if (product.quantity_in_stock <= alertSettings.lowStockThreshold) return 'low';
+    if (product.quantity_in_stock <= product.minimum_stock) return 'reorder';
+    if (product.overdue) return 'overdue';
+    return 'normal';
+  };
 
-  if (loading) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      </div>);
+  const getSeverityBadge = (severity: string) => {
+    switch (severity) {
+      case 'critical':
+        return <Badge variant="destructive" className="bg-red-100 text-red-800">Critical</Badge>;
+      case 'low':
+        return <Badge variant="secondary" className="bg-orange-100 text-orange-800">Low Stock</Badge>;
+      case 'reorder':
+        return <Badge variant="outline" className="bg-yellow-100 text-yellow-800">Reorder</Badge>;
+      case 'overdue':
+        return <Badge variant="destructive" className="bg-purple-100 text-purple-800">Overdue</Badge>;
+      default:
+        return <Badge variant="default">Normal</Badge>;
+    }
+  };
 
-  }
+  const calculateSummaryStats = () => {
+    const critical = products.filter((p) => getStockSeverity(p) === 'critical').length;
+    const low = products.filter((p) => getStockSeverity(p) === 'low').length;
+    const reorder = products.filter((p) => getStockSeverity(p) === 'reorder').length;
+    const overdue = products.filter((p) => getStockSeverity(p) === 'overdue').length;
+
+    return { critical, low, reorder, overdue, total: products.length };
+  };
+
+  const stats = calculateSummaryStats();
+  const totalPages = Math.ceil(totalRecords / pageSize);
+  const categories = [...new Set(products.map((p) => p.category))];
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Inventory Alerts</h1>
-          <p className="text-muted-foreground">
-            Monitor and manage inventory alerts for your gas station
-          </p>
+          <h1 className="text-3xl font-bold">Inventory Alerts</h1>
+          <p className="text-muted-foreground">Monitor stock levels and manage inventory alerts</p>
         </div>
-        <div className="flex items-center space-x-2">
-          <Badge variant="outline" className="flex items-center space-x-1">
-            <Bell className="h-3 w-3" />
-            <span>{unreadCount} Unread</span>
-          </Badge>
-          {highPriorityCount > 0 &&
-          <Badge variant="destructive" className="flex items-center space-x-1">
-              <AlertTriangle className="h-3 w-3" />
-              <span>{highPriorityCount} High Priority</span>
-            </Badge>
-          }
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={refreshData} disabled={refreshing}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Button onClick={sendLowStockAlert} disabled={lowStockProducts.length === 0}>
+            <Mail className="h-4 w-4 mr-2" />
+            Send Alert Email
+          </Button>
+          <Link to="/inventory/settings">
+            <Button variant="outline">
+              <Settings className="h-4 w-4 mr-2" />
+              Settings
+            </Button>
+          </Link>
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="all">All Alerts ({alerts.length})</TabsTrigger>
-          <TabsTrigger value="unread">Unread ({unreadCount})</TabsTrigger>
-          <TabsTrigger value="high">High Priority ({highPriorityCount})</TabsTrigger>
-          <TabsTrigger value="resolved">Resolved ({alerts.filter((a) => a.isResolved).length})</TabsTrigger>
-        </TabsList>
+      {/* Alert Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="flex items-center p-4">
+            <AlertTriangle className="h-8 w-8 text-red-600 mr-3" />
+            <div>
+              <p className="text-sm font-medium text-red-600">Critical Stock</p>
+              <p className="text-2xl font-bold text-red-700">{stats.critical}</p>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="border-orange-200 bg-orange-50">
+          <CardContent className="flex items-center p-4">
+            <TrendingDown className="h-8 w-8 text-orange-600 mr-3" />
+            <div>
+              <p className="text-sm font-medium text-orange-600">Low Stock</p>
+              <p className="text-2xl font-bold text-orange-700">{stats.low}</p>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="border-yellow-200 bg-yellow-50">
+          <CardContent className="flex items-center p-4">
+            <Bell className="h-8 w-8 text-yellow-600 mr-3" />
+            <div>
+              <p className="text-sm font-medium text-yellow-600">Reorder Point</p>
+              <p className="text-2xl font-bold text-yellow-700">{stats.reorder}</p>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="border-purple-200 bg-purple-50">
+          <CardContent className="flex items-center p-4">
+            <Package className="h-8 w-8 text-purple-600 mr-3" />
+            <div>
+              <p className="text-sm font-medium text-purple-600">Overdue</p>
+              <p className="text-2xl font-bold text-purple-700">{stats.overdue}</p>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="flex items-center p-4">
+            <Package className="h-8 w-8 text-blue-600 mr-3" />
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Total Products</p>
+              <p className="text-2xl font-bold">{stats.total}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-        <TabsContent value={activeTab} className="space-y-4">
-          {filteredAlerts.length === 0 ?
-          <Card>
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <CheckCircle className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No alerts found</h3>
-                <p className="text-muted-foreground text-center">
-                  {activeTab === 'all' ? 'All inventory levels are within normal ranges.' :
-                activeTab === 'unread' ? 'All alerts have been read.' :
-                activeTab === 'high' ? 'No high priority alerts at this time.' :
-                'No resolved alerts to display.'}
-                </p>
-              </CardContent>
-            </Card> :
+      {/* Filters */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-wrap gap-4">
+            <div className="flex-1 min-w-[200px]">
+              <Input
+                placeholder="Search products..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full" />
 
-          <div className="grid gap-4">
-              {filteredAlerts.map((alert) =>
-            <Card key={alert.id} className={`${!alert.isRead ? 'border-l-4 border-l-primary' : ''}`}>
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className={`p-2 rounded-full ${
-                    alert.alertType === 'expired' || alert.alertType === 'out_of_stock' ?
-                    'bg-destructive/10 text-destructive' :
-                    alert.priority === 'high' ?
-                    'bg-destructive/10 text-destructive' :
-                    'bg-warning/10 text-warning'}`
-                    }>
-                          {getAlertIcon(alert.alertType)}
-                        </div>
-                        <div>
-                          <CardTitle className="text-lg">{alert.productName}</CardTitle>
-                          <CardDescription className="flex items-center space-x-2">
-                            <span>Product ID: {alert.productId}</span>
-                            <Badge variant={getAlertColor(alert.alertType, alert.priority)} size="sm">
-                              {getAlertTitle(alert.alertType)}
-                            </Badge>
-                            <Badge variant="outline" size="sm">
-                              {alert.priority.toUpperCase()}
-                            </Badge>
-                          </CardDescription>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        {!alert.isRead &&
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => markAsRead(alert.id)}
-                      className="flex items-center space-x-1">
+            </div>
+            
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.filter((category) => category && category.trim() !== '').map((category) =>
+                <SelectItem key={category} value={category}>{category}</SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+            
+            <Select value={severityFilter} onValueChange={setSeverityFilter}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Severity" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Items</SelectItem>
+                <SelectItem value="critical">Critical Only</SelectItem>
+                <SelectItem value="low">Low Stock</SelectItem>
+                <SelectItem value="reorder">Reorder Point</SelectItem>
+                <SelectItem value="overdue">Overdue</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
-                            <Eye className="h-3 w-3" />
-                            <span>Mark Read</span>
-                          </Button>
-                    }
-                        {!alert.isResolved &&
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => markAsResolved(alert.id)}
-                      className="flex items-center space-x-1">
+      {/* Inventory Alerts Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Inventory Status</CardTitle>
+          <CardDescription>
+            Showing {products.length} products ({lowStockProducts.length} need attention)
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {loading ?
+          <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div> :
 
-                            <Archive className="h-3 w-3" />
-                            <span>Resolve</span>
-                          </Button>
-                    }
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <Alert>
-                        <AlertDescription>
-                          {alert.alertType === 'low_stock' &&
-                      `Current stock (${alert.currentStock}) is below minimum threshold (${alert.minThreshold})`}
-                          {alert.alertType === 'out_of_stock' &&
-                      `Product is out of stock. Minimum threshold: ${alert.minThreshold}`}
-                          {alert.alertType === 'expiring' && alert.expiryDate &&
-                      `Product expires on ${new Date(alert.expiryDate).toLocaleDateString()}`}
-                          {alert.alertType === 'expired' && alert.expiryDate &&
-                      `Product expired on ${new Date(alert.expiryDate).toLocaleDateString()}`}
-                        </AlertDescription>
-                      </Alert>
-                      
-                      <div className="flex items-center justify-between text-sm text-muted-foreground">
-                        <div className="flex items-center space-x-4">
-                          <span>Current Stock: {alert.currentStock}</span>
-                          <span>Min Threshold: {alert.minThreshold}</span>
-                          {alert.expiryDate &&
-                      <span>Expiry: {new Date(alert.expiryDate).toLocaleDateString()}</span>
-                      }
-                        </div>
-                        <span>
-                          Created: {new Date(alert.createdAt).toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-            )}
+          <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Product</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Current Stock</TableHead>
+                    <TableHead>Min Stock</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Supplier</TableHead>
+                    <TableHead>Last Updated</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {products.map((product) => {
+                  const severity = getStockSeverity(product);
+                  const stockPercentage = product.quantity_in_stock / product.minimum_stock * 100;
+
+                  return (
+                    <TableRow key={product.id} className={severity === 'critical' ? 'bg-red-50' : severity === 'low' ? 'bg-orange-50' : ''}>
+                        <TableCell className="font-medium">
+                          <div>
+                            <div className="font-semibold">{product.product_name}</div>
+                            <div className="text-sm text-muted-foreground">{product.department}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>{product.category}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <span className={`font-medium ${severity === 'critical' ? 'text-red-600' : severity === 'low' ? 'text-orange-600' : ''}`}>
+                              {product.quantity_in_stock}
+                            </span>
+                            {severity !== 'normal' &&
+                          <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div
+                              className={`h-full ${severity === 'critical' ? 'bg-red-500' : 'bg-orange-500'}`}
+                              style={{ width: `${Math.min(stockPercentage, 100)}%` }} />
+
+                              </div>
+                          }
+                          </div>
+                        </TableCell>
+                        <TableCell>{product.minimum_stock}</TableCell>
+                        <TableCell>{getSeverityBadge(severity)}</TableCell>
+                        <TableCell>{product.supplier}</TableCell>
+                        <TableCell>
+                          {new Date(product.last_updated_date).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Link to={`/products/${product.id}`}>
+                              <Button variant="ghost" size="sm">
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                            <Link to={`/products/${product.id}/edit`}>
+                              <Button variant="ghost" size="sm">
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                          </div>
+                        </TableCell>
+                      </TableRow>);
+
+                })}
+                </TableBody>
+              </Table>
+              
+              {products.length === 0 &&
+            <div className="text-center py-8 text-muted-foreground">
+                  No products found matching your criteria.
+                </div>
+            }
             </div>
           }
-        </TabsContent>
-      </Tabs>
+        </CardContent>
+      </Card>
+
+      {/* Pagination */}
+      {totalPages > 1 &&
+      <div className="flex justify-center gap-2">
+          <Button
+          variant="outline"
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}>
+
+            Previous
+          </Button>
+          <span className="flex items-center px-4">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+          variant="outline"
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}>
+
+            Next
+          </Button>
+        </div>
+      }
     </div>);
 
 };

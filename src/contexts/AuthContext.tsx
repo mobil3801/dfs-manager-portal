@@ -1,401 +1,456 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { toast } from 'sonner';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import AuditLoggerService from '@/services/auditLogger';
 
-export interface User {
+const auditLogger = AuditLoggerService.getInstance();
+
+interface User {
   ID: number;
   Name: string;
   Email: string;
   CreateTime: string;
 }
 
-export interface UserProfile {
-  id?: number;
-  user_id: number;
-  username: string;
-  full_name: string;
-  role: string;
-  phone: string;
-  department: string;
-  status: string;
-  avatar_url: string;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface UserRole {
+interface UserProfile {
   id: number;
-  role_name: string;
-  role_display_name: string;
-  role_description: string;
-  permissions_json: string;
+  user_id: number;
+  role: string;
+  station: string;
+  employee_id: string;
+  phone: string;
+  hire_date: string;
   is_active: boolean;
-  is_system_role: boolean;
-  created_by: number;
+  detailed_permissions: any;
 }
 
 interface AuthContextType {
   user: User | null;
   userProfile: UserProfile | null;
-  userRole: UserRole | null;
+  isAuthenticated: boolean;
   isLoading: boolean;
+  authError: string | null;
+  isInitialized: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
-  register: (email: string, password: string, additionalData?: Partial<UserProfile>) => Promise<boolean>;
-  updateProfile: (profileData: Partial<UserProfile>) => Promise<boolean>;
-  hasRole: (role: string) => boolean;
-  hasPermission: (module: string, action: string) => boolean;
+  register: (email: string, password: string, name: string) => Promise<boolean>;
+  refreshUserData: () => Promise<void>;
+  hasPermission: (action: string, resource?: string) => boolean;
   isAdmin: () => boolean;
   isManager: () => boolean;
-  isActive: () => boolean;
-  refreshUserData: () => Promise<void>;
+  clearError: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+// Default guest user profile for non-authenticated users
+const GUEST_PROFILE: UserProfile = {
+  id: 0,
+  user_id: 0,
+  role: 'Guest',
+  station: '',
+  employee_id: '',
+  phone: '',
+  hire_date: '',
+  is_active: false,
+  detailed_permissions: {}
 };
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [loginInProgress, setLoginInProgress] = useState(false); // Prevent multiple concurrent logins
+  const { toast } = useToast();
 
-  const USER_PROFILE_TABLE_ID = '24040';
-  const USER_ROLES_TABLE_ID = '24054';
+  const isAuthenticated = !!user && !!userProfile;
 
-  // Load user data helper function
-  const loadUserData = async (userData: User) => {
+  const clearError = () => {
+    setAuthError(null);
+  };
+
+  const safeFetchUserData = async (showErrors = false): Promise<{success: boolean;userData?: User;}> => {
     try {
-      // Load user profile
-      const { data: profileData, error: profileError } = await window.ezsite.apis.tablePage(USER_PROFILE_TABLE_ID, {
-        PageNo: 1,
-        PageSize: 1,
-        Filters: [{ name: 'user_id', op: 'Equal', value: userData.ID }]
-      });
+      console.log('🔄 Attempting to fetch user data...');
 
-      let currentProfile: UserProfile | null = null;
-
-      if (!profileError && profileData?.List?.length > 0) {
-        currentProfile = profileData.List[0];
-        setUserProfile(currentProfile);
-      } else {
-        // Create default profile if none exists
-        const defaultProfile: Partial<UserProfile> = {
-          user_id: userData.ID,
-          username: userData.Email.split('@')[0],
-          full_name: userData.Name || userData.Email.split('@')[0],
-          role: 'employee', // Default role
-          phone: '',
-          department: '',
-          status: 'active',
-          avatar_url: '',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-
-        const { data: createdProfile, error: createError } = await window.ezsite.apis.tableCreate(USER_PROFILE_TABLE_ID, defaultProfile);
-        if (!createError) {
-          currentProfile = { ...defaultProfile, id: createdProfile } as UserProfile;
-          setUserProfile(currentProfile);
-        }
+      // Check if APIs are available
+      if (!window.ezsite?.apis) {
+        throw new Error('EZSite APIs not available');
       }
 
-      // Load user role details
-      if (currentProfile?.role) {
-        const { data: roleData, error: roleError } = await window.ezsite.apis.tablePage(USER_ROLES_TABLE_ID, {
+      const userResponse = await window.ezsite.apis.getUserInfo();
+
+      // Handle response with no data (user not authenticated)
+      if (!userResponse.data) {
+        console.log('👤 No user data - user not authenticated');
+        setUser(null);
+        setUserProfile(GUEST_PROFILE);
+        setAuthError(null);
+        return { success: false };
+      }
+
+      // Handle API errors
+      if (userResponse.error) {
+        console.log('❌ User info API error:', userResponse.error);
+        if (showErrors) {
+          setAuthError(`Authentication failed: ${userResponse.error}`);
+        }
+        setUser(null);
+        setUserProfile(GUEST_PROFILE);
+        return { success: false };
+      }
+
+      console.log('✅ User data fetched successfully:', userResponse.data);
+      setUser(userResponse.data);
+
+      // Fetch user profile with retries
+      try {
+        console.log('🔄 Fetching user profile for user ID:', userResponse.data.ID);
+
+        const profileResponse = await window.ezsite.apis.tablePage(11725, {
           PageNo: 1,
           PageSize: 1,
-          Filters: [{ name: 'role_name', op: 'Equal', value: currentProfile.role }]
+          Filters: [
+          { name: "user_id", op: "Equal", value: userResponse.data.ID }]
+
         });
 
-        if (!roleError && roleData?.List?.length > 0) {
-          setUserRole(roleData.List[0]);
-        } else {
-          // Create default roles if they don't exist
-          await createDefaultRoles();
-          // Try loading role again
-          const { data: retryRoleData } = await window.ezsite.apis.tablePage(USER_ROLES_TABLE_ID, {
-            PageNo: 1,
-            PageSize: 1,
-            Filters: [{ name: 'role_name', op: 'Equal', value: currentProfile.role }]
+        if (profileResponse.error) {
+          console.log('⚠️ Profile fetch error:', profileResponse.error);
+          // Use default profile for authenticated user without profile
+          setUserProfile({
+            id: 0,
+            user_id: userResponse.data.ID,
+            role: 'Employee',
+            station: 'MOBIL',
+            employee_id: '',
+            phone: '',
+            hire_date: new Date().toISOString(),
+            is_active: true,
+            detailed_permissions: {}
           });
-          if (retryRoleData?.List?.length > 0) {
-            setUserRole(retryRoleData.List[0]);
-          }
+        } else if (profileResponse.data?.List?.length > 0) {
+          console.log('✅ User profile found:', profileResponse.data.List[0]);
+          setUserProfile(profileResponse.data.List[0]);
+        } else {
+          console.log('⚠️ No profile found, creating default profile');
+          // Create default profile for user without one
+          setUserProfile({
+            id: 0,
+            user_id: userResponse.data.ID,
+            role: 'Employee',
+            station: 'MOBIL',
+            employee_id: '',
+            phone: '',
+            hire_date: new Date().toISOString(),
+            is_active: true,
+            detailed_permissions: {}
+          });
         }
+      } catch (profileError) {
+        console.log('⚠️ Profile fetch failed, using default:', profileError);
+        // Use default profile if profile fetch fails
+        setUserProfile({
+          id: 0,
+          user_id: userResponse.data.ID,
+          role: 'Employee',
+          station: 'MOBIL',
+          employee_id: '',
+          phone: '',
+          hire_date: new Date().toISOString(),
+          is_active: true,
+          detailed_permissions: {}
+        });
       }
+
+      setAuthError(null);
+      return { success: true, userData: userResponse.data };
+
     } catch (error) {
-      console.error('Error loading user data:', error);
-    }
-  };
+      console.error('❌ Error fetching user data:', error);
 
-  const createDefaultRoles = async () => {
-    const defaultRoles = [
-    {
-      role_name: 'admin',
-      role_display_name: 'Administrator',
-      role_description: 'Full system access with all permissions',
-      permissions_json: JSON.stringify({
-        users: { view: true, create: true, edit: true, delete: true },
-        products: { view: true, create: true, edit: true, delete: true },
-        sales: { view: true, create: true, edit: true, delete: true },
-        employees: { view: true, create: true, edit: true, delete: true },
-        vendors: { view: true, create: true, edit: true, delete: true },
-        orders: { view: true, create: true, edit: true, delete: true },
-        licenses: { view: true, create: true, edit: true, delete: true },
-        salary: { view: true, create: true, edit: true, delete: true },
-        inventory: { view: true, create: true, edit: true, delete: true },
-        delivery: { view: true, create: true, edit: true, delete: true },
-        settings: { view: true, create: true, edit: true, delete: true }
-      }),
-      is_active: true,
-      is_system_role: true,
-      created_by: 1
-    },
-    {
-      role_name: 'manager',
-      role_display_name: 'Manager',
-      role_description: 'Station management with limited administrative access',
-      permissions_json: JSON.stringify({
-        users: { view: true, create: false, edit: false, delete: false },
-        products: { view: true, create: true, edit: true, delete: false },
-        sales: { view: true, create: true, edit: true, delete: false },
-        employees: { view: true, create: true, edit: true, delete: false },
-        vendors: { view: true, create: true, edit: true, delete: false },
-        orders: { view: true, create: true, edit: true, delete: false },
-        licenses: { view: true, create: false, edit: false, delete: false },
-        salary: { view: true, create: true, edit: true, delete: false },
-        inventory: { view: true, create: true, edit: true, delete: false },
-        delivery: { view: true, create: true, edit: true, delete: false },
-        settings: { view: false, create: false, edit: false, delete: false }
-      }),
-      is_active: true,
-      is_system_role: true,
-      created_by: 1
-    },
-    {
-      role_name: 'employee',
-      role_display_name: 'Employee',
-      role_description: 'Basic access for daily operations',
-      permissions_json: JSON.stringify({
-        users: { view: false, create: false, edit: false, delete: false },
-        products: { view: true, create: false, edit: false, delete: false },
-        sales: { view: true, create: true, edit: false, delete: false },
-        employees: { view: false, create: false, edit: false, delete: false },
-        vendors: { view: false, create: false, edit: false, delete: false },
-        orders: { view: true, create: false, edit: false, delete: false },
-        licenses: { view: false, create: false, edit: false, delete: false },
-        salary: { view: false, create: false, edit: false, delete: false },
-        inventory: { view: true, create: false, edit: false, delete: false },
-        delivery: { view: true, create: false, edit: false, delete: false },
-        settings: { view: false, create: false, edit: false, delete: false }
-      }),
-      is_active: true,
-      is_system_role: true,
-      created_by: 1
-    }];
+      const errorMessage = error instanceof Error ? error.message : String(error);
 
-
-    for (const role of defaultRoles) {
-      try {
-        await window.ezsite.apis.tableCreate(USER_ROLES_TABLE_ID, role);
-      } catch (error) {
-        console.error('Error creating default role:', error);
+      // Only show error for critical failures
+      if (showErrors && !errorMessage.includes('not authenticated')) {
+        setAuthError(`Failed to load user data: ${errorMessage}`);
       }
+
+      // Set guest state for any error
+      setUser(null);
+      setUserProfile(GUEST_PROFILE);
+      return { success: false };
     }
   };
 
-  // Load user and profile on app start
+  const refreshUserData = async (): Promise<void> => {
+    console.log('🔄 Refreshing user data...');
+    setIsLoading(true);
+    await safeFetchUserData(true);
+    setIsLoading(false);
+  };
+
+  const initializeAuth = async () => {
+    console.log('🚀 Initializing authentication...');
+    setIsLoading(true);
+
+    try {
+      // Wait for APIs to be available
+      let attempts = 0;
+      while (!window.ezsite?.apis && attempts < 30) {
+        console.log(`⏳ Waiting for EZSite APIs... (attempt ${attempts + 1})`);
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        attempts++;
+      }
+
+      if (!window.ezsite?.apis) {
+        throw new Error('EZSite APIs failed to load');
+      }
+
+      console.log('✅ EZSite APIs loaded, fetching user data...');
+      await safeFetchUserData(false);
+
+    } catch (error) {
+      console.error('❌ Auth initialization failed:', error);
+      setAuthError(`Initialization failed: ${error instanceof Error ? error.message : String(error)}`);
+      setUser(null);
+      setUserProfile(GUEST_PROFILE);
+    } finally {
+      setIsLoading(false);
+      setIsInitialized(true);
+      console.log('✅ Authentication initialization complete');
+    }
+  };
+
   useEffect(() => {
-    const loadUser = async () => {
-      setIsLoading(true);
-      try {
-        const { data: userData, error: userError } = await window.ezsite.apis.getUserInfo();
-        if (userError || !userData) {
-          setUser(null);
-          setUserProfile(null);
-          setUserRole(null);
-          return;
-        }
-
-        setUser(userData);
-        await loadUserData(userData);
-      } catch (error) {
-        console.error('Error loading user:', error);
-        setUser(null);
-        setUserProfile(null);
-        setUserRole(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadUser();
+    initializeAuth();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    try {
-      const { error } = await window.ezsite.apis.login({ email, password });
-      if (error) {
-        toast.error(error);
-        return false;
-      }
-
-      // Reload user data after successful login
-      const { data: userData, error: userError } = await window.ezsite.apis.getUserInfo();
-      if (userError || !userData) {
-        toast.error('Failed to load user information');
-        return false;
-      }
-
-      setUser(userData);
-      await loadUserData(userData);
-
-      toast.success('Login successful');
-      return true;
-    } catch (error) {
-      console.error('Login error:', error);
-      toast.error('Login failed');
+    // Prevent multiple concurrent login attempts
+    if (loginInProgress) {
+      console.log('⏳ Login already in progress, ignoring duplicate request');
       return false;
     }
-  };
 
-  const register = async (email: string, password: string, additionalData?: Partial<UserProfile>): Promise<boolean> => {
     try {
-      const { error } = await window.ezsite.apis.register({ email, password });
-      if (error) {
-        toast.error(error);
+      setLoginInProgress(true);
+      setIsLoading(true);
+      setAuthError(null); // Clear any previous errors
+
+      console.log('🔑 Attempting login for:', email);
+
+      if (!window.ezsite?.apis) {
+        throw new Error('Authentication system not available');
+      }
+
+      // Small delay to prevent rapid successive calls
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      const response = await window.ezsite.apis.login({ email, password });
+
+      if (response.error) {
+        console.log('❌ Login API failed:', response.error);
+        await auditLogger.logLogin(email, false, undefined, response.error);
+        setAuthError(response.error);
+        toast({
+          title: "Login Failed",
+          description: response.error,
+          variant: "destructive"
+        });
         return false;
       }
 
-      toast.success('Registration successful. Please check your email for verification.');
-      return true;
+      console.log('✅ Login API successful, fetching user data...');
+
+      // Add delay to ensure server state is updated
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      const userDataResult = await safeFetchUserData(true);
+
+      if (userDataResult.success && userDataResult.userData) {
+        console.log('✅ User data fetched successfully after login');
+        await auditLogger.logLogin(email, true, userDataResult.userData.ID);
+        toast({
+          title: "Login Successful",
+          description: "Welcome back!"
+        });
+        return true;
+      } else {
+        console.log('❌ Failed to fetch user data after successful login');
+        throw new Error('Failed to load user information after login');
+      }
+
     } catch (error) {
-      console.error('Registration error:', error);
-      toast.error('Registration failed');
+      console.error('❌ Login error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      setAuthError(errorMessage);
+      await auditLogger.logLogin(email, false, undefined, errorMessage);
+      toast({
+        title: "Login Failed",
+        description: errorMessage,
+        variant: "destructive"
+      });
       return false;
+    } finally {
+      setIsLoading(false);
+      setLoginInProgress(false);
     }
   };
 
   const logout = async (): Promise<void> => {
     try {
-      const { error } = await window.ezsite.apis.logout();
-      if (error) {
-        console.error('Logout error:', error);
+      console.log('🚪 Logging out user...');
+
+      // Log logout before clearing user data
+      if (user) {
+        await auditLogger.logLogout(user.Email, user.ID);
       }
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
+
+      if (window.ezsite?.apis) {
+        await window.ezsite.apis.logout();
+      }
+
       setUser(null);
-      setUserProfile(null);
-      setUserRole(null);
-      toast.success('Logged out successfully');
+      setUserProfile(GUEST_PROFILE);
+      setAuthError(null);
+
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out"
+      });
+
+      console.log('✅ Logout successful');
+    } catch (error) {
+      console.error('⚠️ Logout error (non-critical):', error);
+      // Still clear local state even if API call fails
+      setUser(null);
+      setUserProfile(GUEST_PROFILE);
+      setAuthError(null);
     }
   };
 
-  const updateProfile = async (profileData: Partial<UserProfile>): Promise<boolean> => {
-    if (!userProfile) return false;
-
+  const register = async (email: string, password: string, name: string): Promise<boolean> => {
     try {
-      const updatedData = {
-        ...profileData,
-        updated_at: new Date().toISOString()
-      };
+      setIsLoading(true);
+      setAuthError(null);
 
-      const { error } = await window.ezsite.apis.tableUpdate(USER_PROFILE_TABLE_ID, {
-        id: userProfile.id,
-        ...updatedData
-      });
+      console.log('📝 Attempting registration for:', email);
 
-      if (error) {
-        toast.error(error);
+      if (!window.ezsite?.apis) {
+        throw new Error('Registration system not available');
+      }
+
+      const response = await window.ezsite.apis.register({ email, password });
+
+      if (response.error) {
+        console.log('❌ Registration failed:', response.error);
+        await auditLogger.logRegistration(email, false, response.error);
+        setAuthError(response.error);
+        toast({
+          title: "Registration Failed",
+          description: response.error,
+          variant: "destructive"
+        });
         return false;
       }
 
-      setUserProfile((prev) => prev ? { ...prev, ...updatedData } : null);
+      console.log('✅ Registration successful');
+      await auditLogger.logRegistration(email, true);
+      toast({
+        title: "Registration Successful",
+        description: "Please check your email to verify your account"
+      });
 
-      // Reload role if role was changed
-      if (updatedData.role && updatedData.role !== userProfile.role) {
-        const { data: roleData } = await window.ezsite.apis.tablePage(USER_ROLES_TABLE_ID, {
-          PageNo: 1,
-          PageSize: 1,
-          Filters: [{ name: 'role_name', op: 'Equal', value: updatedData.role }]
-        });
-        if (roleData?.List?.length > 0) {
-          setUserRole(roleData.List[0]);
-        }
-      }
-
-      toast.success('Profile updated successfully');
       return true;
     } catch (error) {
-      console.error('Profile update error:', error);
-      toast.error('Failed to update profile');
+      console.error('❌ Registration error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      setAuthError(errorMessage);
+      await auditLogger.logRegistration(email, false, errorMessage);
+      toast({
+        title: "Registration Failed",
+        description: errorMessage,
+        variant: "destructive"
+      });
       return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const refreshUserData = async (): Promise<void> => {
-    if (!user) return;
-    await loadUserData(user);
-  };
-
-  const hasRole = (role: string): boolean => {
-    return userProfile?.role === role;
-  };
-
-  const hasPermission = (module: string, action: string): boolean => {
-    if (!userRole || !userProfile?.status || userProfile.status !== 'active') {
+  const hasPermission = (action: string, resource?: string): boolean => {
+    if (!userProfile || userProfile.role === 'Guest') {
       return false;
     }
 
-    try {
-      const permissions = JSON.parse(userRole.permissions_json);
-      return permissions[module]?.[action] === true;
-    } catch (error) {
-      console.error('Error parsing permissions:', error);
-      return false;
+    // Admins have all permissions
+    if (userProfile.role === 'Administrator') {
+      return true;
     }
+
+    // Parse detailed permissions if they exist
+    if (userProfile.detailed_permissions) {
+      try {
+        const permissions = typeof userProfile.detailed_permissions === 'string' ?
+        JSON.parse(userProfile.detailed_permissions) :
+        userProfile.detailed_permissions;
+
+        if (resource && permissions[resource] && permissions[resource][action]) {
+          return true;
+        }
+      } catch (error) {
+        console.error('Error parsing permissions:', error);
+      }
+    }
+
+    // Default permissions for managers
+    if (userProfile.role === 'Management') {
+      const managerActions = ['view', 'create', 'edit'];
+      return managerActions.includes(action);
+    }
+
+    // Default permissions for employees
+    if (userProfile.role === 'Employee') {
+      return action === 'view';
+    }
+
+    return false;
   };
 
   const isAdmin = (): boolean => {
-    return userProfile?.role === 'admin' && userProfile?.status === 'active';
+    return userProfile?.role === 'Administrator';
   };
 
   const isManager = (): boolean => {
-    return (userProfile?.role === 'manager' || userProfile?.role === 'admin') && userProfile?.status === 'active';
-  };
-
-  const isActive = (): boolean => {
-    return userProfile?.status === 'active';
+    return userProfile?.role === 'Management' || userProfile?.role === 'Administrator';
   };
 
   const value: AuthContextType = {
     user,
     userProfile,
-    userRole,
+    isAuthenticated,
     isLoading,
+    authError,
+    isInitialized,
     login,
     logout,
     register,
-    updateProfile,
-    hasRole,
+    refreshUserData,
     hasPermission,
     isAdmin,
     isManager,
-    isActive,
-    refreshUserData
+    clearError
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };
