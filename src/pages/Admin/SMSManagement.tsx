@@ -53,17 +53,17 @@ interface SMSLog {
 
 // Country codes and validation
 const SUPPORTED_COUNTRIES = [
-  { code: '+1', name: 'United States/Canada', enabled: true },
-  { code: '+44', name: 'United Kingdom', enabled: true },
-  { code: '+61', name: 'Australia', enabled: true },
-  { code: '+64', name: 'New Zealand', enabled: true },
-  { code: '+33', name: 'France', enabled: true },
-  { code: '+49', name: 'Germany', enabled: true },
-  { code: '+81', name: 'Japan', enabled: true },
-  { code: '+86', name: 'China', enabled: false },
-  { code: '+91', name: 'India', enabled: true },
-  { code: '+55', name: 'Brazil', enabled: true },
-];
+{ code: '+1', name: 'United States/Canada', enabled: true },
+{ code: '+44', name: 'United Kingdom', enabled: true },
+{ code: '+61', name: 'Australia', enabled: true },
+{ code: '+64', name: 'New Zealand', enabled: true },
+{ code: '+33', name: 'France', enabled: true },
+{ code: '+49', name: 'Germany', enabled: true },
+{ code: '+81', name: 'Japan', enabled: true },
+{ code: '+86', name: 'China', enabled: false },
+{ code: '+91', name: 'India', enabled: true },
+{ code: '+55', name: 'Brazil', enabled: true }];
+
 
 const SMSManagement: React.FC = () => {
   const { toast } = useToast();
@@ -104,7 +104,7 @@ const SMSManagement: React.FC = () => {
   };
 
   // Country validation function
-  const validateCountryCode = (phoneNumber: string): { valid: boolean; country?: string; enabled?: boolean } => {
+  const validateCountryCode = (phoneNumber: string): {valid: boolean;country?: string;enabled?: boolean;} => {
     for (const country of SUPPORTED_COUNTRIES) {
       if (phoneNumber.startsWith(country.code)) {
         return {
@@ -340,14 +340,14 @@ const SMSManagement: React.FC = () => {
         } else {
           // Handle specific error messages
           let errorMessage = messageResult.custom_string || messageResult.status || 'Failed to send SMS';
-          
+
           // Check for country-specific errors
-          if (errorMessage.toLowerCase().includes('country not enable') || 
-              errorMessage.toLowerCase().includes('country is not enabled')) {
+          if (errorMessage.toLowerCase().includes('country not enable') ||
+          errorMessage.toLowerCase().includes('country is not enabled')) {
             const countryInfo = validateCountryCode(testPhone);
             errorMessage = `SMS sending to ${countryInfo.country || 'this country'} is not enabled in your ClickSend account. Please enable this destination country in your ClickSend dashboard.`;
           }
-          
+
           throw new Error(errorMessage);
         }
       } else {
@@ -356,14 +356,14 @@ const SMSManagement: React.FC = () => {
         result.error_message || (
         result.data && typeof result.data === 'string' ? result.data : '') ||
         `HTTP ${response.status}: ${response.statusText}`;
-        
+
         // Check for country-specific errors in the main response
-        if (errorMessage.toLowerCase().includes('country not enable') || 
-            errorMessage.toLowerCase().includes('country is not enabled')) {
+        if (errorMessage.toLowerCase().includes('country not enable') ||
+        errorMessage.toLowerCase().includes('country is not enabled')) {
           const countryInfo = validateCountryCode(testPhone);
           errorMessage = `SMS sending to ${countryInfo.country || 'this country'} is not enabled in your ClickSend account. Please enable this destination country in your ClickSend dashboard or contact ClickSend support.`;
         }
-        
+
         throw new Error(errorMessage);
       }
 
@@ -773,8 +773,8 @@ const SMSManagement: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {SUPPORTED_COUNTRIES.map((country) => (
-                  <div key={country.code} className="flex items-center justify-between p-3 border rounded-lg">
+                {SUPPORTED_COUNTRIES.map((country) =>
+                <div key={country.code} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center space-x-3">
                       <Globe className="w-4 h-4 text-muted-foreground" />
                       <div>
@@ -786,7 +786,7 @@ const SMSManagement: React.FC = () => {
                       {country.enabled ? "Enabled" : "Disabled"}
                     </Badge>
                   </div>
-                ))}
+                )}
               </div>
               <Alert className="mt-4">
                 <AlertTriangle className="h-4 w-4" />

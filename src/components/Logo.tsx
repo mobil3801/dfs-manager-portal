@@ -29,7 +29,7 @@ const Logo: React.FC<LogoProps> = ({
     <div className={`flex items-center gap-3 ${className}`}>
       <div className={`${sizeClasses[size]} flex-shrink-0`}>
         <img
-          src="https://newoaks.s3.us-west-1.amazonaws.com/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
+          src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
           alt="DFS Manager Logo"
           className="w-full h-full object-contain rounded-lg shadow-sm"
           onError={(e) => {
@@ -37,15 +37,15 @@ const Logo: React.FC<LogoProps> = ({
             const target = e.target as HTMLImageElement;
             target.style.display = 'none';
             target.nextElementSibling?.classList.remove('hidden');
-          }} />
-
+          }}
+        />
         {/* Fallback logo */}
         <div className={`hidden ${sizeClasses[size]} bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold ${textSizeClasses[size]}`}>
           DFS
         </div>
       </div>
-      {showText &&
-      <div className="flex flex-col">
+      {showText && (
+        <div className="flex flex-col">
           <span className={`font-bold text-gray-800 ${textSizeClasses[size]}`}>
             DFS Manager
           </span>
@@ -53,9 +53,9 @@ const Logo: React.FC<LogoProps> = ({
             Gas Station Management
           </span>
         </div>
-      }
-    </div>);
-
+      )}
+    </div>
+  );
 };
 
 export { Logo };
