@@ -29,7 +29,7 @@ import LicenseList from '@/pages/Licenses/LicenseList';
 import LicenseForm from '@/pages/Licenses/LicenseForm';
 import SalaryList from '@/pages/Salary/SalaryList';
 import SalaryForm from '@/pages/Salary/SalaryForm';
-import InventoryAlerts from '@/pages/Inventory/InventoryAlerts.tsx';
+import InventoryAlerts from '@/pages/Inventory/InventoryAlerts';
 import AlertSettingsPage from '@/pages/Inventory/AlertSettings';
 import GasDeliveryInventory from '@/pages/Inventory/GasDeliveryInventory';
 import DeliveryForm from '@/pages/Delivery/DeliveryForm';
