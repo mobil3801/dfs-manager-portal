@@ -544,17 +544,17 @@ const UserManagement: React.FC = () => {
                       title: "Success",
                       description: "Role assignment completed successfully"
                     });
-                  }}
-                />
+                  }} />
+
                 <BulkRoleManager
                   onRolesAssigned={() => {
                     fetchUserProfiles();
                     toast({
-                      title: "Success", 
+                      title: "Success",
                       description: "Bulk role assignment completed successfully"
                     });
-                  }}
-                />
+                  }} />
+
                 <RoleOverview />
                 <div className="text-sm text-blue-700 max-w-md">
                   Use these simplified tools to quickly assign roles without dealing with complex permission settings.
@@ -941,24 +941,24 @@ const UserManagement: React.FC = () => {
                                 <Edit3 className="w-4 h-4" />
                               </Button>
                               <SimpleRoleAssignment
-                                selectedUserId={profile.id}
-                                trigger={
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="text-green-600 hover:text-green-700"
-                                    title="Quick Role Assignment">
+                            selectedUserId={profile.id}
+                            trigger={
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-green-600 hover:text-green-700"
+                              title="Quick Role Assignment">
                                     <Shield className="w-4 h-4" />
                                   </Button>
-                                }
-                                onRoleAssigned={() => {
-                                  fetchUserProfiles();
-                                  toast({
-                                    title: "Success",
-                                    description: "Role updated successfully"
-                                  });
-                                }}
-                              />
+                            }
+                            onRoleAssigned={() => {
+                              fetchUserProfiles();
+                              toast({
+                                title: "Success",
+                                description: "Role updated successfully"
+                              });
+                            }} />
+
                               <ComprehensivePermissionDialog
                             selectedUserId={profile.id}
                             trigger={

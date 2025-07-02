@@ -22,37 +22,49 @@ import EnhancedSMSTestManager from '@/components/EnhancedSMSTestManager';
 import SMSConfigurationValidator from '@/components/SMSConfigurationValidator';
 import SMSTroubleshootingGuide from '@/components/SMSTroubleshootingGuide';
 
-interface SMSAlertSetting {
+
+     interface SMSAlertSetting {
   id: number;
-  setting_name: string;
-  days_before_expiry: number;
-  alert_frequency_days: number;
-  is_active: boolean;
-  message_template: string;
+  service_provider: string;
+  account_sid: string;
+  auth_token: string;
+  from_number: string;
+  is_enabled: boolean;
+  daily_limit: number;
+  emergency_contacts: string;
+  alert_types: string;
   created_by: number;
+  last_updated: string;
 }
 
 interface SMSContact {
   id: number;
   contact_name: string;
-  mobile_number: string;
+  phone_number: string;
+  role: string;
   station: string;
+  alert_types: string;
   is_active: boolean;
-  contact_role: string;
+  is_emergency: boolean;
   created_by: number;
 }
 
 interface SMSHistory {
   id: number;
-  license_id: number;
-  contact_id: number;
-  mobile_number: string;
+  recipient_phone: string;
+  recipient_name: string;
   message_content: string;
-  sent_date: string;
-  delivery_status: string;
-  days_before_expiry: number;
-  created_by: number;
+  message_type: string;
+  station: string;
+  status: string;
+  sent_at: string;
+  delivered_at: string;
+  error_message: string;
+  sms_provider_id: string;
+  cost: number;
+  sent_by: number;
 }
+    
 
 const SMSAlertManagement: React.FC = () => {
   const { isAdmin } = useAdminAccess();
@@ -86,7 +98,7 @@ const SMSAlertManagement: React.FC = () => {
 
   const loadSettings = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage('12611', {
+      const { data, error } = await window.ezsite.apis.tablePage('24060', {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'id',
@@ -107,7 +119,7 @@ const SMSAlertManagement: React.FC = () => {
 
   const loadContacts = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage('12612', {
+      const { data, error } = await window.ezsite.apis.tablePage('24061', {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'id',
@@ -128,10 +140,10 @@ const SMSAlertManagement: React.FC = () => {
 
   const loadHistory = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage('12613', {
+      const { data, error } = await window.ezsite.apis.tablePage('24062', {
         PageNo: 1,
         PageSize: 50,
-        OrderByField: 'sent_date',
+        OrderByField: 'sent_at',
         IsAsc: false,
         Filters: []
       });
@@ -174,7 +186,7 @@ const SMSAlertManagement: React.FC = () => {
 
       // Send SMS to each contact (simulated)
       for (const contact of activeContacts) {
-        console.log(`Sending test SMS to ${contact.contact_name} at ${contact.mobile_number}`);
+        console.log(`Sending test SMS to ${contact.contact_name} at ${contact.phone_number}`);
 
         // Simulate SMS sending
         const smsResult = {
@@ -191,15 +203,16 @@ const SMSAlertManagement: React.FC = () => {
         }
 
         // Create history record
-        await window.ezsite.apis.tableCreate('12613', {
-          license_id: 0, // Test SMS
-          contact_id: contact.id,
-          mobile_number: contact.mobile_number,
+        await window.ezsite.apis.tableCreate('24062', {
+          recipient_phone: contact.phone_number,
+          recipient_name: contact.contact_name,
           message_content: testMessage,
-          sent_date: new Date().toISOString(),
-          delivery_status: smsResult.success ? 'Sent' : `Failed - ${smsResult.error}`,
-          days_before_expiry: 0,
-          created_by: 1
+          message_type: 'Test SMS',
+          station: contact.station,
+          status: smsResult.success ? 'Sent' : 'Failed',
+          sent_at: new Date().toISOString(),
+          error_message: smsResult.success ? '' : smsResult.error,
+          sent_by: 1
         });
       }
 
@@ -331,6 +344,7 @@ const SMSAlertManagement: React.FC = () => {
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Out of {contacts.length} total contacts
+    
                   </p>
                 </CardContent>
               </Card>
@@ -344,7 +358,7 @@ const SMSAlertManagement: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-green-600">
-                    {settings.filter((s) => s.is_active).length}
+                    {settings.filter((s) => s.is_enabled).length}
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Active alert configurations
@@ -444,9 +458,9 @@ const SMSAlertManagement: React.FC = () => {
                       {contacts.map((contact) =>
                     <TableRow key={contact.id}>
                           <TableCell className="font-medium">{contact.contact_name}</TableCell>
-                          <TableCell>{contact.mobile_number}</TableCell>
+                          <TableCell>{contact.phone_number}</TableCell>
                           <TableCell>{contact.station}</TableCell>
-                          <TableCell>{contact.contact_role}</TableCell>
+                          <TableCell>{contact.role}</TableCell>
                           <TableCell>
                             <Badge variant={contact.is_active ? 'default' : 'secondary'}>
                               {contact.is_active ? 'Active' : 'Inactive'}
@@ -502,9 +516,9 @@ const SMSAlertManagement: React.FC = () => {
                 <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Setting Name</TableHead>
-                        <TableHead>Days Before</TableHead>
-                        <TableHead>Frequency</TableHead>
+                        <TableHead>Service Provider</TableHead>
+                        <TableHead>From Number</TableHead>
+                        <TableHead>Daily Limit</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
@@ -512,12 +526,12 @@ const SMSAlertManagement: React.FC = () => {
                     <TableBody>
                       {settings.map((setting) =>
                     <TableRow key={setting.id}>
-                          <TableCell className="font-medium">{setting.setting_name}</TableCell>
-                          <TableCell>{setting.days_before_expiry} days</TableCell>
-                          <TableCell>Every {setting.alert_frequency_days} days</TableCell>
+                          <TableCell className="font-medium">{setting.service_provider}</TableCell>
+                          <TableCell>{setting.from_number}</TableCell>
+                          <TableCell>{setting.daily_limit} per day</TableCell>
                           <TableCell>
-                            <Badge variant={setting.is_active ? 'default' : 'secondary'}>
-                              {setting.is_active ? 'Active' : 'Inactive'}
+                            <Badge variant={setting.is_enabled ? 'default' : 'secondary'}>
+                              {setting.is_enabled ? 'Enabled' : 'Disabled'}
                             </Badge>
                           </TableCell>
                           <TableCell>
@@ -567,7 +581,7 @@ const SMSAlertManagement: React.FC = () => {
                         <TableHead>Date Sent</TableHead>
                         <TableHead>Mobile Number</TableHead>
                         <TableHead>Message</TableHead>
-                        <TableHead>Days Before Expiry</TableHead>
+                        <TableHead>Message Type</TableHead>
                         <TableHead>Status</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -575,20 +589,19 @@ const SMSAlertManagement: React.FC = () => {
                       {history.map((record) =>
                     <TableRow key={record.id}>
                           <TableCell>
-                            {new Date(record.sent_date).toLocaleDateString()}
+                            {new Date(record.sent_at).toLocaleDateString()}
                           </TableCell>
-                          <TableCell>{record.mobile_number}</TableCell>
+                          <TableCell>{record.recipient_phone}</TableCell>
                           <TableCell className="max-w-xs truncate">
                             {record.message_content}
                           </TableCell>
                           <TableCell>
-                            {record.days_before_expiry === 0 ? 'Test' : `${record.days_before_expiry} days`}
+                            {record.message_type}
                           </TableCell>
                           <TableCell>
                             <Badge
-                          variant={record.delivery_status === 'Sent' || record.delivery_status === 'Test Sent' ?
-                          'default' : 'destructive'}>
-                              {record.delivery_status}
+                          variant={record.status === 'Sent' ? 'default' : 'destructive'}>
+                              {record.status}
                             </Badge>
                           </TableCell>
                         </TableRow>

@@ -48,6 +48,7 @@ import SecuritySettings from '@/pages/Admin/SecuritySettings';
 import SMSAlertManagement from '@/pages/Admin/SMSAlertManagement';
 import DatabaseMonitoring from '@/pages/Admin/DatabaseMonitoring';
 import AuditMonitoring from '@/pages/Admin/AuditMonitoring';
+import AuthenticationTest from '@/components/AuthenticationTest';
 
 import './App.css';
 
@@ -205,6 +206,7 @@ const AppRouter = () => {
             <Route path="admin/sms" element={<SMSAlertManagement />} />
             <Route path="admin/database" element={<DatabaseMonitoring />} />
             <Route path="admin/audit" element={<AuditMonitoring />} />
+            <Route path="auth-test" element={<AuthenticationTest />} />
           </Route>
           
           {/* 404 */}

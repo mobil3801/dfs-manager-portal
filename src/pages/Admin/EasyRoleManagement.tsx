@@ -20,8 +20,8 @@ import {
   UserCheck,
   Settings,
   Database,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw } from
+'lucide-react';
 
 interface UserProfile {
   id: number;
@@ -83,7 +83,7 @@ const EasyRoleManagement: React.FC = () => {
 
   const getRoleStats = () => {
     const roleCounts: Record<string, number> = {};
-    users.forEach(user => {
+    users.forEach((user) => {
       roleCounts[user.role] = (roleCounts[user.role] || 0) + 1;
     });
     return roleCounts;
@@ -103,17 +103,17 @@ const EasyRoleManagement: React.FC = () => {
     return (
       <AccessDenied
         feature="Easy Role Management"
-        requiredRole="Administrator"
-      />
-    );
+        requiredRole="Administrator" />);
+
+
   }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-64">
         <div className="text-lg">Loading role management system...</div>
-      </div>
-    );
+      </div>);
+
   }
 
   const roleStats = getRoleStats();
@@ -138,8 +138,8 @@ const EasyRoleManagement: React.FC = () => {
             onClick={refreshData}
             disabled={refreshing}
             variant="outline"
-            className="flex items-center space-x-2"
-          >
+            className="flex items-center space-x-2">
+
             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             <span>{refreshing ? 'Refreshing...' : 'Refresh'}</span>
           </Button>
@@ -159,8 +159,8 @@ const EasyRoleManagement: React.FC = () => {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        {Object.entries(roleStats).map(([role, count]) => (
-          <Card key={role}>
+        {Object.entries(roleStats).map(([role, count]) =>
+        <Card key={role}>
             <CardContent className="p-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-gray-900">{count}</div>
@@ -170,7 +170,7 @@ const EasyRoleManagement: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-        ))}
+        )}
       </div>
 
       {/* Main Tools */}
@@ -204,7 +204,7 @@ const EasyRoleManagement: React.FC = () => {
               </div>
               <SimpleRoleAssignment
                 trigger={
-                  <Button className="w-full bg-green-600 hover:bg-green-700">
+                <Button className="w-full bg-green-600 hover:bg-green-700">
                     <Shield className="w-4 h-4 mr-2" />
                     Assign Single Role
                   </Button>
@@ -215,8 +215,8 @@ const EasyRoleManagement: React.FC = () => {
                     title: "Success",
                     description: "Role assignment completed successfully"
                   });
-                }}
-              />
+                }} />
+
             </div>
           </CardContent>
         </Card>
@@ -250,7 +250,7 @@ const EasyRoleManagement: React.FC = () => {
               </div>
               <BulkRoleManager
                 trigger={
-                  <Button className="w-full bg-orange-600 hover:bg-orange-700">
+                <Button className="w-full bg-orange-600 hover:bg-orange-700">
                     <Zap className="w-4 h-4 mr-2" />
                     Bulk Assignment
                   </Button>
@@ -261,8 +261,8 @@ const EasyRoleManagement: React.FC = () => {
                     title: "Success",
                     description: "Bulk role assignment completed successfully"
                   });
-                }}
-              />
+                }} />
+
             </div>
           </CardContent>
         </Card>
@@ -296,12 +296,12 @@ const EasyRoleManagement: React.FC = () => {
               </div>
               <RoleOverview
                 trigger={
-                  <Button variant="outline" className="w-full border-purple-300 text-purple-700 hover:bg-purple-50">
+                <Button variant="outline" className="w-full border-purple-300 text-purple-700 hover:bg-purple-50">
                     <Info className="w-4 h-4 mr-2" />
                     View Role Guide
                   </Button>
-                }
-              />
+                } />
+
             </div>
           </CardContent>
         </Card>
@@ -360,8 +360,8 @@ const EasyRoleManagement: React.FC = () => {
           </div>
         </AlertDescription>
       </Alert>
-    </div>
-  );
+    </div>);
+
 };
 
 export default EasyRoleManagement;

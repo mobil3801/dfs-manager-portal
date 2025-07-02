@@ -25,8 +25,8 @@ import {
   Edit,
   Plus,
   Database,
-  Star
-} from 'lucide-react';
+  Star } from
+'lucide-react';
 
 interface UserProfile {
   id: number;
@@ -133,7 +133,7 @@ const SimpleRoleAssignment: React.FC<SimpleRoleAssignmentProps> = ({
 
   useEffect(() => {
     if (selectedUserId && users.length > 0) {
-      const user = users.find(u => u.id === selectedUserId);
+      const user = users.find((u) => u.id === selectedUserId);
       if (user) {
         setSelectedUser(user);
         setSelectedRole(user.role);
@@ -170,7 +170,7 @@ const SimpleRoleAssignment: React.FC<SimpleRoleAssignmentProps> = ({
     try {
       // Get the role template permissions
       const roleTemplate = getRolePermissions(newRole);
-      
+
       const { error } = await window.ezsite.apis.tableUpdate(11725, {
         id: userId,
         role: newRole,
@@ -198,17 +198,17 @@ const SimpleRoleAssignment: React.FC<SimpleRoleAssignmentProps> = ({
     setSaving(true);
     try {
       await assignRole(selectedUser.id, selectedRole);
-      
+
       toast({
         title: "Success",
         description: `${selectedUser.employee_id} assigned ${selectedRole} role successfully`
       });
 
       // Update local state
-      setUsers(prev => prev.map(user => 
-        user.id === selectedUser.id 
-          ? { ...user, role: selectedRole, detailed_permissions: JSON.stringify(getRolePermissions(selectedRole)) }
-          : user
+      setUsers((prev) => prev.map((user) =>
+      user.id === selectedUser.id ?
+      { ...user, role: selectedRole, detailed_permissions: JSON.stringify(getRolePermissions(selectedRole)) } :
+      user
       ));
 
       onRoleAssigned?.();
@@ -248,10 +248,10 @@ const SimpleRoleAssignment: React.FC<SimpleRoleAssignmentProps> = ({
       });
 
       // Update local state
-      setUsers(prev => prev.map(user => 
-        selectedUsers.includes(user.id)
-          ? { ...user, role: selectedRole, detailed_permissions: JSON.stringify(getRolePermissions(selectedRole)) }
-          : user
+      setUsers((prev) => prev.map((user) =>
+      selectedUsers.includes(user.id) ?
+      { ...user, role: selectedRole, detailed_permissions: JSON.stringify(getRolePermissions(selectedRole)) } :
+      user
       ));
 
       setSelectedUsers([]);
@@ -345,18 +345,18 @@ const SimpleRoleAssignment: React.FC<SimpleRoleAssignmentProps> = ({
     return basePermissions[role as keyof typeof basePermissions] || basePermissions['Employee'];
   };
 
-  const filteredUsers = users.filter(user =>
-    user.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.role.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter((user) =>
+  user.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  user.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  user.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const defaultTrigger = (
-    <Button variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50">
+  const defaultTrigger =
+  <Button variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50">
       <Shield className="w-4 h-4 mr-2" />
       Easy Role Assignment
-    </Button>
-  );
+    </Button>;
+
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -386,20 +386,20 @@ const SimpleRoleAssignment: React.FC<SimpleRoleAssignmentProps> = ({
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {Object.entries(QUICK_TEMPLATES).map(([name, template]) => (
-                    <Button
-                      key={name}
-                      variant="outline"
-                      className="h-auto p-3 flex flex-col items-center space-y-2"
-                      onClick={() => setSelectedRole(template.role)}
-                    >
+                  {Object.entries(QUICK_TEMPLATES).map(([name, template]) =>
+                  <Button
+                    key={name}
+                    variant="outline"
+                    className="h-auto p-3 flex flex-col items-center space-y-2"
+                    onClick={() => setSelectedRole(template.role)}>
+
                       <template.icon className="w-5 h-5 text-blue-600" />
                       <div className="text-center">
                         <div className="font-medium text-sm">{name}</div>
                         <div className="text-xs text-gray-500 mt-1">{template.description}</div>
                       </div>
                     </Button>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -414,16 +414,16 @@ const SimpleRoleAssignment: React.FC<SimpleRoleAssignmentProps> = ({
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {Object.entries(ROLE_DEFINITIONS).map(([role, definition]) => (
-                    <div
-                      key={role}
-                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                        selectedRole === role 
-                          ? 'border-blue-500 bg-blue-50' 
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                      onClick={() => setSelectedRole(role)}
-                    >
+                  {Object.entries(ROLE_DEFINITIONS).map(([role, definition]) =>
+                  <div
+                    key={role}
+                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    selectedRole === role ?
+                    'border-blue-500 bg-blue-50' :
+                    'border-gray-200 hover:border-gray-300'}`
+                    }
+                    onClick={() => setSelectedRole(role)}>
+
                       <div className="flex items-start space-x-3">
                         <definition.icon className="w-6 h-6 text-gray-600 mt-1" />
                         <div className="flex-1">
@@ -435,16 +435,16 @@ const SimpleRoleAssignment: React.FC<SimpleRoleAssignmentProps> = ({
                           </div>
                           <p className="text-sm text-gray-600 mb-3">{definition.description}</p>
                           <div className="flex flex-wrap gap-1">
-                            {definition.permissions.map((permission, index) => (
-                              <Badge key={index} variant="outline" className="text-xs">
+                            {definition.permissions.map((permission, index) =>
+                          <Badge key={index} variant="outline" className="text-xs">
                                 {permission}
                               </Badge>
-                            ))}
+                          )}
                           </div>
                         </div>
                       </div>
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -461,72 +461,72 @@ const SimpleRoleAssignment: React.FC<SimpleRoleAssignmentProps> = ({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setBulkMode(!bulkMode)}
-                    >
+                      onClick={() => setBulkMode(!bulkMode)}>
+
                       {bulkMode ? 'Single Mode' : 'Bulk Mode'}
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={fetchUsers}
-                      disabled={loading}
-                    >
+                      disabled={loading}>
+
                       <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                     </Button>
                   </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {loading ? (
-                  <div className="text-center py-8">Loading users...</div>
-                ) : (
-                  <div className="space-y-4">
+                {loading ?
+                <div className="text-center py-8">Loading users...</div> :
+
+                <div className="space-y-4">
                     {/* Search */}
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                       <Input
-                        placeholder="Search users..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
-                      />
+                      placeholder="Search users..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10" />
+
                     </div>
 
                     {/* User List */}
                     <div className="max-h-60 overflow-y-auto space-y-2">
-                      {filteredUsers.map((user) => (
-                        <div
-                          key={user.id}
-                          className={`p-3 border rounded-lg cursor-pointer transition-all ${
-                            bulkMode
-                              ? selectedUsers.includes(user.id)
-                                ? 'border-blue-500 bg-blue-50'
-                                : 'border-gray-200 hover:border-gray-300'
-                              : selectedUser?.id === user.id
-                              ? 'border-blue-500 bg-blue-50'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                          onClick={() => {
-                            if (bulkMode) {
-                              setSelectedUsers(prev =>
-                                prev.includes(user.id)
-                                  ? prev.filter(id => id !== user.id)
-                                  : [...prev, user.id]
-                              );
-                            } else {
-                              setSelectedUser(user);
-                              setSelectedRole(user.role);
-                            }
-                          }}
-                        >
+                      {filteredUsers.map((user) =>
+                    <div
+                      key={user.id}
+                      className={`p-3 border rounded-lg cursor-pointer transition-all ${
+                      bulkMode ?
+                      selectedUsers.includes(user.id) ?
+                      'border-blue-500 bg-blue-50' :
+                      'border-gray-200 hover:border-gray-300' :
+                      selectedUser?.id === user.id ?
+                      'border-blue-500 bg-blue-50' :
+                      'border-gray-200 hover:border-gray-300'}`
+                      }
+                      onClick={() => {
+                        if (bulkMode) {
+                          setSelectedUsers((prev) =>
+                          prev.includes(user.id) ?
+                          prev.filter((id) => id !== user.id) :
+                          [...prev, user.id]
+                          );
+                        } else {
+                          setSelectedUser(user);
+                          setSelectedRole(user.role);
+                        }
+                      }}>
+
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
-                              {bulkMode && (
-                                <Checkbox
-                                  checked={selectedUsers.includes(user.id)}
-                                  onChange={() => {}}
-                                />
-                              )}
+                              {bulkMode &&
+                          <Checkbox
+                            checked={selectedUsers.includes(user.id)}
+                            onChange={() => {}} />
+
+                          }
                               <div>
                                 <div className="font-medium">{user.employee_id}</div>
                                 <div className="text-sm text-gray-500">{user.phone}</div>
@@ -540,22 +540,22 @@ const SimpleRoleAssignment: React.FC<SimpleRoleAssignmentProps> = ({
                             </div>
                           </div>
                         </div>
-                      ))}
+                    )}
                     </div>
 
-                    {filteredUsers.length === 0 && (
-                      <div className="text-center py-8 text-gray-500">
+                    {filteredUsers.length === 0 &&
+                  <div className="text-center py-8 text-gray-500">
                         No users found matching your search
                       </div>
-                    )}
+                  }
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
 
             {/* Assignment Summary & Action */}
-            {((selectedUser && !bulkMode) || (selectedUsers.length > 0 && bulkMode)) && selectedRole && (
-              <Card>
+            {(selectedUser && !bulkMode || selectedUsers.length > 0 && bulkMode) && selectedRole &&
+            <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <CheckCircle2 className="w-5 h-5 text-green-600" />
@@ -582,32 +582,32 @@ const SimpleRoleAssignment: React.FC<SimpleRoleAssignmentProps> = ({
 
                   <div className="mt-4 flex space-x-3">
                     <Button
-                      onClick={bulkMode ? handleBulkAssignment : handleSingleAssignment}
-                      disabled={saving}
-                      className="bg-blue-600 hover:bg-blue-700 flex-1"
-                    >
+                    onClick={bulkMode ? handleBulkAssignment : handleSingleAssignment}
+                    disabled={saving}
+                    className="bg-blue-600 hover:bg-blue-700 flex-1">
+
                       <Save className="w-4 h-4 mr-2" />
                       {saving ? 'Assigning...' : `Assign ${selectedRole} Role`}
                     </Button>
                     <Button
-                      variant="outline"
-                      onClick={() => {
-                        setSelectedUser(null);
-                        setSelectedUsers([]);
-                        setSelectedRole('');
-                      }}
-                    >
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedUser(null);
+                      setSelectedUsers([]);
+                      setSelectedRole('');
+                    }}>
+
                       Clear Selection
                     </Button>
                   </div>
                 </CardContent>
               </Card>
-            )}
+            }
           </div>
         </ScrollArea>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default SimpleRoleAssignment;

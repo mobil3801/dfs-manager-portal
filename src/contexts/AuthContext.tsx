@@ -386,7 +386,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     }
 
     // Admins have all permissions
-    if (userProfile.role === 'Administrator') {
+    if (userProfile.role === 'Administrator' || userProfile.role === 'Admin') {
       return true;
     }
 
@@ -420,7 +420,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
   };
 
   const isAdmin = (): boolean => {
-    return userProfile?.role === 'Administrator';
+    return userProfile?.role === 'Administrator' || userProfile?.role === 'Admin';
   };
 
   const isManager = (): boolean => {

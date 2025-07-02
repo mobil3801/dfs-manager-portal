@@ -19,8 +19,8 @@ import {
   RefreshCw,
   ArrowRight,
   Zap,
-  Target
-} from 'lucide-react';
+  Target } from
+'lucide-react';
 
 interface UserProfile {
   id: number;
@@ -95,23 +95,23 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
     }
   };
 
-  const stations = Array.from(new Set(users.map(u => u.station))).filter(Boolean);
+  const stations = Array.from(new Set(users.map((u) => u.station))).filter(Boolean);
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = 
-      user.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.phone.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+    user.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.phone.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStation = stationFilter === 'All' || user.station === stationFilter;
     const matchesRole = roleFilter === 'All' || user.role === roleFilter;
-    
+
     return matchesSearch && matchesStation && matchesRole;
   });
 
   const handleUserToggle = (userId: number) => {
-    setSelectedUsers(prev =>
-      prev.includes(userId)
-        ? prev.filter(id => id !== userId)
-        : [...prev, userId]
+    setSelectedUsers((prev) =>
+    prev.includes(userId) ?
+    prev.filter((id) => id !== userId) :
+    [...prev, userId]
     );
   };
 
@@ -119,7 +119,7 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
     if (selectedUsers.length === filteredUsers.length) {
       setSelectedUsers([]);
     } else {
-      setSelectedUsers(filteredUsers.map(u => u.id));
+      setSelectedUsers(filteredUsers.map((u) => u.id));
     }
   };
 
@@ -235,10 +235,10 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
       }
 
       // Update local state
-      setUsers(prev => prev.map(user => 
-        selectedUsers.includes(user.id)
-          ? { ...user, role: targetRole, detailed_permissions: JSON.stringify(rolePermissions) }
-          : user
+      setUsers((prev) => prev.map((user) =>
+      selectedUsers.includes(user.id) ?
+      { ...user, role: targetRole, detailed_permissions: JSON.stringify(rolePermissions) } :
+      user
       ));
 
       if (successCount > 0) {
@@ -267,8 +267,8 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
 
   const getSelectedRoleSummary = () => {
     const roleCount: Record<string, number> = {};
-    selectedUsers.forEach(userId => {
-      const user = users.find(u => u.id === userId);
+    selectedUsers.forEach((userId) => {
+      const user = users.find((u) => u.id === userId);
       if (user) {
         roleCount[user.role] = (roleCount[user.role] || 0) + 1;
       }
@@ -276,12 +276,12 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
     return roleCount;
   };
 
-  const defaultTrigger = (
-    <Button className="bg-orange-600 hover:bg-orange-700">
+  const defaultTrigger =
+  <Button className="bg-orange-600 hover:bg-orange-700">
       <Zap className="w-4 h-4 mr-2" />
       Bulk Role Manager
-    </Button>
-  );
+    </Button>;
+
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -317,8 +317,8 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
                       placeholder="Search users..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
+                      className="pl-10" />
+
                   </div>
                   <Select value={stationFilter} onValueChange={setStationFilter}>
                     <SelectTrigger>
@@ -326,9 +326,9 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="All">All Stations</SelectItem>
-                      {stations.map(station => (
-                        <SelectItem key={station} value={station}>{station}</SelectItem>
-                      ))}
+                      {stations.map((station) =>
+                      <SelectItem key={station} value={station}>{station}</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                   <Select value={roleFilter} onValueChange={setRoleFilter}>
@@ -337,9 +337,9 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="All">All Roles</SelectItem>
-                      {ROLES.map(role => (
-                        <SelectItem key={role} value={role}>{role}</SelectItem>
-                      ))}
+                      {ROLES.map((role) =>
+                      <SelectItem key={role} value={role}>{role}</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                   <Button
@@ -348,8 +348,8 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
                       setSearchTerm('');
                       setStationFilter('All');
                       setRoleFilter('All');
-                    }}
-                  >
+                    }}>
+
                     Clear Filters
                   </Button>
                 </div>
@@ -366,18 +366,18 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-5 gap-3">
-                  {ROLES.map(role => (
-                    <Button
-                      key={role}
-                      variant={targetRole === role ? "default" : "outline"}
-                      className={`h-auto p-3 ${targetRole === role ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
-                      onClick={() => setTargetRole(role)}
-                    >
+                  {ROLES.map((role) =>
+                  <Button
+                    key={role}
+                    variant={targetRole === role ? "default" : "outline"}
+                    className={`h-auto p-3 ${targetRole === role ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+                    onClick={() => setTargetRole(role)}>
+
                       <div className="text-center">
                         <div className="font-medium">{role}</div>
                       </div>
                     </Button>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -397,42 +397,42 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={handleSelectAll}
-                    >
+                      onClick={handleSelectAll}>
+
                       {selectedUsers.length === filteredUsers.length ? 'Deselect All' : 'Select All'}
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={fetchUsers}
-                      disabled={loading}
-                    >
+                      disabled={loading}>
+
                       <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                     </Button>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="flex-1 overflow-hidden">
-                {loading ? (
-                  <div className="text-center py-8">Loading users...</div>
-                ) : (
-                  <div className="h-full overflow-y-auto">
+                {loading ?
+                <div className="text-center py-8">Loading users...</div> :
+
+                <div className="h-full overflow-y-auto">
                     <div className="space-y-2">
-                      {filteredUsers.map(user => (
-                        <div
-                          key={user.id}
-                          className={`p-3 border rounded-lg cursor-pointer transition-all ${
-                            selectedUsers.includes(user.id)
-                              ? 'border-blue-500 bg-blue-50'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                          onClick={() => handleUserToggle(user.id)}
-                        >
+                      {filteredUsers.map((user) =>
+                    <div
+                      key={user.id}
+                      className={`p-3 border rounded-lg cursor-pointer transition-all ${
+                      selectedUsers.includes(user.id) ?
+                      'border-blue-500 bg-blue-50' :
+                      'border-gray-200 hover:border-gray-300'}`
+                      }
+                      onClick={() => handleUserToggle(user.id)}>
+
                           <div className="flex items-center space-x-3">
                             <Checkbox
-                              checked={selectedUsers.includes(user.id)}
-                              onChange={() => {}}
-                            />
+                          checked={selectedUsers.includes(user.id)}
+                          onChange={() => {}} />
+
                             <div className="flex-1">
                               <div className="flex items-center justify-between">
                                 <div>
@@ -443,29 +443,29 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
                                   <Badge className={ROLE_COLORS[user.role as keyof typeof ROLE_COLORS] || 'bg-gray-100 text-gray-800'}>
                                     {user.role}
                                   </Badge>
-                                  {targetRole && targetRole !== user.role && (
-                                    <>
+                                  {targetRole && targetRole !== user.role &&
+                              <>
                                       <ArrowRight className="w-3 h-3 text-gray-400" />
                                       <Badge className={ROLE_COLORS[targetRole as keyof typeof ROLE_COLORS]}>
                                         {targetRole}
                                       </Badge>
                                     </>
-                                  )}
+                              }
                                 </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                      ))}
+                    )}
                     </div>
                   </div>
-                )}
+                }
               </CardContent>
             </Card>
 
             {/* Assignment Summary */}
-            {selectedUsers.length > 0 && targetRole && (
-              <Card>
+            {selectedUsers.length > 0 && targetRole &&
+            <Card>
                 <CardContent className="pt-6">
                   <Alert>
                     <CheckCircle2 className="h-4 w-4" />
@@ -475,40 +475,40 @@ const BulkRoleManager: React.FC<BulkRoleManagerProps> = ({
                           <strong>Ready to assign {targetRole} role to {selectedUsers.length} users</strong>
                         </div>
                         <div className="text-sm text-gray-600">
-                          Current roles: {Object.entries(getSelectedRoleSummary()).map(([role, count]) => 
-                            `${count} ${role}`
-                          ).join(', ')}
+                          Current roles: {Object.entries(getSelectedRoleSummary()).map(([role, count]) =>
+                        `${count} ${role}`
+                        ).join(', ')}
                         </div>
                       </div>
                     </AlertDescription>
                   </Alert>
                   <div className="mt-4 flex space-x-3">
                     <Button
-                      onClick={handleBulkAssignment}
-                      disabled={processing}
-                      className="bg-orange-600 hover:bg-orange-700 flex-1"
-                    >
+                    onClick={handleBulkAssignment}
+                    disabled={processing}
+                    className="bg-orange-600 hover:bg-orange-700 flex-1">
+
                       <Zap className="w-4 h-4 mr-2" />
                       {processing ? `Processing ${selectedUsers.length} users...` : `Assign ${targetRole} to All Selected`}
                     </Button>
                     <Button
-                      variant="outline"
-                      onClick={() => {
-                        setSelectedUsers([]);
-                        setTargetRole('');
-                      }}
-                    >
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedUsers([]);
+                      setTargetRole('');
+                    }}>
+
                       Clear Selection
                     </Button>
                   </div>
                 </CardContent>
               </Card>
-            )}
+            }
           </div>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default BulkRoleManager;
