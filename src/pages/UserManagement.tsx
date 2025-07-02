@@ -38,17 +38,17 @@ const UserManagement = () => {
   const TABLE_ID = '24040';
 
   const roles = [
-    { value: 'admin', label: 'Administrator', color: 'bg-red-100 text-red-800' },
-    { value: 'manager', label: 'Manager', color: 'bg-blue-100 text-blue-800' },
-    { value: 'employee', label: 'Employee', color: 'bg-green-100 text-green-800' },
-    { value: 'viewer', label: 'Viewer', color: 'bg-gray-100 text-gray-800' }
-  ];
+  { value: 'admin', label: 'Administrator', color: 'bg-red-100 text-red-800' },
+  { value: 'manager', label: 'Manager', color: 'bg-blue-100 text-blue-800' },
+  { value: 'employee', label: 'Employee', color: 'bg-green-100 text-green-800' },
+  { value: 'viewer', label: 'Viewer', color: 'bg-gray-100 text-gray-800' }];
+
 
   const statuses = [
-    { value: 'active', label: 'Active', color: 'bg-green-100 text-green-800' },
-    { value: 'inactive', label: 'Inactive', color: 'bg-yellow-100 text-yellow-800' },
-    { value: 'suspended', label: 'Suspended', color: 'bg-red-100 text-red-800' }
-  ];
+  { value: 'active', label: 'Active', color: 'bg-green-100 text-green-800' },
+  { value: 'inactive', label: 'Inactive', color: 'bg-yellow-100 text-yellow-800' },
+  { value: 'suspended', label: 'Suspended', color: 'bg-red-100 text-red-800' }];
+
 
   useEffect(() => {
     loadUsers();
@@ -123,19 +123,19 @@ const UserManagement = () => {
     }
   };
 
-  const filteredUsers = users.filter(user =>
-    user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.department.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter((user) =>
+  user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  user.department.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getRoleBadgeColor = (role: string) => {
-    return roles.find(r => r.value === role)?.color || 'bg-gray-100 text-gray-800';
+    return roles.find((r) => r.value === role)?.color || 'bg-gray-100 text-gray-800';
   };
 
   const getStatusBadgeColor = (status: string) => {
-    return statuses.find(s => s.value === status)?.color || 'bg-gray-100 text-gray-800';
+    return statuses.find((s) => s.value === status)?.color || 'bg-gray-100 text-gray-800';
   };
 
   if (!isAdmin()) {
@@ -146,8 +146,8 @@ const UserManagement = () => {
           <h1 className="text-2xl font-bold text-red-600 mb-2">Access Denied</h1>
           <p className="text-gray-600">You need administrator privileges to access user management.</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -179,18 +179,18 @@ const UserManagement = () => {
                 placeholder="Search users..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+                className="pl-10" />
+
             </div>
           </div>
 
-          {loading ? (
-            <div className="text-center py-8">
+          {loading ?
+          <div className="text-center py-8">
               <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
               <p className="text-gray-600">Loading users...</p>
-            </div>
-          ) : (
-            <div className="rounded-md border">
+            </div> :
+
+          <div className="rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -203,21 +203,21 @@ const UserManagement = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredUsers.length === 0 ? (
-                    <TableRow>
+                  {filteredUsers.length === 0 ?
+                <TableRow>
                       <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                         No users found
                       </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredUsers.map((user) => (
-                      <TableRow key={user.id}>
+                    </TableRow> :
+
+                filteredUsers.map((user) =>
+                <TableRow key={user.id}>
                         <TableCell>
                           <div className="flex items-center space-x-3">
                             <Avatar className="w-8 h-8">
                               <AvatarImage src={user.avatar_url} alt={user.full_name} />
                               <AvatarFallback>
-                                {user.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                                {user.full_name.split(' ').map((n) => n[0]).join('').toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
                             <div>
@@ -243,42 +243,42 @@ const UserManagement = () => {
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end space-x-2">
                             <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedUser(user);
-                                setIsViewDialogOpen(true);
-                              }}
-                            >
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedUser(user);
+                          setIsViewDialogOpen(true);
+                        }}>
+
                               <Eye className="w-4 h-4" />
                             </Button>
                             <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedUser(user);
-                                setIsEditDialogOpen(true);
-                              }}
-                            >
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedUser(user);
+                          setIsEditDialogOpen(true);
+                        }}>
+
                               <Edit className="w-4 h-4" />
                             </Button>
                             <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteUser(user)}
-                              className="text-red-600 hover:text-red-800 hover:bg-red-50"
-                            >
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteUser(user)}
+                        className="text-red-600 hover:text-red-800 hover:bg-red-50">
+
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                         </TableCell>
                       </TableRow>
-                    ))
-                  )}
+                )
+                }
                 </TableBody>
               </Table>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
@@ -291,13 +291,13 @@ const UserManagement = () => {
               View user information and profile details
             </DialogDescription>
           </DialogHeader>
-          {selectedUser && (
-            <div className="space-y-4">
+          {selectedUser &&
+          <div className="space-y-4">
               <div className="flex items-center space-x-4">
                 <Avatar className="w-16 h-16">
                   <AvatarImage src={selectedUser.avatar_url} alt={selectedUser.full_name} />
                   <AvatarFallback className="text-lg">
-                    {selectedUser.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    {selectedUser.full_name.split(' ').map((n) => n[0]).join('').toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div>
@@ -329,7 +329,7 @@ const UserManagement = () => {
                 </div>
               </div>
             </div>
-          )}
+          }
         </DialogContent>
       </Dialog>
 
@@ -342,17 +342,17 @@ const UserManagement = () => {
               Update user information and role assignments
             </DialogDescription>
           </DialogHeader>
-          {selectedUser && (
-            <EditUserForm 
-              user={selectedUser} 
-              onSave={handleEditUser}
-              onCancel={() => setIsEditDialogOpen(false)}
-            />
-          )}
+          {selectedUser &&
+          <EditUserForm
+            user={selectedUser}
+            onSave={handleEditUser}
+            onCancel={() => setIsEditDialogOpen(false)} />
+
+          }
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 };
 
 interface EditUserFormProps {
@@ -384,25 +384,25 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ user, onSave, onCancel }) =
           <Input
             id="username"
             value={formData.username}
-            onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
-            required
-          />
+            onChange={(e) => setFormData((prev) => ({ ...prev, username: e.target.value }))}
+            required />
+
         </div>
         <div className="space-y-2">
           <Label htmlFor="full_name">Full Name</Label>
           <Input
             id="full_name"
             value={formData.full_name}
-            onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
-            required
-          />
+            onChange={(e) => setFormData((prev) => ({ ...prev, full_name: e.target.value }))}
+            required />
+
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="role">Role</Label>
-          <Select value={formData.role} onValueChange={(value) => setFormData(prev => ({ ...prev, role: value }))}>
+          <Select value={formData.role} onValueChange={(value) => setFormData((prev) => ({ ...prev, role: value }))}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -416,7 +416,7 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ user, onSave, onCancel }) =
         </div>
         <div className="space-y-2">
           <Label htmlFor="status">Status</Label>
-          <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
+          <Select value={formData.status} onValueChange={(value) => setFormData((prev) => ({ ...prev, status: value }))}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -435,16 +435,16 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ user, onSave, onCancel }) =
           <Input
             id="phone"
             value={formData.phone}
-            onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-          />
+            onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))} />
+
         </div>
         <div className="space-y-2">
           <Label htmlFor="department">Department</Label>
           <Input
             id="department"
             value={formData.department}
-            onChange={(e) => setFormData(prev => ({ ...prev, department: e.target.value }))}
-          />
+            onChange={(e) => setFormData((prev) => ({ ...prev, department: e.target.value }))} />
+
         </div>
       </div>
 
@@ -456,8 +456,8 @@ const EditUserForm: React.FC<EditUserFormProps> = ({ user, onSave, onCancel }) =
           Save Changes
         </Button>
       </div>
-    </form>
-  );
+    </form>);
+
 };
 
 export default UserManagement;

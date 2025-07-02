@@ -199,7 +199,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return false;
       }
 
-      setUserProfile(prev => prev ? { ...prev, ...updatedData } : null);
+      setUserProfile((prev) => prev ? { ...prev, ...updatedData } : null);
       toast.success('Profile updated successfully');
       return true;
     } catch (error) {

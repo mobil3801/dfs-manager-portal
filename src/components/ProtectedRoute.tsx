@@ -8,10 +8,10 @@ interface ProtectedRouteProps {
   requireAdmin?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
-  requiredRole, 
-  requireAdmin = false 
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  requiredRole,
+  requireAdmin = false
 }) => {
   const { user, userProfile, isLoading } = useAuth();
   const location = useLocation();
@@ -23,8 +23,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
           <span className="text-lg">Loading...</span>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   if (!user) {
@@ -38,8 +38,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           <h1 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>
           <p className="text-gray-600">You need admin privileges to access this page.</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   if (requiredRole && userProfile?.role !== requiredRole) {
@@ -49,8 +49,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           <h1 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>
           <p className="text-gray-600">You need the '{requiredRole}' role to access this page.</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return <>{children}</>;

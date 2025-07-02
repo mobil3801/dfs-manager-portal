@@ -12,13 +12,13 @@ import { toast } from 'sonner';
 const LoginPage = () => {
   const { login, register, isLoading } = useAuth();
   const navigate = useNavigate();
-  
+
   // Login form state
   const [loginData, setLoginData] = useState({
     email: '',
     password: ''
   });
-  
+
   // Register form state
   const [registerData, setRegisterData] = useState({
     email: '',
@@ -27,7 +27,7 @@ const LoginPage = () => {
     fullName: '',
     username: ''
   });
-  
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -75,7 +75,7 @@ const LoginPage = () => {
         full_name: registerData.fullName,
         username: registerData.username || registerData.email.split('@')[0]
       });
-      
+
       if (success) {
         setRegisterData({
           email: '',
@@ -96,11 +96,11 @@ const LoginPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <img 
-            src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png" 
-            alt="Logo" 
-            className="h-16 w-auto mx-auto mb-4"
-          />
+          <img
+            src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
+            alt="Logo"
+            className="h-16 w-auto mx-auto mb-4" />
+
           <h1 className="text-3xl font-bold text-gray-900">Welcome</h1>
           <p className="text-gray-600 mt-2">Sign in to your account or create a new one</p>
         </div>
@@ -128,10 +128,10 @@ const LoginPage = () => {
                       type="email"
                       placeholder="Enter your email"
                       value={loginData.email}
-                      onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
+                      onChange={(e) => setLoginData((prev) => ({ ...prev, email: e.target.value }))}
                       disabled={isSubmitting}
-                      required
-                    />
+                      required />
+
                   </div>
                   
                   <div className="space-y-2">
@@ -142,47 +142,47 @@ const LoginPage = () => {
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Enter your password"
                         value={loginData.password}
-                        onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
+                        onChange={(e) => setLoginData((prev) => ({ ...prev, password: e.target.value }))}
                         disabled={isSubmitting}
-                        required
-                      />
+                        required />
+
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
                         className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
+                        onClick={() => setShowPassword(!showPassword)}>
+
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <Link 
-                      to="/resetpassword" 
-                      className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
-                    >
+                    <Link
+                      to="/resetpassword"
+                      className="text-sm text-blue-600 hover:text-blue-800 hover:underline">
+
                       Forgot password?
                     </Link>
                   </div>
                   
-                  <Button 
-                    type="submit" 
-                    className="w-full" 
-                    disabled={isSubmitting || isLoading}
-                  >
-                    {isSubmitting ? (
-                      <div className="flex items-center">
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isSubmitting || isLoading}>
+
+                    {isSubmitting ?
+                    <div className="flex items-center">
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                         Signing In...
-                      </div>
-                    ) : (
-                      <>
+                      </div> :
+
+                    <>
                         <LogIn className="w-4 h-4 mr-2" />
                         Sign In
                       </>
-                    )}
+                    }
                   </Button>
                 </form>
               </TabsContent>
@@ -197,9 +197,9 @@ const LoginPage = () => {
                         type="text"
                         placeholder="Your full name"
                         value={registerData.fullName}
-                        onChange={(e) => setRegisterData(prev => ({ ...prev, fullName: e.target.value }))}
-                        disabled={isSubmitting}
-                      />
+                        onChange={(e) => setRegisterData((prev) => ({ ...prev, fullName: e.target.value }))}
+                        disabled={isSubmitting} />
+
                     </div>
                     
                     <div className="space-y-2">
@@ -209,9 +209,9 @@ const LoginPage = () => {
                         type="text"
                         placeholder="Choose username"
                         value={registerData.username}
-                        onChange={(e) => setRegisterData(prev => ({ ...prev, username: e.target.value }))}
-                        disabled={isSubmitting}
-                      />
+                        onChange={(e) => setRegisterData((prev) => ({ ...prev, username: e.target.value }))}
+                        disabled={isSubmitting} />
+
                     </div>
                   </div>
                   
@@ -222,10 +222,10 @@ const LoginPage = () => {
                       type="email"
                       placeholder="Enter your email"
                       value={registerData.email}
-                      onChange={(e) => setRegisterData(prev => ({ ...prev, email: e.target.value }))}
+                      onChange={(e) => setRegisterData((prev) => ({ ...prev, email: e.target.value }))}
                       disabled={isSubmitting}
-                      required
-                    />
+                      required />
+
                   </div>
                   
                   <div className="space-y-2">
@@ -236,17 +236,17 @@ const LoginPage = () => {
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Choose a password"
                         value={registerData.password}
-                        onChange={(e) => setRegisterData(prev => ({ ...prev, password: e.target.value }))}
+                        onChange={(e) => setRegisterData((prev) => ({ ...prev, password: e.target.value }))}
                         disabled={isSubmitting}
-                        required
-                      />
+                        required />
+
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
                         className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
+                        onClick={() => setShowPassword(!showPassword)}>
+
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
                     </div>
@@ -260,38 +260,38 @@ const LoginPage = () => {
                         type={showConfirmPassword ? 'text' : 'password'}
                         placeholder="Confirm your password"
                         value={registerData.confirmPassword}
-                        onChange={(e) => setRegisterData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                        onChange={(e) => setRegisterData((prev) => ({ ...prev, confirmPassword: e.target.value }))}
                         disabled={isSubmitting}
-                        required
-                      />
+                        required />
+
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
                         className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      >
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+
                         {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
                     </div>
                   </div>
                   
-                  <Button 
-                    type="submit" 
-                    className="w-full" 
-                    disabled={isSubmitting || isLoading}
-                  >
-                    {isSubmitting ? (
-                      <div className="flex items-center">
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isSubmitting || isLoading}>
+
+                    {isSubmitting ?
+                    <div className="flex items-center">
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                         Creating Account...
-                      </div>
-                    ) : (
-                      <>
+                      </div> :
+
+                    <>
                         <UserPlus className="w-4 h-4 mr-2" />
                         Create Account
                       </>
-                    )}
+                    }
                   </Button>
                 </form>
               </TabsContent>
@@ -299,8 +299,8 @@ const LoginPage = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default LoginPage;

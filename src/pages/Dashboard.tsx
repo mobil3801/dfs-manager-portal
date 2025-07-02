@@ -4,58 +4,58 @@ import Navigation from '@/components/Navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  Users, 
-  Package, 
-  FileText, 
+import {
+  Users,
+  Package,
+  FileText,
   AlertTriangle,
   TrendingUp,
   DollarSign,
   ShoppingCart,
-  Activity
-} from 'lucide-react';
+  Activity } from
+'lucide-react';
 
 const Dashboard = () => {
   const { user, userProfile } = useAuth();
 
   const stats = [
-    {
-      title: 'Total Products',
-      value: '1,234',
-      change: '+12%',
-      icon: Package,
-      color: 'text-blue-600'
-    },
-    {
-      title: 'Total Sales',
-      value: '$45,231',
-      change: '+8.5%',
-      icon: DollarSign,
-      color: 'text-green-600'
-    },
-    {
-      title: 'Active Orders',
-      value: '89',
-      change: '+3.2%',
-      icon: ShoppingCart,
-      color: 'text-orange-600'
-    },
-    {
-      title: 'Pending Alerts',
-      value: '12',
-      change: '-2.1%',
-      icon: AlertTriangle,
-      color: 'text-red-600'
-    }
-  ];
+  {
+    title: 'Total Products',
+    value: '1,234',
+    change: '+12%',
+    icon: Package,
+    color: 'text-blue-600'
+  },
+  {
+    title: 'Total Sales',
+    value: '$45,231',
+    change: '+8.5%',
+    icon: DollarSign,
+    color: 'text-green-600'
+  },
+  {
+    title: 'Active Orders',
+    value: '89',
+    change: '+3.2%',
+    icon: ShoppingCart,
+    color: 'text-orange-600'
+  },
+  {
+    title: 'Pending Alerts',
+    value: '12',
+    change: '-2.1%',
+    icon: AlertTriangle,
+    color: 'text-red-600'
+  }];
+
 
   const recentActivities = [
-    { action: 'New product added', item: 'Premium Gas', time: '2 hours ago' },
-    { action: 'Sales report generated', item: 'Daily Report', time: '4 hours ago' },
-    { action: 'Inventory alert', item: 'Low stock warning', time: '6 hours ago' },
-    { action: 'User registered', item: 'John Doe', time: '8 hours ago' },
-    { action: 'Order completed', item: 'Order #1234', time: '1 day ago' }
-  ];
+  { action: 'New product added', item: 'Premium Gas', time: '2 hours ago' },
+  { action: 'Sales report generated', item: 'Daily Report', time: '4 hours ago' },
+  { action: 'Inventory alert', item: 'Low stock warning', time: '6 hours ago' },
+  { action: 'User registered', item: 'John Doe', time: '8 hours ago' },
+  { action: 'Order completed', item: 'Order #1234', time: '1 day ago' }];
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -76,20 +76,20 @@ const Dashboard = () => {
             <div className="flex items-center space-x-4">
               <div className="text-right">
                 <p className="text-sm text-gray-500">Current Role</p>
-                {userProfile?.role && (
-                  <Badge className="mt-1">
+                {userProfile?.role &&
+                <Badge className="mt-1">
                     {userProfile.role.charAt(0).toUpperCase() + userProfile.role.slice(1)}
                   </Badge>
-                )}
+                }
               </div>
               <Avatar className="w-12 h-12">
                 <AvatarImage src={userProfile?.avatar_url} alt={userProfile?.full_name || user?.Name} />
                 <AvatarFallback>
-                  {(userProfile?.full_name || user?.Name || user?.Email || '')
-                    .split(' ')
-                    .map(n => n[0])
-                    .join('')
-                    .toUpperCase()}
+                  {(userProfile?.full_name || user?.Name || user?.Email || '').
+                  split(' ').
+                  map((n) => n[0]).
+                  join('').
+                  toUpperCase()}
                 </AvatarFallback>
               </Avatar>
             </div>
@@ -115,8 +115,8 @@ const Dashboard = () => {
                     {stat.change} from last month
                   </p>
                 </CardContent>
-              </Card>
-            );
+              </Card>);
+
           })}
         </div>
 
@@ -134,8 +134,8 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentActivities.map((activity, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                {recentActivities.map((activity, index) =>
+                <div key={index} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
                     <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-900">{activity.action}</p>
@@ -143,7 +143,7 @@ const Dashboard = () => {
                     </div>
                     <div className="text-xs text-gray-500">{activity.time}</div>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -201,8 +201,8 @@ const Dashboard = () => {
         </div>
 
         {/* User Profile Info (for debugging/info) */}
-        {userProfile && (
-          <Card className="mt-6">
+        {userProfile &&
+        <Card className="mt-6">
             <CardHeader>
               <CardTitle>Profile Information</CardTitle>
               <CardDescription>
@@ -228,10 +228,10 @@ const Dashboard = () => {
               </div>
             </CardContent>
           </Card>
-        )}
+        }
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Dashboard;
