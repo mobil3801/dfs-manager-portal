@@ -51,7 +51,7 @@ const LoginPage = () => {
             className="h-16 w-auto mx-auto mb-4" />
 
           <h1 className="text-[#3c63b7] text-3xl font-bold">DFS Manager Portal</h1>
-          <p className="text-gray-600 mt-2">Sign in to access your dashboard</p>
+          <p className="text-gray-600 mt-2">Sign in to manage all Gas Station</p>
         </div>
 
         <Card>
@@ -134,7 +134,7 @@ const LoginPage = () => {
             <div className="mt-6 pt-6 border-t border-gray-200">
               <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
                 <Shield className="w-4 h-4" />
-                <span>User accounts are managed by administrators</span>
+                <span className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">User accounts are managed by administrators</span>
               </div>
               <p className="text-center text-xs text-gray-400 mt-2">
                 Contact your administrator if you need access to the system
