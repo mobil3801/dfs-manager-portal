@@ -16,8 +16,8 @@ const DashboardLayout = () => {
           <Outlet />
         </ComponentErrorBoundary>
       </main>
-    </div>
-  );
+    </div>);
+
 };
 
 export default DashboardLayout;

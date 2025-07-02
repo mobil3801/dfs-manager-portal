@@ -160,6 +160,10 @@ const QuickDataEntry: React.FC = () => {
 
 
 
+
+
+
+
               // Optionally switch to view tab after saving
               // setActiveTab('view');
             }} />
@@ -180,7 +184,4 @@ const QuickDataEntry: React.FC = () => {
             </p>
           </CardContent>
         </Card>}
-    </div>);
-};
-
-export default QuickDataEntry;
+    </div>);};export default QuickDataEntry;

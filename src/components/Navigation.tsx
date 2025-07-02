@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,10 +12,9 @@ import {
   Settings,
   LogOut,
   Shield,
-  Database,
   Menu,
-  ChevronDown
-} from 'lucide-react';
+  ChevronDown } from
+'lucide-react';
 import { Logo } from '@/components/Logo';
 import {
   DropdownMenu,
@@ -24,63 +22,57 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-  DropdownMenuLabel
-} from '@/components/ui/dropdown-menu';
+  DropdownMenuLabel } from
+'@/components/ui/dropdown-menu';
 
 const Navigation = () => {
   const { user, logout, isAdmin, isManager } = useAuth();
   const location = useLocation();
 
   const navigationItems = [
-    {
-      name: 'Dashboard',
-      href: '/dashboard',
-      icon: Home,
-      requiredRole: null
-    },
-    {
-      name: 'Database',
-      href: '/database',
-      icon: Database,
-      requiredRole: null
-    },
-    {
-      name: 'Products',
-      href: '/products',
-      icon: Package,
-      requiredRole: null
-    },
-    {
-      name: 'Sales',
-      href: '/sales',
-      icon: FileText,
-      requiredRole: null
-    },
-    {
-      name: 'Deliveries',
-      href: '/delivery',
-      icon: Truck,
-      requiredRole: null
-    },
-    {
-      name: 'Employees',
-      href: '/employees',
-      icon: Users,
-      requiredRole: 'manager'
-    },
-    {
-      name: 'Licenses',
-      href: '/licenses',
-      icon: Calendar,
-      requiredRole: 'manager'
-    },
-    {
-      name: 'Settings',
-      href: '/settings',
-      icon: Settings,
-      requiredRole: null
-    }
-  ];
+  {
+    name: 'Dashboard',
+    href: '/dashboard',
+    icon: Home,
+    requiredRole: null
+  },
+  {
+    name: 'Products',
+    href: '/products',
+    icon: Package,
+    requiredRole: null
+  },
+  {
+    name: 'Sales',
+    href: '/sales',
+    icon: FileText,
+    requiredRole: null
+  },
+  {
+    name: 'Deliveries',
+    href: '/delivery',
+    icon: Truck,
+    requiredRole: null
+  },
+  {
+    name: 'Employees',
+    href: '/employees',
+    icon: Users,
+    requiredRole: 'manager'
+  },
+  {
+    name: 'Licenses',
+    href: '/licenses',
+    icon: Calendar,
+    requiredRole: 'manager'
+  },
+  {
+    name: 'Settings',
+    href: '/settings',
+    icon: Settings,
+    requiredRole: null
+  }];
+
 
   // Add admin-only items
   if (isAdmin()) {
@@ -108,7 +100,7 @@ const Navigation = () => {
     return true;
   };
 
-  const visibleItems = navigationItems.filter(item => canAccessRoute(item.requiredRole));
+  const visibleItems = navigationItems.filter((item) => canAccessRoute(item.requiredRole));
 
   return (
     <nav className="bg-blue-900 border-b-2 border-blue-800 shadow-lg">
@@ -132,15 +124,15 @@ const Navigation = () => {
                   key={item.href}
                   to={item.href}
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
-                    isActive
-                      ? 'bg-blue-800 text-white shadow-md'
-                      : 'text-blue-100 hover:bg-blue-800 hover:text-white'
-                  }`}
-                >
+                  isActive ?
+                  'bg-blue-800 text-white shadow-md' :
+                  'text-blue-100 hover:bg-blue-800 hover:text-white'}`
+                  }>
+
                   <Icon className="h-4 w-4" />
                   <span>{item.name}</span>
-                </Link>
-              );
+                </Link>);
+
             })}
           </div>
 
@@ -148,11 +140,11 @@ const Navigation = () => {
           <div className="md:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="sm"
-                  className="text-blue-100 hover:bg-blue-800 hover:text-white"
-                >
+                  className="text-blue-100 hover:bg-blue-800 hover:text-white">
+
                   <Menu className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
@@ -168,14 +160,14 @@ const Navigation = () => {
                       <Link
                         to={item.href}
                         className={`flex items-center space-x-2 ${
-                          isActive ? 'bg-blue-50 text-blue-700' : ''
-                        }`}
-                      >
+                        isActive ? 'bg-blue-50 text-blue-700' : ''}`
+                        }>
+
                         <Icon className="h-4 w-4" />
                         <span>{item.name}</span>
                       </Link>
-                    </DropdownMenuItem>
-                  );
+                    </DropdownMenuItem>);
+
                 })}
               </DropdownMenuContent>
             </DropdownMenu>
@@ -185,11 +177,11 @@ const Navigation = () => {
           <div className="flex items-center space-x-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="sm"
-                  className="text-blue-100 hover:bg-blue-800 hover:text-white flex items-center space-x-2"
-                >
+                  className="text-blue-100 hover:bg-blue-800 hover:text-white flex items-center space-x-2">
+
                   <div className="w-8 h-8 bg-blue-700 rounded-full flex items-center justify-center">
                     <span className="text-sm font-medium text-white">
                       {user?.Name?.charAt(0)?.toUpperCase() || 'U'}
@@ -218,8 +210,8 @@ const Navigation = () => {
           </div>
         </div>
       </div>
-    </nav>
-  );
+    </nav>);
+
 };
 
 export default Navigation;
