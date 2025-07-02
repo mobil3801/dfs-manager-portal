@@ -45,7 +45,7 @@ import UserManagement from '@/pages/Admin/UserManagement';
 import SiteManagement from '@/pages/Admin/SiteManagement';
 import SystemLogs from '@/pages/Admin/SystemLogs';
 import SecuritySettings from '@/pages/Admin/SecuritySettings';
-import SMSAlertManagement from '@/pages/Admin/SMSAlertManagement';
+
 import DatabaseMonitoring from '@/pages/Admin/DatabaseMonitoring';
 import AuditMonitoring from '@/pages/Admin/AuditMonitoring';
 
@@ -202,7 +202,7 @@ const AppRouter = () => {
             <Route path="admin/sites" element={<SiteManagement />} />
             <Route path="admin/logs" element={<SystemLogs />} />
             <Route path="admin/security" element={<SecuritySettings />} />
-            <Route path="admin/sms" element={<SMSAlertManagement />} />
+
             <Route path="admin/database" element={<DatabaseMonitoring />} />
             <Route path="admin/audit" element={<AuditMonitoring />} />
           </Route>

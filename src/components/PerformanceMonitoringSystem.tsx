@@ -241,6 +241,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -282,9 +284,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
   * Calculate cache hit rate
   */const calculateCacheHitRate = (): number => {// This would integrate with your actual cache implementation
     // For now, return a mock value
-    return Math.random() * 100;};
-
-  /**
+    return Math.random() * 100;}; /**
    * Get background task count
    */
   const getBackgroundTaskCount = (): number => {

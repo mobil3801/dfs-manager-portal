@@ -312,14 +312,14 @@ class SMSService {
 
 
 
+
+
+
+
     // This is handled by counting records in the history table
     // No need for a separate counter field
-  }private async logSMSHistory(historyData: any): Promise<void> {try {await window.ezsite.apis.tableCreate(24062, {
-        ...historyData,
-        sent_by: 1 // This should be the current user ID
-      });
-    } catch (error) {
-      console.error('Error logging SMS history:', error);
+  }private async logSMSHistory(historyData: any): Promise<void> {try {await window.ezsite.apis.tableCreate(24062, { ...historyData, sent_by: 1 // This should be the current user ID
+        });} catch (error) {console.error('Error logging SMS history:', error);
     }
   }
 
