@@ -50,7 +50,7 @@ const LoginPage = () => {
             alt="Logo"
             className="h-16 w-auto mx-auto mb-4" />
 
-          <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
+          <h1 className="text-[#3c63b7] text-3xl font-bold">DFS Manager Portal</h1>
           <p className="text-gray-600 mt-2">Sign in to access your dashboard</p>
         </div>
 
