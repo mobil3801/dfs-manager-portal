@@ -55,7 +55,7 @@ const LoginPage = () => {
         </div>
 
         <Card>
-          <CardHeader className="pb-4">
+          <CardHeader className="bg-[#93bded] flex flex-col space-y-1.5 p-6 pb-4">
             <CardTitle className="text-2xl text-center flex items-center justify-center">
               <LogIn className="w-6 h-6 mr-2" />
               Sign In
