@@ -19,8 +19,9 @@ import {
   AlertTriangle,
   RefreshCw,
   TestTube,
-  DollarSign
-} from 'lucide-react';
+  DollarSign,
+  Globe } from
+'lucide-react';
 import SMSDiagnosticTool from '@/components/SMSDiagnosticTool';
 
 interface SMSConfig {
@@ -50,6 +51,20 @@ interface SMSLog {
   sent_by_user_id: number;
 }
 
+// Country codes and validation
+const SUPPORTED_COUNTRIES = [
+  { code: '+1', name: 'United States/Canada', enabled: true },
+  { code: '+44', name: 'United Kingdom', enabled: true },
+  { code: '+61', name: 'Australia', enabled: true },
+  { code: '+64', name: 'New Zealand', enabled: true },
+  { code: '+33', name: 'France', enabled: true },
+  { code: '+49', name: 'Germany', enabled: true },
+  { code: '+81', name: 'Japan', enabled: true },
+  { code: '+86', name: 'China', enabled: false },
+  { code: '+91', name: 'India', enabled: true },
+  { code: '+55', name: 'Brazil', enabled: true },
+];
+
 const SMSManagement: React.FC = () => {
   const { toast } = useToast();
   const [config, setConfig] = useState<SMSConfig>({
@@ -75,6 +90,32 @@ const SMSManagement: React.FC = () => {
     loadSMSLogs();
     loadDailyUsage();
   }, []);
+
+  // Helper function to safely convert balance to number
+  const safeNumberConversion = (value: any): number => {
+    if (typeof value === 'number' && !isNaN(value)) {
+      return value;
+    }
+    if (typeof value === 'string') {
+      const parsed = parseFloat(value);
+      return !isNaN(parsed) ? parsed : 0;
+    }
+    return 0;
+  };
+
+  // Country validation function
+  const validateCountryCode = (phoneNumber: string): { valid: boolean; country?: string; enabled?: boolean } => {
+    for (const country of SUPPORTED_COUNTRIES) {
+      if (phoneNumber.startsWith(country.code)) {
+        return {
+          valid: true,
+          country: country.name,
+          enabled: country.enabled
+        };
+      }
+    }
+    return { valid: false };
+  };
 
   const loadConfiguration = async () => {
     try {
@@ -172,10 +213,12 @@ const SMSManagement: React.FC = () => {
       if (response.ok) {
         if (result.data) {
           setConnectionStatus('connected');
-          setAccountBalance(result.data.balance || 0);
+          // Safely convert balance to number
+          const balance = safeNumberConversion(result.data.balance);
+          setAccountBalance(balance);
           toast({
             title: "Connection Successful",
-            description: `ClickSend API connection is working correctly. Balance: $${(result.data.balance || 0).toFixed(4)}`
+            description: `ClickSend API connection is working correctly. Balance: $${balance.toFixed(4)}`
           });
         } else {
           throw new Error('Invalid response from ClickSend API');
@@ -216,6 +259,26 @@ const SMSManagement: React.FC = () => {
       return;
     }
 
+    // Validate country support
+    const countryValidation = validateCountryCode(testPhone);
+    if (!countryValidation.valid) {
+      toast({
+        title: "Unsupported Country",
+        description: "The phone number's country code is not recognized. Please use a supported country code.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!countryValidation.enabled) {
+      toast({
+        title: "Country Not Enabled",
+        description: `SMS sending to ${countryValidation.country} is not enabled in your ClickSend account. Please enable this country in your ClickSend dashboard or contact support.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       if (!config.username || !config.api_key) {
@@ -248,7 +311,7 @@ const SMSManagement: React.FC = () => {
 
       if (response.ok && result.data?.messages?.[0]) {
         const messageResult = result.data.messages[0];
-        
+
         // Log the test SMS
         try {
           await window.ezsite.apis.tableCreate(24202, {
@@ -259,8 +322,8 @@ const SMSManagement: React.FC = () => {
             sent_at: new Date().toISOString(),
             message_id: messageResult.message_id || '',
             clicksend_message_id: messageResult.message_id || '',
-            cost: parseFloat(messageResult.message_price) || 0,
-            error_message: messageResult.status !== 'SUCCESS' ? (messageResult.custom_string || 'Unknown error') : '',
+            cost: safeNumberConversion(messageResult.message_price),
+            error_message: messageResult.status !== 'SUCCESS' ? messageResult.custom_string || 'Unknown error' : '',
             message_type: 'test',
             sent_by_user_id: 1
           });
@@ -269,19 +332,38 @@ const SMSManagement: React.FC = () => {
         }
 
         if (messageResult.status === 'SUCCESS') {
+          const cost = safeNumberConversion(messageResult.message_price);
           toast({
             title: "Test SMS Sent Successfully",
-            description: `Message sent to ${testPhone}. Message ID: ${messageResult.message_id}. Cost: $${(parseFloat(messageResult.message_price) || 0).toFixed(4)}`
+            description: `Message sent to ${testPhone}. Message ID: ${messageResult.message_id}. Cost: $${cost.toFixed(4)}`
           });
         } else {
-          throw new Error(messageResult.custom_string || messageResult.status || 'Failed to send SMS');
+          // Handle specific error messages
+          let errorMessage = messageResult.custom_string || messageResult.status || 'Failed to send SMS';
+          
+          // Check for country-specific errors
+          if (errorMessage.toLowerCase().includes('country not enable') || 
+              errorMessage.toLowerCase().includes('country is not enabled')) {
+            const countryInfo = validateCountryCode(testPhone);
+            errorMessage = `SMS sending to ${countryInfo.country || 'this country'} is not enabled in your ClickSend account. Please enable this destination country in your ClickSend dashboard.`;
+          }
+          
+          throw new Error(errorMessage);
         }
       } else {
         // Handle API errors
-        const errorMessage = result.response_msg || 
-                           result.error_message || 
-                           (result.data && typeof result.data === 'string' ? result.data : '') ||
-                           `HTTP ${response.status}: ${response.statusText}`;
+        let errorMessage = result.response_msg ||
+        result.error_message || (
+        result.data && typeof result.data === 'string' ? result.data : '') ||
+        `HTTP ${response.status}: ${response.statusText}`;
+        
+        // Check for country-specific errors in the main response
+        if (errorMessage.toLowerCase().includes('country not enable') || 
+            errorMessage.toLowerCase().includes('country is not enabled')) {
+          const countryInfo = validateCountryCode(testPhone);
+          errorMessage = `SMS sending to ${countryInfo.country || 'this country'} is not enabled in your ClickSend account. Please enable this destination country in your ClickSend dashboard or contact ClickSend support.`;
+        }
+        
         throw new Error(errorMessage);
       }
 
@@ -289,7 +371,7 @@ const SMSManagement: React.FC = () => {
       await loadDailyUsage();
     } catch (error) {
       console.error('SMS sending error:', error);
-      
+
       // Log failed attempt
       try {
         await window.ezsite.apis.tableCreate(24202, {
@@ -346,9 +428,9 @@ const SMSManagement: React.FC = () => {
         OrderByField: 'id',
         IsAsc: false,
         Filters: [
-          { name: 'sent_at', op: 'StringStartsWith', value: today },
-          { name: 'status', op: 'Equal', value: 'Sent' }
-        ]
+        { name: 'sent_at', op: 'StringStartsWith', value: today },
+        { name: 'status', op: 'Equal', value: 'Sent' }]
+
       });
 
       if (error) throw new Error(error);
@@ -379,11 +461,12 @@ const SMSManagement: React.FC = () => {
   };
 
   const formatCurrency = (amount: number) => {
+    const safeAmount = safeNumberConversion(amount);
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 4
-    }).format(amount);
+    }).format(safeAmount);
   };
 
   return (
@@ -397,17 +480,17 @@ const SMSManagement: React.FC = () => {
         </div>
         <div className="flex items-center space-x-2">
           {connectionStatus === 'connected' &&
-            <Badge variant="default" className="bg-green-500">
+          <Badge variant="default" className="bg-green-500">
               <CheckCircle className="w-3 h-3 mr-1" />Connected
             </Badge>
           }
           {connectionStatus === 'error' &&
-            <Badge variant="destructive">
+          <Badge variant="destructive">
               <XCircle className="w-3 h-3 mr-1" />Disconnected
             </Badge>
           }
           {accountBalance !== null &&
-            <Badge variant="outline">
+          <Badge variant="outline">
               <DollarSign className="w-3 h-3 mr-1" />
               Balance: {formatCurrency(accountBalance)}
             </Badge>
@@ -427,8 +510,8 @@ const SMSManagement: React.FC = () => {
             <div className="w-full bg-secondary rounded-full h-2 mt-2">
               <div
                 className="bg-primary h-2 rounded-full transition-all duration-300"
-                style={{ width: `${Math.min(dailyUsage.percentage, 100)}%` }}
-              />
+                style={{ width: `${Math.min(dailyUsage.percentage, 100)}%` }} />
+
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               {dailyUsage.percentage.toFixed(1)}% of daily limit
@@ -467,8 +550,8 @@ const SMSManagement: React.FC = () => {
         <TabsList>
           <TabsTrigger value="config">Configuration</TabsTrigger>
           <TabsTrigger value="test">Send Test SMS</TabsTrigger>
-          <TabsTrigger value="diagnostics">Diagnostics</TabsTrigger>
           <TabsTrigger value="logs">Message Logs</TabsTrigger>
+          <TabsTrigger value="countries">Supported Countries</TabsTrigger>
         </TabsList>
 
         <TabsContent value="config" className="space-y-4">
@@ -487,8 +570,8 @@ const SMSManagement: React.FC = () => {
                     id="username"
                     value={config.username}
                     onChange={(e) => setConfig({ ...config, username: e.target.value })}
-                    placeholder="your-email@example.com"
-                  />
+                    placeholder="your-email@example.com" />
+
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="api_key">API Key</Label>
@@ -497,8 +580,8 @@ const SMSManagement: React.FC = () => {
                     type="password"
                     value={config.api_key}
                     onChange={(e) => setConfig({ ...config, api_key: e.target.value })}
-                    placeholder="Your ClickSend API Key"
-                  />
+                    placeholder="Your ClickSend API Key" />
+
                 </div>
               </div>
 
@@ -509,8 +592,8 @@ const SMSManagement: React.FC = () => {
                     id="from_number"
                     value={config.from_number}
                     onChange={(e) => setConfig({ ...config, from_number: e.target.value })}
-                    placeholder="DFS"
-                  />
+                    placeholder="DFS" />
+
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="daily_limit">Daily SMS Limit</Label>
@@ -519,8 +602,8 @@ const SMSManagement: React.FC = () => {
                     type="number"
                     value={config.daily_limit}
                     onChange={(e) => setConfig({ ...config, daily_limit: parseInt(e.target.value) || 100 })}
-                    placeholder="100"
-                  />
+                    placeholder="100" />
+
                 </div>
               </div>
 
@@ -530,8 +613,8 @@ const SMSManagement: React.FC = () => {
                   id="webhook_url"
                   value={config.webhook_url}
                   onChange={(e) => setConfig({ ...config, webhook_url: e.target.value })}
-                  placeholder="https://your-domain.com/sms-webhook"
-                />
+                  placeholder="https://your-domain.com/sms-webhook" />
+
               </div>
 
               <div className="flex items-center space-x-4">
@@ -539,16 +622,16 @@ const SMSManagement: React.FC = () => {
                   <Switch
                     id="is_enabled"
                     checked={config.is_enabled}
-                    onCheckedChange={(checked) => setConfig({ ...config, is_enabled: checked })}
-                  />
+                    onCheckedChange={(checked) => setConfig({ ...config, is_enabled: checked })} />
+
                   <Label htmlFor="is_enabled">Enable SMS Service</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="test_mode"
                     checked={config.test_mode}
-                    onCheckedChange={(checked) => setConfig({ ...config, test_mode: checked })}
-                  />
+                    onCheckedChange={(checked) => setConfig({ ...config, test_mode: checked })} />
+
                   <Label htmlFor="test_mode">Test Mode</Label>
                 </div>
               </div>
@@ -577,7 +660,7 @@ const SMSManagement: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {!config.is_enabled &&
-                <Alert>
+              <Alert>
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
                     SMS service is currently disabled. Enable it in the Configuration tab to send messages.
@@ -592,10 +675,10 @@ const SMSManagement: React.FC = () => {
                   value={testPhone}
                   onChange={(e) => setTestPhone(e.target.value)}
                   placeholder="+1234567890"
-                  disabled={!config.is_enabled}
-                />
+                  disabled={!config.is_enabled} />
+
                 <p className="text-sm text-muted-foreground">
-                  Use E.164 format (e.g., +1234567890)
+                  Use E.164 format (e.g., +1234567890). Check Supported Countries tab for available destinations.
                 </p>
               </div>
 
@@ -607,8 +690,8 @@ const SMSManagement: React.FC = () => {
                   onChange={(e) => setTestMessage(e.target.value)}
                   placeholder="Enter your test message here..."
                   rows={3}
-                  disabled={!config.is_enabled}
-                />
+                  disabled={!config.is_enabled} />
+
                 <p className="text-sm text-muted-foreground">
                   {testMessage.length}/160 characters
                 </p>
@@ -617,17 +700,13 @@ const SMSManagement: React.FC = () => {
               <Button
                 onClick={sendTestSMS}
                 disabled={loading || !config.is_enabled || !testPhone || !testMessage}
-                className="w-full"
-              >
+                className="w-full">
+
                 {loading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
                 Send Test SMS
               </Button>
             </CardContent>
           </Card>
-        </TabsContent>
-
-        <TabsContent value="diagnostics" className="space-y-4">
-          <SMSDiagnosticTool />
         </TabsContent>
 
         <TabsContent value="logs" className="space-y-4">
@@ -647,13 +726,13 @@ const SMSManagement: React.FC = () => {
             <CardContent>
               <div className="space-y-4">
                 {smsLogs.length === 0 ?
-                  <div className="text-center py-8">
+                <div className="text-center py-8">
                     <History className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                     <p className="text-muted-foreground">No SMS messages found</p>
                   </div> :
-                  <div className="space-y-2">
+                <div className="space-y-2">
                     {smsLogs.map((log) =>
-                      <div key={log.id} className="border rounded-lg p-4 space-y-2">
+                  <div key={log.id} className="border rounded-lg p-4 space-y-2">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-2">
                             <span className="font-medium">{log.recipient_phone}</span>
@@ -671,21 +750,58 @@ const SMSManagement: React.FC = () => {
                           {log.message_id && <span>ID: {log.message_id}</span>}
                         </div>
                         {log.error_message &&
-                          <div className="text-xs text-destructive bg-destructive/10 p-2 rounded">
+                    <div className="text-xs text-destructive bg-destructive/10 p-2 rounded">
                             Error: {log.error_message}
                           </div>
-                        }
+                    }
                       </div>
-                    )}
+                  )}
                   </div>
                 }
               </div>
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="countries" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Supported Countries</CardTitle>
+              <CardDescription>
+                Countries and regions where SMS sending is supported by ClickSend
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {SUPPORTED_COUNTRIES.map((country) => (
+                  <div key={country.code} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <Globe className="w-4 h-4 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium">{country.name}</p>
+                        <p className="text-sm text-muted-foreground">{country.code}</p>
+                      </div>
+                    </div>
+                    <Badge variant={country.enabled ? "default" : "secondary"}>
+                      {country.enabled ? "Enabled" : "Disabled"}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+              <Alert className="mt-4">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  If a country shows as "Disabled" or you receive a "country not enabled" error, 
+                  you need to enable SMS sending for that country in your ClickSend dashboard. 
+                  Contact ClickSend support if you need assistance enabling additional countries.
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SMSManagement;

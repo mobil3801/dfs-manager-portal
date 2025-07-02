@@ -252,6 +252,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -297,88 +299,86 @@ const PerformanceMonitoringSystem: React.FC = () => {
   * Get background task count
   */const getBackgroundTaskCount = (): number => {// Count various background activities
     const intervals = (window as any).__intervals__ || [];const timeouts = (window as any).__timeouts__ || [];const observers = (window as any).__observers__ || [];return intervals.length + timeouts.length + observers.length;}; /**
-   * Analyze metrics and generate alerts
-   */
-  const analyzeMetrics = useCallback((currentMetrics: PerformanceMetrics) => {
-    const newAlerts: Alert[] = [];
+  * Analyze metrics and generate alerts
+  */const analyzeMetrics = useCallback((currentMetrics: PerformanceMetrics) => {const newAlerts: Alert[] = [];
 
-    // Memory alerts
-    if (currentMetrics.memory.percentage > 80) {
-      newAlerts.push({
-        id: `memory-high-${Date.now()}`,
-        type: 'warning',
-        title: 'High Memory Usage',
-        message: `Memory usage is at ${currentMetrics.memory.percentage.toFixed(1)}%`,
-        timestamp: Date.now(),
-        severity: currentMetrics.memory.percentage > 90 ? 'critical' : 'high',
-        autoResolve: true
-      });
-    }
+      // Memory alerts
+      if (currentMetrics.memory.percentage > 80) {
+        newAlerts.push({
+          id: `memory-high-${Date.now()}`,
+          type: 'warning',
+          title: 'High Memory Usage',
+          message: `Memory usage is at ${currentMetrics.memory.percentage.toFixed(1)}%`,
+          timestamp: Date.now(),
+          severity: currentMetrics.memory.percentage > 90 ? 'critical' : 'high',
+          autoResolve: true
+        });
+      }
 
-    // Performance alerts
-    if (currentMetrics.timing.apiResponseTime > 2000) {
-      newAlerts.push({
-        id: `api-slow-${Date.now()}`,
-        type: 'warning',
-        title: 'Slow API Response',
-        message: `Average API response time is ${currentMetrics.timing.apiResponseTime.toFixed(0)}ms`,
-        timestamp: Date.now(),
-        severity: 'medium'
-      });
-    }
+      // Performance alerts
+      if (currentMetrics.timing.apiResponseTime > 2000) {
+        newAlerts.push({
+          id: `api-slow-${Date.now()}`,
+          type: 'warning',
+          title: 'Slow API Response',
+          message: `Average API response time is ${currentMetrics.timing.apiResponseTime.toFixed(0)}ms`,
+          timestamp: Date.now(),
+          severity: 'medium'
+        });
+      }
 
-    // Network alerts
-    if (currentMetrics.network.errorRate > 10) {
-      newAlerts.push({
-        id: `network-errors-${Date.now()}`,
-        type: 'error',
-        title: 'High Network Error Rate',
-        message: `Network error rate is ${currentMetrics.network.errorRate.toFixed(1)}%`,
-        timestamp: Date.now(),
-        severity: 'high'
-      });
-    }
+      // Network alerts
+      if (currentMetrics.network.errorRate > 10) {
+        newAlerts.push({
+          id: `network-errors-${Date.now()}`,
+          type: 'error',
+          title: 'High Network Error Rate',
+          message: `Network error rate is ${currentMetrics.network.errorRate.toFixed(1)}%`,
+          timestamp: Date.now(),
+          severity: 'high'
+        });
+      }
 
-    // Web Vitals alerts
-    if (currentMetrics.vitals.cls > 0.1) {
-      newAlerts.push({
-        id: `cls-poor-${Date.now()}`,
-        type: 'warning',
-        title: 'Poor Layout Stability',
-        message: `Cumulative Layout Shift is ${currentMetrics.vitals.cls.toFixed(3)}`,
-        timestamp: Date.now(),
-        severity: 'medium'
-      });
-    }
+      // Web Vitals alerts
+      if (currentMetrics.vitals.cls > 0.1) {
+        newAlerts.push({
+          id: `cls-poor-${Date.now()}`,
+          type: 'warning',
+          title: 'Poor Layout Stability',
+          message: `Cumulative Layout Shift is ${currentMetrics.vitals.cls.toFixed(3)}`,
+          timestamp: Date.now(),
+          severity: 'medium'
+        });
+      }
 
-    if (currentMetrics.vitals.lcp > 2500) {
-      newAlerts.push({
-        id: `lcp-slow-${Date.now()}`,
-        type: 'warning',
-        title: 'Slow Loading Performance',
-        message: `Largest Contentful Paint is ${currentMetrics.vitals.lcp.toFixed(0)}ms`,
-        timestamp: Date.now(),
-        severity: 'medium'
-      });
-    }
+      if (currentMetrics.vitals.lcp > 2500) {
+        newAlerts.push({
+          id: `lcp-slow-${Date.now()}`,
+          type: 'warning',
+          title: 'Slow Loading Performance',
+          message: `Largest Contentful Paint is ${currentMetrics.vitals.lcp.toFixed(0)}ms`,
+          timestamp: Date.now(),
+          severity: 'medium'
+        });
+      }
 
-    // Add new alerts
-    if (newAlerts.length > 0) {
-      setAlerts((prev) => [...newAlerts, ...prev].slice(0, 50)); // Keep last 50 alerts
-      alertHistory.current = [...newAlerts, ...alertHistory.current];
+      // Add new alerts
+      if (newAlerts.length > 0) {
+        setAlerts((prev) => [...newAlerts, ...prev].slice(0, 50)); // Keep last 50 alerts
+        alertHistory.current = [...newAlerts, ...alertHistory.current];
 
-      // Show toast for critical alerts
-      newAlerts.forEach((alert) => {
-        if (alert.severity === 'critical') {
-          toast({
-            title: alert.title,
-            description: alert.message,
-            variant: 'destructive'
-          });
-        }
-      });
-    }
-  }, [toast]);
+        // Show toast for critical alerts
+        newAlerts.forEach((alert) => {
+          if (alert.severity === 'critical') {
+            toast({
+              title: alert.title,
+              description: alert.message,
+              variant: 'destructive'
+            });
+          }
+        });
+      }
+    }, [toast]);
 
   /**
    * Generate optimization suggestions

@@ -320,9 +320,9 @@ class ClickSendSMSService {
           OrderByField: 'id',
           IsAsc: false,
           Filters: [
-            { name: 'sent_at', op: 'StringStartsWith', value: today },
-            { name: 'status', op: 'Equal', value: 'Sent' }
-          ]
+          { name: 'sent_at', op: 'StringStartsWith', value: today },
+          { name: 'status', op: 'Equal', value: 'Sent' }]
+
         });
 
         const todayCount = historyData?.VirtualCount || 0;
@@ -338,13 +338,13 @@ class ClickSendSMSService {
   }
 
   private async updateDailyCount(): Promise<void> {
+
+
+
+
     // This is handled by counting records in the history table
     // No need for a separate counter field
-  }
-
-  private async logSMSHistory(historyData: any): Promise<void> {
-    try {
-      await window.ezsite.apis.tableCreate(24202, {
+  }private async logSMSHistory(historyData: any): Promise<void> {try {await window.ezsite.apis.tableCreate(24202, {
         ...historyData,
         sent_by_user_id: 1 // This should be the current user ID
       });
@@ -377,7 +377,7 @@ class ClickSendSMSService {
     return results;
   }
 
-  async getDeliveryStatus(messageId: string): Promise<{status: string; delivered: boolean;}> {
+  async getDeliveryStatus(messageId: string): Promise<{status: string;delivered: boolean;}> {
     if (!this.isConfigured) {
       throw new Error('SMS service not configured');
     }
@@ -432,7 +432,7 @@ class ClickSendSMSService {
     return [...this.testNumbers];
   }
 
-  async getDailyUsage(): Promise<{used: number; limit: number; percentage: number;}> {
+  async getDailyUsage(): Promise<{used: number;limit: number;percentage: number;}> {
     try {
       // Get configuration from correct table (24201)
       const { data, error } = await window.ezsite.apis.tablePage(24201, {
@@ -456,9 +456,9 @@ class ClickSendSMSService {
           OrderByField: 'id',
           IsAsc: false,
           Filters: [
-            { name: 'sent_at', op: 'StringStartsWith', value: today },
-            { name: 'status', op: 'Equal', value: 'Sent' }
-          ]
+          { name: 'sent_at', op: 'StringStartsWith', value: today },
+          { name: 'status', op: 'Equal', value: 'Sent' }]
+
         });
 
         const used = historyData?.VirtualCount || 0;
@@ -483,7 +483,7 @@ class ClickSendSMSService {
     return this.config;
   }
 
-  async getServiceStatus(): Promise<{available: boolean; message: string; providers?: any; quota?: any;}> {
+  async getServiceStatus(): Promise<{available: boolean;message: string;providers?: any;quota?: any;}> {
     try {
       if (!this.isConfigured) {
         return {
@@ -495,8 +495,8 @@ class ClickSendSMSService {
       const accountResponse = await this.makeClickSendRequest('GET', '/account');
 
       const providers = [
-        { name: 'ClickSend', available: this.isConfigured && accountResponse.success }
-      ];
+      { name: 'ClickSend', available: this.isConfigured && accountResponse.success }];
+
 
       const quota = {
         quotaRemaining: accountResponse.success ? accountResponse.data?.data?.balance || 0 : 0
@@ -537,7 +537,7 @@ class ClickSendSMSService {
     }
   }
 
-  async getAvailableFromNumbers(): Promise<{number: string; provider: string; isActive: boolean; testMode: boolean;}[]> {
+  async getAvailableFromNumbers(): Promise<{number: string;provider: string;isActive: boolean;testMode: boolean;}[]> {
     try {
       // Get from correct table (24201)
       const { data, error } = await window.ezsite.apis.tablePage(24201, {

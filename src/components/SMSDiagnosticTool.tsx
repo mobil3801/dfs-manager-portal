@@ -14,8 +14,8 @@ import {
   TestTube,
   MessageSquare,
   DollarSign,
-  Activity
-} from 'lucide-react';
+  Activity } from
+'lucide-react';
 
 interface DiagnosticResult {
   test: string;
@@ -37,18 +37,18 @@ const SMSDiagnosticTool: React.FC = () => {
     try {
       // Test 1: Check if tables exist and are accessible
       results.push(await testDatabaseTables());
-      
+
       // Test 2: Validate ClickSend credentials
       results.push(await testClickSendCredentials());
-      
+
       // Test 3: Check account balance
       results.push(await testAccountBalance());
-      
+
       // Test 4: Validate phone number format (if provided)
       if (testPhone) {
         results.push(testPhoneNumberFormat(testPhone));
       }
-      
+
       // Test 5: Check daily limits
       results.push(await testDailyLimits());
 
@@ -121,7 +121,7 @@ const SMSDiagnosticTool: React.FC = () => {
   const testClickSendCredentials = async (): Promise<DiagnosticResult> => {
     try {
       const credentials = btoa('mobil3801beach@gmail.com:54DC23E4-34D7-C6B1-0601-112E36A46B49');
-      
+
       const response = await fetch('https://rest.clicksend.com/v3/account', {
         method: 'GET',
         headers: {
@@ -162,7 +162,7 @@ const SMSDiagnosticTool: React.FC = () => {
   const testAccountBalance = async (): Promise<DiagnosticResult> => {
     try {
       const credentials = btoa('mobil3801beach@gmail.com:54DC23E4-34D7-C6B1-0601-112E36A46B49');
-      
+
       const response = await fetch('https://rest.clicksend.com/v3/account', {
         method: 'GET',
         headers: {
@@ -175,7 +175,7 @@ const SMSDiagnosticTool: React.FC = () => {
 
       if (response.ok && result.data) {
         const balance = result.data.balance || 0;
-        
+
         if (balance <= 0) {
           return {
             test: 'Account Balance',
@@ -216,7 +216,7 @@ const SMSDiagnosticTool: React.FC = () => {
 
   const testPhoneNumberFormat = (phoneNumber: string): DiagnosticResult => {
     const e164Regex = /^\+[1-9]\d{1,14}$/;
-    
+
     if (e164Regex.test(phoneNumber)) {
       return {
         test: 'Phone Number Format',
@@ -244,9 +244,9 @@ const SMSDiagnosticTool: React.FC = () => {
         OrderByField: 'id',
         IsAsc: false,
         Filters: [
-          { name: 'sent_at', op: 'StringStartsWith', value: today },
-          { name: 'status', op: 'Equal', value: 'Sent' }
-        ]
+        { name: 'sent_at', op: 'StringStartsWith', value: today },
+        { name: 'status', op: 'Equal', value: 'Sent' }]
+
       });
 
       if (error) throw new Error(error);
@@ -298,7 +298,7 @@ const SMSDiagnosticTool: React.FC = () => {
     setLoading(true);
     try {
       const credentials = btoa('mobil3801beach@gmail.com:54DC23E4-34D7-C6B1-0601-112E36A46B49');
-      
+
       const smsData = {
         messages: [{
           source: 'DFS',
@@ -320,7 +320,7 @@ const SMSDiagnosticTool: React.FC = () => {
 
       if (response.ok && result.data?.messages?.[0]) {
         const messageResult = result.data.messages[0];
-        
+
         // Log the test SMS
         await window.ezsite.apis.tableCreate(24202, {
           recipient_phone: testPhone,
@@ -331,7 +331,7 @@ const SMSDiagnosticTool: React.FC = () => {
           message_id: messageResult.message_id || '',
           clicksend_message_id: messageResult.message_id || '',
           cost: parseFloat(messageResult.message_price) || 0,
-          error_message: messageResult.status !== 'SUCCESS' ? (messageResult.custom_string || 'Unknown error') : '',
+          error_message: messageResult.status !== 'SUCCESS' ? messageResult.custom_string || 'Unknown error' : '',
           message_type: 'diagnostic_test',
           sent_by_user_id: 1
         });
@@ -345,9 +345,9 @@ const SMSDiagnosticTool: React.FC = () => {
           throw new Error(messageResult.custom_string || messageResult.status || 'Failed to send SMS');
         }
       } else {
-        const errorMessage = result.response_msg || 
-                           result.error_message || 
-                           `HTTP ${response.status}: ${response.statusText}`;
+        const errorMessage = result.response_msg ||
+        result.error_message ||
+        `HTTP ${response.status}: ${response.statusText}`;
         throw new Error(errorMessage);
       }
     } catch (error) {
@@ -396,21 +396,21 @@ const SMSDiagnosticTool: React.FC = () => {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex gap-2">
-          <Button 
-            onClick={runDiagnostics} 
+          <Button
+            onClick={runDiagnostics}
             disabled={loading}
-            className="flex-1"
-          >
+            className="flex-1">
+
             {loading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <TestTube className="w-4 h-4 mr-2" />}
             Run Full Diagnostics
           </Button>
         </div>
 
-        {diagnosticResults.length > 0 && (
-          <div className="space-y-3">
+        {diagnosticResults.length > 0 &&
+        <div className="space-y-3">
             <h4 className="font-medium">Diagnostic Results:</h4>
-            {diagnosticResults.map((result, index) => (
-              <div key={index} className="border rounded-lg p-3 space-y-2">
+            {diagnosticResults.map((result, index) =>
+          <div key={index} className="border rounded-lg p-3 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     {getStatusIcon(result.status)}
@@ -419,15 +419,15 @@ const SMSDiagnosticTool: React.FC = () => {
                   {getStatusBadge(result.status)}
                 </div>
                 <p className="text-sm text-muted-foreground">{result.message}</p>
-                {result.details && (
-                  <pre className="text-xs bg-muted p-2 rounded overflow-x-auto">
+                {result.details &&
+            <pre className="text-xs bg-muted p-2 rounded overflow-x-auto">
                     {JSON.stringify(result.details, null, 2)}
                   </pre>
-                )}
+            }
               </div>
-            ))}
+          )}
           </div>
-        )}
+        }
 
         <div className="border-t pt-4 space-y-4">
           <h4 className="font-medium">Live SMS Test</h4>
@@ -437,17 +437,17 @@ const SMSDiagnosticTool: React.FC = () => {
               id="test_phone"
               value={testPhone}
               onChange={(e) => setTestPhone(e.target.value)}
-              placeholder="+1234567890"
-            />
+              placeholder="+1234567890" />
+
             <p className="text-sm text-muted-foreground">
               Use E.164 format. This will send an actual SMS message.
             </p>
           </div>
-          <Button 
-            onClick={sendActualTestSMS} 
+          <Button
+            onClick={sendActualTestSMS}
             disabled={loading || !testPhone}
-            className="w-full"
-          >
+            className="w-full">
+
             {loading ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <MessageSquare className="w-4 h-4 mr-2" />}
             Send Live Test SMS
           </Button>
@@ -461,8 +461,8 @@ const SMSDiagnosticTool: React.FC = () => {
           </AlertDescription>
         </Alert>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default SMSDiagnosticTool;
