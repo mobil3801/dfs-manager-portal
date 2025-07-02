@@ -108,8 +108,8 @@ class SMSService {
         method,
         headers: {
           'Authorization': `Basic ${credentials}`,
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json'
+        }
       };
 
       if (data && (method === 'POST' || method === 'PUT')) {
@@ -201,20 +201,20 @@ class SMSService {
     try {
       const smsData = {
         messages: [
-          {
-            from: this.config?.fromNumber || '',
-            to: message.to,
-            body: message.message,
-            source: 'javascript'
-          }
-        ]
+        {
+          from: this.config?.fromNumber || '',
+          to: message.to,
+          body: message.message,
+          source: 'javascript'
+        }]
+
       };
 
       const response = await this.makeSinchRequest('POST', '/sms/send', smsData);
 
       if (response.success && response.data) {
         const messageResult = response.data.data.messages[0];
-        
+
         return {
           success: messageResult.status === 'SUCCESS',
           messageId: messageResult.message_id,
@@ -282,7 +282,7 @@ class SMSService {
       if (data?.List && data.List.length > 0) {
         const config = data.List[0];
         const today = new Date().toISOString().split('T')[0];
-        
+
         // Count today's SMS messages
         const { data: historyData } = await window.ezsite.apis.tablePage(24062, {
           PageNo: 1,
@@ -290,13 +290,13 @@ class SMSService {
           OrderByField: 'id',
           IsAsc: false,
           Filters: [
-            { name: 'sent_at', op: 'StringStartsWith', value: today },
-            { name: 'status', op: 'Equal', value: 'Sent' }
-          ]
+          { name: 'sent_at', op: 'StringStartsWith', value: today },
+          { name: 'status', op: 'Equal', value: 'Sent' }]
+
         });
 
         const todayCount = historyData?.VirtualCount || 0;
-        
+
         if (todayCount >= config.daily_limit) {
           throw new Error('Daily SMS limit exceeded. Please contact administrator or wait for tomorrow.');
         }
@@ -308,13 +308,13 @@ class SMSService {
   }
 
   private async updateDailyCount(): Promise<void> {
+
+
+
+
     // This is handled by counting records in the history table
     // No need for a separate counter field
-  }
-
-  private async logSMSHistory(historyData: any): Promise<void> {
-    try {
-      await window.ezsite.apis.tableCreate(24062, {
+  }private async logSMSHistory(historyData: any): Promise<void> {try {await window.ezsite.apis.tableCreate(24062, {
         ...historyData,
         sent_by: 1 // This should be the current user ID
       });
@@ -347,14 +347,14 @@ class SMSService {
     return results;
   }
 
-  async getDeliveryStatus(messageId: string): Promise<{status: string; delivered: boolean;}> {
+  async getDeliveryStatus(messageId: string): Promise<{status: string;delivered: boolean;}> {
     if (!this.isConfigured) {
       throw new Error('SMS service not configured');
     }
 
     try {
       const response = await this.makeSinchRequest('GET', `/sms/history/${messageId}`);
-      
+
       if (response.success && response.data) {
         const status = response.data.data.status;
         return {
@@ -402,7 +402,7 @@ class SMSService {
     return [...this.testNumbers];
   }
 
-  async getDailyUsage(): Promise<{used: number; limit: number; percentage: number;}> {
+  async getDailyUsage(): Promise<{used: number;limit: number;percentage: number;}> {
     try {
       const { data, error } = await window.ezsite.apis.tablePage(24060, {
         PageNo: 1,
@@ -417,7 +417,7 @@ class SMSService {
       if (data?.List && data.List.length > 0) {
         const config = data.List[0];
         const today = new Date().toISOString().split('T')[0];
-        
+
         // Count today's SMS messages
         const { data: historyData } = await window.ezsite.apis.tablePage(24062, {
           PageNo: 1,
@@ -425,14 +425,14 @@ class SMSService {
           OrderByField: 'id',
           IsAsc: false,
           Filters: [
-            { name: 'sent_at', op: 'StringStartsWith', value: today },
-            { name: 'status', op: 'Equal', value: 'Sent' }
-          ]
+          { name: 'sent_at', op: 'StringStartsWith', value: today },
+          { name: 'status', op: 'Equal', value: 'Sent' }]
+
         });
 
         const used = historyData?.VirtualCount || 0;
         const limit = config.daily_limit;
-        const percentage = (used / limit) * 100;
+        const percentage = used / limit * 100;
 
         return { used, limit, percentage };
       }
@@ -452,7 +452,7 @@ class SMSService {
     return this.config;
   }
 
-  async getServiceStatus(): Promise<{available: boolean; message: string; providers?: any; quota?: any;}> {
+  async getServiceStatus(): Promise<{available: boolean;message: string;providers?: any;quota?: any;}> {
     try {
       if (!this.isConfigured) {
         return {
@@ -462,10 +462,10 @@ class SMSService {
       }
 
       const accountResponse = await this.makeSinchRequest('GET', '/account');
-      
+
       const providers = [
-        { name: 'Sinch ClickSend', available: this.isConfigured && accountResponse.success }
-      ];
+      { name: 'Sinch ClickSend', available: this.isConfigured && accountResponse.success }];
+
 
       const quota = {
         quotaRemaining: accountResponse.success ? accountResponse.data?.data?.balance || 0 : 0
@@ -506,7 +506,7 @@ class SMSService {
     }
   }
 
-  async getAvailableFromNumbers(): Promise<{number: string; provider: string; isActive: boolean; testMode: boolean;}[]> {
+  async getAvailableFromNumbers(): Promise<{number: string;provider: string;isActive: boolean;testMode: boolean;}[]> {
     try {
       const { data, error } = await window.ezsite.apis.tablePage(24060, {
         PageNo: 1,

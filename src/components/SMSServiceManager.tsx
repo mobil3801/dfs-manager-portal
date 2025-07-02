@@ -6,17 +6,17 @@ import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
-import { 
-  MessageSquare, 
-  TrendingUp, 
-  AlertTriangle, 
+import {
+  MessageSquare,
+  TrendingUp,
+  AlertTriangle,
   CheckCircle,
   Clock,
   DollarSign,
   BarChart3,
   Send,
-  Zap
-} from 'lucide-react';
+  Zap } from
+'lucide-react';
 import SinchConfigManager from './SinchConfigManager';
 import { smsService } from '@/services/smsService';
 import { enhancedSmsService } from '@/services/enhancedSmsService';
@@ -24,8 +24,8 @@ import { enhancedSmsService } from '@/services/enhancedSmsService';
 interface ServiceStatus {
   available: boolean;
   message: string;
-  providers?: Array<{ name: string; available: boolean }>;
-  quota?: { quotaRemaining: number };
+  providers?: Array<{name: string;available: boolean;}>;
+  quota?: {quotaRemaining: number;};
 }
 
 interface UsageStats {
@@ -51,7 +51,7 @@ const SMSServiceManager: React.FC = () => {
 
   useEffect(() => {
     loadServiceData();
-    
+
     // Set up auto-refresh every 30 seconds
     const interval = setInterval(loadServiceData, 30000);
     return () => clearInterval(interval);
@@ -93,22 +93,22 @@ const SMSServiceManager: React.FC = () => {
     await loadServiceData();
     toast({
       title: "Refreshed",
-      description: "SMS service data updated successfully",
+      description: "SMS service data updated successfully"
     });
   };
 
   const getStatusBadge = (available: boolean) => {
-    return available ? (
-      <Badge variant="secondary" className="text-green-700 bg-green-100">
+    return available ?
+    <Badge variant="secondary" className="text-green-700 bg-green-100">
         <CheckCircle className="h-3 w-3 mr-1" />
         Available
-      </Badge>
-    ) : (
-      <Badge variant="destructive">
+      </Badge> :
+
+    <Badge variant="destructive">
         <AlertTriangle className="h-3 w-3 mr-1" />
         Unavailable
-      </Badge>
-    );
+      </Badge>;
+
   };
 
   const getHealthBadge = (status: string) => {
@@ -118,29 +118,29 @@ const SMSServiceManager: React.FC = () => {
           <Badge variant="secondary" className="text-green-700 bg-green-100">
             <CheckCircle className="h-3 w-3 mr-1" />
             Healthy
-          </Badge>
-        );
+          </Badge>);
+
       case 'degraded':
         return (
           <Badge variant="outline" className="text-yellow-700 bg-yellow-100">
             <AlertTriangle className="h-3 w-3 mr-1" />
             Degraded
-          </Badge>
-        );
+          </Badge>);
+
       case 'down':
         return (
           <Badge variant="destructive">
             <AlertTriangle className="h-3 w-3 mr-1" />
             Down
-          </Badge>
-        );
+          </Badge>);
+
       default:
         return (
           <Badge variant="outline">
             <Clock className="h-3 w-3 mr-1" />
             Checking...
-          </Badge>
-        );
+          </Badge>);
+
     }
   };
 
@@ -151,8 +151,8 @@ const SMSServiceManager: React.FC = () => {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           <p className="mt-2 text-muted-foreground">Loading SMS service data...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -162,12 +162,12 @@ const SMSServiceManager: React.FC = () => {
           <h2 className="text-2xl font-bold tracking-tight">SMS Service Manager</h2>
           <p className="text-muted-foreground">Monitor and manage your Sinch ClickSend SMS service</p>
         </div>
-        <Button 
-          onClick={refreshData} 
+        <Button
+          onClick={refreshData}
           disabled={refreshing}
           variant="outline"
-          className="flex items-center gap-2"
-        >
+          className="flex items-center gap-2">
+
           <BarChart3 className="h-4 w-4" />
           {refreshing ? 'Refreshing...' : 'Refresh'}
         </Button>
@@ -249,27 +249,27 @@ const SMSServiceManager: React.FC = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {serviceStatus && (
-                <Alert>
+              {serviceStatus &&
+              <Alert>
                   <MessageSquare className="h-4 w-4" />
                   <AlertDescription>{serviceStatus.message}</AlertDescription>
                 </Alert>
-              )}
+              }
 
-              {serviceStatus?.providers && (
-                <div className="space-y-2">
+              {serviceStatus?.providers &&
+              <div className="space-y-2">
                   <h4 className="font-medium">Providers</h4>
-                  {serviceStatus.providers.map((provider, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                  {serviceStatus.providers.map((provider, index) =>
+                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                       <span className="font-medium">{provider.name}</span>
                       {getStatusBadge(provider.available)}
                     </div>
-                  ))}
+                )}
                 </div>
-              )}
+              }
 
-              {serviceHealth && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {serviceHealth &&
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <p className="text-sm font-medium text-muted-foreground">Response Time</p>
                     <p className="text-lg font-semibold">{serviceHealth.responseTime}ms</p>
@@ -285,7 +285,7 @@ const SMSServiceManager: React.FC = () => {
                     </p>
                   </div>
                 </div>
-              )}
+              }
             </CardContent>
           </Card>
         </TabsContent>
@@ -302,8 +302,8 @@ const SMSServiceManager: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {usageStats && (
-                <>
+              {usageStats &&
+              <>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span>Messages sent today</span>
@@ -315,15 +315,15 @@ const SMSServiceManager: React.FC = () => {
                     </p>
                   </div>
 
-                  {usageStats.percentage > 80 && (
-                    <Alert>
+                  {usageStats.percentage > 80 &&
+                <Alert>
                       <AlertTriangle className="h-4 w-4" />
                       <AlertDescription>
                         You've used {usageStats.percentage.toFixed(1)}% of your daily SMS limit. 
                         Consider increasing your limit or managing usage carefully.
                       </AlertDescription>
                     </Alert>
-                  )}
+                }
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -340,7 +340,7 @@ const SMSServiceManager: React.FC = () => {
                     </div>
                   </div>
                 </>
-              )}
+              }
             </CardContent>
           </Card>
         </TabsContent>
@@ -349,8 +349,8 @@ const SMSServiceManager: React.FC = () => {
           <SinchConfigManager />
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SMSServiceManager;

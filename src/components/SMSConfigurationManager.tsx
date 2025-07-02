@@ -1,97 +1,105 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { toast } from '@/hooks/use-toast';
-import { 
-  Settings, 
-  Send, 
-  CheckCircle, 
-  AlertCircle, 
+import { useToast } from '@/hooks/use-toast';
+import {
+  Settings,
+  Shield,
+  Globe,
   Phone,
+  Save,
+  TestTube,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
   Key,
-  User,
-  DollarSign,
-  MessageSquare,
-  Zap
-} from 'lucide-react';
-import { smsService } from '@/services/smsService';
+  Zap } from
+'lucide-react';
+import { enhancedSmsService } from '@/services/enhancedSmsService';
 
 interface SMSConfig {
-  id?: number;
-  service_provider: string;
-  api_key: string;
-  username: string;
+  id: number;
+  provider_name: string;
+  account_sid: string;
+  auth_token: string;
   from_number: string;
-  is_enabled: boolean;
-  daily_limit: number;
-  emergency_contacts: string;
-  alert_types: string;
-}
-
-interface ServiceHealth {
-  available: boolean;
-  balance: number;
-  lastCheck: Date;
-  responseTime: number;
+  is_active: boolean;
+  test_mode: boolean;
+  monthly_limit: number;
+  current_month_count: number;
+  webhook_url: string;
+  created_by: number;
 }
 
 const SMSConfigurationManager: React.FC = () => {
-  const [config, setConfig] = useState<SMSConfig>({
-    service_provider: 'Sinch ClickSend',
-    api_key: '',
-    username: '',
-    from_number: '',
-    is_enabled: false,
-    daily_limit: 100,
-    emergency_contacts: '[]',
-    alert_types: '{}'
-  });
-  
+  const [config, setConfig] = useState<SMSConfig | null>(null);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
-  const [testPhone, setTestPhone] = useState('');
-  const [serviceHealth, setServiceHealth] = useState<ServiceHealth | null>(null);
+  const [testResult, setTestResult] = useState<{success: boolean;message: string;} | null>(null);
+  const [showTokens, setShowTokens] = useState(false);
+  const [testPhoneNumber, setTestPhoneNumber] = useState('');
+  const [serviceHealth, setServiceHealth] = useState<any>(null);
+  const { toast } = useToast();
+
+  const [formData, setFormData] = useState({
+    provider_name: 'Twilio',
+    account_sid: '',
+    auth_token: '',
+    from_number: '',
+    is_active: true,
+    test_mode: false,
+    monthly_limit: 1000,
+    webhook_url: ''
+  });
 
   useEffect(() => {
     loadConfiguration();
+    checkServiceHealth();
   }, []);
 
   const loadConfiguration = async () => {
     try {
       setLoading(true);
-      const { data, error } = await window.ezsite.apis.tablePage(24060, {
+      const { data, error } = await window.ezsite.apis.tablePage('12640', {
         PageNo: 1,
         PageSize: 1,
-        OrderByField: 'id',
+        OrderByField: 'ID',
         IsAsc: false,
         Filters: []
       });
 
-      if (error) throw new Error(error);
+      if (error) throw error;
 
       if (data?.List && data.List.length > 0) {
         const configData = data.List[0];
-        setConfig({
-          id: configData.id,
-          service_provider: 'Sinch ClickSend',
-          api_key: configData.api_key || '',
-          username: configData.username || '',
+        setConfig(configData);
+        setFormData({
+          provider_name: configData.provider_name || 'Twilio',
+          account_sid: configData.account_sid || '',
+          auth_token: configData.auth_token || '',
           from_number: configData.from_number || '',
-          is_enabled: configData.is_enabled || false,
-          daily_limit: configData.daily_limit || 100,
-          emergency_contacts: configData.emergency_contacts || '[]',
-          alert_types: configData.alert_types || '{}'
+          is_active: configData.is_active ?? true,
+          test_mode: configData.test_mode ?? false,
+          monthly_limit: configData.monthly_limit || 1000,
+          webhook_url: configData.webhook_url || ''
         });
-
-        if (configData.is_enabled && configData.api_key && configData.username) {
-          await checkServiceHealth();
-        }
+      } else {
+        // Load from environment variables if no DB config
+        setFormData({
+          ...formData,
+          account_sid: import.meta.env.VITE_TWILIO_ACCOUNT_SID || '',
+          auth_token: import.meta.env.VITE_TWILIO_AUTH_TOKEN || '',
+          from_number: import.meta.env.VITE_TWILIO_PHONE_NUMBER || '',
+          test_mode: import.meta.env.VITE_SMS_TEST_MODE === 'true',
+          webhook_url: import.meta.env.VITE_SMS_WEBHOOK_URL || ''
+        });
       }
     } catch (error) {
       console.error('Error loading configuration:', error);
@@ -105,150 +113,100 @@ const SMSConfigurationManager: React.FC = () => {
     }
   };
 
+  const checkServiceHealth = async () => {
+    try {
+      const health = await enhancedSmsService.getServiceHealth();
+      setServiceHealth(health);
+    } catch (error) {
+      console.error('Error checking service health:', error);
+    }
+  };
+
   const saveConfiguration = async () => {
     try {
-      setLoading(true);
+      setSaving(true);
 
-      const configData = {
-        ...config,
-        service_provider: 'Sinch ClickSend',
-        last_updated: new Date().toISOString(),
-        created_by: 1
-      };
-
-      if (config.id) {
-        const { error } = await window.ezsite.apis.tableUpdate(24060, {
+      if (config) {
+        // Update existing configuration
+        const { error } = await window.ezsite.apis.tableUpdate('12640', {
           ID: config.id,
-          ...configData
+          ...formData,
+          current_month_count: config.current_month_count // Preserve current count
         });
-        if (error) throw new Error(error);
+        if (error) throw error;
       } else {
-        const { error } = await window.ezsite.apis.tableCreate(24060, configData);
-        if (error) throw new Error(error);
+        // Create new configuration
+        const { error } = await window.ezsite.apis.tableCreate('12640', {
+          ...formData,
+          current_month_count: 0,
+          created_by: 1 // This should be the current user ID
+        });
+        if (error) throw error;
       }
 
       toast({
-        title: "Success",
-        description: "Sinch ClickSend configuration saved successfully",
+        title: "✅ Configuration Saved",
+        description: "SMS configuration has been saved successfully."
       });
 
       await loadConfiguration();
-      
-      if (config.is_enabled && config.api_key && config.username) {
-        await checkServiceHealth();
-      }
+      await checkServiceHealth();
     } catch (error) {
       console.error('Error saving configuration:', error);
       toast({
         title: "Error",
-        description: "Failed to save configuration",
+        description: "Failed to save SMS configuration",
         variant: "destructive"
       });
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
-  const checkServiceHealth = async () => {
+  const testConfiguration = async () => {
     try {
-      setLoading(true);
-      
-      if (!config.api_key || !config.username) {
-        setServiceHealth({ available: false, balance: 0, lastCheck: new Date(), responseTime: 0 });
-        return;
+      setTesting(true);
+      setTestResult(null);
+
+      if (!testPhoneNumber) {
+        throw new Error('Please enter a phone number for testing');
       }
 
-      const startTime = Date.now();
-      const credentials = btoa(`${config.username}:${config.api_key}`);
-      
-      const response = await fetch('https://rest.clicksend.com/v3/account', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Basic ${credentials}`,
-          'Content-Type': 'application/json',
-        },
+      // Initialize service with current configuration
+      await enhancedSmsService.initialize();
+
+      const result = await enhancedSmsService.sendProductionSMS({
+        to: testPhoneNumber,
+        content: `DFS Manager SMS Test - ${new Date().toLocaleString()}. Configuration is working correctly!`,
+        priority: 'low'
       });
 
-      const responseTime = Date.now() - startTime;
+      setTestResult({
+        success: result.success,
+        message: result.success ? 'Test SMS sent successfully!' : result.error || 'Test failed'
+      });
 
-      if (response.ok) {
-        const result = await response.json();
-        setServiceHealth({
-          available: true,
-          balance: result.data?.balance || 0,
-          lastCheck: new Date(),
-          responseTime
-        });
+      if (result.success) {
         toast({
-          title: "Service Check Successful",
-          description: "Sinch ClickSend service is available and working",
+          title: "✅ Test Successful",
+          description: "Test SMS sent successfully!"
         });
       } else {
-        setServiceHealth({ available: false, balance: 0, lastCheck: new Date(), responseTime });
         toast({
-          title: "Service Check Failed",
-          description: "Failed to connect to Sinch ClickSend. Please check your credentials.",
+          title: "❌ Test Failed",
+          description: result.error || 'Test failed',
           variant: "destructive"
         });
       }
     } catch (error) {
-      console.error('Service health check error:', error);
-      setServiceHealth({ available: false, balance: 0, lastCheck: new Date(), responseTime: 0 });
-      toast({
-        title: "Service Check Error",
-        description: "Network error while checking service health",
-        variant: "destructive"
+      const errorMessage = error instanceof Error ? error.message : 'Test failed';
+      setTestResult({
+        success: false,
+        message: errorMessage
       });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const sendTestMessage = async () => {
-    if (!testPhone) {
       toast({
         title: "Error",
-        description: "Please enter a phone number for testing",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!testPhone.match(/^\+[1-9]\d{1,14}$/)) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid phone number in E.164 format (+1234567890)",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      setTesting(true);
-
-      // Configure the SMS service with current settings
-      await smsService.configure({
-        apiKey: config.api_key,
-        username: config.username,
-        fromNumber: config.from_number,
-        testMode: false
-      });
-
-      const response = await smsService.testSMS(testPhone);
-
-      if (response.success) {
-        toast({
-          title: "Test Message Sent",
-          description: `Test message sent successfully to ${testPhone}`,
-        });
-      } else {
-        throw new Error(response.error || 'Failed to send test message');
-      }
-    } catch (error) {
-      console.error('Test message error:', error);
-      toast({
-        title: "Test Failed",
-        description: error instanceof Error ? error.message : "Failed to send test message",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
@@ -256,226 +214,311 @@ const SMSConfigurationManager: React.FC = () => {
     }
   };
 
-  const getServiceBadge = () => {
-    if (!serviceHealth) {
-      return (
-        <Badge variant="outline">
-          <Settings className="h-3 w-3 mr-1" />
-          Not Checked
-        </Badge>
-      );
-    }
+  const resetMonthlyCount = async () => {
+    if (!config) return;
 
-    return serviceHealth.available ? (
-      <Badge variant="secondary" className="text-green-700 bg-green-100">
-        <CheckCircle className="h-3 w-3 mr-1" />
-        Available
-      </Badge>
-    ) : (
-      <Badge variant="destructive">
-        <AlertCircle className="h-3 w-3 mr-1" />
-        Unavailable
-      </Badge>
-    );
+    try {
+      const { error } = await window.ezsite.apis.tableUpdate('12640', {
+        ID: config.id,
+        current_month_count: 0
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Count Reset",
+        description: "Monthly SMS count has been reset to 0."
+      });
+
+      await loadConfiguration();
+    } catch (error) {
+      console.error('Error resetting monthly count:', error);
+      toast({
+        title: "Error",
+        description: "Failed to reset monthly count",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const getHealthStatusBadge = () => {
+    if (!serviceHealth) return <Badge variant="secondary">Unknown</Badge>;
+
+    switch (serviceHealth.status) {
+      case 'healthy':
+        return <Badge className="bg-green-100 text-green-800">Healthy</Badge>;
+      case 'degraded':
+        return <Badge className="bg-yellow-100 text-yellow-800">Degraded</Badge>;
+      case 'down':
+        return <Badge className="bg-red-100 text-red-800">Down</Badge>;
+      default:
+        return <Badge variant="secondary">Unknown</Badge>;
+    }
+  };
+
+  const getHealthIcon = () => {
+    if (!serviceHealth) return <AlertTriangle className="w-5 h-5 text-gray-500" />;
+
+    switch (serviceHealth.status) {
+      case 'healthy':
+        return <CheckCircle className="w-5 h-5 text-green-500" />;
+      case 'degraded':
+        return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
+      case 'down':
+        return <XCircle className="w-5 h-5 text-red-500" />;
+      default:
+        return <AlertTriangle className="w-5 h-5 text-gray-500" />;
+    }
   };
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold flex items-center">
+            <Settings className="w-6 h-6 mr-2" />
+            SMS Configuration
+          </h2>
+          <p className="text-gray-600">Configure Twilio SMS service settings for automated alerts</p>
+        </div>
+        
+        <div className="flex items-center space-x-3">
+          {getHealthIcon()}
+          {getHealthStatusBadge()}
+        </div>
+      </div>
+
+      {/* Service Health Alert */}
+      {serviceHealth && serviceHealth.status !== 'healthy' &&
+      <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Service Health Warning:</strong> {serviceHealth.details?.message || 'SMS service is not operating normally'}
+          </AlertDescription>
+        </Alert>
+      }
+
+      {/* Configuration Form */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5" />
-            Sinch ClickSend Configuration
+          <CardTitle className="flex items-center">
+            <Shield className="w-5 h-5 mr-2" />
+            Twilio Configuration
           </CardTitle>
-          <CardDescription>
-            Configure your Sinch ClickSend SMS service for notifications and alerts
-          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="credentials" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="credentials">Credentials</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
-              <TabsTrigger value="testing">Testing</TabsTrigger>
-            </TabsList>
+        <CardContent className="space-y-6">
+          {loading ?
+          <div className="text-center py-8">
+              <p className="text-gray-600">Loading configuration...</p>
+            </div> :
 
-            <TabsContent value="credentials" className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">API Configuration</h3>
-                {getServiceBadge()}
+          <>
+              {/* Basic Settings */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="provider">Provider</Label>
+                  <Input
+                  id="provider"
+                  value={formData.provider_name}
+                  onChange={(e) => setFormData({ ...formData, provider_name: e.target.value })}
+                  disabled />
+
+                </div>
+                
+                <div>
+                  <Label htmlFor="from-number">From Phone Number</Label>
+                  <Input
+                  id="from-number"
+                  value={formData.from_number}
+                  onChange={(e) => setFormData({ ...formData, from_number: e.target.value })}
+                  placeholder="+1234567890" />
+
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="username" className="flex items-center gap-2">
-                    <User className="h-4 w-4" />
-                    Username
-                  </Label>
-                  <Input
-                    id="username"
-                    type="text"
-                    placeholder="Your Sinch ClickSend username"
-                    value={config.username}
-                    onChange={(e) => setConfig({ ...config, username: e.target.value })}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="api_key" className="flex items-center gap-2">
-                    <Key className="h-4 w-4" />
-                    API Key
-                  </Label>
-                  <Input
-                    id="api_key"
-                    type="password"
-                    placeholder="Your Sinch ClickSend API key"
-                    value={config.api_key}
-                    onChange={(e) => setConfig({ ...config, api_key: e.target.value })}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="from_number" className="flex items-center gap-2">
-                    <Phone className="h-4 w-4" />
-                    From Number
-                  </Label>
-                  <Input
-                    id="from_number"
-                    type="text"
-                    placeholder="+1234567890"
-                    value={config.from_number}
-                    onChange={(e) => setConfig({ ...config, from_number: e.target.value })}
-                  />
-                </div>
-
-                {serviceHealth && serviceHealth.available && (
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2">
-                      <DollarSign className="h-4 w-4" />
-                      Account Balance
-                    </Label>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-lg">
-                        ${serviceHealth.balance.toFixed(2)}
-                      </Badge>
-                      <span className="text-sm text-muted-foreground">
-                        Response: {serviceHealth.responseTime}ms
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex gap-2">
-                <Button 
-                  onClick={saveConfiguration} 
-                  disabled={loading}
-                  className="flex items-center gap-2"
-                >
-                  <Settings className="h-4 w-4" />
-                  {loading ? 'Saving...' : 'Save Configuration'}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={checkServiceHealth} 
-                  disabled={loading || !config.api_key || !config.username}
-                  className="flex items-center gap-2"
-                >
-                  <Zap className="h-4 w-4" />
-                  Check Service
-                </Button>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="settings" className="space-y-4">
+              {/* Credentials */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Enable SMS Service</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Enable or disable SMS notifications globally
-                    </p>
+                  <h3 className="text-lg font-medium flex items-center">
+                    <Key className="w-5 h-5 mr-2" />
+                    API Credentials
+                  </h3>
+                  <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowTokens(!showTokens)}>
+
+                    {showTokens ? 'Hide' : 'Show'} Tokens
+                  </Button>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="account-sid">Account SID</Label>
+                    <Input
+                    id="account-sid"
+                    type={showTokens ? 'text' : 'password'}
+                    value={formData.account_sid}
+                    onChange={(e) => setFormData({ ...formData, account_sid: e.target.value })}
+                    placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
+
                   </div>
-                  <Switch
-                    checked={config.is_enabled}
-                    onCheckedChange={(checked) => setConfig({ ...config, is_enabled: checked })}
-                  />
-                </div>
+                  
+                  <div>
+                    <Label htmlFor="auth-token">Auth Token</Label>
+                    <Input
+                    id="auth-token"
+                    type={showTokens ? 'text' : 'password'}
+                    value={formData.auth_token}
+                    onChange={(e) => setFormData({ ...formData, auth_token: e.target.value })}
+                    placeholder="Your Twilio Auth Token" />
 
-                <div className="space-y-2">
-                  <Label htmlFor="daily_limit">Daily SMS Limit</Label>
-                  <Input
-                    id="daily_limit"
-                    type="number"
-                    min="1"
-                    max="1000"
-                    value={config.daily_limit}
-                    onChange={(e) => setConfig({ ...config, daily_limit: parseInt(e.target.value) || 100 })}
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Maximum number of SMS messages that can be sent per day
-                  </p>
+                  </div>
                 </div>
-
-                <Alert>
-                  <MessageSquare className="h-4 w-4" />
-                  <AlertDescription>
-                    Changes to these settings will take effect immediately for new SMS requests.
-                  </AlertDescription>
-                </Alert>
               </div>
-            </TabsContent>
 
-            <TabsContent value="testing" className="space-y-4">
+              {/* Advanced Settings */}
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="test_phone">Test Phone Number</Label>
-                  <Input
-                    id="test_phone"
-                    type="text"
-                    placeholder="+1234567890"
-                    value={testPhone}
-                    onChange={(e) => setTestPhone(e.target.value)}
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Enter a phone number in E.164 format to send a test message
-                  </p>
+                <h3 className="text-lg font-medium flex items-center">
+                  <Globe className="w-5 h-5 mr-2" />
+                  Advanced Settings
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="monthly-limit">Monthly SMS Limit</Label>
+                    <Input
+                    id="monthly-limit"
+                    type="number"
+                    value={formData.monthly_limit}
+                    onChange={(e) => setFormData({ ...formData, monthly_limit: parseInt(e.target.value) || 1000 })} />
+
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="webhook-url">Webhook URL (Optional)</Label>
+                    <Input
+                    id="webhook-url"
+                    value={formData.webhook_url}
+                    onChange={(e) => setFormData({ ...formData, webhook_url: e.target.value })}
+                    placeholder="https://your-domain.com/webhooks/sms" />
+
+                  </div>
                 </div>
+                
+                <div className="flex items-center space-x-6">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                    id="active"
+                    checked={formData.is_active}
+                    onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })} />
 
-                <Button 
-                  onClick={sendTestMessage} 
-                  disabled={testing || !config.is_enabled || !testPhone || !config.api_key || !config.username}
-                  className="flex items-center gap-2"
-                >
-                  <Send className="h-4 w-4" />
-                  {testing ? 'Sending...' : 'Send Test Message'}
-                </Button>
+                    <Label htmlFor="active">Service Active</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                    id="test-mode"
+                    checked={formData.test_mode}
+                    onCheckedChange={(checked) => setFormData({ ...formData, test_mode: checked })} />
 
-                {serviceHealth?.available && (
-                  <Alert>
-                    <CheckCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      Sinch ClickSend is configured and ready to send SMS messages.
-                      Balance: ${serviceHealth.balance.toFixed(2)}
-                    </AlertDescription>
-                  </Alert>
-                )}
-
-                {serviceHealth?.available === false && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      Connection to Sinch ClickSend failed. Please check your credentials and network connection.
-                    </AlertDescription>
-                  </Alert>
-                )}
+                    <Label htmlFor="test-mode">Test Mode</Label>
+                  </div>
+                </div>
               </div>
-            </TabsContent>
-          </Tabs>
+
+              {/* Current Usage */}
+              {config &&
+            <div className="border-t pt-4">
+                  <h3 className="text-lg font-medium mb-4">Current Usage</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-700">{config.current_month_count}</div>
+                      <p className="text-sm text-blue-600">Messages Sent This Month</p>
+                    </div>
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <div className="text-2xl font-bold text-green-700">{config.monthly_limit - config.current_month_count}</div>
+                      <p className="text-sm text-green-600">Messages Remaining</p>
+                    </div>
+                    <div className="bg-purple-50 p-4 rounded-lg">
+                      <div className="text-2xl font-bold text-purple-700">
+                        {Math.round(config.current_month_count / config.monthly_limit * 100)}%
+                      </div>
+                      <p className="text-sm text-purple-600">Usage Percentage</p>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <Button variant="outline" size="sm" onClick={resetMonthlyCount}>
+                      Reset Monthly Count
+                    </Button>
+                  </div>
+                </div>
+            }
+
+              {/* Action Buttons */}
+              <div className="flex space-x-4">
+                <Button
+                onClick={saveConfiguration}
+                disabled={saving || !formData.account_sid || !formData.auth_token || !formData.from_number}
+                className="bg-blue-600 hover:bg-blue-700">
+
+                  <Save className="w-4 h-4 mr-2" />
+                  {saving ? 'Saving...' : 'Save Configuration'}
+                </Button>
+              </div>
+            </>
+          }
         </CardContent>
       </Card>
-    </div>
-  );
+
+      {/* Test Configuration */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <TestTube className="w-5 h-5 mr-2" />
+            Test Configuration
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="test-phone">Test Phone Number</Label>
+            <Input
+              id="test-phone"
+              value={testPhoneNumber}
+              onChange={(e) => setTestPhoneNumber(e.target.value)}
+              placeholder="+1234567890" />
+
+            <p className="text-sm text-gray-500 mt-1">
+              Enter a phone number to send a test SMS (use E.164 format: +1234567890)
+            </p>
+          </div>
+          
+          <Button
+            onClick={testConfiguration}
+            disabled={testing || !testPhoneNumber || !formData.account_sid || !formData.auth_token}
+            variant="outline">
+
+            <Zap className="w-4 h-4 mr-2" />
+            {testing ? 'Sending Test...' : 'Send Test SMS'}
+          </Button>
+          
+          {testResult &&
+          <Alert className={testResult.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}>
+              {testResult.success ?
+            <CheckCircle className="h-4 w-4 text-green-600" /> :
+
+            <XCircle className="h-4 w-4 text-red-600" />
+            }
+              <AlertDescription className={testResult.success ? 'text-green-700' : 'text-red-700'}>
+                {testResult.message}
+              </AlertDescription>
+            </Alert>
+          }
+        </CardContent>
+      </Card>
+    </div>);
+
 };
 
 export default SMSConfigurationManager;

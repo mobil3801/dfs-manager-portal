@@ -18,8 +18,8 @@ export interface SMSAnalytics {
   totalFailed: number;
   deliveryRate: number;
   averageCost: number;
-  topRecipients: { phone: string; count: number }[];
-  dailyStats: { date: string; sent: number; delivered: number }[];
+  topRecipients: {phone: string;count: number;}[];
+  dailyStats: {date: string;sent: number;delivered: number;}[];
 }
 
 export interface BulkSMSJob {
@@ -35,15 +35,15 @@ export interface BulkSMSJob {
 
 class EnhancedSMSService {
   private jobQueue: Map<string, BulkSMSJob> = new Map();
-  private retryQueue: Array<{ message: SMSMessage; attempts: number; maxAttempts: number }> = [];
+  private retryQueue: Array<{message: SMSMessage;attempts: number;maxAttempts: number;}> = [];
 
   constructor(private baseService = smsService) {}
 
   async sendAdvancedSMS(
-    phoneNumber: string,
-    message: string,
-    options: AdvancedSMSOptions = {}
-  ): Promise<SMSResponse> {
+  phoneNumber: string,
+  message: string,
+  options: AdvancedSMSOptions = {})
+  : Promise<SMSResponse> {
     try {
       // Process template variables if provided
       let processedMessage = message;
@@ -86,7 +86,7 @@ class EnhancedSMSService {
 
   private processMessageTemplate(template: string, variables: Record<string, string>): string {
     let processedMessage = template;
-    
+
     // Replace variables in template
     Object.entries(variables).forEach(([key, value]) => {
       const regex = new RegExp(`{{${key}}}`, 'g');
@@ -97,14 +97,14 @@ class EnhancedSMSService {
   }
 
   private async scheduleMessage(
-    phoneNumber: string,
-    message: string,
-    options: AdvancedSMSOptions
-  ): Promise<SMSResponse> {
+  phoneNumber: string,
+  message: string,
+  options: AdvancedSMSOptions)
+  : Promise<SMSResponse> {
     // In a real implementation, this would integrate with a job scheduler
     // For now, we'll use setTimeout for simple scheduling
     const delay = options.scheduledTime!.getTime() - Date.now();
-    
+
     if (delay > 0) {
       setTimeout(async () => {
         await this.baseService.sendSMS({
@@ -143,10 +143,10 @@ class EnhancedSMSService {
 
     for (const item of retryItems) {
       item.attempts++;
-      
+
       try {
         const response = await this.baseService.sendSMS(item.message);
-        
+
         if (!response.success && item.attempts < item.maxAttempts) {
           // Add back to retry queue with exponential backoff
           setTimeout(() => {
@@ -160,10 +160,10 @@ class EnhancedSMSService {
   }
 
   async sendBulkSMSWithProgress(
-    messages: Array<{ phoneNumber: string; message: string; options?: AdvancedSMSOptions }>
-  ): Promise<BulkSMSJob> {
+  messages: Array<{phoneNumber: string;message: string;options?: AdvancedSMSOptions;}>)
+  : Promise<BulkSMSJob> {
     const jobId = `bulk_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+
     const job: BulkSMSJob = {
       id: jobId,
       status: 'pending',
@@ -182,9 +182,9 @@ class EnhancedSMSService {
   }
 
   private async processBulkJob(
-    jobId: string,
-    messages: Array<{ phoneNumber: string; message: string; options?: AdvancedSMSOptions }>
-  ): Promise<void> {
+  jobId: string,
+  messages: Array<{phoneNumber: string;message: string;options?: AdvancedSMSOptions;}>)
+  : Promise<void> {
     const job = this.jobQueue.get(jobId);
     if (!job) return;
 
@@ -193,7 +193,7 @@ class EnhancedSMSService {
     for (const { phoneNumber, message, options } of messages) {
       try {
         const response = await this.sendAdvancedSMS(phoneNumber, message, options || {});
-        
+
         if (response.success) {
           job.sentMessages++;
         } else {
@@ -201,7 +201,7 @@ class EnhancedSMSService {
         }
 
         // Add delay between messages to respect rate limits
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise((resolve) => setTimeout(resolve, 200));
       } catch (error) {
         job.failedMessages++;
         console.error(`Bulk SMS error for ${phoneNumber}:`, error);
@@ -216,7 +216,7 @@ class EnhancedSMSService {
     return this.jobQueue.get(jobId) || null;
   }
 
-  async getSMSAnalytics(dateRange?: { start: Date; end: Date }): Promise<SMSAnalytics> {
+  async getSMSAnalytics(dateRange?: {start: Date;end: Date;}): Promise<SMSAnalytics> {
     try {
       // Build date filter
       const filters: any[] = [];
@@ -244,7 +244,7 @@ class EnhancedSMSService {
       const totalSent = messages.length;
       const totalDelivered = messages.filter((m: any) => m.status === 'Delivered').length;
       const totalFailed = messages.filter((m: any) => m.status === 'Failed').length;
-      const deliveryRate = totalSent > 0 ? (totalDelivered / totalSent) * 100 : 0;
+      const deliveryRate = totalSent > 0 ? totalDelivered / totalSent * 100 : 0;
 
       const totalCost = messages.reduce((sum: number, m: any) => sum + (m.cost || 0), 0);
       const averageCost = totalSent > 0 ? totalCost / totalSent : 0;
@@ -255,10 +255,10 @@ class EnhancedSMSService {
         return acc;
       }, {});
 
-      const topRecipients = Object.entries(recipientCounts)
-        .map(([phone, count]) => ({ phone, count: count as number }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
+      const topRecipients = Object.entries(recipientCounts).
+      map(([phone, count]) => ({ phone, count: count as number })).
+      sort((a, b) => b.count - a.count).
+      slice(0, 10);
 
       // Daily stats (last 30 days)
       const dailyStats = this.calculateDailyStats(messages);
@@ -278,8 +278,8 @@ class EnhancedSMSService {
     }
   }
 
-  private calculateDailyStats(messages: any[]): { date: string; sent: number; delivered: number }[] {
-    const dailyMap = new Map<string, { sent: number; delivered: number }>();
+  private calculateDailyStats(messages: any[]): {date: string;sent: number;delivered: number;}[] {
+    const dailyMap = new Map<string, {sent: number;delivered: number;}>();
 
     messages.forEach((message) => {
       const date = message.sent_at?.split('T')[0];
@@ -296,18 +296,18 @@ class EnhancedSMSService {
       }
     });
 
-    return Array.from(dailyMap.entries())
-      .map(([date, stats]) => ({ date, ...stats }))
-      .sort((a, b) => a.date.localeCompare(b.date))
-      .slice(-30); // Last 30 days
+    return Array.from(dailyMap.entries()).
+    map(([date, stats]) => ({ date, ...stats })).
+    sort((a, b) => a.date.localeCompare(b.date)).
+    slice(-30); // Last 30 days
   }
 
   private async logAdvancedAnalytics(
-    phoneNumber: string,
-    message: string,
-    response: SMSResponse,
-    options: AdvancedSMSOptions
-  ): Promise<void> {
+  phoneNumber: string,
+  message: string,
+  response: SMSResponse,
+  options: AdvancedSMSOptions)
+  : Promise<void> {
     // This would integrate with your analytics service
     // For now, we'll just log to console
     console.log('SMS Analytics:', {
@@ -321,9 +321,9 @@ class EnhancedSMSService {
   }
 
   async sendEmergencyAlert(
-    message: string,
-    options: AdvancedSMSOptions = {}
-  ): Promise<SMSResponse[]> {
+  message: string,
+  options: AdvancedSMSOptions = {})
+  : Promise<SMSResponse[]> {
     try {
       // Get emergency contacts from settings
       const { data, error } = await window.ezsite.apis.tablePage(24061, {
@@ -332,9 +332,9 @@ class EnhancedSMSService {
         OrderByField: 'id',
         IsAsc: false,
         Filters: [
-          { name: 'is_emergency', op: 'Equal', value: true },
-          { name: 'is_active', op: 'Equal', value: true }
-        ]
+        { name: 'is_emergency', op: 'Equal', value: true },
+        { name: 'is_active', op: 'Equal', value: true }]
+
       });
 
       if (error) throw new Error(error);
@@ -351,7 +351,7 @@ class EnhancedSMSService {
         results.push(response);
 
         // Small delay between emergency messages
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
       }
 
       return results;
@@ -361,11 +361,11 @@ class EnhancedSMSService {
     }
   }
 
-  async validatePhoneNumbers(phoneNumbers: string[]): Promise<{ valid: string[]; invalid: string[] }> {
+  async validatePhoneNumbers(phoneNumbers: string[]): Promise<{valid: string[];invalid: string[];}> {
     const valid: string[] = [];
     const invalid: string[] = [];
 
-    phoneNumbers.forEach(phoneNumber => {
+    phoneNumbers.forEach((phoneNumber) => {
       // E.164 format validation
       const e164Regex = /^\+[1-9]\d{1,14}$/;
       if (e164Regex.test(phoneNumber)) {
@@ -386,7 +386,7 @@ class EnhancedSMSService {
     balance: number;
   }> {
     const startTime = Date.now();
-    
+
     try {
       const isConfigured = this.baseService.isServiceConfigured();
       if (!isConfigured) {
@@ -412,13 +412,13 @@ class EnhancedSMSService {
         OrderByField: 'sent_at',
         IsAsc: false,
         Filters: [
-          { name: 'sent_at', op: 'GreaterThanOrEqual', value: yesterday.toISOString() }
-        ]
+        { name: 'sent_at', op: 'GreaterThanOrEqual', value: yesterday.toISOString() }]
+
       });
 
       const messages = recentMessages?.List || [];
       const failedCount = messages.filter((m: any) => m.status === 'Failed').length;
-      const errorRate = messages.length > 0 ? (failedCount / messages.length) * 100 : 0;
+      const errorRate = messages.length > 0 ? failedCount / messages.length * 100 : 0;
 
       const balance = await this.baseService.getAccountBalance();
 
@@ -450,10 +450,10 @@ class EnhancedSMSService {
 
   // Template management
   async createMessageTemplate(
-    name: string,
-    content: string,
-    type: string = 'custom'
-  ): Promise<void> {
+  name: string,
+  content: string,
+  type: string = 'custom')
+  : Promise<void> {
     try {
       await window.ezsite.apis.tableCreate('sms_templates', {
         template_name: name,

@@ -275,6 +275,8 @@ export class InvariantErrorFixer {
 
 
 
+
+
           // Empty batched update to flush pending work
         });} // Force a repaint
       document.body.style.display = 'none';document.body.offsetHeight; // Trigger reflow
@@ -283,9 +285,7 @@ export class InvariantErrorFixer {
   */async fixAllIssues(): Promise<FixResult[]> {const results: FixResult[] = [];console.log('Running comprehensive invariant error fixes...');try {results.push(await this.fixDuplicateKeys());results.push(await this.addMissingKeys());results.push(await this.fixInvalidNesting());results.push(await this.cleanupEventListeners());results.push(await this.flushReactUpdates());const totalFixed = results.filter((r) => r.fixed).length;console.log(`Invariant fixes completed: ${totalFixed}/${results.length} fixes applied`);return results;} catch (error) {console.error('Error running comprehensive fixes:', error);return [{ fixed: false, message: `Error running comprehensive fixes: ${error instanceof Error ? error.message : 'Unknown error'}`, details: { error } }];}} /**
   * Validate DOM structure for potential issues
   */validateDOMStructure(): {isValid: boolean;issues: string[];} {const issues: string[] = [];try {// Check for duplicate IDs
-      const elementsWithIds = document.querySelectorAll('[id]');const idMap = new Map<string, number>();elementsWithIds.forEach((element) => {const id = element.getAttribute('id')!;idMap.set(id, (idMap.get(id) || 0) + 1);});idMap.forEach((count, id) => {if (count > 1) {issues.push(`Duplicate ID found: "${id}" (${count} occurrences)`);}
-        });
-
+      const elementsWithIds = document.querySelectorAll('[id]');const idMap = new Map<string, number>();elementsWithIds.forEach((element) => {const id = element.getAttribute('id')!;idMap.set(id, (idMap.get(id) || 0) + 1);});idMap.forEach((count, id) => {if (count > 1) {issues.push(`Duplicate ID found: "${id}" (${count} occurrences)`);}});
       // Check for invalid nesting
       const invalidNestings = [
       'p div', 'p p', 'a a', 'button button', 'form form'];
