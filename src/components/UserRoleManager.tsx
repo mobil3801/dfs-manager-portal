@@ -100,70 +100,70 @@ const UserRoleManager: React.FC = () => {
 
   const createDefaultRoles = async () => {
     const defaultRoles = [
-      {
-        role_name: 'admin',
-        role_display_name: 'Administrator',
-        role_description: 'Full system access with all permissions',
-        permissions_json: JSON.stringify({
-          users: { view: true, create: true, edit: true, delete: true },
-          products: { view: true, create: true, edit: true, delete: true },
-          sales: { view: true, create: true, edit: true, delete: true },
-          employees: { view: true, create: true, edit: true, delete: true },
-          vendors: { view: true, create: true, edit: true, delete: true },
-          orders: { view: true, create: true, edit: true, delete: true },
-          licenses: { view: true, create: true, edit: true, delete: true },
-          salary: { view: true, create: true, edit: true, delete: true },
-          inventory: { view: true, create: true, edit: true, delete: true },
-          delivery: { view: true, create: true, edit: true, delete: true },
-          settings: { view: true, create: true, edit: true, delete: true }
-        }),
-        is_active: true,
-        is_system_role: true,
-        created_by: 1
-      },
-      {
-        role_name: 'manager',
-        role_display_name: 'Manager',
-        role_description: 'Station management with limited administrative access',
-        permissions_json: JSON.stringify({
-          users: { view: true, create: false, edit: false, delete: false },
-          products: { view: true, create: true, edit: true, delete: false },
-          sales: { view: true, create: true, edit: true, delete: false },
-          employees: { view: true, create: true, edit: true, delete: false },
-          vendors: { view: true, create: true, edit: true, delete: false },
-          orders: { view: true, create: true, edit: true, delete: false },
-          licenses: { view: true, create: false, edit: false, delete: false },
-          salary: { view: true, create: true, edit: true, delete: false },
-          inventory: { view: true, create: true, edit: true, delete: false },
-          delivery: { view: true, create: true, edit: true, delete: false },
-          settings: { view: false, create: false, edit: false, delete: false }
-        }),
-        is_active: true,
-        is_system_role: true,
-        created_by: 1
-      },
-      {
-        role_name: 'employee',
-        role_display_name: 'Employee',
-        role_description: 'Basic access for daily operations',
-        permissions_json: JSON.stringify({
-          users: { view: false, create: false, edit: false, delete: false },
-          products: { view: true, create: false, edit: false, delete: false },
-          sales: { view: true, create: true, edit: false, delete: false },
-          employees: { view: false, create: false, edit: false, delete: false },
-          vendors: { view: false, create: false, edit: false, delete: false },
-          orders: { view: true, create: false, edit: false, delete: false },
-          licenses: { view: false, create: false, edit: false, delete: false },
-          salary: { view: false, create: false, edit: false, delete: false },
-          inventory: { view: true, create: false, edit: false, delete: false },
-          delivery: { view: true, create: false, edit: false, delete: false },
-          settings: { view: false, create: false, edit: false, delete: false }
-        }),
-        is_active: true,
-        is_system_role: true,
-        created_by: 1
-      }
-    ];
+    {
+      role_name: 'admin',
+      role_display_name: 'Administrator',
+      role_description: 'Full system access with all permissions',
+      permissions_json: JSON.stringify({
+        users: { view: true, create: true, edit: true, delete: true },
+        products: { view: true, create: true, edit: true, delete: true },
+        sales: { view: true, create: true, edit: true, delete: true },
+        employees: { view: true, create: true, edit: true, delete: true },
+        vendors: { view: true, create: true, edit: true, delete: true },
+        orders: { view: true, create: true, edit: true, delete: true },
+        licenses: { view: true, create: true, edit: true, delete: true },
+        salary: { view: true, create: true, edit: true, delete: true },
+        inventory: { view: true, create: true, edit: true, delete: true },
+        delivery: { view: true, create: true, edit: true, delete: true },
+        settings: { view: true, create: true, edit: true, delete: true }
+      }),
+      is_active: true,
+      is_system_role: true,
+      created_by: 1
+    },
+    {
+      role_name: 'manager',
+      role_display_name: 'Manager',
+      role_description: 'Station management with limited administrative access',
+      permissions_json: JSON.stringify({
+        users: { view: true, create: false, edit: false, delete: false },
+        products: { view: true, create: true, edit: true, delete: false },
+        sales: { view: true, create: true, edit: true, delete: false },
+        employees: { view: true, create: true, edit: true, delete: false },
+        vendors: { view: true, create: true, edit: true, delete: false },
+        orders: { view: true, create: true, edit: true, delete: false },
+        licenses: { view: true, create: false, edit: false, delete: false },
+        salary: { view: true, create: true, edit: true, delete: false },
+        inventory: { view: true, create: true, edit: true, delete: false },
+        delivery: { view: true, create: true, edit: true, delete: false },
+        settings: { view: false, create: false, edit: false, delete: false }
+      }),
+      is_active: true,
+      is_system_role: true,
+      created_by: 1
+    },
+    {
+      role_name: 'employee',
+      role_display_name: 'Employee',
+      role_description: 'Basic access for daily operations',
+      permissions_json: JSON.stringify({
+        users: { view: false, create: false, edit: false, delete: false },
+        products: { view: true, create: false, edit: false, delete: false },
+        sales: { view: true, create: true, edit: false, delete: false },
+        employees: { view: false, create: false, edit: false, delete: false },
+        vendors: { view: false, create: false, edit: false, delete: false },
+        orders: { view: true, create: false, edit: false, delete: false },
+        licenses: { view: false, create: false, edit: false, delete: false },
+        salary: { view: false, create: false, edit: false, delete: false },
+        inventory: { view: true, create: false, edit: false, delete: false },
+        delivery: { view: true, create: false, edit: false, delete: false },
+        settings: { view: false, create: false, edit: false, delete: false }
+      }),
+      is_active: true,
+      is_system_role: true,
+      created_by: 1
+    }];
+
 
     for (const role of defaultRoles) {
       try {
@@ -198,8 +198,8 @@ const UserRoleManager: React.FC = () => {
       }
 
       // Update local state
-      setUsers(prev => prev.map(user => 
-        user.id === userId ? { ...user, role: newRole } : user
+      setUsers((prev) => prev.map((user) =>
+      user.id === userId ? { ...user, role: newRole } : user
       ));
 
       toast({ title: 'Success', description: 'User role updated successfully' });
@@ -223,8 +223,8 @@ const UserRoleManager: React.FC = () => {
       }
 
       // Update local state
-      setUsers(prev => prev.map(user => 
-        user.id === userId ? { ...user, status: newStatus } : user
+      setUsers((prev) => prev.map((user) =>
+      user.id === userId ? { ...user, status: newStatus } : user
       ));
 
       toast({ title: 'Success', description: 'User status updated successfully' });
@@ -236,19 +236,19 @@ const UserRoleManager: React.FC = () => {
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'admin': return 'bg-red-100 text-red-800';
-      case 'manager': return 'bg-blue-100 text-blue-800';
-      case 'employee': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'admin':return 'bg-red-100 text-red-800';
+      case 'manager':return 'bg-blue-100 text-blue-800';
+      case 'employee':return 'bg-green-100 text-green-800';
+      default:return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'inactive': return 'bg-gray-100 text-gray-800';
-      case 'suspended': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'active':return 'bg-green-100 text-green-800';
+      case 'inactive':return 'bg-gray-100 text-gray-800';
+      case 'suspended':return 'bg-red-100 text-red-800';
+      default:return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -256,8 +256,8 @@ const UserRoleManager: React.FC = () => {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -284,31 +284,31 @@ const UserRoleManager: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {roles.map((role) => (
-              <div key={role.id} className="border rounded-lg p-4">
+            {roles.map((role) =>
+            <div key={role.id} className="border rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
                   <Badge className={getRoleColor(role.role_name)}>
                     {role.role_display_name}
                   </Badge>
-                  {!role.is_system_role && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setEditingRole(role);
-                        setShowRoleDialog(true);
-                      }}
-                    >
+                  {!role.is_system_role &&
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setEditingRole(role);
+                    setShowRoleDialog(true);
+                  }}>
+
                       <Edit className="h-3 w-3" />
                     </Button>
-                  )}
+                }
                 </div>
                 <p className="text-sm text-muted-foreground">{role.role_description}</p>
                 <div className="mt-2 text-xs">
-                  Users: {users.filter(u => u.role === role.role_name).length}
+                  Users: {users.filter((u) => u.role === role.role_name).length}
                 </div>
               </div>
-            ))}
+            )}
           </div>
         </CardContent>
       </Card>
@@ -321,8 +321,8 @@ const UserRoleManager: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {users.map((user) => (
-              <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
+            {users.map((user) =>
+            <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center gap-4">
                   <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full">
                     <User className="h-5 w-5 text-blue-600" />
@@ -336,7 +336,7 @@ const UserRoleManager: React.FC = () => {
                 <div className="flex items-center gap-4">
                   <div className="flex flex-col gap-2">
                     <Badge className={getRoleColor(user.role)}>
-                      {roles.find(r => r.role_name === user.role)?.role_display_name || user.role}
+                      {roles.find((r) => r.role_name === user.role)?.role_display_name || user.role}
                     </Badge>
                     <Badge className={getStatusColor(user.status)}>
                       {user.status}
@@ -344,24 +344,24 @@ const UserRoleManager: React.FC = () => {
                   </div>
                   <div className="flex gap-2">
                     <Select
-                      value={user.role}
-                      onValueChange={(value) => handleUpdateUserRole(user.id, value)}
-                    >
+                    value={user.role}
+                    onValueChange={(value) => handleUpdateUserRole(user.id, value)}>
+
                       <SelectTrigger className="w-32">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {roles.filter(r => r.is_active).map((role) => (
-                          <SelectItem key={role.id} value={role.role_name}>
+                        {roles.filter((r) => r.is_active).map((role) =>
+                      <SelectItem key={role.id} value={role.role_name}>
                             {role.role_display_name}
                           </SelectItem>
-                        ))}
+                      )}
                       </SelectContent>
                     </Select>
                     <Select
-                      value={user.status}
-                      onValueChange={(value) => handleUpdateUserStatus(user.id, value)}
-                    >
+                    value={user.status}
+                    onValueChange={(value) => handleUpdateUserStatus(user.id, value)}>
+
                       <SelectTrigger className="w-32">
                         <SelectValue />
                       </SelectTrigger>
@@ -374,7 +374,7 @@ const UserRoleManager: React.FC = () => {
                   </div>
                 </div>
               </div>
-            ))}
+            )}
           </div>
         </CardContent>
       </Card>
@@ -406,8 +406,8 @@ const UserRoleManager: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 };
 
 export default UserRoleManager;

@@ -141,70 +141,70 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const createDefaultRoles = async () => {
     const defaultRoles = [
-      {
-        role_name: 'admin',
-        role_display_name: 'Administrator',
-        role_description: 'Full system access with all permissions',
-        permissions_json: JSON.stringify({
-          users: { view: true, create: true, edit: true, delete: true },
-          products: { view: true, create: true, edit: true, delete: true },
-          sales: { view: true, create: true, edit: true, delete: true },
-          employees: { view: true, create: true, edit: true, delete: true },
-          vendors: { view: true, create: true, edit: true, delete: true },
-          orders: { view: true, create: true, edit: true, delete: true },
-          licenses: { view: true, create: true, edit: true, delete: true },
-          salary: { view: true, create: true, edit: true, delete: true },
-          inventory: { view: true, create: true, edit: true, delete: true },
-          delivery: { view: true, create: true, edit: true, delete: true },
-          settings: { view: true, create: true, edit: true, delete: true }
-        }),
-        is_active: true,
-        is_system_role: true,
-        created_by: 1
-      },
-      {
-        role_name: 'manager',
-        role_display_name: 'Manager',
-        role_description: 'Station management with limited administrative access',
-        permissions_json: JSON.stringify({
-          users: { view: true, create: false, edit: false, delete: false },
-          products: { view: true, create: true, edit: true, delete: false },
-          sales: { view: true, create: true, edit: true, delete: false },
-          employees: { view: true, create: true, edit: true, delete: false },
-          vendors: { view: true, create: true, edit: true, delete: false },
-          orders: { view: true, create: true, edit: true, delete: false },
-          licenses: { view: true, create: false, edit: false, delete: false },
-          salary: { view: true, create: true, edit: true, delete: false },
-          inventory: { view: true, create: true, edit: true, delete: false },
-          delivery: { view: true, create: true, edit: true, delete: false },
-          settings: { view: false, create: false, edit: false, delete: false }
-        }),
-        is_active: true,
-        is_system_role: true,
-        created_by: 1
-      },
-      {
-        role_name: 'employee',
-        role_display_name: 'Employee',
-        role_description: 'Basic access for daily operations',
-        permissions_json: JSON.stringify({
-          users: { view: false, create: false, edit: false, delete: false },
-          products: { view: true, create: false, edit: false, delete: false },
-          sales: { view: true, create: true, edit: false, delete: false },
-          employees: { view: false, create: false, edit: false, delete: false },
-          vendors: { view: false, create: false, edit: false, delete: false },
-          orders: { view: true, create: false, edit: false, delete: false },
-          licenses: { view: false, create: false, edit: false, delete: false },
-          salary: { view: false, create: false, edit: false, delete: false },
-          inventory: { view: true, create: false, edit: false, delete: false },
-          delivery: { view: true, create: false, edit: false, delete: false },
-          settings: { view: false, create: false, edit: false, delete: false }
-        }),
-        is_active: true,
-        is_system_role: true,
-        created_by: 1
-      }
-    ];
+    {
+      role_name: 'admin',
+      role_display_name: 'Administrator',
+      role_description: 'Full system access with all permissions',
+      permissions_json: JSON.stringify({
+        users: { view: true, create: true, edit: true, delete: true },
+        products: { view: true, create: true, edit: true, delete: true },
+        sales: { view: true, create: true, edit: true, delete: true },
+        employees: { view: true, create: true, edit: true, delete: true },
+        vendors: { view: true, create: true, edit: true, delete: true },
+        orders: { view: true, create: true, edit: true, delete: true },
+        licenses: { view: true, create: true, edit: true, delete: true },
+        salary: { view: true, create: true, edit: true, delete: true },
+        inventory: { view: true, create: true, edit: true, delete: true },
+        delivery: { view: true, create: true, edit: true, delete: true },
+        settings: { view: true, create: true, edit: true, delete: true }
+      }),
+      is_active: true,
+      is_system_role: true,
+      created_by: 1
+    },
+    {
+      role_name: 'manager',
+      role_display_name: 'Manager',
+      role_description: 'Station management with limited administrative access',
+      permissions_json: JSON.stringify({
+        users: { view: true, create: false, edit: false, delete: false },
+        products: { view: true, create: true, edit: true, delete: false },
+        sales: { view: true, create: true, edit: true, delete: false },
+        employees: { view: true, create: true, edit: true, delete: false },
+        vendors: { view: true, create: true, edit: true, delete: false },
+        orders: { view: true, create: true, edit: true, delete: false },
+        licenses: { view: true, create: false, edit: false, delete: false },
+        salary: { view: true, create: true, edit: true, delete: false },
+        inventory: { view: true, create: true, edit: true, delete: false },
+        delivery: { view: true, create: true, edit: true, delete: false },
+        settings: { view: false, create: false, edit: false, delete: false }
+      }),
+      is_active: true,
+      is_system_role: true,
+      created_by: 1
+    },
+    {
+      role_name: 'employee',
+      role_display_name: 'Employee',
+      role_description: 'Basic access for daily operations',
+      permissions_json: JSON.stringify({
+        users: { view: false, create: false, edit: false, delete: false },
+        products: { view: true, create: false, edit: false, delete: false },
+        sales: { view: true, create: true, edit: false, delete: false },
+        employees: { view: false, create: false, edit: false, delete: false },
+        vendors: { view: false, create: false, edit: false, delete: false },
+        orders: { view: true, create: false, edit: false, delete: false },
+        licenses: { view: false, create: false, edit: false, delete: false },
+        salary: { view: false, create: false, edit: false, delete: false },
+        inventory: { view: true, create: false, edit: false, delete: false },
+        delivery: { view: true, create: false, edit: false, delete: false },
+        settings: { view: false, create: false, edit: false, delete: false }
+      }),
+      is_active: true,
+      is_system_role: true,
+      created_by: 1
+    }];
+
 
     for (const role of defaultRoles) {
       try {
@@ -324,7 +324,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       setUserProfile((prev) => prev ? { ...prev, ...updatedData } : null);
-      
+
       // Reload role if role was changed
       if (updatedData.role && updatedData.role !== userProfile.role) {
         const { data: roleData } = await window.ezsite.apis.tablePage(USER_ROLES_TABLE_ID, {
