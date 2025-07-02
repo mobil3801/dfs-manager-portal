@@ -82,9 +82,9 @@ class ClickSendSMSService {
       await this.initializeWithCredentials();
     }
 
-    // Optional: Load additional configuration from database if needed
+    // Load configuration from the correct table (24201)
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(24060, {
+      const { data, error } = await window.ezsite.apis.tablePage(24201, {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'id',
@@ -96,8 +96,8 @@ class ClickSendSMSService {
         const config = data.List[0];
         // Override with database config if available, but keep the provided credentials
         await this.configure({
-          username: 'mobil3801beach@gmail.com', // Keep provided username
-          apiKey: '54DC23E4-34D7-C6B1-0601-112E36A46B49', // Keep provided API key
+          username: config.username || 'mobil3801beach@gmail.com',
+          apiKey: config.api_key || '54DC23E4-34D7-C6B1-0601-112E36A46B49',
           fromNumber: config.from_number || 'DFS',
           testMode: config.test_mode || false,
           webhookUrl: config.webhook_url
@@ -147,7 +147,7 @@ class ClickSendSMSService {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || `HTTP ${response.status}`);
+        throw new Error(result.response_msg || result.error_message || `HTTP ${response.status}: ${response.statusText}`);
       }
 
       return { success: true, data: result };
@@ -198,7 +198,7 @@ class ClickSendSMSService {
         type: message.type
       });
 
-      // Log to SMS history
+      // Log to SMS history (correct table 24202)
       await this.logSMSHistory({
         recipient_phone: message.to,
         message_content: finalMessage,
@@ -226,9 +226,9 @@ class ClickSendSMSService {
 
   private async sendToClickSend(message: SMSMessage): Promise<SMSResponse> {
     try {
-      // Create ClickSend API object as shown in the provided example
+      // Create ClickSend API object as per ClickSend API documentation
       const smsMessage = {
-        source: "DFS", // Using the provided source
+        source: this.config?.fromNumber || 'DFS',
         to: message.to,
         body: message.message
       };
@@ -237,16 +237,18 @@ class ClickSendSMSService {
         messages: [smsMessage]
       };
 
+      console.log('Sending to ClickSend:', smsCollection);
+
       const response = await this.makeClickSendRequest('POST', '/sms/send', smsCollection);
 
-      if (response.success && response.data) {
+      if (response.success && response.data?.data?.messages?.[0]) {
         const messageResult = response.data.data.messages[0];
 
         return {
           success: messageResult.status === 'SUCCESS',
           messageId: messageResult.message_id,
           clickSendMessageId: messageResult.message_id,
-          cost: messageResult.message_price,
+          cost: parseFloat(messageResult.message_price) || 0,
           status: messageResult.status,
           error: messageResult.status !== 'SUCCESS' ? messageResult.custom_string : undefined
         };
@@ -296,7 +298,8 @@ class ClickSendSMSService {
 
   private async checkDailyLimit(): Promise<void> {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(24060, {
+      // Check configuration from correct table (24201)
+      const { data, error } = await window.ezsite.apis.tablePage(24201, {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'id',
@@ -310,16 +313,16 @@ class ClickSendSMSService {
         const config = data.List[0];
         const today = new Date().toISOString().split('T')[0];
 
-        // Count today's SMS messages
-        const { data: historyData } = await window.ezsite.apis.tablePage(24062, {
+        // Count today's SMS messages from correct table (24202)
+        const { data: historyData } = await window.ezsite.apis.tablePage(24202, {
           PageNo: 1,
           PageSize: 1,
           OrderByField: 'id',
           IsAsc: false,
           Filters: [
-          { name: 'sent_at', op: 'StringStartsWith', value: today },
-          { name: 'status', op: 'Equal', value: 'Sent' }]
-
+            { name: 'sent_at', op: 'StringStartsWith', value: today },
+            { name: 'status', op: 'Equal', value: 'Sent' }
+          ]
         });
 
         const todayCount = historyData?.VirtualCount || 0;
@@ -335,15 +338,15 @@ class ClickSendSMSService {
   }
 
   private async updateDailyCount(): Promise<void> {
-
-
-
-
     // This is handled by counting records in the history table
     // No need for a separate counter field
-  }private async logSMSHistory(historyData: any): Promise<void> {try {await window.ezsite.apis.tableCreate(24062, {
+  }
+
+  private async logSMSHistory(historyData: any): Promise<void> {
+    try {
+      await window.ezsite.apis.tableCreate(24202, {
         ...historyData,
-        sent_by: 1 // This should be the current user ID
+        sent_by_user_id: 1 // This should be the current user ID
       });
     } catch (error) {
       console.error('Error logging SMS history:', error);
@@ -374,7 +377,7 @@ class ClickSendSMSService {
     return results;
   }
 
-  async getDeliveryStatus(messageId: string): Promise<{status: string;delivered: boolean;}> {
+  async getDeliveryStatus(messageId: string): Promise<{status: string; delivered: boolean;}> {
     if (!this.isConfigured) {
       throw new Error('SMS service not configured');
     }
@@ -429,9 +432,10 @@ class ClickSendSMSService {
     return [...this.testNumbers];
   }
 
-  async getDailyUsage(): Promise<{used: number;limit: number;percentage: number;}> {
+  async getDailyUsage(): Promise<{used: number; limit: number; percentage: number;}> {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(24060, {
+      // Get configuration from correct table (24201)
+      const { data, error } = await window.ezsite.apis.tablePage(24201, {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'id',
@@ -445,16 +449,16 @@ class ClickSendSMSService {
         const config = data.List[0];
         const today = new Date().toISOString().split('T')[0];
 
-        // Count today's SMS messages
-        const { data: historyData } = await window.ezsite.apis.tablePage(24062, {
+        // Count today's SMS messages from correct table (24202)
+        const { data: historyData } = await window.ezsite.apis.tablePage(24202, {
           PageNo: 1,
           PageSize: 1,
           OrderByField: 'id',
           IsAsc: false,
           Filters: [
-          { name: 'sent_at', op: 'StringStartsWith', value: today },
-          { name: 'status', op: 'Equal', value: 'Sent' }]
-
+            { name: 'sent_at', op: 'StringStartsWith', value: today },
+            { name: 'status', op: 'Equal', value: 'Sent' }
+          ]
         });
 
         const used = historyData?.VirtualCount || 0;
@@ -479,7 +483,7 @@ class ClickSendSMSService {
     return this.config;
   }
 
-  async getServiceStatus(): Promise<{available: boolean;message: string;providers?: any;quota?: any;}> {
+  async getServiceStatus(): Promise<{available: boolean; message: string; providers?: any; quota?: any;}> {
     try {
       if (!this.isConfigured) {
         return {
@@ -491,8 +495,8 @@ class ClickSendSMSService {
       const accountResponse = await this.makeClickSendRequest('GET', '/account');
 
       const providers = [
-      { name: 'ClickSend', available: this.isConfigured && accountResponse.success }];
-
+        { name: 'ClickSend', available: this.isConfigured && accountResponse.success }
+      ];
 
       const quota = {
         quotaRemaining: accountResponse.success ? accountResponse.data?.data?.balance || 0 : 0
@@ -533,9 +537,10 @@ class ClickSendSMSService {
     }
   }
 
-  async getAvailableFromNumbers(): Promise<{number: string;provider: string;isActive: boolean;testMode: boolean;}[]> {
+  async getAvailableFromNumbers(): Promise<{number: string; provider: string; isActive: boolean; testMode: boolean;}[]> {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(24060, {
+      // Get from correct table (24201)
+      const { data, error } = await window.ezsite.apis.tablePage(24201, {
         PageNo: 1,
         PageSize: 10,
         OrderByField: 'id',

@@ -2,7 +2,7 @@
 // This file redirects all SMS functionality to use ClickSend exclusively
 // Maintained for backward compatibility
 
-import { enhancedClickSendSmsService as clickSendSmsService } from './enhancedClickSendSmsService';
+import { clickSendSmsService } from './clickSendSmsService';
 
 // Type definitions for backward compatibility
 export interface ClickSendConfig {
@@ -11,8 +11,6 @@ export interface ClickSendConfig {
   fromNumber: string;
   testMode: boolean;
   webhookUrl?: string;
-  isEnabled: boolean;
-  dailyLimit: number;
 }
 
 export interface SMSResponse {
@@ -139,6 +137,7 @@ export const smsService = new LegacySMSService();
 export const productionSmsService = new LegacyProductionSMSService();
 
 // Export the actual ClickSend service as well for direct access
+export { clickSendSmsService } from './clickSendSmsService';
 export { enhancedClickSendSmsService } from './enhancedClickSendSmsService';
 
 // Default export is the ClickSend service

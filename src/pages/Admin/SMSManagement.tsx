@@ -9,20 +9,19 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Phone, 
-  Settings, 
-  Send, 
-  History, 
-  CheckCircle, 
-  XCircle, 
+import {
+  Phone,
+  Settings,
+  Send,
+  History,
+  CheckCircle,
+  XCircle,
   AlertTriangle,
   RefreshCw,
-  Eye,
-  Download,
-  TestTube
+  TestTube,
+  DollarSign
 } from 'lucide-react';
-import EnhancedSMSTestComponent from '@/components/EnhancedSMSTestComponent';
+import SMSDiagnosticTool from '@/components/SMSDiagnosticTool';
 
 interface SMSConfig {
   id?: number;
@@ -105,6 +104,11 @@ const SMSManagement: React.FC = () => {
       }
     } catch (error) {
       console.error('Error loading SMS configuration:', error);
+      toast({
+        title: "Configuration Load Warning",
+        description: "Using default ClickSend configuration. Save to persist settings.",
+        variant: "default"
+      });
     }
   };
 
@@ -132,7 +136,7 @@ const SMSManagement: React.FC = () => {
 
       toast({
         title: "Configuration Saved",
-        description: "ClickSend SMS configuration has been saved successfully.",
+        description: "ClickSend SMS configuration has been saved successfully."
       });
 
       await loadConfiguration();
@@ -140,7 +144,7 @@ const SMSManagement: React.FC = () => {
       toast({
         title: "Error",
         description: `Failed to save configuration: ${error}`,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -150,8 +154,11 @@ const SMSManagement: React.FC = () => {
   const testConnection = async () => {
     setLoading(true);
     try {
+      if (!config.username || !config.api_key) {
+        throw new Error('Username and API key are required');
+      }
+
       const credentials = btoa(`${config.username}:${config.api_key}`);
-      
       const response = await fetch('https://rest.clicksend.com/v3/account', {
         method: 'GET',
         headers: {
@@ -160,23 +167,28 @@ const SMSManagement: React.FC = () => {
         }
       });
 
+      const result = await response.json();
+
       if (response.ok) {
-        const result = await response.json();
-        setConnectionStatus('connected');
-        setAccountBalance(result.data?.balance || 0);
-        toast({
-          title: "Connection Successful",
-          description: "ClickSend API connection is working correctly.",
-        });
+        if (result.data) {
+          setConnectionStatus('connected');
+          setAccountBalance(result.data.balance || 0);
+          toast({
+            title: "Connection Successful",
+            description: `ClickSend API connection is working correctly. Balance: $${(result.data.balance || 0).toFixed(4)}`
+          });
+        } else {
+          throw new Error('Invalid response from ClickSend API');
+        }
       } else {
-        throw new Error(`HTTP ${response.status}`);
+        throw new Error(result.response_msg || `HTTP ${response.status}: ${response.statusText}`);
       }
     } catch (error) {
       setConnectionStatus('error');
       toast({
         title: "Connection Failed",
         description: `Failed to connect to ClickSend API: ${error}`,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -188,15 +200,30 @@ const SMSManagement: React.FC = () => {
       toast({
         title: "Missing Information",
         description: "Please enter both phone number and message.",
-        variant: "destructive",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate phone number format
+    const phoneRegex = /^\+\d{10,15}$/;
+    if (!phoneRegex.test(testPhone)) {
+      toast({
+        title: "Invalid Phone Number",
+        description: "Please use E.164 format (+1234567890)",
+        variant: "destructive"
       });
       return;
     }
 
     setLoading(true);
     try {
+      if (!config.username || !config.api_key) {
+        throw new Error('SMS service not configured. Please configure credentials first.');
+      }
+
       const credentials = btoa(`${config.username}:${config.api_key}`);
-      
+
       const smsData = {
         messages: [{
           source: config.from_number,
@@ -204,6 +231,8 @@ const SMSManagement: React.FC = () => {
           body: testMessage
         }]
       };
+
+      console.log('Sending SMS with data:', smsData);
 
       const response = await fetch('https://rest.clicksend.com/v3/sms/send', {
         method: 'POST',
@@ -215,44 +244,75 @@ const SMSManagement: React.FC = () => {
       });
 
       const result = await response.json();
+      console.log('ClickSend API Response:', result);
 
       if (response.ok && result.data?.messages?.[0]) {
         const messageResult = result.data.messages[0];
         
         // Log the test SMS
-        await window.ezsite.apis.tableCreate(24202, {
-          recipient_phone: testPhone,
-          message_content: testMessage,
-          sender_name: config.from_number,
-          status: messageResult.status === 'SUCCESS' ? 'Sent' : 'Failed',
-          sent_at: new Date().toISOString(),
-          message_id: messageResult.message_id,
-          clicksend_message_id: messageResult.message_id,
-          cost: messageResult.message_price || 0,
-          error_message: messageResult.status !== 'SUCCESS' ? messageResult.custom_string : '',
-          message_type: 'test',
-          sent_by_user_id: 1
-        });
+        try {
+          await window.ezsite.apis.tableCreate(24202, {
+            recipient_phone: testPhone,
+            message_content: testMessage,
+            sender_name: config.from_number,
+            status: messageResult.status === 'SUCCESS' ? 'Sent' : 'Failed',
+            sent_at: new Date().toISOString(),
+            message_id: messageResult.message_id || '',
+            clicksend_message_id: messageResult.message_id || '',
+            cost: parseFloat(messageResult.message_price) || 0,
+            error_message: messageResult.status !== 'SUCCESS' ? (messageResult.custom_string || 'Unknown error') : '',
+            message_type: 'test',
+            sent_by_user_id: 1
+          });
+        } catch (logError) {
+          console.error('Failed to log SMS:', logError);
+        }
 
         if (messageResult.status === 'SUCCESS') {
           toast({
-            title: "Test SMS Sent",
-            description: `Test SMS sent successfully. Message ID: ${messageResult.message_id}`,
+            title: "Test SMS Sent Successfully",
+            description: `Message sent to ${testPhone}. Message ID: ${messageResult.message_id}. Cost: $${(parseFloat(messageResult.message_price) || 0).toFixed(4)}`
           });
         } else {
-          throw new Error(messageResult.custom_string || 'Failed to send SMS');
+          throw new Error(messageResult.custom_string || messageResult.status || 'Failed to send SMS');
         }
       } else {
-        throw new Error(result.response_msg || 'Failed to send SMS');
+        // Handle API errors
+        const errorMessage = result.response_msg || 
+                           result.error_message || 
+                           (result.data && typeof result.data === 'string' ? result.data : '') ||
+                           `HTTP ${response.status}: ${response.statusText}`;
+        throw new Error(errorMessage);
       }
 
       await loadSMSLogs();
       await loadDailyUsage();
     } catch (error) {
+      console.error('SMS sending error:', error);
+      
+      // Log failed attempt
+      try {
+        await window.ezsite.apis.tableCreate(24202, {
+          recipient_phone: testPhone,
+          message_content: testMessage,
+          sender_name: config.from_number,
+          status: 'Failed',
+          sent_at: new Date().toISOString(),
+          message_id: '',
+          clicksend_message_id: '',
+          cost: 0,
+          error_message: error instanceof Error ? error.message : 'Unknown error',
+          message_type: 'test',
+          sent_by_user_id: 1
+        });
+      } catch (logError) {
+        console.error('Failed to log SMS error:', logError);
+      }
+
       toast({
         title: "Test SMS Failed",
         description: `Failed to send test SMS: ${error}`,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -279,7 +339,7 @@ const SMSManagement: React.FC = () => {
   const loadDailyUsage = async () => {
     try {
       const today = new Date().toISOString().split('T')[0];
-      
+
       const { data, error } = await window.ezsite.apis.tablePage(24202, {
         PageNo: 1,
         PageSize: 1,
@@ -295,7 +355,7 @@ const SMSManagement: React.FC = () => {
 
       const used = data?.VirtualCount || 0;
       const limit = config.daily_limit;
-      const percentage = limit > 0 ? (used / limit) * 100 : 0;
+      const percentage = limit > 0 ? used / limit * 100 : 0;
 
       setDailyUsage({ used, limit, percentage });
     } catch (error) {
@@ -336,21 +396,22 @@ const SMSManagement: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          {connectionStatus === 'connected' && (
+          {connectionStatus === 'connected' &&
             <Badge variant="default" className="bg-green-500">
               <CheckCircle className="w-3 h-3 mr-1" />Connected
             </Badge>
-          )}
-          {connectionStatus === 'error' && (
+          }
+          {connectionStatus === 'error' &&
             <Badge variant="destructive">
               <XCircle className="w-3 h-3 mr-1" />Disconnected
             </Badge>
-          )}
-          {accountBalance !== null && (
+          }
+          {accountBalance !== null &&
             <Badge variant="outline">
+              <DollarSign className="w-3 h-3 mr-1" />
               Balance: {formatCurrency(accountBalance)}
             </Badge>
-          )}
+          }
         </div>
       </div>
 
@@ -364,8 +425,8 @@ const SMSManagement: React.FC = () => {
           <CardContent>
             <div className="text-2xl font-bold">{dailyUsage.used}/{dailyUsage.limit}</div>
             <div className="w-full bg-secondary rounded-full h-2 mt-2">
-              <div 
-                className="bg-primary h-2 rounded-full transition-all duration-300" 
+              <div
+                className="bg-primary h-2 rounded-full transition-all duration-300"
                 style={{ width: `${Math.min(dailyUsage.percentage, 100)}%` }}
               />
             </div>
@@ -406,6 +467,7 @@ const SMSManagement: React.FC = () => {
         <TabsList>
           <TabsTrigger value="config">Configuration</TabsTrigger>
           <TabsTrigger value="test">Send Test SMS</TabsTrigger>
+          <TabsTrigger value="diagnostics">Diagnostics</TabsTrigger>
           <TabsTrigger value="logs">Message Logs</TabsTrigger>
         </TabsList>
 
@@ -514,14 +576,14 @@ const SMSManagement: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {!config.is_enabled && (
+              {!config.is_enabled &&
                 <Alert>
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
                     SMS service is currently disabled. Enable it in the Configuration tab to send messages.
                   </AlertDescription>
                 </Alert>
-              )}
+              }
 
               <div className="space-y-2">
                 <Label htmlFor="test_phone">Phone Number</Label>
@@ -552,8 +614,8 @@ const SMSManagement: React.FC = () => {
                 </p>
               </div>
 
-              <Button 
-                onClick={sendTestSMS} 
+              <Button
+                onClick={sendTestSMS}
                 disabled={loading || !config.is_enabled || !testPhone || !testMessage}
                 className="w-full"
               >
@@ -562,6 +624,10 @@ const SMSManagement: React.FC = () => {
               </Button>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="diagnostics" className="space-y-4">
+          <SMSDiagnosticTool />
         </TabsContent>
 
         <TabsContent value="logs" className="space-y-4">
@@ -580,14 +646,13 @@ const SMSManagement: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {smsLogs.length === 0 ? (
+                {smsLogs.length === 0 ?
                   <div className="text-center py-8">
                     <History className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                     <p className="text-muted-foreground">No SMS messages found</p>
-                  </div>
-                ) : (
+                  </div> :
                   <div className="space-y-2">
-                    {smsLogs.map((log) => (
+                    {smsLogs.map((log) =>
                       <div key={log.id} className="border rounded-lg p-4 space-y-2">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-2">
@@ -605,15 +670,15 @@ const SMSManagement: React.FC = () => {
                           <span>Cost: {formatCurrency(log.cost)}</span>
                           {log.message_id && <span>ID: {log.message_id}</span>}
                         </div>
-                        {log.error_message && (
+                        {log.error_message &&
                           <div className="text-xs text-destructive bg-destructive/10 p-2 rounded">
                             Error: {log.error_message}
                           </div>
-                        )}
+                        }
                       </div>
-                    ))}
+                    )}
                   </div>
-                )}
+                }
               </div>
             </CardContent>
           </Card>
