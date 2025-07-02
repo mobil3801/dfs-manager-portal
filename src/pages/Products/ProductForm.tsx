@@ -14,6 +14,7 @@ import { ArrowLeft, Save, Calculator, Upload, Eye, Plus, Download, FileText, Ale
 import BarcodeScanner from '@/components/BarcodeScanner';
 import { useAuth } from '@/contexts/AuthContext';
 import { ComponentErrorBoundary } from '@/components/ErrorBoundary';
+import { useProductChangelog } from '@/hooks/use-product-changelog';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -41,6 +42,7 @@ const ProductForm = () => {
     component: 'ProductForm',
     severity: 'high'
   });
+  const { logProductCreation } = useProductChangelog();
 
   const isEdit = !!id;
   const [isLoading, setIsLoading] = useState(false);
@@ -523,13 +525,15 @@ const ProductForm = () => {
 
   const logFieldChange = async (productId: number, fieldName: string, oldValue: any, newValue: any, userId: number) => {
     try {
-      const { error } = await window.ezsite.apis.tableCreate('11756', {
+      const { error } = await window.ezsite.apis.tableCreate('24010', {
         product_id: productId,
         field_name: fieldName,
         old_value: oldValue?.toString() || '',
         new_value: newValue?.toString() || '',
-        change_date: new Date().toISOString(),
-        changed_by: userId
+        change_timestamp: new Date().toISOString(),
+        changed_by: userId,
+        change_type: 'update',
+        change_summary: `${fieldName.replace(/_/g, ' ')} changed from "${oldValue}" to "${newValue}"`
       });
       if (error) {
         console.error('Error logging field change:', error);
@@ -570,11 +574,19 @@ const ProductForm = () => {
         created_by: userProfile.user_id
       };
 
-      const { error } = isEdit ?
-      await window.ezsite.apis.tableUpdate('11726', { id: parseInt(id!), ...payload }) :
-      await window.ezsite.apis.tableCreate('11726', payload);
+      let result;
+      if (isEdit) {
+        result = await window.ezsite.apis.tableUpdate('11726', { id: parseInt(id!), ...payload });
+      } else {
+        result = await window.ezsite.apis.tableCreate('11726', payload);
+      }
 
-      if (error) throw error;
+      if (result.error) throw result.error;
+
+      // Log product creation
+      if (!isEdit && result.data && userProfile) {
+        await logProductCreation(result.data.id || result.data.ID, formData);
+      }
 
       // Log changes for existing products
       if (isEdit && originalData && userProfile) {

@@ -14,6 +14,8 @@ import { ResponsiveTable, ResponsiveStack } from '@/components/ResponsiveWrapper
 import { useResponsiveLayout } from '@/hooks/use-mobile';
 import ProductCards from '@/components/ProductCards';
 import { generateSafeKey, safeMap } from '@/utils/invariantSafeHelper';
+import ProductChangelogDialog from '@/components/ProductChangelogDialog';
+import { useProductChangelog } from '@/hooks/use-product-changelog';
 
 
 interface Product {
@@ -45,6 +47,7 @@ const ProductList: React.FC = () => {
   const navigate = useNavigate();
   const { userProfile } = useAuth();
   const responsive = useResponsiveLayout();
+  const { logProductDeletion } = useProductChangelog();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
@@ -53,6 +56,8 @@ const ProductList: React.FC = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [logsModalOpen, setLogsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<{id: number;name: string;} | null>(null);
+  const [changelogModalOpen, setChangelogModalOpen] = useState(false);
+  const [selectedProductForChangelog, setSelectedProductForChangelog] = useState<{id: number;name: string;} | null>(null);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [hasMoreProducts, setHasMoreProducts] = useState(true);
@@ -158,8 +163,12 @@ const ProductList: React.FC = () => {
   const handleDelete = async (productId: number) => {
     console.log('handleDelete called for product ID:', productId);
 
+    // Find the product to get its name for logging
+    const product = products.find((p) => p.ID === productId);
+    const productName = product?.product_name || 'Unknown Product';
+
     // Show confirmation dialog
-    const confirmed = confirm('Are you sure you want to delete this product? This action cannot be undone.');
+    const confirmed = confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`);
     console.log('User confirmed deletion:', confirmed);
 
     if (!confirmed) {
@@ -169,6 +178,10 @@ const ProductList: React.FC = () => {
 
     try {
       console.log('Attempting to delete product with ID:', productId);
+
+      // Log the deletion before actually deleting
+      await logProductDeletion(productId, productName);
+
       const { error } = await window.ezsite.apis.tableDelete('11726', { ID: productId });
 
       if (error) {
@@ -179,7 +192,7 @@ const ProductList: React.FC = () => {
       console.log('Product deleted successfully');
       toast({
         title: "Success",
-        description: "Product deleted successfully"
+        description: `"${productName}" deleted successfully`
       });
 
       // Reload all products
@@ -388,6 +401,18 @@ const ProductList: React.FC = () => {
     setSelectedProduct({ id: productId, name: productName });
     setLogsModalOpen(true);
     console.log('Logs modal should now be open');
+  };
+
+  const handleViewChangelog = (productId: number, productName: string) => {
+    console.log('handleViewChangelog called for:', { productId, productName });
+    setSelectedProductForChangelog({ id: productId, name: productName });
+    setChangelogModalOpen(true);
+    console.log('Changelog modal should now be open');
+  };
+
+  const handleEdit = (productId: number) => {
+    console.log('handleEdit called for product ID:', productId);
+    navigate(`/products/edit/${productId}`);
   };
 
   // Visual editing enabled for all users
@@ -650,26 +675,21 @@ const ProductList: React.FC = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => {
-                              console.log('Viewing logs for product:', product.ID, product.product_name);
-                              handleViewLogs(product.ID, product.product_name);
+                              console.log('Editing product:', product.ID);
+                              handleEdit(product.ID);
                             }}
-                            title="View change logs">
-                              <FileText className="w-4 h-4" />
+                            title="Edit product">
+                              <Edit className="w-4 h-4" />
                             </Button>
                             <Button
                             variant="outline"
                             size="sm"
                             onClick={() => {
-                              console.log('Saving product:', product.ID);
-                              handleSaveProduct(product.ID);
+                              console.log('Viewing changelog for product:', product.ID, product.product_name);
+                              handleViewChangelog(product.ID, product.product_name);
                             }}
-                            disabled={savingProductId === product.ID}
-                            title="Save product">
-                              {savingProductId === product.ID ?
-                            <Loader2 className="w-4 h-4 animate-spin" /> :
-
-                            <Save className="w-4 h-4" />
-                            }
+                            title="View changelog">
+                              <FileText className="w-4 h-4" />
                             </Button>
                             <Button
                             variant="outline"
@@ -738,6 +758,18 @@ const ProductList: React.FC = () => {
         }}
         productId={selectedProduct.id}
         productName={selectedProduct.name} />
+      }
+
+      {/* Product Changelog Modal */}
+      {selectedProductForChangelog &&
+      <ProductChangelogDialog
+        isOpen={changelogModalOpen}
+        onClose={() => {
+          setChangelogModalOpen(false);
+          setSelectedProductForChangelog(null);
+        }}
+        productId={selectedProductForChangelog.id}
+        productName={selectedProductForChangelog.name} />
       }
     </ResponsiveStack>);
 };
