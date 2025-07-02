@@ -853,24 +853,7 @@ const ProductForm = () => {
 
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="category">Category</Label>
-                  <Select
-                    value={formData.category}
-                    onValueChange={(value) => handleInputChange('category', value)}>
 
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {validCategories.map((cat) =>
-                      <SelectItem key={cat.id} value={cat.category_name}>
-                          {cat.category_name}
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
 
               {/* Weight and Measurement */}
