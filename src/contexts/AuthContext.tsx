@@ -225,7 +225,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(null);
           setUserProfile(null);
           setUserRole(null);
-          setIsLoading(false);
           return;
         }
 

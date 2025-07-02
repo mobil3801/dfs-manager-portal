@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import BackButton from '@/components/BackButton';
 import { ComponentErrorBoundary } from '@/components/ErrorBoundary';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -10,6 +11,7 @@ interface AppLayoutProps {
 
 const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const location = useLocation();
+  const { user } = useAuth();
 
   // Pages that don't need navigation (login, auth success, etc.)
   const publicPaths = ['/login', '/onauthsuccess', '/resetpassword'];
@@ -21,19 +23,14 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         <ComponentErrorBoundary>
           {children}
         </ComponentErrorBoundary>
-      </div>);
-
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Top Navigation */}
-      <Navigation />
-      
-      {/* Back Button - positioned at top left of content area */}
-      
-
-
+      {/* Show Navigation only for authenticated users */}
+      {user && <Navigation />}
       
       {/* Main Content */}
       <main className="bg-[#2687f51f] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -41,8 +38,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           {children}
         </ComponentErrorBoundary>
       </main>
-    </div>);
-
+    </div>
+  );
 };
 
 export default AppLayout;
