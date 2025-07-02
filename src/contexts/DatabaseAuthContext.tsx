@@ -28,13 +28,13 @@ interface AuthContextType {
   user: User | null;
   profile: UserProfile | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<{ error?: string }>;
-  register: (email: string, password: string, name: string) => Promise<{ error?: string }>;
-  logout: () => Promise<{ error?: string }>;
-  getUserInfo: () => Promise<{ data?: User; error?: string }>;
-  sendResetPwdEmail: (email: string) => Promise<{ error?: string }>;
-  resetPassword: (token: string, password: string) => Promise<{ error?: string }>;
-  verifyEmail: (token: string) => Promise<{ error?: string }>;
+  login: (email: string, password: string) => Promise<{error?: string;}>;
+  register: (email: string, password: string, name: string) => Promise<{error?: string;}>;
+  logout: () => Promise<{error?: string;}>;
+  getUserInfo: () => Promise<{data?: User;error?: string;}>;
+  sendResetPwdEmail: (email: string) => Promise<{error?: string;}>;
+  resetPassword: (token: string, password: string) => Promise<{error?: string;}>;
+  verifyEmail: (token: string) => Promise<{error?: string;}>;
 }
 
 const DatabaseAuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -43,7 +43,7 @@ const USERS_TABLE_ID = '24015';
 const USER_SESSIONS_TABLE_ID = '24016';
 const USER_PROFILES_TABLE_ID = '11725';
 
-export const DatabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const DatabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -68,9 +68,9 @@ export const DatabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
           PageNo: 1,
           PageSize: 1,
           Filters: [
-            { name: 'session_token', op: 'Equal', value: sessionToken },
-            { name: 'is_active', op: 'Equal', value: true }
-          ]
+          { name: 'session_token', op: 'Equal', value: sessionToken },
+          { name: 'is_active', op: 'Equal', value: true }]
+
         }
       );
 
@@ -81,7 +81,7 @@ export const DatabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
       }
 
       const session = sessions.List[0];
-      
+
       // Check if session is expired
       if (AuthUtils.isSessionExpired(session.expires_at)) {
         await deactivateSession(sessionToken);
@@ -168,7 +168,7 @@ export const DatabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
   };
 
-  const login = async (email: string, password: string): Promise<{ error?: string }> => {
+  const login = async (email: string, password: string): Promise<{error?: string;}> => {
     try {
       setLoading(true);
 
@@ -249,7 +249,7 @@ export const DatabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
 
       toast({
         title: "Login Successful",
-        description: `Welcome back, ${userData.name}!`,
+        description: `Welcome back, ${userData.name}!`
       });
 
       return {};
@@ -262,7 +262,7 @@ export const DatabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
   };
 
-  const register = async (email: string, password: string, name: string): Promise<{ error?: string }> => {
+  const register = async (email: string, password: string, name: string): Promise<{error?: string;}> => {
     try {
       setLoading(true);
 
@@ -323,7 +323,7 @@ export const DatabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
 
       toast({
         title: "Registration Successful",
-        description: "Your account has been created successfully. You can now log in.",
+        description: "Your account has been created successfully. You can now log in."
       });
 
       return {};
@@ -336,7 +336,7 @@ export const DatabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
   };
 
-  const logout = async (): Promise<{ error?: string }> => {
+  const logout = async (): Promise<{error?: string;}> => {
     try {
       const sessionToken = localStorage.getItem('session_token');
       if (sessionToken) {
@@ -349,7 +349,7 @@ export const DatabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
 
       toast({
         title: "Logged Out",
-        description: "You have been successfully logged out.",
+        description: "You have been successfully logged out."
       });
 
       return {};
@@ -360,14 +360,14 @@ export const DatabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
   };
 
-  const getUserInfo = async (): Promise<{ data?: User; error?: string }> => {
+  const getUserInfo = async (): Promise<{data?: User;error?: string;}> => {
     if (!user) {
       return { error: 'Not authenticated' };
     }
     return { data: user };
   };
 
-  const sendResetPwdEmail = async (email: string): Promise<{ error?: string }> => {
+  const sendResetPwdEmail = async (email: string): Promise<{error?: string;}> => {
     try {
       if (!AuthUtils.isValidEmail(email)) {
         return { error: 'Please enter a valid email address' };
@@ -387,7 +387,7 @@ export const DatabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
         // Don't reveal if email exists or not for security
         toast({
           title: "Reset Email Sent",
-          description: "If an account with this email exists, you will receive a password reset link.",
+          description: "If an account with this email exists, you will receive a password reset link."
         });
         return {};
       }
@@ -407,7 +407,7 @@ export const DatabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
       // In a real app, you would send an email here
       toast({
         title: "Reset Email Sent",
-        description: "If an account with this email exists, you will receive a password reset link.",
+        description: "If an account with this email exists, you will receive a password reset link."
       });
 
       return {};
@@ -418,7 +418,7 @@ export const DatabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
   };
 
-  const resetPassword = async (token: string, password: string): Promise<{ error?: string }> => {
+  const resetPassword = async (token: string, password: string): Promise<{error?: string;}> => {
     try {
       const passwordValidation = AuthUtils.isValidPassword(password);
       if (!passwordValidation.valid) {
@@ -465,7 +465,7 @@ export const DatabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
 
       toast({
         title: "Password Reset Successful",
-        description: "Your password has been reset successfully. You can now log in with your new password.",
+        description: "Your password has been reset successfully. You can now log in with your new password."
       });
 
       return {};
@@ -476,7 +476,7 @@ export const DatabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
   };
 
-  const verifyEmail = async (token: string): Promise<{ error?: string }> => {
+  const verifyEmail = async (token: string): Promise<{error?: string;}> => {
     try {
       // Find user by verification token
       const { data: users, error: userError } = await window.ezsite.apis.tablePage(
@@ -511,7 +511,7 @@ export const DatabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
 
       toast({
         title: "Email Verified",
-        description: "Your email has been verified successfully!",
+        description: "Your email has been verified successfully!"
       });
 
       return {};
@@ -538,8 +538,8 @@ export const DatabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
   return (
     <DatabaseAuthContext.Provider value={value}>
       {children}
-    </DatabaseAuthContext.Provider>
-  );
+    </DatabaseAuthContext.Provider>);
+
 };
 
 export const useDatabaseAuth = (): AuthContextType => {

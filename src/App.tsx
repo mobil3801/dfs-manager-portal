@@ -18,7 +18,6 @@ import Dashboard from '@/pages/Dashboard';
 import LoginPage from '@/pages/LoginPage';
 import OnAuthSuccessPage from '@/pages/OnAuthSuccessPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
-import AdminSetup from '@/pages/AdminSetup';
 import NotFound from '@/pages/NotFound';
 import DatabaseManagement from '@/pages/DatabaseManagement';
 
@@ -127,7 +126,6 @@ const AppRouter = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
           <Route path="/resetpassword" element={<ResetPasswordPage />} />
-          <Route path="/admin-setup" element={<AdminSetup />} />
           
           {/* Protected Routes */}
           <Route path="/" element={<DatabaseProtectedRoute><DashboardLayout /></DatabaseProtectedRoute>}>

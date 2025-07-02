@@ -96,7 +96,7 @@ const Navigation = () => {
   const canAccessRoute = (requiredRole: string | null) => {
     if (!requiredRole) return true;
     if (!profile) return false;
-    
+
     if (requiredRole === 'admin') return profile.role === 'Administrator';
     if (requiredRole === 'manager') return profile.role === 'Management' || profile.role === 'Administrator';
     return true;
@@ -200,9 +200,9 @@ const Navigation = () => {
                   <div>
                     <p className="font-medium">{user?.name || 'User'}</p>
                     <p className="text-sm text-gray-500">{user?.email}</p>
-                    {profile && (
-                      <p className="text-xs text-blue-600">{profile.role} - {profile.station}</p>
-                    )}
+                    {profile &&
+                    <p className="text-xs text-blue-600">{profile.role} - {profile.station}</p>
+                    }
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />

@@ -29,7 +29,7 @@ const Logo: React.FC<LogoProps> = ({
     <div className={`flex items-center gap-3 ${className}`}>
       <div className={`${sizeClasses[size]} flex-shrink-0`}>
         <img
-          src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
+          src="https://newoaks.s3.us-west-1.amazonaws.com/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
           alt="DFS Manager Logo"
           className="w-full h-full object-contain rounded-lg shadow-sm"
           onError={(e) => {

@@ -26,8 +26,8 @@ const DatabaseProtectedRoute: React.FC<ProtectedRouteProps> = ({
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Verifying authentication...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   // Redirect to login if authentication is required but user is not authenticated
@@ -55,8 +55,8 @@ const DatabaseProtectedRoute: React.FC<ProtectedRouteProps> = ({
           <p className="text-sm text-gray-500">Required role: {requiredRole}</p>
           <p className="text-sm text-gray-500">Your role: {profile?.role || 'Unknown'}</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   // Check specific permission requirements
@@ -76,8 +76,8 @@ const DatabaseProtectedRoute: React.FC<ProtectedRouteProps> = ({
               <p className="text-gray-600 mb-4">You don't have permission to access this feature.</p>
               <p className="text-sm text-gray-500">Required permission: {requiredPermission}</p>
             </div>
-          </div>
-        );
+          </div>);
+
       }
     } catch (error) {
       console.error('Error parsing permissions:', error);

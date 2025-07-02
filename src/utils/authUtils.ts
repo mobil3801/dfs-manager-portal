@@ -6,7 +6,7 @@ export class AuthUtils {
   static async generateSalt(): Promise<string> {
     const array = new Uint8Array(32);
     crypto.getRandomValues(array);
-    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+    return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
   }
 
   /**
@@ -15,7 +15,7 @@ export class AuthUtils {
   static async hashPassword(password: string, salt: string): Promise<string> {
     const encoder = new TextEncoder();
     const data = encoder.encode(password + salt);
-    
+
     // Use crypto.subtle for password hashing
     const key = await crypto.subtle.importKey(
       'raw',
@@ -37,7 +37,7 @@ export class AuthUtils {
     );
 
     const hashArray = Array.from(new Uint8Array(derivedBits));
-    return hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+    return hashArray.map((byte) => byte.toString(16).padStart(2, '0')).join('');
   }
 
   /**
@@ -54,7 +54,7 @@ export class AuthUtils {
   static generateSessionToken(): string {
     const array = new Uint8Array(48);
     crypto.getRandomValues(array);
-    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+    return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
   }
 
   /**
@@ -63,7 +63,7 @@ export class AuthUtils {
   static generateVerificationToken(): string {
     const array = new Uint8Array(32);
     crypto.getRandomValues(array);
-    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+    return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
   }
 
   /**
@@ -77,23 +77,23 @@ export class AuthUtils {
   /**
    * Validate password strength
    */
-  static isValidPassword(password: string): { valid: boolean; message: string } {
+  static isValidPassword(password: string): {valid: boolean;message: string;} {
     if (password.length < 8) {
       return { valid: false, message: 'Password must be at least 8 characters long' };
     }
-    
+
     if (!/(?=.*[a-z])/.test(password)) {
       return { valid: false, message: 'Password must contain at least one lowercase letter' };
     }
-    
+
     if (!/(?=.*[A-Z])/.test(password)) {
       return { valid: false, message: 'Password must contain at least one uppercase letter' };
     }
-    
+
     if (!/(?=.*\d)/.test(password)) {
       return { valid: false, message: 'Password must contain at least one number' };
     }
-    
+
     return { valid: true, message: 'Password is valid' };
   }
 
