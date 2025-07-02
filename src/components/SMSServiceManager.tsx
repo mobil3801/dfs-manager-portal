@@ -1,467 +1,356 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
-import {
-  MessageSquare,
-  Settings,
-  TestTube,
-  Zap,
+import { 
+  MessageSquare, 
+  TrendingUp, 
+  AlertTriangle, 
   CheckCircle,
-  AlertCircle,
   Clock,
-  RefreshCw,
+  DollarSign,
+  BarChart3,
   Send,
-  Activity,
-  Smartphone,
-  TrendingUp } from
-'lucide-react';
+  Zap
+} from 'lucide-react';
+import SinchConfigManager from './SinchConfigManager';
+import { smsService } from '@/services/smsService';
+import { enhancedSmsService } from '@/services/enhancedSmsService';
 
 interface ServiceStatus {
   available: boolean;
   message: string;
-  providers?: any[];
-  quota?: any;
+  providers?: Array<{ name: string; available: boolean }>;
+  quota?: { quotaRemaining: number };
 }
 
-interface TestResult {
-  phoneNumber: string;
-  message: string;
-  success: boolean;
-  error?: string;
-  timestamp: Date;
-  provider?: string;
-  messageId?: string;
+interface UsageStats {
+  used: number;
+  limit: number;
+  percentage: number;
+}
+
+interface ServiceHealth {
+  status: 'healthy' | 'degraded' | 'down';
+  lastCheck: Date;
+  responseTime: number;
+  errorRate: number;
+  balance: number;
 }
 
 const SMSServiceManager: React.FC = () => {
   const [serviceStatus, setServiceStatus] = useState<ServiceStatus | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [testResults, setTestResults] = useState<TestResult[]>([]);
-  const [testPhone, setTestPhone] = useState('');
-  const [testMessage, setTestMessage] = useState('Hello! This is a test message from DFS Manager SMS Service. 📱✅');
-  const [sendingTest, setSendingTest] = useState(false);
-  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [usageStats, setUsageStats] = useState<UsageStats | null>(null);
+  const [serviceHealth, setServiceHealth] = useState<ServiceHealth | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    checkServiceStatus();
-    loadRecentTests();
+    loadServiceData();
+    
+    // Set up auto-refresh every 30 seconds
+    const interval = setInterval(loadServiceData, 30000);
+    return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    if (autoRefresh) {
-      interval = setInterval(() => {
-        checkServiceStatus();
-      }, 30000); // Refresh every 30 seconds
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [autoRefresh]);
-
-  const isValidPhoneNumber = (phoneNumber: string): boolean => {
+  const loadServiceData = async () => {
     try {
-      const cleaned = phoneNumber.replace(/[^\d]/g, '');
-      return cleaned.length >= 10 && cleaned.length <= 15;
+      setRefreshing(true);
+
+      // Load SMS configuration first
+      await smsService.loadConfiguration();
+
+      // Get service status
+      const status = await smsService.getServiceStatus();
+      setServiceStatus(status);
+
+      // Get usage statistics
+      const usage = await smsService.getDailyUsage();
+      setUsageStats(usage);
+
+      // Get service health
+      const health = await enhancedSmsService.getServiceHealth();
+      setServiceHealth(health);
+
     } catch (error) {
-      console.error('Error validating phone number:', error);
-      return false;
-    }
-  };
-
-  const checkServiceStatus = async () => {
-    try {
-      setLoading(true);
-
-      // Check if SMS provider configuration exists
-      const { data, error } = await window.ezsite.apis.tablePage('12640', {
-        PageNo: 1,
-        PageSize: 1,
-        OrderByField: 'id',
-        IsAsc: false,
-        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
-      });
-
-      if (error) throw new Error(error);
-
-      if (data?.List && data.List.length > 0) {
-        const config = data.List[0];
-        const providers = [
-        { name: 'Twilio', available: !!config.account_sid && !!config.auth_token },
-        { name: 'TextBelt (Fallback)', available: true }];
-
-
-        setServiceStatus({
-          available: true,
-          message: 'SMS service is configured and ready',
-          providers,
-          quota: {
-            quotaRemaining: config.monthly_limit - config.current_month_count
-          }
-        });
-      } else {
-        setServiceStatus({
-          available: false,
-          message: 'SMS service not configured. Please configure Twilio settings.'
-        });
-      }
-    } catch (error) {
-      console.error('Error checking SMS service status:', error);
-      setServiceStatus({
-        available: false,
-        message: 'Error checking service status'
+      console.error('Error loading service data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load SMS service data",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  const loadRecentTests = () => {
-    // Load test results from localStorage for persistence
-    const stored = localStorage.getItem('sms_test_results');
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        setTestResults(parsed.map((t: any) => ({
-          ...t,
-          timestamp: new Date(t.timestamp)
-        })));
-      } catch (error) {
-        console.error('Error loading test results:', error);
-      }
-    }
-  };
-
-  const saveTestResults = (results: TestResult[]) => {
-    localStorage.setItem('sms_test_results', JSON.stringify(results));
-  };
-
-  const sendTestSMS = async () => {
-    if (!testPhone.trim()) {
-      toast({
-        title: "Phone Number Required",
-        description: "Please enter a phone number to test SMS functionality.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!isValidPhoneNumber(testPhone)) {
-      toast({
-        title: "Invalid Phone Number",
-        description: "Please enter a valid phone number (e.g., +1234567890 or 1234567890).",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      setSendingTest(true);
-
-      // Simulate SMS sending (replace with actual SMS service call)
-      const success = Math.random() > 0.1; // 90% success rate
-      const messageId = success ? `SM${Date.now()}${Math.random().toString(36).substr(2, 9)}` : undefined;
-      const error = success ? undefined : 'Simulated failure for testing';
-
-      const testResult: TestResult = {
-        phoneNumber: testPhone,
-        message: testMessage,
-        success: success,
-        error: error,
-        timestamp: new Date(),
-        provider: 'Twilio (Simulated)',
-        messageId: messageId
-      };
-
-      const newResults = [testResult, ...testResults.slice(0, 9)]; // Keep last 10 tests
-      setTestResults(newResults);
-      saveTestResults(newResults);
-
-      // Log to SMS history
-      await window.ezsite.apis.tableCreate('12613', {
-        mobile_number: testPhone,
-        message_content: testMessage,
-        sent_date: new Date().toISOString(),
-        delivery_status: success ? 'Test Sent' : 'Test Failed',
-        created_by: 1
-      });
-
-      if (success) {
-        toast({
-          title: "✅ Test SMS Sent Successfully",
-          description: `SMS sent to ${testPhone} via Twilio. Check your device!`
-        });
-      } else {
-        toast({
-          title: "❌ Test SMS Failed",
-          description: error || "Unknown error occurred",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error('Error sending test SMS:', error);
-      toast({
-        title: "Error",
-        description: "Failed to send test SMS",
-        variant: "destructive"
-      });
-    } finally {
-      setSendingTest(false);
-    }
-  };
-
-  const clearTestHistory = () => {
-    setTestResults([]);
-    localStorage.removeItem('sms_test_results');
+  const refreshData = async () => {
+    await loadServiceData();
     toast({
-      title: "Test History Cleared",
-      description: "All SMS test results have been cleared."
+      title: "Refreshed",
+      description: "SMS service data updated successfully",
     });
   };
 
-  const formatTimestamp = (date: Date) => {
-    return date.toLocaleString();
+  const getStatusBadge = (available: boolean) => {
+    return available ? (
+      <Badge variant="secondary" className="text-green-700 bg-green-100">
+        <CheckCircle className="h-3 w-3 mr-1" />
+        Available
+      </Badge>
+    ) : (
+      <Badge variant="destructive">
+        <AlertTriangle className="h-3 w-3 mr-1" />
+        Unavailable
+      </Badge>
+    );
   };
 
-  const getStatusIcon = (available: boolean) => {
-    return available ?
-    <CheckCircle className="w-5 h-5 text-green-500" /> :
-    <AlertCircle className="w-5 h-5 text-red-500" />;
+  const getHealthBadge = (status: string) => {
+    switch (status) {
+      case 'healthy':
+        return (
+          <Badge variant="secondary" className="text-green-700 bg-green-100">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            Healthy
+          </Badge>
+        );
+      case 'degraded':
+        return (
+          <Badge variant="outline" className="text-yellow-700 bg-yellow-100">
+            <AlertTriangle className="h-3 w-3 mr-1" />
+            Degraded
+          </Badge>
+        );
+      case 'down':
+        return (
+          <Badge variant="destructive">
+            <AlertTriangle className="h-3 w-3 mr-1" />
+            Down
+          </Badge>
+        );
+      default:
+        return (
+          <Badge variant="outline">
+            <Clock className="h-3 w-3 mr-1" />
+            Checking...
+          </Badge>
+        );
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-2 text-muted-foreground">Loading SMS service data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">SMS Service Manager</h2>
+          <p className="text-muted-foreground">Monitor and manage your Sinch ClickSend SMS service</p>
+        </div>
+        <Button 
+          onClick={refreshData} 
+          disabled={refreshing}
+          variant="outline"
+          className="flex items-center gap-2"
+        >
+          <BarChart3 className="h-4 w-4" />
+          {refreshing ? 'Refreshing...' : 'Refresh'}
+        </Button>
+      </div>
+
       {/* Service Status Overview */}
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle className="flex items-center">
-              <Activity className="w-5 h-5 mr-2" />
-              SMS Service Status
-            </CardTitle>
-            <div className="flex items-center space-x-2">
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="auto-refresh"
-                  checked={autoRefresh}
-                  onCheckedChange={setAutoRefresh} />
-                <Label htmlFor="auto-refresh" className="text-sm">Auto Refresh</Label>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={checkServiceStatus}
-                disabled={loading}>
-                <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                Refresh
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {serviceStatus ?
-          <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                {getStatusIcon(serviceStatus.available)}
-                <span className={`font-medium ${serviceStatus.available ? 'text-green-600' : 'text-red-600'}`}>
-                  {serviceStatus.message}
-                </span>
-              </div>
-
-              {/* Provider Status */}
-              {serviceStatus.providers && serviceStatus.providers.length > 0 &&
-            <div>
-                  <h4 className="font-medium text-sm text-gray-700 mb-2">Provider Status:</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {serviceStatus.providers.map((provider, index) =>
-                <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                        <span className="font-medium">{provider.name}</span>
-                        <Badge variant={provider.available ? 'default' : 'secondary'}>
-                          {provider.available ? 'Available' : 'Unavailable'}
-                        </Badge>
-                      </div>
-                )}
-                  </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Service Status</p>
+                <div className="mt-2">
+                  {serviceStatus ? getStatusBadge(serviceStatus.available) : getHealthBadge('unknown')}
                 </div>
-            }
-
-              {/* Quota Information */}
-              {serviceStatus.quota &&
-            <div className="bg-blue-50 p-3 rounded">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-blue-800">Free SMS Quota</span>
-                    <Badge variant="outline" className="text-blue-600">
-                      {serviceStatus.quota.quotaRemaining || 0} remaining
-                    </Badge>
-                  </div>
-                </div>
-            }
-            </div> :
-          <div className="flex items-center justify-center py-8">
-              <div className="text-center">
-                <Clock className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-500">Loading service status...</p>
               </div>
-            </div>
-          }
-        </CardContent>
-      </Card>
-
-      {/* SMS Testing Interface */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <TestTube className="w-5 h-5 mr-2" />
-            SMS Testing
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="test-phone">Test Phone Number</Label>
-              <Input
-                id="test-phone"
-                value={testPhone}
-                onChange={(e) => setTestPhone(e.target.value)}
-                placeholder="+1234567890 or 1234567890"
-                className="mt-1" />
-              {testPhone && !isValidPhoneNumber(testPhone) &&
-              <p className="text-sm text-red-500 mt-1">
-                  Please enter a valid phone number
-                </p>
-              }
-            </div>
-            <div>
-              <Label htmlFor="test-message">Test Message</Label>
-              <Textarea
-                id="test-message"
-                value={testMessage}
-                onChange={(e) => setTestMessage(e.target.value)}
-                placeholder="Enter your test message..."
-                rows={3}
-                className="mt-1" />
-              <p className="text-xs text-gray-500 mt-1">
-                {testMessage.length}/1600 characters
-              </p>
-            </div>
-          </div>
-
-          <div className="flex justify-between items-center">
-            <Button
-              onClick={sendTestSMS}
-              disabled={sendingTest || !serviceStatus?.available}
-              className="bg-blue-600 hover:bg-blue-700">
-              <Send className="w-4 h-4 mr-2" />
-              {sendingTest ? 'Sending...' : 'Send Test SMS'}
-            </Button>
-            
-            {testResults.length > 0 &&
-            <Button
-              variant="outline"
-              onClick={clearTestHistory}
-              size="sm">
-                Clear History
-              </Button>
-            }
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Test Results History */}
-      {testResults.length > 0 &&
-      <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <TrendingUp className="w-5 h-5 mr-2" />
-              Recent Test Results
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {testResults.map((result, index) =>
-            <div key={index} className="border rounded-lg p-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <Smartphone className="w-4 h-4 text-gray-500" />
-                        <span className="font-medium">{result.phoneNumber}</span>
-                        <Badge variant={result.success ? 'default' : 'destructive'}>
-                          {result.success ? 'Success' : 'Failed'}
-                        </Badge>
-                        {result.provider &&
-                    <Badge variant="outline" className="text-xs">
-                            {result.provider}
-                          </Badge>
-                    }
-                      </div>
-                      <p className="text-sm text-gray-600 mb-1">{result.message}</p>
-                      {result.error &&
-                  <p className="text-sm text-red-600">Error: {result.error}</p>
-                  }
-                      {result.messageId &&
-                  <p className="text-xs text-gray-500">Message ID: {result.messageId}</p>
-                  }
-                    </div>
-                    <div className="text-right text-xs text-gray-500">
-                      {formatTimestamp(result.timestamp)}
-                    </div>
-                  </div>
-                </div>
-            )}
+              <MessageSquare className="h-8 w-8 text-muted-foreground" />
             </div>
           </CardContent>
         </Card>
-      }
 
-      {/* Service Configuration Help */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Settings className="w-5 h-5 mr-2" />
-            SMS Service Configuration
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3 text-sm">
-            <div className="bg-yellow-50 p-3 rounded border-l-4 border-yellow-400">
-              <p className="font-medium text-yellow-800">Current Configuration:</p>
-              <p className="text-yellow-700">Using TextBelt free tier for testing. For production use, configure Twilio or another premium SMS provider.</p>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Service Health</p>
+                <div className="mt-2">
+                  {serviceHealth ? getHealthBadge(serviceHealth.status) : getHealthBadge('unknown')}
+                </div>
+              </div>
+              <Zap className="h-8 w-8 text-muted-foreground" />
             </div>
-            
-            <div className="space-y-2">
-              <h4 className="font-medium">To configure Twilio for production:</h4>
-              <ol className="list-decimal list-inside space-y-1 text-gray-600">
-                <li>Sign up for a Twilio account at twilio.com</li>
-                <li>Get your Account SID and Auth Token</li>
-                <li>Purchase a phone number</li>
-                <li>Update the SMS service configuration</li>
-                <li>Test the integration using this interface</li>
-              </ol>
-            </div>
+          </CardContent>
+        </Card>
 
-            <div className="bg-blue-50 p-3 rounded">
-              <p className="font-medium text-blue-800">Supported Features:</p>
-              <ul className="list-disc list-inside text-blue-700 text-xs space-y-1">
-                <li>Multiple SMS provider support with failover</li>
-                <li>Phone number validation and formatting</li>
-                <li>Message length validation</li>
-                <li>Delivery status tracking</li>
-                <li>Quota monitoring</li>
-                <li>Test message functionality</li>
-              </ul>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Daily Usage</p>
+                <p className="text-2xl font-bold">
+                  {usageStats ? `${usageStats.used}/${usageStats.limit}` : '0/100'}
+                </p>
+              </div>
+              <TrendingUp className="h-8 w-8 text-muted-foreground" />
             </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>);
+          </CardContent>
+        </Card>
 
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Account Balance</p>
+                <p className="text-2xl font-bold">
+                  ${serviceHealth?.balance?.toFixed(2) || '0.00'}
+                </p>
+              </div>
+              <DollarSign className="h-8 w-8 text-muted-foreground" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Detailed Information */}
+      <Tabs defaultValue="status" className="w-full">
+        <TabsList>
+          <TabsTrigger value="status">Status</TabsTrigger>
+          <TabsTrigger value="usage">Usage</TabsTrigger>
+          <TabsTrigger value="configuration">Configuration</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="status" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5" />
+                Service Status Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {serviceStatus && (
+                <Alert>
+                  <MessageSquare className="h-4 w-4" />
+                  <AlertDescription>{serviceStatus.message}</AlertDescription>
+                </Alert>
+              )}
+
+              {serviceStatus?.providers && (
+                <div className="space-y-2">
+                  <h4 className="font-medium">Providers</h4>
+                  {serviceStatus.providers.map((provider, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                      <span className="font-medium">{provider.name}</span>
+                      {getStatusBadge(provider.available)}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {serviceHealth && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Response Time</p>
+                    <p className="text-lg font-semibold">{serviceHealth.responseTime}ms</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Error Rate</p>
+                    <p className="text-lg font-semibold">{serviceHealth.errorRate.toFixed(1)}%</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Last Check</p>
+                    <p className="text-lg font-semibold">
+                      {serviceHealth.lastCheck.toLocaleTimeString()}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="usage" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                Daily Usage Statistics
+              </CardTitle>
+              <CardDescription>
+                Track your daily SMS usage and limits
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {usageStats && (
+                <>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Messages sent today</span>
+                      <span>{usageStats.used} / {usageStats.limit}</span>
+                    </div>
+                    <Progress value={usageStats.percentage} className="h-2" />
+                    <p className="text-xs text-muted-foreground">
+                      {usageStats.percentage.toFixed(1)}% of daily limit used
+                    </p>
+                  </div>
+
+                  {usageStats.percentage > 80 && (
+                    <Alert>
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertDescription>
+                        You've used {usageStats.percentage.toFixed(1)}% of your daily SMS limit. 
+                        Consider increasing your limit or managing usage carefully.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-muted-foreground">Remaining Today</p>
+                      <p className="text-2xl font-bold text-green-600">
+                        {usageStats.limit - usageStats.used}
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-muted-foreground">Usage Rate</p>
+                      <p className="text-2xl font-bold">
+                        {usageStats.percentage.toFixed(0)}%
+                      </p>
+                    </div>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="configuration">
+          <SinchConfigManager />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
 };
 
 export default SMSServiceManager;

@@ -101,8 +101,8 @@ const RealTimePermissionToggle: React.FC<PermissionToggleProps> = ({
         OrderByField: 'ID',
         IsAsc: true,
         Filters: [
-          { name: 'is_active', op: 'Equal', value: true }
-        ]
+        { name: 'is_active', op: 'Equal', value: true }]
+
       });
 
       if (error) throw error;
@@ -128,8 +128,8 @@ const RealTimePermissionToggle: React.FC<PermissionToggleProps> = ({
         OrderByField: 'ID',
         IsAsc: true,
         Filters: [
-          { name: 'user_id', op: 'Equal', value: targetUserId }
-        ]
+        { name: 'user_id', op: 'Equal', value: targetUserId }]
+
       });
 
       if (error) throw error;
@@ -137,7 +137,7 @@ const RealTimePermissionToggle: React.FC<PermissionToggleProps> = ({
       const userProfile = data?.List?.[0];
       if (userProfile) {
         let userPermissions: UserPermissions = {};
-        
+
         try {
           if (userProfile.detailed_permissions) {
             userPermissions = JSON.parse(userProfile.detailed_permissions);
@@ -148,7 +148,7 @@ const RealTimePermissionToggle: React.FC<PermissionToggleProps> = ({
 
         const modulePermissions = userPermissions[module] || defaultPermissions;
         setPermissions(modulePermissions);
-        
+
         if (onPermissionChange) {
           onPermissionChange(modulePermissions);
         }
@@ -197,8 +197,8 @@ const RealTimePermissionToggle: React.FC<PermissionToggleProps> = ({
         OrderByField: 'ID',
         IsAsc: true,
         Filters: [
-          { name: 'user_id', op: 'Equal', value: selectedUserId }
-        ]
+        { name: 'user_id', op: 'Equal', value: selectedUserId }]
+
       });
 
       if (profileError) throw profileError;
@@ -243,14 +243,14 @@ const RealTimePermissionToggle: React.FC<PermissionToggleProps> = ({
 
       // Update local state
       setPermissions(updatedModulePermissions);
-      
+
       if (onPermissionChange) {
         onPermissionChange(updatedModulePermissions);
       }
 
       toast({
         title: "Success",
-        description: `${permissionLabels[permissionType]} permission ${value ? 'enabled' : 'disabled'} for ${module}`,
+        description: `${permissionLabels[permissionType]} permission ${value ? 'enabled' : 'disabled'} for ${module}`
       });
 
     } catch (error) {
@@ -267,7 +267,7 @@ const RealTimePermissionToggle: React.FC<PermissionToggleProps> = ({
 
   const getPermissionColor = (permissionType: keyof ModulePermissions): string => {
     if (!permissions[permissionType]) return 'text-gray-400';
-    
+
     switch (permissionType) {
       case 'view':
         return 'text-blue-600';
@@ -295,8 +295,8 @@ const RealTimePermissionToggle: React.FC<PermissionToggleProps> = ({
             <span className="text-sm">Permission management requires administrator access</span>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -310,65 +310,65 @@ const RealTimePermissionToggle: React.FC<PermissionToggleProps> = ({
           </Badge>
         </CardTitle>
         
-        {showUserSelector && (
-          <div className="space-y-2">
+        {showUserSelector &&
+        <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
               <Users className="w-4 h-4" />
               <span>Select User:</span>
             </label>
-            {loadingUsers ? (
-              <div className="flex items-center space-x-2 text-gray-500">
+            {loadingUsers ?
+          <div className="flex items-center space-x-2 text-gray-500">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span className="text-sm">Loading users...</span>
-              </div>
-            ) : (
-              <select
-                value={selectedUserId || ''}
-                onChange={(e) => setSelectedUserId(Number(e.target.value) || null)}
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
+              </div> :
+
+          <select
+            value={selectedUserId || ''}
+            onChange={(e) => setSelectedUserId(Number(e.target.value) || null)}
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+
                 <option value="">Select a user...</option>
-                {users.map((user) => (
-                  <option key={user.ID} value={user.user_id}>
+                {users.map((user) =>
+            <option key={user.ID} value={user.user_id}>
                     {user.employee_id} - {user.role} ({user.station})
                   </option>
-                ))}
-              </select>
             )}
+              </select>
+          }
           </div>
-        )}
+        }
       </CardHeader>
 
       <CardContent className="pt-0">
-        {loading ? (
-          <div className="flex items-center justify-center py-8">
+        {loading ?
+        <div className="flex items-center justify-center py-8">
             <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
             <span className="ml-2 text-gray-500">Loading permissions...</span>
-          </div>
-        ) : !selectedUserId ? (
-          <div className="text-center py-8 text-gray-500">
+          </div> :
+        !selectedUserId ?
+        <div className="text-center py-8 text-gray-500">
             <Users className="w-8 h-8 mx-auto mb-2 text-gray-400" />
             <p>Select a user to manage their permissions</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          </div> :
+
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {(Object.keys(permissions) as Array<keyof ModulePermissions>).map((permissionType) => {
-              const Icon = permissionIcons[permissionType];
-              const isEnabled = permissions[permissionType];
-              const isSaving = saving === permissionType;
-              
-              return (
-                <div
-                  key={permissionType}
-                  className={`
+            const Icon = permissionIcons[permissionType];
+            const isEnabled = permissions[permissionType];
+            const isSaving = saving === permissionType;
+
+            return (
+              <div
+                key={permissionType}
+                className={`
                     relative p-4 border rounded-lg transition-all duration-200
-                    ${isEnabled 
-                      ? 'border-blue-200 bg-blue-50 shadow-sm' 
-                      : 'border-gray-200 bg-white hover:border-gray-300'
-                    }
-                    ${!isAdmin ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                  `}
-                >
+                    ${isEnabled ?
+                'border-blue-200 bg-blue-50 shadow-sm' :
+                'border-gray-200 bg-white hover:border-gray-300'}
+                    ${
+                !isAdmin ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                  `}>
+
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <Icon className={`w-5 h-5 ${getPermissionColor(permissionType)}`} />
@@ -383,56 +383,56 @@ const RealTimePermissionToggle: React.FC<PermissionToggleProps> = ({
                     </div>
                     
                     <div className="flex items-center space-x-2">
-                      {isSaving && (
-                        <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
-                      )}
+                      {isSaving &&
+                    <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                    }
                       <Switch
-                        checked={isEnabled}
-                        onCheckedChange={(value) => updatePermission(permissionType, value)}
-                        disabled={!isAdmin || isSaving}
-                        className="data-[state=checked]:bg-blue-600"
-                      />
+                      checked={isEnabled}
+                      onCheckedChange={(value) => updatePermission(permissionType, value)}
+                      disabled={!isAdmin || isSaving}
+                      className="data-[state=checked]:bg-blue-600" />
+
                     </div>
                   </div>
                   
-                  {isEnabled && (
-                    <div className="mt-2">
-                      <Badge 
-                        variant="secondary" 
-                        className="text-xs bg-green-100 text-green-700 border-green-200"
-                      >
+                  {isEnabled &&
+                <div className="mt-2">
+                      <Badge
+                    variant="secondary"
+                    className="text-xs bg-green-100 text-green-700 border-green-200">
+
                         Enabled
                       </Badge>
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                }
+                </div>);
+
+          })}
           </div>
-        )}
+        }
         
-        {selectedUserId && !loading && (
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+        {selectedUserId && !loading &&
+        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
             <h4 className="font-medium text-gray-900 mb-2">Permission Summary</h4>
             <div className="flex flex-wrap gap-2">
-              {(Object.keys(permissions) as Array<keyof ModulePermissions>)
-                .filter(permission => permissions[permission])
-                .map(permission => (
-                  <Badge key={permission} variant="outline" className="text-xs">
+              {(Object.keys(permissions) as Array<keyof ModulePermissions>).
+            filter((permission) => permissions[permission]).
+            map((permission) =>
+            <Badge key={permission} variant="outline" className="text-xs">
                     {permissionLabels[permission]}
                   </Badge>
-                ))
-              }
-              {(Object.keys(permissions) as Array<keyof ModulePermissions>)
-                .filter(permission => permissions[permission]).length === 0 && (
-                <span className="text-sm text-gray-500">No permissions enabled</span>
-              )}
+            )
+            }
+              {(Object.keys(permissions) as Array<keyof ModulePermissions>).
+            filter((permission) => permissions[permission]).length === 0 &&
+            <span className="text-sm text-gray-500">No permissions enabled</span>
+            }
             </div>
           </div>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default RealTimePermissionToggle;

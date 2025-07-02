@@ -4,25 +4,23 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
 import { 
   Settings, 
   Send, 
+  TestTube, 
   CheckCircle, 
   AlertCircle, 
+  DollarSign,
   Phone,
   Key,
-  User,
-  DollarSign,
-  MessageSquare,
-  Zap
+  User
 } from 'lucide-react';
-import { smsService } from '@/services/smsService';
 
-interface SMSConfig {
+interface SinchConfig {
   id?: number;
   service_provider: string;
   api_key: string;
@@ -34,15 +32,8 @@ interface SMSConfig {
   alert_types: string;
 }
 
-interface ServiceHealth {
-  available: boolean;
-  balance: number;
-  lastCheck: Date;
-  responseTime: number;
-}
-
-const SMSConfigurationManager: React.FC = () => {
-  const [config, setConfig] = useState<SMSConfig>({
+const SinchConfigManager: React.FC = () => {
+  const [config, setConfig] = useState<SinchConfig>({
     service_provider: 'Sinch ClickSend',
     api_key: '',
     username: '',
@@ -56,7 +47,8 @@ const SMSConfigurationManager: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [testing, setTesting] = useState(false);
   const [testPhone, setTestPhone] = useState('');
-  const [serviceHealth, setServiceHealth] = useState<ServiceHealth | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<'unknown' | 'connected' | 'error'>('unknown');
+  const [accountBalance, setAccountBalance] = useState<number | null>(null);
 
   useEffect(() => {
     loadConfiguration();
@@ -79,7 +71,7 @@ const SMSConfigurationManager: React.FC = () => {
         const configData = data.List[0];
         setConfig({
           id: configData.id,
-          service_provider: 'Sinch ClickSend',
+          service_provider: configData.service_provider || 'Sinch ClickSend',
           api_key: configData.api_key || '',
           username: configData.username || '',
           from_number: configData.from_number || '',
@@ -90,7 +82,7 @@ const SMSConfigurationManager: React.FC = () => {
         });
 
         if (configData.is_enabled && configData.api_key && configData.username) {
-          await checkServiceHealth();
+          await checkConnection();
         }
       }
     } catch (error) {
@@ -135,7 +127,7 @@ const SMSConfigurationManager: React.FC = () => {
       await loadConfiguration();
       
       if (config.is_enabled && config.api_key && config.username) {
-        await checkServiceHealth();
+        await checkConnection();
       }
     } catch (error) {
       console.error('Error saving configuration:', error);
@@ -149,18 +141,18 @@ const SMSConfigurationManager: React.FC = () => {
     }
   };
 
-  const checkServiceHealth = async () => {
+  const checkConnection = async () => {
     try {
       setLoading(true);
       
+      // Basic validation
       if (!config.api_key || !config.username) {
-        setServiceHealth({ available: false, balance: 0, lastCheck: new Date(), responseTime: 0 });
+        setConnectionStatus('error');
         return;
       }
 
-      const startTime = Date.now();
+      // Test API connection
       const credentials = btoa(`${config.username}:${config.api_key}`);
-      
       const response = await fetch('https://rest.clicksend.com/v3/account', {
         method: 'GET',
         headers: {
@@ -169,34 +161,28 @@ const SMSConfigurationManager: React.FC = () => {
         },
       });
 
-      const responseTime = Date.now() - startTime;
-
       if (response.ok) {
         const result = await response.json();
-        setServiceHealth({
-          available: true,
-          balance: result.data?.balance || 0,
-          lastCheck: new Date(),
-          responseTime
-        });
+        setConnectionStatus('connected');
+        setAccountBalance(result.data?.balance || 0);
         toast({
-          title: "Service Check Successful",
-          description: "Sinch ClickSend service is available and working",
+          title: "Connection Successful",
+          description: "Successfully connected to Sinch ClickSend",
         });
       } else {
-        setServiceHealth({ available: false, balance: 0, lastCheck: new Date(), responseTime });
+        setConnectionStatus('error');
         toast({
-          title: "Service Check Failed",
+          title: "Connection Failed",
           description: "Failed to connect to Sinch ClickSend. Please check your credentials.",
           variant: "destructive"
         });
       }
     } catch (error) {
-      console.error('Service health check error:', error);
-      setServiceHealth({ available: false, balance: 0, lastCheck: new Date(), responseTime: 0 });
+      console.error('Connection test error:', error);
+      setConnectionStatus('error');
       toast({
-        title: "Service Check Error",
-        description: "Network error while checking service health",
+        title: "Connection Error",
+        description: "Network error while testing connection",
         variant: "destructive"
       });
     } finally {
@@ -204,7 +190,7 @@ const SMSConfigurationManager: React.FC = () => {
     }
   };
 
-  const sendTestMessage = async () => {
+  const sendTestSMS = async () => {
     if (!testPhone) {
       toast({
         title: "Error",
@@ -226,29 +212,54 @@ const SMSConfigurationManager: React.FC = () => {
     try {
       setTesting(true);
 
-      // Configure the SMS service with current settings
-      await smsService.configure({
-        apiKey: config.api_key,
-        username: config.username,
-        fromNumber: config.from_number,
-        testMode: false
+      const credentials = btoa(`${config.username}:${config.api_key}`);
+      const smsData = {
+        messages: [
+          {
+            from: config.from_number,
+            to: testPhone,
+            body: `DFS Manager Test SMS - ${new Date().toLocaleString()}. Sinch ClickSend is working correctly!`,
+            source: 'javascript'
+          }
+        ]
+      };
+
+      const response = await fetch('https://rest.clicksend.com/v3/sms/send', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(smsData)
       });
 
-      const response = await smsService.testSMS(testPhone);
+      const result = await response.json();
 
-      if (response.success) {
+      if (response.ok && result.data?.messages?.[0]?.status === 'SUCCESS') {
         toast({
-          title: "Test Message Sent",
+          title: "Test SMS Sent",
           description: `Test message sent successfully to ${testPhone}`,
         });
+        
+        // Log to SMS history
+        await window.ezsite.apis.tableCreate(24062, {
+          recipient_phone: testPhone,
+          message_content: smsData.messages[0].body,
+          message_type: 'test',
+          status: 'Sent',
+          sent_at: new Date().toISOString(),
+          sms_provider_id: result.data.messages[0].message_id,
+          cost: result.data.messages[0].message_price || 0,
+          sent_by: 1
+        });
       } else {
-        throw new Error(response.error || 'Failed to send test message');
+        throw new Error(result.data?.messages?.[0]?.custom_string || 'Failed to send test SMS');
       }
     } catch (error) {
-      console.error('Test message error:', error);
+      console.error('Test SMS error:', error);
       toast({
         title: "Test Failed",
-        description: error instanceof Error ? error.message : "Failed to send test message",
+        description: error instanceof Error ? error.message : "Failed to send test SMS",
         variant: "destructive"
       });
     } finally {
@@ -256,27 +267,30 @@ const SMSConfigurationManager: React.FC = () => {
     }
   };
 
-  const getServiceBadge = () => {
-    if (!serviceHealth) {
-      return (
-        <Badge variant="outline">
-          <Settings className="h-3 w-3 mr-1" />
-          Not Checked
-        </Badge>
-      );
+  const renderConnectionStatus = () => {
+    switch (connectionStatus) {
+      case 'connected':
+        return (
+          <Badge variant="secondary" className="text-green-700 bg-green-100">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            Connected
+          </Badge>
+        );
+      case 'error':
+        return (
+          <Badge variant="destructive">
+            <AlertCircle className="h-3 w-3 mr-1" />
+            Connection Failed
+          </Badge>
+        );
+      default:
+        return (
+          <Badge variant="outline">
+            <Settings className="h-3 w-3 mr-1" />
+            Not Tested
+          </Badge>
+        );
     }
-
-    return serviceHealth.available ? (
-      <Badge variant="secondary" className="text-green-700 bg-green-100">
-        <CheckCircle className="h-3 w-3 mr-1" />
-        Available
-      </Badge>
-    ) : (
-      <Badge variant="destructive">
-        <AlertCircle className="h-3 w-3 mr-1" />
-        Unavailable
-      </Badge>
-    );
   };
 
   return (
@@ -284,11 +298,11 @@ const SMSConfigurationManager: React.FC = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5" />
+            <Settings className="h-5 w-5" />
             Sinch ClickSend Configuration
           </CardTitle>
           <CardDescription>
-            Configure your Sinch ClickSend SMS service for notifications and alerts
+            Configure your Sinch ClickSend SMS service for alerts and notifications
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -301,8 +315,8 @@ const SMSConfigurationManager: React.FC = () => {
 
             <TabsContent value="credentials" className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">API Configuration</h3>
-                {getServiceBadge()}
+                <h3 className="text-lg font-medium">API Credentials</h3>
+                {renderConnectionStatus()}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -348,7 +362,7 @@ const SMSConfigurationManager: React.FC = () => {
                   />
                 </div>
 
-                {serviceHealth && serviceHealth.available && (
+                {accountBalance !== null && (
                   <div className="space-y-2">
                     <Label className="flex items-center gap-2">
                       <DollarSign className="h-4 w-4" />
@@ -356,11 +370,8 @@ const SMSConfigurationManager: React.FC = () => {
                     </Label>
                     <div className="flex items-center gap-2">
                       <Badge variant="outline" className="text-lg">
-                        ${serviceHealth.balance.toFixed(2)}
+                        ${accountBalance.toFixed(2)}
                       </Badge>
-                      <span className="text-sm text-muted-foreground">
-                        Response: {serviceHealth.responseTime}ms
-                      </span>
                     </div>
                   </div>
                 )}
@@ -377,12 +388,12 @@ const SMSConfigurationManager: React.FC = () => {
                 </Button>
                 <Button 
                   variant="outline" 
-                  onClick={checkServiceHealth} 
+                  onClick={checkConnection} 
                   disabled={loading || !config.api_key || !config.username}
                   className="flex items-center gap-2"
                 >
-                  <Zap className="h-4 w-4" />
-                  Check Service
+                  <CheckCircle className="h-4 w-4" />
+                  Test Connection
                 </Button>
               </div>
             </TabsContent>
@@ -393,7 +404,7 @@ const SMSConfigurationManager: React.FC = () => {
                   <div className="space-y-0.5">
                     <Label>Enable SMS Service</Label>
                     <p className="text-sm text-muted-foreground">
-                      Enable or disable SMS notifications globally
+                      Enable or disable SMS notifications
                     </p>
                   </div>
                   <Switch
@@ -416,13 +427,6 @@ const SMSConfigurationManager: React.FC = () => {
                     Maximum number of SMS messages that can be sent per day
                   </p>
                 </div>
-
-                <Alert>
-                  <MessageSquare className="h-4 w-4" />
-                  <AlertDescription>
-                    Changes to these settings will take effect immediately for new SMS requests.
-                  </AlertDescription>
-                </Alert>
               </div>
             </TabsContent>
 
@@ -443,25 +447,24 @@ const SMSConfigurationManager: React.FC = () => {
                 </div>
 
                 <Button 
-                  onClick={sendTestMessage} 
-                  disabled={testing || !config.is_enabled || !testPhone || !config.api_key || !config.username}
+                  onClick={sendTestSMS} 
+                  disabled={testing || !config.is_enabled || !testPhone}
                   className="flex items-center gap-2"
                 >
                   <Send className="h-4 w-4" />
-                  {testing ? 'Sending...' : 'Send Test Message'}
+                  {testing ? 'Sending...' : 'Send Test SMS'}
                 </Button>
 
-                {serviceHealth?.available && (
+                {connectionStatus === 'connected' && (
                   <Alert>
                     <CheckCircle className="h-4 w-4" />
                     <AlertDescription>
                       Sinch ClickSend is configured and ready to send SMS messages.
-                      Balance: ${serviceHealth.balance.toFixed(2)}
                     </AlertDescription>
                   </Alert>
                 )}
 
-                {serviceHealth?.available === false && (
+                {connectionStatus === 'error' && (
                   <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
@@ -478,4 +481,4 @@ const SMSConfigurationManager: React.FC = () => {
   );
 };
 
-export default SMSConfigurationManager;
+export default SinchConfigManager;

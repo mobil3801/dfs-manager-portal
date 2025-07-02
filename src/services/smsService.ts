@@ -1,4 +1,4 @@
-// Enhanced SMS Service for Twilio integration and production use
+// Enhanced SMS Service for Sinch ClickSend integration and production use
 
 export interface SMSResponse {
   success: boolean;
@@ -6,7 +6,7 @@ export interface SMSResponse {
   error?: string;
   cost?: number;
   status?: string;
-  sid?: string;
+  sinchMessageId?: string;
 }
 
 export interface SMSMessage {
@@ -17,11 +17,10 @@ export interface SMSMessage {
   placeholders?: Record<string, string>;
 }
 
-export interface TwilioConfig {
-  accountSid: string;
-  authToken: string;
+export interface SinchClickSendConfig {
+  apiKey: string;
+  username: string;
   fromNumber: string;
-  messagingServiceSid?: string;
   testMode: boolean;
   webhookUrl?: string;
 }
@@ -36,20 +35,21 @@ export interface SMSTemplate {
 }
 
 class SMSService {
-  private config: TwilioConfig | null = null;
+  private config: SinchClickSendConfig | null = null;
   private isConfigured: boolean = false;
   private testNumbers: string[] = []; // Verified test numbers
+  private apiBaseUrl = 'https://rest.clicksend.com/v3';
 
-  async configure(config: TwilioConfig) {
+  async configure(config: SinchClickSendConfig) {
     this.config = config;
     this.isConfigured = true;
 
-    // Validate Twilio credentials
+    // Validate Sinch ClickSend credentials
     try {
       await this.validateCredentials();
-      console.log('Twilio SMS service configured successfully');
+      console.log('Sinch ClickSend SMS service configured successfully');
     } catch (error) {
-      console.error('Failed to configure Twilio:', error);
+      console.error('Failed to configure Sinch ClickSend:', error);
       this.isConfigured = false;
       throw error;
     }
@@ -57,12 +57,12 @@ class SMSService {
 
   async loadConfiguration(): Promise<void> {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(12640, {
+      const { data, error } = await window.ezsite.apis.tablePage(24060, {
         PageNo: 1,
         PageSize: 1,
-        OrderByField: 'ID',
+        OrderByField: 'id',
         IsAsc: false,
-        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+        Filters: [{ name: 'is_enabled', op: 'Equal', value: true }]
       });
 
       if (error) throw new Error(error);
@@ -70,10 +70,10 @@ class SMSService {
       if (data?.List && data.List.length > 0) {
         const config = data.List[0];
         await this.configure({
-          accountSid: config.account_sid,
-          authToken: config.auth_token,
+          apiKey: config.api_key,
+          username: config.username,
           fromNumber: config.from_number,
-          testMode: config.test_mode,
+          testMode: config.test_mode || false,
           webhookUrl: config.webhook_url
         });
       }
@@ -85,20 +85,56 @@ class SMSService {
   private async validateCredentials(): Promise<boolean> {
     if (!this.config) return false;
 
-    // In a real implementation, this would make a test call to Twilio
-    // For now, we'll simulate validation
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(!!this.config?.accountSid && !!this.config?.authToken);
-      }, 500);
-    });
+    try {
+      // Test Sinch ClickSend API connection
+      const response = await this.makeSinchRequest('GET', '/account');
+      return response.success;
+    } catch (error) {
+      console.error('Sinch ClickSend credential validation failed:', error);
+      return false;
+    }
+  }
+
+  private async makeSinchRequest(method: string, endpoint: string, data?: any): Promise<any> {
+    if (!this.config) {
+      throw new Error('SMS service not configured');
+    }
+
+    const url = `${this.apiBaseUrl}${endpoint}`;
+    const credentials = btoa(`${this.config.username}:${this.config.apiKey}`);
+
+    try {
+      const options: RequestInit = {
+        method,
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/json',
+        },
+      };
+
+      if (data && (method === 'POST' || method === 'PUT')) {
+        options.body = JSON.stringify(data);
+      }
+
+      const response = await fetch(url, options);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || `HTTP ${response.status}`);
+      }
+
+      return { success: true, data: result };
+    } catch (error) {
+      console.error('Sinch ClickSend API request failed:', error);
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
   }
 
   async sendSMS(message: SMSMessage): Promise<SMSResponse> {
     if (!this.isConfigured || !this.config) {
       return {
         success: false,
-        error: 'SMS service not configured. Please configure Twilio settings.'
+        error: 'SMS service not configured. Please configure Sinch ClickSend settings.'
       };
     }
 
@@ -119,8 +155,8 @@ class SMSService {
     }
 
     try {
-      // Check monthly limits
-      await this.checkMonthlyLimit();
+      // Check daily limits
+      await this.checkDailyLimit();
 
       // Process template if templateId is provided
       let finalMessage = message.message;
@@ -128,8 +164,8 @@ class SMSService {
         finalMessage = await this.processTemplate(message.templateId, message.placeholders || {});
       }
 
-      // Simulate Twilio API call
-      const response = await this.sendToTwilio({
+      // Send SMS via Sinch ClickSend
+      const response = await this.sendToSinchClickSend({
         to: message.to,
         message: finalMessage,
         type: message.type
@@ -137,15 +173,18 @@ class SMSService {
 
       // Log to SMS history
       await this.logSMSHistory({
-        mobile_number: message.to,
+        recipient_phone: message.to,
         message_content: finalMessage,
-        delivery_status: response.success ? 'Sent' : 'Failed',
-        sent_date: new Date().toISOString()
+        status: response.success ? 'Sent' : 'Failed',
+        sent_at: new Date().toISOString(),
+        sms_provider_id: response.sinchMessageId,
+        error_message: response.error,
+        cost: response.cost || 0
       });
 
-      // Update monthly count
+      // Update daily count
       if (response.success) {
-        await this.updateMonthlyCount();
+        await this.updateDailyCount();
       }
 
       return response;
@@ -158,32 +197,54 @@ class SMSService {
     }
   }
 
-  private async sendToTwilio(message: SMSMessage): Promise<SMSResponse> {
-    // In production, this would use the actual Twilio SDK
-    // For now, we'll simulate the API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const success = Math.random() > 0.05; // 95% success rate
-        resolve({
-          success,
-          messageId: success ? `SM${Date.now()}${Math.random().toString(36).substr(2, 9)}` : undefined,
-          sid: success ? `SM${Date.now()}${Math.random().toString(36).substr(2, 9)}` : undefined,
-          cost: success ? 0.0075 : 0,
-          status: success ? 'queued' : 'failed',
-          error: success ? undefined : 'Simulated failure for testing'
-        });
-      }, 1000 + Math.random() * 2000); // Realistic delay
-    });
+  private async sendToSinchClickSend(message: SMSMessage): Promise<SMSResponse> {
+    try {
+      const smsData = {
+        messages: [
+          {
+            from: this.config?.fromNumber || '',
+            to: message.to,
+            body: message.message,
+            source: 'javascript'
+          }
+        ]
+      };
+
+      const response = await this.makeSinchRequest('POST', '/sms/send', smsData);
+
+      if (response.success && response.data) {
+        const messageResult = response.data.data.messages[0];
+        
+        return {
+          success: messageResult.status === 'SUCCESS',
+          messageId: messageResult.message_id,
+          sinchMessageId: messageResult.message_id,
+          cost: messageResult.message_price,
+          status: messageResult.status,
+          error: messageResult.status !== 'SUCCESS' ? messageResult.custom_string : undefined
+        };
+      }
+
+      return {
+        success: false,
+        error: response.error || 'Failed to send SMS'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred'
+      };
+    }
   }
 
   private async processTemplate(templateId: number, placeholders: Record<string, string>): Promise<string> {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(12641, {
+      const { data, error } = await window.ezsite.apis.tablePage('sms_templates', {
         PageNo: 1,
         PageSize: 1,
-        OrderByField: 'ID',
+        OrderByField: 'id',
         IsAsc: false,
-        Filters: [{ name: 'ID', op: 'Equal', value: templateId }]
+        Filters: [{ name: 'id', op: 'Equal', value: templateId }]
       });
 
       if (error) throw new Error(error);
@@ -206,59 +267,56 @@ class SMSService {
     }
   }
 
-  private async checkMonthlyLimit(): Promise<void> {
+  private async checkDailyLimit(): Promise<void> {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(12640, {
+      const { data, error } = await window.ezsite.apis.tablePage(24060, {
         PageNo: 1,
         PageSize: 1,
-        OrderByField: 'ID',
+        OrderByField: 'id',
         IsAsc: false,
-        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+        Filters: [{ name: 'is_enabled', op: 'Equal', value: true }]
       });
 
       if (error) throw new Error(error);
 
       if (data?.List && data.List.length > 0) {
         const config = data.List[0];
-        if (config.current_month_count >= config.monthly_limit) {
-          throw new Error('Monthly SMS limit exceeded. Please upgrade your plan or wait for next month.');
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Count today's SMS messages
+        const { data: historyData } = await window.ezsite.apis.tablePage(24062, {
+          PageNo: 1,
+          PageSize: 1,
+          OrderByField: 'id',
+          IsAsc: false,
+          Filters: [
+            { name: 'sent_at', op: 'StringStartsWith', value: today },
+            { name: 'status', op: 'Equal', value: 'Sent' }
+          ]
+        });
+
+        const todayCount = historyData?.VirtualCount || 0;
+        
+        if (todayCount >= config.daily_limit) {
+          throw new Error('Daily SMS limit exceeded. Please contact administrator or wait for tomorrow.');
         }
       }
     } catch (error) {
-      console.error('Error checking monthly limit:', error);
+      console.error('Error checking daily limit:', error);
       throw error;
     }
   }
 
-  private async updateMonthlyCount(): Promise<void> {
-    try {
-      const { data, error } = await window.ezsite.apis.tablePage(12640, {
-        PageNo: 1,
-        PageSize: 1,
-        OrderByField: 'ID',
-        IsAsc: false,
-        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
-      });
-
-      if (error) throw new Error(error);
-
-      if (data?.List && data.List.length > 0) {
-        const config = data.List[0];
-        await window.ezsite.apis.tableUpdate(12640, {
-          ID: config.ID,
-          current_month_count: config.current_month_count + 1
-        });
-      }
-    } catch (error) {
-      console.error('Error updating monthly count:', error);
-    }
+  private async updateDailyCount(): Promise<void> {
+    // This is handled by counting records in the history table
+    // No need for a separate counter field
   }
 
   private async logSMSHistory(historyData: any): Promise<void> {
     try {
-      await window.ezsite.apis.tableCreate(12613, {
+      await window.ezsite.apis.tableCreate(24062, {
         ...historyData,
-        created_by: 1 // This should be the current user ID
+        sent_by: 1 // This should be the current user ID
       });
     } catch (error) {
       console.error('Error logging SMS history:', error);
@@ -278,7 +336,7 @@ class SMSService {
         const result = await this.sendSMS(message);
         results.push(result);
         // Add small delay between messages to respect rate limits
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 500));
       } catch (error) {
         results.push({
           success: false,
@@ -289,26 +347,39 @@ class SMSService {
     return results;
   }
 
-  async getDeliveryStatus(messageId: string): Promise<{status: string;delivered: boolean;}> {
+  async getDeliveryStatus(messageId: string): Promise<{status: string; delivered: boolean;}> {
     if (!this.isConfigured) {
       throw new Error('SMS service not configured');
     }
 
-    // In production, this would query Twilio's API
-    // For now, simulate different statuses
-    const statuses = ['queued', 'sent', 'delivered', 'failed', 'undelivered'];
-    const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+    try {
+      const response = await this.makeSinchRequest('GET', `/sms/history/${messageId}`);
+      
+      if (response.success && response.data) {
+        const status = response.data.data.status;
+        return {
+          status: status,
+          delivered: status === 'Delivered'
+        };
+      }
 
-    return {
-      status: randomStatus,
-      delivered: randomStatus === 'delivered'
-    };
+      return {
+        status: 'unknown',
+        delivered: false
+      };
+    } catch (error) {
+      console.error('Error getting delivery status:', error);
+      return {
+        status: 'error',
+        delivered: false
+      };
+    }
   }
 
   async testSMS(phoneNumber: string): Promise<SMSResponse> {
     const testMessage = {
       to: phoneNumber,
-      message: `DFS Manager SMS Test - ${new Date().toLocaleString()}. If you receive this message, SMS is working correctly.`,
+      message: `DFS Manager SMS Test - ${new Date().toLocaleString()}. If you receive this message, Sinch ClickSend SMS is working correctly.`,
       type: 'test'
     };
 
@@ -331,31 +402,45 @@ class SMSService {
     return [...this.testNumbers];
   }
 
-  async getMonthlyUsage(): Promise<{used: number;limit: number;percentage: number;}> {
+  async getDailyUsage(): Promise<{used: number; limit: number; percentage: number;}> {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(12640, {
+      const { data, error } = await window.ezsite.apis.tablePage(24060, {
         PageNo: 1,
         PageSize: 1,
-        OrderByField: 'ID',
+        OrderByField: 'id',
         IsAsc: false,
-        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+        Filters: [{ name: 'is_enabled', op: 'Equal', value: true }]
       });
 
       if (error) throw new Error(error);
 
       if (data?.List && data.List.length > 0) {
         const config = data.List[0];
-        const used = config.current_month_count;
-        const limit = config.monthly_limit;
-        const percentage = used / limit * 100;
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Count today's SMS messages
+        const { data: historyData } = await window.ezsite.apis.tablePage(24062, {
+          PageNo: 1,
+          PageSize: 1,
+          OrderByField: 'id',
+          IsAsc: false,
+          Filters: [
+            { name: 'sent_at', op: 'StringStartsWith', value: today },
+            { name: 'status', op: 'Equal', value: 'Sent' }
+          ]
+        });
+
+        const used = historyData?.VirtualCount || 0;
+        const limit = config.daily_limit;
+        const percentage = (used / limit) * 100;
 
         return { used, limit, percentage };
       }
 
-      return { used: 0, limit: 1000, percentage: 0 };
+      return { used: 0, limit: 100, percentage: 0 };
     } catch (error) {
-      console.error('Error getting monthly usage:', error);
-      return { used: 0, limit: 1000, percentage: 0 };
+      console.error('Error getting daily usage:', error);
+      return { used: 0, limit: 100, percentage: 0 };
     }
   }
 
@@ -363,33 +448,32 @@ class SMSService {
     return this.isConfigured;
   }
 
-  getConfiguration(): TwilioConfig | null {
+  getConfiguration(): SinchClickSendConfig | null {
     return this.config;
   }
 
-  // Additional methods for the SMSServiceManager
-  async getServiceStatus(): Promise<{available: boolean;message: string;providers?: any;quota?: any;}> {
+  async getServiceStatus(): Promise<{available: boolean; message: string; providers?: any; quota?: any;}> {
     try {
       if (!this.isConfigured) {
         return {
           available: false,
-          message: 'SMS service not configured. Please configure Twilio settings.'
+          message: 'SMS service not configured. Please configure Sinch ClickSend settings.'
         };
       }
 
-      // Simulate service check
+      const accountResponse = await this.makeSinchRequest('GET', '/account');
+      
       const providers = [
-      { name: 'Twilio', available: this.isConfigured },
-      { name: 'TextBelt (Fallback)', available: true }];
-
+        { name: 'Sinch ClickSend', available: this.isConfigured && accountResponse.success }
+      ];
 
       const quota = {
-        quotaRemaining: 50 // Simulated quota
+        quotaRemaining: accountResponse.success ? accountResponse.data?.data?.balance || 0 : 0
       };
 
       return {
-        available: true,
-        message: 'SMS service is configured and ready',
+        available: accountResponse.success,
+        message: accountResponse.success ? 'Sinch ClickSend SMS service is configured and ready' : 'Sinch ClickSend connection failed',
         providers,
         quota
       };
@@ -402,9 +486,7 @@ class SMSService {
     }
   }
 
-  // Wrapper method for sending SMS with simplified interface
   async sendSimpleSMS(phoneNumber: string, message: string, fromNumber?: string): Promise<SMSResponse> {
-    // If fromNumber is provided, temporarily use it
     const originalConfig = this.config;
     if (fromNumber && this.config) {
       this.config = { ...this.config, fromNumber };
@@ -418,19 +500,15 @@ class SMSService {
       });
       return result;
     } finally {
-      // Restore original configuration
       if (originalConfig) {
         this.config = originalConfig;
       }
     }
   }
 
-
-
-  // Get available provider numbers
-  async getAvailableFromNumbers(): Promise<{number: string;provider: string;isActive: boolean;testMode: boolean;}[]> {
+  async getAvailableFromNumbers(): Promise<{number: string; provider: string; isActive: boolean; testMode: boolean;}[]> {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage('12640', {
+      const { data, error } = await window.ezsite.apis.tablePage(24060, {
         PageNo: 1,
         PageSize: 10,
         OrderByField: 'id',
@@ -442,9 +520,9 @@ class SMSService {
 
       return (data?.List || []).map((provider: any) => ({
         number: provider.from_number,
-        provider: provider.provider_name,
-        isActive: provider.is_active,
-        testMode: provider.test_mode
+        provider: 'Sinch ClickSend',
+        isActive: provider.is_enabled,
+        testMode: provider.test_mode || false
       }));
     } catch (error) {
       console.error('Error getting available from numbers:', error);
@@ -452,9 +530,21 @@ class SMSService {
     }
   }
 
-  // Send custom SMS with specific from number
   async sendCustomSMS(phoneNumber: string, message: string, fromNumber: string): Promise<SMSResponse> {
     return this.sendSimpleSMS(phoneNumber, message, fromNumber);
+  }
+
+  async getAccountBalance(): Promise<number> {
+    try {
+      const response = await this.makeSinchRequest('GET', '/account');
+      if (response.success && response.data) {
+        return response.data.data.balance || 0;
+      }
+      return 0;
+    } catch (error) {
+      console.error('Error getting account balance:', error);
+      return 0;
+    }
   }
 }
 
@@ -466,20 +556,20 @@ class ProductionSMSService extends SMSService {
     try {
       // Load from environment variables first
       const envConfig = {
-        accountSid: import.meta.env.VITE_TWILIO_ACCOUNT_SID,
-        authToken: import.meta.env.VITE_TWILIO_AUTH_TOKEN,
-        fromNumber: import.meta.env.VITE_TWILIO_PHONE_NUMBER,
+        apiKey: import.meta.env.VITE_SINCH_API_KEY,
+        username: import.meta.env.VITE_SINCH_USERNAME,
+        fromNumber: import.meta.env.VITE_SINCH_FROM_NUMBER,
         testMode: import.meta.env.VITE_SMS_TEST_MODE === 'true',
         webhookUrl: import.meta.env.VITE_SMS_WEBHOOK_URL
       };
 
-      if (envConfig.accountSid && envConfig.authToken && envConfig.fromNumber) {
+      if (envConfig.apiKey && envConfig.username && envConfig.fromNumber) {
         await this.configure(envConfig);
-        console.log('📱 SMS service configured from environment variables');
+        console.log('📱 Sinch ClickSend SMS service configured from environment variables');
       } else {
         // Fallback to database configuration
         await this.loadConfiguration();
-        console.log('📱 SMS service configured from database');
+        console.log('📱 Sinch ClickSend SMS service configured from database');
       }
     } catch (error) {
       console.error('Error loading SMS configuration:', error);
@@ -490,7 +580,7 @@ class ProductionSMSService extends SMSService {
   async initializeForProduction(): Promise<void> {
     try {
       await this.loadEnvironmentConfig();
-      console.log('🚀 Production SMS service initialized');
+      console.log('🚀 Production Sinch ClickSend SMS service initialized');
     } catch (error) {
       console.error('❌ Failed to initialize production SMS service:', error);
       throw error;
@@ -499,6 +589,3 @@ class ProductionSMSService extends SMSService {
 }
 
 export const productionSmsService = new ProductionSMSService();
-
-// Also export the enhanced service
-export { enhancedSmsService } from './enhancedSmsService';

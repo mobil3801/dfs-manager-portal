@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Search, Edit, Trash2, Package, FileText, Loader2, X, Save, Download, Printer } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Package, FileText, Loader2, X, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import ProductLogs from '@/components/ProductLogs';
@@ -47,7 +47,7 @@ const ProductList: React.FC = () => {
   const navigate = useNavigate();
   const { userProfile } = useAuth();
   const responsive = useResponsiveLayout();
-  
+
   // Real-time permission management
   const {
     canView,
@@ -222,17 +222,13 @@ const ProductList: React.FC = () => {
   const handleSaveProduct = async (productId: number | null = null) => {
     console.log('handleSaveProduct called for product ID:', productId);
 
-    // Check appropriate permission based on action
-    if (productId === null) {
-      // Creating new product
-      if (!checkCreate()) {
-        return;
-      }
-    } else {
-      // Editing existing product
-      if (!checkEdit()) {
-        return;
-      }
+    if (!hasEditPermission) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to save product information.",
+        variant: "destructive"
+      });
+      return;
     }
 
     const isCreating = productId === null;
@@ -419,8 +415,8 @@ const ProductList: React.FC = () => {
     console.log('Logs modal should now be open');
   };
 
-  // Permission-based access control
-  const hasEditPermission = canEdit || canCreate;
+  // Visual editing enabled for all users
+  const hasEditPermission = true;
 
   // Calculate display text for showing results
   const getDisplayText = () => {
@@ -474,137 +470,10 @@ const ProductList: React.FC = () => {
     setLoadedProductsCount(pageSize);
   };
 
-  // Export functionality
-  const handleExport = () => {
-    if (!checkExport()) {
-      return;
-    }
-
-    try {
-      const exportData = products.map(product => ({
-        Serial: product.serial_number,
-        'Product Name': product.product_name,
-        Category: product.category,
-        Department: product.department,
-        Supplier: product.supplier,
-        'Case Price': product.case_price,
-        'Unit Price': product.unit_price,
-        'Retail Price': product.retail_price,
-        'Stock Quantity': product.quantity_in_stock,
-        'Min Stock': product.minimum_stock
-      }));
-
-      const csvContent = [
-        Object.keys(exportData[0] || {}).join(','),
-        ...exportData.map(row => Object.values(row).map(val => `"${val}"`).join(','))
-      ].join('\n');
-
-      const blob = new Blob([csvContent], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `products-export-${new Date().toISOString().split('T')[0]}.csv`;
-      a.click();
-      window.URL.revokeObjectURL(url);
-
-      toast({
-        title: "Success",
-        description: "Products exported successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to export products",
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Print functionality
-  const handlePrint = () => {
-    if (!checkPrint()) {
-      return;
-    }
-
-    try {
-      const printWindow = window.open('', '_blank');
-      if (!printWindow) {
-        throw new Error('Failed to open print window');
-      }
-
-      const printContent = `
-        <html>
-          <head>
-            <title>Products List</title>
-            <style>
-              body { font-family: Arial, sans-serif; margin: 20px; }
-              h1 { color: #333; text-align: center; }
-              table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-              th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-              th { background-color: #f5f5f5; font-weight: bold; }
-              tr:nth-child(even) { background-color: #f9f9f9; }
-              .print-date { text-align: center; color: #666; margin-bottom: 20px; }
-            </style>
-          </head>
-          <body>
-            <h1>Products List</h1>
-            <div class="print-date">Generated on: ${new Date().toLocaleDateString()}</div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Serial</th>
-                  <th>Product Name</th>
-                  <th>Category</th>
-                  <th>Department</th>
-                  <th>Case Price</th>
-                  <th>Unit Price</th>
-                  <th>Retail Price</th>
-                  <th>Stock</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${products.map(product => `
-                  <tr>
-                    <td>${product.serial_number || '-'}</td>
-                    <td>${product.product_name}</td>
-                    <td>${product.category || '-'}</td>
-                    <td>${product.department || '-'}</td>
-                    <td>$${product.case_price?.toFixed(2) || '0.00'}</td>
-                    <td>$${product.unit_price?.toFixed(2) || '0.00'}</td>
-                    <td>$${product.retail_price?.toFixed(2) || '0.00'}</td>
-                    <td>${product.quantity_in_stock || 0}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </body>
-        </html>
-      `;
-
-      printWindow.document.write(printContent);
-      printWindow.document.close();
-      printWindow.print();
-
-      toast({
-        title: "Success",
-        description: "Print dialog opened",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to open print dialog",
-        variant: "destructive"
-      });
-    }
-  };
-
   return (
     <ResponsiveStack spacing="lg">
       {/* Permission Management Section */}
-      <ProductPermissionManager 
-        className="mb-6" 
-        onPermissionChange={refreshPermissions}
-      />
+      <ProductPermissionManager className="mb-6" />
       
       <Card>
         <CardHeader>
@@ -620,40 +489,14 @@ const ProductList: React.FC = () => {
                 Manage your product inventory - Search across all product fields for similar items
               </CardDescription>
             </div>
-            <div className={`flex ${responsive.isMobile ? 'flex-col w-full space-y-2' : 'items-center space-x-2'}`}>
-              {canExport && (
-                <Button
-                  variant="outline"
-                  onClick={handleExport}
-                  className={responsive.isMobile ? 'w-full' : ''}
-                  title="Export products to CSV"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Export
-                </Button>
-              )}
-              {canPrint && (
-                <Button
-                  variant="outline"
-                  onClick={handlePrint}
-                  className={responsive.isMobile ? 'w-full' : ''}
-                  title="Print products list"
-                >
-                  <Printer className="w-4 h-4 mr-2" />
-                  Print
-                </Button>
-              )}
-              {canCreate && (
-                <Button
-                  onClick={() => navigate('/products/new')}
-                  className={`bg-brand-600 hover:bg-brand-700 text-white ${
-                  responsive.isMobile ? 'w-full' : ''}`
-                  }>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Product
-                </Button>
-              )}
-            </div>
+            <Button
+              onClick={() => navigate('/products/new')}
+              className={`bg-brand-600 hover:bg-brand-700 text-white ${
+              responsive.isMobile ? 'w-full' : ''}`
+              }>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Product
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -831,47 +674,42 @@ const ProductList: React.FC = () => {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">
-                            {canView && (
-                              <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                console.log('Viewing logs for product:', product.ID, product.product_name);
-                                handleViewLogs(product.ID, product.product_name);
-                              }}
-                              title="View change logs">
-                                <FileText className="w-4 h-4" />
-                              </Button>
-                            )}
-                            {canEdit && (
-                              <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                console.log('Saving product:', product.ID);
-                                handleSaveProduct(product.ID);
-                              }}
-                              disabled={savingProductId === product.ID}
-                              title="Save product">
-                                {savingProductId === product.ID ?
-                              <Loader2 className="w-4 h-4 animate-spin" /> :
-                              <Save className="w-4 h-4" />
-                              }
-                              </Button>
-                            )}
-                            {canDelete && (
-                              <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                console.log('Deleting product:', product.ID);
-                                handleDelete(product.ID);
-                              }}
-                              className="text-red-600 hover:text-red-700"
-                              title="Delete product">
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            )}
+                            <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              console.log('Viewing logs for product:', product.ID, product.product_name);
+                              handleViewLogs(product.ID, product.product_name);
+                            }}
+                            title="View change logs">
+                              <FileText className="w-4 h-4" />
+                            </Button>
+                            <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              console.log('Saving product:', product.ID);
+                              handleSaveProduct(product.ID);
+                            }}
+                            disabled={savingProductId === product.ID}
+                            title="Save product">
+                              {savingProductId === product.ID ?
+                            <Loader2 className="w-4 h-4 animate-spin" /> :
+
+                            <Save className="w-4 h-4" />
+                            }
+                            </Button>
+                            <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              console.log('Deleting product:', product.ID);
+                              handleDelete(product.ID);
+                            }}
+                            className="text-red-600 hover:text-red-700"
+                            title="Delete product">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>);

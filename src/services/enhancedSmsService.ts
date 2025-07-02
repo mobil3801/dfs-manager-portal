@@ -1,604 +1,490 @@
-// Enhanced Production SMS Service with Twilio Integration
-import { smsService } from './smsService';
+// Enhanced SMS Service for Sinch ClickSend with advanced features
 
-export interface ProductionSMSConfig {
-  accountSid: string;
-  authToken: string;
-  fromNumber: string;
-  webhookUrl?: string;
-  testMode: boolean;
-  retryAttempts: number;
-  retryDelayMs: number;
-  batchSize: number;
-  enableDeliveryTracking: boolean;
+import { smsService, SMSResponse, SMSMessage, SinchClickSendConfig } from './smsService';
+
+export interface AdvancedSMSOptions {
+  priority?: 'low' | 'normal' | 'high';
+  scheduledTime?: Date;
+  retryAttempts?: number;
+  template?: string;
+  variables?: Record<string, string>;
+  deliveryReport?: boolean;
+  customSender?: string;
 }
 
-export interface SMSDeliveryStatus {
-  messageId: string;
-  status: 'queued' | 'sent' | 'delivered' | 'failed' | 'undelivered';
-  errorCode?: string;
-  errorMessage?: string;
-  deliveredAt?: Date;
-  cost?: number;
+export interface SMSAnalytics {
+  totalSent: number;
+  totalDelivered: number;
+  totalFailed: number;
+  deliveryRate: number;
+  averageCost: number;
+  topRecipients: { phone: string; count: number }[];
+  dailyStats: { date: string; sent: number; delivered: number }[];
 }
 
-export interface AlertSchedule {
-  id: number;
-  schedule_name: string;
-  alert_type: string;
-  days_before_expiry: number;
-  frequency_days: number;
-  template_id: number;
-  is_active: boolean;
-  last_run: string;
-  next_run: string;
-  station_filter: string;
-}
-
-export interface SMSAlert {
-  licenseId: number;
-  licenseName: string;
-  station: string;
-  expiryDate: Date;
-  daysUntilExpiry: number;
-  contactNumbers: string[];
-  templateId: number;
-  priority: 'low' | 'medium' | 'high' | 'critical';
+export interface BulkSMSJob {
+  id: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  totalMessages: number;
+  sentMessages: number;
+  failedMessages: number;
+  createdAt: Date;
+  completedAt?: Date;
+  error?: string;
 }
 
 class EnhancedSMSService {
-  private config: ProductionSMSConfig | null = null;
-  private isInitialized: boolean = false;
-  private retryQueue: Array<{message: any;attempts: number;}> = [];
-  private deliveryStatusCache = new Map<string, SMSDeliveryStatus>();
-  private processRetryQueueInterval: NodeJS.Timeout | null = null;
+  private jobQueue: Map<string, BulkSMSJob> = new Map();
+  private retryQueue: Array<{ message: SMSMessage; attempts: number; maxAttempts: number }> = [];
 
-  async initialize(): Promise<void> {
+  constructor(private baseService = smsService) {}
+
+  async sendAdvancedSMS(
+    phoneNumber: string,
+    message: string,
+    options: AdvancedSMSOptions = {}
+  ): Promise<SMSResponse> {
     try {
-      // Load configuration from environment variables and database
-      await this.loadProductionConfig();
-      await this.initializeScheduler();
-      this.startRetryProcessor();
-      this.isInitialized = true;
-      console.log('✅ Enhanced SMS Service initialized successfully');
-    } catch (error) {
-      console.error('❌ Failed to initialize Enhanced SMS Service:', error);
-      throw error;
-    }
-  }
-
-  private async loadProductionConfig(): Promise<void> {
-    try {
-      // Load from database first
-      const { data, error } = await window.ezsite.apis.tablePage('12640', {
-        PageNo: 1,
-        PageSize: 1,
-        OrderByField: 'ID',
-        IsAsc: false,
-        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
-      });
-
-      if (error) throw new Error(error);
-
-      let dbConfig = null;
-      if (data?.List && data.List.length > 0) {
-        dbConfig = data.List[0];
+      // Process template variables if provided
+      let processedMessage = message;
+      if (options.template && options.variables) {
+        processedMessage = this.processMessageTemplate(options.template, options.variables);
       }
 
-      // Merge with environment variables (env takes precedence)
-      this.config = {
-        accountSid: import.meta.env.VITE_TWILIO_ACCOUNT_SID || dbConfig?.account_sid || '',
-        authToken: import.meta.env.VITE_TWILIO_AUTH_TOKEN || dbConfig?.auth_token || '',
-        fromNumber: import.meta.env.VITE_TWILIO_PHONE_NUMBER || dbConfig?.from_number || '',
-        webhookUrl: import.meta.env.VITE_SMS_WEBHOOK_URL || dbConfig?.webhook_url || '',
-        testMode: import.meta.env.VITE_SMS_TEST_MODE === 'true' || dbConfig?.test_mode || false,
-        retryAttempts: parseInt(import.meta.env.VITE_SMS_RETRY_ATTEMPTS) || 3,
-        retryDelayMs: parseInt(import.meta.env.VITE_SMS_RETRY_DELAY_MS) || 5000,
-        batchSize: parseInt(import.meta.env.VITE_SMS_BATCH_SIZE) || 50,
-        enableDeliveryTracking: import.meta.env.VITE_SMS_ENABLE_DELIVERY_TRACKING === 'true'
+      // Handle scheduled messaging
+      if (options.scheduledTime && options.scheduledTime > new Date()) {
+        return this.scheduleMessage(phoneNumber, processedMessage, options);
+      }
+
+      // Prepare SMS message
+      const smsMessage: SMSMessage = {
+        to: phoneNumber,
+        message: processedMessage,
+        type: options.priority || 'normal'
       };
 
-      // Validate required configuration
-      if (!this.config.accountSid || !this.config.authToken || !this.config.fromNumber) {
-        throw new Error('Missing required SMS configuration. Please check Twilio credentials.');
+      // Send SMS
+      const response = await this.baseService.sendSMS(smsMessage);
+
+      // Handle retry logic for failed messages
+      if (!response.success && options.retryAttempts && options.retryAttempts > 0) {
+        this.addToRetryQueue(smsMessage, options.retryAttempts);
       }
 
-      console.log('📱 SMS Configuration loaded:', {
-        accountSid: this.config.accountSid.substring(0, 10) + '...',
-        fromNumber: this.config.fromNumber,
-        testMode: this.config.testMode,
-        retryAttempts: this.config.retryAttempts
-      });
-    } catch (error) {
-      console.error('Error loading SMS configuration:', error);
-      throw error;
-    }
-  }
-
-  private async initializeScheduler(): Promise<void> {
-    try {
-      // Load active alert schedules
-      const { data, error } = await window.ezsite.apis.tablePage('12642', {
-        PageNo: 1,
-        PageSize: 100,
-        OrderByField: 'ID',
-        IsAsc: false,
-        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
-      });
-
-      if (error) throw new Error(error);
-
-      const schedules = data?.List || [];
-      console.log(`🕐 Loaded ${schedules.length} active alert schedules`);
-
-      // Check if any schedules are due
-      await this.processScheduledAlerts(schedules);
-
-    } catch (error) {
-      console.error('Error initializing scheduler:', error);
-    }
-  }
-
-  private startRetryProcessor(): void {
-    // Process retry queue every 30 seconds
-    this.processRetryQueueInterval = setInterval(() => {
-      this.processRetryQueue();
-    }, 30000);
-  }
-
-  private async processRetryQueue(): Promise<void> {
-    if (this.retryQueue.length === 0) return;
-
-    console.log(`🔄 Processing ${this.retryQueue.length} messages in retry queue`);
-
-    const toRetry = [...this.retryQueue];
-    this.retryQueue = [];
-
-    for (const item of toRetry) {
-      if (item.attempts >= (this.config?.retryAttempts || 3)) {
-        console.log(`❌ Message failed after ${item.attempts} attempts:`, item.message.to);
-        await this.logFailedMessage(item.message, 'Max retry attempts exceeded');
-        continue;
-      }
-
-      try {
-        const result = await this.sendSMSWithTwilio(item.message);
-        if (!result.success) {
-          item.attempts++;
-          this.retryQueue.push(item);
-        } else {
-          console.log(`✅ Message sent successfully on retry ${item.attempts + 1}:`, item.message.to);
-        }
-      } catch (error) {
-        item.attempts++;
-        this.retryQueue.push(item);
-        console.error(`🔄 Retry attempt ${item.attempts} failed:`, error);
-      }
-
-      // Small delay between retries
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-  }
-
-  async sendProductionSMS(message: {
-    to: string;
-    content: string;
-    templateId?: number;
-    licenseId?: number;
-    priority?: 'low' | 'medium' | 'high' | 'critical';
-  }): Promise<{success: boolean;messageId?: string;error?: string;}> {
-    if (!this.isInitialized) {
-      await this.initialize();
-    }
-
-    try {
-      // Process template if provided
-      let finalContent = message.content;
-      if (message.templateId) {
-        finalContent = await this.processTemplate(message.templateId, message);
-      }
-
-      const smsMessage = {
-        to: message.to,
-        content: finalContent,
-        priority: message.priority || 'medium',
-        licenseId: message.licenseId
-      };
-
-      const result = await this.sendSMSWithTwilio(smsMessage);
-
-      if (!result.success && result.retryable) {
-        // Add to retry queue
-        this.retryQueue.push({
-          message: smsMessage,
-          attempts: 0
-        });
-        console.log('📋 Message added to retry queue:', message.to);
-      }
-
-      // Log the attempt
-      await this.logSMSAttempt({
-        mobile_number: message.to,
-        message_content: finalContent,
-        delivery_status: result.success ? 'Sent' : 'Failed',
-        sent_date: new Date().toISOString(),
-        license_id: message.licenseId,
-        error_message: result.error
-      });
-
-      return result;
-    } catch (error) {
-      console.error('Error sending production SMS:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
-    }
-  }
-
-  private async sendSMSWithTwilio(message: any): Promise<{success: boolean;messageId?: string;error?: string;retryable?: boolean;}> {
-    if (!this.config) {
-      throw new Error('SMS service not configured');
-    }
-
-    try {
-      // In production, this would use the actual Twilio SDK
-      // For now, we'll use the existing smsService with enhanced error handling
-
-      // Simulate real Twilio API call with proper error handling
-      const response = await this.simulateTwilioAPI(message);
-
-      if (response.success && response.messageId) {
-        // Track delivery status if enabled
-        if (this.config.enableDeliveryTracking) {
-          this.deliveryStatusCache.set(response.messageId, {
-            messageId: response.messageId,
-            status: 'sent',
-            deliveredAt: new Date()
-          });
-        }
-      }
+      // Log advanced analytics
+      await this.logAdvancedAnalytics(phoneNumber, processedMessage, response, options);
 
       return response;
     } catch (error) {
-      console.error('Twilio API error:', error);
+      console.error('Advanced SMS sending error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Twilio API error',
-        retryable: true
+        error: error instanceof Error ? error.message : 'Unknown error occurred'
       };
     }
   }
 
-  private async simulateTwilioAPI(message: any): Promise<{success: boolean;messageId?: string;error?: string;retryable?: boolean;}> {
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 2000));
+  private processMessageTemplate(template: string, variables: Record<string, string>): string {
+    let processedMessage = template;
+    
+    // Replace variables in template
+    Object.entries(variables).forEach(([key, value]) => {
+      const regex = new RegExp(`{{${key}}}`, 'g');
+      processedMessage = processedMessage.replace(regex, value);
+    });
 
-    // Simulate different error conditions
-    const errorChance = Math.random();
+    return processedMessage;
+  }
 
-    if (errorChance < 0.02) {// 2% permanent failure (invalid number)
+  private async scheduleMessage(
+    phoneNumber: string,
+    message: string,
+    options: AdvancedSMSOptions
+  ): Promise<SMSResponse> {
+    // In a real implementation, this would integrate with a job scheduler
+    // For now, we'll use setTimeout for simple scheduling
+    const delay = options.scheduledTime!.getTime() - Date.now();
+    
+    if (delay > 0) {
+      setTimeout(async () => {
+        await this.baseService.sendSMS({
+          to: phoneNumber,
+          message: message,
+          type: 'scheduled'
+        });
+      }, delay);
+
       return {
-        success: false,
-        error: 'Invalid phone number format',
-        retryable: false
+        success: true,
+        messageId: `scheduled_${Date.now()}`,
+        status: 'scheduled'
       };
     }
 
-    if (errorChance < 0.05) {// 3% temporary failure (rate limit)
-      return {
-        success: false,
-        error: 'Rate limit exceeded',
-        retryable: true
-      };
-    }
-
-    if (errorChance < 0.08) {// 3% temporary failure (network)
-      return {
-        success: false,
-        error: 'Network timeout',
-        retryable: true
-      };
-    }
-
-    // 92% success rate
-    const messageId = `SM${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
-    return {
-      success: true,
-      messageId: messageId
-    };
+    // If scheduled time is in the past, send immediately
+    return this.baseService.sendSMS({
+      to: phoneNumber,
+      message: message,
+      type: 'immediate'
+    });
   }
 
-  private async processTemplate(templateId: number, context: any): Promise<string> {
-    try {
-      const { data, error } = await window.ezsite.apis.tablePage('12641', {
-        PageNo: 1,
-        PageSize: 1,
-        OrderByField: 'ID',
-        IsAsc: false,
-        Filters: [{ name: 'ID', op: 'Equal', value: templateId }]
-      });
-
-      if (error) throw new Error(error);
-
-      if (data?.List && data.List.length > 0) {
-        let template = data.List[0].message_content;
-
-        // Replace template variables
-        template = template.replace(/{license_name}/g, context.licenseName || 'Unknown License');
-        template = template.replace(/{station}/g, context.station || 'Unknown Station');
-        template = template.replace(/{expiry_date}/g, context.expiryDate || 'Unknown Date');
-        template = template.replace(/{days_remaining}/g, context.daysUntilExpiry || '0');
-        template = template.replace(/{priority}/g, context.priority || 'medium');
-
-        return template;
-      }
-
-      throw new Error('Template not found');
-    } catch (error) {
-      console.error('Error processing template:', error);
-      return context.content || 'Alert: Please check your licenses.';
-    }
+  private addToRetryQueue(message: SMSMessage, maxAttempts: number): void {
+    this.retryQueue.push({
+      message,
+      attempts: 0,
+      maxAttempts
+    });
   }
 
-  async runScheduledAlerts(): Promise<{alertsSent: number;errors: string[];}> {
-    if (!this.isInitialized) {
-      await this.initialize();
-    }
+  async processRetryQueue(): Promise<void> {
+    const retryItems = [...this.retryQueue];
+    this.retryQueue = [];
 
-    try {
-      // Get active schedules
-      const { data: scheduleData, error: scheduleError } = await window.ezsite.apis.tablePage('12642', {
-        PageNo: 1,
-        PageSize: 100,
-        OrderByField: 'ID',
-        IsAsc: false,
-        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
-      });
-
-      if (scheduleError) throw new Error(scheduleError);
-
-      const schedules = scheduleData?.List || [];
-      console.log(`🕐 Processing ${schedules.length} active schedules`);
-
-      return await this.processScheduledAlerts(schedules);
-    } catch (error) {
-      console.error('Error running scheduled alerts:', error);
-      return { alertsSent: 0, errors: [error instanceof Error ? error.message : 'Unknown error'] };
-    }
-  }
-
-  private async processScheduledAlerts(schedules: AlertSchedule[]): Promise<{alertsSent: number;errors: string[];}> {
-    let totalAlertsSent = 0;
-    const errors: string[] = [];
-    const now = new Date();
-
-    for (const schedule of schedules) {
+    for (const item of retryItems) {
+      item.attempts++;
+      
       try {
-        const nextRun = new Date(schedule.next_run);
-
-        // Check if schedule is due
-        if (nextRun <= now) {
-          console.log(`⏰ Processing schedule: ${schedule.schedule_name}`);
-
-          const alertsSent = await this.processLicenseExpiryAlerts(schedule);
-          totalAlertsSent += alertsSent;
-
-          // Update next run time
-          const nextRunTime = new Date(now.getTime() + schedule.frequency_days * 24 * 60 * 60 * 1000);
-          await window.ezsite.apis.tableUpdate('12642', {
-            ID: schedule.id,
-            last_run: now.toISOString(),
-            next_run: nextRunTime.toISOString()
-          });
-
-          console.log(`✅ Schedule ${schedule.schedule_name} completed. ${alertsSent} alerts sent.`);
+        const response = await this.baseService.sendSMS(item.message);
+        
+        if (!response.success && item.attempts < item.maxAttempts) {
+          // Add back to retry queue with exponential backoff
+          setTimeout(() => {
+            this.retryQueue.push(item);
+          }, Math.pow(2, item.attempts) * 1000);
         }
       } catch (error) {
-        const errorMsg = `Schedule ${schedule.schedule_name}: ${error instanceof Error ? error.message : 'Unknown error'}`;
-        errors.push(errorMsg);
-        console.error('Error processing schedule:', errorMsg);
+        console.error('Retry queue processing error:', error);
+      }
+    }
+  }
+
+  async sendBulkSMSWithProgress(
+    messages: Array<{ phoneNumber: string; message: string; options?: AdvancedSMSOptions }>
+  ): Promise<BulkSMSJob> {
+    const jobId = `bulk_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    const job: BulkSMSJob = {
+      id: jobId,
+      status: 'pending',
+      totalMessages: messages.length,
+      sentMessages: 0,
+      failedMessages: 0,
+      createdAt: new Date()
+    };
+
+    this.jobQueue.set(jobId, job);
+
+    // Process messages asynchronously
+    this.processBulkJob(jobId, messages);
+
+    return job;
+  }
+
+  private async processBulkJob(
+    jobId: string,
+    messages: Array<{ phoneNumber: string; message: string; options?: AdvancedSMSOptions }>
+  ): Promise<void> {
+    const job = this.jobQueue.get(jobId);
+    if (!job) return;
+
+    job.status = 'processing';
+
+    for (const { phoneNumber, message, options } of messages) {
+      try {
+        const response = await this.sendAdvancedSMS(phoneNumber, message, options || {});
+        
+        if (response.success) {
+          job.sentMessages++;
+        } else {
+          job.failedMessages++;
+        }
+
+        // Add delay between messages to respect rate limits
+        await new Promise(resolve => setTimeout(resolve, 200));
+      } catch (error) {
+        job.failedMessages++;
+        console.error(`Bulk SMS error for ${phoneNumber}:`, error);
       }
     }
 
-    return { alertsSent: totalAlertsSent, errors };
+    job.status = 'completed';
+    job.completedAt = new Date();
   }
 
-  private async processLicenseExpiryAlerts(schedule: AlertSchedule): Promise<number> {
+  getBulkJobStatus(jobId: string): BulkSMSJob | null {
+    return this.jobQueue.get(jobId) || null;
+  }
+
+  async getSMSAnalytics(dateRange?: { start: Date; end: Date }): Promise<SMSAnalytics> {
     try {
-      // Get licenses that need alerts
-      const { data: licenseData, error: licenseError } = await window.ezsite.apis.tablePage('11731', {
+      // Build date filter
+      const filters: any[] = [];
+      if (dateRange) {
+        filters.push(
+          { name: 'sent_at', op: 'GreaterThanOrEqual', value: dateRange.start.toISOString() },
+          { name: 'sent_at', op: 'LessThanOrEqual', value: dateRange.end.toISOString() }
+        );
+      }
+
+      // Get SMS history data
+      const { data, error } = await window.ezsite.apis.tablePage(24062, {
         PageNo: 1,
         PageSize: 1000,
-        OrderByField: 'expiry_date',
-        IsAsc: true,
-        Filters: [
-        { name: 'status', op: 'Equal', value: 'Active' },
-        ...(schedule.station_filter !== 'ALL' ? [{ name: 'station', op: 'Equal', value: schedule.station_filter }] : [])]
-
-      });
-
-      if (licenseError) throw new Error(licenseError);
-
-      const licenses = licenseData?.List || [];
-      const alertsToSend: SMSAlert[] = [];
-      const today = new Date();
-
-      // Filter licenses that need alerts
-      for (const license of licenses) {
-        const expiryDate = new Date(license.expiry_date);
-        const daysUntilExpiry = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-        if (daysUntilExpiry <= schedule.days_before_expiry && daysUntilExpiry > 0) {
-          // Get contact numbers for this license/station
-          const contacts = await this.getContactNumbers(license.station);
-
-          if (contacts.length > 0) {
-            alertsToSend.push({
-              licenseId: license.id,
-              licenseName: license.license_name,
-              station: license.station,
-              expiryDate: expiryDate,
-              daysUntilExpiry: daysUntilExpiry,
-              contactNumbers: contacts,
-              templateId: schedule.template_id,
-              priority: daysUntilExpiry <= 7 ? 'critical' : daysUntilExpiry <= 14 ? 'high' : 'medium'
-            });
-          }
-        }
-      }
-
-      console.log(`📬 Found ${alertsToSend.length} licenses requiring alerts`);
-
-      // Send alerts
-      let alertsSent = 0;
-      for (const alert of alertsToSend) {
-        for (const contactNumber of alert.contactNumbers) {
-          try {
-            const result = await this.sendProductionSMS({
-              to: contactNumber,
-              content: '', // Will be filled by template
-              templateId: alert.templateId,
-              licenseId: alert.licenseId,
-              priority: alert.priority
-            });
-
-            if (result.success) {
-              alertsSent++;
-            }
-
-            // Small delay between messages
-            await new Promise((resolve) => setTimeout(resolve, 500));
-          } catch (error) {
-            console.error(`Error sending alert to ${contactNumber}:`, error);
-          }
-        }
-      }
-
-      return alertsSent;
-    } catch (error) {
-      console.error('Error processing license expiry alerts:', error);
-      return 0;
-    }
-  }
-
-  private async getContactNumbers(station: string): Promise<string[]> {
-    try {
-      const { data, error } = await window.ezsite.apis.tablePage('12612', {
-        PageNo: 1,
-        PageSize: 100,
-        OrderByField: 'ID',
+        OrderByField: 'sent_at',
         IsAsc: false,
-        Filters: [
-        { name: 'is_active', op: 'Equal', value: true },
-        { name: 'station', op: 'Equal', value: station }]
-
+        Filters: filters
       });
 
       if (error) throw new Error(error);
 
-      const contacts = data?.List || [];
+      const messages = data?.List || [];
 
-      // Also get contacts for 'ALL' stations
-      const { data: allData, error: allError } = await window.ezsite.apis.tablePage('12612', {
-        PageNo: 1,
-        PageSize: 100,
-        OrderByField: 'ID',
-        IsAsc: false,
-        Filters: [
-        { name: 'is_active', op: 'Equal', value: true },
-        { name: 'station', op: 'Equal', value: 'ALL' }]
+      // Calculate analytics
+      const totalSent = messages.length;
+      const totalDelivered = messages.filter((m: any) => m.status === 'Delivered').length;
+      const totalFailed = messages.filter((m: any) => m.status === 'Failed').length;
+      const deliveryRate = totalSent > 0 ? (totalDelivered / totalSent) * 100 : 0;
 
-      });
+      const totalCost = messages.reduce((sum: number, m: any) => sum + (m.cost || 0), 0);
+      const averageCost = totalSent > 0 ? totalCost / totalSent : 0;
 
-      if (!allError && allData?.List) {
-        contacts.push(...allData.List);
+      // Top recipients
+      const recipientCounts = messages.reduce((acc: Record<string, number>, m: any) => {
+        acc[m.recipient_phone] = (acc[m.recipient_phone] || 0) + 1;
+        return acc;
+      }, {});
+
+      const topRecipients = Object.entries(recipientCounts)
+        .map(([phone, count]) => ({ phone, count: count as number }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10);
+
+      // Daily stats (last 30 days)
+      const dailyStats = this.calculateDailyStats(messages);
+
+      return {
+        totalSent,
+        totalDelivered,
+        totalFailed,
+        deliveryRate,
+        averageCost,
+        topRecipients,
+        dailyStats
+      };
+    } catch (error) {
+      console.error('Error getting SMS analytics:', error);
+      throw error;
+    }
+  }
+
+  private calculateDailyStats(messages: any[]): { date: string; sent: number; delivered: number }[] {
+    const dailyMap = new Map<string, { sent: number; delivered: number }>();
+
+    messages.forEach((message) => {
+      const date = message.sent_at?.split('T')[0];
+      if (!date) return;
+
+      if (!dailyMap.has(date)) {
+        dailyMap.set(date, { sent: 0, delivered: 0 });
       }
 
-      return contacts.map((contact) => contact.mobile_number).filter(Boolean);
-    } catch (error) {
-      console.error('Error getting contact numbers:', error);
-      return [];
-    }
+      const stats = dailyMap.get(date)!;
+      stats.sent++;
+      if (message.status === 'Delivered') {
+        stats.delivered++;
+      }
+    });
+
+    return Array.from(dailyMap.entries())
+      .map(([date, stats]) => ({ date, ...stats }))
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(-30); // Last 30 days
   }
 
-  private async logSMSAttempt(logData: any): Promise<void> {
+  private async logAdvancedAnalytics(
+    phoneNumber: string,
+    message: string,
+    response: SMSResponse,
+    options: AdvancedSMSOptions
+  ): Promise<void> {
+    // This would integrate with your analytics service
+    // For now, we'll just log to console
+    console.log('SMS Analytics:', {
+      phoneNumber,
+      messageLength: message.length,
+      success: response.success,
+      cost: response.cost,
+      priority: options.priority,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  async sendEmergencyAlert(
+    message: string,
+    options: AdvancedSMSOptions = {}
+  ): Promise<SMSResponse[]> {
     try {
-      await window.ezsite.apis.tableCreate('12613', {
-        ...logData,
-        created_by: 1 // This should be the current user ID
+      // Get emergency contacts from settings
+      const { data, error } = await window.ezsite.apis.tablePage(24061, {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: 'id',
+        IsAsc: false,
+        Filters: [
+          { name: 'is_emergency', op: 'Equal', value: true },
+          { name: 'is_active', op: 'Equal', value: true }
+        ]
       });
+
+      if (error) throw new Error(error);
+
+      const emergencyContacts = data?.List || [];
+      const results: SMSResponse[] = [];
+
+      for (const contact of emergencyContacts) {
+        const response = await this.sendAdvancedSMS(
+          contact.phone_number,
+          `🚨 EMERGENCY ALERT: ${message}`,
+          { ...options, priority: 'high' }
+        );
+        results.push(response);
+
+        // Small delay between emergency messages
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+      return results;
     } catch (error) {
-      console.error('Error logging SMS attempt:', error);
+      console.error('Emergency alert sending error:', error);
+      throw error;
     }
   }
 
-  private async logFailedMessage(message: any, reason: string): Promise<void> {
-    try {
-      await this.logSMSAttempt({
-        mobile_number: message.to,
-        message_content: message.content,
-        delivery_status: 'Failed',
-        sent_date: new Date().toISOString(),
-        license_id: message.licenseId,
-        error_message: reason
-      });
-    } catch (error) {
-      console.error('Error logging failed message:', error);
-    }
-  }
+  async validatePhoneNumbers(phoneNumbers: string[]): Promise<{ valid: string[]; invalid: string[] }> {
+    const valid: string[] = [];
+    const invalid: string[] = [];
 
-  async getDeliveryStatus(messageId: string): Promise<SMSDeliveryStatus | null> {
-    return this.deliveryStatusCache.get(messageId) || null;
+    phoneNumbers.forEach(phoneNumber => {
+      // E.164 format validation
+      const e164Regex = /^\+[1-9]\d{1,14}$/;
+      if (e164Regex.test(phoneNumber)) {
+        valid.push(phoneNumber);
+      } else {
+        invalid.push(phoneNumber);
+      }
+    });
+
+    return { valid, invalid };
   }
 
   async getServiceHealth(): Promise<{
     status: 'healthy' | 'degraded' | 'down';
-    details: any;
+    lastCheck: Date;
+    responseTime: number;
+    errorRate: number;
+    balance: number;
   }> {
+    const startTime = Date.now();
+    
     try {
-      if (!this.isInitialized) {
+      const isConfigured = this.baseService.isServiceConfigured();
+      if (!isConfigured) {
         return {
           status: 'down',
-          details: { message: 'Service not initialized' }
+          lastCheck: new Date(),
+          responseTime: 0,
+          errorRate: 100,
+          balance: 0
         };
       }
 
-      const retryQueueSize = this.retryQueue.length;
-      const configValid = !!this.config?.accountSid && !!this.config?.authToken;
+      const statusResponse = await this.baseService.getServiceStatus();
+      const responseTime = Date.now() - startTime;
+
+      // Get recent error rate (last 24 hours)
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      const { data: recentMessages } = await window.ezsite.apis.tablePage(24062, {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: 'sent_at',
+        IsAsc: false,
+        Filters: [
+          { name: 'sent_at', op: 'GreaterThanOrEqual', value: yesterday.toISOString() }
+        ]
+      });
+
+      const messages = recentMessages?.List || [];
+      const failedCount = messages.filter((m: any) => m.status === 'Failed').length;
+      const errorRate = messages.length > 0 ? (failedCount / messages.length) * 100 : 0;
+
+      const balance = await this.baseService.getAccountBalance();
 
       let status: 'healthy' | 'degraded' | 'down' = 'healthy';
-
-      if (!configValid) {
+      if (!statusResponse.available) {
         status = 'down';
-      } else if (retryQueueSize > 10) {
+      } else if (errorRate > 10 || responseTime > 5000 || balance < 10) {
         status = 'degraded';
       }
 
       return {
         status,
-        details: {
-          configValid,
-          retryQueueSize,
-          deliveryTrackingEnabled: this.config?.enableDeliveryTracking,
-          testMode: this.config?.testMode
-        }
+        lastCheck: new Date(),
+        responseTime,
+        errorRate,
+        balance
       };
     } catch (error) {
+      console.error('Service health check error:', error);
       return {
         status: 'down',
-        details: { error: error instanceof Error ? error.message : 'Unknown error' }
+        lastCheck: new Date(),
+        responseTime: Date.now() - startTime,
+        errorRate: 100,
+        balance: 0
       };
     }
   }
 
-  destroy(): void {
-    if (this.processRetryQueueInterval) {
-      clearInterval(this.processRetryQueueInterval);
-      this.processRetryQueueInterval = null;
+  // Template management
+  async createMessageTemplate(
+    name: string,
+    content: string,
+    type: string = 'custom'
+  ): Promise<void> {
+    try {
+      await window.ezsite.apis.tableCreate('sms_templates', {
+        template_name: name,
+        message_content: content,
+        template_type: type,
+        is_active: true,
+        priority_level: 'normal',
+        created_by: 1
+      });
+    } catch (error) {
+      console.error('Error creating message template:', error);
+      throw error;
     }
-    this.isInitialized = false;
-    console.log('🔥 Enhanced SMS Service destroyed');
+  }
+
+  async getMessageTemplates(): Promise<any[]> {
+    try {
+      const { data, error } = await window.ezsite.apis.tablePage('sms_templates', {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: 'template_name',
+        IsAsc: true,
+        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+      });
+
+      if (error) throw new Error(error);
+      return data?.List || [];
+    } catch (error) {
+      console.error('Error getting message templates:', error);
+      return [];
+    }
   }
 }
 

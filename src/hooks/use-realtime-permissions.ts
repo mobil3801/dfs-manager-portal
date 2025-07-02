@@ -65,8 +65,8 @@ export const useRealtimePermissions = (module: string = 'products') => {
         OrderByField: 'ID',
         IsAsc: true,
         Filters: [
-          { name: 'user_id', op: 'Equal', value: userProfile.user_id }
-        ]
+        { name: 'user_id', op: 'Equal', value: userProfile.user_id }]
+
       });
 
       if (fetchError) throw fetchError;
@@ -74,7 +74,7 @@ export const useRealtimePermissions = (module: string = 'products') => {
       const userProfileData = data?.List?.[0];
       if (userProfileData) {
         let userPermissions: UserPermissions = {};
-        
+
         try {
           if (userProfileData.detailed_permissions) {
             userPermissions = JSON.parse(userProfileData.detailed_permissions);
@@ -109,7 +109,7 @@ export const useRealtimePermissions = (module: string = 'products') => {
 
   const checkPermission = useCallback((permissionType: keyof ModulePermissions, action: string = 'perform this action'): boolean => {
     const hasAccess = hasPermission(permissionType);
-    
+
     if (!hasAccess) {
       toast({
         title: "Access Denied",
@@ -117,7 +117,7 @@ export const useRealtimePermissions = (module: string = 'products') => {
         variant: "destructive"
       });
     }
-    
+
     return hasAccess;
   }, [hasPermission]);
 
@@ -147,11 +147,11 @@ export const useRealtimePermissions = (module: string = 'products') => {
     loading,
     error,
     isAdmin,
-    
+
     // Permission checking functions
     hasPermission,
     checkPermission,
-    
+
     // Specific permission checks (boolean only)
     canView,
     canCreate,
@@ -159,7 +159,7 @@ export const useRealtimePermissions = (module: string = 'products') => {
     canDelete,
     canExport,
     canPrint,
-    
+
     // Permission checks with user feedback
     checkView,
     checkCreate,
@@ -167,7 +167,7 @@ export const useRealtimePermissions = (module: string = 'products') => {
     checkDelete,
     checkExport,
     checkPrint,
-    
+
     // Utility functions
     refreshPermissions
   };

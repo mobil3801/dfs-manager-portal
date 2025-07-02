@@ -237,6 +237,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -274,11 +276,9 @@ const PerformanceMonitoringSystem: React.FC = () => {
     );return recentEntries.length;}; /**
   * Calculate error rate from performance entries
   */const calculateErrorRate = (entries: PerformanceEntry[]): number => {if (entries.length === 0) return 0;const errorEntries = entries.filter((entry) => {// This is a simplified check - in reality you'd need more sophisticated error detection
-        return entry.duration === 0 || entry.name.includes('error');});return errorEntries.length / entries.length * 100;};
-  /**
-   * Calculate cache hit rate
-   */
-  const calculateCacheHitRate = (): number => {
+        return entry.duration === 0 || entry.name.includes('error');});return errorEntries.length / entries.length * 100;}; /**
+  * Calculate cache hit rate
+  */const calculateCacheHitRate = (): number => {
     // This would integrate with your actual cache implementation
     // For now, return a mock value
     return Math.random() * 100;
