@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Search, Edit, Trash2, Package, FileText, Loader2, X, Save } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Package, FileText, Loader2, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import ProductLogs from '@/components/ProductLogs';
@@ -62,7 +62,7 @@ const ProductList: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [hasMoreProducts, setHasMoreProducts] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [savingProductId, setSavingProductId] = useState<number | null>(null);
+
 
   const pageSize = 50; // Load more products per batch
   const [loadedProductsCount, setLoadedProductsCount] = useState(pageSize);
@@ -207,154 +207,7 @@ const ProductList: React.FC = () => {
     }
   };
 
-  const handleSaveProduct = async (productId: number | null = null) => {
-    console.log('handleSaveProduct called for product ID:', productId);
 
-    if (!hasEditPermission) {
-      toast({
-        title: "Access Denied",
-        description: "You don't have permission to save product information.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const isCreating = productId === null;
-    setSavingProductId(productId || -1); // Use -1 for new product creation
-
-    try {
-      if (isCreating) {
-        // Show confirmation dialog for creating new product
-        const confirmed = confirm('Create a new product entry? This will add a new product with default values that you can edit.');
-        if (!confirmed) {
-          console.log('Product creation cancelled by user');
-          setSavingProductId(null);
-          return;
-        }
-
-        // Create a new product with minimal required data
-        // Generate new serial number
-        const { data: serialData } = await window.ezsite.apis.tablePage('11726', {
-          PageNo: 1,
-          PageSize: 1,
-          OrderByField: 'serial_number',
-          IsAsc: false,
-          Filters: []
-        });
-
-        const lastSerial = serialData?.List?.[0]?.serial_number || 0;
-        const newSerial = lastSerial + 1;
-
-        const newProductData = {
-          serial_number: newSerial,
-          product_name: `New Product ${newSerial}`,
-          category: 'General',
-          quantity_in_stock: 0,
-          minimum_stock: 0,
-          supplier: '',
-          description: 'Please update this product information',
-          weight: 0,
-          weight_unit: 'lb',
-          department: 'Convenience Store',
-          merchant_id: null,
-          bar_code_case: '',
-          bar_code_unit: '',
-          last_updated_date: new Date().toISOString(),
-          last_shopping_date: null,
-          case_price: 0,
-          unit_per_case: 1,
-          unit_price: 0,
-          retail_price: 0,
-          overdue: false,
-          created_by: userProfile?.user_id || null
-        };
-
-        console.log('Creating new product with data:', newProductData);
-        const { error } = await window.ezsite.apis.tableCreate('11726', newProductData);
-
-        if (error) {
-          console.error('API returned error:', error);
-          throw error;
-        }
-
-        console.log('New product created successfully with serial:', newSerial);
-        toast({
-          title: "Success",
-          description: `New product created with serial #${newSerial}. Please edit it to add complete information.`,
-          duration: 5000
-        });
-      } else {
-        // Update existing product
-        const product = products.find((p) => p.ID === productId);
-        if (!product) {
-          throw new Error('Product not found');
-        }
-
-        // Show confirmation dialog for updating existing product
-        const confirmed = confirm(`Save updates to "${product.product_name}"? This will update the product information with current values.`);
-        if (!confirmed) {
-          console.log('Product update cancelled by user');
-          setSavingProductId(null);
-          return;
-        }
-
-        console.log('Updating product:', product);
-
-        // Prepare the data for saving (update existing product)
-        const updateData = {
-          ID: product.ID,
-          product_name: product.product_name,
-          category: product.category || '',
-          quantity_in_stock: product.quantity_in_stock || 0,
-          minimum_stock: product.minimum_stock || 0,
-          supplier: product.supplier || '',
-          description: product.description || '',
-          serial_number: product.serial_number || 0,
-          weight: product.weight || 0,
-          weight_unit: product.weight_unit || 'lb',
-          department: product.department || 'Convenience Store',
-          merchant_id: product.merchant_id || null,
-          bar_code_case: product.bar_code_case || '',
-          bar_code_unit: product.bar_code_unit || '',
-          last_updated_date: new Date().toISOString(),
-          last_shopping_date: product.last_shopping_date || null,
-          case_price: product.case_price || 0,
-          unit_per_case: product.unit_per_case || 1,
-          unit_price: product.unit_price || 0,
-          retail_price: product.retail_price || 0,
-          overdue: product.overdue || false,
-          created_by: product.created_by || userProfile?.user_id || null
-        };
-
-        console.log('Updating product with data:', updateData);
-        const { error } = await window.ezsite.apis.tableUpdate('11726', updateData);
-
-        if (error) {
-          console.error('API returned error:', error);
-          throw error;
-        }
-
-        console.log('Product updated successfully with ID:', product.ID);
-        toast({
-          title: "Success",
-          description: `"${product.product_name}" updated successfully`,
-          duration: 3000
-        });
-      }
-
-      // Reload all products to reflect changes
-      loadAllProducts();
-    } catch (error) {
-      console.error('Error saving product:', error);
-      toast({
-        title: "Error",
-        description: `Failed to ${isCreating ? 'create' : 'update'} product: ${error}`,
-        variant: "destructive"
-      });
-    } finally {
-      setSavingProductId(null);
-    }
-  };
 
   // Load more products function
   const loadMoreProducts = useCallback(() => {
@@ -415,8 +268,7 @@ const ProductList: React.FC = () => {
     navigate(`/products/edit/${productId}`);
   };
 
-  // Visual editing enabled for all users
-  const hasEditPermission = true;
+
 
   // Calculate display text for showing results
   const getDisplayText = () => {
@@ -567,10 +419,9 @@ const ProductList: React.FC = () => {
           <ProductCards
             products={products}
             searchTerm={debouncedSearchTerm}
-            onViewLogs={handleViewLogs}
-            onSaveProduct={handleSaveProduct}
-            onDeleteProduct={handleDelete}
-            savingProductId={savingProductId} /> :
+            onEdit={handleEdit}
+            onViewChangelog={handleViewChangelog}
+            onDeleteProduct={handleDelete} /> :
 
 
           <ResponsiveTable className="border rounded-lg overflow-hidden">
@@ -675,7 +526,7 @@ const ProductList: React.FC = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => {
-                              console.log('Editing product:', product.ID);
+                              console.log('Editing product:', product.ID, product.product_name);
                               handleEdit(product.ID);
                             }}
                             title="Edit product">

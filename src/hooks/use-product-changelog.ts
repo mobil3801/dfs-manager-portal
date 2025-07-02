@@ -16,13 +16,13 @@ export const useProductChangelog = () => {
   const { userProfile } = useAuth();
 
   const logChange = async (
-    productId: number,
-    fieldName: string,
-    oldValue: any,
-    newValue: any,
-    changeType: 'create' | 'update' | 'delete' = 'update',
-    summary?: string
-  ) => {
+  productId: number,
+  fieldName: string,
+  oldValue: any,
+  newValue: any,
+  changeType: 'create' | 'update' | 'delete' = 'update',
+  summary?: string) =>
+  {
     if (!userProfile) {
       console.warn('No user profile available for logging change');
       return;
@@ -41,7 +41,7 @@ export const useProductChangelog = () => {
       };
 
       const { error } = await window.ezsite.apis.tableCreate('24010', entry);
-      
+
       if (error) {
         console.error('Error logging change:', error);
       }
@@ -51,21 +51,21 @@ export const useProductChangelog = () => {
   };
 
   const logMultipleChanges = async (
-    productId: number,
-    changes: Array<{
-      fieldName: string;
-      oldValue: any;
-      newValue: any;
-    }>,
-    changeType: 'create' | 'update' | 'delete' = 'update'
-  ) => {
+  productId: number,
+  changes: Array<{
+    fieldName: string;
+    oldValue: any;
+    newValue: any;
+  }>,
+  changeType: 'create' | 'update' | 'delete' = 'update') =>
+  {
     if (!userProfile) {
       console.warn('No user profile available for logging changes');
       return;
     }
 
     try {
-      const entries = changes.map(change => ({
+      const entries = changes.map((change) => ({
         product_id: productId,
         field_name: change.fieldName,
         old_value: change.oldValue?.toString() || '',
@@ -104,7 +104,7 @@ export const useProductChangelog = () => {
       };
 
       const { error } = await window.ezsite.apis.tableCreate('24010', entry);
-      
+
       if (error) {
         console.error('Error logging product creation:', error);
       }
@@ -129,7 +129,7 @@ export const useProductChangelog = () => {
       };
 
       const { error } = await window.ezsite.apis.tableCreate('24010', entry);
-      
+
       if (error) {
         console.error('Error logging product deletion:', error);
       }

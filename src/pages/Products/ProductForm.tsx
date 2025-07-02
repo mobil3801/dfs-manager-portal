@@ -14,11 +14,11 @@ import { ArrowLeft, Save, Calculator, Upload, Eye, Plus, Download, FileText, Ale
 import BarcodeScanner from '@/components/BarcodeScanner';
 import { useAuth } from '@/contexts/AuthContext';
 import { ComponentErrorBoundary } from '@/components/ErrorBoundary';
-import { useProductChangelog } from '@/hooks/use-product-changelog';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { useProductChangelog } from '@/hooks/use-product-changelog';
 
 interface Vendor {
   id: number;
@@ -42,7 +42,7 @@ const ProductForm = () => {
     component: 'ProductForm',
     severity: 'high'
   });
-  const { logProductCreation } = useProductChangelog();
+  const { logChange, logMultipleChanges, logProductCreation } = useProductChangelog();
 
   const isEdit = !!id;
   const [isLoading, setIsLoading] = useState(false);
@@ -525,15 +525,13 @@ const ProductForm = () => {
 
   const logFieldChange = async (productId: number, fieldName: string, oldValue: any, newValue: any, userId: number) => {
     try {
-      const { error } = await window.ezsite.apis.tableCreate('24010', {
+      const { error } = await window.ezsite.apis.tableCreate('11756', {
         product_id: productId,
         field_name: fieldName,
         old_value: oldValue?.toString() || '',
         new_value: newValue?.toString() || '',
-        change_timestamp: new Date().toISOString(),
-        changed_by: userId,
-        change_type: 'update',
-        change_summary: `${fieldName.replace(/_/g, ' ')} changed from "${oldValue}" to "${newValue}"`
+        change_date: new Date().toISOString(),
+        changed_by: userId
       });
       if (error) {
         console.error('Error logging field change:', error);
@@ -574,36 +572,65 @@ const ProductForm = () => {
         created_by: userProfile.user_id
       };
 
-      let result;
+      let createdProductId = null;
+
       if (isEdit) {
-        result = await window.ezsite.apis.tableUpdate('11726', { id: parseInt(id!), ...payload });
+        const { error } = await window.ezsite.apis.tableUpdate('11726', { ID: parseInt(id!), ...payload });
+        if (error) throw error;
+        createdProductId = parseInt(id!);
       } else {
-        result = await window.ezsite.apis.tableCreate('11726', payload);
-      }
+        // For creation, we need to get the created product ID
+        const { error } = await window.ezsite.apis.tableCreate('11726', payload);
+        if (error) throw error;
 
-      if (result.error) throw result.error;
-
-      // Log product creation
-      if (!isEdit && result.data && userProfile) {
-        await logProductCreation(result.data.id || result.data.ID, formData);
+        // Get the newly created product by serial number to log creation
+        if (userProfile) {
+          try {
+            const { data } = await window.ezsite.apis.tablePage('11726', {
+              PageNo: 1,
+              PageSize: 1,
+              OrderByField: 'serial_number',
+              IsAsc: false,
+              Filters: [{ name: 'serial_number', op: 'Equal', value: formData.serial_number }]
+            });
+            if (data?.List?.[0]) {
+              createdProductId = data.List[0].ID;
+            }
+          } catch (error) {
+            console.error('Error getting created product ID:', error);
+          }
+        }
       }
 
       // Log changes for existing products
-      if (isEdit && originalData && userProfile) {
+      if (isEdit && originalData && userProfile && createdProductId) {
         const fieldsToTrack = [
+        'product_name',
+        'category',
+        'supplier',
+        'description',
+        'weight',
+        'weight_unit',
+        'department',
         'last_shopping_date',
         'case_price',
         'unit_per_case',
         'unit_price',
-        'retail_price'];
+        'retail_price',
+        'quantity_in_stock',
+        'minimum_stock'];
 
-
+        const changes = [];
         for (const field of fieldsToTrack) {
           const oldValue = originalData[field];
           const newValue = formData[field];
 
           if (oldValue !== newValue) {
-            await logFieldChange(parseInt(id!), field, oldValue, newValue, userProfile.user_id);
+            changes.push({
+              fieldName: field,
+              oldValue: oldValue,
+              newValue: newValue
+            });
           }
         }
 
@@ -613,8 +640,20 @@ const ProductForm = () => {
         const newProfitMargin = formData.profit_margin;
 
         if (Math.abs(oldProfitMargin - newProfitMargin) > 0.01) {
-          await logFieldChange(parseInt(id!), 'profit_margin', oldProfitMargin.toFixed(2), newProfitMargin.toFixed(2), userProfile.user_id);
+          changes.push({
+            fieldName: 'profit_margin',
+            oldValue: oldProfitMargin.toFixed(2),
+            newValue: newProfitMargin.toFixed(2)
+          });
         }
+
+        // Log all changes at once
+        if (changes.length > 0) {
+          await logMultipleChanges(createdProductId, changes, 'update');
+        }
+      } else if (!isEdit && userProfile && createdProductId) {
+        // Log product creation
+        await logProductCreation(createdProductId, formData);
       }
 
       toast({

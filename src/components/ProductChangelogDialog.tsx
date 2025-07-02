@@ -4,8 +4,8 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  DialogTitle } from
+'@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -37,7 +37,7 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
   isOpen,
   onClose,
   productId,
-  productName,
+  productName
 }) => {
   const [changelog, setChangelog] = useState<ChangelogEntry[]>([]);
   const [loading, setLoading] = useState(false);
@@ -58,8 +58,8 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
         OrderByField: 'change_timestamp',
         IsAsc: false,
         Filters: [
-          { name: 'product_id', op: 'Equal', value: productId }
-        ]
+        { name: 'product_id', op: 'Equal', value: productId }]
+
       });
 
       if (error) throw error;
@@ -96,9 +96,9 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
   };
 
   const formatFieldName = (fieldName: string) => {
-    return fieldName
-      .replace(/_/g, ' ')
-      .replace(/\b\w/g, l => l.toUpperCase());
+    return fieldName.
+    replace(/_/g, ' ').
+    replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
   const getChangeTypeColor = (changeType: string) => {
@@ -116,7 +116,7 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
 
   const getValueDisplay = (value: string, fieldName: string) => {
     if (!value || value.trim() === '') return '(empty)';
-    
+
     // Format monetary values
     if (fieldName.includes('price') || fieldName.includes('amount')) {
       const numValue = parseFloat(value);
@@ -124,7 +124,7 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
         return `$${numValue.toFixed(2)}`;
       }
     }
-    
+
     // Format percentages
     if (fieldName.includes('margin') || fieldName.includes('percentage')) {
       const numValue = parseFloat(value);
@@ -132,7 +132,7 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
         return `${numValue.toFixed(2)}%`;
       }
     }
-    
+
     // Format dates
     if (fieldName.includes('date')) {
       try {
@@ -141,7 +141,7 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
         return value;
       }
     }
-    
+
     return value;
   };
 
@@ -169,25 +169,25 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
             variant="outline"
             size="sm"
             onClick={refreshChangelog}
-            disabled={refreshing}
-          >
-            {refreshing ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <RefreshCw className="w-4 h-4 mr-2" />
-            )}
+            disabled={refreshing}>
+
+            {refreshing ?
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" /> :
+
+            <RefreshCw className="w-4 h-4 mr-2" />
+            }
             Refresh
           </Button>
         </div>
 
         <ScrollArea className="flex-1 max-h-[60vh]">
-          {loading ? (
-            <div className="flex items-center justify-center py-8">
+          {loading ?
+          <div className="flex items-center justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin mr-2" />
               <span>Loading changelog...</span>
-            </div>
-          ) : changelog.length === 0 ? (
-            <Card>
+            </div> :
+          changelog.length === 0 ?
+          <Card>
               <CardContent className="flex flex-col items-center justify-center py-8">
                 <History className="w-12 h-12 text-gray-400 mb-4" />
                 <h3 className="text-lg font-medium mb-2">No Changes Found</h3>
@@ -195,11 +195,11 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
                   This product has no recorded changes yet. Changes will appear here when the product is edited.
                 </p>
               </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              {changelog.map((entry, index) => (
-                <Card key={entry.ID} className="border-l-4 border-l-blue-500">
+            </Card> :
+
+          <div className="space-y-4">
+              {changelog.map((entry, index) =>
+            <Card key={entry.ID} className="border-l-4 border-l-blue-500">
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
@@ -215,11 +215,11 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
                         <span>{formatDate(entry.change_timestamp)}</span>
                       </div>
                     </div>
-                    {entry.change_summary && (
-                      <CardDescription className="mt-1">
+                    {entry.change_summary &&
+                <CardDescription className="mt-1">
                         {entry.change_summary}
                       </CardDescription>
-                    )}
+                }
                   </CardHeader>
                   <CardContent className="pt-0">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -242,9 +242,9 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+            )}
             </div>
-          )}
+          }
         </ScrollArea>
 
         <div className="flex justify-end pt-4 border-t">
@@ -253,8 +253,8 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
           </Button>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default ProductChangelogDialog;
