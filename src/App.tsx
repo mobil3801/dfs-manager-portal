@@ -5,6 +5,8 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
+import ProtectedRoute from '@/components/ProtectedRoute';
+
 
 
 // Layout
@@ -104,27 +106,7 @@ const AuthError = ({ error, onRetry }: {error: string;onRetry: () => void;}) =>
   </div>;
 
 
-// Protected Route Component with improved error handling
-const ProtectedRoute: React.FC<{children: React.ReactNode;}> = ({ children }) => {
-  const { isAuthenticated, isLoading, authError, isInitialized, refreshUserData } = useAuth();
-
-  // Show loading while initializing
-  if (!isInitialized || isLoading) {
-    return <LoadingSpinner />;
-  }
-
-  // Show error if there's a critical authentication error
-  if (authError && authError.includes('Failed to load user data')) {
-    return <AuthError error={authError} onRetry={refreshUserData} />;
-  }
-
-  // Redirect to login if not authenticated
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return <>{children}</>;
-};
+// Use our modular ProtectedRoute component for better authentication handling
 
 // Main App Router Component
 const AppRouter = () => {
