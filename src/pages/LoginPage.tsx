@@ -1,416 +1,306 @@
-import React, { useState, useEffect } from 'react';
-import { useDatabaseAuth } from '@/contexts/DatabaseAuthContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useNavigate } from 'react-router-dom';
-import { Loader2, Eye, EyeOff, Mail, Lock, UserPlus, LogIn, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { Logo } from '@/components/Logo';
-import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Eye, EyeOff, LogIn, UserPlus } from 'lucide-react';
+import { toast } from 'sonner';
 
-type AuthMode = 'login' | 'register' | 'forgot-password';
-
-const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [authMode, setAuthMode] = useState<AuthMode>('login');
-  const [isLoading, setIsLoading] = useState(false);
+const LoginPage = () => {
+  const { login, register, isLoading } = useAuth();
+  const navigate = useNavigate();
+  
+  // Login form state
+  const [loginData, setLoginData] = useState({
+    email: '',
+    password: ''
+  });
+  
+  // Register form state
+  const [registerData, setRegisterData] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    fullName: '',
+    username: ''
+  });
+  
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState<'error' | 'success'>('error');
-  const [lastSubmitTime, setLastSubmitTime] = useState(0); // Debounce rapid submissions
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login, register, sendResetPwdEmail } = useDatabaseAuth();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-
-  // Clear messages when switching auth modes
-  useEffect(() => {
-    setMessage('');
-  }, [authMode]);
-
-  const clearForm = () => {
-    setEmail('');
-    setPassword('');
-    setConfirmPassword('');
-    setMessage('');
-  };
-
-  const handleForgotPassword = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) {
-      setMessage('Please enter your email address');
-      setMessageType('error');
+    if (!loginData.email || !loginData.password) {
+      toast.error('Please fill in all fields');
       return;
     }
 
-    setIsLoading(true);
-    setMessage(''); // Clear previous messages
-
+    setIsSubmitting(true);
     try {
-      const { error } = await sendResetPwdEmail(email);
-      if (error) {
-        setMessage(error);
-        setMessageType('error');
-        toast({
-          title: "Error",
-          description: error,
-          variant: "destructive"
-        });
-      } else {
-        setMessage('Password reset link has been sent to your email address');
-        setMessageType('success');
-        toast({
-          title: "Success",
-          description: "Password reset link sent to your email"
-        });
-        setTimeout(() => {
-          setAuthMode('login');
-          clearForm();
-        }, 3000);
+      const success = await login(loginData.email, loginData.password);
+      if (success) {
+        navigate('/dashboard');
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to send reset email';
-      setMessage(errorMessage);
-      setMessageType('error');
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive"
-      });
+      console.error('Login error:', error);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Prevent rapid successive submissions (debounce)
-    const now = Date.now();
-    if (now - lastSubmitTime < 1000) {
-      console.log('⏳ Ignoring rapid submission attempt');
-      return;
-    }
-    setLastSubmitTime(now);
-
-    // Clear previous messages
-    setMessage('');
-
-    if (authMode === 'forgot-password') {
-      return handleForgotPassword(e);
-    }
-
-    if (authMode === 'register' && password !== confirmPassword) {
-      setMessage('Passwords do not match');
-      setMessageType('error');
+    if (!registerData.email || !registerData.password || !registerData.confirmPassword) {
+      toast.error('Please fill in all required fields');
       return;
     }
 
-    setIsLoading(true);
+    if (registerData.password !== registerData.confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
 
+    if (registerData.password.length < 6) {
+      toast.error('Password must be at least 6 characters long');
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
-      if (authMode === 'login') {
-        console.log('🔑 Initiating login attempt for:', email);
-        const { error } = await login(email, password);
-        if (error) {
-          setMessage(error);
-          setMessageType('error');
-          toast({
-            title: "Login Failed",
-            description: error,
-            variant: "destructive"
-          });
-        } else {
-          console.log('✅ Login successful, navigating to dashboard');
-          toast({
-            title: "Welcome back!",
-            description: "Successfully logged in"
-          });
-          navigate('/dashboard');
-        }
-      } else if (authMode === 'register') {
-        const { error } = await register(email, password, email.split('@')[0]);
-        if (error) {
-          setMessage(error);
-          setMessageType('error');
-          toast({
-            title: "Registration Failed",
-            description: error,
-            variant: "destructive"
-          });
-        } else {
-          setMessage('Account created successfully! You can now log in.');
-          setMessageType('success');
-          toast({
-            title: "Account Created",
-            description: "You can now log in with your credentials"
-          });
-          setTimeout(() => {
-            setAuthMode('login');
-            clearForm();
-          }, 3000);
-        }
+      const success = await register(registerData.email, registerData.password, {
+        full_name: registerData.fullName,
+        username: registerData.username || registerData.email.split('@')[0]
+      });
+      
+      if (success) {
+        setRegisterData({
+          email: '',
+          password: '',
+          confirmPassword: '',
+          fullName: '',
+          username: ''
+        });
       }
     } catch (error) {
-      console.error('❌ Form submission error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
-      setMessage(errorMessage);
-      setMessageType('error');
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive"
-      });
+      console.error('Registration error:', error);
     } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const getFormTitle = () => {
-    switch (authMode) {
-      case 'login':return 'Welcome Back';
-      case 'register':return 'Create Account';
-      case 'forgot-password':return 'Reset Password';
-      default:return 'Sign In';
-    }
-  };
-
-  const getFormDescription = () => {
-    switch (authMode) {
-      case 'login':return 'Enter your credentials to access the portal';
-      case 'register':return 'Create a new account to get started';
-      case 'forgot-password':return 'Enter your email to receive a password reset link';
-      default:return '';
-    }
-  };
-
-  const getSubmitButtonText = () => {
-    if (isLoading) return 'Please wait...';
-    switch (authMode) {
-      case 'login':return 'Sign In';
-      case 'register':return 'Create Account';
-      case 'forgot-password':return 'Send Reset Link';
-      default:return 'Submit';
-    }
-  };
-
-  const getSubmitButtonIcon = () => {
-    if (isLoading) return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
-    switch (authMode) {
-      case 'login':return <LogIn className="mr-2 h-4 w-4" />;
-      case 'register':return <UserPlus className="mr-2 h-4 w-4" />;
-      case 'forgot-password':return <Mail className="mr-2 h-4 w-4" />;
-      default:return null;
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      <div className="flex items-center justify-center p-4 min-h-screen">
-        <div className="w-full max-w-md">
-          {/* Logo and Company Name */}
-          <div className="text-center mb-8">
-            <div className="flex flex-col items-center">
-              <div className="mb-4 transform hover:scale-105 transition-transform duration-200">
-                <Logo className="mb-4" />
-              </div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-800 to-indigo-800 bg-clip-text text-transparent mb-2">
-                DFS Manager Portal
-              </h1>
-              <p className="text-slate-600 font-medium">Gas Station Management System</p>
-            </div>
-          </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <img 
+            src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png" 
+            alt="Logo" 
+            className="h-16 w-auto mx-auto mb-4"
+          />
+          <h1 className="text-3xl font-bold text-gray-900">Welcome</h1>
+          <p className="text-gray-600 mt-2">Sign in to your account or create a new one</p>
+        </div>
 
-          <Card className="shadow-2xl border-0 backdrop-blur-sm bg-white/95">
-            <CardHeader className="space-y-1 pb-6">
-              <CardTitle className="text-2xl font-bold text-center text-slate-800">
-                {getFormTitle()}
-              </CardTitle>
-              <CardDescription className="text-center text-slate-600">
-                {getFormDescription()}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {message &&
-              <Alert className={`mb-4 ${messageType === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-                  {messageType === 'success' ?
-                <CheckCircle2 className="h-4 w-4 text-green-600" /> :
-                <AlertCircle className="h-4 w-4 text-red-600" />
-                }
-                  <AlertDescription className={messageType === 'success' ? 'text-green-800' : 'text-red-800'}>
-                    {message}
-                  </AlertDescription>
-                </Alert>
-              }
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Email Field */}
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-slate-700 font-medium">Email Address</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+        <Card>
+          <CardHeader className="pb-4">
+            <CardTitle className="text-2xl text-center">Authentication</CardTitle>
+            <CardDescription className="text-center">
+              Access your dashboard
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="login" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="login">Sign In</TabsTrigger>
+                <TabsTrigger value="register">Sign Up</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="login" className="space-y-4 mt-6">
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="login-email">Email</Label>
                     <Input
-                      id="email"
+                      id="login-email"
                       type="email"
                       placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      value={loginData.email}
+                      onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
+                      disabled={isSubmitting}
                       required
-                      disabled={isLoading}
-                      className="h-11 pl-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
+                    />
                   </div>
-                </div>
-
-                {/* Password Field */}
-                {authMode !== 'forgot-password' &&
-                <div className="space-y-2">
-                    <Label htmlFor="password" className="text-slate-700 font-medium">Password</Label>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="login-password">Password</Label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                       <Input
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      disabled={isLoading}
-                      className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
-                      <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      disabled={isLoading}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:opacity-50">
+                        id="login-password"
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Enter your password"
+                        value={loginData.password}
+                        onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
+                        disabled={isSubmitting}
+                        required
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
+                      </Button>
                     </div>
                   </div>
-                }
 
-                {/* Confirm Password Field */}
-                {authMode === 'register' &&
-                <div className="space-y-2">
-                    <Label htmlFor="confirmPassword" className="text-slate-700 font-medium">Confirm Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-                      <Input
-                      id="confirmPassword"
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      placeholder="Confirm your password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                      disabled={isLoading}
-                      className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
-                      <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      disabled={isLoading}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:opacity-50">
-                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                  </div>
-                }
-
-                {/* Forgot Password Link */}
-                {authMode === 'login' &&
-                <div className="text-right">
-                    <Button
-                    type="button"
-                    variant="link"
-                    className="p-0 h-auto text-blue-600 hover:text-blue-800 text-sm"
-                    disabled={isLoading}
-                    onClick={() => {
-                      setAuthMode('forgot-password');
-                      setPassword('');
-                      setMessage('');
-                    }}>
+                  <div className="text-right">
+                    <Link 
+                      to="/resetpassword" 
+                      className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                    >
                       Forgot password?
-                    </Button>
+                    </Link>
                   </div>
-                }
-
-                {/* Submit Button */}
-                <Button
-                  type="submit"
-                  className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                  disabled={isLoading}>
-                  {getSubmitButtonIcon()}
-                  {getSubmitButtonText()}
-                </Button>
-              </form>
-
-              {/* Auth Mode Switcher */}
-              <div className="mt-6">
-                <Separator className="my-4" />
-                <div className="text-center space-y-2">
-                  {authMode === 'login' &&
-                  <div>
-                      <span className="text-sm text-slate-600">Don't have an account? </span>
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={isSubmitting || isLoading}
+                  >
+                    {isSubmitting ? (
+                      <div className="flex items-center">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        Signing In...
+                      </div>
+                    ) : (
+                      <>
+                        <LogIn className="w-4 h-4 mr-2" />
+                        Sign In
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </TabsContent>
+              
+              <TabsContent value="register" className="space-y-4 mt-6">
+                <form onSubmit={handleRegister} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="register-fullname">Full Name</Label>
+                      <Input
+                        id="register-fullname"
+                        type="text"
+                        placeholder="Your full name"
+                        value={registerData.fullName}
+                        onChange={(e) => setRegisterData(prev => ({ ...prev, fullName: e.target.value }))}
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="register-username">Username</Label>
+                      <Input
+                        id="register-username"
+                        type="text"
+                        placeholder="Choose username"
+                        value={registerData.username}
+                        onChange={(e) => setRegisterData(prev => ({ ...prev, username: e.target.value }))}
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="register-email">Email *</Label>
+                    <Input
+                      id="register-email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={registerData.email}
+                      onChange={(e) => setRegisterData(prev => ({ ...prev, email: e.target.value }))}
+                      disabled={isSubmitting}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="register-password">Password *</Label>
+                    <div className="relative">
+                      <Input
+                        id="register-password"
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Choose a password"
+                        value={registerData.password}
+                        onChange={(e) => setRegisterData(prev => ({ ...prev, password: e.target.value }))}
+                        disabled={isSubmitting}
+                        required
+                      />
                       <Button
-                      variant="link"
-                      className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
-                      disabled={isLoading}
-                      onClick={() => {
-                        setAuthMode('register');
-                        clearForm();
-                      }}>
-                        Create one
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
                     </div>
-                  }
-
-                  {authMode === 'register' &&
-                  <div>
-                      <span className="text-sm text-slate-600">Already have an account? </span>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="register-confirm-password">Confirm Password *</Label>
+                    <div className="relative">
+                      <Input
+                        id="register-confirm-password"
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        placeholder="Confirm your password"
+                        value={registerData.confirmPassword}
+                        onChange={(e) => setRegisterData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                        disabled={isSubmitting}
+                        required
+                      />
                       <Button
-                      variant="link"
-                      className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
-                      disabled={isLoading}
-                      onClick={() => {
-                        setAuthMode('login');
-                        clearForm();
-                      }}>
-                        Sign in
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
                     </div>
-                  }
-
-                  {authMode === 'forgot-password' &&
-                  <div>
-                      <span className="text-sm text-slate-600">Remember your password? </span>
-                      <Button
-                      variant="link"
-                      className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
-                      disabled={isLoading}
-                      onClick={() => {
-                        setAuthMode('login');
-                        clearForm();
-                      }}>
-                        Sign in
-                      </Button>
-                    </div>
-                  }
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Footer */}
-          <div className="text-center mt-6 text-sm text-slate-500">
-            <p>&copy; 2024 DFS Management Systems. All rights reserved.</p>
-          </div>
-        </div>
+                  </div>
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={isSubmitting || isLoading}
+                  >
+                    {isSubmitting ? (
+                      <div className="flex items-center">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        Creating Account...
+                      </div>
+                    ) : (
+                      <>
+                        <UserPlus className="w-4 h-4 mr-2" />
+                        Create Account
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       </div>
-    </div>);
-
+    </div>
+  );
 };
 
 export default LoginPage;

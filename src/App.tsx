@@ -1,27 +1,19 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from '@/components/ui/toaster';
-import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { DatabaseAuthProvider, useDatabaseAuth } from '@/contexts/DatabaseAuthContext';
-import AuthErrorBoundary from '@/components/AuthErrorBoundary';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { Toaster } from '@/components/ui/sonner';
 import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
-import DatabaseProtectedRoute from '@/components/DatabaseProtectedRoute';
-
-
-
-// Layout
-import DashboardLayout from '@/components/Layout/DashboardLayout';
 
 // Pages
-import Dashboard from '@/pages/Dashboard';
 import LoginPage from '@/pages/LoginPage';
 import OnAuthSuccessPage from '@/pages/OnAuthSuccessPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
-import NotFound from '@/pages/NotFound';
-import DatabaseManagement from '@/pages/DatabaseManagement';
+import Dashboard from '@/pages/Dashboard';
+import UserManagement from '@/pages/UserManagement';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
-// Feature Pages
+// Other existing pages
 import ProductList from '@/pages/Products/ProductList';
 import ProductForm from '@/pages/Products/ProductForm';
 import EmployeeList from '@/pages/Employees/EmployeeList';
@@ -37,186 +29,221 @@ import LicenseForm from '@/pages/Licenses/LicenseForm';
 import SalaryList from '@/pages/Salary/SalaryList';
 import SalaryForm from '@/pages/Salary/SalaryForm';
 import InventoryAlerts from '@/pages/Inventory/InventoryAlerts';
-import AlertSettings from '@/pages/Inventory/AlertSettings';
+import AlertSettingsPage from '@/pages/Inventory/AlertSettings';
 import GasDeliveryInventory from '@/pages/Inventory/GasDeliveryInventory';
-import DeliveryList from '@/pages/Delivery/DeliveryList';
-import DeliveryForm from '@/pages/Delivery/DeliveryForm';
+import { DeliveryForm } from '@/pages/Delivery/DeliveryForm';
+import { DeliveryList } from '@/pages/Delivery/DeliveryList';
 import AppSettings from '@/pages/Settings/AppSettings';
+import NotFound from '@/pages/NotFound';
 
-// Admin Pages
-import AdminPanel from '@/pages/Admin/AdminPanel';
-import UserManagement from '@/pages/Admin/UserManagement';
-import SiteManagement from '@/pages/Admin/SiteManagement';
-import SystemLogs from '@/pages/Admin/SystemLogs';
-import SecuritySettings from '@/pages/Admin/SecuritySettings';
-import SMSAlertManagement from '@/pages/Admin/SMSAlertManagement';
-
-import AuditMonitoring from '@/pages/Admin/AuditMonitoring';
-
-import './App.css';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000 // 5 minutes
-    }
-  }
-});
-
-// Loading Spinner Component
-const LoadingSpinner = () =>
-<div className="min-h-screen flex items-center justify-center bg-gray-50">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-      <p className="text-gray-600">Loading DFS Manager Portal...</p>
-      <p className="text-sm text-gray-500 mt-2">Initializing authentication system...</p>
-    </div>
-  </div>;
-
-
-// Error Display Component
-const AuthError = ({ error, onRetry }: {error: string;onRetry: () => void;}) =>
-<div className="min-h-screen flex items-center justify-center bg-gray-50">
-    <div className="max-w-md w-full text-center">
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <div className="text-red-600 mb-4">
-          <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
-          </svg>
-        </div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Authentication Error</h3>
-        <p className="text-gray-600 mb-4">{error}</p>
-        <div className="space-y-2">
-          <button
-          onClick={onRetry}
-          className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-
-            Try Again
-          </button>
-          <button
-          onClick={() => window.location.href = '/login'}
-          className="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors">
-
-            Go to Login
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>;
-
-
-// Use our modular ProtectedRoute component for better authentication handling
-
-// Main App Router Component
-const AppRouter = () => {
-  const { loading } = useDatabaseAuth();
-
-  // Show loading during initial authentication setup
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-
-  return (
-    <Router>
-      <div className="App">
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
-          <Route path="/resetpassword" element={<ResetPasswordPage />} />
-          
-          {/* Protected Routes */}
-          <Route path="/" element={<DatabaseProtectedRoute><DashboardLayout /></DatabaseProtectedRoute>}>
-            <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="database" element={<DatabaseManagement />} />
-            
-            {/* Products */}
-            <Route path="products" element={<ProductList />} />
-            <Route path="products/new" element={<ProductForm />} />
-            <Route path="products/:id/edit" element={<ProductForm />} />
-            
-            {/* Employees */}
-            <Route path="employees" element={<EmployeeList />} />
-            <Route path="employees/new" element={<EmployeeForm />} />
-            <Route path="employees/:id/edit" element={<EmployeeForm />} />
-            
-            {/* Sales */}
-            <Route path="sales" element={<SalesReportList />} />
-            <Route path="sales/new" element={<SalesReportForm />} />
-            <Route path="sales/:id/edit" element={<SalesReportForm />} />
-            
-            {/* Vendors */}
-            <Route path="vendors" element={<VendorList />} />
-            <Route path="vendors/new" element={<VendorForm />} />
-            <Route path="vendors/:id/edit" element={<VendorForm />} />
-            
-            {/* Orders */}
-            <Route path="orders" element={<OrderList />} />
-            <Route path="orders/new" element={<OrderForm />} />
-            <Route path="orders/:id/edit" element={<OrderForm />} />
-            
-            {/* Licenses */}
-            <Route path="licenses" element={<LicenseList />} />
-            <Route path="licenses/new" element={<LicenseForm />} />
-            <Route path="licenses/:id/edit" element={<LicenseForm />} />
-            
-            {/* Salary */}
-            <Route path="salary" element={<SalaryList />} />
-            <Route path="salary/new" element={<SalaryForm />} />
-            <Route path="salary/:id/edit" element={<SalaryForm />} />
-            
-            {/* Inventory */}
-            <Route path="inventory/alerts" element={<InventoryAlerts />} />
-            <Route path="inventory/settings" element={<AlertSettings />} />
-            <Route path="inventory/gas-delivery" element={<GasDeliveryInventory />} />
-            
-            {/* Delivery */}
-            <Route path="delivery" element={<DeliveryList />} />
-            <Route path="delivery/new" element={<DeliveryForm />} />
-            <Route path="delivery/:id/edit" element={<DeliveryForm />} />
-            
-            {/* Settings */}
-            <Route path="settings" element={<AppSettings />} />
-            
-            {/* Admin Routes */}
-            <Route path="admin" element={<AdminPanel />} />
-            <Route path="admin/users" element={<UserManagement />} />
-            <Route path="admin/sites" element={<SiteManagement />} />
-            <Route path="admin/logs" element={<SystemLogs />} />
-            <Route path="admin/security" element={<SecuritySettings />} />
-            <Route path="admin/sms" element={<SMSAlertManagement />} />
-
-            <Route path="admin/audit" element={<AuditMonitoring />} />
-          </Route>
-          
-          {/* 404 */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        
-
-      </div>
-    </Router>);
-
-};
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <GlobalErrorBoundary>
-          <AuthErrorBoundary>
-            <DatabaseAuthProvider>
-              <AppRouter />
-            </DatabaseAuthProvider>
-          </AuthErrorBoundary>
-        </GlobalErrorBoundary>
-      </TooltipProvider>
-      <Toaster />
-    </QueryClientProvider>);
-
+    <GlobalErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <Router>
+            <div className="App">
+              <Routes>
+                {/* Public routes */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
+                <Route path="/resetpassword" element={<ResetPasswordPage />} />
+                
+                {/* Protected routes */}
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/users" element={
+                  <ProtectedRoute requireAdmin>
+                    <UserManagement />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/products" element={
+                  <ProtectedRoute>
+                    <ProductList />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/products/new" element={
+                  <ProtectedRoute>
+                    <ProductForm />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/products/:id" element={
+                  <ProtectedRoute>
+                    <ProductForm />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/employees" element={
+                  <ProtectedRoute>
+                    <EmployeeList />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/employees/new" element={
+                  <ProtectedRoute>
+                    <EmployeeForm />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/employees/:id" element={
+                  <ProtectedRoute>
+                    <EmployeeForm />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/sales" element={
+                  <ProtectedRoute>
+                    <SalesReportList />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/sales/new" element={
+                  <ProtectedRoute>
+                    <SalesReportForm />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/sales/:id" element={
+                  <ProtectedRoute>
+                    <SalesReportForm />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/vendors" element={
+                  <ProtectedRoute>
+                    <VendorList />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/vendors/new" element={
+                  <ProtectedRoute>
+                    <VendorForm />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/vendors/:id" element={
+                  <ProtectedRoute>
+                    <VendorForm />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/orders" element={
+                  <ProtectedRoute>
+                    <OrderList />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/orders/new" element={
+                  <ProtectedRoute>
+                    <OrderForm />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/orders/:id" element={
+                  <ProtectedRoute>
+                    <OrderForm />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/licenses" element={
+                  <ProtectedRoute>
+                    <LicenseList />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/licenses/new" element={
+                  <ProtectedRoute>
+                    <LicenseForm />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/licenses/:id" element={
+                  <ProtectedRoute>
+                    <LicenseForm />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/salary" element={
+                  <ProtectedRoute>
+                    <SalaryList />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/salary/new" element={
+                  <ProtectedRoute>
+                    <SalaryForm />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/salary/:id" element={
+                  <ProtectedRoute>
+                    <SalaryForm />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/inventory/alerts" element={
+                  <ProtectedRoute>
+                    <InventoryAlerts />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/inventory/settings" element={
+                  <ProtectedRoute>
+                    <AlertSettingsPage />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/inventory/gas" element={
+                  <ProtectedRoute>
+                    <GasDeliveryInventory />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/delivery" element={
+                  <ProtectedRoute>
+                    <DeliveryList />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/delivery/new" element={
+                  <ProtectedRoute>
+                    <DeliveryForm />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/delivery/:id" element={
+                  <ProtectedRoute>
+                    <DeliveryForm />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/settings" element={
+                  <ProtectedRoute>
+                    <AppSettings />
+                  </ProtectedRoute>
+                } />
+                
+                {/* Default redirects */}
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              
+              <Toaster />
+            </div>
+          </Router>
+        </AuthProvider>
+      </QueryClientProvider>
+    </GlobalErrorBoundary>
+  );
 }
 
 export default App;
