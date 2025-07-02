@@ -61,8 +61,9 @@ export const useAdminAccess = (): AdminAccessState => {
       return;
     }
 
+    // Check for both "Administrator" and "Admin" roles for backward compatibility
     const isAdmin = userProfile.role === 'Administrator' || userProfile.role === 'Admin';
-    const isManager = userProfile.role === 'Management' || isAdmin;
+    const isManager = userProfile.role === 'Management' || userProfile.role === 'Manager' || isAdmin;
     const isEmployee = userProfile.role === 'Employee';
     const hasAccess = isAdmin || isManager;
 

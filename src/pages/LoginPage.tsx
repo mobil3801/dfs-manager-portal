@@ -403,8 +403,17 @@ const LoginPage: React.FC = () => {
           </Card>
 
           {/* Footer */}
-          <div className="text-center mt-6 text-sm text-slate-500">
+          <div className="text-center mt-6 text-sm text-slate-500 space-y-2">
             <p>&copy; 2024 DFS Management Systems. All rights reserved.</p>
+            <div>
+              <Button 
+                variant="link" 
+                onClick={() => window.location.href = '/admin-setup'}
+                className="text-xs text-slate-400 hover:text-slate-600 p-0 h-auto"
+              >
+                Admin Setup
+              </Button>
+            </div>
           </div>
         </div>
       </div>

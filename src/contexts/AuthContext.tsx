@@ -406,7 +406,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     }
 
     // Default permissions for managers
-    if (userProfile.role === 'Management') {
+    if (userProfile.role === 'Management' || userProfile.role === 'Manager') {
       const managerActions = ['view', 'create', 'edit'];
       return managerActions.includes(action);
     }
@@ -424,7 +424,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
   };
 
   const isManager = (): boolean => {
-    return userProfile?.role === 'Management' || userProfile?.role === 'Administrator';
+    return userProfile?.role === 'Management' || userProfile?.role === 'Manager' || 
+           userProfile?.role === 'Administrator' || userProfile?.role === 'Admin';
   };
 
   const value: AuthContextType = {

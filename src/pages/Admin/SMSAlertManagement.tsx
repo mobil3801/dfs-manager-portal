@@ -23,7 +23,7 @@ import SMSConfigurationValidator from '@/components/SMSConfigurationValidator';
 import SMSTroubleshootingGuide from '@/components/SMSTroubleshootingGuide';
 
 
-     interface SMSAlertSetting {
+interface SMSAlertSetting {
   id: number;
   service_provider: string;
   account_sid: string;
@@ -64,7 +64,7 @@ interface SMSHistory {
   cost: number;
   sent_by: number;
 }
-    
+
 
 const SMSAlertManagement: React.FC = () => {
   const { isAdmin } = useAdminAccess();
@@ -358,7 +358,7 @@ const SMSAlertManagement: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold text-green-600">
-                    {settings.filter((s) => s.is_enabled).length}
+                    {settings.filter((s) => s.is_active).length}
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Active alert configurations
@@ -458,9 +458,9 @@ const SMSAlertManagement: React.FC = () => {
                       {contacts.map((contact) =>
                     <TableRow key={contact.id}>
                           <TableCell className="font-medium">{contact.contact_name}</TableCell>
-                          <TableCell>{contact.phone_number}</TableCell>
+                          <TableCell>{contact.mobile_number}</TableCell>
                           <TableCell>{contact.station}</TableCell>
-                          <TableCell>{contact.role}</TableCell>
+                          <TableCell>{contact.contact_role}</TableCell>
                           <TableCell>
                             <Badge variant={contact.is_active ? 'default' : 'secondary'}>
                               {contact.is_active ? 'Active' : 'Inactive'}
