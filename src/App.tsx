@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { Toaster } from '@/components/ui/sonner';
 import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
+import AppInitializer from '@/components/AppInitializer';
 
 // Pages
 import LoginPage from '@/pages/LoginPage';
@@ -29,7 +30,7 @@ import LicenseForm from '@/pages/Licenses/LicenseForm';
 import SalaryList from '@/pages/Salary/SalaryList';
 import SalaryForm from '@/pages/Salary/SalaryForm';
 import InventoryAlerts from '@/pages/Inventory/InventoryAlerts';
-import AlertSettingsPage from '@/pages/Inventory/AlertSettings';
+import { AlertSettingsPage } from '@/pages/Inventory/AlertSettings';
 import GasDeliveryInventory from '@/pages/Inventory/GasDeliveryInventory';
 import DeliveryForm from '@/pages/Delivery/DeliveryForm';
 import DeliveryList from '@/pages/Delivery/DeliveryList';
@@ -43,9 +44,10 @@ function App() {
     <GlobalErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <Router>
-            <div className="App">
-              <Routes>
+          <AppInitializer>
+            <Router>
+              <div className="App">
+                <Routes>
                 {/* Public routes */}
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
@@ -237,9 +239,10 @@ function App() {
                 <Route path="*" element={<NotFound />} />
               </Routes>
               
-              <Toaster />
-            </div>
-          </Router>
+                <Toaster />
+              </div>
+            </Router>
+          </AppInitializer>
         </AuthProvider>
       </QueryClientProvider>
     </GlobalErrorBoundary>);

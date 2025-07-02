@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Search, Plus, Edit, Trash2, Shield, User, Eye } from 'lucide-react';
 import { toast } from 'sonner';
+import CreateUserDialog from '@/components/CreateUserDialog';
 
 interface UserProfile {
   id: number;
@@ -34,6 +35,7 @@ const UserManagement = () => {
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const TABLE_ID = '24040';
 
@@ -169,6 +171,10 @@ const UserManagement = () => {
                 View and manage all user accounts and their roles
               </CardDescription>
             </div>
+            <Button onClick={() => setIsCreateDialogOpen(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Create User
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -332,6 +338,13 @@ const UserManagement = () => {
           }
         </DialogContent>
       </Dialog>
+
+      {/* Create User Dialog */}
+      <CreateUserDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        onUserCreated={loadUsers}
+      />
 
       {/* Edit User Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
