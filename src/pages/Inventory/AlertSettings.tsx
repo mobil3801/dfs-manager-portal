@@ -7,17 +7,17 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Settings, 
-  Bell, 
-  Mail, 
-  Smartphone, 
-  Clock, 
+import {
+  Settings,
+  Bell,
+  Mail,
+  Smartphone,
+  Clock,
   AlertTriangle,
   Save,
   Plus,
-  Trash2
-} from 'lucide-react';
+  Trash2 } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface AlertRule {
@@ -53,34 +53,34 @@ const AlertSettingsPage: React.FC = () => {
   // Mock data initialization
   useEffect(() => {
     const mockRules: AlertRule[] = [
-      {
-        id: '1',
-        name: 'Low Stock Alert',
-        type: 'low_stock',
-        threshold: 10,
-        isEnabled: true,
-        notificationMethods: ['email', 'app'],
-        priority: 'medium'
-      },
-      {
-        id: '2',
-        name: 'Out of Stock Alert',
-        type: 'out_of_stock',
-        threshold: 0,
-        isEnabled: true,
-        notificationMethods: ['email', 'sms', 'app'],
-        priority: 'high'
-      },
-      {
-        id: '3',
-        name: 'Expiring Products',
-        type: 'expiring',
-        threshold: 7, // days
-        isEnabled: true,
-        notificationMethods: ['email'],
-        priority: 'medium'
-      }
-    ];
+    {
+      id: '1',
+      name: 'Low Stock Alert',
+      type: 'low_stock',
+      threshold: 10,
+      isEnabled: true,
+      notificationMethods: ['email', 'app'],
+      priority: 'medium'
+    },
+    {
+      id: '2',
+      name: 'Out of Stock Alert',
+      type: 'out_of_stock',
+      threshold: 0,
+      isEnabled: true,
+      notificationMethods: ['email', 'sms', 'app'],
+      priority: 'high'
+    },
+    {
+      id: '3',
+      name: 'Expiring Products',
+      type: 'expiring',
+      threshold: 7, // days
+      isEnabled: true,
+      notificationMethods: ['email'],
+      priority: 'medium'
+    }];
+
 
     const mockNotificationSettings: NotificationSettings = {
       emailEnabled: true,
@@ -106,8 +106,8 @@ const AlertSettingsPage: React.FC = () => {
     setSaving(true);
     try {
       // In a real app, this would save to the backend
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       toast({
         title: "Settings saved",
         description: "Alert settings have been saved successfully."
@@ -124,8 +124,8 @@ const AlertSettingsPage: React.FC = () => {
   };
 
   const updateAlertRule = (id: string, updates: Partial<AlertRule>) => {
-    setAlertRules(prev => prev.map(rule => 
-      rule.id === id ? { ...rule, ...updates } : rule
+    setAlertRules((prev) => prev.map((rule) =>
+    rule.id === id ? { ...rule, ...updates } : rule
     ));
   };
 
@@ -139,11 +139,11 @@ const AlertSettingsPage: React.FC = () => {
       notificationMethods: ['app'],
       priority: 'medium'
     };
-    setAlertRules(prev => [...prev, newRule]);
+    setAlertRules((prev) => [...prev, newRule]);
   };
 
   const deleteRule = (id: string) => {
-    setAlertRules(prev => prev.filter(rule => rule.id !== id));
+    setAlertRules((prev) => prev.filter((rule) => rule.id !== id));
     toast({
       title: "Rule deleted",
       description: "Alert rule has been removed."
@@ -152,11 +152,11 @@ const AlertSettingsPage: React.FC = () => {
 
   const getTypeLabel = (type: string) => {
     switch (type) {
-      case 'low_stock': return 'Low Stock';
-      case 'out_of_stock': return 'Out of Stock';
-      case 'expiring': return 'Expiring Soon';
-      case 'expired': return 'Expired';
-      default: return type;
+      case 'low_stock':return 'Low Stock';
+      case 'out_of_stock':return 'Out of Stock';
+      case 'expiring':return 'Expiring Soon';
+      case 'expired':return 'Expired';
+      default:return type;
     }
   };
 
@@ -166,8 +166,8 @@ const AlertSettingsPage: React.FC = () => {
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -201,15 +201,15 @@ const AlertSettingsPage: React.FC = () => {
           </div>
 
           <div className="grid gap-4">
-            {alertRules.map(rule => (
-              <Card key={rule.id}>
+            {alertRules.map((rule) =>
+            <Card key={rule.id}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <Switch
-                        checked={rule.isEnabled}
-                        onCheckedChange={(checked) => updateAlertRule(rule.id, { isEnabled: checked })}
-                      />
+                      checked={rule.isEnabled}
+                      onCheckedChange={(checked) => updateAlertRule(rule.id, { isEnabled: checked })} />
+
                       <div>
                         <CardTitle className="text-lg">{rule.name}</CardTitle>
                         <CardDescription className="flex items-center space-x-2">
@@ -221,11 +221,11 @@ const AlertSettingsPage: React.FC = () => {
                       </div>
                     </div>
                     <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteRule(rule.id)}
-                      className="text-destructive hover:text-destructive"
-                    >
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => deleteRule(rule.id)}
+                    className="text-destructive hover:text-destructive">
+
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -235,18 +235,18 @@ const AlertSettingsPage: React.FC = () => {
                     <div className="space-y-2">
                       <Label htmlFor={`name-${rule.id}`}>Rule Name</Label>
                       <Input
-                        id={`name-${rule.id}`}
-                        value={rule.name}
-                        onChange={(e) => updateAlertRule(rule.id, { name: e.target.value })}
-                      />
+                      id={`name-${rule.id}`}
+                      value={rule.name}
+                      onChange={(e) => updateAlertRule(rule.id, { name: e.target.value })} />
+
                     </div>
                     
                     <div className="space-y-2">
                       <Label htmlFor={`type-${rule.id}`}>Alert Type</Label>
                       <Select
-                        value={rule.type}
-                        onValueChange={(value) => updateAlertRule(rule.id, { type: value as AlertRule['type'] })}
-                      >
+                      value={rule.type}
+                      onValueChange={(value) => updateAlertRule(rule.id, { type: value as AlertRule['type'] })}>
+
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -264,19 +264,19 @@ const AlertSettingsPage: React.FC = () => {
                         Threshold {rule.type === 'expiring' ? '(days)' : '(quantity)'}
                       </Label>
                       <Input
-                        id={`threshold-${rule.id}`}
-                        type="number"
-                        value={rule.threshold}
-                        onChange={(e) => updateAlertRule(rule.id, { threshold: parseInt(e.target.value) || 0 })}
-                      />
+                      id={`threshold-${rule.id}`}
+                      type="number"
+                      value={rule.threshold}
+                      onChange={(e) => updateAlertRule(rule.id, { threshold: parseInt(e.target.value) || 0 })} />
+
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor={`priority-${rule.id}`}>Priority</Label>
                       <Select
-                        value={rule.priority}
-                        onValueChange={(value) => updateAlertRule(rule.id, { priority: value as AlertRule['priority'] })}
-                      >
+                      value={rule.priority}
+                      onValueChange={(value) => updateAlertRule(rule.id, { priority: value as AlertRule['priority'] })}>
+
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -291,36 +291,36 @@ const AlertSettingsPage: React.FC = () => {
                     <div className="md:col-span-2 space-y-2">
                       <Label>Notification Methods</Label>
                       <div className="flex items-center space-x-4">
-                        {['email', 'sms', 'app'].map(method => (
-                          <label key={method} className="flex items-center space-x-2 cursor-pointer">
+                        {['email', 'sms', 'app'].map((method) =>
+                      <label key={method} className="flex items-center space-x-2 cursor-pointer">
                             <input
-                              type="checkbox"
-                              checked={rule.notificationMethods.includes(method)}
-                              onChange={(e) => {
-                                const methods = e.target.checked
-                                  ? [...rule.notificationMethods, method]
-                                  : rule.notificationMethods.filter(m => m !== method);
-                                updateAlertRule(rule.id, { notificationMethods: methods });
-                              }}
-                              className="rounded"
-                            />
+                          type="checkbox"
+                          checked={rule.notificationMethods.includes(method)}
+                          onChange={(e) => {
+                            const methods = e.target.checked ?
+                            [...rule.notificationMethods, method] :
+                            rule.notificationMethods.filter((m) => m !== method);
+                            updateAlertRule(rule.id, { notificationMethods: methods });
+                          }}
+                          className="rounded" />
+
                             <span className="capitalize">{method === 'app' ? 'In-App' : method}</span>
                           </label>
-                        ))}
+                      )}
                       </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            )}
           </div>
         </TabsContent>
 
         <TabsContent value="notifications" className="space-y-6">
           <h2 className="text-xl font-semibold">Notification Settings</h2>
           
-          {notificationSettings && (
-            <div className="grid gap-6">
+          {notificationSettings &&
+          <div className="grid gap-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
@@ -333,24 +333,24 @@ const AlertSettingsPage: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <Label htmlFor="email-enabled">Enable Email Notifications</Label>
                     <Switch
-                      id="email-enabled"
-                      checked={notificationSettings.emailEnabled}
-                      onCheckedChange={(checked) => 
-                        setNotificationSettings(prev => prev ? { ...prev, emailEnabled: checked } : undefined)
-                      }
-                    />
+                    id="email-enabled"
+                    checked={notificationSettings.emailEnabled}
+                    onCheckedChange={(checked) =>
+                    setNotificationSettings((prev) => prev ? { ...prev, emailEnabled: checked } : undefined)
+                    } />
+
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email-address">Email Address</Label>
                     <Input
-                      id="email-address"
-                      type="email"
-                      value={notificationSettings.emailAddress}
-                      onChange={(e) => 
-                        setNotificationSettings(prev => prev ? { ...prev, emailAddress: e.target.value } : undefined)
-                      }
-                      disabled={!notificationSettings.emailEnabled}
-                    />
+                    id="email-address"
+                    type="email"
+                    value={notificationSettings.emailAddress}
+                    onChange={(e) =>
+                    setNotificationSettings((prev) => prev ? { ...prev, emailAddress: e.target.value } : undefined)
+                    }
+                    disabled={!notificationSettings.emailEnabled} />
+
                   </div>
                 </CardContent>
               </Card>
@@ -367,24 +367,24 @@ const AlertSettingsPage: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <Label htmlFor="sms-enabled">Enable SMS Notifications</Label>
                     <Switch
-                      id="sms-enabled"
-                      checked={notificationSettings.smsEnabled}
-                      onCheckedChange={(checked) => 
-                        setNotificationSettings(prev => prev ? { ...prev, smsEnabled: checked } : undefined)
-                      }
-                    />
+                    id="sms-enabled"
+                    checked={notificationSettings.smsEnabled}
+                    onCheckedChange={(checked) =>
+                    setNotificationSettings((prev) => prev ? { ...prev, smsEnabled: checked } : undefined)
+                    } />
+
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="phone-number">Phone Number</Label>
                     <Input
-                      id="phone-number"
-                      type="tel"
-                      value={notificationSettings.phoneNumber}
-                      onChange={(e) => 
-                        setNotificationSettings(prev => prev ? { ...prev, phoneNumber: e.target.value } : undefined)
-                      }
-                      disabled={!notificationSettings.smsEnabled}
-                    />
+                    id="phone-number"
+                    type="tel"
+                    value={notificationSettings.phoneNumber}
+                    onChange={(e) =>
+                    setNotificationSettings((prev) => prev ? { ...prev, phoneNumber: e.target.value } : undefined)
+                    }
+                    disabled={!notificationSettings.smsEnabled} />
+
                   </div>
                 </CardContent>
               </Card>
@@ -401,12 +401,12 @@ const AlertSettingsPage: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <Label htmlFor="app-enabled">Enable In-App Notifications</Label>
                     <Switch
-                      id="app-enabled"
-                      checked={notificationSettings.inAppEnabled}
-                      onCheckedChange={(checked) => 
-                        setNotificationSettings(prev => prev ? { ...prev, inAppEnabled: checked } : undefined)
-                      }
-                    />
+                    id="app-enabled"
+                    checked={notificationSettings.inAppEnabled}
+                    onCheckedChange={(checked) =>
+                    setNotificationSettings((prev) => prev ? { ...prev, inAppEnabled: checked } : undefined)
+                    } />
+
                   </div>
                 </CardContent>
               </Card>
@@ -423,56 +423,56 @@ const AlertSettingsPage: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <Label htmlFor="quiet-enabled">Enable Quiet Hours</Label>
                     <Switch
-                      id="quiet-enabled"
-                      checked={notificationSettings.quietHours.enabled}
-                      onCheckedChange={(checked) => 
-                        setNotificationSettings(prev => prev ? {
-                          ...prev,
-                          quietHours: { ...prev.quietHours, enabled: checked }
-                        } : undefined)
-                      }
-                    />
+                    id="quiet-enabled"
+                    checked={notificationSettings.quietHours.enabled}
+                    onCheckedChange={(checked) =>
+                    setNotificationSettings((prev) => prev ? {
+                      ...prev,
+                      quietHours: { ...prev.quietHours, enabled: checked }
+                    } : undefined)
+                    } />
+
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="start-time">Start Time</Label>
                       <Input
-                        id="start-time"
-                        type="time"
-                        value={notificationSettings.quietHours.startTime}
-                        onChange={(e) => 
-                          setNotificationSettings(prev => prev ? {
-                            ...prev,
-                            quietHours: { ...prev.quietHours, startTime: e.target.value }
-                          } : undefined)
-                        }
-                        disabled={!notificationSettings.quietHours.enabled}
-                      />
+                      id="start-time"
+                      type="time"
+                      value={notificationSettings.quietHours.startTime}
+                      onChange={(e) =>
+                      setNotificationSettings((prev) => prev ? {
+                        ...prev,
+                        quietHours: { ...prev.quietHours, startTime: e.target.value }
+                      } : undefined)
+                      }
+                      disabled={!notificationSettings.quietHours.enabled} />
+
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="end-time">End Time</Label>
                       <Input
-                        id="end-time"
-                        type="time"
-                        value={notificationSettings.quietHours.endTime}
-                        onChange={(e) => 
-                          setNotificationSettings(prev => prev ? {
-                            ...prev,
-                            quietHours: { ...prev.quietHours, endTime: e.target.value }
-                          } : undefined)
-                        }
-                        disabled={!notificationSettings.quietHours.enabled}
-                      />
+                      id="end-time"
+                      type="time"
+                      value={notificationSettings.quietHours.endTime}
+                      onChange={(e) =>
+                      setNotificationSettings((prev) => prev ? {
+                        ...prev,
+                        quietHours: { ...prev.quietHours, endTime: e.target.value }
+                      } : undefined)
+                      }
+                      disabled={!notificationSettings.quietHours.enabled} />
+
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
-          )}
+          }
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AlertSettingsPage;

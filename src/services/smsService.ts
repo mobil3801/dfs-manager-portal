@@ -17,38 +17,38 @@ class SMSService {
   async sendSMS(request: SMSRequest): Promise<SMSResponse> {
     try {
       console.log(`📱 Sending SMS to ${request.to}: ${request.message}`);
-      
+
       // In a real implementation, this would call the actual SMS API
       // For now, we'll simulate the SMS sending
-      
+
       // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       // Simulate success/failure based on phone number format
       const isValidNumber = /^\+?[\d\s\-\(\)]+$/.test(request.to);
-      
+
       if (!isValidNumber) {
         return {
           success: false,
           error: "Invalid phone number format"
         };
       }
-      
+
       // Simulate random failure for demonstration (5% failure rate)
       const shouldFail = Math.random() < 0.05;
-      
+
       if (shouldFail) {
         return {
           success: false,
           error: "SMS delivery failed - network error"
         };
       }
-      
+
       return {
         success: true,
         messageId: `sms_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
       };
-      
+
     } catch (error) {
       console.error('SMS service error:', error);
       return {
@@ -73,23 +73,23 @@ class SMSService {
   formatPhoneNumber(phoneNumber: string): string {
     // Remove all non-digit characters except +
     let formatted = phoneNumber.replace(/[^\d+]/g, '');
-    
+
     // If no country code, assume US (+1)
     if (!formatted.startsWith('+')) {
       formatted = '+1' + formatted;
     }
-    
+
     return formatted;
   }
 
   /**
    * Check SMS service status
    */
-  async checkStatus(): Promise<{ online: boolean; message: string }> {
+  async checkStatus(): Promise<{online: boolean;message: string;}> {
     try {
       // Simulate status check
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
       return {
         online: true,
         message: "SMS service is operational"
