@@ -9,8 +9,8 @@ interface BackButtonProps {
   size?: 'default' | 'sm' | 'lg';
 }
 
-const BackButton: React.FC<BackButtonProps> = ({ 
-  className = '', 
+const BackButton: React.FC<BackButtonProps> = ({
+  className = '',
   variant = 'ghost',
   size = 'sm'
 }) => {
@@ -38,12 +38,12 @@ const BackButton: React.FC<BackButtonProps> = ({
       onClick={handleBack}
       variant={variant}
       size={size}
-      className={`flex items-center gap-2 ${className}`}
-    >
+      className={`flex items-center gap-2 ${className}`}>
+
       <ArrowLeft className="w-4 h-4" />
       <span className="hidden sm:inline">Back</span>
-    </Button>
-  );
+    </Button>);
+
 };
 
 export default BackButton;

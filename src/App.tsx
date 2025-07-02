@@ -54,181 +54,181 @@ function App() {
                 
                 {/* Protected routes */}
                 <Route path="/dashboard" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <Dashboard />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/users" element={
-                  <ProtectedRoute requireAdmin>
+                <ProtectedRoute requireAdmin>
                     <UserManagement />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/products" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <ProductList />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/products/new" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <ProductForm />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/products/:id" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <ProductForm />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/employees" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <EmployeeList />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/employees/new" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <EmployeeForm />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/employees/:id" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <EmployeeForm />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/sales" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <SalesReportList />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/sales/new" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <SalesReportForm />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/sales/:id" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <SalesReportForm />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/vendors" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <VendorList />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/vendors/new" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <VendorForm />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/vendors/:id" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <VendorForm />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/orders" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <OrderList />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/orders/new" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <OrderForm />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/orders/:id" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <OrderForm />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/licenses" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <LicenseList />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/licenses/new" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <LicenseForm />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/licenses/:id" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <LicenseForm />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/salary" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <SalaryList />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/salary/new" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <SalaryForm />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/salary/:id" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <SalaryForm />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/inventory/alerts" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <InventoryAlerts />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/inventory/settings" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <AlertSettingsPage />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/inventory/gas" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <GasDeliveryInventory />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/delivery" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <DeliveryList />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/delivery/new" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <DeliveryForm />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/delivery/:id" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <DeliveryForm />
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/settings" element={
-                  <ProtectedRoute>
+                <ProtectedRoute>
                     <AppSettings />
                   </ProtectedRoute>
                 } />
@@ -243,8 +243,8 @@ function App() {
           </Router>
         </AuthProvider>
       </QueryClientProvider>
-    </GlobalErrorBoundary>
-  );
+    </GlobalErrorBoundary>);
+
 }
 
 export default App;
