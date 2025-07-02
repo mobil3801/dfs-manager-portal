@@ -156,6 +156,10 @@ const QuickDataEntry: React.FC = () => {
 
 
 
+
+
+
+
               // Optionally switch to view tab after saving
               // setActiveTab('view');
             }} />
@@ -165,11 +169,9 @@ const QuickDataEntry: React.FC = () => {
             <DataViewer tableName={getCurrentTableData()!.name} tableId={getCurrentTableData()!.id} fields={getCurrentTableData()!.fields} />
 
           </TabsContent>
-        </Tabs>
-      }
+        </Tabs>}
 
-      {!selectedTable &&
-      <Card className="text-center py-12">
+      {!selectedTable && <Card className="text-center py-12">
           <CardContent>
             <Database className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">Select a Table</h3>
@@ -177,10 +179,8 @@ const QuickDataEntry: React.FC = () => {
               Choose a table from the dropdown above to start managing your data
             </p>
           </CardContent>
-        </Card>
-      }
+        </Card>}
     </div>);
-
 };
 
 export default QuickDataEntry;

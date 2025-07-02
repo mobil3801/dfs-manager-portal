@@ -8,18 +8,18 @@ interface ProtectedRouteProps {
   showLoading?: boolean;
 }
 
-const LoadingSpinner = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+const LoadingSpinner = () =>
+<div className="min-h-screen flex items-center justify-center bg-gray-50">
     <div className="text-center">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
       <p className="text-gray-600">Loading...</p>
       <p className="text-sm text-gray-500 mt-2">Authenticating user...</p>
     </div>
-  </div>
-);
+  </div>;
 
-const AuthError = ({ error, onRetry }: {error: string; onRetry: () => void;}) => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+
+const AuthError = ({ error, onRetry }: {error: string;onRetry: () => void;}) =>
+<div className="min-h-screen flex items-center justify-center bg-gray-50">
     <div className="max-w-md w-full text-center">
       <div className="bg-white rounded-lg shadow-lg p-6">
         <div className="text-red-600 mb-4">
@@ -31,38 +31,38 @@ const AuthError = ({ error, onRetry }: {error: string; onRetry: () => void;}) =>
         <p className="text-gray-600 mb-4">{error}</p>
         <div className="space-y-2">
           <button
-            onClick={onRetry}
-            className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+          onClick={onRetry}
+          className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
             Try Again
           </button>
           <button
-            onClick={() => window.location.href = '/login'}
-            className="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors">
+          onClick={() => window.location.href = '/login'}
+          className="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors">
             Go to Login
           </button>
         </div>
       </div>
     </div>
-  </div>
-);
+  </div>;
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
   requireRole,
-  showLoading = true 
+  showLoading = true
 }) => {
-  const { 
-    isAuthenticated, 
-    isLoading, 
-    authError, 
-    isInitialized, 
+  const {
+    isAuthenticated,
+    isLoading,
+    authError,
+    isInitialized,
     refreshUserData,
     userProfile,
-    hasPermission 
+    hasPermission
   } = useAuth();
 
   // Show loading while initializing
-  if (!isInitialized || (isLoading && showLoading)) {
+  if (!isInitialized || isLoading && showLoading) {
     return <LoadingSpinner />;
   }
 
@@ -82,14 +82,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     if (userProfile.role === 'Administrator') {
       return <>{children}</>;
     }
-    
+
     // Check specific role requirement
     if (requireRole === 'Admin' && userProfile.role !== 'Administrator') {
       return <Navigate to="/dashboard" replace />;
     }
-    
-    if (requireRole === 'Manager' && 
-        !['Administrator', 'Management'].includes(userProfile.role)) {
+
+    if (requireRole === 'Manager' &&
+    !['Administrator', 'Management'].includes(userProfile.role)) {
       return <Navigate to="/dashboard" replace />;
     }
   }
