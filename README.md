@@ -61,26 +61,6 @@ npm run build
 npm run preview
 ```
 
-## 📦 Deployment Options
-
-### 🌐 Netlify (Recommended)
-```bash
-# Install Netlify CLI
-npm install -g netlify-cli
-
-# Deploy to Netlify
-npm run deploy:netlify
-```
-
-### ▲ Vercel
-```bash
-# Install Vercel CLI
-npm install -g vercel
-
-# Deploy to Vercel
-npm run deploy:vercel
-```
-
 ### 🐙 GitHub Pages
 Push to main branch - GitHub Actions will automatically deploy
 
