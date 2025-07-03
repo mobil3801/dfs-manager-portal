@@ -240,6 +240,8 @@ const SyncMonitoringDashboard: React.FC = () => {
 
 
 
+
+
           // Table not accessible, skip
         }}return Math.max(activeTableCount, 1); // At least 1 table should be available
     } catch {return 21; // Default to total expected tables
@@ -260,8 +262,7 @@ const SyncMonitoringDashboard: React.FC = () => {
         </div>
         <div className="flex gap-2">
           <Button onClick={handleManualSync} disabled={isLoading}>
-            {isLoading ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : <RotateCcw className="h-4 w-4 mr-2" />
-          }
+            {isLoading ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : <RotateCcw className="h-4 w-4 mr-2" />}
             Manual Sync
           </Button>
         </div>
@@ -363,8 +364,7 @@ const SyncMonitoringDashboard: React.FC = () => {
                   </div>
                 </div>
 
-                {metrics.errorCount > 0 &&
-              <Alert>
+                {metrics.errorCount > 0 && <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
                       {metrics.errorCount} sync errors detected. Check logs for details.

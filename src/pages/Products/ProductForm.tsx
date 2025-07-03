@@ -596,7 +596,7 @@ const ProductForm = () => {
       } else {
         const { error } = await window.ezsite.apis.tableCreate('11726', payload);
         resultError = error;
-        
+
         // For new products, get the newly created product ID
         if (!error) {
           try {
@@ -616,58 +616,32 @@ const ProductForm = () => {
 
       if (resultError) throw resultError;
 
-      // Log changes for existing products or creation for new products
-      if (userProfile) {
-        if (isEdit && originalData) {
-          // Track changes for existing products
-          const fieldsToTrack = [
-            'product_name',
-            'last_shopping_date',
-            'case_price',
-            'unit_per_case',
-            'unit_price',
-            'retail_price',
-            'category',
-            'supplier',
-            'weight',
-            'weight_unit',
-            'department',
-            'description'
-          ];
+      // Log changes for existing products
+      if (isEdit && originalData && userProfile) {
+        const fieldsToTrack = [
+        'last_shopping_date',
+        'case_price',
+        'unit_per_case',
+        'unit_price',
+        'retail_price'];
 
-          for (const field of fieldsToTrack) {
-            const oldValue = originalData[field];
-            const newValue = formData[field];
 
-            if (oldValue !== newValue) {
-              await logFieldChange(parseInt(id!), field, oldValue, newValue, userProfile.user_id);
-            }
+        for (const field of fieldsToTrack) {
+          const oldValue = originalData[field];
+          const newValue = formData[field];
+
+          if (oldValue !== newValue) {
+            await logFieldChange(parseInt(id!), field, oldValue, newValue, userProfile.user_id);
           }
+        }
 
-          // Calculate and log profit margin changes
-          const oldProfitMargin = originalData.unit_price > 0 && originalData.retail_price > 0 ?
-          (originalData.retail_price - originalData.unit_price) / originalData.retail_price * 100 : 0;
-          const newProfitMargin = formData.profit_margin;
+        // Calculate and log profit margin changes
+        const oldProfitMargin = originalData.unit_price > 0 && originalData.retail_price > 0 ?
+        (originalData.retail_price - originalData.unit_price) / originalData.retail_price * 100 : 0;
+        const newProfitMargin = formData.profit_margin;
 
-          if (Math.abs(oldProfitMargin - newProfitMargin) > 0.01) {
-            await logFieldChange(parseInt(id!), 'profit_margin', oldProfitMargin.toFixed(2), newProfitMargin.toFixed(2), userProfile.user_id);
-          }
-        } else if (!isEdit && createdProductId) {
-          // Log product creation
-          try {
-            await window.ezsite.apis.tableCreate('24010', {
-              product_id: createdProductId,
-              field_name: 'product_creation',
-              old_value: '',
-              new_value: formData.product_name,
-              change_timestamp: new Date().toISOString(),
-              changed_by: userProfile.user_id,
-              change_type: 'create',
-              change_summary: `Product "${formData.product_name}" created with serial number ${formData.serial_number}`
-            });
-          } catch (error) {
-            console.error('Error logging product creation:', error);
-          }
+        if (Math.abs(oldProfitMargin - newProfitMargin) > 0.01) {
+          await logFieldChange(parseInt(id!), 'profit_margin', oldProfitMargin.toFixed(2), newProfitMargin.toFixed(2), userProfile.user_id);
         }
       }
 
@@ -906,9 +880,7 @@ const ProductForm = () => {
                     value={formData.category}
                     onValueChange={(value) => handleInputChange('category', value)}>
 
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
+
                     <SelectContent>
                       {validCategories.map((cat) =>
                       <SelectItem key={cat.id} value={cat.category_name}>
