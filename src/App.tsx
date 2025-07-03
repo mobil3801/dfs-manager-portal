@@ -32,9 +32,6 @@ import LicenseList from '@/pages/Licenses/LicenseList';
 import LicenseForm from '@/pages/Licenses/LicenseForm';
 import SalaryList from '@/pages/Salary/SalaryList';
 import SalaryForm from '@/pages/Salary/SalaryForm';
-import InventoryAlerts from '@/pages/Inventory/InventoryAlerts';
-import AlertSettings from '@/pages/Inventory/AlertSettings';
-import GasDeliveryInventory from '@/pages/Inventory/GasDeliveryInventory';
 import DeliveryList from '@/pages/Delivery/DeliveryList';
 import DeliveryForm from '@/pages/Delivery/DeliveryForm';
 import AppSettings from '@/pages/Settings/AppSettings';
@@ -183,11 +180,6 @@ const AppRouter = () => {
             <Route path="salary" element={<SalaryList />} />
             <Route path="salary/new" element={<SalaryForm />} />
             <Route path="salary/:id/edit" element={<SalaryForm />} />
-            
-            {/* Inventory */}
-            <Route path="inventory/alerts" element={<InventoryAlerts />} />
-            <Route path="inventory/settings" element={<AlertSettings />} />
-            <Route path="inventory/gas-delivery" element={<GasDeliveryInventory />} />
             
             {/* Delivery */}
             <Route path="delivery" element={<DeliveryList />} />

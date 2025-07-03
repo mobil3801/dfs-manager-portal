@@ -22,7 +22,6 @@ import {
   Shield,
   ChevronDown,
   DollarSign,
-  AlertTriangle,
   Building,
   Menu,
   X } from
@@ -58,17 +57,6 @@ const TopNavigation = () => {
     href: '/delivery',
     icon: Truck,
     requiredRole: null
-  },
-  {
-    name: 'Inventory',
-    href: '/inventory/alerts',
-    icon: AlertTriangle,
-    requiredRole: null,
-    subItems: [
-    { name: 'Alerts', href: '/inventory/alerts' },
-    { name: 'Settings', href: '/inventory/settings' },
-    { name: 'Gas Delivery', href: '/inventory/gas-delivery' }]
-
   },
   {
     name: 'Employees',
@@ -154,54 +142,6 @@ const TopNavigation = () => {
       navigate(item.href);
       if (mobile) setMobileMenuOpen(false);
     };
-
-    if (item.subItems && !mobile) {
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className={`${baseClasses} ${activeClasses}`}>
-              <Icon className="h-4 w-4 flex-shrink-0" />
-              <span>{item.name}</span>
-              <ChevronDown className="h-3 w-3 ml-1" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            {item.subItems.map((subItem: any) =>
-            <DropdownMenuItem
-              key={subItem.href}
-              onClick={() => navigate(subItem.href)}
-              className="cursor-pointer">
-                {subItem.name}
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>);
-
-    }
-
-    if (item.subItems && mobile) {
-      return (
-        <div>
-          <button className={`${baseClasses} ${activeClasses}`}>
-            <Icon className="h-5 w-5 flex-shrink-0" />
-
-          </button>
-          <div className="ml-8 space-y-1">
-            {item.subItems.map((subItem: any) =>
-            <button
-              key={subItem.href}
-              onClick={() => {
-                navigate(subItem.href);
-                setMobileMenuOpen(false);
-              }}
-              className="flex items-center space-x-3 px-4 py-2 text-left w-full transition-colors text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900">
-                <span>{subItem.name}</span>
-              </button>
-            )}
-          </div>
-        </div>);
-
-    }
 
     return (
       <button onClick={handleClick} className={`${baseClasses} ${activeClasses}`}>
