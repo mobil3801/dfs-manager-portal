@@ -358,16 +358,16 @@ class ClickSendSMSService {
 
 
 
+
+
+
+
     // This is handled by counting records in the history table
     // No need for a separate counter field
   }private async logSMSHistory(historyData: any): Promise<void> {try {await window.ezsite.apis.tableCreate(24202, { ...historyData, sent_by_user_id: 1 // This should be the current user ID
         });} catch (error) {console.error('Error logging SMS history:', error);}}private isValidPhoneNumber(phoneNumber: string): boolean {// E.164 format validation
-    const e164Regex = /^\+[1-9]\d{1,14}$/;return e164Regex.test(phoneNumber);}async sendBulkSMS(messages: SMSMessage[]): Promise<SMSResponse[]> {const results = [];for (const message of messages) {try {
-        const result = await this.sendSMS(message);
-        results.push(result);
-        // Add small delay between messages to respect rate limits
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      } catch (error) {
+    const e164Regex = /^\+[1-9]\d{1,14}$/;return e164Regex.test(phoneNumber);}async sendBulkSMS(messages: SMSMessage[]): Promise<SMSResponse[]> {const results = [];for (const message of messages) {try {const result = await this.sendSMS(message);results.push(result); // Add small delay between messages to respect rate limits
+        await new Promise((resolve) => setTimeout(resolve, 500));} catch (error) {
         results.push({
           success: false,
           error: error instanceof Error ? error.message : 'Unknown error'

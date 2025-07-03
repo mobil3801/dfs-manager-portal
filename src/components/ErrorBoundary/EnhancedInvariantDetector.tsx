@@ -178,6 +178,8 @@ const EnhancedInvariantDetector: React.FC = () => {
 
 
 
+
+
           // Silent catch for individual element processing
         }});keyMap.forEach((data, key) => {if (data.count > 1) {violations.push({ type: 'duplicate-key', severity: 'high', message: `Duplicate React key detected: "${key}" used ${data.count} times. This can cause invariant violations.`, fixSuggestion: 'Use unique keys for each element in lists. Consider using item.id + index or UUID.', component: data.element.tagName?.toLowerCase() });}});} catch (error) {console.warn('Error detecting duplicate keys:', error);}return violations;}, []); // Enhanced React Fiber state detection
   const detectFiberInconsistencies = useCallback(() => {const violations: Omit<InvariantViolation, 'id' | 'timestamp'>[] = [];try {const reactRoots = document.querySelectorAll('[data-reactroot], #root, [id*="react"]');reactRoots.forEach((root) => {try {const fiber = (root as any)._reactInternalFiber || (root as any).__reactInternalInstance || (root as any)._reactRootContainer;if (fiber) {// Check for common fiber inconsistencies
@@ -264,108 +266,106 @@ const EnhancedInvariantDetector: React.FC = () => {
   const trackComponentRenders = useCallback(() => {renderCountRef.current++; // If render count is excessive, it might indicate infinite render loops
       if (renderCountRef.current > 1000) {addViolation({ type: 'react-error', severity: 'high', message: `Excessive render cycles detected (${renderCountRef.current}). Possible infinite render loop.`, fixSuggestion: 'Check for state updates during render or missing dependencies in useEffect.' });renderCountRef.current = 0; // Reset to prevent spam
       }}, [addViolation]);const scanForViolations = useCallback(() => {if (!isActive) return;try {trackComponentRenders();const newViolations = [...detectDuplicateKeys(), ...detectInvalidNesting(), ...detectFiberInconsistencies()];newViolations.forEach((violation) => addViolation(violation));setScanCount((prev) => prev + 1);if (newViolations.length > 0) {setErrorCount((prev) => prev + newViolations.length);}} catch (error) {console.error('Error during violation scan:', error);addViolation({ type: 'unknown', severity: 'medium', message: `Scanner error: ${error instanceof Error ? error.message : 'Unknown error'}`, fixSuggestion: 'Check browser console for detailed error information.' });}}, [isActive, detectDuplicateKeys, detectInvalidNesting, detectFiberInconsistencies, addViolation, trackComponentRenders]); // Enhanced error boundary integration with React error capture
-  useEffect(() => {
-    const originalError = console.error;
-    const originalWarn = console.warn;
+  useEffect(() => {const originalError = console.error;const originalWarn = console.warn;
 
-    console.error = (...args) => {
-      const errorMessage = args.join(' ');
+      console.error = (...args) => {
+        const errorMessage = args.join(' ');
 
-      // Detect the specific "Invariant failed" error
-      if (errorMessage.includes('Invariant failed') ||
-      errorMessage.includes('invariant') ||
-      errorMessage.includes('Minified React error')) {
+        // Detect the specific "Invariant failed" error
+        if (errorMessage.includes('Invariant failed') ||
+        errorMessage.includes('invariant') ||
+        errorMessage.includes('Minified React error')) {
 
-        setLastInvariantError(errorMessage);
+          setLastInvariantError(errorMessage);
 
-        addViolation({
-          type: 'react-error',
-          severity: 'critical',
-          message: `React Invariant Violation: ${errorMessage}`,
-          stackTrace: args.find((arg) => typeof arg === 'object' && arg?.stack)?.stack || new Error().stack,
-          fixSuggestion: 'Check for duplicate keys, invalid DOM nesting, state mutations during render, or circular references.',
-          rawError: args[0]
-        });
-      }
+          addViolation({
+            type: 'react-error',
+            severity: 'critical',
+            message: `React Invariant Violation: ${errorMessage}`,
+            stackTrace: args.find((arg) => typeof arg === 'object' && arg?.stack)?.stack || new Error().stack,
+            fixSuggestion: 'Check for duplicate keys, invalid DOM nesting, state mutations during render, or circular references.',
+            rawError: args[0]
+          });
+        }
 
-      // Detect React warnings that might lead to invariants
-      if (errorMessage.includes('Warning:') && (
-      errorMessage.includes('Each child in a list should have a unique "key"') ||
-      errorMessage.includes('validateDOMNesting') ||
-      errorMessage.includes('Cannot update a component') ||
-      errorMessage.includes('Maximum update depth exceeded')))
-      {
-        addViolation({
-          type: 'react-error',
-          severity: 'high',
-          message: `React Warning (potential invariant): ${errorMessage}`,
-          fixSuggestion: 'Address this warning to prevent potential invariant violations.'
-        });
-      }
+        // Detect React warnings that might lead to invariants
+        if (errorMessage.includes('Warning:') && (
+        errorMessage.includes('Each child in a list should have a unique "key"') ||
+        errorMessage.includes('validateDOMNesting') ||
+        errorMessage.includes('Cannot update a component') ||
+        errorMessage.includes('Maximum update depth exceeded')))
+        {
+          addViolation({
+            type: 'react-error',
+            severity: 'high',
+            message: `React Warning (potential invariant): ${errorMessage}`,
+            fixSuggestion: 'Address this warning to prevent potential invariant violations.'
+          });
+        }
 
-      originalError.apply(console, args);
-    };
+        originalError.apply(console, args);
+      };
 
-    console.warn = (...args) => {
-      const warnMessage = args.join(' ');
+      console.warn = (...args) => {
+        const warnMessage = args.join(' ');
 
-      if (warnMessage.includes('Warning:') && (
-      warnMessage.includes('key') ||
-      warnMessage.includes('ref') ||
-      warnMessage.includes('React.createElement') ||
-      warnMessage.includes('validateDOMNesting')))
-      {
-        addViolation({
-          type: 'react-error',
-          severity: 'medium',
-          message: `React Warning: ${warnMessage}`,
-          fixSuggestion: 'Address this warning to maintain React consistency.'
-        });
-      }
+        if (warnMessage.includes('Warning:') && (
+        warnMessage.includes('key') ||
+        warnMessage.includes('ref') ||
+        warnMessage.includes('React.createElement') ||
+        warnMessage.includes('validateDOMNesting')))
+        {
+          addViolation({
+            type: 'react-error',
+            severity: 'medium',
+            message: `React Warning: ${warnMessage}`,
+            fixSuggestion: 'Address this warning to maintain React consistency.'
+          });
+        }
 
-      originalWarn.apply(console, args);
-    };
+        originalWarn.apply(console, args);
+      };
 
-    // Enhanced unhandled rejection handling
-    const handleRejection = (event: PromiseRejectionEvent) => {
-      const reason = String(event.reason);
+      // Enhanced unhandled rejection handling
+      const handleRejection = (event: PromiseRejectionEvent) => {
+        const reason = String(event.reason);
 
-      if (reason.includes('Invariant') || reason.includes('invariant')) {
-        addViolation({
-          type: 'react-error',
-          severity: 'high',
-          message: `Unhandled Promise Rejection (Invariant): ${reason}`,
-          fixSuggestion: 'Handle promises properly and check for async state updates.'
-        });
-      }
-    };
+        if (reason.includes('Invariant') || reason.includes('invariant')) {
+          addViolation({
+            type: 'react-error',
+            severity: 'high',
+            message: `Unhandled Promise Rejection (Invariant): ${reason}`,
+            fixSuggestion: 'Handle promises properly and check for async state updates.'
+          });
+        }
+      };
 
-    window.addEventListener('unhandledrejection', handleRejection);
+      window.addEventListener('unhandledrejection', handleRejection);
 
-    // Global error handler
-    const handleGlobalError = (event: ErrorEvent) => {
-      const message = event.message || String(event.error);
+      // Global error handler
+      const handleGlobalError = (event: ErrorEvent) => {
+        const message = event.message || String(event.error);
 
-      if (message.includes('Invariant') || message.includes('invariant')) {
-        addViolation({
-          type: 'react-error',
-          severity: 'critical',
-          message: `Global Error (Invariant): ${message}`,
-          stackTrace: event.error?.stack,
-          fixSuggestion: 'Check the stack trace for the source of the invariant violation.'
-        });
-      }
-    };
+        if (message.includes('Invariant') || message.includes('invariant')) {
+          addViolation({
+            type: 'react-error',
+            severity: 'critical',
+            message: `Global Error (Invariant): ${message}`,
+            stackTrace: event.error?.stack,
+            fixSuggestion: 'Check the stack trace for the source of the invariant violation.'
+          });
+        }
+      };
 
-    window.addEventListener('error', handleGlobalError);
+      window.addEventListener('error', handleGlobalError);
 
-    return () => {
-      console.error = originalError;
-      console.warn = originalWarn;
-      window.removeEventListener('unhandledrejection', handleRejection);
-      window.removeEventListener('error', handleGlobalError);
-    };
-  }, [addViolation]);
+      return () => {
+        console.error = originalError;
+        console.warn = originalWarn;
+        window.removeEventListener('unhandledrejection', handleRejection);
+        window.removeEventListener('error', handleGlobalError);
+      };
+    }, [addViolation]);
 
   useEffect(() => {
     if (!isActive) return;
