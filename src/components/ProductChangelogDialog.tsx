@@ -36,7 +36,7 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
 }) => {
   const [changes, setChanges] = useState<ChangelogEntry[]>([]);
   const [loading, setLoading] = useState(false);
-  const [userNames, setUserNames] = useState<{[key: number]: string}>({});
+  const [userNames, setUserNames] = useState<{[key: number]: string;}>({});
 
   useEffect(() => {
     if (isOpen && productId) {
@@ -54,8 +54,8 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
         OrderByField: 'change_timestamp',
         IsAsc: false,
         Filters: [
-          { name: 'product_id', op: 'Equal', value: productId }
-        ]
+        { name: 'product_id', op: 'Equal', value: productId }]
+
       });
 
       if (error) throw error;
@@ -81,8 +81,8 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
 
   const fetchUserNames = async (userIds: number[]) => {
     try {
-      const names: {[key: number]: string} = {};
-      
+      const names: {[key: number]: string;} = {};
+
       // Fetch user profiles to get names
       for (const userId of userIds) {
         try {
@@ -92,8 +92,8 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
             OrderByField: 'id',
             IsAsc: true,
             Filters: [
-              { name: 'user_id', op: 'Equal', value: userId }
-            ]
+            { name: 'user_id', op: 'Equal', value: userId }]
+
           });
 
           if (!error && data?.List?.[0]) {
@@ -114,7 +114,7 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
   };
 
   const formatFieldName = (fieldName: string) => {
-    const fieldMap: {[key: string]: string} = {
+    const fieldMap: {[key: string]: string;} = {
       'last_shopping_date': 'Last Shopping Date',
       'case_price': 'Case Price',
       'unit_per_case': 'Unit Per Case',
@@ -131,12 +131,12 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
       'quantity_in_stock': 'Stock Quantity',
       'minimum_stock': 'Minimum Stock'
     };
-    return fieldMap[fieldName] || fieldName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    return fieldMap[fieldName] || fieldName.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
   const formatValue = (fieldName: string, value: string) => {
     if (!value) return 'Empty';
-    
+
     if (fieldName.includes('price') || fieldName === 'profit_margin') {
       const numValue = parseFloat(value);
       if (!isNaN(numValue)) {
@@ -146,7 +146,7 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
         return `$${numValue.toFixed(2)}`;
       }
     }
-    
+
     if (fieldName.includes('date')) {
       try {
         return format(new Date(value), 'MMM dd, yyyy');
@@ -154,7 +154,7 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
         return value;
       }
     }
-    
+
     return value;
   };
 
@@ -187,16 +187,16 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
   };
 
   const groupChangesByDate = (changes: ChangelogEntry[]) => {
-    const grouped: {[key: string]: ChangelogEntry[]} = {};
-    
-    changes.forEach(change => {
+    const grouped: {[key: string]: ChangelogEntry[];} = {};
+
+    changes.forEach((change) => {
       const date = format(new Date(change.change_timestamp), 'yyyy-MM-dd');
       if (!grouped[date]) {
         grouped[date] = [];
       }
       grouped[date].push(change);
     });
-    
+
     return Object.entries(grouped).sort(([a], [b]) => b.localeCompare(a));
   };
 
@@ -222,8 +222,8 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
                 size="sm"
                 onClick={fetchChangelog}
                 disabled={loading}
-                className="flex items-center space-x-1"
-              >
+                className="flex items-center space-x-1">
+
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                 <span>Refresh</span>
               </Button>
@@ -235,23 +235,23 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
         </DialogHeader>
 
         <div className="flex-1 overflow-auto space-y-4">
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
+          {loading ?
+          <div className="flex items-center justify-center py-12">
               <div className="flex items-center space-x-2">
                 <RefreshCw className="w-5 h-5 animate-spin" />
                 <span>Loading changelog...</span>
               </div>
-            </div>
-          ) : changes.length === 0 ? (
-            <div className="text-center py-12">
+            </div> :
+          changes.length === 0 ?
+          <div className="text-center py-12">
               <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No Changes Found</h3>
               <p className="text-gray-500">
                 This product has no recorded changes yet.
               </p>
-            </div>
-          ) : (
-            <div className="space-y-6">
+            </div> :
+
+          <div className="space-y-6">
               {/* Summary */}
               <Card>
                 <CardHeader>
@@ -265,13 +265,13 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-green-600">
-                        {changes.filter(c => c.change_type === 'create').length}
+                        {changes.filter((c) => c.change_type === 'create').length}
                       </div>
                       <div className="text-sm text-gray-500">Created</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-yellow-600">
-                        {changes.filter(c => c.change_type === 'update').length}
+                        {changes.filter((c) => c.change_type === 'update').length}
                       </div>
                       <div className="text-sm text-gray-500">Updated</div>
                     </div>
@@ -281,8 +281,8 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
 
               {/* Changes by Date */}
               <div className="space-y-4">
-                {groupedChanges.map(([date, dateChanges]) => (
-                  <Card key={date}>
+                {groupedChanges.map(([date, dateChanges]) =>
+              <Card key={date}>
                     <CardHeader>
                       <CardTitle className="flex items-center space-x-2 text-base">
                         <Calendar className="w-4 h-4" />
@@ -292,8 +292,8 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
-                        {dateChanges.map((change) => (
-                          <div key={change.ID} className="border rounded-lg p-4">
+                        {dateChanges.map((change) =>
+                    <div key={change.ID} className="border rounded-lg p-4">
                             <div className="flex items-start justify-between mb-3">
                               <div className="flex items-center space-x-2">
                                 <Badge className={getChangeTypeColor(change.change_type)}>
@@ -315,8 +315,8 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
                               </div>
                             </div>
                             
-                            {change.change_type === 'update' && (
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            {change.change_type === 'update' &&
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                 <div>
                                   <div className="text-gray-500 mb-1">Previous Value:</div>
                                   <div className="bg-red-50 border border-red-200 rounded px-3 py-2">
@@ -331,31 +331,31 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
                                   </div>
                                 </div>
                               </div>
-                            )}
+                      }
                             
-                            {change.change_type === 'create' && (
-                              <div className="text-sm">
+                            {change.change_type === 'create' &&
+                      <div className="text-sm">
                                 <div className="text-gray-500 mb-1">Initial Value:</div>
                                 <div className="bg-blue-50 border border-blue-200 rounded px-3 py-2">
                                   {formatValue(change.field_name, change.new_value)}
                                 </div>
                               </div>
-                            )}
+                      }
                             
-                            {change.change_summary && (
-                              <div className="mt-3 text-sm text-gray-600">
+                            {change.change_summary &&
+                      <div className="mt-3 text-sm text-gray-600">
                                 <strong>Summary:</strong> {change.change_summary}
                               </div>
-                            )}
+                      }
                           </div>
-                        ))}
+                    )}
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+              )}
               </div>
             </div>
-          )}
+          }
         </div>
 
         <Separator className="my-4" />
@@ -366,8 +366,8 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
           </Button>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default ProductChangelogDialog;

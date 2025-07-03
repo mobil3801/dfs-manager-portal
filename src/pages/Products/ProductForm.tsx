@@ -228,10 +228,11 @@ const ProductForm = () => {
       const { data, error } = await window.ezsite.apis.tablePage('11726', {
         PageNo: 1,
         PageSize: 1,
-        OrderByField: 'id',
+        OrderByField: 'ID',
         IsAsc: true,
-        Filters: [{ name: 'id', op: 'Equal', value: parseInt(id) }]
+        Filters: [{ name: 'ID', op: 'Equal', value: parseInt(id) }]
       });
+
 
       if (error) throw error;
 
@@ -521,27 +522,37 @@ const ProductForm = () => {
     }
   };
 
-  const logFieldChange = async (productId: number, fieldName: string, oldValue: any, newValue: any, userId: number, changeType: string = 'update') => {
+  const logFieldChange = async (productId: number, fieldName: string, oldValue: any, newValue: any, userId: number) => {
     try {
-      // Log to the new product_changelog table
-      const { error } = await window.ezsite.apis.tableCreate('24010', {
+      // Log to product_logs table (legacy)
+      const { error: legacyError } = await window.ezsite.apis.tableCreate('11756', {
+        product_id: productId,
+        field_name: fieldName,
+        old_value: oldValue?.toString() || '',
+        new_value: newValue?.toString() || '',
+        change_date: new Date().toISOString(),
+        changed_by: userId
+      });
+      if (legacyError) {
+        console.error('Error logging field change to legacy table:', legacyError);
+      }
+
+      // Log to product_changelog table (enhanced)
+      const { error: changelogError } = await window.ezsite.apis.tableCreate('24010', {
         product_id: productId,
         field_name: fieldName,
         old_value: oldValue?.toString() || '',
         new_value: newValue?.toString() || '',
         change_timestamp: new Date().toISOString(),
         changed_by: userId,
-        change_type: changeType,
-        change_summary: `${changeType === 'create' ? 'Created' : 'Updated'} ${fieldName.replace(/_/g, ' ')} from "${oldValue || 'empty'}" to "${newValue}"`
+        change_type: 'update',
+        change_summary: `Updated ${fieldName.replace(/_/g, ' ')} from "${oldValue}" to "${newValue}"`
       });
-      
-      if (error) {
-        console.error('Error logging field change to changelog:', error);
-      } else {
-        console.log(`Successfully logged ${changeType} for field ${fieldName}`);
+      if (changelogError) {
+        console.error('Error logging field change to changelog:', changelogError);
       }
     } catch (error) {
-      console.error('Error logging field change to changelog:', error);
+      console.error('Error logging field change:', error);
     }
   };
 
@@ -576,85 +587,86 @@ const ProductForm = () => {
         created_by: userProfile.user_id
       };
 
-      let productId: number;
-      
+      let resultError;
+      let createdProductId = null;
+
       if (isEdit) {
-        const { error } = await window.ezsite.apis.tableUpdate('11726', { id: parseInt(id!), ...payload });
-        if (error) throw error;
-        productId = parseInt(id!);
+        const { error } = await window.ezsite.apis.tableUpdate('11726', { ID: parseInt(id!), ...payload });
+        resultError = error;
       } else {
-        const { data, error } = await window.ezsite.apis.tableCreate('11726', payload);
-        if (error) throw error;
+        const { error } = await window.ezsite.apis.tableCreate('11726', payload);
+        resultError = error;
         
-        // Get the created product ID - the API should return the created record
-        productId = data?.ID || data?.id;
-        
-        // If we don't get an ID from the response, try to find the product by serial number
-        if (!productId) {
+        // For new products, get the newly created product ID
+        if (!error) {
           try {
-            const { data: searchData } = await window.ezsite.apis.tablePage('11726', {
+            const { data: newProductData } = await window.ezsite.apis.tablePage('11726', {
               PageNo: 1,
               PageSize: 1,
-              OrderByField: 'id',
+              OrderByField: 'serial_number',
               IsAsc: false,
-              Filters: [
-                { name: 'serial_number', op: 'Equal', value: formData.serial_number }
-              ]
+              Filters: [{ name: 'serial_number', op: 'Equal', value: payload.serial_number }]
             });
-            productId = searchData?.List?.[0]?.ID;
+            createdProductId = newProductData?.List?.[0]?.ID;
           } catch (error) {
-            console.error('Error finding created product:', error);
+            console.error('Error getting new product ID:', error);
           }
         }
       }
 
-      // Log changes for products
-      if (userProfile && productId) {
-        const fieldsToTrack = [
-          'product_name',
-          'category', 
-          'supplier',
-          'weight',
-          'weight_unit',
-          'department',
-          'last_shopping_date',
-          'case_price',
-          'unit_per_case',
-          'unit_price',
-          'retail_price'
-        ];
+      if (resultError) throw resultError;
 
+      // Log changes for existing products or creation for new products
+      if (userProfile) {
         if (isEdit && originalData) {
-          // Log changes for existing products
+          // Track changes for existing products
+          const fieldsToTrack = [
+            'product_name',
+            'last_shopping_date',
+            'case_price',
+            'unit_per_case',
+            'unit_price',
+            'retail_price',
+            'category',
+            'supplier',
+            'weight',
+            'weight_unit',
+            'department',
+            'description'
+          ];
+
           for (const field of fieldsToTrack) {
             const oldValue = originalData[field];
             const newValue = formData[field];
 
             if (oldValue !== newValue) {
-              await logFieldChange(productId, field, oldValue, newValue, userProfile.user_id, 'update');
+              await logFieldChange(parseInt(id!), field, oldValue, newValue, userProfile.user_id);
             }
           }
 
           // Calculate and log profit margin changes
           const oldProfitMargin = originalData.unit_price > 0 && originalData.retail_price > 0 ?
-            (originalData.retail_price - originalData.unit_price) / originalData.retail_price * 100 : 0;
+          (originalData.retail_price - originalData.unit_price) / originalData.retail_price * 100 : 0;
           const newProfitMargin = formData.profit_margin;
 
           if (Math.abs(oldProfitMargin - newProfitMargin) > 0.01) {
-            await logFieldChange(productId, 'profit_margin', oldProfitMargin.toFixed(2), newProfitMargin.toFixed(2), userProfile.user_id, 'update');
+            await logFieldChange(parseInt(id!), 'profit_margin', oldProfitMargin.toFixed(2), newProfitMargin.toFixed(2), userProfile.user_id);
           }
-        } else {
-          // Log initial creation for new products
-          for (const field of fieldsToTrack) {
-            const value = formData[field];
-            if (value !== null && value !== undefined && value !== '') {
-              await logFieldChange(productId, field, '', value, userProfile.user_id, 'create');
-            }
-          }
-          
-          // Log initial profit margin
-          if (formData.profit_margin > 0) {
-            await logFieldChange(productId, 'profit_margin', '', formData.profit_margin.toFixed(2), userProfile.user_id, 'create');
+        } else if (!isEdit && createdProductId) {
+          // Log product creation
+          try {
+            await window.ezsite.apis.tableCreate('24010', {
+              product_id: createdProductId,
+              field_name: 'product_creation',
+              old_value: '',
+              new_value: formData.product_name,
+              change_timestamp: new Date().toISOString(),
+              changed_by: userProfile.user_id,
+              change_type: 'create',
+              change_summary: `Product "${formData.product_name}" created with serial number ${formData.serial_number}`
+            });
+          } catch (error) {
+            console.error('Error logging product creation:', error);
           }
         }
       }

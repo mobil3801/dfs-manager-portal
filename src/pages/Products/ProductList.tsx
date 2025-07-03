@@ -79,7 +79,7 @@ const ProductList: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [hasMoreProducts, setHasMoreProducts] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [savingProductId, setSavingProductId] = useState<number | null>(null);
+
 
   const pageSize = 50; // Load more products per batch
   const [loadedProductsCount, setLoadedProductsCount] = useState(pageSize);
@@ -419,14 +419,14 @@ const ProductList: React.FC = () => {
 
   const handleEdit = (productId: number) => {
     console.log('handleEdit called for product ID:', productId);
-    
+
     // Check edit permission
     if (!checkEdit()) {
       return;
     }
-    
-    // Navigate to edit form
-    navigate(`/products/edit/${productId}`);
+
+    // Navigate to edit form - fix the route to match App.tsx
+    navigate(`/products/${productId}/edit`);
   };
 
   const handleViewChangelog = (productId: number, productName: string) => {
@@ -593,8 +593,7 @@ const ProductList: React.FC = () => {
             searchTerm={debouncedSearchTerm}
             onViewLogs={handleViewLogs}
             onViewChangelog={handleViewChangelog}
-            onEdit={handleEdit}
-            onSaveProduct={handleSaveProduct}
+            onEditProduct={handleEdit}
             onDeleteProduct={handleDelete}
             savingProductId={savingProductId} /> :
 
@@ -697,6 +696,7 @@ const ProductList: React.FC = () => {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-1">
+                            {/* Edit Button */}
                             <Button
                               variant="outline"
                               size="sm"
@@ -704,10 +704,14 @@ const ProductList: React.FC = () => {
                                 console.log('Editing product:', product.ID);
                                 handleEdit(product.ID);
                               }}
-                              title="Edit product"
-                              className="text-blue-600 hover:text-blue-700">
+                              title="Edit product information"
+                              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                              disabled={!checkEdit()}
+                            >
                               <Edit className="w-4 h-4" />
                             </Button>
+                            
+                            {/* Changelog Button */}
                             <Button
                               variant="outline"
                               size="sm"
@@ -715,29 +719,38 @@ const ProductList: React.FC = () => {
                                 console.log('Viewing changelog for product:', product.ID, product.product_name);
                                 handleViewChangelog(product.ID, product.product_name);
                               }}
-                              title="View changelog"
-                              className="text-green-600 hover:text-green-700">
+                              title="View complete change history"
+                              className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                            >
                               <History className="w-4 h-4" />
                             </Button>
+                            
+                            {/* Legacy Logs Button */}
                             <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              console.log('Viewing logs for product:', product.ID, product.product_name);
-                              handleViewLogs(product.ID, product.product_name);
-                            }}
-                            title="View change logs">
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                console.log('Viewing legacy logs for product:', product.ID, product.product_name);
+                                handleViewLogs(product.ID, product.product_name);
+                              }}
+                              title="View legacy change logs"
+                              className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                            >
                               <FileText className="w-4 h-4" />
                             </Button>
+                            
+                            {/* Delete Button */}
                             <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              console.log('Deleting product:', product.ID);
-                              handleDelete(product.ID);
-                            }}
-                            className="text-red-600 hover:text-red-700"
-                            title="Delete product">
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                console.log('Deleting product:', product.ID);
+                                handleDelete(product.ID);
+                              }}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              title="Delete product (cannot be undone)"
+                              disabled={!checkDelete()}
+                            >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>

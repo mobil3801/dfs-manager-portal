@@ -35,8 +35,7 @@ interface ProductCardsProps {
   searchTerm: string;
   onViewLogs: (id: number, name: string) => void;
   onViewChangelog: (id: number, name: string) => void;
-  onEdit: (id: number) => void;
-  onSaveProduct: (id: number) => void;
+  onEditProduct: (id: number) => void;
   onDeleteProduct: (id: number) => void;
   savingProductId: number | null;
 }
@@ -46,8 +45,7 @@ const ProductCards: React.FC<ProductCardsProps> = ({
   searchTerm,
   onViewLogs,
   onViewChangelog,
-  onEdit,
-  onSaveProduct,
+  onEditProduct,
   onDeleteProduct,
   savingProductId
 }) => {
@@ -129,7 +127,7 @@ const ProductCards: React.FC<ProductCardsProps> = ({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => onEdit(product.ID)}
+                    onClick={() => onEditProduct(product.ID)}
                     className="p-2 text-blue-600 hover:text-blue-700"
                     title="Edit product">
                     <Edit className="w-4 h-4" />
@@ -146,8 +144,8 @@ const ProductCards: React.FC<ProductCardsProps> = ({
                     variant="outline"
                     size="sm"
                     onClick={() => onViewLogs(product.ID, product.product_name)}
-                    className="p-2"
-                    title="View logs">
+                    className="p-2 text-purple-600 hover:text-purple-700"
+                    title="View legacy logs">
                     <FileText className="w-4 h-4" />
                   </Button>
                   <Button
