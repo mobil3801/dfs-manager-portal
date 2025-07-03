@@ -406,14 +406,14 @@ class ClickSendSMSService {
 
 
 
+
+
     // This is handled by counting records in the history table
     // No need for a separate counter field
   }private async logSMSHistory(historyData: any): Promise<void> {try {await window.ezsite.apis.tableCreate(24202, { ...historyData, sent_by_user_id: 1 // This should be the current user ID
         });} catch (error) {console.error('Error logging SMS history:', error);}}private isValidPhoneNumber(phoneNumber: string): boolean {// E.164 format validation
     const e164Regex = /^\+[1-9]\d{1,14}$/;return e164Regex.test(phoneNumber);}async sendBulkSMS(messages: SMSMessage[]): Promise<SMSResponse[]> {const results = [];for (const message of messages) {try {const result = await this.sendSMS(message);results.push(result); // Add small delay between messages to respect rate limits
-        await new Promise((resolve) => setTimeout(resolve, 500));} catch (error) {results.push({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });}}return results;}async getDeliveryStatus(messageId: string): Promise<{status: string;delivered: boolean;}> {if (!this.isConfigured) {throw new Error('SMS service not configured');}try {const response = await this.makeClickSendRequest('GET', `/sms/history/${messageId}`);if (response.success && response.data) {const status = response.data.data.status;return { status: status, delivered: status === 'Delivered' };}return { status: 'unknown', delivered: false };} catch (error) {console.error('Error getting delivery status:', error);return { status: 'error', delivered: false };}}async testSMS(phoneNumber: string): Promise<SMSResponse> {const testMessage = { to: phoneNumber, message: `DFS Manager SMS Test - ${new Date().toLocaleString()}. If you receive this message, ClickSend SMS is working correctly with your provided credentials.`, type: 'test' };
-
-    return this.sendSMS(testMessage);
+        await new Promise((resolve) => setTimeout(resolve, 500));} catch (error) {results.push({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });}}return results;}async getDeliveryStatus(messageId: string): Promise<{status: string;delivered: boolean;}> {if (!this.isConfigured) {throw new Error('SMS service not configured');}try {const response = await this.makeClickSendRequest('GET', `/sms/history/${messageId}`);if (response.success && response.data) {const status = response.data.data.status;return { status: status, delivered: status === 'Delivered' };}return { status: 'unknown', delivered: false };} catch (error) {console.error('Error getting delivery status:', error);return { status: 'error', delivered: false };}}async testSMS(phoneNumber: string): Promise<SMSResponse> {const testMessage = { to: phoneNumber, message: `DFS Manager SMS Test - ${new Date().toLocaleString()}. If you receive this message, ClickSend SMS is working correctly with your provided credentials.`, type: 'test' };return this.sendSMS(testMessage);
   }
 
   async addTestNumber(phoneNumber: string): Promise<void> {

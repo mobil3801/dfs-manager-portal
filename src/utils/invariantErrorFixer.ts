@@ -322,6 +322,7 @@ export class InvariantErrorFixer {
 
 
 
+
           // Empty batched update to flush pending work
         });} // Force a repaint
       document.body.style.display = 'none';document.body.offsetHeight; // Trigger reflow
