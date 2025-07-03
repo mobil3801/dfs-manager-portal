@@ -27,30 +27,37 @@ import {
   X
 } from 'lucide-react';
 
-const TopNavigation = () => {
+const ResponsiveNavigation = () => {
   const { user, logout, isAdmin, isManager } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [screenSize, setScreenSize] = useState('lg');
+
+  // Track screen size changes
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setScreenSize('lg');
+        setMobileMenuOpen(false); // Close mobile menu on desktop
+      } else if (window.innerWidth >= 768) {
+        setScreenSize('md');
+      } else {
+        setScreenSize('sm');
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Close mobile menu when route changes
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
-  // Close mobile menu on window resize to desktop
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        setMobileMenuOpen(false);
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // All navigation items displayed in the top bar
+  // All navigation items displayed in a single horizontal line
   const navigationItems = [
     {
       name: 'Dashboard',
@@ -175,7 +182,7 @@ const TopNavigation = () => {
 
   return (
     <>
-      {/* Main Navigation Bar - All Menu Items in Top Bar */}
+      {/* Main Navigation Bar - Consistent Horizontal Layout */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50 w-full shadow-sm">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -190,8 +197,8 @@ const TopNavigation = () => {
               <span className="text-xl font-bold text-gray-900 hidden sm:block">DFS Manager</span>
             </div>
 
-            {/* Center Section - All Navigation Items in Horizontal Line (Desktop) */}
-            <nav className="hidden lg:flex items-center flex-1 justify-center max-w-5xl mx-4">
+            {/* Center Section - Horizontal Navigation Line (Desktop Only) */}
+            <nav className="hidden lg:flex items-center flex-1 justify-center max-w-4xl mx-4">
               <div className="flex items-center space-x-1 px-4 overflow-x-auto scrollbar-hide">
                 {navigationItems.map((item) => (
                   <NavigationLink key={item.href} item={item} />
@@ -243,7 +250,7 @@ const TopNavigation = () => {
                 onClick={() => setMobileMenuOpen(true)}
               >
                 <Menu className="h-5 w-5" />
-                <span className="sr-only">Open navigation menu</span>
+                <span className="sr-only">Open menu</span>
               </Button>
             </div>
           </div>
@@ -259,7 +266,7 @@ const TopNavigation = () => {
             onClick={() => setMobileMenuOpen(false)}
           />
           
-          {/* Menu Panel - Slides from Right Side */}
+          {/* Menu Panel - Slides from Right */}
           <div className={`fixed top-0 right-0 w-80 max-w-[90vw] h-full bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
             mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
           }`}>
@@ -327,4 +334,4 @@ const TopNavigation = () => {
   );
 };
 
-export default TopNavigation;
+export default ResponsiveNavigation;
