@@ -144,11 +144,11 @@ const TopNavigation = () => {
 
     const baseClasses = mobile
       ? "flex items-center space-x-3 px-4 py-3 text-left w-full transition-colors text-sm font-medium"
-      : "flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors whitespace-nowrap text-sm font-medium";
+      : "flex items-center space-x-1.5 px-3 py-1.5 rounded-md transition-all duration-200 whitespace-nowrap text-sm font-medium hover:scale-105";
 
     const activeClasses = isActive
-      ? "bg-blue-100 text-blue-700 shadow-sm"
-      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900";
+      ? "bg-blue-600 text-white shadow-md"
+      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900";
 
     const handleClick = () => {
       navigate(item.href);
@@ -170,8 +170,7 @@ const TopNavigation = () => {
               <DropdownMenuItem
                 key={subItem.href}
                 onClick={() => navigate(subItem.href)}
-                className="cursor-pointer"
-              >
+                className="cursor-pointer">
                 {subItem.name}
               </DropdownMenuItem>
             ))}
@@ -195,8 +194,7 @@ const TopNavigation = () => {
                   navigate(subItem.href);
                   setMobileMenuOpen(false);
                 }}
-                className="flex items-center space-x-3 px-4 py-2 text-left w-full transition-colors text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-              >
+                className="flex items-center space-x-3 px-4 py-2 text-left w-full transition-colors text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900">
                 <span>{subItem.name}</span>
               </button>
             ))}
@@ -215,56 +213,54 @@ const TopNavigation = () => {
 
   return (
     <>
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40 w-full shadow-sm">
+      {/* Main Navigation Bar - Clean Line Style */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-40 w-full">
         <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-14">
             {/* Left Section - Logo */}
-            <div className="flex items-center space-x-4 flex-shrink-0">
-              <div className="flex items-center space-x-2">
-                <img
-                  src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
-                  alt="DFS Manager"
-                  className="h-8 w-auto"
-                />
-                <span className="text-xl font-bold text-gray-900 hidden sm:block">DFS Manager</span>
-              </div>
+            <div className="flex items-center space-x-3 flex-shrink-0">
+              <img
+                src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
+                alt="DFS Manager"
+                className="h-8 w-auto"
+              />
+              <span className="text-lg font-bold text-gray-900 hidden sm:block">DFS Manager</span>
             </div>
 
-            {/* Center Section - Desktop Navigation (Horizontal Line) */}
-            <nav className="hidden lg:flex items-center space-x-2 flex-1 justify-center max-w-4xl">
+            {/* Center Section - Navigation Line */}
+            <nav className="hidden lg:flex items-center space-x-1 flex-1 justify-center max-w-4xl">
               {navigationItems.map((item) => (
                 <NavigationLink key={item.href} item={item} />
               ))}
             </nav>
 
             {/* Right Section - User Profile */}
-            <div className="flex items-center space-x-4 flex-shrink-0">
+            <div className="flex items-center space-x-3 flex-shrink-0">
               {/* Mobile Menu Button */}
               <Button
                 variant="ghost"
                 size="sm"
-                className="lg:hidden"
-                onClick={() => setMobileMenuOpen(true)}
-              >
-                <Menu className="h-6 w-6" />
+                className="lg:hidden p-2"
+                onClick={() => setMobileMenuOpen(true)}>
+                <Menu className="h-5 w-5" />
               </Button>
 
               {/* User Profile Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center space-x-2 px-3 py-2">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-medium text-blue-700">
+                  <Button variant="ghost" className="flex items-center space-x-2 px-2 py-1.5 h-auto">
+                    <div className="w-7 h-7 bg-blue-100 rounded-full flex items-center justify-center">
+                      <span className="text-xs font-medium text-blue-700">
                         {user?.Name?.charAt(0)?.toUpperCase() || 'U'}
                       </span>
                     </div>
                     <div className="hidden xl:block text-left">
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-gray-900 leading-none">
                         {user?.Name || 'User'}
                       </p>
-                      <p className="text-xs text-gray-500">{user?.Email}</p>
+                      <p className="text-xs text-gray-500 leading-none mt-0.5">{user?.Email}</p>
                     </div>
-                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                    <ChevronDown className="h-3 w-3 text-gray-500" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
@@ -310,8 +306,7 @@ const TopNavigation = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setMobileMenuOpen(false)}
-              >
+                onClick={() => setMobileMenuOpen(false)}>
                 <X className="h-6 w-6" />
               </Button>
             </div>
@@ -342,8 +337,7 @@ const TopNavigation = () => {
                 variant="outline"
                 size="sm"
                 onClick={handleLogout}
-                className="w-full justify-start"
-              >
+                className="w-full justify-start">
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out
               </Button>
