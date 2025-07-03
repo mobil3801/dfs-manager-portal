@@ -8,15 +8,14 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  Sheet,
-  SheetContent,
-  SheetTrigger
-} from '@/components/ui/sheet';
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import {
-  Menu,
   Home,
   Users,
   Package,
@@ -27,22 +26,18 @@ import {
   LogOut,
   Shield,
   ChevronDown,
-  User,
   DollarSign,
   AlertTriangle,
   Building,
-  UserPlus,
-  Bell,
-  BarChart3
+  Menu,
+  X,
 } from 'lucide-react';
 import { Logo } from '@/components/Logo';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 const TopNavigation = () => {
   const { user, logout, isAdmin, isManager } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navigationItems = [
@@ -50,25 +45,25 @@ const TopNavigation = () => {
       name: 'Dashboard',
       href: '/dashboard',
       icon: Home,
-      requiredRole: null
+      requiredRole: null,
     },
     {
       name: 'Products',
       href: '/products',
       icon: Package,
-      requiredRole: null
+      requiredRole: null,
     },
     {
-      name: 'Sales Reports',
+      name: 'Sales',
       href: '/sales',
       icon: FileText,
-      requiredRole: null
+      requiredRole: null,
     },
     {
       name: 'Deliveries',
       href: '/delivery',
       icon: Truck,
-      requiredRole: null
+      requiredRole: null,
     },
     {
       name: 'Inventory',
@@ -78,48 +73,48 @@ const TopNavigation = () => {
       subItems: [
         { name: 'Alerts', href: '/inventory/alerts' },
         { name: 'Settings', href: '/inventory/settings' },
-        { name: 'Gas Delivery', href: '/inventory/gas-delivery' }
-      ]
+        { name: 'Gas Delivery', href: '/inventory/gas-delivery' },
+      ],
     },
     {
       name: 'Employees',
       href: '/employees',
       icon: Users,
-      requiredRole: 'manager'
+      requiredRole: 'manager',
     },
     {
       name: 'Vendors',
       href: '/vendors',
       icon: Building,
-      requiredRole: 'manager'
+      requiredRole: 'manager',
     },
     {
       name: 'Orders',
       href: '/orders',
       icon: Package,
-      requiredRole: 'manager'
+      requiredRole: 'manager',
     },
     {
       name: 'Licenses',
       href: '/licenses',
       icon: Calendar,
-      requiredRole: 'manager'
+      requiredRole: 'manager',
     },
     {
       name: 'Salary',
       href: '/salary',
       icon: DollarSign,
-      requiredRole: 'manager'
-    }
+      requiredRole: 'manager',
+    },
   ];
 
   // Add admin-only items
   if (isAdmin()) {
     navigationItems.push({
-      name: 'Admin Panel',
+      name: 'Admin',
       href: '/admin',
       icon: Shield,
-      requiredRole: 'admin'
+      requiredRole: 'admin',
     });
   }
 
@@ -146,12 +141,12 @@ const TopNavigation = () => {
     const isActive = isActiveRoute(item.href);
 
     const baseClasses = mobile
-      ? "flex items-center space-x-3 px-4 py-3 text-left w-full transition-colors"
-      : "flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors whitespace-nowrap";
+      ? "flex items-center space-x-3 px-4 py-3 text-left w-full transition-colors text-sm font-medium"
+      : "top-nav-item";
 
     const activeClasses = isActive
-      ? "bg-blue-100 text-blue-700 font-medium"
-      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900";
+      ? mobile ? "bg-blue-100 text-blue-700" : "top-nav-item-active"
+      : mobile ? "text-gray-700 hover:bg-gray-100 hover:text-gray-900" : "top-nav-item-inactive";
 
     const handleClick = () => {
       navigate(item.href);
@@ -163,9 +158,9 @@ const TopNavigation = () => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className={`${baseClasses} ${activeClasses}`}>
-              <Icon className="h-5 w-5 flex-shrink-0" />
+              <Icon className="h-4 w-4 flex-shrink-0" />
               <span>{item.name}</span>
-              <ChevronDown className="h-4 w-4" />
+              <ChevronDown className="h-3 w-3 ml-1" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
@@ -183,85 +178,98 @@ const TopNavigation = () => {
       );
     }
 
-    return (
-      <button
-        onClick={handleClick}
-        className={`${baseClasses} ${activeClasses}`}
-      >
-        <Icon className="h-5 w-5 flex-shrink-0" />
-        <span>{item.name}</span>
-      </button>
-    );
-  };
-
-  // Desktop Navigation
-  const DesktopNavigation = () => (
-    <nav className="hidden lg:flex items-center space-x-1">
-      {navigationItems.map((item) => (
-        <NavigationLink key={item.href} item={item} />
-      ))}
-      {/* Settings as separate item */}
-      <NavigationLink 
-        key="/settings" 
-        item={{
-          name: 'Settings',
-          href: '/settings',
-          icon: Settings,
-          requiredRole: null
-        }} 
-      />
-    </nav>
-  );
-
-  // Mobile Navigation
-  const MobileNavigation = () => (
-    <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="sm" className="lg:hidden">
-          <Menu className="h-6 w-6" />
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="w-80">
-        <div className="flex flex-col h-full">
-          {/* Logo in mobile menu */}
-          <div className="flex items-center p-4 border-b">
-            <Logo size="md" showText />
-          </div>
-          
-          {/* Navigation items */}
-          <div className="flex-1 py-4 overflow-y-auto">
-            {navigationItems.map((item) => (
-              <NavigationLink key={item.href} item={item} mobile />
-            ))}
-            
-            {/* Mobile sub-items for inventory */}
-            {navigationItems.find(item => item.href === '/inventory/alerts')?.subItems?.map((subItem: any) => (
+    if (item.subItems && mobile) {
+      return (
+        <Collapsible>
+          <CollapsibleTrigger asChild>
+            <button className={`${baseClasses} ${activeClasses}`}>
+              <Icon className="h-5 w-5 flex-shrink-0" />
+              <span>{item.name}</span>
+              <ChevronDown className="h-4 w-4 ml-auto" />
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-1">
+            {item.subItems.map((subItem: any) => (
               <button
                 key={subItem.href}
                 onClick={() => {
                   navigate(subItem.href);
                   setMobileMenuOpen(false);
                 }}
-                className="flex items-center space-x-3 px-8 py-2 text-left w-full transition-colors text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                className="flex items-center space-x-3 px-8 py-2 text-left w-full transition-colors text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900"
               >
-                <span className="text-sm">{subItem.name}</span>
+                <span>{subItem.name}</span>
               </button>
             ))}
-            
-            {/* Settings */}
-            <NavigationLink 
-              key="/settings-mobile" 
-              item={{
-                name: 'Settings',
-                href: '/settings',
-                icon: Settings,
-                requiredRole: null
-              }} 
-              mobile 
-            />
+          </CollapsibleContent>
+        </Collapsible>
+      );
+    }
+
+    return (
+      <button onClick={handleClick} className={`${baseClasses} ${activeClasses}`}>
+        <Icon className="h-4 w-4 flex-shrink-0" />
+        <span>{item.name}</span>
+      </button>
+    );
+  };
+
+  // Settings Navigation Link
+  const SettingsLink = ({ mobile = false }: { mobile?: boolean }) => (
+    <NavigationLink
+      item={{
+        name: 'Settings',
+        href: '/settings',
+        icon: Settings,
+        requiredRole: null,
+      }}
+      mobile={mobile}
+    />
+  );
+
+  // Desktop Navigation
+  const DesktopNavigation = () => (
+    <nav className="hidden lg:flex items-center space-x-1 overflow-x-auto">
+      {navigationItems.map((item) => (
+        <NavigationLink key={item.href} item={item} />
+      ))}
+      <SettingsLink />
+    </nav>
+  );
+
+  // Mobile Navigation Menu
+  const MobileNavigationMenu = () => (
+    <div className={`lg:hidden fixed inset-0 z-50 ${mobileMenuOpen ? 'block' : 'hidden'}`}>
+      {/* Overlay */}
+      <div
+        className="mobile-nav-overlay"
+        onClick={() => setMobileMenuOpen(false)}
+      />
+      
+      {/* Menu Panel */}
+      <div className="mobile-nav-panel">
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b">
+            <Logo size="sm" showText />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <X className="h-6 w-6" />
+            </Button>
           </div>
           
-          {/* User section in mobile */}
+          {/* Navigation Items */}
+          <div className="flex-1 py-4 overflow-y-auto scrollbar-thin">
+            {navigationItems.map((item) => (
+              <NavigationLink key={item.href} item={item} mobile />
+            ))}
+            <SettingsLink mobile />
+          </div>
+          
+          {/* User Section */}
           <div className="border-t p-4">
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -273,9 +281,7 @@ const TopNavigation = () => {
                 <p className="text-sm font-medium text-gray-900 truncate">
                   {user?.Name || 'User'}
                 </p>
-                <p className="text-xs text-gray-500 truncate">
-                  {user?.Email}
-                </p>
+                <p className="text-xs text-gray-500 truncate">{user?.Email}</p>
               </div>
             </div>
             <Button
@@ -289,15 +295,15 @@ const TopNavigation = () => {
             </Button>
           </div>
         </div>
-      </SheetContent>
-    </Sheet>
+      </div>
+    </div>
   );
 
   // User Profile Dropdown
   const UserProfileDropdown = () => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="hidden lg:flex items-center space-x-2 px-3">
+        <Button variant="ghost" className="hidden lg:flex items-center space-x-2 px-3 py-2">
           <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
             <span className="text-sm font-medium text-blue-700">
               {user?.Name?.charAt(0)?.toUpperCase() || 'U'}
@@ -307,9 +313,7 @@ const TopNavigation = () => {
             <p className="text-sm font-medium text-gray-900">
               {user?.Name || 'User'}
             </p>
-            <p className="text-xs text-gray-500">
-              {user?.Email}
-            </p>
+            <p className="text-xs text-gray-500">{user?.Email}</p>
           </div>
           <ChevronDown className="h-4 w-4 text-gray-500" />
         </Button>
@@ -331,27 +335,47 @@ const TopNavigation = () => {
   );
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50 px-4 sm:px-6 lg:px-8">
-      <div className="flex items-center justify-between h-16">
-        {/* Left section - Mobile menu + Logo */}
-        <div className="flex items-center space-x-4">
-          <MobileNavigation />
-          <div className="flex items-center">
-            <Logo size="sm" showText />
+    <>
+      <header className="top-nav-container">
+        <div className="top-nav-content">
+          <div className="flex items-center justify-between h-16">
+            {/* Left Section - Logo + Mobile Menu Button */}
+            <div className="flex items-center space-x-4 flex-shrink-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="lg:hidden"
+                onClick={() => setMobileMenuOpen(true)}
+              >
+                <Menu className="h-6 w-6" />
+              </Button>
+              <Logo size="sm" showText />
+            </div>
+
+            {/* Center Section - Desktop Navigation (Always Visible on Desktop) */}
+            <div className="flex-1 flex justify-center px-8 min-w-0">
+              <DesktopNavigation />
+            </div>
+
+            {/* Right Section - User Profile */}
+            <div className="flex items-center flex-shrink-0">
+              <UserProfileDropdown />
+              {/* Mobile User Avatar */}
+              <div className="lg:hidden ml-2">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span className="text-sm font-medium text-blue-700">
+                    {user?.Name?.charAt(0)?.toUpperCase() || 'U'}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+      </header>
 
-        {/* Center section - Desktop Navigation */}
-        <div className="flex-1 flex justify-center px-8">
-          <DesktopNavigation />
-        </div>
-
-        {/* Right section - User Profile */}
-        <div className="flex items-center">
-          <UserProfileDropdown />
-        </div>
-      </div>
-    </header>
+      {/* Mobile Navigation Menu */}
+      <MobileNavigationMenu />
+    </>
   );
 };
 
