@@ -8,12 +8,12 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import {
   Sheet,
   SheetContent,
-  SheetTrigger,
+  SheetTrigger
 } from '@/components/ui/sheet';
 import {
   Menu,
@@ -27,7 +27,13 @@ import {
   LogOut,
   Shield,
   ChevronDown,
-  User
+  User,
+  DollarSign,
+  AlertTriangle,
+  Building,
+  UserPlus,
+  Bell,
+  BarChart3
 } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -65,9 +71,32 @@ const TopNavigation = () => {
       requiredRole: null
     },
     {
+      name: 'Inventory',
+      href: '/inventory/alerts',
+      icon: AlertTriangle,
+      requiredRole: null,
+      subItems: [
+        { name: 'Alerts', href: '/inventory/alerts' },
+        { name: 'Settings', href: '/inventory/settings' },
+        { name: 'Gas Delivery', href: '/inventory/gas-delivery' }
+      ]
+    },
+    {
       name: 'Employees',
       href: '/employees',
       icon: Users,
+      requiredRole: 'manager'
+    },
+    {
+      name: 'Vendors',
+      href: '/vendors',
+      icon: Building,
+      requiredRole: 'manager'
+    },
+    {
+      name: 'Orders',
+      href: '/orders',
+      icon: Package,
       requiredRole: 'manager'
     },
     {
@@ -77,10 +106,10 @@ const TopNavigation = () => {
       requiredRole: 'manager'
     },
     {
-      name: 'Settings',
-      href: '/settings',
-      icon: Settings,
-      requiredRole: null
+      name: 'Salary',
+      href: '/salary',
+      icon: DollarSign,
+      requiredRole: 'manager'
     }
   ];
 
@@ -116,10 +145,10 @@ const TopNavigation = () => {
     const Icon = item.icon;
     const isActive = isActiveRoute(item.href);
 
-    const baseClasses = mobile 
+    const baseClasses = mobile
       ? "flex items-center space-x-3 px-4 py-3 text-left w-full transition-colors"
-      : "flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors whitespace-nowrap";
-    
+      : "flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors whitespace-nowrap";
+
     const activeClasses = isActive
       ? "bg-blue-100 text-blue-700 font-medium"
       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900";
@@ -128,6 +157,31 @@ const TopNavigation = () => {
       navigate(item.href);
       if (mobile) setMobileMenuOpen(false);
     };
+
+    if (item.subItems && !mobile) {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className={`${baseClasses} ${activeClasses}`}>
+              <Icon className="h-5 w-5 flex-shrink-0" />
+              <span>{item.name}</span>
+              <ChevronDown className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            {item.subItems.map((subItem: any) => (
+              <DropdownMenuItem
+                key={subItem.href}
+                onClick={() => navigate(subItem.href)}
+                className="cursor-pointer"
+              >
+                {subItem.name}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    }
 
     return (
       <button
@@ -146,6 +200,16 @@ const TopNavigation = () => {
       {navigationItems.map((item) => (
         <NavigationLink key={item.href} item={item} />
       ))}
+      {/* Settings as separate item */}
+      <NavigationLink 
+        key="/settings" 
+        item={{
+          name: 'Settings',
+          href: '/settings',
+          icon: Settings,
+          requiredRole: null
+        }} 
+      />
     </nav>
   );
 
@@ -165,10 +229,36 @@ const TopNavigation = () => {
           </div>
           
           {/* Navigation items */}
-          <div className="flex-1 py-4">
+          <div className="flex-1 py-4 overflow-y-auto">
             {navigationItems.map((item) => (
               <NavigationLink key={item.href} item={item} mobile />
             ))}
+            
+            {/* Mobile sub-items for inventory */}
+            {navigationItems.find(item => item.href === '/inventory/alerts')?.subItems?.map((subItem: any) => (
+              <button
+                key={subItem.href}
+                onClick={() => {
+                  navigate(subItem.href);
+                  setMobileMenuOpen(false);
+                }}
+                className="flex items-center space-x-3 px-8 py-2 text-left w-full transition-colors text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              >
+                <span className="text-sm">{subItem.name}</span>
+              </button>
+            ))}
+            
+            {/* Settings */}
+            <NavigationLink 
+              key="/settings-mobile" 
+              item={{
+                name: 'Settings',
+                href: '/settings',
+                icon: Settings,
+                requiredRole: null
+              }} 
+              mobile 
+            />
           </div>
           
           {/* User section in mobile */}
@@ -241,7 +331,7 @@ const TopNavigation = () => {
   );
 
   return (
-    <header className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8">
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-50 px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between h-16">
         {/* Left section - Mobile menu + Logo */}
         <div className="flex items-center space-x-4">

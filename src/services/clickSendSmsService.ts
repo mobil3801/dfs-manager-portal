@@ -346,14 +346,14 @@ class ClickSendSMSService {
 
 
 
+
+
+
+
     // This is handled by counting records in the history table
     // No need for a separate counter field
   }private async logSMSHistory(historyData: any): Promise<void> {try {await window.ezsite.apis.tableCreate(24202, { ...historyData, sent_by_user_id: 1 // This should be the current user ID
-        });} catch (error) {console.error('Error logging SMS history:', error);
-    }
-  }
-
-  private isValidPhoneNumber(phoneNumber: string): boolean {
+        });} catch (error) {console.error('Error logging SMS history:', error);}}private isValidPhoneNumber(phoneNumber: string): boolean {
     // E.164 format validation
     const e164Regex = /^\+[1-9]\d{1,14}$/;
     return e164Regex.test(phoneNumber);

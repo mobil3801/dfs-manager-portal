@@ -94,18 +94,19 @@ export function useDeviceDetection(): DeviceInfo {
   return deviceInfo;
 }
 
-// Hook for responsive layout decisions
+// Hook for responsive layout decisions - Updated for horizontal navigation only
 export function useResponsiveLayout() {
   const device = useDeviceDetection();
 
   return {
     ...device,
-    showSidebar: device.isDesktop,
-    showBottomNav: device.isMobile,
+    // Removed sidebar references - navigation is always horizontal at top
+    showTopNavigation: true, // Always show top navigation
+    showMobileMenu: device.isMobile, // Mobile uses slide-out menu
     compactHeader: device.isMobile || device.isTablet,
     stackedLayout: device.isMobile,
     columnsCount: device.isMobile ? 1 : device.isTablet ? 2 : 3,
     tableMode: device.isMobile ? 'cards' : 'table',
-    sidebarMode: device.isMobile ? 'overlay' : device.isTablet ? 'mini' : 'full'
+    navigationMode: device.isMobile ? 'mobile-sheet' : 'horizontal' // Always horizontal, mobile uses sheet
   };
 }

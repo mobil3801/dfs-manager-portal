@@ -292,6 +292,8 @@ export class InvariantErrorFixer {
 
 
 
+
+
           // Empty batched update to flush pending work
         });} // Force a repaint
       document.body.style.display = 'none';document.body.offsetHeight; // Trigger reflow
@@ -302,9 +304,7 @@ export class InvariantErrorFixer {
   */validateDOMStructure(): {isValid: boolean;issues: string[];} {const issues: string[] = [];try {// Check for duplicate IDs
       const elementsWithIds = document.querySelectorAll('[id]');const idMap = new Map<string, number>();elementsWithIds.forEach((element) => {const id = element.getAttribute('id')!;idMap.set(id, (idMap.get(id) || 0) + 1);});idMap.forEach((count, id) => {if (count > 1) {issues.push(`Duplicate ID found: "${id}" (${count} occurrences)`);}}); // Check for invalid nesting
       const invalidNestings = ['p div', 'p p', 'a a', 'button button', 'form form'];invalidNestings.forEach((selector) => {const invalid = document.querySelectorAll(selector);if (invalid.length > 0) {issues.push(`Invalid nesting found: ${selector} (${invalid.length} occurrences)`);}}); // Check for empty keys
-      const emptyKeys = document.querySelectorAll('[key=""], [data-react-key=""]');if (emptyKeys.length > 0) {issues.push(`Empty keys found: ${emptyKeys.length} elements`);}
-
-      return {
+      const emptyKeys = document.querySelectorAll('[key=""], [data-react-key=""]');if (emptyKeys.length > 0) {issues.push(`Empty keys found: ${emptyKeys.length} elements`);}return {
         isValid: issues.length === 0,
         issues
       };

@@ -256,6 +256,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -303,16 +305,14 @@ const PerformanceMonitoringSystem: React.FC = () => {
     const intervals = (window as any).__intervals__ || [];const timeouts = (window as any).__timeouts__ || [];const observers = (window as any).__observers__ || [];return intervals.length + timeouts.length + observers.length;}; /**
   * Analyze metrics and generate alerts
   */const analyzeMetrics = useCallback((currentMetrics: PerformanceMetrics) => {const newAlerts: Alert[] = []; // Memory alerts
-      if (currentMetrics.memory.percentage > 80) {
-        newAlerts.push({
-          id: `memory-high-${Date.now()}`,
-          type: 'warning',
-          title: 'High Memory Usage',
-          message: `Memory usage is at ${currentMetrics.memory.percentage.toFixed(1)}%`,
-          timestamp: Date.now(),
-          severity: currentMetrics.memory.percentage > 90 ? 'critical' : 'high',
-          autoResolve: true
-        });
+      if (currentMetrics.memory.percentage > 80) {newAlerts.push({ id: `memory-high-${Date.now()}`,
+            type: 'warning',
+            title: 'High Memory Usage',
+            message: `Memory usage is at ${currentMetrics.memory.percentage.toFixed(1)}%`,
+            timestamp: Date.now(),
+            severity: currentMetrics.memory.percentage > 90 ? 'critical' : 'high',
+            autoResolve: true
+          });
       }
 
       // Performance alerts
