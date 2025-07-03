@@ -92,18 +92,7 @@ const AdminFeatureTester: React.FC = () => {
     description: 'Track user activities and audit trails',
     status: 'pending'
   },
-  {
-    name: 'Database Auto-sync',
-    path: '/admin/database-autosync',
-    description: 'Configure automatic database synchronization',
-    status: 'pending'
-  },
-  {
-    name: 'Supabase Test',
-    path: '/admin/supabase-test',
-    description: 'Test Supabase connection and performance',
-    status: 'pending'
-  },
+
   {
     name: 'Development Monitoring',
     path: '/admin/development-monitoring',
