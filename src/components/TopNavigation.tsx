@@ -71,7 +71,7 @@ const TopNavigation = () => {
       requiredRole: null
     },
     {
-      name: 'Deliveries',
+      name: 'Delivery',
       href: '/delivery',
       icon: Truck,
       requiredRole: null
@@ -152,13 +152,13 @@ const TopNavigation = () => {
 
     const baseClasses = mobile
       ? "flex items-center space-x-3 px-4 py-3 text-left w-full transition-colors text-sm font-medium rounded-md mx-2"
-      : "flex items-center space-x-1.5 px-3 py-2 rounded-md transition-all duration-200 whitespace-nowrap text-sm font-medium hover:scale-105";
+      : "flex items-center space-x-1.5 px-2.5 py-2 rounded-md transition-all duration-200 whitespace-nowrap text-sm font-medium hover:scale-105 min-w-fit";
 
     const activeClasses = isActive
       ? "bg-blue-600 text-white shadow-md"
       : mobile
-      ? "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900";
+        ? "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:shadow-sm";
 
     const handleClick = () => {
       navigate(item.href);
@@ -168,7 +168,7 @@ const TopNavigation = () => {
     return (
       <button onClick={handleClick} className={`${baseClasses} ${activeClasses}`}>
         <Icon className="h-4 w-4 flex-shrink-0" />
-        <span>{item.name}</span>
+        <span className={mobile ? "" : "hidden xl:inline"}>{item.name}</span>
       </button>
     );
   };
@@ -191,9 +191,9 @@ const TopNavigation = () => {
             </div>
 
             {/* Center Section - All Navigation Items in Horizontal Line (Desktop) */}
-            <nav className="hidden lg:flex items-center flex-1 justify-center max-w-5xl mx-4">
-              <div className="flex items-center space-x-1 px-4 overflow-x-auto scrollbar-hide">
-                {navigationItems.map((item) => (
+            <nav className="hidden lg:flex items-center flex-1 justify-center max-w-6xl mx-4">
+              <div className="flex items-center space-x-0.5 px-4 overflow-x-auto scrollbar-hide">
+                {navigationItems.filter(item => canAccessRoute(item.requiredRole)).map((item) => (
                   <NavigationLink key={item.href} item={item} />
                 ))}
               </div>
