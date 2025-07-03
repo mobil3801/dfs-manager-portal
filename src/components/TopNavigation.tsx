@@ -112,6 +112,14 @@ const TopNavigation = () => {
     });
   }
 
+  // Add Settings to main navigation
+  navigationItems.push({
+    name: 'Settings',
+    href: '/settings',
+    icon: Settings,
+    requiredRole: null
+  });
+
   const handleLogout = async () => {
     await logout();
     navigate('/login');
@@ -136,7 +144,7 @@ const TopNavigation = () => {
 
     const baseClasses = mobile
       ? "flex items-center space-x-3 px-4 py-3 text-left w-full transition-colors text-sm font-medium"
-      : "flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors whitespace-nowrap text-sm font-medium";
+      : "flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors whitespace-nowrap text-sm font-medium";
 
     const activeClasses = isActive
       ? "bg-blue-100 text-blue-700 shadow-sm"
@@ -162,7 +170,8 @@ const TopNavigation = () => {
               <DropdownMenuItem
                 key={subItem.href}
                 onClick={() => navigate(subItem.href)}
-                className="cursor-pointer">
+                className="cursor-pointer"
+              >
                 {subItem.name}
               </DropdownMenuItem>
             ))}
@@ -186,7 +195,8 @@ const TopNavigation = () => {
                   navigate(subItem.href);
                   setMobileMenuOpen(false);
                 }}
-                className="flex items-center space-x-3 px-4 py-2 text-left w-full transition-colors text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900">
+                className="flex items-center space-x-3 px-4 py-2 text-left w-full transition-colors text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              >
                 <span>{subItem.name}</span>
               </button>
             ))}
@@ -205,44 +215,37 @@ const TopNavigation = () => {
 
   return (
     <>
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40 w-full">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-40 w-full shadow-sm">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Left Section - Logo */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 flex-shrink-0">
               <div className="flex items-center space-x-2">
-                <img 
-                  src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png" 
-                  alt="DFS Manager" 
+                <img
+                  src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
+                  alt="DFS Manager"
                   className="h-8 w-auto"
                 />
                 <span className="text-xl font-bold text-gray-900 hidden sm:block">DFS Manager</span>
               </div>
             </div>
 
-            {/* Center Section - Desktop Navigation (Full Width) */}
-            <nav className="hidden lg:flex items-center space-x-1 flex-1 justify-start ml-8">
+            {/* Center Section - Desktop Navigation (Horizontal Line) */}
+            <nav className="hidden lg:flex items-center space-x-2 flex-1 justify-center max-w-4xl">
               {navigationItems.map((item) => (
                 <NavigationLink key={item.href} item={item} />
               ))}
-              <NavigationLink
-                item={{
-                  name: 'Settings',
-                  href: '/settings',
-                  icon: Settings,
-                  requiredRole: null
-                }}
-              />
             </nav>
 
             {/* Right Section - User Profile */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 flex-shrink-0">
               {/* Mobile Menu Button */}
               <Button
                 variant="ghost"
                 size="sm"
                 className="lg:hidden"
-                onClick={() => setMobileMenuOpen(true)}>
+                onClick={() => setMobileMenuOpen(true)}
+              >
                 <Menu className="h-6 w-6" />
               </Button>
 
@@ -288,7 +291,8 @@ const TopNavigation = () => {
         {/* Overlay */}
         <div
           className="fixed inset-0 bg-black bg-opacity-50"
-          onClick={() => setMobileMenuOpen(false)} />
+          onClick={() => setMobileMenuOpen(false)}
+        />
         
         {/* Menu Panel */}
         <div className="fixed top-0 left-0 w-80 h-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out">
@@ -296,9 +300,9 @@ const TopNavigation = () => {
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b">
               <div className="flex items-center space-x-2">
-                <img 
-                  src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png" 
-                  alt="DFS Manager" 
+                <img
+                  src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
+                  alt="DFS Manager"
                   className="h-8 w-auto"
                 />
                 <span className="text-lg font-bold text-gray-900">DFS Manager</span>
@@ -306,7 +310,8 @@ const TopNavigation = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setMobileMenuOpen(false)}>
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 <X className="h-6 w-6" />
               </Button>
             </div>
@@ -316,15 +321,6 @@ const TopNavigation = () => {
               {navigationItems.map((item) => (
                 <NavigationLink key={item.href} item={item} mobile />
               ))}
-              <NavigationLink
-                item={{
-                  name: 'Settings',
-                  href: '/settings',
-                  icon: Settings,
-                  requiredRole: null
-                }}
-                mobile
-              />
             </div>
             
             {/* User Section */}
@@ -346,7 +342,8 @@ const TopNavigation = () => {
                 variant="outline"
                 size="sm"
                 onClick={handleLogout}
-                className="w-full justify-start">
+                className="w-full justify-start"
+              >
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out
               </Button>
