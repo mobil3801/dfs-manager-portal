@@ -521,21 +521,27 @@ const ProductForm = () => {
     }
   };
 
-  const logFieldChange = async (productId: number, fieldName: string, oldValue: any, newValue: any, userId: number) => {
+  const logFieldChange = async (productId: number, fieldName: string, oldValue: any, newValue: any, userId: number, changeType: string = 'update') => {
     try {
-      const { error } = await window.ezsite.apis.tableCreate('11756', {
+      // Log to the new product_changelog table
+      const { error } = await window.ezsite.apis.tableCreate('24010', {
         product_id: productId,
         field_name: fieldName,
         old_value: oldValue?.toString() || '',
         new_value: newValue?.toString() || '',
-        change_date: new Date().toISOString(),
-        changed_by: userId
+        change_timestamp: new Date().toISOString(),
+        changed_by: userId,
+        change_type: changeType,
+        change_summary: `${changeType === 'create' ? 'Created' : 'Updated'} ${fieldName.replace(/_/g, ' ')} from "${oldValue || 'empty'}" to "${newValue}"`
       });
+      
       if (error) {
-        console.error('Error logging field change:', error);
+        console.error('Error logging field change to changelog:', error);
+      } else {
+        console.log(`Successfully logged ${changeType} for field ${fieldName}`);
       }
     } catch (error) {
-      console.error('Error logging field change:', error);
+      console.error('Error logging field change to changelog:', error);
     }
   };
 
@@ -570,38 +576,86 @@ const ProductForm = () => {
         created_by: userProfile.user_id
       };
 
-      const { error } = isEdit ?
-      await window.ezsite.apis.tableUpdate('11726', { id: parseInt(id!), ...payload }) :
-      await window.ezsite.apis.tableCreate('11726', payload);
-
-      if (error) throw error;
-
-      // Log changes for existing products
-      if (isEdit && originalData && userProfile) {
-        const fieldsToTrack = [
-        'last_shopping_date',
-        'case_price',
-        'unit_per_case',
-        'unit_price',
-        'retail_price'];
-
-
-        for (const field of fieldsToTrack) {
-          const oldValue = originalData[field];
-          const newValue = formData[field];
-
-          if (oldValue !== newValue) {
-            await logFieldChange(parseInt(id!), field, oldValue, newValue, userProfile.user_id);
+      let productId: number;
+      
+      if (isEdit) {
+        const { error } = await window.ezsite.apis.tableUpdate('11726', { id: parseInt(id!), ...payload });
+        if (error) throw error;
+        productId = parseInt(id!);
+      } else {
+        const { data, error } = await window.ezsite.apis.tableCreate('11726', payload);
+        if (error) throw error;
+        
+        // Get the created product ID - the API should return the created record
+        productId = data?.ID || data?.id;
+        
+        // If we don't get an ID from the response, try to find the product by serial number
+        if (!productId) {
+          try {
+            const { data: searchData } = await window.ezsite.apis.tablePage('11726', {
+              PageNo: 1,
+              PageSize: 1,
+              OrderByField: 'id',
+              IsAsc: false,
+              Filters: [
+                { name: 'serial_number', op: 'Equal', value: formData.serial_number }
+              ]
+            });
+            productId = searchData?.List?.[0]?.ID;
+          } catch (error) {
+            console.error('Error finding created product:', error);
           }
         }
+      }
 
-        // Calculate and log profit margin changes
-        const oldProfitMargin = originalData.unit_price > 0 && originalData.retail_price > 0 ?
-        (originalData.retail_price - originalData.unit_price) / originalData.retail_price * 100 : 0;
-        const newProfitMargin = formData.profit_margin;
+      // Log changes for products
+      if (userProfile && productId) {
+        const fieldsToTrack = [
+          'product_name',
+          'category', 
+          'supplier',
+          'weight',
+          'weight_unit',
+          'department',
+          'last_shopping_date',
+          'case_price',
+          'unit_per_case',
+          'unit_price',
+          'retail_price'
+        ];
 
-        if (Math.abs(oldProfitMargin - newProfitMargin) > 0.01) {
-          await logFieldChange(parseInt(id!), 'profit_margin', oldProfitMargin.toFixed(2), newProfitMargin.toFixed(2), userProfile.user_id);
+        if (isEdit && originalData) {
+          // Log changes for existing products
+          for (const field of fieldsToTrack) {
+            const oldValue = originalData[field];
+            const newValue = formData[field];
+
+            if (oldValue !== newValue) {
+              await logFieldChange(productId, field, oldValue, newValue, userProfile.user_id, 'update');
+            }
+          }
+
+          // Calculate and log profit margin changes
+          const oldProfitMargin = originalData.unit_price > 0 && originalData.retail_price > 0 ?
+            (originalData.retail_price - originalData.unit_price) / originalData.retail_price * 100 : 0;
+          const newProfitMargin = formData.profit_margin;
+
+          if (Math.abs(oldProfitMargin - newProfitMargin) > 0.01) {
+            await logFieldChange(productId, 'profit_margin', oldProfitMargin.toFixed(2), newProfitMargin.toFixed(2), userProfile.user_id, 'update');
+          }
+        } else {
+          // Log initial creation for new products
+          for (const field of fieldsToTrack) {
+            const value = formData[field];
+            if (value !== null && value !== undefined && value !== '') {
+              await logFieldChange(productId, field, '', value, userProfile.user_id, 'create');
+            }
+          }
+          
+          // Log initial profit margin
+          if (formData.profit_margin > 0) {
+            await logFieldChange(productId, 'profit_margin', '', formData.profit_margin.toFixed(2), userProfile.user_id, 'create');
+          }
         }
       }
 

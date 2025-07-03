@@ -196,6 +196,8 @@ const EnhancedInvariantDetector: React.FC = () => {
 
 
 
+
+
           // Silent catch for individual element processing
         }});keyMap.forEach((data, key) => {if (data.count > 1) {violations.push({ type: 'duplicate-key', severity: 'high', message: `Duplicate React key detected: "${key}" used ${data.count} times. This can cause invariant violations.`, fixSuggestion: 'Use unique keys for each element in lists. Consider using item.id + index or UUID.', component: data.element.tagName?.toLowerCase() });}});} catch (error) {console.warn('Error detecting duplicate keys:', error);}return violations;}, []); // Enhanced React Fiber state detection
   const detectFiberInconsistencies = useCallback(() => {const violations: Omit<InvariantViolation, 'id' | 'timestamp'>[] = [];try {const reactRoots = document.querySelectorAll('[data-reactroot], #root, [id*="react"]');reactRoots.forEach((root) => {try {const fiber = (root as any)._reactInternalFiber || (root as any).__reactInternalInstance || (root as any)._reactRootContainer;if (fiber) {// Check for common fiber inconsistencies
@@ -283,9 +285,7 @@ const EnhancedInvariantDetector: React.FC = () => {
       if (renderCountRef.current > 1000) {addViolation({ type: 'react-error', severity: 'high', message: `Excessive render cycles detected (${renderCountRef.current}). Possible infinite render loop.`, fixSuggestion: 'Check for state updates during render or missing dependencies in useEffect.' });renderCountRef.current = 0; // Reset to prevent spam
       }}, [addViolation]);const scanForViolations = useCallback(() => {if (!isActive) return;try {trackComponentRenders();const newViolations = [...detectDuplicateKeys(), ...detectInvalidNesting(), ...detectFiberInconsistencies()];newViolations.forEach((violation) => addViolation(violation));setScanCount((prev) => prev + 1);if (newViolations.length > 0) {setErrorCount((prev) => prev + newViolations.length);}} catch (error) {console.error('Error during violation scan:', error);addViolation({ type: 'unknown', severity: 'medium', message: `Scanner error: ${error instanceof Error ? error.message : 'Unknown error'}`, fixSuggestion: 'Check browser console for detailed error information.' });}}, [isActive, detectDuplicateKeys, detectInvalidNesting, detectFiberInconsistencies, addViolation, trackComponentRenders]); // Enhanced error boundary integration with React error capture
   useEffect(() => {const originalError = console.error;const originalWarn = console.warn;console.error = (...args) => {const errorMessage = args.join(' '); // Detect the specific "Invariant failed" error
-        if (errorMessage.includes('Invariant failed') || errorMessage.includes('invariant') || errorMessage.includes('Minified React error')) {setLastInvariantError(errorMessage);addViolation({ type: 'react-error', severity: 'critical', message: `React Invariant Violation: ${errorMessage}`, stackTrace: args.find((arg) => typeof arg === 'object' && arg?.stack)?.stack || new Error().stack, fixSuggestion: 'Check for duplicate keys, invalid DOM nesting, state mutations during render, or circular references.',
-              rawError: args[0]
-            });
+        if (errorMessage.includes('Invariant failed') || errorMessage.includes('invariant') || errorMessage.includes('Minified React error')) {setLastInvariantError(errorMessage);addViolation({ type: 'react-error', severity: 'critical', message: `React Invariant Violation: ${errorMessage}`, stackTrace: args.find((arg) => typeof arg === 'object' && arg?.stack)?.stack || new Error().stack, fixSuggestion: 'Check for duplicate keys, invalid DOM nesting, state mutations during render, or circular references.', rawError: args[0] });
         }
 
         // Detect React warnings that might lead to invariants

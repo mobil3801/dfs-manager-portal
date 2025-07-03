@@ -236,6 +236,8 @@ const SyncMonitoringDashboard: React.FC = () => {
 
 
 
+
+
           // Table not accessible, skip
         }}return Math.max(activeTableCount, 1); // At least 1 table should be available
     } catch {return 21; // Default to total expected tables
@@ -248,8 +250,7 @@ const SyncMonitoringDashboard: React.FC = () => {
       const status = autoSyncService.getStatus();setSyncStatus({ isActive: status.isMonitoring, lastSync: status.lastSync || new Date().toISOString(), nextSync: new Date(Date.now() + 300000).toISOString(), // 5 minutes from now
           currentOperation: status.isMonitoring ? 'Monitoring for changes...' : 'System operational' });} catch (error) {console.error('Error loading sync data:', error); // Set minimal fallback data
       setSyncLogs([]);setMetrics({ totalTables: 21, syncedToday: 0, errorCount: 0, avgSyncTime: 0, successRate: 100 });}};const handleManualSync = async () => {setIsLoading(true);try {await autoSyncService.triggerSync();toast({ title: "Manual Sync Triggered", description: "Database synchronization has been initiated." }); // Reload data after sync
-      setTimeout(loadSyncData, 2000);} catch (error) {toast({ title: "Sync Failed", description: "Unable to trigger manual sync. Please try again.", variant: "destructive" });} finally {setIsLoading(false);}};const clearLogs = () => {setSyncLogs([]);toast({ title: "Logs Cleared", description: "Sync logs have been cleared." });};const getStatusIcon = (status: string) => {switch (status) {case 'success':return <CheckCircle className="h-4 w-4 text-green-500" />;case 'failed':return <AlertCircle className="h-4 w-4 text-red-500" />;case 'pending':return <Clock className="h-4 w-4 text-yellow-500" />;default:return <Activity className="h-4 w-4 text-gray-500" />;}};const getTypeIcon = (type: string) => {switch (type) {case 'create':return <Database className="h-4 w-4 text-blue-500" />;case 'update':return <RefreshCw className="h-4 w-4 text-orange-500" />;case 'delete':return <Trash2 className="h-4 w-4 text-red-500" />;case 'scan':return <Activity className="h-4 w-4 text-purple-500" />;case 'error':return <AlertCircle className="h-4 w-4 text-red-500" />;default:return <FileText className="h-4 w-4 text-gray-500" />;}};return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
+      setTimeout(loadSyncData, 2000);} catch (error) {toast({ title: "Sync Failed", description: "Unable to trigger manual sync. Please try again.", variant: "destructive" });} finally {setIsLoading(false);}};const clearLogs = () => {setSyncLogs([]);toast({ title: "Logs Cleared", description: "Sync logs have been cleared." });};const getStatusIcon = (status: string) => {switch (status) {case 'success':return <CheckCircle className="h-4 w-4 text-green-500" />;case 'failed':return <AlertCircle className="h-4 w-4 text-red-500" />;case 'pending':return <Clock className="h-4 w-4 text-yellow-500" />;default:return <Activity className="h-4 w-4 text-gray-500" />;}};const getTypeIcon = (type: string) => {switch (type) {case 'create':return <Database className="h-4 w-4 text-blue-500" />;case 'update':return <RefreshCw className="h-4 w-4 text-orange-500" />;case 'delete':return <Trash2 className="h-4 w-4 text-red-500" />;case 'scan':return <Activity className="h-4 w-4 text-purple-500" />;case 'error':return <AlertCircle className="h-4 w-4 text-red-500" />;default:return <FileText className="h-4 w-4 text-gray-500" />;}};return <div className="max-w-7xl mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Sync Monitoring</h1>
@@ -257,11 +258,10 @@ const SyncMonitoringDashboard: React.FC = () => {
         </div>
         <div className="flex gap-2">
           <Button onClick={handleManualSync} disabled={isLoading}>
-            {isLoading ?
-            <RefreshCw className="h-4 w-4 animate-spin mr-2" /> :
+            {isLoading ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> :
 
-            <RotateCcw className="h-4 w-4 mr-2" />
-            }
+          <RotateCcw className="h-4 w-4 mr-2" />
+          }
             Manual Sync
           </Button>
         </div>
@@ -364,13 +364,13 @@ const SyncMonitoringDashboard: React.FC = () => {
                 </div>
 
                 {metrics.errorCount > 0 &&
-                <Alert>
+              <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
                       {metrics.errorCount} sync errors detected. Check logs for details.
                     </AlertDescription>
                   </Alert>
-                }
+              }
               </CardContent>
             </Card>
 
@@ -430,13 +430,13 @@ const SyncMonitoringDashboard: React.FC = () => {
             <CardContent>
               <div className="space-y-4">
                 {syncLogs.length === 0 ?
-                <div className="text-center py-8">
+              <div className="text-center py-8">
                     <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                     <p className="text-muted-foreground">No sync logs available</p>
                   </div> :
 
-                syncLogs.map((log) =>
-                <div key={log.id} className="flex items-center space-x-4 p-4 border rounded-lg">
+              syncLogs.map((log) =>
+              <div key={log.id} className="flex items-center space-x-4 p-4 border rounded-lg">
                       <div className="flex items-center space-x-2">
                         {getTypeIcon(log.type)}
                         {getStatusIcon(log.status)}
@@ -458,8 +458,8 @@ const SyncMonitoringDashboard: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                )
-                }
+              )
+              }
               </div>
             </CardContent>
           </Card>
@@ -527,7 +527,7 @@ const SyncMonitoringDashboard: React.FC = () => {
           </div>
         </TabsContent>
       </Tabs>
-    </div>);
+    </div>;
 
 };
 

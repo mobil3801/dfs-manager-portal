@@ -5,10 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Search, Edit, Trash2, Package, FileText, Loader2, X, Save } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Package, FileText, Loader2, X, Save, History } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import ProductLogs from '@/components/ProductLogs';
+import ProductChangelogDialog from '@/components/ProductChangelogDialog';
 import HighlightText from '@/components/HighlightText';
 import { ResponsiveTable, ResponsiveStack } from '@/components/ResponsiveWrapper';
 import { useResponsiveLayout } from '@/hooks/use-mobile';
@@ -72,6 +73,7 @@ const ProductList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [totalCount, setTotalCount] = useState(0);
   const [logsModalOpen, setLogsModalOpen] = useState(false);
+  const [changelogModalOpen, setChangelogModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<{id: number;name: string;} | null>(null);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -415,6 +417,25 @@ const ProductList: React.FC = () => {
     console.log('Logs modal should now be open');
   };
 
+  const handleEdit = (productId: number) => {
+    console.log('handleEdit called for product ID:', productId);
+    
+    // Check edit permission
+    if (!checkEdit()) {
+      return;
+    }
+    
+    // Navigate to edit form
+    navigate(`/products/edit/${productId}`);
+  };
+
+  const handleViewChangelog = (productId: number, productName: string) => {
+    console.log('handleViewChangelog called for:', { productId, productName });
+    setSelectedProduct({ id: productId, name: productName });
+    setChangelogModalOpen(true);
+    console.log('Changelog modal should now be open');
+  };
+
   // Visual editing enabled for all users
   const hasEditPermission = true;
 
@@ -571,6 +592,8 @@ const ProductList: React.FC = () => {
             products={products}
             searchTerm={debouncedSearchTerm}
             onViewLogs={handleViewLogs}
+            onViewChangelog={handleViewChangelog}
+            onEdit={handleEdit}
             onSaveProduct={handleSaveProduct}
             onDeleteProduct={handleDelete}
             savingProductId={savingProductId} /> :
@@ -673,7 +696,29 @@ const ProductList: React.FC = () => {
                         })()} 
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-1">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                console.log('Editing product:', product.ID);
+                                handleEdit(product.ID);
+                              }}
+                              title="Edit product"
+                              className="text-blue-600 hover:text-blue-700">
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                console.log('Viewing changelog for product:', product.ID, product.product_name);
+                                handleViewChangelog(product.ID, product.product_name);
+                              }}
+                              title="View changelog"
+                              className="text-green-600 hover:text-green-700">
+                              <History className="w-4 h-4" />
+                            </Button>
                             <Button
                             variant="outline"
                             size="sm"
@@ -683,21 +728,6 @@ const ProductList: React.FC = () => {
                             }}
                             title="View change logs">
                               <FileText className="w-4 h-4" />
-                            </Button>
-                            <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              console.log('Saving product:', product.ID);
-                              handleSaveProduct(product.ID);
-                            }}
-                            disabled={savingProductId === product.ID}
-                            title="Save product">
-                              {savingProductId === product.ID ?
-                            <Loader2 className="w-4 h-4 animate-spin" /> :
-
-                            <Save className="w-4 h-4" />
-                            }
                             </Button>
                             <Button
                             variant="outline"
@@ -762,6 +792,18 @@ const ProductList: React.FC = () => {
         isOpen={logsModalOpen}
         onClose={() => {
           setLogsModalOpen(false);
+          setSelectedProduct(null);
+        }}
+        productId={selectedProduct.id}
+        productName={selectedProduct.name} />
+      }
+
+      {/* Product Changelog Modal */}
+      {selectedProduct &&
+      <ProductChangelogDialog
+        isOpen={changelogModalOpen}
+        onClose={() => {
+          setChangelogModalOpen(false);
           setSelectedProduct(null);
         }}
         productId={selectedProduct.id}
