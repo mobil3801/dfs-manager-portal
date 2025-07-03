@@ -8,8 +8,8 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
+  DropdownMenuTrigger } from
+'@/components/ui/dropdown-menu';
 import {
   Home,
   Users,
@@ -25,8 +25,8 @@ import {
   AlertTriangle,
   Building,
   Menu,
-  X
-} from 'lucide-react';
+  X } from
+'lucide-react';
 
 const TopNavigation = () => {
   const { user, logout, isAdmin, isManager } = useAuth();
@@ -35,72 +35,72 @@ const TopNavigation = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navigationItems = [
-    {
-      name: 'Dashboard',
-      href: '/dashboard',
-      icon: Home,
-      requiredRole: null
-    },
-    {
-      name: 'Products',
-      href: '/products',
-      icon: Package,
-      requiredRole: null
-    },
-    {
-      name: 'Sales',
-      href: '/sales',
-      icon: FileText,
-      requiredRole: null
-    },
-    {
-      name: 'Deliveries',
-      href: '/delivery',
-      icon: Truck,
-      requiredRole: null
-    },
-    {
-      name: 'Inventory',
-      href: '/inventory/alerts',
-      icon: AlertTriangle,
-      requiredRole: null,
-      subItems: [
-        { name: 'Alerts', href: '/inventory/alerts' },
-        { name: 'Settings', href: '/inventory/settings' },
-        { name: 'Gas Delivery', href: '/inventory/gas-delivery' }
-      ]
-    },
-    {
-      name: 'Employees',
-      href: '/employees',
-      icon: Users,
-      requiredRole: 'manager'
-    },
-    {
-      name: 'Vendors',
-      href: '/vendors',
-      icon: Building,
-      requiredRole: 'manager'
-    },
-    {
-      name: 'Orders',
-      href: '/orders',
-      icon: Package,
-      requiredRole: 'manager'
-    },
-    {
-      name: 'Licenses',
-      href: '/licenses',
-      icon: Calendar,
-      requiredRole: 'manager'
-    },
-    {
-      name: 'Salary',
-      href: '/salary',
-      icon: DollarSign,
-      requiredRole: 'manager'
-    }
-  ];
+  {
+    name: 'Dashboard',
+    href: '/dashboard',
+    icon: Home,
+    requiredRole: null
+  },
+  {
+    name: 'Products',
+    href: '/products',
+    icon: Package,
+    requiredRole: null
+  },
+  {
+    name: 'Sales',
+    href: '/sales',
+    icon: FileText,
+    requiredRole: null
+  },
+  {
+    name: 'Deliveries',
+    href: '/delivery',
+    icon: Truck,
+    requiredRole: null
+  },
+  {
+    name: 'Inventory',
+    href: '/inventory/alerts',
+    icon: AlertTriangle,
+    requiredRole: null,
+    subItems: [
+    { name: 'Alerts', href: '/inventory/alerts' },
+    { name: 'Settings', href: '/inventory/settings' },
+    { name: 'Gas Delivery', href: '/inventory/gas-delivery' }]
+
+  },
+  {
+    name: 'Employees',
+    href: '/employees',
+    icon: Users,
+    requiredRole: 'manager'
+  },
+  {
+    name: 'Vendors',
+    href: '/vendors',
+    icon: Building,
+    requiredRole: 'manager'
+  },
+  {
+    name: 'Orders',
+    href: '/orders',
+    icon: Package,
+    requiredRole: 'manager'
+  },
+  {
+    name: 'Licenses',
+    href: '/licenses',
+    icon: Calendar,
+    requiredRole: 'manager'
+  },
+  {
+    name: 'Salary',
+    href: '/salary',
+    icon: DollarSign,
+    requiredRole: 'manager'
+  }];
+
 
   // Add admin-only items
   if (isAdmin()) {
@@ -136,19 +136,19 @@ const TopNavigation = () => {
     return true;
   };
 
-  const NavigationLink = ({ item, mobile = false }: { item: any; mobile?: boolean }) => {
+  const NavigationLink = ({ item, mobile = false }: {item: any;mobile?: boolean;}) => {
     if (!canAccessRoute(item.requiredRole)) return null;
 
     const Icon = item.icon;
     const isActive = isActiveRoute(item.href);
 
-    const baseClasses = mobile
-      ? "flex items-center space-x-3 px-4 py-3 text-left w-full transition-colors text-sm font-medium"
-      : "flex items-center space-x-1.5 px-3 py-1.5 rounded-md transition-all duration-200 whitespace-nowrap text-sm font-medium hover:scale-105";
+    const baseClasses = mobile ?
+    "flex items-center space-x-3 px-4 py-3 text-left w-full transition-colors text-sm font-medium" :
+    "flex items-center space-x-1.5 px-3 py-1.5 rounded-md transition-all duration-200 whitespace-nowrap text-sm font-medium hover:scale-105";
 
-    const activeClasses = isActive
-      ? "bg-blue-600 text-white shadow-md"
-      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900";
+    const activeClasses = isActive ?
+    "bg-blue-600 text-white shadow-md" :
+    "text-gray-600 hover:bg-gray-100 hover:text-gray-900";
 
     const handleClick = () => {
       navigate(item.href);
@@ -166,17 +166,17 @@ const TopNavigation = () => {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
-            {item.subItems.map((subItem: any) => (
-              <DropdownMenuItem
-                key={subItem.href}
-                onClick={() => navigate(subItem.href)}
-                className="cursor-pointer">
+            {item.subItems.map((subItem: any) =>
+            <DropdownMenuItem
+              key={subItem.href}
+              onClick={() => navigate(subItem.href)}
+              className="cursor-pointer">
                 {subItem.name}
               </DropdownMenuItem>
-            ))}
+            )}
           </DropdownMenuContent>
-        </DropdownMenu>
-      );
+        </DropdownMenu>);
+
     }
 
     if (item.subItems && mobile) {
@@ -184,31 +184,31 @@ const TopNavigation = () => {
         <div>
           <button className={`${baseClasses} ${activeClasses}`}>
             <Icon className="h-5 w-5 flex-shrink-0" />
-            <span>{item.name}</span>
+
           </button>
           <div className="ml-8 space-y-1">
-            {item.subItems.map((subItem: any) => (
-              <button
-                key={subItem.href}
-                onClick={() => {
-                  navigate(subItem.href);
-                  setMobileMenuOpen(false);
-                }}
-                className="flex items-center space-x-3 px-4 py-2 text-left w-full transition-colors text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900">
+            {item.subItems.map((subItem: any) =>
+            <button
+              key={subItem.href}
+              onClick={() => {
+                navigate(subItem.href);
+                setMobileMenuOpen(false);
+              }}
+              className="flex items-center space-x-3 px-4 py-2 text-left w-full transition-colors text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900">
                 <span>{subItem.name}</span>
               </button>
-            ))}
+            )}
           </div>
-        </div>
-      );
+        </div>);
+
     }
 
     return (
       <button onClick={handleClick} className={`${baseClasses} ${activeClasses}`}>
         <Icon className="h-4 w-4 flex-shrink-0" />
         <span>{item.name}</span>
-      </button>
-    );
+      </button>);
+
   };
 
   return (
@@ -222,16 +222,16 @@ const TopNavigation = () => {
               <img
                 src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
                 alt="DFS Manager"
-                className="h-8 w-auto"
-              />
+                className="h-8 w-auto" />
+
               <span className="text-lg font-bold text-gray-900 hidden sm:block">DFS Manager</span>
             </div>
 
             {/* Center Section - Navigation Line */}
             <nav className="hidden lg:flex items-center space-x-1 flex-1 justify-center max-w-4xl">
-              {navigationItems.map((item) => (
-                <NavigationLink key={item.href} item={item} />
-              ))}
+              {navigationItems.map((item) =>
+              <NavigationLink key={item.href} item={item} />
+              )}
             </nav>
 
             {/* Right Section - User Profile */}
@@ -287,8 +287,8 @@ const TopNavigation = () => {
         {/* Overlay */}
         <div
           className="fixed inset-0 bg-black bg-opacity-50"
-          onClick={() => setMobileMenuOpen(false)}
-        />
+          onClick={() => setMobileMenuOpen(false)} />
+
         
         {/* Menu Panel */}
         <div className="fixed top-0 left-0 w-80 h-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out">
@@ -299,8 +299,8 @@ const TopNavigation = () => {
                 <img
                   src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
                   alt="DFS Manager"
-                  className="h-8 w-auto"
-                />
+                  className="h-8 w-auto" />
+
                 <span className="text-lg font-bold text-gray-900">DFS Manager</span>
               </div>
               <Button
@@ -313,9 +313,9 @@ const TopNavigation = () => {
             
             {/* Navigation Items */}
             <div className="flex-1 py-4 overflow-y-auto space-y-1">
-              {navigationItems.map((item) => (
-                <NavigationLink key={item.href} item={item} mobile />
-              ))}
+              {navigationItems.map((item) =>
+              <NavigationLink key={item.href} item={item} mobile />
+              )}
             </div>
             
             {/* User Section */}
@@ -345,8 +345,8 @@ const TopNavigation = () => {
           </div>
         </div>
       </div>
-    </>
-  );
+    </>);
+
 };
 
 export default TopNavigation;
