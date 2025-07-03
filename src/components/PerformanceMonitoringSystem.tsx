@@ -278,6 +278,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -326,10 +328,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
   * Analyze metrics and generate alerts
   */const analyzeMetrics = useCallback((currentMetrics: PerformanceMetrics) => {const newAlerts: Alert[] = []; // Memory alerts
       if (currentMetrics.memory.percentage > 80) {newAlerts.push({ id: `memory-high-${Date.now()}`, type: 'warning', title: 'High Memory Usage', message: `Memory usage is at ${currentMetrics.memory.percentage.toFixed(1)}%`, timestamp: Date.now(), severity: currentMetrics.memory.percentage > 90 ? 'critical' : 'high', autoResolve: true });} // Performance alerts
-      if (currentMetrics.timing.apiResponseTime > 2000) {newAlerts.push({ id: `api-slow-${Date.now()}`, type: 'warning', title: 'Slow API Response', message: `Average API response time is ${currentMetrics.timing.apiResponseTime.toFixed(0)}ms`, timestamp: Date.now(), severity: 'medium' });}
-      // Network alerts
-      if (currentMetrics.network.errorRate > 10) {
-        newAlerts.push({
+      if (currentMetrics.timing.apiResponseTime > 2000) {newAlerts.push({ id: `api-slow-${Date.now()}`, type: 'warning', title: 'Slow API Response', message: `Average API response time is ${currentMetrics.timing.apiResponseTime.toFixed(0)}ms`, timestamp: Date.now(), severity: 'medium' });} // Network alerts
+      if (currentMetrics.network.errorRate > 10) {newAlerts.push({
           id: `network-errors-${Date.now()}`,
           type: 'error',
           title: 'High Network Error Rate',

@@ -50,7 +50,7 @@ const TopNavigation = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // All navigation items displayed in the top bar
+  // All navigation items displayed horizontally in the top bar
   const navigationItems = [
     {
       name: 'Dashboard',
@@ -157,8 +157,8 @@ const TopNavigation = () => {
     const activeClasses = isActive
       ? "bg-blue-600 text-white shadow-md"
       : mobile
-        ? "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:shadow-sm";
+      ? "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:shadow-sm";
 
     const handleClick = () => {
       navigate(item.href);
@@ -175,7 +175,7 @@ const TopNavigation = () => {
 
   return (
     <>
-      {/* Main Navigation Bar - All Menu Items in Top Bar */}
+      {/* Fixed Top Navigation Bar - Horizontal Layout for All Pages */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50 w-full shadow-sm">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -190,16 +190,18 @@ const TopNavigation = () => {
               <span className="text-xl font-bold text-gray-900 hidden sm:block">DFS Manager</span>
             </div>
 
-            {/* Center Section - All Navigation Items in Horizontal Line (Desktop) */}
+            {/* Center Section - ALL Navigation Items in Single Horizontal Line (Desktop) */}
             <nav className="hidden lg:flex items-center flex-1 justify-center max-w-6xl mx-4">
               <div className="flex items-center space-x-0.5 px-4 overflow-x-auto scrollbar-hide">
-                {navigationItems.filter(item => canAccessRoute(item.requiredRole)).map((item) => (
-                  <NavigationLink key={item.href} item={item} />
-                ))}
+                {navigationItems
+                  .filter((item) => canAccessRoute(item.requiredRole))
+                  .map((item) => (
+                    <NavigationLink key={item.href} item={item} />
+                  ))}
               </div>
             </nav>
 
-            {/* Right Section - User Profile and Mobile Menu */}
+            {/* Right Section - User Profile and Mobile Menu Toggle */}
             <div className="flex items-center space-x-2 flex-shrink-0 min-w-0">
               
               {/* User Profile Dropdown */}
@@ -250,7 +252,7 @@ const TopNavigation = () => {
         </div>
       </header>
 
-      {/* Mobile Navigation Menu - Right Side Slide Out Panel */}
+      {/* Mobile Navigation Menu - Right Side Slide-Out Panel */}
       {mobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-50">
           {/* Overlay */}
