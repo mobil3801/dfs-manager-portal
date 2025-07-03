@@ -6,10 +6,10 @@ import { ComponentErrorBoundary } from '@/components/ErrorBoundary';
 const DashboardLayout = () => {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Fixed Top Navigation - Always Visible */}
+      {/* Fixed Top Navigation - Horizontal Layout Only */}
       <TopNavigation />
       
-      {/* Main Content Area - Full Width */}
+      {/* Main Content Area - Full Width Below Navigation */}
       <main className="flex-1">
         <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <ComponentErrorBoundary>
@@ -17,8 +17,8 @@ const DashboardLayout = () => {
           </ComponentErrorBoundary>
         </div>
       </main>
-    </div>);
-
+    </div>
+  );
 };
 
 export default DashboardLayout;
