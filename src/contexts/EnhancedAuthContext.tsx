@@ -5,17 +5,17 @@ declare global {
   interface Window {
     ezsite?: {
       apis?: {
-        login: (credentials: { email: string; password: string }) => Promise<{ error?: string }>;
-        logout: () => Promise<{ error?: string }>;
-        register: (credentials: { email: string; password: string }) => Promise<{ error?: string }>;
-        getUserInfo: () => Promise<{ data?: User; error?: string }>;
-        sendResetPwdEmail: (email: { email: string }) => Promise<{ error?: string }>;
-        resetPassword: (resetInfo: { token: string; password: string }) => Promise<{ error?: string }>;
-        tablePage: (tableId: number, params: any) => Promise<{ data?: any; error?: string }>;
-        tableCreate: (tableId: number, data: any) => Promise<{ error?: string }>;
-        tableUpdate: (tableId: number, data: any) => Promise<{ error?: string }>;
-        tableDelete: (tableId: number, params: any) => Promise<{ error?: string }>;
-        upload: (fileInfo: { filename: string; file: File }) => Promise<{ data?: number; error?: string }>;
+        login: (credentials: {email: string;password: string;}) => Promise<{error?: string;}>;
+        logout: () => Promise<{error?: string;}>;
+        register: (credentials: {email: string;password: string;}) => Promise<{error?: string;}>;
+        getUserInfo: () => Promise<{data?: User;error?: string;}>;
+        sendResetPwdEmail: (email: {email: string;}) => Promise<{error?: string;}>;
+        resetPassword: (resetInfo: {token: string;password: string;}) => Promise<{error?: string;}>;
+        tablePage: (tableId: number, params: any) => Promise<{data?: any;error?: string;}>;
+        tableCreate: (tableId: number, data: any) => Promise<{error?: string;}>;
+        tableUpdate: (tableId: number, data: any) => Promise<{error?: string;}>;
+        tableDelete: (tableId: number, params: any) => Promise<{error?: string;}>;
+        upload: (fileInfo: {filename: string;file: File;}) => Promise<{data?: number;error?: string;}>;
       };
     };
   }
@@ -74,7 +74,7 @@ const GUEST_PROFILE: UserProfile = {
   detailed_permissions: {}
 };
 
-export const EnhancedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const EnhancedAuthProvider: React.FC<{children: React.ReactNode;}> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -91,7 +91,7 @@ export const EnhancedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const checkApiAvailability = useCallback(async (): Promise<boolean> => {
     console.log('🔍 Checking EZSite API availability...');
-    
+
     try {
       // Check if window.ezsite exists
       if (!window.ezsite) {
@@ -119,17 +119,17 @@ export const EnhancedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const waitForApis = useCallback(async (maxAttempts = 50, interval = 200): Promise<boolean> => {
     console.log('⏳ Waiting for EZSite APIs to become available...');
-    
+
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       const isAvailable = await checkApiAvailability();
-      
+
       if (isAvailable) {
         console.log(`✅ EZSite APIs available after ${attempt} attempts`);
         return true;
       }
 
       console.log(`⏳ Attempt ${attempt}/${maxAttempts} - APIs not ready yet`);
-      await new Promise(resolve => setTimeout(resolve, interval));
+      await new Promise((resolve) => setTimeout(resolve, interval));
     }
 
     console.log('❌ EZSite APIs failed to become available after maximum attempts');
@@ -138,7 +138,7 @@ export const EnhancedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
     return false;
   }, [checkApiAvailability]);
 
-  const safeFetchUserData = useCallback(async (showErrors = false): Promise<{ success: boolean; userData?: User }> => {
+  const safeFetchUserData = useCallback(async (showErrors = false): Promise<{success: boolean;userData?: User;}> => {
     try {
       console.log('📊 Fetching user data...');
 
@@ -259,7 +259,7 @@ export const EnhancedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
     try {
       // Wait for APIs to be available
       const apisAvailable = await waitForApis();
-      
+
       if (!apisAvailable) {
         throw new Error('Authentication system failed to initialize');
       }
@@ -308,7 +308,7 @@ export const EnhancedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
       }
 
       console.log('✅ Login API successful, fetching user data...');
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
       const userDataResult = await safeFetchUserData(true);
 
@@ -422,8 +422,8 @@ export const EnhancedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
     if (userProfile.detailed_permissions) {
       try {
         const permissions = typeof userProfile.detailed_permissions === 'string' ?
-          JSON.parse(userProfile.detailed_permissions) :
-          userProfile.detailed_permissions;
+        JSON.parse(userProfile.detailed_permissions) :
+        userProfile.detailed_permissions;
 
         if (resource && permissions[resource] && permissions[resource][action]) {
           return true;
@@ -451,7 +451,7 @@ export const EnhancedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const isManager = useCallback((): boolean => {
     return userProfile?.role === 'Management' || userProfile?.role === 'Manager' ||
-           userProfile?.role === 'Administrator' || userProfile?.role === 'Admin';
+    userProfile?.role === 'Administrator' || userProfile?.role === 'Admin';
   }, [userProfile]);
 
   const value: EnhancedAuthContextType = {

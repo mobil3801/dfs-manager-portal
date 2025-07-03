@@ -4,15 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import ApiStatusChecker from '@/components/ApiStatusChecker';
-import { 
-  AlertTriangle, 
-  RefreshCw, 
-  ExternalLink, 
-  Shield, 
+import {
+  AlertTriangle,
+  RefreshCw,
+  ExternalLink,
+  Shield,
   Loader2,
   CheckCircle,
-  XCircle
-} from 'lucide-react';
+  XCircle } from
+'lucide-react';
 
 interface AuthFallbackProps {
   error?: string;
@@ -20,10 +20,10 @@ interface AuthFallbackProps {
   showDiagnostic?: boolean;
 }
 
-const AuthFallback: React.FC<AuthFallbackProps> = ({ 
-  error, 
-  onRetry, 
-  showDiagnostic = true 
+const AuthFallback: React.FC<AuthFallbackProps> = ({
+  error,
+  onRetry,
+  showDiagnostic = true
 }) => {
   const [isRetrying, setIsRetrying] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
@@ -33,7 +33,7 @@ const AuthFallback: React.FC<AuthFallbackProps> = ({
   useEffect(() => {
     if (autoRetryEnabled && retryCount < 3) {
       const timer = setInterval(() => {
-        setCountdown(prev => {
+        setCountdown((prev) => {
           if (prev <= 1) {
             handleRetry();
             return 10;
@@ -48,10 +48,10 @@ const AuthFallback: React.FC<AuthFallbackProps> = ({
 
   const handleRetry = async () => {
     if (isRetrying) return;
-    
+
     setIsRetrying(true);
-    setRetryCount(prev => prev + 1);
-    
+    setRetryCount((prev) => prev + 1);
+
     try {
       if (onRetry) {
         await onRetry();
@@ -81,7 +81,7 @@ const AuthFallback: React.FC<AuthFallbackProps> = ({
 
   const getErrorType = (errorMessage?: string) => {
     if (!errorMessage) return 'unknown';
-    
+
     if (errorMessage.includes('not available') || errorMessage.includes('failed to load')) {
       return 'api_unavailable';
     }
@@ -139,28 +139,28 @@ const AuthFallback: React.FC<AuthFallbackProps> = ({
     switch (errorType) {
       case 'api_unavailable':
         return [
-          { label: 'Wait for Auto-Retry', action: () => {}, disabled: true },
-          { label: 'Manual Retry', action: handleRetry },
-          { label: 'Refresh Page', action: handleManualRefresh },
-          { label: 'View Diagnostic', action: handleGoToDiagnostic }
-        ];
+        { label: 'Wait for Auto-Retry', action: () => {}, disabled: true },
+        { label: 'Manual Retry', action: handleRetry },
+        { label: 'Refresh Page', action: handleManualRefresh },
+        { label: 'View Diagnostic', action: handleGoToDiagnostic }];
+
       case 'not_authenticated':
         return [
-          { label: 'Go to Login', action: handleGoToLogin },
-          { label: 'Refresh Page', action: handleManualRefresh }
-        ];
+        { label: 'Go to Login', action: handleGoToLogin },
+        { label: 'Refresh Page', action: handleManualRefresh }];
+
       case 'initialization_failed':
         return [
-          { label: 'Retry Initialization', action: handleRetry },
-          { label: 'Refresh Page', action: handleManualRefresh },
-          { label: 'View Diagnostic', action: handleGoToDiagnostic }
-        ];
+        { label: 'Retry Initialization', action: handleRetry },
+        { label: 'Refresh Page', action: handleManualRefresh },
+        { label: 'View Diagnostic', action: handleGoToDiagnostic }];
+
       default:
         return [
-          { label: 'Retry', action: handleRetry },
-          { label: 'Refresh Page', action: handleManualRefresh },
-          { label: 'Go to Login', action: handleGoToLogin }
-        ];
+        { label: 'Retry', action: handleRetry },
+        { label: 'Refresh Page', action: handleManualRefresh },
+        { label: 'Go to Login', action: handleGoToLogin }];
+
     }
   };
 
@@ -182,83 +182,83 @@ const AuthFallback: React.FC<AuthFallbackProps> = ({
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Error Details */}
-            {error && (
-              <Alert variant="destructive">
+            {error &&
+            <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
                   <strong>Technical Details:</strong> {error}
                 </AlertDescription>
               </Alert>
-            )}
+            }
 
             {/* Retry Status */}
-            {autoRetryEnabled && retryCount < 3 && errorType === 'api_unavailable' && (
-              <Alert>
+            {autoRetryEnabled && retryCount < 3 && errorType === 'api_unavailable' &&
+            <Alert>
                 <Loader2 className="h-4 w-4 animate-spin" />
                 <AlertDescription>
                   <div className="flex items-center justify-between">
                     <span>Auto-retry in {countdown} seconds (Attempt {retryCount + 1}/3)</span>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setAutoRetryEnabled(false)}
-                    >
+                    <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setAutoRetryEnabled(false)}>
+
                       Cancel Auto-Retry
                     </Button>
                   </div>
                 </AlertDescription>
               </Alert>
-            )}
+            }
 
             {/* Action Buttons */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {getSuggestedActions().map((action, index) => (
-                <Button
-                  key={index}
-                  onClick={action.action}
-                  disabled={action.disabled || isRetrying}
-                  variant={index === 0 ? "default" : "outline"}
-                  className="flex items-center gap-2"
-                >
-                  {isRetrying && action.label.includes('Retry') ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : action.label.includes('Diagnostic') ? (
-                    <ExternalLink className="h-4 w-4" />
-                  ) : (
-                    <RefreshCw className="h-4 w-4" />
-                  )}
+              {getSuggestedActions().map((action, index) =>
+              <Button
+                key={index}
+                onClick={action.action}
+                disabled={action.disabled || isRetrying}
+                variant={index === 0 ? "default" : "outline"}
+                className="flex items-center gap-2">
+
+                  {isRetrying && action.label.includes('Retry') ?
+                <Loader2 className="h-4 w-4 animate-spin" /> :
+                action.label.includes('Diagnostic') ?
+                <ExternalLink className="h-4 w-4" /> :
+
+                <RefreshCw className="h-4 w-4" />
+                }
                   {action.label}
                 </Button>
-              ))}
+              )}
             </div>
 
             {/* Retry Statistics */}
-            {retryCount > 0 && (
-              <div className="text-center text-sm text-gray-500 border-t pt-4">
+            {retryCount > 0 &&
+            <div className="text-center text-sm text-gray-500 border-t pt-4">
                 <p>Retry attempts: {retryCount}/3</p>
-                {retryCount >= 3 && (
-                  <p className="text-red-600 font-medium">
+                {retryCount >= 3 &&
+              <p className="text-red-600 font-medium">
                     Maximum retry attempts reached. Please try refreshing the page or contact support.
                   </p>
-                )}
+              }
               </div>
-            )}
+            }
           </CardContent>
         </Card>
 
         {/* API Status Checker */}
-        {showDiagnostic && errorType === 'api_unavailable' && (
-          <ApiStatusChecker 
-            onApiReady={() => {
-              if (onRetry) {
-                onRetry();
-              } else {
-                window.location.reload();
-              }
-            }}
-            showFullDetails={true}
-          />
-        )}
+        {showDiagnostic && errorType === 'api_unavailable' &&
+        <ApiStatusChecker
+          onApiReady={() => {
+            if (onRetry) {
+              onRetry();
+            } else {
+              window.location.reload();
+            }
+          }}
+          showFullDetails={true} />
+
+        }
 
         {/* Help Information */}
         <Card className="bg-blue-50 border-blue-200">
@@ -276,8 +276,8 @@ const AuthFallback: React.FC<AuthFallbackProps> = ({
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AuthFallback;

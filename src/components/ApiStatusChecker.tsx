@@ -3,25 +3,25 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { 
-  CheckCircle, 
-  XCircle, 
-  Loader2, 
-  RefreshCw, 
+import {
+  CheckCircle,
+  XCircle,
+  Loader2,
+  RefreshCw,
   AlertTriangle,
   Wifi,
   WifiOff,
-  Server
-} from 'lucide-react';
+  Server } from
+'lucide-react';
 
 interface ApiStatusCheckerProps {
   onApiReady?: () => void;
   showFullDetails?: boolean;
 }
 
-const ApiStatusChecker: React.FC<ApiStatusCheckerProps> = ({ 
-  onApiReady, 
-  showFullDetails = false 
+const ApiStatusChecker: React.FC<ApiStatusCheckerProps> = ({
+  onApiReady,
+  showFullDetails = false
 }) => {
   const [status, setStatus] = useState<'checking' | 'available' | 'unavailable'>('checking');
   const [lastCheck, setLastCheck] = useState<Date | null>(null);
@@ -33,8 +33,8 @@ const ApiStatusChecker: React.FC<ApiStatusCheckerProps> = ({
   const checkApiStatus = async (manual = false) => {
     if (manual) setIsManualChecking(true);
     setStatus('checking');
-    setCheckCount(prev => prev + 1);
-    
+    setCheckCount((prev) => prev + 1);
+
     try {
       const checkDetails = {
         windowExists: typeof window !== 'undefined',
@@ -46,20 +46,20 @@ const ApiStatusChecker: React.FC<ApiStatusCheckerProps> = ({
       // Check for specific API methods
       if (window.ezsite?.apis) {
         const requiredMethods = [
-          'getUserInfo', 
-          'login', 
-          'logout', 
-          'register', 
-          'sendResetPwdEmail', 
-          'resetPassword',
-          'tablePage',
-          'tableCreate',
-          'tableUpdate',
-          'tableDelete',
-          'upload'
-        ];
+        'getUserInfo',
+        'login',
+        'logout',
+        'register',
+        'sendResetPwdEmail',
+        'resetPassword',
+        'tablePage',
+        'tableCreate',
+        'tableUpdate',
+        'tableDelete',
+        'upload'];
 
-        requiredMethods.forEach(method => {
+
+        requiredMethods.forEach((method) => {
           checkDetails.specificApis[method] = typeof window.ezsite?.apis?.[method] === 'function';
         });
       }
@@ -71,15 +71,15 @@ const ApiStatusChecker: React.FC<ApiStatusCheckerProps> = ({
         try {
           const testResponse = await window.ezsite.apis.getUserInfo();
           console.log('API test response:', testResponse);
-          
+
           setStatus('available');
           setErrors([]);
           setLastCheck(new Date());
-          
+
           if (onApiReady) {
             onApiReady();
           }
-          
+
           return true;
         } catch (error) {
           console.error('API test failed:', error);
@@ -109,9 +109,9 @@ const ApiStatusChecker: React.FC<ApiStatusCheckerProps> = ({
 
     const intervalId = setInterval(async () => {
       attempts++;
-      
+
       const isAvailable = await checkApiStatus();
-      
+
       if (isAvailable || attempts >= maxAttempts) {
         clearInterval(intervalId);
         if (!isAvailable) {
@@ -127,7 +127,7 @@ const ApiStatusChecker: React.FC<ApiStatusCheckerProps> = ({
   useEffect(() => {
     // Start checking immediately
     checkApiStatus();
-    
+
     // If not available, start periodic checking
     if (status === 'unavailable' || status === 'checking') {
       const intervalId = startPeriodicCheck();
@@ -201,17 +201,17 @@ const ApiStatusChecker: React.FC<ApiStatusCheckerProps> = ({
             <span className="font-medium">Status:</span>
             {getStatusBadge()}
           </div>
-          <Button 
+          <Button
             onClick={handleManualRefresh}
             disabled={isManualChecking}
             size="sm"
-            variant="outline"
-          >
-            {isManualChecking ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <RefreshCw className="h-4 w-4 mr-2" />
-            )}
+            variant="outline">
+
+            {isManualChecking ?
+            <Loader2 className="h-4 w-4 animate-spin mr-2" /> :
+
+            <RefreshCw className="h-4 w-4 mr-2" />
+            }
             Refresh
           </Button>
         </div>
@@ -220,101 +220,101 @@ const ApiStatusChecker: React.FC<ApiStatusCheckerProps> = ({
         <p className="text-sm text-gray-600">{getStatusMessage()}</p>
 
         {/* Check Details */}
-        {lastCheck && (
-          <p className="text-xs text-gray-500">
+        {lastCheck &&
+        <p className="text-xs text-gray-500">
             Last checked: {lastCheck.toLocaleTimeString()} (Attempt #{checkCount})
           </p>
-        )}
+        }
 
         {/* Errors */}
-        {errors.length > 0 && (
-          <Alert variant="destructive">
+        {errors.length > 0 &&
+        <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               <ul className="list-disc list-inside space-y-1">
-                {errors.map((error, index) => (
-                  <li key={index} className="text-sm">{error}</li>
-                ))}
+                {errors.map((error, index) =>
+              <li key={index} className="text-sm">{error}</li>
+              )}
               </ul>
             </AlertDescription>
           </Alert>
-        )}
+        }
 
         {/* Detailed Information */}
-        {showFullDetails && details && (
-          <div className="space-y-3">
+        {showFullDetails && details &&
+        <div className="space-y-3">
             <div className="border-t pt-3">
               <h4 className="font-medium mb-2">System Details</h4>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div className="flex items-center gap-2">
-                  {details.windowExists ? (
-                    <Wifi className="h-4 w-4 text-green-600" />
-                  ) : (
-                    <WifiOff className="h-4 w-4 text-red-600" />
-                  )}
+                  {details.windowExists ?
+                <Wifi className="h-4 w-4 text-green-600" /> :
+
+                <WifiOff className="h-4 w-4 text-red-600" />
+                }
                   <span>Window Object: {details.windowExists ? 'Available' : 'Missing'}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  {details.ezsiteExists ? (
-                    <Wifi className="h-4 w-4 text-green-600" />
-                  ) : (
-                    <WifiOff className="h-4 w-4 text-red-600" />
-                  )}
+                  {details.ezsiteExists ?
+                <Wifi className="h-4 w-4 text-green-600" /> :
+
+                <WifiOff className="h-4 w-4 text-red-600" />
+                }
                   <span>EZSite Object: {details.ezsiteExists ? 'Available' : 'Missing'}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  {details.apisExists ? (
-                    <Wifi className="h-4 w-4 text-green-600" />
-                  ) : (
-                    <WifiOff className="h-4 w-4 text-red-600" />
-                  )}
+                  {details.apisExists ?
+                <Wifi className="h-4 w-4 text-green-600" /> :
+
+                <WifiOff className="h-4 w-4 text-red-600" />
+                }
                   <span>APIs Object: {details.apisExists ? 'Available' : 'Missing'}</span>
                 </div>
               </div>
             </div>
 
             {/* API Methods */}
-            {details.specificApis && Object.keys(details.specificApis).length > 0 && (
-              <div className="border-t pt-3">
+            {details.specificApis && Object.keys(details.specificApis).length > 0 &&
+          <div className="border-t pt-3">
                 <h4 className="font-medium mb-2">API Methods</h4>
                 <div className="grid grid-cols-2 gap-1 text-xs">
-                  {Object.entries(details.specificApis).map(([method, available]) => (
-                    <div key={method} className="flex items-center gap-1">
-                      {available ? (
-                        <CheckCircle className="h-3 w-3 text-green-600" />
-                      ) : (
-                        <XCircle className="h-3 w-3 text-red-600" />
-                      )}
+                  {Object.entries(details.specificApis).map(([method, available]) =>
+              <div key={method} className="flex items-center gap-1">
+                      {available ?
+                <CheckCircle className="h-3 w-3 text-green-600" /> :
+
+                <XCircle className="h-3 w-3 text-red-600" />
+                }
                       <span>{method}</span>
                     </div>
-                  ))}
+              )}
                 </div>
               </div>
-            )}
+          }
           </div>
-        )}
+        }
 
         {/* Action Buttons for Unavailable State */}
-        {status === 'unavailable' && (
-          <div className="border-t pt-3 space-y-2">
+        {status === 'unavailable' &&
+        <div className="border-t pt-3 space-y-2">
             <Alert>
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
                 If this issue persists, try refreshing the page or contact support.
               </AlertDescription>
             </Alert>
-            <Button 
-              onClick={() => window.location.reload()} 
-              variant="outline" 
-              className="w-full"
-            >
+            <Button
+            onClick={() => window.location.reload()}
+            variant="outline"
+            className="w-full">
+
               Refresh Page
             </Button>
           </div>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default ApiStatusChecker;

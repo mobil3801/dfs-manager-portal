@@ -184,10 +184,10 @@ const TopNavigation = () => {
             <div className="flex items-center space-x-4 flex-shrink-0 min-w-0">
               <img
                 src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
-                alt="DFS Manager"
+                alt="DFS Manager Portal"
                 className="h-10 w-auto" />
 
-              <span className="text-xl font-bold text-gray-900 hidden sm:block">DFS Manager</span>
+              <span className="text-xl font-bold text-gray-900 hidden sm:block">DFS Manager Portal</span>
             </div>
 
             {/* Center Section - ALL Navigation Items in Single Horizontal Line (Desktop) */}
@@ -272,10 +272,10 @@ const TopNavigation = () => {
                 <div className="flex items-center space-x-3">
                   <img
                   src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
-                  alt="DFS Manager"
+                  alt="DFS Manager Portal"
                   className="h-8 w-auto" />
 
-                  <span className="text-lg font-bold text-gray-900">DFS Manager</span>
+                  <span className="text-lg font-bold text-gray-900">DFS Manager Portal</span>
                 </div>
                 <Button
                 variant="ghost"

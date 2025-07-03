@@ -244,6 +244,8 @@ const SyncMonitoringDashboard: React.FC = () => {
 
 
 
+
+
           // Table not accessible, skip
         }}return Math.max(activeTableCount, 1); // At least 1 table should be available
     } catch {return 21; // Default to total expected tables
@@ -433,9 +435,7 @@ const SyncMonitoringDashboard: React.FC = () => {
                 {syncLogs.length === 0 ? <div className="text-center py-8">
                     <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                     <p className="text-muted-foreground">No sync logs available</p>
-                  </div> :
-
-              syncLogs.map((log) =>
+                  </div> : syncLogs.map((log) =>
               <div key={log.id} className="flex items-center space-x-4 p-4 border rounded-lg">
                       <div className="flex items-center space-x-2">
                         {getTypeIcon(log.type)}

@@ -6,18 +6,18 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import ApiStatusChecker from '@/components/ApiStatusChecker';
-import { 
-  CheckCircle, 
-  XCircle, 
-  Loader2, 
-  RefreshCw, 
+import {
+  CheckCircle,
+  XCircle,
+  Loader2,
+  RefreshCw,
   AlertTriangle,
   Shield,
   User,
   Database,
   Settings,
-  Zap
-} from 'lucide-react';
+  Zap } from
+'lucide-react';
 
 const AuthDiagnosticPage: React.FC = () => {
   const auth = useAuth();
@@ -28,7 +28,7 @@ const AuthDiagnosticPage: React.FC = () => {
   const runComprehensiveDiagnostic = async () => {
     setIsRunningDiagnostic(true);
     setTestResults([]);
-    
+
     const results = {
       timestamp: new Date().toISOString(),
       authContextStatus: {},
@@ -39,20 +39,20 @@ const AuthDiagnosticPage: React.FC = () => {
     };
 
     const addTestResult = (category: string, test: string, status: 'pass' | 'fail' | 'warning', message: string) => {
-      setTestResults(prev => [...prev, { category, test, status, message, timestamp: new Date() }]);
+      setTestResults((prev) => [...prev, { category, test, status, message, timestamp: new Date() }]);
     };
 
     try {
       // Test 1: Auth Context Status
-      addTestResult('Auth Context', 'Context Initialization', auth.isInitialized ? 'pass' : 'fail', 
-        `Auth context is ${auth.isInitialized ? 'initialized' : 'not initialized'}`);
-      
-      addTestResult('Auth Context', 'Loading State', !auth.isLoading ? 'pass' : 'warning', 
-        `Loading state: ${auth.isLoading ? 'active' : 'complete'}`);
-      
-      addTestResult('Auth Context', 'Authentication Status', auth.isAuthenticated ? 'pass' : 'warning', 
-        `User is ${auth.isAuthenticated ? 'authenticated' : 'not authenticated'}`);
-      
+      addTestResult('Auth Context', 'Context Initialization', auth.isInitialized ? 'pass' : 'fail',
+      `Auth context is ${auth.isInitialized ? 'initialized' : 'not initialized'}`);
+
+      addTestResult('Auth Context', 'Loading State', !auth.isLoading ? 'pass' : 'warning',
+      `Loading state: ${auth.isLoading ? 'active' : 'complete'}`);
+
+      addTestResult('Auth Context', 'Authentication Status', auth.isAuthenticated ? 'pass' : 'warning',
+      `User is ${auth.isAuthenticated ? 'authenticated' : 'not authenticated'}`);
+
       if (auth.authError) {
         addTestResult('Auth Context', 'Error State', 'fail', `Auth error: ${auth.authError}`);
       } else {
@@ -70,21 +70,21 @@ const AuthDiagnosticPage: React.FC = () => {
       // Test 2: API Availability
       if (window.ezsite?.apis) {
         addTestResult('API Availability', 'EZSite APIs', 'pass', 'EZSite APIs are available');
-        
+
         const requiredMethods = ['getUserInfo', 'login', 'logout', 'register', 'tablePage'];
-        const availableMethods = requiredMethods.filter(method => 
-          typeof window.ezsite?.apis?.[method] === 'function'
+        const availableMethods = requiredMethods.filter((method) =>
+        typeof window.ezsite?.apis?.[method] === 'function'
         );
-        
-        addTestResult('API Availability', 'Required Methods', 
-          availableMethods.length === requiredMethods.length ? 'pass' : 'fail',
-          `${availableMethods.length}/${requiredMethods.length} required methods available`);
+
+        addTestResult('API Availability', 'Required Methods',
+        availableMethods.length === requiredMethods.length ? 'pass' : 'fail',
+        `${availableMethods.length}/${requiredMethods.length} required methods available`);
 
         results.apiAvailability = {
           ezsiteAvailable: true,
           requiredMethods: requiredMethods.length,
           availableMethods: availableMethods.length,
-          methods: requiredMethods.map(method => ({
+          methods: requiredMethods.map((method) => ({
             name: method,
             available: typeof window.ezsite?.apis?.[method] === 'function'
           }))
@@ -97,10 +97,10 @@ const AuthDiagnosticPage: React.FC = () => {
       // Test 3: User Data Integrity (if authenticated)
       if (auth.user) {
         addTestResult('User Data', 'User Object', 'pass', `User ID: ${auth.user.ID}, Email: ${auth.user.Email}`);
-        
+
         const hasRequiredFields = auth.user.ID && auth.user.Email && auth.user.Name;
         addTestResult('User Data', 'Required Fields', hasRequiredFields ? 'pass' : 'fail',
-          `Required user fields are ${hasRequiredFields ? 'present' : 'missing'}`);
+        `Required user fields are ${hasRequiredFields ? 'present' : 'missing'}`);
 
         results.userDataIntegrity = {
           userExists: true,
@@ -117,7 +117,7 @@ const AuthDiagnosticPage: React.FC = () => {
       // Test 4: User Profile
       if (auth.userProfile) {
         addTestResult('User Profile', 'Profile Object', 'pass', `Role: ${auth.userProfile.role}, Station: ${auth.userProfile.station}`);
-        
+
         results.userDataIntegrity.profile = {
           exists: true,
           role: auth.userProfile.role,
@@ -134,9 +134,9 @@ const AuthDiagnosticPage: React.FC = () => {
         const isAdmin = auth.isAdmin();
         const isManager = auth.isManager();
         const canView = auth.hasPermission('view');
-        
-        addTestResult('Permissions', 'Role Detection', 'pass', 
-          `Admin: ${isAdmin}, Manager: ${isManager}, Can View: ${canView}`);
+
+        addTestResult('Permissions', 'Role Detection', 'pass',
+        `Admin: ${isAdmin}, Manager: ${isManager}, Can View: ${canView}`);
 
         results.permissionSystem = {
           roleDetectionWorking: true,
@@ -158,7 +158,7 @@ const AuthDiagnosticPage: React.FC = () => {
             PageSize: 1,
             Filters: []
           });
-          
+
           if (testResponse.error) {
             addTestResult('Database', 'Table Access', 'warning', `Database query returned error: ${testResponse.error}`);
           } else {
@@ -236,16 +236,16 @@ const AuthDiagnosticPage: React.FC = () => {
             Comprehensive authentication system analysis and troubleshooting
           </p>
         </div>
-        <Button 
+        <Button
           onClick={runComprehensiveDiagnostic}
           disabled={isRunningDiagnostic}
-          className="flex items-center gap-2"
-        >
-          {isRunningDiagnostic ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <RefreshCw className="h-4 w-4" />
-          )}
+          className="flex items-center gap-2">
+
+          {isRunningDiagnostic ?
+          <Loader2 className="h-4 w-4 animate-spin" /> :
+
+          <RefreshCw className="h-4 w-4" />
+          }
           {isRunningDiagnostic ? 'Running...' : 'Run Diagnostic'}
         </Button>
       </div>
@@ -296,8 +296,8 @@ const AuthDiagnosticPage: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {auth.user ? (
-                    <>
+                  {auth.user ?
+                  <>
                       <div className="text-sm">
                         <strong>Name:</strong> {auth.user.Name}
                       </div>
@@ -307,10 +307,10 @@ const AuthDiagnosticPage: React.FC = () => {
                       <div className="text-sm">
                         <strong>ID:</strong> {auth.user.ID}
                       </div>
-                    </>
-                  ) : (
-                    <div className="text-sm text-gray-500">No user data available</div>
-                  )}
+                    </> :
+
+                  <div className="text-sm text-gray-500">No user data available</div>
+                  }
                 </div>
               </CardContent>
             </Card>
@@ -333,14 +333,14 @@ const AuthDiagnosticPage: React.FC = () => {
                     <span className="text-sm">Database</span>
                     {getStatusBadge(diagnosticResults?.databaseConnectivity?.connectionWorking ? 'pass' : 'fail')}
                   </div>
-                  {auth.authError && (
-                    <Alert variant="destructive" className="mt-2">
+                  {auth.authError &&
+                  <Alert variant="destructive" className="mt-2">
                       <AlertTriangle className="h-4 w-4" />
                       <AlertDescription className="text-xs">
                         {auth.authError}
                       </AlertDescription>
                     </Alert>
-                  )}
+                  }
                 </div>
               </CardContent>
             </Card>
@@ -348,15 +348,15 @@ const AuthDiagnosticPage: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="tests" className="space-y-4">
-          {Object.entries(groupedResults).map(([category, results]) => (
-            <Card key={category}>
+          {Object.entries(groupedResults).map(([category, results]) =>
+          <Card key={category}>
               <CardHeader>
                 <CardTitle className="text-lg">{category}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {results.map((result, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  {results.map((result, index) =>
+                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex items-center gap-3">
                         {getStatusIcon(result.status)}
                         <div>
@@ -366,11 +366,11 @@ const AuthDiagnosticPage: React.FC = () => {
                       </div>
                       {getStatusBadge(result.status)}
                     </div>
-                  ))}
+                )}
                 </div>
               </CardContent>
             </Card>
-          ))}
+          )}
         </TabsContent>
 
         <TabsContent value="api">
@@ -378,8 +378,8 @@ const AuthDiagnosticPage: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="details" className="space-y-4">
-          {diagnosticResults && (
-            <Card>
+          {diagnosticResults &&
+          <Card>
               <CardHeader>
                 <CardTitle>Raw Diagnostic Data</CardTitle>
                 <CardDescription>
@@ -392,11 +392,11 @@ const AuthDiagnosticPage: React.FC = () => {
                 </pre>
               </CardContent>
             </Card>
-          )}
+          }
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AuthDiagnosticPage;
