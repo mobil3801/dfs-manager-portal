@@ -18,8 +18,8 @@ class UserValidationService {
   private readonly PROTECTED_ADMIN_EMAIL = 'admin@dfs-portal.com';
   private readonly VALID_ROLES = ['Administrator', 'Management', 'Employee'];
   private readonly CONFLICTING_ROLES = [
-    ['Administrator', 'Employee'], // Admin cannot be employee
-    ['Management', 'Employee']     // Management cannot be employee at same station
+  ['Administrator', 'Employee'], // Admin cannot be employee
+  ['Management', 'Employee'] // Management cannot be employee at same station
   ];
 
   /**
@@ -70,12 +70,12 @@ class UserValidationService {
         PageNo: 1,
         PageSize: 1,
         Filters: [
-          {
-            name: 'Email',
-            op: 'Equal',
-            value: email
-          }
-        ]
+        {
+          name: 'Email',
+          op: 'Equal',
+          value: email
+        }]
+
       });
 
       if (userResponse.error) {
@@ -99,12 +99,12 @@ class UserValidationService {
         PageNo: 1,
         PageSize: 1,
         Filters: [
-          {
-            name: 'email',
-            op: 'Equal',
-            value: email
-          }
-        ]
+        {
+          name: 'email',
+          op: 'Equal',
+          value: email
+        }]
+
       });
 
       if (employeeResponse.data?.List?.length > 0) {
@@ -150,31 +150,31 @@ class UserValidationService {
           PageNo: 1,
           PageSize: 100,
           Filters: [
-            {
-              name: 'station',
-              op: 'Equal',
-              value: userData.station
-            },
-            {
-              name: 'user_id',
-              op: 'Equal',
-              value: userData.user_id
-            },
-            {
-              name: 'is_active',
-              op: 'Equal',
-              value: true
-            }
-          ]
+          {
+            name: 'station',
+            op: 'Equal',
+            value: userData.station
+          },
+          {
+            name: 'user_id',
+            op: 'Equal',
+            value: userData.user_id
+          },
+          {
+            name: 'is_active',
+            op: 'Equal',
+            value: true
+          }]
+
         });
 
         if (existingProfiles.data?.List?.length > 0) {
           const existingProfile = existingProfiles.data.List[0];
-          
+
           // Check for conflicting roles
           for (const [role1, role2] of this.CONFLICTING_ROLES) {
-            if ((userData.role === role1 && existingProfile.role === role2) ||
-                (userData.role === role2 && existingProfile.role === role1)) {
+            if (userData.role === role1 && existingProfile.role === role2 ||
+            userData.role === role2 && existingProfile.role === role1) {
               errors.push({
                 field: 'role',
                 message: `Role conflict: Cannot assign ${userData.role} role when user already has ${existingProfile.role} role at ${userData.station}`,
@@ -190,17 +190,17 @@ class UserValidationService {
             PageNo: 1,
             PageSize: 1,
             Filters: [
-              {
-                name: 'role',
-                op: 'Equal',
-                value: 'Administrator'
-              },
-              {
-                name: 'is_active',
-                op: 'Equal',
-                value: true
-              }
-            ]
+            {
+              name: 'role',
+              op: 'Equal',
+              value: 'Administrator'
+            },
+            {
+              name: 'is_active',
+              op: 'Equal',
+              value: true
+            }]
+
           });
 
           if (adminResponse.data?.List?.length > 0) {
@@ -270,12 +270,12 @@ class UserValidationService {
           PageNo: 1,
           PageSize: 1,
           Filters: [
-            {
-              name: 'ID',
-              op: 'Equal',
-              value: userId
-            }
-          ]
+          {
+            name: 'ID',
+            op: 'Equal',
+            value: userId
+          }]
+
         });
 
         if (userResponse.data?.List?.length > 0) {
@@ -307,12 +307,12 @@ class UserValidationService {
   /**
    * Validate bulk operations
    */
-  async validateBulkOperation(users: UserData[], operation: 'create' | 'update' | 'delete'): Promise<{[userId: string]: UserValidationError[]}> {
-    const results: {[userId: string]: UserValidationError[]} = {};
+  async validateBulkOperation(users: UserData[], operation: 'create' | 'update' | 'delete'): Promise<{[userId: string]: UserValidationError[];}> {
+    const results: {[userId: string]: UserValidationError[];} = {};
 
     for (const user of users) {
       const userId = user.id?.toString() || user.user_id?.toString() || 'new';
-      
+
       switch (operation) {
         case 'create':
           results[userId] = await this.validateUser(user, false);
@@ -337,38 +337,38 @@ class UserValidationService {
 
     try {
       // Find conflicting roles
-      const conflictingRoles = this.CONFLICTING_ROLES
-        .filter(([role1, role2]) => role1 === role || role2 === role)
-        .flatMap(([role1, role2]) => role === role1 ? [role2] : [role1]);
+      const conflictingRoles = this.CONFLICTING_ROLES.
+      filter(([role1, role2]) => role1 === role || role2 === role).
+      flatMap(([role1, role2]) => role === role1 ? [role2] : [role1]);
 
       for (const conflictRole of conflictingRoles) {
         const response = await window.ezsite.apis.tablePage(11725, {
           PageNo: 1,
           PageSize: 100,
           Filters: [
-            {
-              name: 'role',
-              op: 'Equal',
-              value: conflictRole
-            },
-            {
-              name: 'station',
-              op: 'Equal',
-              value: station
-            },
-            {
-              name: 'is_active',
-              op: 'Equal',
-              value: true
-            }
-          ]
+          {
+            name: 'role',
+            op: 'Equal',
+            value: conflictRole
+          },
+          {
+            name: 'station',
+            op: 'Equal',
+            value: station
+          },
+          {
+            name: 'is_active',
+            op: 'Equal',
+            value: true
+          }]
+
         });
 
         if (response.data?.List) {
-          const filteredConflicts = excludeUserId 
-            ? response.data.List.filter((profile: any) => profile.user_id !== excludeUserId)
-            : response.data.List;
-          
+          const filteredConflicts = excludeUserId ?
+          response.data.List.filter((profile: any) => profile.user_id !== excludeUserId) :
+          response.data.List;
+
           conflicts.push(...filteredConflicts.map((profile: any) => ({
             ...profile,
             conflictType: `${role} conflicts with ${conflictRole}`

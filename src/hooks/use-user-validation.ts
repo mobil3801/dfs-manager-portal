@@ -24,11 +24,11 @@ export function useUserValidation(options: UseUserValidationOptions = {}) {
 
       if (errors.length > 0) {
         if (showToasts) {
-          errors.forEach(error => {
+          errors.forEach((error) => {
             toast({
               title: "Validation Error",
               description: error.message,
-              variant: "destructive",
+              variant: "destructive"
             });
           });
         }
@@ -39,7 +39,7 @@ export function useUserValidation(options: UseUserValidationOptions = {}) {
           toast({
             title: "Validation Passed",
             description: "User data is valid",
-            variant: "default",
+            variant: "default"
           });
         }
         onValidationSuccess?.();
@@ -51,7 +51,7 @@ export function useUserValidation(options: UseUserValidationOptions = {}) {
         toast({
           title: "Validation Error",
           description: errorMsg,
-          variant: "destructive",
+          variant: "destructive"
         });
       }
       return false;
@@ -62,18 +62,18 @@ export function useUserValidation(options: UseUserValidationOptions = {}) {
 
   const validateEmail = useCallback(async (email: string, userId?: number): Promise<boolean> => {
     setIsValidating(true);
-    
+
     try {
       const errors = await userValidationService.validateUser({ email, id: userId }, !!userId);
-      const emailErrors = errors.filter(e => e.type === 'email');
-      
+      const emailErrors = errors.filter((e) => e.type === 'email');
+
       if (emailErrors.length > 0) {
         if (showToasts) {
-          emailErrors.forEach(error => {
+          emailErrors.forEach((error) => {
             toast({
               title: "Email Validation Error",
               description: error.message,
-              variant: "destructive",
+              variant: "destructive"
             });
           });
         }
@@ -85,7 +85,7 @@ export function useUserValidation(options: UseUserValidationOptions = {}) {
         toast({
           title: "Email Validation Error",
           description: "Failed to validate email",
-          variant: "destructive",
+          variant: "destructive"
         });
       }
       return false;
@@ -104,41 +104,41 @@ export function useUserValidation(options: UseUserValidationOptions = {}) {
   }, []);
 
   const validateBulkOperation = useCallback(async (
-    users: UserData[], 
-    operation: 'create' | 'update' | 'delete'
-  ): Promise<{[userId: string]: UserValidationError[]}> => {
+  users: UserData[],
+  operation: 'create' | 'update' | 'delete')
+  : Promise<{[userId: string]: UserValidationError[];}> => {
     setIsValidating(true);
-    
+
     try {
       const results = await userValidationService.validateBulkOperation(users, operation);
-      
+
       // Show summary toast
       const totalErrors = Object.values(results).reduce((sum, errors) => sum + errors.length, 0);
       const totalUsers = users.length;
-      
+
       if (showToasts) {
         if (totalErrors > 0) {
           toast({
             title: "Bulk Validation Results",
             description: `${totalErrors} errors found across ${totalUsers} users`,
-            variant: "destructive",
+            variant: "destructive"
           });
         } else {
           toast({
             title: "Bulk Validation Passed",
             description: `All ${totalUsers} users passed validation`,
-            variant: "default",
+            variant: "default"
           });
         }
       }
-      
+
       return results;
     } catch (error) {
       if (showToasts) {
         toast({
           title: "Bulk Validation Error",
           description: "Failed to validate users",
-          variant: "destructive",
+          variant: "destructive"
         });
       }
       return {};
@@ -150,14 +150,14 @@ export function useUserValidation(options: UseUserValidationOptions = {}) {
   const canDeleteUser = useCallback(async (userId: number, userEmail?: string): Promise<boolean> => {
     try {
       const errors = await userValidationService.canDeleteUser(userId, userEmail);
-      
+
       if (errors.length > 0) {
         if (showToasts) {
-          errors.forEach(error => {
+          errors.forEach((error) => {
             toast({
               title: "Delete Validation Error",
               description: error.message,
-              variant: "destructive",
+              variant: "destructive"
             });
           });
         }
@@ -169,7 +169,7 @@ export function useUserValidation(options: UseUserValidationOptions = {}) {
         toast({
           title: "Delete Validation Error",
           description: "Failed to validate user deletion",
-          variant: "destructive",
+          variant: "destructive"
         });
       }
       return false;
@@ -177,13 +177,13 @@ export function useUserValidation(options: UseUserValidationOptions = {}) {
   }, [toast, showToasts]);
 
   const getValidationErrorsByField = useCallback((field: string): UserValidationError[] => {
-    return validationErrors.filter(error => error.field === field);
+    return validationErrors.filter((error) => error.field === field);
   }, [validationErrors]);
 
   const hasValidationErrors = validationErrors.length > 0;
-  const hasEmailErrors = validationErrors.some(e => e.type === 'email');
-  const hasRoleErrors = validationErrors.some(e => e.type === 'role');
-  const hasAdminProtectionErrors = validationErrors.some(e => e.type === 'admin_protection');
+  const hasEmailErrors = validationErrors.some((e) => e.type === 'email');
+  const hasRoleErrors = validationErrors.some((e) => e.type === 'role');
+  const hasAdminProtectionErrors = validationErrors.some((e) => e.type === 'admin_protection');
 
   return {
     // State
@@ -193,7 +193,7 @@ export function useUserValidation(options: UseUserValidationOptions = {}) {
     hasEmailErrors,
     hasRoleErrors,
     hasAdminProtectionErrors,
-    
+
     // Methods
     validateUser,
     validateEmail,
@@ -201,7 +201,7 @@ export function useUserValidation(options: UseUserValidationOptions = {}) {
     validateBulkOperation,
     canDeleteUser,
     getValidationErrorsByField,
-    
+
     // Utils
     clearErrors: () => setValidationErrors([])
   };

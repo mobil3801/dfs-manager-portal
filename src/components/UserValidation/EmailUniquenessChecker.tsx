@@ -30,7 +30,7 @@ const EmailUniquenessChecker: React.FC<EmailUniquenessCheckerProps> = ({
     message: string;
     checked: boolean;
   }>({ isValid: false, message: '', checked: false });
-  
+
   const { validateEmail, isValidating } = useUserValidation({ showToasts: false });
   const debouncedEmail = useDebounce(email, 500);
 
@@ -47,16 +47,16 @@ const EmailUniquenessChecker: React.FC<EmailUniquenessCheckerProps> = ({
 
     try {
       const isValid = await validateEmail(emailToCheck, userId);
-      const message = isValid 
-        ? 'Email is available and unique'
-        : 'Email is already in use';
-      
+      const message = isValid ?
+      'Email is available and unique' :
+      'Email is already in use';
+
       setValidationResult({
         isValid,
         message,
         checked: true
       });
-      
+
       onValidationChange?.(isValid, message);
     } catch (error) {
       const errorMessage = 'Failed to check email uniqueness';
@@ -99,9 +99,9 @@ const EmailUniquenessChecker: React.FC<EmailUniquenessCheckerProps> = ({
     if (!validationResult.checked) {
       return <Mail className="h-4 w-4 text-gray-400" />;
     }
-    return validationResult.isValid 
-      ? <CheckCircle className="h-4 w-4 text-green-500" />
-      : <AlertTriangle className="h-4 w-4 text-red-500" />;
+    return validationResult.isValid ?
+    <CheckCircle className="h-4 w-4 text-green-500" /> :
+    <AlertTriangle className="h-4 w-4 text-red-500" />;
   };
 
   const getValidationBadge = () => {
@@ -114,8 +114,8 @@ const EmailUniquenessChecker: React.FC<EmailUniquenessCheckerProps> = ({
     return (
       <Badge variant={validationResult.isValid ? "default" : "destructive"}>
         {validationResult.isValid ? "Available" : "Unavailable"}
-      </Badge>
-    );
+      </Badge>);
+
   };
 
   return (
@@ -138,25 +138,25 @@ const EmailUniquenessChecker: React.FC<EmailUniquenessCheckerProps> = ({
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
-                  setValidationResult(prev => ({ ...prev, checked: false }));
+                  setValidationResult((prev) => ({ ...prev, checked: false }));
                 }}
                 placeholder="Enter email address"
-                className="pr-10"
-              />
+                className="pr-10" />
+
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                 {getValidationIcon()}
               </div>
             </div>
             
-            {!autoCheck && (
-              <Button
-                onClick={handleManualCheck}
-                disabled={!email || isValidating}
-                variant="outline"
-              >
+            {!autoCheck &&
+            <Button
+              onClick={handleManualCheck}
+              disabled={!email || isValidating}
+              variant="outline">
+
                 <Search className="h-4 w-4" />
               </Button>
-            )}
+            }
           </div>
         </div>
 
@@ -167,26 +167,26 @@ const EmailUniquenessChecker: React.FC<EmailUniquenessCheckerProps> = ({
         </div>
 
         {/* Validation Result */}
-        {validationResult.checked && (
-          <Alert className={
-            validationResult.isValid 
-              ? "border-green-200 bg-green-50" 
-              : "border-red-200 bg-red-50"
-          }>
-            {validationResult.isValid ? (
-              <CheckCircle className="h-4 w-4 text-green-600" />
-            ) : (
-              <AlertTriangle className="h-4 w-4 text-red-600" />
-            )}
+        {validationResult.checked &&
+        <Alert className={
+        validationResult.isValid ?
+        "border-green-200 bg-green-50" :
+        "border-red-200 bg-red-50"
+        }>
+            {validationResult.isValid ?
+          <CheckCircle className="h-4 w-4 text-green-600" /> :
+
+          <AlertTriangle className="h-4 w-4 text-red-600" />
+          }
             <AlertDescription className={
-              validationResult.isValid 
-                ? "text-green-700" 
-                : "text-red-700"
-            }>
+          validationResult.isValid ?
+          "text-green-700" :
+          "text-red-700"
+          }>
               {validationResult.message}
             </AlertDescription>
           </Alert>
-        )}
+        }
 
         {/* Additional Information */}
         <div className="text-xs text-gray-500 space-y-1">
@@ -196,8 +196,8 @@ const EmailUniquenessChecker: React.FC<EmailUniquenessCheckerProps> = ({
           {userId && <p>• Checking for user ID: {userId}</p>}
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default EmailUniquenessChecker;

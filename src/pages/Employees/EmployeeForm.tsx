@@ -140,16 +140,23 @@ const EmployeeForm: React.FC = () => {
   const loadEmployee = async (employeeId: number) => {
     try {
       setLoading(true);
+      console.log('Loading employee with ID:', employeeId);
+      
       const { data, error } = await window.ezsite.apis.tablePage('11727', {
         PageNo: 1,
         PageSize: 1,
         Filters: [{ name: 'ID', op: 'Equal', value: employeeId }]
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error:', error);
+        throw error;
+      }
 
       if (data && data.List && data.List.length > 0) {
         const employee = data.List[0];
+        console.log('Employee loaded successfully:', employee);
+        
         setFormData({
           employee_id: employee.employee_id || '',
           first_name: employee.first_name || '',
@@ -168,14 +175,28 @@ const EmployeeForm: React.FC = () => {
           id_document_type: employee.id_document_type || '',
           id_document_file_id: employee.id_document_file_id || null
         });
+        
+        toast({
+          title: "Success",
+          description: `Employee ${employee.first_name} ${employee.last_name} loaded for editing`
+        });
+      } else {
+        console.error('Employee not found with ID:', employeeId);
+        toast({
+          title: "Employee Not Found",
+          description: "The requested employee could not be found. Redirecting to employee list.",
+          variant: "destructive"
+        });
+        navigate('/employees');
       }
     } catch (error) {
       console.error('Error loading employee:', error);
       toast({
         title: "Error",
-        description: "Failed to load employee details",
+        description: `Failed to load employee details: ${error}`,
         variant: "destructive"
       });
+      // Don't redirect immediately on error, let user try again
     } finally {
       setLoading(false);
     }

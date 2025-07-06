@@ -49,8 +49,8 @@ const UserValidationDisplay: React.FC<UserValidationDisplayProps> = ({
         <AlertDescription className="text-green-700">
           All user data is valid and ready for processing.
         </AlertDescription>
-      </Alert>
-    );
+      </Alert>);
+
   }
 
   // Group errors by type
@@ -64,18 +64,18 @@ const UserValidationDisplay: React.FC<UserValidationDisplayProps> = ({
 
   return (
     <Card className={`border-red-200 bg-red-50 ${className}`}>
-      {showTitle && (
-        <CardHeader className="pb-3">
+      {showTitle &&
+      <CardHeader className="pb-3">
           <CardTitle className="text-red-800 flex items-center gap-2">
             <AlertTriangle className="h-5 w-5" />
             User Validation Errors ({errors.length})
           </CardTitle>
         </CardHeader>
-      )}
+      }
       
       <CardContent className="space-y-4">
-        {Object.entries(errorsByType).map(([type, typeErrors]) => (
-          <div key={type} className="space-y-2">
+        {Object.entries(errorsByType).map(([type, typeErrors]) =>
+        <div key={type} className="space-y-2">
             <div className="flex items-center gap-2">
               {getErrorIcon(type as UserValidationError['type'])}
               <Badge variant={getErrorVariant(type as UserValidationError['type'])}>
@@ -84,19 +84,19 @@ const UserValidationDisplay: React.FC<UserValidationDisplayProps> = ({
             </div>
             
             <div className="space-y-1 ml-6">
-              {typeErrors.map((error, index) => (
-                <Alert key={index} className="py-2">
+              {typeErrors.map((error, index) =>
+            <Alert key={index} className="py-2">
                   <AlertDescription className="text-sm">
                     <span className="font-medium">{error.field}:</span> {error.message}
                   </AlertDescription>
                 </Alert>
-              ))}
+            )}
             </div>
           </div>
-        ))}
+        )}
         
-        {errorsByType.admin_protection && (
-          <Alert className="border-orange-200 bg-orange-50">
+        {errorsByType.admin_protection &&
+        <Alert className="border-orange-200 bg-orange-50">
             <Shield className="h-4 w-4 text-orange-600" />
             <AlertTitle className="text-orange-800">Admin Protection Active</AlertTitle>
             <AlertDescription className="text-orange-700">
@@ -104,10 +104,10 @@ const UserValidationDisplay: React.FC<UserValidationDisplayProps> = ({
               This ensures continued system access and security.
             </AlertDescription>
           </Alert>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default UserValidationDisplay;

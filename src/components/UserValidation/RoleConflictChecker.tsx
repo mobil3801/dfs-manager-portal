@@ -29,7 +29,7 @@ const RoleConflictChecker: React.FC<RoleConflictCheckerProps> = ({
   const [station, setStation] = useState(selectedStation || '');
   const [conflicts, setConflicts] = useState<any[]>([]);
   const [isChecking, setIsChecking] = useState(false);
-  
+
   const { checkRoleConflicts } = useUserValidation({ showToasts: false });
 
   const roles = ['Administrator', 'Management', 'Employee'];
@@ -37,7 +37,7 @@ const RoleConflictChecker: React.FC<RoleConflictCheckerProps> = ({
 
   const checkForConflicts = async () => {
     if (!role || !station) return;
-    
+
     setIsChecking(true);
     try {
       const foundConflicts = await checkRoleConflicts(role, station, excludeUserId);
@@ -88,9 +88,9 @@ const RoleConflictChecker: React.FC<RoleConflictCheckerProps> = ({
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
               <SelectContent>
-                {roles.map((r) => (
-                  <SelectItem key={r} value={r}>{r}</SelectItem>
-                ))}
+                {roles.map((r) =>
+                <SelectItem key={r} value={r}>{r}</SelectItem>
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -102,41 +102,41 @@ const RoleConflictChecker: React.FC<RoleConflictCheckerProps> = ({
                 <SelectValue placeholder="Select station" />
               </SelectTrigger>
               <SelectContent>
-                {stations.map((s) => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
-                ))}
+                {stations.map((s) =>
+                <SelectItem key={s} value={s}>{s}</SelectItem>
+                )}
               </SelectContent>
             </Select>
           </div>
           
           <div className="flex items-end">
-            <Button 
+            <Button
               onClick={checkForConflicts}
               disabled={!role || !station || isChecking}
-              className="w-full"
-            >
-              {isChecking ? (
-                <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-              ) : (
-                <AlertTriangle className="h-4 w-4 mr-2" />
-              )}
+              className="w-full">
+
+              {isChecking ?
+              <RefreshCw className="h-4 w-4 animate-spin mr-2" /> :
+
+              <AlertTriangle className="h-4 w-4 mr-2" />
+              }
               Check Conflicts
             </Button>
           </div>
         </div>
 
         {/* Results */}
-        {role && station && (
-          <div className="space-y-3">
-            {conflicts.length === 0 ? (
-              <Alert className="border-green-200 bg-green-50">
+        {role && station &&
+        <div className="space-y-3">
+            {conflicts.length === 0 ?
+          <Alert className="border-green-200 bg-green-50">
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-green-700">
                   No role conflicts found for {role} at {station}
                 </AlertDescription>
-              </Alert>
-            ) : (
-              <div className="space-y-2">
+              </Alert> :
+
+          <div className="space-y-2">
                 <Alert className="border-orange-200 bg-orange-50">
                   <AlertTriangle className="h-4 w-4 text-orange-600" />
                   <AlertDescription className="text-orange-700">
@@ -145,8 +145,8 @@ const RoleConflictChecker: React.FC<RoleConflictCheckerProps> = ({
                 </Alert>
                 
                 <div className="space-y-2">
-                  {conflicts.map((conflict, index) => (
-                    <Card key={index} className="border-red-200 bg-red-50">
+                  {conflicts.map((conflict, index) =>
+              <Card key={index} className="border-red-200 bg-red-50">
                       <CardContent className="p-3">
                         <div className="flex items-center justify-between">
                           <div>
@@ -171,15 +171,15 @@ const RoleConflictChecker: React.FC<RoleConflictCheckerProps> = ({
                         </Alert>
                       </CardContent>
                     </Card>
-                  ))}
+              )}
                 </div>
               </div>
-            )}
+          }
           </div>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default RoleConflictChecker;

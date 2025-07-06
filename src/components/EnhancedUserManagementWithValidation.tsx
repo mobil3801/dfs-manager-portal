@@ -11,27 +11,27 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Users, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Shield, 
-  AlertTriangle, 
+import {
+  Users,
+  Plus,
+  Edit,
+  Trash2,
+  Shield,
+  AlertTriangle,
   CheckCircle,
   RefreshCw,
   Eye,
-  Settings
-} from "lucide-react";
+  Settings } from
+"lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { 
-  UserValidationDisplay, 
-  RoleConflictChecker, 
-  EmailUniquenessChecker, 
+import {
+  UserValidationDisplay,
+  RoleConflictChecker,
+  EmailUniquenessChecker,
   AdminProtectionAlert,
-  useUserValidation 
-} from '@/components/UserValidation';
+  useUserValidation } from
+'@/components/UserValidation';
 
 interface User {
   ID: number;
@@ -99,7 +99,7 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
   const loadUsers = async () => {
     try {
       setIsLoading(true);
-      
+
       // Load users
       const usersResponse = await window.ezsite.apis.tablePage('User', {
         PageNo: 1,
@@ -127,7 +127,7 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
       toast({
         title: "Error",
         description: "Failed to load users",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
@@ -140,7 +140,7 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
 
   // Get user profile by user ID
   const getUserProfile = (userId: number): UserProfile | undefined => {
-    return userProfiles.find(profile => profile.user_id === userId);
+    return userProfiles.find((profile) => profile.user_id === userId);
   };
 
   // Handle form submission
@@ -180,13 +180,13 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
 
         toast({
           title: "Success",
-          description: "User updated successfully",
+          description: "User updated successfully"
         });
       } else {
         // Create new user (this would typically involve user registration)
         toast({
           title: "Info",
-          description: "User creation requires registration process",
+          description: "User creation requires registration process"
         });
       }
 
@@ -201,7 +201,7 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to save user",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
@@ -249,7 +249,7 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
       toast({
         title: "Cannot Delete",
         description: "Admin account cannot be deleted for security reasons",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
@@ -259,12 +259,12 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
       if (profile) {
         const response = await window.ezsite.apis.tableDelete(11725, { ID: profile.id });
         if (response.error) throw new Error(response.error);
-        
+
         toast({
           title: "Success",
-          description: "User profile deleted successfully",
+          description: "User profile deleted successfully"
         });
-        
+
         await loadUsers();
       }
     } catch (error) {
@@ -272,17 +272,17 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
       toast({
         title: "Error",
         description: "Failed to delete user",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
-      case 'Administrator': return 'destructive';
-      case 'Management': return 'default';
-      case 'Employee': return 'secondary';
-      default: return 'outline';
+      case 'Administrator':return 'destructive';
+      case 'Management':return 'default';
+      case 'Employee':return 'secondary';
+      default:return 'outline';
     }
   };
 
@@ -326,13 +326,13 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
               <CardTitle>Users & Profiles ({users.length})</CardTitle>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
-                <div className="flex items-center justify-center py-8">
+              {isLoading ?
+              <div className="flex items-center justify-center py-8">
                   <RefreshCw className="h-6 w-6 animate-spin mr-2" />
                   Loading users...
-                </div>
-              ) : (
-                <Table>
+                </div> :
+
+              <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Name</TableHead>
@@ -346,21 +346,21 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
                   </TableHeader>
                   <TableBody>
                     {users.map((user) => {
-                      const profile = getUserProfile(user.ID);
-                      const isProtected = user.Email === 'admin@dfs-portal.com';
-                      
-                      return (
-                        <TableRow key={user.ID}>
+                    const profile = getUserProfile(user.ID);
+                    const isProtected = user.Email === 'admin@dfs-portal.com';
+
+                    return (
+                      <TableRow key={user.ID}>
                           <TableCell className="font-medium">{user.Name}</TableCell>
                           <TableCell>{user.Email}</TableCell>
                           <TableCell>
-                            {profile ? (
-                              <Badge variant={getRoleBadgeVariant(profile.role)}>
+                            {profile ?
+                          <Badge variant={getRoleBadgeVariant(profile.role)}>
                                 {profile.role}
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline">No Profile</Badge>
-                            )}
+                              </Badge> :
+
+                          <Badge variant="outline">No Profile</Badge>
+                          }
                           </TableCell>
                           <TableCell>{profile?.station || 'N/A'}</TableCell>
                           <TableCell>
@@ -369,39 +369,39 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {isProtected && (
-                              <Badge variant="destructive" className="gap-1">
+                            {isProtected &&
+                          <Badge variant="destructive" className="gap-1">
                                 <Shield className="h-3 w-3" />
                                 Protected
                               </Badge>
-                            )}
+                          }
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2">
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={() => handleEdit(user)}
-                                disabled={!profile}
-                              >
+                              <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEdit(user)}
+                              disabled={!profile}>
+
                                 <Edit className="h-4 w-4" />
                               </Button>
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                onClick={() => handleDelete(user)}
-                                disabled={!profile || isProtected}
-                              >
+                              <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDelete(user)}
+                              disabled={!profile || isProtected}>
+
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
                           </TableCell>
-                        </TableRow>
-                      );
-                    })}
+                        </TableRow>);
+
+                  })}
                   </TableBody>
                 </Table>
-              )}
+              }
             </CardContent>
           </Card>
         </TabsContent>
@@ -416,10 +416,10 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
 
         {/* Admin Protection Tab */}
         <TabsContent value="protection" className="space-y-4">
-          <AdminProtectionAlert 
-            userEmail="admin@dfs-portal.com" 
-            showDetails={true}
-          />
+          <AdminProtectionAlert
+            userEmail="admin@dfs-portal.com"
+            showDetails={true} />
+
         </TabsContent>
       </Tabs>
 
@@ -435,17 +435,17 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
 
           <div className="space-y-6">
             {/* Admin Protection Alert */}
-            {selectedUser?.Email === 'admin@dfs-portal.com' && (
-              <AdminProtectionAlert 
-                userEmail={selectedUser.Email} 
-                showDetails={true}
-              />
-            )}
+            {selectedUser?.Email === 'admin@dfs-portal.com' &&
+            <AdminProtectionAlert
+              userEmail={selectedUser.Email}
+              showDetails={true} />
+
+            }
 
             {/* Validation Errors */}
-            {hasValidationErrors && (
-              <UserValidationDisplay errors={validationErrors} />
-            )}
+            {hasValidationErrors &&
+            <UserValidationDisplay errors={validationErrors} />
+            }
 
             {/* Form */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -454,9 +454,9 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  disabled
-                />
+                  onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                  disabled />
+
               </div>
 
               <div className="space-y-2">
@@ -465,42 +465,42 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                  disabled={selectedUser?.Email === 'admin@dfs-portal.com'}
-                />
+                  onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+                  disabled={selectedUser?.Email === 'admin@dfs-portal.com'} />
+
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
-                <Select 
-                  value={formData.role} 
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, role: value }))}
-                  disabled={selectedUser?.Email === 'admin@dfs-portal.com'}
-                >
+                <Select
+                  value={formData.role}
+                  onValueChange={(value) => setFormData((prev) => ({ ...prev, role: value }))}
+                  disabled={selectedUser?.Email === 'admin@dfs-portal.com'}>
+
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {roles.map((role) => (
-                      <SelectItem key={role} value={role}>{role}</SelectItem>
-                    ))}
+                    {roles.map((role) =>
+                    <SelectItem key={role} value={role}>{role}</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="station">Station</Label>
-                <Select 
-                  value={formData.station} 
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, station: value }))}
-                >
+                <Select
+                  value={formData.station}
+                  onValueChange={(value) => setFormData((prev) => ({ ...prev, station: value }))}>
+
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {stations.map((station) => (
-                      <SelectItem key={station} value={station}>{station}</SelectItem>
-                    ))}
+                    {stations.map((station) =>
+                    <SelectItem key={station} value={station}>{station}</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -510,8 +510,8 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
                 <Input
                   id="employee_id"
                   value={formData.employee_id}
-                  onChange={(e) => setFormData(prev => ({ ...prev, employee_id: e.target.value }))}
-                />
+                  onChange={(e) => setFormData((prev) => ({ ...prev, employee_id: e.target.value }))} />
+
               </div>
 
               <div className="space-y-2">
@@ -519,8 +519,8 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
                 <Input
                   id="phone"
                   value={formData.phone}
-                  onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                />
+                  onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))} />
+
               </div>
 
               <div className="space-y-2">
@@ -529,8 +529,8 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
                   id="hire_date"
                   type="date"
                   value={formData.hire_date}
-                  onChange={(e) => setFormData(prev => ({ ...prev, hire_date: e.target.value }))}
-                />
+                  onChange={(e) => setFormData((prev) => ({ ...prev, hire_date: e.target.value }))} />
+
               </div>
 
               <div className="space-y-2">
@@ -539,9 +539,9 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
                   <Switch
                     id="is_active"
                     checked={formData.is_active}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_active: checked }))}
-                    disabled={selectedUser?.Email === 'admin@dfs-portal.com'}
-                  />
+                    onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, is_active: checked }))}
+                    disabled={selectedUser?.Email === 'admin@dfs-portal.com'} />
+
                   <span className="text-sm text-gray-600">
                     {formData.is_active ? 'Active' : 'Inactive'}
                   </span>
@@ -550,40 +550,40 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
             </div>
 
             {/* Real-time validation */}
-            {formData.role && formData.station && (
-              <RoleConflictChecker
-                selectedRole={formData.role}
-                selectedStation={formData.station}
-                excludeUserId={selectedUser?.ID}
-                autoCheck={true}
-              />
-            )}
+            {formData.role && formData.station &&
+            <RoleConflictChecker
+              selectedRole={formData.role}
+              selectedStation={formData.station}
+              excludeUserId={selectedUser?.ID}
+              autoCheck={true} />
+
+            }
 
             {/* Actions */}
             <div className="flex justify-end gap-3">
-              <Button 
-                variant="outline" 
-                onClick={() => setIsEditDialogOpen(false)}
-              >
+              <Button
+                variant="outline"
+                onClick={() => setIsEditDialogOpen(false)}>
+
                 Cancel
               </Button>
-              <Button 
+              <Button
                 onClick={handleSubmit}
-                disabled={isLoading || isValidating || hasValidationErrors}
-              >
-                {isLoading ? (
-                  <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-                ) : (
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                )}
+                disabled={isLoading || isValidating || hasValidationErrors}>
+
+                {isLoading ?
+                <RefreshCw className="h-4 w-4 animate-spin mr-2" /> :
+
+                <CheckCircle className="h-4 w-4 mr-2" />
+                }
                 Update User
               </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 };
 
 export default EnhancedUserManagementWithValidation;

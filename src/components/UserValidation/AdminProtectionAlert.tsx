@@ -41,8 +41,8 @@ const AdminProtectionAlert: React.FC<AdminProtectionAlertProps> = ({
         </AlertDescription>
       </Alert>
 
-      {showDetails && (
-        <Card className="border-blue-200 bg-blue-50">
+      {showDetails &&
+      <Card className="border-blue-200 bg-blue-50">
           <CardHeader className="pb-3">
             <CardTitle className="text-blue-800 flex items-center gap-2 text-lg">
               <Lock className="h-5 w-5" />
@@ -114,9 +114,9 @@ const AdminProtectionAlert: React.FC<AdminProtectionAlertProps> = ({
             </Alert>
           </CardContent>
         </Card>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default AdminProtectionAlert;

@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Shield, Users, TestTube } from "lucide-react";
 import EnhancedUserManagementWithValidation from '@/components/EnhancedUserManagementWithValidation';
 import ValidationTestSuite from '@/components/UserValidation/ValidationTestSuite';
-import AccessDenied from '@/components/AccessDenied';
+import AccessDenied from  '@/components/AccessDenied';
 import { useAdminAccess } from '@/hooks/use-admin-access';
 
 const UserValidationTestPage: React.FC = () => {
@@ -57,8 +57,8 @@ const UserValidationTestPage: React.FC = () => {
           <ValidationTestSuite />
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default UserValidationTestPage;
