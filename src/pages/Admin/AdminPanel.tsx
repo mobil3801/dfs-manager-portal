@@ -249,6 +249,12 @@ const AdminPanel = () => {
               icon={Shield}
               onClick={() => navigate('/admin/security')} />
 
+            <QuickAdminAction
+              title="User Validation"
+              description="Role conflict prevention & email uniqueness validation"
+              icon={Shield}
+              onClick={() => navigate('/admin/user-validation')} />
+
           </div>
         </TabsContent>
 
