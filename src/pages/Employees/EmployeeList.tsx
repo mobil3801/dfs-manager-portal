@@ -89,7 +89,7 @@ const EmployeeList: React.FC = () => {
   };
 
   const handleEdit = (employeeId: number) => {
-    navigate(`/employees/edit/${employeeId}`);
+    navigate(`/employees/${employeeId}/edit`);
   };
 
   const handleDelete = async (employeeId: number) => {
