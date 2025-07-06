@@ -3,22 +3,21 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   Shield,
   User,
+  Save,
+  RefreshCw,
   Eye,
   Plus,
   Edit,
   Trash2,
   Download,
   Printer,
-  Save,
-  RotateCcw,
-  Users,
   Loader2
 } from 'lucide-react';
 
@@ -31,6 +30,14 @@ interface ModulePermissions {
   print: boolean;
 }
 
+interface RealTimePermissionToggleProps {
+  userId?: number;
+  module: string;
+  onPermissionChange: (permissions: ModulePermissions) => void;
+  showUserSelector?: boolean;
+  className?: string;
+}
+
 interface UserProfile {
   ID: number;
   user_id: number;
@@ -41,14 +48,6 @@ interface UserProfile {
   is_active: boolean;
 }
 
-interface RealTimePermissionToggleProps {
-  userId?: number;
-  module: string;
-  onPermissionChange?: (permissions: ModulePermissions) => void;
-  showUserSelector?: boolean;
-  className?: string;
-}
-
 const RealTimePermissionToggle: React.FC<RealTimePermissionToggleProps> = ({
   userId,
   module,
@@ -57,10 +56,10 @@ const RealTimePermissionToggle: React.FC<RealTimePermissionToggleProps> = ({
   className = ''
 }) => {
   const { userProfile } = useAuth();
-  const [users, setUsers] = useState<UserProfile[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<number | undefined>(userId);
+  const [users, setUsers] = useState<UserProfile[]>([]);
   const [permissions, setPermissions] = useState<ModulePermissions>({
-    view: true,
+    view: false,
     create: false,
     edit: false,
     delete: false,
@@ -69,16 +68,15 @@ const RealTimePermissionToggle: React.FC<RealTimePermissionToggleProps> = ({
   });
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [hasChanges, setHasChanges] = useState(false);
 
   // Check if current user is admin
   const isAdmin = userProfile?.role === 'Administrator';
 
   useEffect(() => {
-    if (showUserSelector && isAdmin) {
+    if (showUserSelector) {
       loadUsers();
     }
-  }, [showUserSelector, isAdmin]);
+  }, [showUserSelector]);
 
   useEffect(() => {
     if (selectedUserId) {
@@ -104,7 +102,9 @@ const RealTimePermissionToggle: React.FC<RealTimePermissionToggleProps> = ({
       });
 
       if (error) throw error;
-      setUsers(data?.List || []);
+
+      const userList = data?.List || [];
+      setUsers(userList);
     } catch (error) {
       console.error('Error loading users:', error);
       toast({
@@ -120,6 +120,7 @@ const RealTimePermissionToggle: React.FC<RealTimePermissionToggleProps> = ({
   const loadUserPermissions = async (targetUserId: number) => {
     try {
       setLoading(true);
+      
       const { data, error } = await window.ezsite.apis.tablePage('11725', {
         PageNo: 1,
         PageSize: 1,
@@ -132,28 +133,39 @@ const RealTimePermissionToggle: React.FC<RealTimePermissionToggleProps> = ({
 
       if (error) throw error;
 
-      const user = data?.List?.[0];
-      if (user) {
-        let userPermissions = {};
-        if (user.detailed_permissions) {
-          try {
-            userPermissions = JSON.parse(user.detailed_permissions);
-          } catch (parseError) {
-            console.warn('Failed to parse user permissions:', parseError);
-          }
+      const userRecord = data?.List?.[0];
+      if (userRecord && userRecord.detailed_permissions) {
+        try {
+          const allPermissions = JSON.parse(userRecord.detailed_permissions);
+          const modulePermissions = allPermissions[module] || {
+            view: false,
+            create: false,
+            edit: false,
+            delete: false,
+            export: false,
+            print: false
+          };
+          setPermissions(modulePermissions);
+        } catch (parseError) {
+          console.warn('Failed to parse permissions:', parseError);
+          setPermissions({
+            view: false,
+            create: false,
+            edit: false,
+            delete: false,
+            export: false,
+            print: false
+          });
         }
-
-        const modulePermissions = userPermissions[module] || {
-          view: true,
+      } else {
+        setPermissions({
+          view: false,
           create: false,
           edit: false,
           delete: false,
           export: false,
           print: false
-        };
-
-        setPermissions(modulePermissions);
-        setHasChanges(false);
+        });
       }
     } catch (error) {
       console.error('Error loading user permissions:', error);
@@ -167,14 +179,13 @@ const RealTimePermissionToggle: React.FC<RealTimePermissionToggleProps> = ({
     }
   };
 
-  const handlePermissionChange = (permission: keyof ModulePermissions, enabled: boolean) => {
-    const newPermissions = { ...permissions, [permission]: enabled };
+  const handlePermissionChange = (permissionType: keyof ModulePermissions, value: boolean) => {
+    const newPermissions = {
+      ...permissions,
+      [permissionType]: value
+    };
     setPermissions(newPermissions);
-    setHasChanges(true);
-    
-    if (onPermissionChange) {
-      onPermissionChange(newPermissions);
-    }
+    onPermissionChange(newPermissions);
   };
 
   const savePermissions = async () => {
@@ -190,7 +201,7 @@ const RealTimePermissionToggle: React.FC<RealTimePermissionToggleProps> = ({
     try {
       setSaving(true);
 
-      // Get current user data
+      // Get current user record
       const { data, error } = await window.ezsite.apis.tablePage('11725', {
         PageNo: 1,
         PageSize: 1,
@@ -203,39 +214,36 @@ const RealTimePermissionToggle: React.FC<RealTimePermissionToggleProps> = ({
 
       if (error) throw error;
 
-      const user = data?.List?.[0];
-      if (!user) {
-        throw new Error('User not found');
+      const userRecord = data?.List?.[0];
+      if (!userRecord) {
+        throw new Error('User record not found');
       }
 
       // Parse existing permissions
-      let existingPermissions = {};
-      if (user.detailed_permissions) {
+      let allPermissions = {};
+      if (userRecord.detailed_permissions) {
         try {
-          existingPermissions = JSON.parse(user.detailed_permissions);
+          allPermissions = JSON.parse(userRecord.detailed_permissions);
         } catch (parseError) {
-          console.warn('Failed to parse existing permissions:', parseError);
+          console.warn('Failed to parse existing permissions, creating new:', parseError);
         }
       }
 
       // Update module permissions
-      const updatedPermissions = {
-        ...existingPermissions,
-        [module]: permissions
-      };
+      allPermissions[module] = permissions;
 
       // Save updated permissions
-      const updateError = await window.ezsite.apis.tableUpdate('11725', {
-        ID: user.ID,
-        detailed_permissions: JSON.stringify(updatedPermissions)
+      const updateResponse = await window.ezsite.apis.tableUpdate('11725', {
+        ID: userRecord.ID,
+        detailed_permissions: JSON.stringify(allPermissions)
       });
 
-      if (updateError.error) throw updateError.error;
+      if (updateResponse.error) throw updateResponse.error;
 
-      setHasChanges(false);
       toast({
         title: "Success",
         description: `${module} permissions updated successfully`,
+        variant: "default"
       });
 
     } catch (error) {
@@ -247,12 +255,6 @@ const RealTimePermissionToggle: React.FC<RealTimePermissionToggleProps> = ({
       });
     } finally {
       setSaving(false);
-    }
-  };
-
-  const resetPermissions = () => {
-    if (selectedUserId) {
-      loadUserPermissions(selectedUserId);
     }
   };
 
@@ -280,18 +282,6 @@ const RealTimePermissionToggle: React.FC<RealTimePermissionToggleProps> = ({
     return labels[type];
   };
 
-  const getPermissionDescription = (type: keyof ModulePermissions) => {
-    const descriptions = {
-      view: `View ${module} data`,
-      create: `Create new ${module}`,
-      edit: `Edit existing ${module}`,
-      delete: `Delete ${module}`,
-      export: `Export ${module} data`,
-      print: `Print ${module} reports`
-    };
-    return descriptions[type];
-  };
-
   if (!isAdmin) {
     return (
       <Card className={`border-orange-200 bg-orange-50 ${className}`}>
@@ -299,9 +289,9 @@ const RealTimePermissionToggle: React.FC<RealTimePermissionToggleProps> = ({
           <div className="flex items-center space-x-3">
             <Shield className="w-5 h-5 text-orange-600" />
             <div>
-              <p className="font-medium text-orange-900">Permission Management</p>
+              <p className="font-medium text-orange-900">Permission Toggle</p>
               <p className="text-sm text-orange-700">
-                Administrator access required to manage permissions
+                Administrator access required
               </p>
             </div>
           </div>
@@ -315,9 +305,9 @@ const RealTimePermissionToggle: React.FC<RealTimePermissionToggleProps> = ({
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center space-x-2 text-blue-900">
           <Shield className="w-5 h-5" />
-          <span>{module.charAt(0).toUpperCase() + module.slice(1)} Permissions</span>
+          <span>Real-Time Permission Toggle</span>
           <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-            Real-Time
+            {module}
           </Badge>
         </CardTitle>
       </CardHeader>
@@ -334,12 +324,12 @@ const RealTimePermissionToggle: React.FC<RealTimePermissionToggleProps> = ({
               value={selectedUserId?.toString() || ''} 
               onValueChange={(value) => setSelectedUserId(parseInt(value))}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger>
                 <SelectValue placeholder="Choose a user to manage permissions" />
               </SelectTrigger>
               <SelectContent>
                 {users.map((user) => (
-                  <SelectItem key={user.ID} value={user.user_id.toString()}>
+                  <SelectItem key={user.user_id} value={user.user_id.toString()}>
                     <div className="flex items-center space-x-2">
                       <span>{user.employee_id}</span>
                       <Badge variant="outline" className="text-xs">
@@ -356,101 +346,86 @@ const RealTimePermissionToggle: React.FC<RealTimePermissionToggleProps> = ({
           </div>
         )}
 
-        {/* Loading State */}
-        {loading && (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
-            <span className="ml-2 text-gray-500">Loading permissions...</span>
-          </div>
-        )}
-
         {/* Permission Toggles */}
-        {!loading && selectedUserId && (
+        {selectedUserId && (
           <div className="space-y-4">
-            <h4 className="font-medium text-gray-900 flex items-center space-x-2">
-              <Users className="w-4 h-4" />
-              <span>Module Permissions</span>
-            </h4>
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium text-gray-900">Module Permissions</h4>
+              {loading && (
+                <div className="flex items-center space-x-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-gray-500" />
+                  <span className="text-sm text-gray-500">Loading...</span>
+                </div>
+              )}
+            </div>
 
-            <div className="grid gap-3">
-              {(Object.keys(permissions) as Array<keyof ModulePermissions>).map((permission) => {
-                const Icon = getPermissionIcon(permission);
-                const isEnabled = permissions[permission];
-                
+            <div className="grid grid-cols-2 gap-4">
+              {(Object.keys(permissions) as Array<keyof ModulePermissions>).map((permissionType) => {
+                const Icon = getPermissionIcon(permissionType);
+                const isEnabled = permissions[permissionType];
+
                 return (
                   <div
-                    key={permission}
-                    className="flex items-center justify-between p-3 border rounded-lg bg-white"
+                    key={permissionType}
+                    className={`
+                      p-3 border rounded-lg transition-all duration-200
+                      ${isEnabled 
+                        ? 'border-green-200 bg-green-50' 
+                        : 'border-gray-200 bg-gray-50'}
+                    `}
                   >
-                    <div className="flex items-center space-x-3">
-                      <div className={`
-                        w-8 h-8 rounded-full flex items-center justify-center
-                        ${isEnabled ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}
-                      `}>
-                        <Icon className="w-4 h-4" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Icon className={`w-4 h-4 ${isEnabled ? 'text-green-600' : 'text-gray-400'}`} />
+                        <Label 
+                          htmlFor={`${module}-${permissionType}`}
+                          className={`font-medium cursor-pointer ${isEnabled ? 'text-green-900' : 'text-gray-700'}`}
+                        >
+                          {getPermissionLabel(permissionType)}
+                        </Label>
                       </div>
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          {getPermissionLabel(permission)}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {getPermissionDescription(permission)}
-                        </p>
-                      </div>
+                      <Switch
+                        id={`${module}-${permissionType}`}
+                        checked={isEnabled}
+                        onCheckedChange={(checked) => handlePermissionChange(permissionType, checked)}
+                        disabled={loading}
+                      />
                     </div>
-                    <Switch
-                      checked={isEnabled}
-                      onCheckedChange={(checked) => handlePermissionChange(permission, checked)}
-                      className="data-[state=checked]:bg-green-500"
-                    />
                   </div>
                 );
               })}
             </div>
 
-            {/* Action Buttons */}
-            {hasChanges && (
-              <div className="flex items-center justify-between pt-4 border-t">
-                <div className="flex items-center space-x-2">
-                  <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
-                    Unsaved Changes
-                  </Badge>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={resetPermissions}
-                    disabled={saving}
-                    className="flex items-center space-x-2"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                    <span>Reset</span>
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={savePermissions}
-                    disabled={saving}
-                    className="flex items-center space-x-2"
-                  >
-                    {saving ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Save className="w-4 h-4" />
-                    )}
-                    <span>{saving ? 'Saving...' : 'Save Changes'}</span>
-                  </Button>
-                </div>
+            {/* Save Button */}
+            <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+              <div className="text-sm text-gray-600">
+                Changes are applied in real-time
               </div>
-            )}
+              <Button
+                onClick={savePermissions}
+                disabled={saving || loading}
+                className="flex items-center space-x-2"
+              >
+                {saving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    <span>Save Permissions</span>
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         )}
 
-        {/* No User Selected */}
-        {!loading && !selectedUserId && showUserSelector && (
-          <div className="text-center py-8">
-            <User className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-600">Select a user to manage their permissions</p>
+        {!selectedUserId && showUserSelector && (
+          <div className="text-center py-8 text-gray-500">
+            <User className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+            <p>Select a user to manage their {module} permissions</p>
           </div>
         )}
       </CardContent>

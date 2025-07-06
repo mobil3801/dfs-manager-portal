@@ -11,20 +11,29 @@ interface ModulePermissions {
   print: boolean;
 }
 
-interface UserProfile {
-  ID: number;
-  user_id: number;
-  role: string;
-  station: string;
-  employee_id: string;
-  detailed_permissions: string;
-  is_active: boolean;
+interface UseRealtimePermissionsReturn {
+  canView: boolean;
+  canCreate: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
+  canExport: boolean;
+  canPrint: boolean;
+  checkView: () => boolean;
+  checkCreate: () => boolean;
+  checkEdit: () => boolean;
+  checkDelete: () => boolean;
+  checkExport: () => boolean;
+  checkPrint: () => boolean;
+  isAdmin: boolean;
+  refreshPermissions: () => Promise<void>;
+  permissions: ModulePermissions;
+  loading: boolean;
 }
 
-export const useRealtimePermissions = (module: string) => {
+export const useRealtimePermissions = (module: string): UseRealtimePermissionsReturn => {
   const { userProfile } = useAuth();
   const [permissions, setPermissions] = useState<ModulePermissions>({
-    view: true,
+    view: false,
     create: false,
     edit: false,
     delete: false,
@@ -36,7 +45,6 @@ export const useRealtimePermissions = (module: string) => {
   // Check if current user is admin
   const isAdmin = userProfile?.role === 'Administrator';
 
-  // Load user permissions from database
   const loadPermissions = useCallback(async () => {
     if (!userProfile?.user_id) {
       setLoading(false);
@@ -45,8 +53,22 @@ export const useRealtimePermissions = (module: string) => {
 
     try {
       setLoading(true);
-      
-      // Fetch user profile with permissions
+
+      // Admin has all permissions
+      if (isAdmin) {
+        setPermissions({
+          view: true,
+          create: true,
+          edit: true,
+          delete: true,
+          export: true,
+          print: true
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Get user profile with permissions
       const { data, error } = await window.ezsite.apis.tablePage('11725', {
         PageNo: 1,
         PageSize: 1,
@@ -59,43 +81,45 @@ export const useRealtimePermissions = (module: string) => {
 
       if (error) throw error;
 
-      const user = data?.List?.[0];
-      if (user) {
-        let userPermissions = {};
-        if (user.detailed_permissions) {
-          try {
-            userPermissions = JSON.parse(user.detailed_permissions);
-          } catch (parseError) {
-            console.warn('Failed to parse user permissions:', parseError);
-          }
+      const userRecord = data?.List?.[0];
+      if (userRecord && userRecord.detailed_permissions) {
+        try {
+          const allPermissions = JSON.parse(userRecord.detailed_permissions);
+          const modulePermissions = allPermissions[module] || {
+            view: true, // Default to view only
+            create: false,
+            edit: false,
+            delete: false,
+            export: false,
+            print: false
+          };
+          setPermissions(modulePermissions);
+        } catch (parseError) {
+          console.warn('Failed to parse permissions:', parseError);
+          // Default permissions for non-admin users
+          setPermissions({
+            view: true,
+            create: false,
+            edit: false,
+            delete: false,
+            export: false,
+            print: false
+          });
         }
-
-        const modulePermissions = userPermissions[module] || {
+      } else {
+        // Default permissions if no record found
+        setPermissions({
           view: true,
           create: false,
           edit: false,
           delete: false,
           export: false,
           print: false
-        };
-
-        // Admins get all permissions by default
-        if (isAdmin) {
-          setPermissions({
-            view: true,
-            create: true,
-            edit: true,
-            delete: true,
-            export: true,
-            print: true
-          });
-        } else {
-          setPermissions(modulePermissions);
-        }
+        });
       }
     } catch (error) {
       console.error('Error loading permissions:', error);
-      // Set default permissions on error
+      // Fallback to view-only on error
       setPermissions({
         view: true,
         create: false,
@@ -107,117 +131,106 @@ export const useRealtimePermissions = (module: string) => {
     } finally {
       setLoading(false);
     }
-  }, [userProfile, module, isAdmin]);
+  }, [userProfile?.user_id, isAdmin, module]);
 
-  // Load permissions on mount and when dependencies change
   useEffect(() => {
     loadPermissions();
   }, [loadPermissions]);
 
-  // Permission check functions with toast notifications
+  // Permission check functions with user feedback
   const checkView = useCallback(() => {
-    if (!permissions.view) {
+    if (!permissions.view && !isAdmin) {
       toast({
         title: "Access Denied",
-        description: `You don't have permission to view ${module}.`,
+        description: "You don't have permission to view this content.",
         variant: "destructive"
       });
       return false;
     }
     return true;
-  }, [permissions.view, module]);
+  }, [permissions.view, isAdmin]);
 
   const checkCreate = useCallback(() => {
-    if (!permissions.create) {
+    if (!permissions.create && !isAdmin) {
       toast({
         title: "Access Denied",
-        description: `You don't have permission to create ${module}.`,
+        description: "You don't have permission to create new items.",
         variant: "destructive"
       });
       return false;
     }
     return true;
-  }, [permissions.create, module]);
+  }, [permissions.create, isAdmin]);
 
   const checkEdit = useCallback(() => {
-    if (!permissions.edit) {
+    if (!permissions.edit && !isAdmin) {
       toast({
         title: "Access Denied",
-        description: `You don't have permission to edit ${module}.`,
+        description: "You don't have permission to edit items.",
         variant: "destructive"
       });
       return false;
     }
     return true;
-  }, [permissions.edit, module]);
+  }, [permissions.edit, isAdmin]);
 
   const checkDelete = useCallback(() => {
-    if (!permissions.delete) {
+    if (!permissions.delete && !isAdmin) {
       toast({
         title: "Access Denied",
-        description: `You don't have permission to delete ${module}.`,
+        description: "You don't have permission to delete items.",
         variant: "destructive"
       });
       return false;
     }
     return true;
-  }, [permissions.delete, module]);
+  }, [permissions.delete, isAdmin]);
 
   const checkExport = useCallback(() => {
-    if (!permissions.export) {
+    if (!permissions.export && !isAdmin) {
       toast({
         title: "Access Denied",
-        description: `You don't have permission to export ${module}.`,
+        description: "You don't have permission to export data.",
         variant: "destructive"
       });
       return false;
     }
     return true;
-  }, [permissions.export, module]);
+  }, [permissions.export, isAdmin]);
 
   const checkPrint = useCallback(() => {
-    if (!permissions.print) {
+    if (!permissions.print && !isAdmin) {
       toast({
         title: "Access Denied",
-        description: `You don't have permission to print ${module}.`,
+        description: "You don't have permission to print.",
         variant: "destructive"
       });
       return false;
     }
     return true;
-  }, [permissions.print, module]);
+  }, [permissions.print, isAdmin]);
 
   // Refresh permissions function
-  const refreshPermissions = useCallback(() => {
-    loadPermissions();
+  const refreshPermissions = useCallback(async () => {
+    await loadPermissions();
   }, [loadPermissions]);
 
-  // Return all permission states and functions
   return {
-    // Permission states
-    canView: permissions.view,
-    canCreate: permissions.create,
-    canEdit: permissions.edit,
-    canDelete: permissions.delete,
-    canExport: permissions.export,
-    canPrint: permissions.print,
-    
-    // Permission check functions (with toast)
+    canView: permissions.view || isAdmin,
+    canCreate: permissions.create || isAdmin,
+    canEdit: permissions.edit || isAdmin,
+    canDelete: permissions.delete || isAdmin,
+    canExport: permissions.export || isAdmin,
+    canPrint: permissions.print || isAdmin,
     checkView,
     checkCreate,
     checkEdit,
     checkDelete,
     checkExport,
     checkPrint,
-    
-    // Utility functions
     isAdmin,
-    loading,
     refreshPermissions,
-    
-    // Raw permissions object
-    permissions
+    permissions,
+    loading
   };
 };
-
-export default useRealtimePermissions;
