@@ -91,7 +91,7 @@ const EmployeeList: React.FC = () => {
   const handleEdit = (employeeId: number) => {
     try {
       // Validate employee ID exists
-      const employee = employees.find(emp => emp.ID === employeeId);
+      const employee = employees.find((emp) => emp.ID === employeeId);
       if (!employee) {
         toast({
           title: "Error",
@@ -104,7 +104,7 @@ const EmployeeList: React.FC = () => {
 
       // Navigate to edit form
       navigate(`/employees/${employeeId}/edit`);
-      
+
       // Log for debugging
       console.log('Navigating to edit employee:', employeeId, employee);
     } catch (error) {

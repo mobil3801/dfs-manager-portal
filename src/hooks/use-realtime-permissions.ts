@@ -12,7 +12,7 @@ interface ModulePermissions {
 }
 
 interface UserProfile {
-  ID: number;
+  id: number;
   user_id: number;
   role: string;
   station: string;
@@ -32,6 +32,7 @@ export const useRealtimePermissions = (module: string) => {
     print: false
   });
   const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<number>(Date.now());
 
   // Check if current user is admin
   const isAdmin = userProfile?.role === 'Administrator';
@@ -46,15 +47,15 @@ export const useRealtimePermissions = (module: string) => {
     try {
       setLoading(true);
 
-      // Fetch user profile with permissions
+      // Fetch user profile with permissions using correct field name
       const { data, error } = await window.ezsite.apis.tablePage('11725', {
         PageNo: 1,
         PageSize: 1,
-        OrderByField: 'ID',
+        OrderByField: 'id',
         IsAsc: true,
         Filters: [
-        { name: 'user_id', op: 'Equal', value: userProfile.user_id }]
-
+          { name: 'user_id', op: 'Equal', value: userProfile.user_id }
+        ]
       });
 
       if (error) throw error;
@@ -92,6 +93,8 @@ export const useRealtimePermissions = (module: string) => {
         } else {
           setPermissions(modulePermissions);
         }
+        
+        setLastUpdated(Date.now());
       }
     } catch (error) {
       console.error('Error loading permissions:', error);
@@ -108,6 +111,86 @@ export const useRealtimePermissions = (module: string) => {
       setLoading(false);
     }
   }, [userProfile, module, isAdmin]);
+
+  // Update a specific permission and save to database
+  const updatePermission = useCallback(async (permission: keyof ModulePermissions, enabled: boolean) => {
+    if (!userProfile?.user_id || !isAdmin) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to modify permissions",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    try {
+      // Update local state immediately for responsive UI
+      const newPermissions = { ...permissions, [permission]: enabled };
+      setPermissions(newPermissions);
+
+      // Get current user data
+      const { data, error } = await window.ezsite.apis.tablePage('11725', {
+        PageNo: 1,
+        PageSize: 1,
+        OrderByField: 'id',
+        IsAsc: true,
+        Filters: [
+          { name: 'user_id', op: 'Equal', value: userProfile.user_id }
+        ]
+      });
+
+      if (error) throw error;
+
+      const user = data?.List?.[0];
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      // Parse existing permissions
+      let existingPermissions = {};
+      if (user.detailed_permissions) {
+        try {
+          existingPermissions = JSON.parse(user.detailed_permissions);
+        } catch (parseError) {
+          console.warn('Failed to parse existing permissions:', parseError);
+        }
+      }
+
+      // Update module permissions
+      const updatedPermissions = {
+        ...existingPermissions,
+        [module]: newPermissions
+      };
+
+      // Save to database
+      const updateResult = await window.ezsite.apis.tableUpdate('11725', {
+        id: user.id,
+        detailed_permissions: JSON.stringify(updatedPermissions)
+      });
+
+      if (updateResult.error) throw updateResult.error;
+
+      toast({
+        title: "Permission Updated",
+        description: `${module} ${permission} permission ${enabled ? 'enabled' : 'disabled'}`,
+        duration: 2000
+      });
+
+      setLastUpdated(Date.now());
+      return true;
+
+    } catch (error) {
+      console.error('Error updating permission:', error);
+      // Revert local state on error
+      loadPermissions();
+      toast({
+        title: "Error",
+        description: "Failed to update permission",
+        variant: "destructive"
+      });
+      return false;
+    }
+  }, [userProfile, permissions, module, isAdmin, loadPermissions]);
 
   // Load permissions on mount and when dependencies change
   useEffect(() => {
@@ -192,6 +275,18 @@ export const useRealtimePermissions = (module: string) => {
     loadPermissions();
   }, [loadPermissions]);
 
+  // Get permission summary
+  const getPermissionSummary = useCallback(() => {
+    const enabled = Object.values(permissions).filter(Boolean).length;
+    const total = Object.keys(permissions).length;
+    return { enabled, total, percentage: Math.round((enabled / total) * 100) };
+  }, [permissions]);
+
+  // Check if user has any permissions for the module
+  const hasAnyPermission = useCallback(() => {
+    return Object.values(permissions).some(Boolean);
+  }, [permissions]);
+
   // Return all permission states and functions
   return {
     // Permission states
@@ -210,10 +305,16 @@ export const useRealtimePermissions = (module: string) => {
     checkExport,
     checkPrint,
 
+    // Permission update function
+    updatePermission,
+
     // Utility functions
     isAdmin,
     loading,
     refreshPermissions,
+    getPermissionSummary,
+    hasAnyPermission,
+    lastUpdated,
 
     // Raw permissions object
     permissions
