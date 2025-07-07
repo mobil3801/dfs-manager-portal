@@ -29,8 +29,8 @@ import {
   Database,
   Activity,
   AlertCircle,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw } from
+'lucide-react';
 
 interface ModulePermissions {
   view: boolean;
@@ -70,21 +70,21 @@ const RealTimePermissionManager: React.FC = () => {
 
   // Available modules
   const modules = [
-    'dashboard',
-    'products',
-    'employees',
-    'sales_reports',
-    'vendors',
-    'orders',
-    'licenses',
-    'salary',
-    'delivery',
-    'settings',
-    'user_management',
-    'site_management',
-    'system_logs',
-    'security_settings'
-  ];
+  'dashboard',
+  'products',
+  'employees',
+  'sales_reports',
+  'vendors',
+  'orders',
+  'licenses',
+  'salary',
+  'delivery',
+  'settings',
+  'user_management',
+  'site_management',
+  'system_logs',
+  'security_settings'];
+
 
   // Permission templates for quick assignment
   const permissionTemplates = {
@@ -135,8 +135,8 @@ const RealTimePermissionManager: React.FC = () => {
         OrderByField: 'id',
         IsAsc: true,
         Filters: [
-          { name: 'is_active', op: 'Equal', value: true }
-        ]
+        { name: 'is_active', op: 'Equal', value: true }]
+
       });
 
       if (error) throw error;
@@ -162,8 +162,8 @@ const RealTimePermissionManager: React.FC = () => {
         OrderByField: 'id',
         IsAsc: true,
         Filters: [
-          { name: 'id', op: 'Equal', value: userId }
-        ]
+        { name: 'id', op: 'Equal', value: userId }]
+
       });
 
       if (error) throw error;
@@ -264,8 +264,8 @@ const RealTimePermissionManager: React.FC = () => {
         OrderByField: 'id',
         IsAsc: true,
         Filters: [
-          { name: 'id', op: 'Equal', value: selectedUserId }
-        ]
+        { name: 'id', op: 'Equal', value: selectedUserId }]
+
       });
 
       if (error) throw error;
@@ -284,7 +284,7 @@ const RealTimePermissionManager: React.FC = () => {
       if (updateResult.error) throw updateResult.error;
 
       setHasChanges(false);
-      
+
       // Show success message
       toast({
         title: "Success",
@@ -379,7 +379,7 @@ const RealTimePermissionManager: React.FC = () => {
 
   const getSelectedUserInfo = () => {
     if (!selectedUserId) return null;
-    return users.find(user => user.id === selectedUserId);
+    return users.find((user) => user.id === selectedUserId);
   };
 
   if (!isAdmin) {
@@ -396,8 +396,8 @@ const RealTimePermissionManager: React.FC = () => {
             </div>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -418,8 +418,8 @@ const RealTimePermissionManager: React.FC = () => {
               size="sm"
               onClick={refreshData}
               disabled={refreshing}
-              className="flex items-center space-x-2"
-            >
+              className="flex items-center space-x-2">
+
               <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               <span>Refresh</span>
             </Button>
@@ -441,14 +441,14 @@ const RealTimePermissionManager: React.FC = () => {
               <Label>Choose User to Manage</Label>
               <Select
                 value={selectedUserId?.toString() || ''}
-                onValueChange={(value) => setSelectedUserId(parseInt(value))}
-              >
+                onValueChange={(value) => setSelectedUserId(parseInt(value))}>
+
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a user to manage their permissions" />
                 </SelectTrigger>
                 <SelectContent>
-                  {users.map((user) => (
-                    <SelectItem key={user.id} value={user.id.toString()}>
+                  {users.map((user) =>
+                  <SelectItem key={user.id} value={user.id.toString()}>
                       <div className="flex items-center space-x-2">
                         <span className="font-medium">{user.employee_id}</span>
                         <Badge variant="outline" className="text-xs">
@@ -459,96 +459,96 @@ const RealTimePermissionManager: React.FC = () => {
                         </Badge>
                       </div>
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
             </div>
 
-            {selectedUserId && (
-              <div className="flex items-center space-x-2">
+            {selectedUserId &&
+            <div className="flex items-center space-x-2">
                 <Label>Quick Role Templates:</Label>
-                {Object.keys(permissionTemplates).map((role) => (
-                  <Button
-                    key={role}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => applyRoleTemplate(role)}
-                    className="text-xs"
-                  >
+                {Object.keys(permissionTemplates).map((role) =>
+              <Button
+                key={role}
+                variant="outline"
+                size="sm"
+                onClick={() => applyRoleTemplate(role)}
+                className="text-xs">
+
                     Apply {role}
                   </Button>
-                ))}
+              )}
               </div>
-            )}
+            }
 
-            {getSelectedUserInfo() && (
-              <Alert>
+            {getSelectedUserInfo() &&
+            <Alert>
                 <User className="h-4 w-4" />
                 <AlertDescription>
                   Managing permissions for: <strong>{getSelectedUserInfo()?.employee_id}</strong> 
                   ({getSelectedUserInfo()?.role} at {getSelectedUserInfo()?.station})
                 </AlertDescription>
               </Alert>
-            )}
+            }
           </div>
         </CardContent>
       </Card>
 
       {/* Permission Management */}
-      {selectedUserId && (
-        <Card>
+      {selectedUserId &&
+      <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center space-x-2">
                 <Shield className="w-5 h-5" />
                 <span>Module Permissions</span>
               </CardTitle>
-              {hasChanges && (
-                <div className="flex items-center space-x-2">
+              {hasChanges &&
+            <div className="flex items-center space-x-2">
                   <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
                     <AlertCircle className="w-3 h-3 mr-1" />
                     Unsaved Changes
                   </Badge>
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={resetPermissions}
-                    disabled={saving}
-                  >
+                variant="outline"
+                size="sm"
+                onClick={resetPermissions}
+                disabled={saving}>
+
                     <RotateCcw className="w-4 h-4 mr-1" />
                     Reset
                   </Button>
                   <Button
-                    size="sm"
-                    onClick={savePermissions}
-                    disabled={saving}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    {saving ? (
-                      <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                    ) : (
-                      <Save className="w-4 h-4 mr-1" />
-                    )}
+                size="sm"
+                onClick={savePermissions}
+                disabled={saving}
+                className="bg-green-600 hover:bg-green-700">
+
+                    {saving ?
+                <Loader2 className="w-4 h-4 mr-1 animate-spin" /> :
+
+                <Save className="w-4 h-4 mr-1" />
+                }
                     {saving ? 'Saving...' : 'Save Changes'}
                   </Button>
                 </div>
-              )}
+            }
             </div>
           </CardHeader>
           <CardContent>
-            {loading ? (
-              <div className="flex items-center justify-center py-8">
+            {loading ?
+          <div className="flex items-center justify-center py-8">
                 <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
                 <span className="ml-2 text-gray-500">Loading permissions...</span>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {modules.map((module) => {
-                  const modulePermissions = permissions[module] || {};
-                  const { enabled, total } = getPermissionSummary(modulePermissions);
+              </div> :
 
-                  return (
-                    <Card key={module} className="border-gray-200">
+          <div className="space-y-6">
+                {modules.map((module) => {
+              const modulePermissions = permissions[module] || {};
+              const { enabled, total } = getPermissionSummary(modulePermissions);
+
+              return (
+                <Card key={module} className="border-gray-200">
                       <CardHeader className="pb-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-3">
@@ -561,31 +561,31 @@ const RealTimePermissionManager: React.FC = () => {
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
-                            {enabled === total ? (
-                              <CheckCircle className="w-5 h-5 text-green-500" />
-                            ) : enabled === 0 ? (
-                              <XCircle className="w-5 h-5 text-red-500" />
-                            ) : (
-                              <div className="w-5 h-5 rounded-full bg-yellow-400 flex items-center justify-center">
+                            {enabled === total ?
+                        <CheckCircle className="w-5 h-5 text-green-500" /> :
+                        enabled === 0 ?
+                        <XCircle className="w-5 h-5 text-red-500" /> :
+
+                        <div className="w-5 h-5 rounded-full bg-yellow-400 flex items-center justify-center">
                                 <span className="text-xs font-medium text-yellow-800">
                                   {enabled}
                                 </span>
                               </div>
-                            )}
+                        }
                           </div>
                         </div>
                       </CardHeader>
                       <CardContent>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                           {(Object.keys(modulePermissions) as Array<keyof ModulePermissions>).map((permission) => {
-                            const Icon = getPermissionIcon(permission);
-                            const isEnabled = modulePermissions[permission];
+                        const Icon = getPermissionIcon(permission);
+                        const isEnabled = modulePermissions[permission];
 
-                            return (
-                              <div
-                                key={permission}
-                                className="flex items-center justify-between p-3 border rounded-lg bg-white hover:bg-gray-50 transition-colors"
-                              >
+                        return (
+                          <div
+                            key={permission}
+                            className="flex items-center justify-between p-3 border rounded-lg bg-white hover:bg-gray-50 transition-colors">
+
                                 <div className="flex items-center space-x-3">
                                   <div className={`
                                     w-6 h-6 rounded-full flex items-center justify-center
@@ -598,29 +598,29 @@ const RealTimePermissionManager: React.FC = () => {
                                   </span>
                                 </div>
                                 <Switch
-                                  checked={isEnabled}
-                                  onCheckedChange={(checked) =>
-                                    handlePermissionChange(module, permission, checked)
-                                  }
-                                  className="data-[state=checked]:bg-green-500"
-                                />
-                              </div>
-                            );
-                          })}
+                              checked={isEnabled}
+                              onCheckedChange={(checked) =>
+                              handlePermissionChange(module, permission, checked)
+                              }
+                              className="data-[state=checked]:bg-green-500" />
+
+                              </div>);
+
+                      })}
                         </div>
                       </CardContent>
-                    </Card>
-                  );
-                })}
+                    </Card>);
+
+            })}
               </div>
-            )}
+          }
           </CardContent>
         </Card>
-      )}
+      }
 
       {/* No User Selected */}
-      {!selectedUserId && !loading && (
-        <Card className="border-gray-200">
+      {!selectedUserId && !loading &&
+      <Card className="border-gray-200">
           <CardContent className="p-12">
             <div className="text-center">
               <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -633,9 +633,9 @@ const RealTimePermissionManager: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default RealTimePermissionManager;

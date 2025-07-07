@@ -17,6 +17,7 @@ import ProductCards from '@/components/ProductCards';
 import ProductPermissionManager from '@/components/ProductPermissionManager';
 import { useRealtimePermissions } from '@/hooks/use-realtime-permissions';
 import { generateSafeKey, safeMap } from '@/utils/invariantSafeHelper';
+import { useModuleAccess } from '@/contexts/ModuleAccessContext';
 
 
 interface Product {
@@ -66,6 +67,9 @@ const ProductList: React.FC = () => {
     isAdmin,
     refreshPermissions
   } = useRealtimePermissions('products');
+
+  // Module access control
+  const { canCreate: moduleCanCreate, canEdit: moduleCanEdit, canDelete: moduleCanDelete } = useModuleAccess();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
@@ -510,14 +514,16 @@ const ProductList: React.FC = () => {
                 Manage your product inventory - Search across all product fields for similar items
               </CardDescription>
             </div>
-            <Button
-              onClick={() => navigate('/products/new')}
-              className={`bg-brand-600 hover:bg-brand-700 text-white ${
-              responsive.isMobile ? 'w-full' : ''}`
-              }>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Product
-            </Button>
+            {moduleCanCreate('Products') && (
+              <Button
+                onClick={() => navigate('/products/new')}
+                className={`bg-brand-600 hover:bg-brand-700 text-white ${
+                responsive.isMobile ? 'w-full' : ''}`
+                }>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Product
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -695,17 +701,19 @@ const ProductList: React.FC = () => {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-1">
-                            <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              console.log('Editing product:', product.ID);
-                              handleEdit(product.ID);
-                            }}
-                            title="Edit product"
-                            className="text-blue-600 hover:text-blue-700">
-                              <Edit className="w-4 h-4" />
-                            </Button>
+                            {moduleCanEdit('Products') && (
+                              <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                console.log('Editing product:', product.ID);
+                                handleEdit(product.ID);
+                              }}
+                              title="Edit product"
+                              className="text-blue-600 hover:text-blue-700">
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                            )}
                             <Button
                             variant="outline"
                             size="sm"
@@ -727,17 +735,19 @@ const ProductList: React.FC = () => {
                             title="View change logs">
                               <FileText className="w-4 h-4" />
                             </Button>
-                            <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              console.log('Deleting product:', product.ID);
-                              handleDelete(product.ID);
-                            }}
-                            className="text-red-600 hover:text-red-700"
-                            title="Delete product">
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            {moduleCanDelete('Products') && (
+                              <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                console.log('Deleting product:', product.ID);
+                                handleDelete(product.ID);
+                              }}
+                              className="text-red-600 hover:text-red-700"
+                              title="Delete product">
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>);

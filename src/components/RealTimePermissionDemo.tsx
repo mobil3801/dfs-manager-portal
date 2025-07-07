@@ -14,8 +14,8 @@ import {
   CheckCircle2,
   PlayCircle,
   TestTube,
-  Sparkles
-} from 'lucide-react';
+  Sparkles } from
+'lucide-react';
 import RealTimePermissionManager from './RealTimePermissionManager';
 import RealTimePermissionToggle from './RealTimePermissionToggle';
 import { useRealtimePermissions } from '@/hooks/use-realtime-permissions';
@@ -24,7 +24,7 @@ const RealTimePermissionDemo: React.FC = () => {
   const { userProfile } = useAuth();
   const [selectedModule, setSelectedModule] = useState('products');
   const [testResults, setTestResults] = useState<string[]>([]);
-  
+
   // Test the hook
   const productPermissions = useRealtimePermissions('products');
   const salesPermissions = useRealtimePermissions('sales_reports');
@@ -32,12 +32,12 @@ const RealTimePermissionDemo: React.FC = () => {
   const isAdmin = userProfile?.role === 'Administrator';
 
   const addTestResult = (result: string) => {
-    setTestResults(prev => [...prev, `${new Date().toLocaleTimeString()}: ${result}`]);
+    setTestResults((prev) => [...prev, `${new Date().toLocaleTimeString()}: ${result}`]);
   };
 
   const testPermissionUpdate = async () => {
     addTestResult('Testing permission update...');
-    
+
     try {
       const success = await productPermissions.updatePermission('view', !productPermissions.canView);
       if (success) {
@@ -52,12 +52,12 @@ const RealTimePermissionDemo: React.FC = () => {
 
   const testPermissionCheck = () => {
     addTestResult('Testing permission checks...');
-    
+
     const viewResult = productPermissions.checkView();
     const createResult = productPermissions.checkCreate();
     const editResult = productPermissions.checkEdit();
     const deleteResult = productPermissions.checkDelete();
-    
+
     addTestResult(`View permission: ${viewResult ? '✅ Allowed' : '❌ Denied'}`);
     addTestResult(`Create permission: ${createResult ? '✅ Allowed' : '❌ Denied'}`);
     addTestResult(`Edit permission: ${editResult ? '✅ Allowed' : '❌ Denied'}`);
@@ -87,8 +87,8 @@ const RealTimePermissionDemo: React.FC = () => {
             </div>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -155,11 +155,11 @@ const RealTimePermissionDemo: React.FC = () => {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Select Module to Test:</label>
-                  <select 
+                  <select
                     value={selectedModule}
                     onChange={(e) => setSelectedModule(e.target.value)}
-                    className="border rounded px-3 py-2 w-full max-w-xs"
-                  >
+                    className="border rounded px-3 py-2 w-full max-w-xs">
+
                     <option value="products">Products</option>
                     <option value="sales_reports">Sales Reports</option>
                     <option value="employees">Employees</option>
@@ -173,11 +173,11 @@ const RealTimePermissionDemo: React.FC = () => {
                   Toggle switches now save changes in real-time to the database.
                 </p>
                 
-                <RealTimePermissionToggle 
+                <RealTimePermissionToggle
                   module={selectedModule}
                   showUserSelector={true}
-                  autoSave={true}
-                />
+                  autoSave={true} />
+
               </div>
             </CardContent>
           </Card>
@@ -265,58 +265,58 @@ const RealTimePermissionDemo: React.FC = () => {
                   <h3 className="font-medium">Permission Testing</h3>
                   
                   <div className="space-y-2">
-                    <Button 
+                    <Button
                       onClick={testPermissionUpdate}
                       className="w-full flex items-center space-x-2"
-                      disabled={productPermissions.loading}
-                    >
+                      disabled={productPermissions.loading}>
+
                       <PlayCircle className="w-4 h-4" />
                       <span>Test Permission Update</span>
                     </Button>
                     
-                    <Button 
+                    <Button
                       onClick={testPermissionCheck}
                       variant="outline"
-                      className="w-full flex items-center space-x-2"
-                    >
+                      className="w-full flex items-center space-x-2">
+
                       <TestTube className="w-4 h-4" />
                       <span>Test Permission Checks</span>
                     </Button>
                     
-                    <Button 
+                    <Button
                       onClick={clearTestResults}
                       variant="secondary"
-                      className="w-full"
-                    >
+                      className="w-full">
+
                       Clear Results
                     </Button>
                     
-                    <Button 
+                    <Button
                       onClick={() => {
                         productPermissions.refreshPermissions();
                         salesPermissions.refreshPermissions();
                         addTestResult('🔄 Permissions refreshed from database');
                       }}
                       variant="outline"
-                      className="w-full"
-                    >
+                      className="w-full">
+
                       Refresh from Database
                     </Button>
                   </div>
 
                   {/* Test Results */}
-                  {testResults.length > 0 && (
-                    <div className="border rounded-lg p-3 max-h-48 overflow-y-auto">
+                  {testResults.length > 0 &&
+                  <div className="border rounded-lg p-3 max-h-48 overflow-y-auto">
                       <h4 className="font-medium mb-2">Test Results</h4>
                       <div className="space-y-1 text-sm font-mono">
-                        {testResults.map((result, index) => (
-                          <div key={index} className="text-xs">
+                        {testResults.map((result, index) =>
+                      <div key={index} className="text-xs">
                             {result}
                           </div>
-                        ))}
+                      )}
                       </div>
                     </div>
-                  )}
+                  }
                 </div>
               </div>
             </CardContent>
@@ -402,8 +402,8 @@ const RealTimePermissionDemo: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default RealTimePermissionDemo;

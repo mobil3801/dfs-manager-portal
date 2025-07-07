@@ -54,8 +54,8 @@ export const useRealtimePermissions = (module: string) => {
         OrderByField: 'id',
         IsAsc: true,
         Filters: [
-          { name: 'user_id', op: 'Equal', value: userProfile.user_id }
-        ]
+        { name: 'user_id', op: 'Equal', value: userProfile.user_id }]
+
       });
 
       if (error) throw error;
@@ -93,7 +93,7 @@ export const useRealtimePermissions = (module: string) => {
         } else {
           setPermissions(modulePermissions);
         }
-        
+
         setLastUpdated(Date.now());
       }
     } catch (error) {
@@ -135,8 +135,8 @@ export const useRealtimePermissions = (module: string) => {
         OrderByField: 'id',
         IsAsc: true,
         Filters: [
-          { name: 'user_id', op: 'Equal', value: userProfile.user_id }
-        ]
+        { name: 'user_id', op: 'Equal', value: userProfile.user_id }]
+
       });
 
       if (error) throw error;
@@ -279,7 +279,7 @@ export const useRealtimePermissions = (module: string) => {
   const getPermissionSummary = useCallback(() => {
     const enabled = Object.values(permissions).filter(Boolean).length;
     const total = Object.keys(permissions).length;
-    return { enabled, total, percentage: Math.round((enabled / total) * 100) };
+    return { enabled, total, percentage: Math.round(enabled / total * 100) };
   }, [permissions]);
 
   // Check if user has any permissions for the module

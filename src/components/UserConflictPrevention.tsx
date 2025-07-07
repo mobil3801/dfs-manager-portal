@@ -114,11 +114,11 @@ const UserConflictPrevention: React.FC = () => {
       } catch (err) {
 
 
+
+
         // User not found or not logged in - this is fine for email uniqueness check
       } // Check email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        results.push({
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;if (!emailRegex.test(email)) {results.push({
           isValid: false,
           type: 'email',
           message: 'Invalid email format.',
