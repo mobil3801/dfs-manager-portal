@@ -8,8 +8,8 @@ const ModuleAccessPage: React.FC = () => {
       <div className="container mx-auto p-6">
         <ModuleAccessManager />
       </div>
-    </ModuleAccessProvider>
-  );
+    </ModuleAccessProvider>);
+
 };
 
 export default ModuleAccessPage;

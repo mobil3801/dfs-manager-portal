@@ -8,6 +8,7 @@ import { toast } from '@/hooks/use-toast';
 import { Plus, Search, Edit, Trash2, Package, FileText, Loader2, X, Save, History } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useModuleAccess } from '@/contexts/ModuleAccessContext';
 import ProductLogs from '@/components/ProductLogs';
 import ProductChangelogDialog from '@/components/ProductChangelogDialog';
 import HighlightText from '@/components/HighlightText';
@@ -17,8 +18,6 @@ import ProductCards from '@/components/ProductCards';
 import ProductPermissionManager from '@/components/ProductPermissionManager';
 import { useRealtimePermissions } from '@/hooks/use-realtime-permissions';
 import { generateSafeKey, safeMap } from '@/utils/invariantSafeHelper';
-import { useModuleAccess } from '@/contexts/ModuleAccessContext';
-
 
 interface Product {
   ID: number;
@@ -50,26 +49,33 @@ const ProductList: React.FC = () => {
   const { userProfile } = useAuth();
   const responsive = useResponsiveLayout();
 
-  // Real-time permission management
+  // Module Access Control
   const {
-    canView,
     canCreate,
     canEdit,
     canDelete,
+    isModuleAccessEnabled
+  } = useModuleAccess();
+
+  // Real-time permission management
+  const {
+    canView,
     canExport,
     canPrint,
     checkView,
-    checkCreate,
-    checkEdit,
-    checkDelete,
+    checkCreate: realtimeCheckCreate,
+    checkEdit: realtimeCheckEdit,
+    checkDelete: realtimeCheckDelete,
     checkExport,
     checkPrint,
     isAdmin,
     refreshPermissions
   } = useRealtimePermissions('products');
 
-  // Module access control
-  const { canCreate: moduleCanCreate, canEdit: moduleCanEdit, canDelete: moduleCanDelete } = useModuleAccess();
+  // Combined permission checks
+  const canCreateProduct = canCreate('products') && realtimeCheckCreate();
+  const canEditProduct = canEdit('products') && realtimeCheckEdit();
+  const canDeleteProduct = canDelete('products') && realtimeCheckDelete();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
@@ -184,8 +190,13 @@ const ProductList: React.FC = () => {
   const handleDelete = async (productId: number) => {
     console.log('handleDelete called for product ID:', productId);
 
-    // Check delete permission
-    if (!checkDelete()) {
+    // Check delete permission with module access control
+    if (!canDeleteProduct) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to delete products.",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -228,16 +239,27 @@ const ProductList: React.FC = () => {
   const handleSaveProduct = async (productId: number | null = null) => {
     console.log('handleSaveProduct called for product ID:', productId);
 
-    if (!hasEditPermission) {
+    const isCreating = productId === null;
+    
+    // Check permissions based on action
+    if (isCreating && !canCreateProduct) {
       toast({
         title: "Access Denied",
-        description: "You don't have permission to save product information.",
+        description: "You don't have permission to create products.",
         variant: "destructive"
       });
       return;
     }
 
-    const isCreating = productId === null;
+    if (!isCreating && !canEditProduct) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to edit products.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setSavingProductId(productId || -1); // Use -1 for new product creation
 
     try {
@@ -424,8 +446,13 @@ const ProductList: React.FC = () => {
   const handleEdit = (productId: number) => {
     console.log('handleEdit called for product ID:', productId);
 
-    // Check edit permission
-    if (!checkEdit()) {
+    // Check edit permission with module access control
+    if (!canEditProduct) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to edit products.",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -439,9 +466,6 @@ const ProductList: React.FC = () => {
     setChangelogModalOpen(true);
     console.log('Changelog modal should now be open');
   };
-
-  // Visual editing enabled for all users
-  const hasEditPermission = true;
 
   // Calculate display text for showing results
   const getDisplayText = () => {
@@ -514,7 +538,9 @@ const ProductList: React.FC = () => {
                 Manage your product inventory - Search across all product fields for similar items
               </CardDescription>
             </div>
-            {moduleCanCreate('Products') && (
+            
+            {/* Only show Add Product button if create permission is enabled */}
+            {canCreateProduct && (
               <Button
                 onClick={() => navigate('/products/new')}
                 className={`bg-brand-600 hover:bg-brand-700 text-white ${
@@ -523,6 +549,13 @@ const ProductList: React.FC = () => {
                 <Plus className="w-4 h-4 mr-2" />
                 Add Product
               </Button>
+            )}
+            
+            {/* Show permission message if create is disabled */}
+            {!canCreateProduct && isModuleAccessEnabled && (
+              <Badge variant="secondary" className="text-xs">
+                Create access disabled by admin
+              </Badge>
             )}
           </div>
         </CardHeader>
@@ -588,8 +621,9 @@ const ProductList: React.FC = () => {
               <Button
               variant="outline"
               className="mt-4"
-              onClick={() => debouncedSearchTerm ? handleClearSearch() : navigate('/products/new')}>
-                {debouncedSearchTerm ? 'Clear Search' : 'Add Your First Product'}
+              onClick={() => debouncedSearchTerm ? handleClearSearch() : canCreateProduct ? navigate('/products/new') : null}
+              disabled={!debouncedSearchTerm && !canCreateProduct}>
+                {debouncedSearchTerm ? 'Clear Search' : canCreateProduct ? 'Add Your First Product' : 'No Create Permission'}
               </Button>
             </div> :
 
@@ -701,7 +735,8 @@ const ProductList: React.FC = () => {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-1">
-                            {moduleCanEdit('Products') && (
+                            {/* Only show Edit button if edit permission is enabled */}
+                            {canEditProduct && (
                               <Button
                               variant="outline"
                               size="sm"
@@ -714,6 +749,7 @@ const ProductList: React.FC = () => {
                                 <Edit className="w-4 h-4" />
                               </Button>
                             )}
+                            
                             <Button
                             variant="outline"
                             size="sm"
@@ -735,7 +771,9 @@ const ProductList: React.FC = () => {
                             title="View change logs">
                               <FileText className="w-4 h-4" />
                             </Button>
-                            {moduleCanDelete('Products') && (
+                            
+                            {/* Only show Delete button if delete permission is enabled */}
+                            {canDeleteProduct && (
                               <Button
                               variant="outline"
                               size="sm"
