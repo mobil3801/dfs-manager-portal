@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { toast } from '@/hooks/use-toast';
 import { Search, Edit, Trash2, Users, Mail, Phone, Plus, Eye, Download, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useModuleAccess } from '@/contexts/ModuleAccessContext';
 import ViewModal from '@/components/ViewModal';
 import { useListKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { motion } from 'motion/react';
@@ -38,6 +39,19 @@ const EmployeeList: React.FC = () => {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const navigate = useNavigate();
+
+  // Module Access Control
+  const {
+    canCreate,
+    canEdit,
+    canDelete,
+    isModuleAccessEnabled
+  } = useModuleAccess();
+
+  // Permission checks for employees module
+  const canCreateEmployee = canCreate('employees');
+  const canEditEmployee = canEdit('employees');
+  const canDeleteEmployee = canDelete('employees');
 
   const pageSize = 10;
 
@@ -89,6 +103,16 @@ const EmployeeList: React.FC = () => {
   };
 
   const handleEdit = (employeeId: number) => {
+    // Check edit permission
+    if (!canEditEmployee) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to edit employees.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       // Validate employee ID exists
       const employee = employees.find((emp) => emp.ID === employeeId);
@@ -118,6 +142,16 @@ const EmployeeList: React.FC = () => {
   };
 
   const handleDelete = async (employeeId: number) => {
+    // Check delete permission
+    if (!canDeleteEmployee) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to delete employees.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!confirm('Are you sure you want to delete this employee?')) {
       return;
     }
@@ -172,6 +206,20 @@ const EmployeeList: React.FC = () => {
     });
   };
 
+  const handleCreateEmployee = () => {
+    // Check create permission
+    if (!canCreateEmployee) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to create employees.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    navigate('/employees/new');
+  };
+
   // Keyboard shortcuts
   useListKeyboardShortcuts(
     selectedEmployeeId,
@@ -181,7 +229,7 @@ const EmployeeList: React.FC = () => {
     },
     handleEdit,
     handleDelete,
-    () => navigate('/employees/new')
+    handleCreateEmployee
   );
 
   const getStationBadgeColor = (station: string) => {
@@ -279,13 +327,20 @@ const EmployeeList: React.FC = () => {
                 Manage your employees across all stations
               </CardDescription>
             </div>
-            <Button
-              onClick={() => navigate('/employees/new')}
-              className="flex items-center space-x-2">
-
-              <Plus className="w-4 h-4" />
-              <span>Add Employee</span>
-            </Button>
+            
+            {/* Only show Add Employee button if create permission is enabled */}
+            {canCreateEmployee ? (
+              <Button
+                onClick={handleCreateEmployee}
+                className="flex items-center space-x-2">
+                <Plus className="w-4 h-4" />
+                <span>Add Employee</span>
+              </Button>
+            ) : isModuleAccessEnabled && (
+              <Badge variant="secondary" className="text-xs">
+                Create access disabled by admin
+              </Badge>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -335,6 +390,14 @@ const EmployeeList: React.FC = () => {
           <div className="text-center py-8">
               <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No employees found</p>
+              {canCreateEmployee && (
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                  onClick={handleCreateEmployee}>
+                  Add Your First Employee
+                </Button>
+              )}
             </div> :
 
           <div className="border rounded-lg overflow-hidden">
@@ -411,27 +474,33 @@ const EmployeeList: React.FC = () => {
 
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit(employee.ID);
-                        }}>
-
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(employee.ID);
-                        }}
-                        className="text-red-600 hover:text-red-700">
-
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          
+                          {/* Only show Edit button if edit permission is enabled */}
+                          {canEditEmployee && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEdit(employee.ID);
+                              }}>
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          )}
+                          
+                          {/* Only show Delete button if delete permission is enabled */}
+                          {canDeleteEmployee && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(employee.ID);
+                              }}
+                              className="text-red-600 hover:text-red-700">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </motion.tr>
@@ -440,6 +509,17 @@ const EmployeeList: React.FC = () => {
               </Table>
             </div>
           }
+
+          {/* Show permission status when actions are disabled */}
+          {(!canEditEmployee || !canDeleteEmployee) && isModuleAccessEnabled && (
+            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-sm text-amber-700">
+                <strong>Access Restrictions:</strong>
+                {!canEditEmployee && " Edit access disabled by admin."}
+                {!canDeleteEmployee && " Delete access disabled by admin."}
+              </p>
+            </div>
+          )}
 
           {/* Pagination */}
           {totalPages > 1 &&
@@ -492,8 +572,8 @@ const EmployeeList: React.FC = () => {
         }}
         onDelete={() => handleDelete(selectedEmployee.ID)}
         onExport={handleExport}
-        canEdit={true}
-        canDelete={true}
+        canEdit={canEditEmployee}
+        canDelete={canDeleteEmployee}
         canExport={true} />
 
       }

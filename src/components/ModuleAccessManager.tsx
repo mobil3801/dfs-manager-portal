@@ -10,27 +10,27 @@ import { useModuleAccess } from '@/contexts/ModuleAccessContext';
 import { Loader2, Shield, Edit, Plus, Trash2, RefreshCw, Database, AlertCircle } from 'lucide-react';
 
 const ModuleAccessManager: React.FC = () => {
-  const { 
-    moduleAccess, 
-    loading, 
-    error, 
-    updateModuleAccess, 
-    createDefaultModules, 
+  const {
+    moduleAccess,
+    loading,
+    error,
+    updateModuleAccess,
+    createDefaultModules,
     fetchModuleAccess,
-    isModuleAccessEnabled 
+    isModuleAccessEnabled
   } = useModuleAccess();
-  
+
   const [updatingModules, setUpdatingModules] = useState<Set<number>>(new Set());
 
   const handleToggle = async (moduleId: number, field: string, value: boolean) => {
-    setUpdatingModules(prev => new Set(prev).add(moduleId));
-    
+    setUpdatingModules((prev) => new Set(prev).add(moduleId));
+
     try {
       await updateModuleAccess(moduleId, { [field]: value });
     } catch (error) {
       console.error('Failed to update module access:', error);
     } finally {
-      setUpdatingModules(prev => {
+      setUpdatingModules((prev) => {
         const newSet = new Set(prev);
         newSet.delete(moduleId);
         return newSet;
@@ -51,8 +51,8 @@ const ModuleAccessManager: React.FC = () => {
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin" />
         <span className="ml-2">Loading module access settings...</span>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -68,22 +68,22 @@ const ModuleAccessManager: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={handleRefresh}
-            disabled={loading}
-          >
+            disabled={loading}>
+
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
           
-          {moduleAccess.length === 0 && (
-            <Button
-              onClick={handleInitializeModules}
-              disabled={loading}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
+          {moduleAccess.length === 0 &&
+          <Button
+            onClick={handleInitializeModules}
+            disabled={loading}
+            className="bg-blue-600 hover:bg-blue-700 text-white">
+
               <Database className="h-4 w-4 mr-2" />
               Initialize Modules
             </Button>
-          )}
+          }
         </div>
       </div>
       
@@ -91,26 +91,26 @@ const ModuleAccessManager: React.FC = () => {
         Control which CRUD operations are available for each module in real-time. When disabled, users won't see the corresponding action buttons.
       </p>
 
-      {!isModuleAccessEnabled && (
-        <Alert>
+      {!isModuleAccessEnabled &&
+      <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             Module access system is currently disabled. All permissions are set to allow by default.
           </AlertDescription>
         </Alert>
-      )}
+      }
 
-      {error && (
-        <Alert variant="destructive">
+      {error &&
+      <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             Error: {error}
           </AlertDescription>
         </Alert>
-      )}
+      }
 
-      {moduleAccess.length === 0 ? (
-        <Card className="border-dashed border-2">
+      {moduleAccess.length === 0 ?
+      <Card className="border-dashed border-2">
           <CardContent className="pt-6">
             <div className="text-center py-8">
               <Database className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -119,31 +119,31 @@ const ModuleAccessManager: React.FC = () => {
                 Initialize the module access system to start controlling permissions.
               </p>
               <Button
-                onClick={handleInitializeModules}
-                disabled={loading}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
+              onClick={handleInitializeModules}
+              disabled={loading}
+              className="bg-blue-600 hover:bg-blue-700 text-white">
+
                 <Database className="h-4 w-4 mr-2" />
                 Initialize Default Modules
               </Button>
             </div>
           </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-4">
+        </Card> :
+
+      <div className="grid gap-4">
           {moduleAccess.map((module) => {
-            const isUpdating = updatingModules.has(module.id);
-            
-            return (
-              <Card key={module.id} className="border-l-4 border-l-blue-500 relative">
-                {isUpdating && (
-                  <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-10 rounded-lg">
+          const isUpdating = updatingModules.has(module.id);
+
+          return (
+            <Card key={module.id} className="border-l-4 border-l-blue-500 relative">
+                {isUpdating &&
+              <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-10 rounded-lg">
                     <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg shadow-lg">
                       <Loader2 className="h-4 w-4 animate-spin" />
                       <span className="text-sm">Updating...</span>
                     </div>
                   </div>
-                )}
+              }
                 
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
@@ -166,13 +166,13 @@ const ModuleAccessManager: React.FC = () => {
                       </div>
                       <div className="flex items-center space-x-2">
                         <Switch
-                          id={`create-${module.id}`}
-                          checked={module.create_enabled}
-                          onCheckedChange={(checked) =>
-                            handleToggle(module.id, 'create_enabled', checked)
-                          }
-                          disabled={isUpdating}
-                        />
+                        id={`create-${module.id}`}
+                        checked={module.create_enabled}
+                        onCheckedChange={(checked) =>
+                        handleToggle(module.id, 'create_enabled', checked)
+                        }
+                        disabled={isUpdating} />
+
                         <span className="text-sm text-gray-600">
                           {module.create_enabled ? 'Enabled' : 'Disabled'}
                         </span>
@@ -189,13 +189,13 @@ const ModuleAccessManager: React.FC = () => {
                       </div>
                       <div className="flex items-center space-x-2">
                         <Switch
-                          id={`edit-${module.id}`}
-                          checked={module.edit_enabled}
-                          onCheckedChange={(checked) =>
-                            handleToggle(module.id, 'edit_enabled', checked)
-                          }
-                          disabled={isUpdating}
-                        />
+                        id={`edit-${module.id}`}
+                        checked={module.edit_enabled}
+                        onCheckedChange={(checked) =>
+                        handleToggle(module.id, 'edit_enabled', checked)
+                        }
+                        disabled={isUpdating} />
+
                         <span className="text-sm text-gray-600">
                           {module.edit_enabled ? 'Enabled' : 'Disabled'}
                         </span>
@@ -212,13 +212,13 @@ const ModuleAccessManager: React.FC = () => {
                       </div>
                       <div className="flex items-center space-x-2">
                         <Switch
-                          id={`delete-${module.id}`}
-                          checked={module.delete_enabled}
-                          onCheckedChange={(checked) =>
-                            handleToggle(module.id, 'delete_enabled', checked)
-                          }
-                          disabled={isUpdating}
-                        />
+                        id={`delete-${module.id}`}
+                        checked={module.delete_enabled}
+                        onCheckedChange={(checked) =>
+                        handleToggle(module.id, 'delete_enabled', checked)
+                        }
+                        disabled={isUpdating} />
+
                         <span className="text-sm text-gray-600">
                           {module.delete_enabled ? 'Enabled' : 'Disabled'}
                         </span>
@@ -243,20 +243,20 @@ const ModuleAccessManager: React.FC = () => {
                     </Badge>
                   </div>
                 </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      )}
+              </Card>);
 
-      {loading && moduleAccess.length > 0 && (
-        <div className="flex items-center justify-center py-4">
+        })}
+        </div>
+      }
+
+      {loading && moduleAccess.length > 0 &&
+      <div className="flex items-center justify-center py-4">
           <Loader2 className="h-6 w-6 animate-spin mr-2" />
           <span>Updating module access...</span>
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default ModuleAccessManager;

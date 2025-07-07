@@ -240,7 +240,7 @@ const ProductList: React.FC = () => {
     console.log('handleSaveProduct called for product ID:', productId);
 
     const isCreating = productId === null;
-    
+
     // Check permissions based on action
     if (isCreating && !canCreateProduct) {
       toast({
@@ -540,23 +540,23 @@ const ProductList: React.FC = () => {
             </div>
             
             {/* Only show Add Product button if create permission is enabled */}
-            {canCreateProduct && (
-              <Button
-                onClick={() => navigate('/products/new')}
-                className={`bg-brand-600 hover:bg-brand-700 text-white ${
-                responsive.isMobile ? 'w-full' : ''}`
-                }>
+            {canCreateProduct &&
+            <Button
+              onClick={() => navigate('/products/new')}
+              className={`bg-brand-600 hover:bg-brand-700 text-white ${
+              responsive.isMobile ? 'w-full' : ''}`
+              }>
                 <Plus className="w-4 h-4 mr-2" />
                 Add Product
               </Button>
-            )}
+            }
             
             {/* Show permission message if create is disabled */}
-            {!canCreateProduct && isModuleAccessEnabled && (
-              <Badge variant="secondary" className="text-xs">
+            {!canCreateProduct && isModuleAccessEnabled &&
+            <Badge variant="secondary" className="text-xs">
                 Create access disabled by admin
               </Badge>
-            )}
+            }
           </div>
         </CardHeader>
         <CardContent>
@@ -736,19 +736,19 @@ const ProductList: React.FC = () => {
                         <TableCell>
                           <div className="flex items-center space-x-1">
                             {/* Only show Edit button if edit permission is enabled */}
-                            {canEditProduct && (
-                              <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                console.log('Editing product:', product.ID);
-                                handleEdit(product.ID);
-                              }}
-                              title="Edit product"
-                              className="text-blue-600 hover:text-blue-700">
+                            {canEditProduct &&
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              console.log('Editing product:', product.ID);
+                              handleEdit(product.ID);
+                            }}
+                            title="Edit product"
+                            className="text-blue-600 hover:text-blue-700">
                                 <Edit className="w-4 h-4" />
                               </Button>
-                            )}
+                          }
                             
                             <Button
                             variant="outline"
@@ -773,19 +773,19 @@ const ProductList: React.FC = () => {
                             </Button>
                             
                             {/* Only show Delete button if delete permission is enabled */}
-                            {canDeleteProduct && (
-                              <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                console.log('Deleting product:', product.ID);
-                                handleDelete(product.ID);
-                              }}
-                              className="text-red-600 hover:text-red-700"
-                              title="Delete product">
+                            {canDeleteProduct &&
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              console.log('Deleting product:', product.ID);
+                              handleDelete(product.ID);
+                            }}
+                            className="text-red-600 hover:text-red-700"
+                            title="Delete product">
                                 <Trash2 className="w-4 h-4" />
                               </Button>
-                            )}
+                          }
                           </div>
                         </TableCell>
                       </TableRow>);

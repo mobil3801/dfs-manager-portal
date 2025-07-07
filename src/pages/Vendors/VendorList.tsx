@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { toast } from '@/hooks/use-toast';
 import { Plus, Search, Edit, Trash2, Building2, Mail, Phone, MapPin, Eye, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useModuleAccess } from '@/contexts/ModuleAccessContext';
 import ViewModal from '@/components/ViewModal';
 import { useListKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { motion } from 'motion/react';
@@ -34,6 +35,19 @@ const VendorList: React.FC = () => {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
   const navigate = useNavigate();
+
+  // Module Access Control
+  const {
+    canCreate,
+    canEdit,
+    canDelete,
+    isModuleAccessEnabled
+  } = useModuleAccess();
+
+  // Permission checks for vendors module
+  const canCreateVendor = canCreate('vendors');
+  const canEditVendor = canEdit('vendors');
+  const canDeleteVendor = canDelete('vendors');
 
   const pageSize = 10;
 
@@ -81,10 +95,30 @@ const VendorList: React.FC = () => {
   };
 
   const handleEdit = (vendorId: number) => {
+    // Check edit permission
+    if (!canEditVendor) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to edit vendors.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     navigate(`/vendors/edit/${vendorId}`);
   };
 
   const handleDelete = async (vendorId: number) => {
+    // Check delete permission
+    if (!canDeleteVendor) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to delete vendors.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!confirm('Are you sure you want to delete this vendor?')) {
       return;
     }
@@ -138,6 +172,20 @@ const VendorList: React.FC = () => {
     });
   };
 
+  const handleCreateVendor = () => {
+    // Check create permission
+    if (!canCreateVendor) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to create vendors.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    navigate('/vendors/new');
+  };
+
   // Keyboard shortcuts
   useListKeyboardShortcuts(
     selectedVendorId,
@@ -147,7 +195,7 @@ const VendorList: React.FC = () => {
     },
     handleEdit,
     handleDelete,
-    () => navigate('/vendors/new')
+    handleCreateVendor
   );
 
   const getCategoryBadgeColor = (category: string) => {
@@ -233,10 +281,18 @@ const VendorList: React.FC = () => {
                 Manage your vendor contacts and information
               </CardDescription>
             </div>
-            <Button onClick={() => navigate('/vendors/new')} className="flex items-center space-x-2">
-              <Plus className="w-4 h-4" />
-              <span>Add Vendor</span>
-            </Button>
+            
+            {/* Only show Add Vendor button if create permission is enabled */}
+            {canCreateVendor ? (
+              <Button onClick={handleCreateVendor} className="flex items-center space-x-2">
+                <Plus className="w-4 h-4" />
+                <span>Add Vendor</span>
+              </Button>
+            ) : isModuleAccessEnabled && (
+              <Badge variant="secondary" className="text-xs">
+                Create access disabled by admin
+              </Badge>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -274,13 +330,14 @@ const VendorList: React.FC = () => {
           <div className="text-center py-8">
               <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No vendors found</p>
-              <Button
-              variant="outline"
-              className="mt-4"
-              onClick={() => navigate('/vendors/new')}>
-
-                Add Your First Vendor
-              </Button>
+              {canCreateVendor && (
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                  onClick={handleCreateVendor}>
+                  Add Your First Vendor
+                </Button>
+              )}
             </div> :
 
           <div className="border rounded-lg overflow-hidden">
@@ -364,27 +421,33 @@ const VendorList: React.FC = () => {
 
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit(vendor.ID);
-                        }}>
-
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(vendor.ID);
-                        }}
-                        className="text-red-600 hover:text-red-700">
-
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          
+                          {/* Only show Edit button if edit permission is enabled */}
+                          {canEditVendor && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEdit(vendor.ID);
+                              }}>
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          )}
+                          
+                          {/* Only show Delete button if delete permission is enabled */}
+                          {canDeleteVendor && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(vendor.ID);
+                              }}
+                              className="text-red-600 hover:text-red-700">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </motion.tr>
@@ -393,6 +456,17 @@ const VendorList: React.FC = () => {
               </Table>
             </div>
           }
+
+          {/* Show permission status when actions are disabled */}
+          {(!canEditVendor || !canDeleteVendor) && isModuleAccessEnabled && (
+            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-sm text-amber-700">
+                <strong>Access Restrictions:</strong>
+                {!canEditVendor && " Edit access disabled by admin."}
+                {!canDeleteVendor && " Delete access disabled by admin."}
+              </p>
+            </div>
+          )}
 
           {/* Pagination */}
           {totalPages > 1 &&
@@ -445,8 +519,8 @@ const VendorList: React.FC = () => {
         }}
         onDelete={() => handleDelete(selectedVendor.ID)}
         onExport={handleExport}
-        canEdit={true}
-        canDelete={true}
+        canEdit={canEditVendor}
+        canDelete={canDeleteVendor}
         canExport={true} />
 
       }

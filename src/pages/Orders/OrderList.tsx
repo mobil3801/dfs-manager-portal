@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { toast } from '@/hooks/use-toast';
 import { Plus, Search, Edit, Trash2, ShoppingCart, Calendar, DollarSign, Eye, Download, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useModuleAccess } from '@/contexts/ModuleAccessContext';
 import ViewModal from '@/components/ViewModal';
 import { useListKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { motion } from 'motion/react';
@@ -34,6 +35,19 @@ const OrderList: React.FC = () => {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const navigate = useNavigate();
+
+  // Module Access Control
+  const {
+    canCreate,
+    canEdit,
+    canDelete,
+    isModuleAccessEnabled
+  } = useModuleAccess();
+
+  // Permission checks for orders module
+  const canCreateOrder = canCreate('orders');
+  const canEditOrder = canEdit('orders');
+  const canDeleteOrder = canDelete('orders');
 
   const pageSize = 10;
 
@@ -81,10 +95,30 @@ const OrderList: React.FC = () => {
   };
 
   const handleEdit = (orderId: number) => {
+    // Check edit permission
+    if (!canEditOrder) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to edit orders.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     navigate(`/orders/edit/${orderId}`);
   };
 
   const handleDelete = async (orderId: number) => {
+    // Check delete permission
+    if (!canDeleteOrder) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to delete orders.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!confirm('Are you sure you want to delete this order?')) {
       return;
     }
@@ -138,6 +172,20 @@ const OrderList: React.FC = () => {
     });
   };
 
+  const handleCreateOrder = () => {
+    // Check create permission
+    if (!canCreateOrder) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to create orders.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    navigate('/orders/new');
+  };
+
   // Keyboard shortcuts
   useListKeyboardShortcuts(
     selectedOrderId,
@@ -147,7 +195,7 @@ const OrderList: React.FC = () => {
     },
     handleEdit,
     handleDelete,
-    () => navigate('/orders/new')
+    handleCreateOrder
   );
 
   const getStatusBadgeColor = (status: string) => {
@@ -313,10 +361,18 @@ const OrderList: React.FC = () => {
                 Manage your purchase orders and deliveries
               </CardDescription>
             </div>
-            <Button onClick={() => navigate('/orders/new')} className="flex items-center space-x-2">
-              <Plus className="w-4 h-4" />
-              <span>Create Order</span>
-            </Button>
+            
+            {/* Only show Create Order button if create permission is enabled */}
+            {canCreateOrder ? (
+              <Button onClick={handleCreateOrder} className="flex items-center space-x-2">
+                <Plus className="w-4 h-4" />
+                <span>Create Order</span>
+              </Button>
+            ) : isModuleAccessEnabled && (
+              <Badge variant="secondary" className="text-xs">
+                Create access disabled by admin
+              </Badge>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -354,13 +410,14 @@ const OrderList: React.FC = () => {
           <div className="text-center py-8">
               <ShoppingCart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No orders found</p>
-              <Button
-              variant="outline"
-              className="mt-4"
-              onClick={() => navigate('/orders/new')}>
-
-                Create Your First Order
-              </Button>
+              {canCreateOrder && (
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                  onClick={handleCreateOrder}>
+                  Create Your First Order
+                </Button>
+              )}
             </div> :
 
           <div className="border rounded-lg overflow-hidden">
@@ -424,27 +481,33 @@ const OrderList: React.FC = () => {
 
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit(order.ID);
-                        }}>
-
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(order.ID);
-                        }}
-                        className="text-red-600 hover:text-red-700">
-
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          
+                          {/* Only show Edit button if edit permission is enabled */}
+                          {canEditOrder && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEdit(order.ID);
+                              }}>
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          )}
+                          
+                          {/* Only show Delete button if delete permission is enabled */}
+                          {canDeleteOrder && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(order.ID);
+                              }}
+                              className="text-red-600 hover:text-red-700">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </motion.tr>
@@ -453,6 +516,17 @@ const OrderList: React.FC = () => {
               </Table>
             </div>
           }
+
+          {/* Show permission status when actions are disabled */}
+          {(!canEditOrder || !canDeleteOrder) && isModuleAccessEnabled && (
+            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-sm text-amber-700">
+                <strong>Access Restrictions:</strong>
+                {!canEditOrder && " Edit access disabled by admin."}
+                {!canDeleteOrder && " Delete access disabled by admin."}
+              </p>
+            </div>
+          )}
 
           {/* Pagination */}
           {totalPages > 1 &&
@@ -505,8 +579,8 @@ const OrderList: React.FC = () => {
         }}
         onDelete={() => handleDelete(selectedOrder.ID)}
         onExport={handleExport}
-        canEdit={true}
-        canDelete={true}
+        canEdit={canEditOrder}
+        canDelete={canDeleteOrder}
         canExport={true} />
 
       }

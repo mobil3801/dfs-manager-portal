@@ -42,20 +42,20 @@ export const ModuleAccessProvider: React.FC<{children: React.ReactNode;}> = ({ c
   const [isModuleAccessEnabled, setIsModuleAccessEnabled] = useState(true);
 
   const defaultModules = [
-    { module_name: 'products', display_name: 'Products', create_enabled: true, edit_enabled: true, delete_enabled: true },
-    { module_name: 'employees', display_name: 'Employees', create_enabled: true, edit_enabled: true, delete_enabled: true },
-    { module_name: 'sales', display_name: 'Sales Reports', create_enabled: true, edit_enabled: true, delete_enabled: true },
-    { module_name: 'vendors', display_name: 'Vendors', create_enabled: true, edit_enabled: true, delete_enabled: true },
-    { module_name: 'orders', display_name: 'Orders', create_enabled: true, edit_enabled: true, delete_enabled: true },
-    { module_name: 'licenses', display_name: 'Licenses & Certificates', create_enabled: true, edit_enabled: true, delete_enabled: true },
-    { module_name: 'salary', display_name: 'Salary Records', create_enabled: true, edit_enabled: true, delete_enabled: true },
-    { module_name: 'delivery', display_name: 'Delivery Records', create_enabled: true, edit_enabled: true, delete_enabled: true }
-  ];
+  { module_name: 'products', display_name: 'Products', create_enabled: true, edit_enabled: true, delete_enabled: true },
+  { module_name: 'employees', display_name: 'Employees', create_enabled: true, edit_enabled: true, delete_enabled: true },
+  { module_name: 'sales', display_name: 'Sales Reports', create_enabled: true, edit_enabled: true, delete_enabled: true },
+  { module_name: 'vendors', display_name: 'Vendors', create_enabled: true, edit_enabled: true, delete_enabled: true },
+  { module_name: 'orders', display_name: 'Orders', create_enabled: true, edit_enabled: true, delete_enabled: true },
+  { module_name: 'licenses', display_name: 'Licenses & Certificates', create_enabled: true, edit_enabled: true, delete_enabled: true },
+  { module_name: 'salary', display_name: 'Salary Records', create_enabled: true, edit_enabled: true, delete_enabled: true },
+  { module_name: 'delivery', display_name: 'Delivery Records', create_enabled: true, edit_enabled: true, delete_enabled: true }];
+
 
   const createDefaultModules = async () => {
     try {
       setLoading(true);
-      
+
       for (const module of defaultModules) {
         const { error: createError } = await window.ezsite.apis.tableCreate("25712", {
           module_name: module.module_name,
@@ -74,7 +74,7 @@ export const ModuleAccessProvider: React.FC<{children: React.ReactNode;}> = ({ c
 
       // Refresh the module access data
       await fetchModuleAccess();
-      
+
       toast.success('Default modules created successfully');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create default modules';
@@ -103,7 +103,7 @@ export const ModuleAccessProvider: React.FC<{children: React.ReactNode;}> = ({ c
       }
 
       const moduleData = response.data.List || [];
-      
+
       // If no modules exist, create default ones
       if (moduleData.length === 0) {
         console.log('No modules found, creating default modules...');
@@ -118,7 +118,7 @@ export const ModuleAccessProvider: React.FC<{children: React.ReactNode;}> = ({ c
       setError(errorMessage);
       setIsModuleAccessEnabled(false);
       console.error('Error fetching module access:', err);
-      
+
       // Set default permissions when there's an error
       setModuleAccess(defaultModules.map((module, index) => ({
         id: index + 1,
@@ -145,9 +145,9 @@ export const ModuleAccessProvider: React.FC<{children: React.ReactNode;}> = ({ c
 
       // Update local state immediately for real-time feedback
       setModuleAccess((prev) =>
-        prev.map((module) =>
-          module.id === id ? { ...module, ...updates, updated_at: new Date().toISOString() } : module
-        )
+      prev.map((module) =>
+      module.id === id ? { ...module, ...updates, updated_at: new Date().toISOString() } : module
+      )
       );
 
       toast.success('Module access updated successfully');
@@ -156,7 +156,7 @@ export const ModuleAccessProvider: React.FC<{children: React.ReactNode;}> = ({ c
       setError(errorMessage);
       toast.error(errorMessage);
       console.error('Error updating module access:', err);
-      
+
       // Revert local state change by refetching data
       await fetchModuleAccess();
     }
@@ -164,21 +164,21 @@ export const ModuleAccessProvider: React.FC<{children: React.ReactNode;}> = ({ c
 
   const canCreate = (moduleName: string): boolean => {
     if (!isModuleAccessEnabled) return true; // If module access is disabled, allow everything
-    
+
     const module = moduleAccess.find((m) => m.module_name.toLowerCase() === moduleName.toLowerCase());
     return module?.create_enabled ?? true; // Default to true if module not found
   };
 
   const canEdit = (moduleName: string): boolean => {
     if (!isModuleAccessEnabled) return true;
-    
+
     const module = moduleAccess.find((m) => m.module_name.toLowerCase() === moduleName.toLowerCase());
     return module?.edit_enabled ?? true;
   };
 
   const canDelete = (moduleName: string): boolean => {
     if (!isModuleAccessEnabled) return true;
-    
+
     const module = moduleAccess.find((m) => m.module_name.toLowerCase() === moduleName.toLowerCase());
     return module?.delete_enabled ?? true;
   };
@@ -203,6 +203,6 @@ export const ModuleAccessProvider: React.FC<{children: React.ReactNode;}> = ({ c
   return (
     <ModuleAccessContext.Provider value={value}>
       {children}
-    </ModuleAccessContext.Provider>
-  );
+    </ModuleAccessContext.Provider>);
+
 };

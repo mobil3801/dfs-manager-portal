@@ -9,6 +9,7 @@ import { toast } from '@/hooks/use-toast';
 import { Plus, Search, Edit, Trash2, TrendingUp, DollarSign, Calendar, Printer, Filter } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useModuleAccess } from '@/contexts/ModuleAccessContext';
 import EnhancedSalesReportPrintDialog from '@/components/EnhancedSalesReportPrintDialog';
 import StationDropdown from '@/components/StationDropdown';
 import { useStationFilter } from '@/hooks/use-station-options';
@@ -55,6 +56,19 @@ const SalesReportList: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState<SalesReport | null>(null);
   const navigate = useNavigate();
   const { userProfile } = useAuth();
+
+  // Module Access Control
+  const {
+    canCreate,
+    canEdit,
+    canDelete,
+    isModuleAccessEnabled
+  } = useModuleAccess();
+
+  // Permission checks for sales module
+  const canCreateSales = canCreate('sales');
+  const canEditSales = canEdit('sales');
+  const canDeleteSales = canDelete('sales');
 
   const pageSize = 10;
 
@@ -105,6 +119,16 @@ const SalesReportList: React.FC = () => {
   };
 
   const handleDelete = async (reportId: number) => {
+    // Check delete permission
+    if (!canDeleteSales) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to delete sales reports.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!confirm('Are you sure you want to delete this sales report?')) {
       return;
     }
@@ -126,6 +150,34 @@ const SalesReportList: React.FC = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const handleEdit = (reportId: number) => {
+    // Check edit permission
+    if (!canEditSales) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to edit sales reports.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    navigate(`/sales/edit/${reportId}`);
+  };
+
+  const handleCreateReport = () => {
+    // Check create permission
+    if (!canCreateSales) {
+      toast({
+        title: "Access Denied",
+        description: "You don't have permission to create sales reports.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    navigate('/sales/new');
   };
 
   const handlePrint = (report: SalesReport) => {
@@ -297,12 +349,18 @@ const SalesReportList: React.FC = () => {
                 Track daily sales performance across {isAllSelected ? 'all stations' : 'selected station'}
               </CardDescription>
             </div>
-            {canAddReport &&
-            <Button onClick={() => navigate('/sales/new')} className="flex items-center space-x-2">
+            
+            {/* Only show Add Report button if create permission is enabled */}
+            {canCreateSales && canAddReport ? (
+              <Button onClick={handleCreateReport} className="flex items-center space-x-2">
                 <Plus className="w-4 h-4" />
                 <span>Add Report</span>
               </Button>
-            }
+            ) : isModuleAccessEnabled && (
+              <Badge variant="secondary" className="text-xs">
+                Create access disabled by admin
+              </Badge>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -347,15 +405,14 @@ const SalesReportList: React.FC = () => {
               <span> for {selectedStation}</span>
               }
               </p>
-              {canAddReport &&
-            <Button
-              variant="outline"
-              className="mt-4"
-              onClick={() => navigate('/sales/new')}>
-
+              {canCreateSales && canAddReport && (
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                  onClick={handleCreateReport}>
                   Add Your First Sales Report
                 </Button>
-            }
+              )}
             </div> :
 
           <div className="border rounded-lg overflow-hidden">
@@ -439,27 +496,29 @@ const SalesReportList: React.FC = () => {
 
                             <Printer className="w-4 h-4" />
                           </Button>
-                          {isAdmin &&
-                      <>
-                              <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => navigate(`/sales/edit/${report.ID}`)}
-                          title="Edit Report">
-
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDelete(report.ID)}
-                          className="text-red-600 hover:text-red-700"
-                          title="Delete Report">
-
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </>
-                      }
+                          
+                          {/* Only show Edit button if edit permission is enabled */}
+                          {canEditSales && isAdmin && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEdit(report.ID)}
+                              title="Edit Report">
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          )}
+                          
+                          {/* Only show Delete button if delete permission is enabled */}
+                          {canDeleteSales && isAdmin && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDelete(report.ID)}
+                              className="text-red-600 hover:text-red-700"
+                              title="Delete Report">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -507,6 +566,17 @@ const SalesReportList: React.FC = () => {
               </Table>
             </div>
           }
+
+          {/* Show permission status when actions are disabled */}
+          {(!canEditSales || !canDeleteSales) && isModuleAccessEnabled && (
+            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-sm text-amber-700">
+                <strong>Access Restrictions:</strong>
+                {!canEditSales && " Edit access disabled by admin."}
+                {!canDeleteSales && " Delete access disabled by admin."}
+              </p>
+            </div>
+          )}
 
           {/* Pagination */}
           {totalPages > 1 &&
