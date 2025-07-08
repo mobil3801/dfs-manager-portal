@@ -9,7 +9,7 @@ interface ProfilePictureProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
   showFallbackIcon?: boolean;
-  previewFile?: File | null; // New prop for instant preview
+  previewFile?: File | null; // For instant preview of uploaded files
 }
 
 const ProfilePicture: React.FC<ProfilePictureProps> = ({
@@ -23,13 +23,15 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
 }) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   // Create preview URL for uploaded file
   useEffect(() => {
     if (previewFile) {
       const url = URL.createObjectURL(previewFile);
       setPreviewUrl(url);
-      setImageLoaded(false); // Reset image loaded state when new preview file is set
+      setImageLoaded(false);
+      setImageError(false);
 
       // Cleanup URL when component unmounts or file changes
       return () => {
@@ -38,8 +40,15 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
     } else {
       setPreviewUrl(null);
       setImageLoaded(false);
+      setImageError(false);
     }
   }, [previewFile]);
+
+  // Reset states when imageId changes
+  useEffect(() => {
+    setImageLoaded(false);
+    setImageError(false);
+  }, [imageId]);
 
   // Generate initials from first and last name
   const getInitials = () => {
@@ -67,7 +76,8 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
   // Get image URL if imageId exists
   const getImageUrl = () => {
     if (!imageId) return undefined;
-    return `${window.location.origin}/api/files/${imageId}`;
+    // Add timestamp to prevent caching issues when image is updated
+    return `${window.location.origin}/api/files/${imageId}?t=${Date.now()}`;
   };
 
   // Determine which image to show (preview takes priority)
@@ -76,12 +86,17 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
   // Handle image load success
   const handleImageLoad = () => {
     setImageLoaded(true);
+    setImageError(false);
   };
 
   // Handle image load error
   const handleImageError = () => {
     setImageLoaded(false);
+    setImageError(true);
   };
+
+  // Determine if we should show fallback
+  const shouldShowFallback = !imageToShow || imageError || !imageLoaded;
 
   return (
     <Avatar className={`${getSizeClasses()} ${className}`}>
@@ -97,12 +112,24 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
       }
       
       {/* Only show fallback when no image is available or image failed to load */}
-      {(!imageToShow || !imageLoaded) &&
-      <AvatarFallback className="bg-gray-100 text-gray-600 font-medium">
+      {shouldShowFallback &&
+      <AvatarFallback
+        className="bg-gray-100 text-gray-600 font-medium">
+
+
           {getInitials() !== 'U' ?
         getInitials() :
         showFallbackIcon ?
-        <User className={size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-8 h-8' : size === 'xl' ? 'w-12 h-12' : 'w-5 h-5'} /> :
+        <User
+          className={
+          size === 'sm' ? 'w-4 h-4' :
+          size === 'lg' ? 'w-8 h-8' :
+          size === 'xl' ? 'w-12 h-12' :
+          'w-5 h-5'
+          } /> :
+
+
+
         'U'
         }
         </AvatarFallback>

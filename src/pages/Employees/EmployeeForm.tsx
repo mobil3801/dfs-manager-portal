@@ -8,11 +8,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import { Users, Save, ArrowLeft, X } from 'lucide-react';
+import { Users, Save, ArrowLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import EnhancedFileUpload from '@/components/EnhancedFileUpload';
 import StationDropdown from '@/components/StationDropdown';
-import ProfilePicture from '@/components/ProfilePicture';
+import ProfilePictureUpload from '@/components/ProfilePictureUpload';
 
 interface EmployeeFormData {
   employee_id: string;
@@ -208,13 +208,12 @@ const EmployeeForm: React.FC = () => {
     }
   };
 
-  const handleRemoveProfileImage = () => {
-    setSelectedProfileImage(null);
-    setFormData((prev) => ({ ...prev, profile_image_id: null }));
-    toast({
-      title: "Profile Picture Removed",
-      description: "The profile picture will be removed when you save the employee."
-    });
+  const handleProfileImageSelect = (file: File | null) => {
+    setSelectedProfileImage(file);
+    if (file === null) {
+      // When removing profile image, also clear the stored image ID
+      setFormData((prev) => ({ ...prev, profile_image_id: null }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -326,56 +325,17 @@ const EmployeeForm: React.FC = () => {
             {/* Profile Picture Section */}
             <div>
               <h3 className="text-lg font-semibold mb-4 text-gray-900">Profile Picture</h3>
-              <div className="flex items-center space-x-6">
-                <div className="flex flex-col items-center space-y-3">
-                  <ProfilePicture
-                    imageId={formData.profile_image_id}
-                    firstName={formData.first_name}
-                    lastName={formData.last_name}
-                    size="xl"
-                    className="border-2 border-gray-200"
-                    previewFile={selectedProfileImage} />
-
-                  {(formData.profile_image_id || selectedProfileImage) &&
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleRemoveProfileImage}
-                    className="text-red-600 hover:text-red-700">
-
-                      <X className="w-4 h-4 mr-1" />
-                      Remove
-                    </Button>
-                  }
-                </div>
-                
-                <div className="flex-1 space-y-3">
-                  <Label>Upload Profile Picture</Label>
-                  <EnhancedFileUpload
-                    onFileSelect={setSelectedProfileImage}
-                    accept="image/*"
-                    label="Upload Profile Picture"
-                    currentFile={selectedProfileImage?.name}
-                    maxSize={5} />
-
-                  
-                  {selectedProfileImage &&
-                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                      <p className="text-sm font-medium text-blue-800">New profile picture selected:</p>
-                      <p className="text-sm text-blue-600">{selectedProfileImage.name}</p>
-                      <p className="text-xs text-blue-500 mt-1">
-                        This will replace the current profile picture when saved.
-                      </p>
-                    </div>
-                  }
-                  
-                  <p className="text-xs text-gray-500">
-                    Supported formats: JPG, PNG, GIF (Max 5MB)
-                    <br />
-                    Recommended: Square image, at least 200x200 pixels
-                  </p>
-                </div>
+              <div className="flex justify-center">
+                <ProfilePictureUpload
+                  onFileSelect={handleProfileImageSelect}
+                  firstName={formData.first_name}
+                  lastName={formData.last_name}
+                  imageId={formData.profile_image_id}
+                  previewFile={selectedProfileImage}
+                  maxSize={5}
+                  disabled={loading || isUploading}
+                  showRemoveButton={true}
+                />
               </div>
             </div>
 
