@@ -1935,6 +1935,36 @@ export class ErrorLogger {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       // Example API call (not implemented in this demo)
       // fetch('/api/errors', {
       //   method: 'POST',

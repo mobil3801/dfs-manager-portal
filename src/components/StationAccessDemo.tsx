@@ -11,12 +11,12 @@ import { Eye, Building2, Users, Database } from 'lucide-react';
 const StationAccessDemo: React.FC = () => {
   const [selectedStation, setSelectedStation] = useState<string>('');
   const { userProfile } = useAuth();
-  const { 
-    stationFilters, 
-    shouldFilterByStation, 
-    isAllSelected, 
+  const {
+    stationFilters,
+    shouldFilterByStation,
+    isAllSelected,
     accessibleStations,
-    accessibleStationsFilter 
+    accessibleStationsFilter
   } = useStationFilter(selectedStation);
 
   const handleStationChange = (value: string) => {
@@ -57,33 +57,33 @@ const StationAccessDemo: React.FC = () => {
               placeholder="Choose a station to view"
               includeAll={true}
               showBadge={true}
-              className="max-w-md"
-            />
+              className="max-w-md" />
+
           </div>
 
           {/* Current Selection Info */}
-          {selectedStation && (
-            <Alert>
+          {selectedStation &&
+          <Alert>
               <Eye className="w-4 h-4" />
               <AlertDescription>
-                {isAllSelected ? (
-                  <div className="space-y-2">
+                {isAllSelected ?
+              <div className="space-y-2">
                     <p className="font-medium">All Station Access Mode</p>
                     <p>You can view data from all stations you have permission to access:</p>
                     <div className="flex flex-wrap gap-2 mt-2">
-                      {accessibleStations.map((station) => (
-                        <Badge key={station} variant="secondary">
+                      {accessibleStations.map((station) =>
+                  <Badge key={station} variant="secondary">
                           {station}
                         </Badge>
-                      ))}
+                  )}
                     </div>
-                  </div>
-                ) : (
-                  <p>Viewing data for: <strong>{selectedStation}</strong></p>
-                )}
+                  </div> :
+
+              <p>Viewing data for: <strong>{selectedStation}</strong></p>
+              }
               </AlertDescription>
             </Alert>
-          )}
+          }
 
           {/* User Access Info */}
           <Card className="bg-gray-50">
@@ -97,11 +97,11 @@ const StationAccessDemo: React.FC = () => {
                   <p>Role: <Badge variant="outline">{userProfile?.role || 'Not set'}</Badge></p>
                   <p className="mt-1">Accessible Stations: {accessibleStations.length}</p>
                   <div className="flex flex-wrap gap-1 mt-2">
-                    {accessibleStations.map((station) => (
-                      <Badge key={station} variant="secondary" className="text-xs">
+                    {accessibleStations.map((station) =>
+                    <Badge key={station} variant="secondary" className="text-xs">
                         {station}
                       </Badge>
-                    ))}
+                    )}
                   </div>
                 </div>
               </div>
@@ -109,8 +109,8 @@ const StationAccessDemo: React.FC = () => {
           </Card>
 
           {/* API Filter Preview */}
-          {selectedStation && (
-            <Card className="bg-blue-50">
+          {selectedStation &&
+          <Card className="bg-blue-50">
               <CardContent className="pt-4">
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
@@ -118,8 +118,8 @@ const StationAccessDemo: React.FC = () => {
                     <span className="font-medium">API Filter Preview</span>
                   </div>
                   <div className="text-sm">
-                    {isAllSelected ? (
-                      <div className="space-y-2">
+                    {isAllSelected ?
+                  <div className="space-y-2">
                         <p className="text-blue-800">When "All Station" is selected:</p>
                         <ul className="list-disc list-inside text-blue-700 space-y-1">
                           <li>Make multiple API calls for each accessible station</li>
@@ -132,33 +132,33 @@ const StationAccessDemo: React.FC = () => {
                             {JSON.stringify(accessibleStationsFilter, null, 2)}
                           </pre>
                         </div>
-                      </div>
-                    ) : (
-                      <div className="p-2 bg-white rounded border">
+                      </div> :
+
+                  <div className="p-2 bg-white rounded border">
                         <p className="text-xs text-gray-600">Station filter:</p>
                         <pre className="text-xs text-blue-600 mt-1">
                           {JSON.stringify(stationFilters, null, 2)}
                         </pre>
                       </div>
-                    )}
+                  }
                   </div>
                 </div>
               </CardContent>
             </Card>
-          )}
+          }
 
           {/* Demo Button */}
-          <Button 
+          <Button
             onClick={simulateDataFetch}
             disabled={!selectedStation}
-            className="w-full"
-          >
+            className="w-full">
+
             Simulate Data Fetch for Selected Station(s)
           </Button>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default StationAccessDemo;

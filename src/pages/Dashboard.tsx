@@ -135,15 +135,15 @@ const Dashboard = () => {
 
   }: {title: string;value: number | string;icon: any;color: string;onClick?: () => void;}) =>
   <Card
-    className={`p-6 cursor-pointer hover:shadow-lg transition-shadow ${onClick ? 'hover:bg-gray-50' : ''}`}
+    className={`p-3 sm:p-4 md:p-6 cursor-pointer hover:shadow-lg transition-shadow ${onClick ? 'hover:bg-gray-50' : ''}`}
     onClick={onClick}>
 
       <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-bold">{loading ? '...' : value}</p>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">{title}</p>
+          <p className="text-lg sm:text-xl md:text-2xl font-bold truncate">{loading ? '...' : value}</p>
         </div>
-        <Icon className={`h-8 w-8 ${color}`} />
+        <Icon className={`h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 ${color} flex-shrink-0 ml-2`} />
       </div>
     </Card>;
 
@@ -161,7 +161,7 @@ const Dashboard = () => {
 
 
   }: {title: string;description: string;icon: any;onClick: () => void;color?: string;}) =>
-  <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={onClick}>
+  <Card className="p-3 sm:p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={onClick}>
       <div className="flex items-start space-x-3">
         <Icon className={`h-6 w-6 ${color} mt-1`} />
         <div>
@@ -175,15 +175,15 @@ const Dashboard = () => {
   return (
     <div className="space-y-6">
       {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white">
-        <h1 className="text-2xl font-bold">Welcome back, {user?.Name || 'User'}!</h1>
-        <p className="opacity-90">
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-4 sm:p-6 text-white">
+        <h1 className="text-xl sm:text-2xl font-bold">Welcome back, {user?.Name || 'User'}!</h1>
+        <p className="opacity-90 text-sm sm:text-base">
           {userProfile?.station || 'All Stations'} • {userProfile?.role || 'User'}
         </p>
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
         <QuickStatCard
           title="Employees"
           value={stats.totalEmployees}

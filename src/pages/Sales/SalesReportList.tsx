@@ -84,14 +84,8 @@ const SalesReportList: React.FC = () => {
       setLoading(true);
       const filters = [];
 
-      // Handle "All Station" selection
-      if (isAllSelected) {
-        // When All Station is selected, we need to show data from all accessible stations
-        // For now, we'll let it load all data and filter client-side if needed
-        // In a production app, you might want to add specific filters for accessible stations
-        console.log('Loading data for all accessible stations');
-      } else if (stationFilters) {
-        // Add specific station filter
+      // Add station filter based on selection
+      if (stationFilters) {
         filters.push(...stationFilters);
       }
 
@@ -589,7 +583,7 @@ const SalesReportList: React.FC = () => {
           <div className="flex items-center justify-between mt-6">
               <p className="text-sm text-gray-700">
                 Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} reports
-                {selectedStation !== 'ALL_STATIONS' && selectedStation !== 'ALL' &&
+                {selectedStation !== 'ALL' &&
               <span> for {selectedStation}</span>
               }
               </p>
