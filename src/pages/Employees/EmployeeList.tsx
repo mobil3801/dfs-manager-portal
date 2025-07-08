@@ -87,7 +87,7 @@ const EmployeeList: React.FC = () => {
         PageNo: currentPage,
         PageSize: pageSize,
         OrderByField: 'ID',
-        IsAsc: false,
+        IsAsc: true,
         Filters: filters
       });
 
