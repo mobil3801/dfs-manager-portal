@@ -329,11 +329,12 @@ const EmployeeForm: React.FC = () => {
               <div className="flex items-center space-x-6">
                 <div className="flex flex-col items-center space-y-3">
                   <ProfilePicture
-                    imageId={selectedProfileImage ? null : formData.profile_image_id}
+                    imageId={formData.profile_image_id}
                     firstName={formData.first_name}
                     lastName={formData.last_name}
                     size="xl"
-                    className="border-2 border-gray-200" />
+                    className="border-2 border-gray-200"
+                    previewFile={selectedProfileImage} />
 
                   {(formData.profile_image_id || selectedProfileImage) &&
                   <Button

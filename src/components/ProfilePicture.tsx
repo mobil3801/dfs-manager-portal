@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User } from 'lucide-react';
 
@@ -9,6 +9,7 @@ interface ProfilePictureProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
   showFallbackIcon?: boolean;
+  previewFile?: File | null; // New prop for instant preview
 }
 
 const ProfilePicture: React.FC<ProfilePictureProps> = ({
@@ -17,8 +18,26 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
   lastName = '',
   size = 'md',
   className = '',
-  showFallbackIcon = true
+  showFallbackIcon = true,
+  previewFile = null
 }) => {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  // Create preview URL for uploaded file
+  useEffect(() => {
+    if (previewFile) {
+      const url = URL.createObjectURL(previewFile);
+      setPreviewUrl(url);
+
+      // Cleanup URL when component unmounts or file changes
+      return () => {
+        URL.revokeObjectURL(url);
+      };
+    } else {
+      setPreviewUrl(null);
+    }
+  }, [previewFile]);
+
   // Generate initials from first and last name
   const getInitials = () => {
     const firstInitial = firstName.charAt(0).toUpperCase();
@@ -48,13 +67,17 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
     return `${window.location.origin}/api/files/${imageId}`;
   };
 
+  // Determine which image to show (preview takes priority)
+  const imageToShow = previewUrl || getImageUrl();
+
   return (
     <Avatar className={`${getSizeClasses()} ${className}`}>
-      {imageId &&
+      {imageToShow &&
       <AvatarImage
-        src={getImageUrl()}
+        src={imageToShow}
         alt={`${firstName} ${lastName}`.trim() || 'Profile picture'}
         className="object-cover" />
+
 
       }
       <AvatarFallback className="bg-gray-100 text-gray-600 font-medium">
@@ -62,7 +85,6 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
         getInitials() :
         showFallbackIcon ?
         <User className={size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-8 h-8' : size === 'xl' ? 'w-12 h-12' : 'w-5 h-5'} /> :
-
         'U'
         }
       </AvatarFallback>
