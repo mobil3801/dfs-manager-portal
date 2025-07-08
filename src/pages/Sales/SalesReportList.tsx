@@ -351,16 +351,16 @@ const SalesReportList: React.FC = () => {
             </div>
             
             {/* Only show Add Report button if create permission is enabled */}
-            {canCreateSales && canAddReport ? (
-              <Button onClick={handleCreateReport} className="flex items-center space-x-2">
+            {canCreateSales && canAddReport ?
+            <Button onClick={handleCreateReport} className="flex items-center space-x-2">
                 <Plus className="w-4 h-4" />
                 <span>Add Report</span>
-              </Button>
-            ) : isModuleAccessEnabled && (
-              <Badge variant="secondary" className="text-xs">
+              </Button> :
+            isModuleAccessEnabled &&
+            <Badge variant="secondary" className="text-xs">
                 Create access disabled by admin
               </Badge>
-            )}
+            }
           </div>
         </CardHeader>
         <CardContent>
@@ -405,14 +405,14 @@ const SalesReportList: React.FC = () => {
               <span> for {selectedStation}</span>
               }
               </p>
-              {canCreateSales && canAddReport && (
-                <Button
-                  variant="outline"
-                  className="mt-4"
-                  onClick={handleCreateReport}>
+              {canCreateSales && canAddReport &&
+            <Button
+              variant="outline"
+              className="mt-4"
+              onClick={handleCreateReport}>
                   Add Your First Sales Report
                 </Button>
-              )}
+            }
             </div> :
 
           <div className="border rounded-lg overflow-hidden">
@@ -498,27 +498,27 @@ const SalesReportList: React.FC = () => {
                           </Button>
                           
                           {/* Only show Edit button if edit permission is enabled */}
-                          {canEditSales && isAdmin && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleEdit(report.ID)}
-                              title="Edit Report">
+                          {canEditSales && isAdmin &&
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(report.ID)}
+                        title="Edit Report">
                               <Edit className="w-4 h-4" />
                             </Button>
-                          )}
+                      }
                           
                           {/* Only show Delete button if delete permission is enabled */}
-                          {canDeleteSales && isAdmin && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDelete(report.ID)}
-                              className="text-red-600 hover:text-red-700"
-                              title="Delete Report">
+                          {canDeleteSales && isAdmin &&
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(report.ID)}
+                        className="text-red-600 hover:text-red-700"
+                        title="Delete Report">
                               <Trash2 className="w-4 h-4" />
                             </Button>
-                          )}
+                      }
                         </div>
                       </TableCell>
                     </TableRow>
@@ -568,15 +568,15 @@ const SalesReportList: React.FC = () => {
           }
 
           {/* Show permission status when actions are disabled */}
-          {(!canEditSales || !canDeleteSales) && isModuleAccessEnabled && (
-            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          {(!canEditSales || !canDeleteSales) && isModuleAccessEnabled &&
+          <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
               <p className="text-sm text-amber-700">
                 <strong>Access Restrictions:</strong>
                 {!canEditSales && " Edit access disabled by admin."}
                 {!canDeleteSales && " Delete access disabled by admin."}
               </p>
             </div>
-          )}
+          }
 
           {/* Pagination */}
           {totalPages > 1 &&

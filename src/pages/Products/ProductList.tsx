@@ -15,8 +15,6 @@ import HighlightText from '@/components/HighlightText';
 import { ResponsiveTable, ResponsiveStack } from '@/components/ResponsiveWrapper';
 import { useResponsiveLayout } from '@/hooks/use-mobile';
 import ProductCards from '@/components/ProductCards';
-import ProductPermissionManager from '@/components/ProductPermissionManager';
-import { useRealtimePermissions } from '@/hooks/use-realtime-permissions';
 import { generateSafeKey, safeMap } from '@/utils/invariantSafeHelper';
 
 interface Product {
@@ -57,25 +55,10 @@ const ProductList: React.FC = () => {
     isModuleAccessEnabled
   } = useModuleAccess();
 
-  // Real-time permission management
-  const {
-    canView,
-    canExport,
-    canPrint,
-    checkView,
-    checkCreate: realtimeCheckCreate,
-    checkEdit: realtimeCheckEdit,
-    checkDelete: realtimeCheckDelete,
-    checkExport,
-    checkPrint,
-    isAdmin,
-    refreshPermissions
-  } = useRealtimePermissions('products');
-
-  // Combined permission checks
-  const canCreateProduct = canCreate('products') && realtimeCheckCreate();
-  const canEditProduct = canEdit('products') && realtimeCheckEdit();
-  const canDeleteProduct = canDelete('products') && realtimeCheckDelete();
+  // Simplified permission checks
+  const canCreateProduct = canCreate('products');
+  const canEditProduct = canEdit('products');
+  const canDeleteProduct = canDelete('products');
 
   const [products, setProducts] = useState<Product[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
@@ -521,9 +504,6 @@ const ProductList: React.FC = () => {
 
   return (
     <ResponsiveStack spacing="lg">
-      {/* Permission Management Section */}
-      <ProductPermissionManager className="mb-6" />
-      
       <Card>
         <CardHeader>
           <div className={`flex items-center ${
@@ -790,8 +770,7 @@ const ProductList: React.FC = () => {
                         </TableCell>
                       </TableRow>);
 
-                })}
-                </TableBody>
+                })}</TableBody>
               </Table>
             </ResponsiveTable>
           }

@@ -283,16 +283,16 @@ const VendorList: React.FC = () => {
             </div>
             
             {/* Only show Add Vendor button if create permission is enabled */}
-            {canCreateVendor ? (
-              <Button onClick={handleCreateVendor} className="flex items-center space-x-2">
+            {canCreateVendor ?
+            <Button onClick={handleCreateVendor} className="flex items-center space-x-2">
                 <Plus className="w-4 h-4" />
                 <span>Add Vendor</span>
-              </Button>
-            ) : isModuleAccessEnabled && (
-              <Badge variant="secondary" className="text-xs">
+              </Button> :
+            isModuleAccessEnabled &&
+            <Badge variant="secondary" className="text-xs">
                 Create access disabled by admin
               </Badge>
-            )}
+            }
           </div>
         </CardHeader>
         <CardContent>
@@ -330,14 +330,14 @@ const VendorList: React.FC = () => {
           <div className="text-center py-8">
               <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No vendors found</p>
-              {canCreateVendor && (
-                <Button
-                  variant="outline"
-                  className="mt-4"
-                  onClick={handleCreateVendor}>
+              {canCreateVendor &&
+            <Button
+              variant="outline"
+              className="mt-4"
+              onClick={handleCreateVendor}>
                   Add Your First Vendor
                 </Button>
-              )}
+            }
             </div> :
 
           <div className="border rounded-lg overflow-hidden">
@@ -423,31 +423,31 @@ const VendorList: React.FC = () => {
                           </Button>
                           
                           {/* Only show Edit button if edit permission is enabled */}
-                          {canEditVendor && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEdit(vendor.ID);
-                              }}>
+                          {canEditVendor &&
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(vendor.ID);
+                        }}>
                               <Edit className="w-4 h-4" />
                             </Button>
-                          )}
+                      }
                           
                           {/* Only show Delete button if delete permission is enabled */}
-                          {canDeleteVendor && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDelete(vendor.ID);
-                              }}
-                              className="text-red-600 hover:text-red-700">
+                          {canDeleteVendor &&
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(vendor.ID);
+                        }}
+                        className="text-red-600 hover:text-red-700">
                               <Trash2 className="w-4 h-4" />
                             </Button>
-                          )}
+                      }
                         </div>
                       </TableCell>
                     </motion.tr>
@@ -458,15 +458,15 @@ const VendorList: React.FC = () => {
           }
 
           {/* Show permission status when actions are disabled */}
-          {(!canEditVendor || !canDeleteVendor) && isModuleAccessEnabled && (
-            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          {(!canEditVendor || !canDeleteVendor) && isModuleAccessEnabled &&
+          <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
               <p className="text-sm text-amber-700">
                 <strong>Access Restrictions:</strong>
                 {!canEditVendor && " Edit access disabled by admin."}
                 {!canDeleteVendor && " Delete access disabled by admin."}
               </p>
             </div>
-          )}
+          }
 
           {/* Pagination */}
           {totalPages > 1 &&

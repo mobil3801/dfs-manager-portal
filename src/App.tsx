@@ -225,9 +225,7 @@ function App() {
       <TooltipProvider>
         <GlobalErrorBoundary>
           <AuthProvider>
-            <ModuleAccessProvider>
-              <AppRouter />
-            </ModuleAccessProvider>
+            <AppRouter />
           </AuthProvider>
         </GlobalErrorBoundary>
       </TooltipProvider>

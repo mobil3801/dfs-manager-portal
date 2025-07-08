@@ -329,18 +329,18 @@ const EmployeeList: React.FC = () => {
             </div>
             
             {/* Only show Add Employee button if create permission is enabled */}
-            {canCreateEmployee ? (
-              <Button
-                onClick={handleCreateEmployee}
-                className="flex items-center space-x-2">
+            {canCreateEmployee ?
+            <Button
+              onClick={handleCreateEmployee}
+              className="flex items-center space-x-2">
                 <Plus className="w-4 h-4" />
                 <span>Add Employee</span>
-              </Button>
-            ) : isModuleAccessEnabled && (
-              <Badge variant="secondary" className="text-xs">
+              </Button> :
+            isModuleAccessEnabled &&
+            <Badge variant="secondary" className="text-xs">
                 Create access disabled by admin
               </Badge>
-            )}
+            }
           </div>
         </CardHeader>
         <CardContent>
@@ -390,14 +390,14 @@ const EmployeeList: React.FC = () => {
           <div className="text-center py-8">
               <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No employees found</p>
-              {canCreateEmployee && (
-                <Button
-                  variant="outline"
-                  className="mt-4"
-                  onClick={handleCreateEmployee}>
+              {canCreateEmployee &&
+            <Button
+              variant="outline"
+              className="mt-4"
+              onClick={handleCreateEmployee}>
                   Add Your First Employee
                 </Button>
-              )}
+            }
             </div> :
 
           <div className="border rounded-lg overflow-hidden">
@@ -476,31 +476,31 @@ const EmployeeList: React.FC = () => {
                           </Button>
                           
                           {/* Only show Edit button if edit permission is enabled */}
-                          {canEditEmployee && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEdit(employee.ID);
-                              }}>
+                          {canEditEmployee &&
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(employee.ID);
+                        }}>
                               <Edit className="w-4 h-4" />
                             </Button>
-                          )}
+                      }
                           
                           {/* Only show Delete button if delete permission is enabled */}
-                          {canDeleteEmployee && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDelete(employee.ID);
-                              }}
-                              className="text-red-600 hover:text-red-700">
+                          {canDeleteEmployee &&
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(employee.ID);
+                        }}
+                        className="text-red-600 hover:text-red-700">
                               <Trash2 className="w-4 h-4" />
                             </Button>
-                          )}
+                      }
                         </div>
                       </TableCell>
                     </motion.tr>
@@ -511,15 +511,15 @@ const EmployeeList: React.FC = () => {
           }
 
           {/* Show permission status when actions are disabled */}
-          {(!canEditEmployee || !canDeleteEmployee) && isModuleAccessEnabled && (
-            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          {(!canEditEmployee || !canDeleteEmployee) && isModuleAccessEnabled &&
+          <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
               <p className="text-sm text-amber-700">
                 <strong>Access Restrictions:</strong>
                 {!canEditEmployee && " Edit access disabled by admin."}
                 {!canDeleteEmployee && " Delete access disabled by admin."}
               </p>
             </div>
-          )}
+          }
 
           {/* Pagination */}
           {totalPages > 1 &&

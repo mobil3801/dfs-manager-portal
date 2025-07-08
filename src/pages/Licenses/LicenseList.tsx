@@ -9,7 +9,6 @@ import { toast } from '@/hooks/use-toast';
 import { Plus, Search, Edit, Trash2, FileText, AlertTriangle, CheckCircle, Printer, MessageSquare, Send, Archive } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useModuleAccess } from '@/contexts/ModuleAccessContext';
 import EnhancedLicensePrintDialog from '@/components/EnhancedLicensePrintDialog';
 import { smsService } from '@/services/smsService';
 import licenseAlertService from '@/services/licenseAlertService';
