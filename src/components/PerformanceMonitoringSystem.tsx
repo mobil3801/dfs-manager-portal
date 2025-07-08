@@ -321,6 +321,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -374,9 +376,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
       if (currentMetrics.vitals.cls > 0.1) {newAlerts.push({ id: `cls-poor-${Date.now()}`, type: 'warning', title: 'Poor Layout Stability', message: `Cumulative Layout Shift is ${currentMetrics.vitals.cls.toFixed(3)}`, timestamp: Date.now(), severity: 'medium' });}if (currentMetrics.vitals.lcp > 2500) {newAlerts.push({ id: `lcp-slow-${Date.now()}`, type: 'warning', title: 'Slow Loading Performance', message: `Largest Contentful Paint is ${currentMetrics.vitals.lcp.toFixed(0)}ms`, timestamp: Date.now(), severity: 'medium' });} // Add new alerts
       if (newAlerts.length > 0) {setAlerts((prev) => [...newAlerts, ...prev].slice(0, 50)); // Keep last 50 alerts
         alertHistory.current = [...newAlerts, ...alertHistory.current]; // Show toast for critical alerts
-        newAlerts.forEach((alert) => {if (alert.severity === 'critical') {toast({ title: alert.title, description: alert.message, variant: 'destructive' });
-            }
-          });
+        newAlerts.forEach((alert) => {if (alert.severity === 'critical') {toast({ title: alert.title, description: alert.message, variant: 'destructive' });}});
       }
     }, [toast]);
 

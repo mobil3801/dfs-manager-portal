@@ -28,10 +28,11 @@ interface ViewModalField {
   key: string;
   label: string;
   value: any;
-  type?: 'text' | 'date' | 'currency' | 'badge' | 'email' | 'phone' | 'boolean' | 'number';
+  type?: 'text' | 'date' | 'currency' | 'badge' | 'email' | 'phone' | 'boolean' | 'number' | 'custom';
   icon?: React.ComponentType<{className?: string;}>;
   badgeColor?: string;
   hidden?: boolean;
+  customComponent?: React.ReactNode;
 }
 
 interface ViewModalProps {
@@ -66,7 +67,12 @@ const ViewModal: React.FC<ViewModalProps> = ({
   subtitle
 }) => {
   const formatValue = (field: ViewModalField) => {
-    const { value, type } = field;
+    const { value, type, customComponent } = field;
+
+    // Handle custom components first
+    if (type === 'custom' && customComponent) {
+      return customComponent;
+    }
 
     if (value === null || value === undefined || value === '') {
       return <span className="text-gray-400">N/A</span>;
@@ -148,6 +154,8 @@ const ViewModal: React.FC<ViewModalProps> = ({
         return <Mail className="w-4 h-4 text-gray-500" />;
       case 'phone':
         return <Phone className="w-4 h-4 text-gray-500" />;
+      case 'custom':
+        return <User className="w-4 h-4 text-gray-500" />;
       default:
         return <FileText className="w-4 h-4 text-gray-500" />;
     }
@@ -206,27 +214,32 @@ const ViewModal: React.FC<ViewModalProps> = ({
                     </div> :
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {visibleFields.map((field, index) =>
-                  <motion.div
-                    key={field.key}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="space-y-2">
+                      {visibleFields.map((field, index) => {
+                        // Special handling for custom components that should span full width
+                        const isFullWidth = field.type === 'custom' && field.key === 'profile_picture';
+                        
+                        return (
+                          <motion.div
+                            key={field.key}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            className={`space-y-2 ${isFullWidth ? 'md:col-span-2' : ''}`}>
 
-                          <div className="flex items-center space-x-2">
-                            {getFieldIcon(field)}
-                            <span className="text-sm font-medium text-gray-700">
-                              {field.label}
-                            </span>
-                          </div>
-                          <div className="pl-6">
-                            <div className="text-sm text-gray-900 font-medium">
-                              {formatValue(field)}
+                            <div className="flex items-center space-x-2">
+                              {getFieldIcon(field)}
+                              <span className="text-sm font-medium text-gray-700">
+                                {field.label}
+                              </span>
                             </div>
-                          </div>
-                        </motion.div>
-                  )}
+                            <div className={`${isFullWidth ? 'flex justify-center' : 'pl-6'}`}>
+                              <div className="text-sm text-gray-900 font-medium">
+                                {formatValue(field)}
+                              </div>
+                            </div>
+                          </motion.div>
+                        );
+                      })}
                     </div>
                 }
                 </div>

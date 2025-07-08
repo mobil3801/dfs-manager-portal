@@ -14,6 +14,7 @@ import { useListKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { motion } from 'motion/react';
 import ResponsiveTable from '@/components/ResponsiveTable';
 import { useIsMobile } from '@/hooks/use-mobile';
+import ProfilePicture from '@/components/ProfilePicture';
 
 interface Employee {
   ID: number;
@@ -28,6 +29,13 @@ interface Employee {
   salary: number;
   is_active: boolean;
   created_by: number;
+  profile_image_id?: number | null;
+  date_of_birth?: string;
+  current_address?: string;
+  mailing_address?: string;
+  reference_name?: string;
+  id_document_type?: string;
+  id_document_file_id?: number | null;
 }
 
 const EmployeeList: React.FC = () => {
@@ -255,207 +263,25 @@ const EmployeeList: React.FC = () => {
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
-  // Define columns for responsive table
-  const tableColumns = [
-    {
-      key: 'employee_id',
-      label: 'Employee ID',
-      render: (value: string) => (
-        <span className="font-medium">{value}</span>
-      )
-    },
-    {
-      key: 'name',
-      label: 'Name',
-      render: (value: any, row: Employee) => (
-        <div>
-          <p className="font-medium">{row.first_name} {row.last_name}</p>
-          <p className="text-sm text-gray-500">{row.position}</p>
-        </div>
-      )
-    },
-    {
-      key: 'contact',
-      label: 'Contact',
-      render: (value: any, row: Employee) => (
-        <div className="space-y-1">
-          {row.email && (
-            <div className="flex items-center space-x-1 text-sm">
-              <Mail className="w-3 h-3" />
-              <span className="truncate max-w-[150px]">{row.email}</span>
-            </div>
-          )}
-          {row.phone && (
-            <div className="flex items-center space-x-1 text-sm">
-              <Phone className="w-3 h-3" />
-              <span>{row.phone}</span>
-            </div>
-          )}
-        </div>
-      )
-    },
-    {
-      key: 'station',
-      label: 'Station',
-      render: (value: string) => (
-        <Badge className={`text-white ${getStationBadgeColor(value)}`}>
-          {value}
-        </Badge>
-      )
-    },
-    {
-      key: 'hire_date',
-      label: 'Hire Date',
-      render: (value: string) => formatDate(value)
-    },
-    {
-      key: 'is_active',
-      label: 'Status',
-      render: (value: boolean) => (
-        <Badge variant={value ? "default" : "secondary"}>
-          {value ? "Active" : "Inactive"}
-        </Badge>
-      )
-    },
-    {
-      key: 'actions',
-      label: 'Actions',
-      render: (value: any, row: Employee) => (
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleView(row);
-            }}
-            className="text-blue-600 hover:text-blue-700"
-          >
-            <Eye className="w-4 h-4" />
-          </Button>
-          
-          {canEditEmployee && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleEdit(row.ID);
-              }}
-            >
-              <Edit className="w-4 h-4" />
-            </Button>
-          )}
-          
-          {canDeleteEmployee && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete(row.ID);
-              }}
-              className="text-red-600 hover:text-red-700"
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          )}
-        </div>
-      )
-    }
-  ];
-
-  const mobileCardRender = (employee: Employee, index: number) => (
-    <div className="p-4">
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-gray-900 truncate">
-            {employee.first_name} {employee.last_name}
-          </h3>
-          <p className="text-sm text-gray-500">{employee.position}</p>
-        </div>
-        <div className="flex items-center space-x-2 ml-2">
-          <Badge variant="outline" className="text-xs">
-            {employee.employee_id}
-          </Badge>
-          <Badge variant={employee.is_active ? "default" : "secondary"}>
-            {employee.is_active ? "Active" : "Inactive"}
-          </Badge>
-        </div>
-      </div>
-      
-      <div className="space-y-2 mb-4">
-        <Badge className={`text-white ${getStationBadgeColor(employee.station)}`}>
-          {employee.station}
-        </Badge>
-        
-        {employee.email && (
-          <div className="flex items-center space-x-2 text-sm text-gray-600">
-            <Mail className="w-4 h-4" />
-            <span className="truncate">{employee.email}</span>
-          </div>
-        )}
-        
-        {employee.phone && (
-          <div className="flex items-center space-x-2 text-sm text-gray-600">
-            <Phone className="w-4 h-4" />
-            <span>{employee.phone}</span>
-          </div>
-        )}
-        
-        <div className="text-sm text-gray-600">
-          Hired: {formatDate(employee.hire_date)}
-        </div>
-      </div>
-      
-      <div className="flex items-center space-x-2 pt-3 border-t">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleView(employee);
-          }}
-          className="text-blue-600 hover:text-blue-700 flex-1"
-        >
-          <Eye className="w-4 h-4 mr-1" />
-          View
-        </Button>
-        
-        {canEditEmployee && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleEdit(employee.ID);
-            }}
-            className="flex-1"
-          >
-            <Edit className="w-4 h-4 mr-1" />
-            Edit
-          </Button>
-        )}
-        
-        {canDeleteEmployee && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete(employee.ID);
-            }}
-            className="text-red-600 hover:text-red-700"
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        )}
-      </div>
-    </div>
-  );
-
-  // Define view modal fields
+  // Define view modal fields with profile picture
   const getViewModalFields = (employee: Employee) => [
+  {
+    key: 'profile_picture',
+    label: 'Profile Picture',
+    value: employee.profile_image_id,
+    type: 'custom' as const,
+    customComponent: (
+      <div className="flex justify-center">
+        <ProfilePicture
+          imageId={employee.profile_image_id}
+          firstName={employee.first_name}
+          lastName={employee.last_name}
+          size="xl"
+          className="border-2 border-gray-200"
+        />
+      </div>
+    )
+  },
   {
     key: 'employee_id',
     label: 'Employee ID',
@@ -502,6 +328,30 @@ const EmployeeList: React.FC = () => {
     type: 'date' as const
   },
   {
+    key: 'date_of_birth',
+    label: 'Date of Birth',
+    value: employee.date_of_birth,
+    type: 'date' as const
+  },
+  {
+    key: 'current_address',
+    label: 'Current Address',
+    value: employee.current_address,
+    type: 'text' as const
+  },
+  {
+    key: 'mailing_address',
+    label: 'Mailing Address',
+    value: employee.mailing_address,
+    type: 'text' as const
+  },
+  {
+    key: 'reference_name',
+    label: 'Reference Name',
+    value: employee.reference_name,
+    type: 'text' as const
+  },
+  {
     key: 'salary',
     label: 'Salary',
     value: employee.salary,
@@ -514,18 +364,234 @@ const EmployeeList: React.FC = () => {
     type: 'boolean' as const
   }];
 
+  // Mobile view for smaller screens
+  if (isMobile) {
+    return (
+      <div className="space-y-4">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center space-x-2 text-lg">
+                  <Users className="w-5 h-5" />
+                  <span>Employees</span>
+                </CardTitle>
+                <CardDescription className="text-sm">
+                  Manage your team
+                </CardDescription>
+              </div>
+              
+              {canCreateEmployee && (
+                <Button size="sm" onClick={handleCreateEmployee}>
+                  <Plus className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Search and Filter */}
+            <div className="space-y-3">
+              <Select value={selectedStation} onValueChange={setSelectedStation}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Station" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Stations</SelectItem>
+                  <SelectItem value="MOBIL">MOBIL</SelectItem>
+                  <SelectItem value="AMOCO ROSEDALE">AMOCO ROSEDALE</SelectItem>
+                  <SelectItem value="AMOCO BROOKLYN">AMOCO BROOKLYN</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="Search employees..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            {/* Employee Cards */}
+            {loading ? (
+              <div className="space-y-3">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="h-20 bg-gray-100 rounded animate-pulse"></div>
+                ))}
+              </div>
+            ) : employees.length === 0 ? (
+              <div className="text-center py-8">
+                <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500">No employees found</p>
+                {canCreateEmployee && (
+                  <Button variant="outline" className="mt-4" onClick={handleCreateEmployee}>
+                    Add Your First Employee
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {employees.map((employee, index) => (
+                  <motion.div
+                    key={employee.ID}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <Card 
+                      className={`cursor-pointer transition-colors ${
+                        selectedEmployeeId === employee.ID ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'
+                      }`}
+                      onClick={() => setSelectedEmployeeId(employee.ID)}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-center space-x-3">
+                          <ProfilePicture
+                            imageId={employee.profile_image_id}
+                            firstName={employee.first_name}
+                            lastName={employee.last_name}
+                            size="md"
+                          />
+                          
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-medium text-gray-900 truncate">
+                                {employee.first_name} {employee.last_name}
+                              </h3>
+                              <Badge variant={employee.is_active ? "default" : "secondary"} className="text-xs">
+                                {employee.is_active ? "Active" : "Inactive"}
+                              </Badge>
+                            </div>
+                            
+                            <p className="text-sm text-gray-500">{employee.position}</p>
+                            <p className="text-xs text-gray-400">{employee.employee_id}</p>
+                            
+                            <div className="flex items-center justify-between mt-2">
+                              <Badge 
+                                className={`text-white text-xs ${getStationBadgeColor(employee.station)}`}
+                              >
+                                {employee.station}
+                              </Badge>
+                              
+                              <div className="flex space-x-1">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleView(employee);
+                                  }}
+                                  className="p-1 h-6 w-6"
+                                >
+                                  <Eye className="w-3 h-3" />
+                                </Button>
+                                {canEditEmployee && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleEdit(employee.ID);
+                                    }}
+                                    className="p-1 h-6 w-6"
+                                  >
+                                    <Edit className="w-3 h-3" />
+                                  </Button>
+                                )}
+                                {canDeleteEmployee && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDelete(employee.ID);
+                                    }}
+                                    className="p-1 h-6 w-6 text-red-600 hover:text-red-700"
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between pt-4">
+                <p className="text-xs text-gray-700">
+                  {(currentPage - 1) * pageSize + 1}-{Math.min(currentPage * pageSize, totalCount)} of {totalCount}
+                </p>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* View Modal */}
+        {selectedEmployee && (
+          <ViewModal
+            isOpen={viewModalOpen}
+            onClose={() => {
+              setViewModalOpen(false);
+              setSelectedEmployee(null);
+              setSelectedEmployeeId(null);
+            }}
+            title={`${selectedEmployee.first_name} ${selectedEmployee.last_name}`}
+            subtitle={`Employee ID: ${selectedEmployee.employee_id} • ${selectedEmployee.position}`}
+            data={selectedEmployee}
+            fields={getViewModalFields(selectedEmployee)}
+            onEdit={() => {
+              setViewModalOpen(false);
+              handleEdit(selectedEmployee.ID);
+            }}
+            onDelete={() => handleDelete(selectedEmployee.ID)}
+            onExport={handleExport}
+            canEdit={canEditEmployee}
+            canDelete={canDeleteEmployee}
+            canExport={true}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <div className={`flex items-center ${isMobile ? 'flex-col space-y-4' : 'justify-between'}`}>
-            <div className={`${isMobile ? 'text-center' : 'flex flex-col'}`}>
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col">
               <CardTitle className="flex items-center space-x-2">
                 <Users className="w-6 h-6" />
                 <span>Employee List</span>
               </CardTitle>
-              <CardDescription className={isMobile ? 'text-center mt-2' : ''}>
+              <CardDescription>
                 Manage your employees across all stations
               </CardDescription>
             </div>
@@ -534,7 +600,7 @@ const EmployeeList: React.FC = () => {
             {canCreateEmployee ?
             <Button
               onClick={handleCreateEmployee}
-              className={`flex items-center space-x-2 ${isMobile ? 'w-full' : ''}`}>
+              className="flex items-center space-x-2">
                 <Plus className="w-4 h-4" />
                 <span>Add Employee</span>
               </Button> :
@@ -547,8 +613,8 @@ const EmployeeList: React.FC = () => {
         </CardHeader>
         <CardContent>
           {/* Station Filter */}
-          <div className={`flex items-center mb-6 ${isMobile ? 'flex-col space-y-4' : 'space-x-4'}`}>
-            <div className={isMobile ? 'w-full' : 'w-64'}>
+          <div className="flex items-center space-x-4 mb-6">
+            <div className="w-64">
               <Select value={selectedStation} onValueChange={setSelectedStation}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select Station" />
@@ -561,10 +627,10 @@ const EmployeeList: React.FC = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div className={`relative ${isMobile ? 'w-full' : 'flex-1 max-w-sm'}`}>
+            <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
-                placeholder={isMobile ? "Search employees..." : "Search employees..."}
+                placeholder="Search employees..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10" />
@@ -582,30 +648,144 @@ const EmployeeList: React.FC = () => {
           </div>
 
           {/* Employees Table */}
-          <ResponsiveTable
-            data={employees}
-            columns={tableColumns}
-            loading={loading}
-            emptyMessage="No employees found"
-            onRowClick={isMobile ? (employee) => setSelectedEmployeeId(employee.ID) : undefined}
-            mobileCardRender={mobileCardRender}
-          />
-
-          {employees.length === 0 && !loading && (
-            <div className="text-center py-8">
+          {loading ?
+          <div className="space-y-4">
+              {[...Array(5)].map((_, i) =>
+            <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
+            )}
+            </div> :
+          employees.length === 0 ?
+          <div className="text-center py-8">
               <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No employees found</p>
-              {canCreateEmployee && (
-                <Button
-                  variant="outline"
-                  className="mt-4"
-                  onClick={handleCreateEmployee}
-                >
+              {canCreateEmployee &&
+            <Button
+              variant="outline"
+              className="mt-4"
+              onClick={handleCreateEmployee}>
                   Add Your First Employee
                 </Button>
-              )}
+            }
+            </div> :
+
+          <div className="border rounded-lg overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Profile</TableHead>
+                    <TableHead>Employee ID</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Contact</TableHead>
+                    <TableHead>Position</TableHead>
+                    <TableHead>Station</TableHead>
+                    <TableHead>Hire Date</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {employees.map((employee, index) =>
+                <motion.tr
+                  key={employee.ID}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className={`border-b hover:bg-gray-50 transition-colors cursor-pointer ${
+                  selectedEmployeeId === employee.ID ? 'bg-blue-50 border-blue-200' : ''}`
+                  }
+                  onClick={() => setSelectedEmployeeId(employee.ID)}>
+
+                      <TableCell>
+                        <ProfilePicture
+                          imageId={employee.profile_image_id}
+                          firstName={employee.first_name}
+                          lastName={employee.last_name}
+                          size="sm"
+                        />
+                      </TableCell>
+                      <TableCell className="font-medium">{employee.employee_id}</TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">{employee.first_name} {employee.last_name}</p>
+                          <p className="text-sm text-gray-500">{employee.position}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          {employee.email &&
+                      <div className="flex items-center space-x-1 text-sm">
+                              <Mail className="w-3 h-3" />
+                              <span>{employee.email}</span>
+                            </div>
+                      }
+                          {employee.phone &&
+                      <div className="flex items-center space-x-1 text-sm">
+                              <Phone className="w-3 h-3" />
+                              <span>{employee.phone}</span>
+                            </div>
+                      }
+                        </div>
+                      </TableCell>
+                      <TableCell>{employee.position}</TableCell>
+                      <TableCell>
+                        <Badge className={`text-white ${getStationBadgeColor(employee.station)}`}>
+                          {employee.station}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{formatDate(employee.hire_date)}</TableCell>
+                      <TableCell>
+                        <Badge variant={employee.is_active ? "default" : "secondary"}>
+                          {employee.is_active ? "Active" : "Inactive"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleView(employee);
+                        }}
+                        className="text-blue-600 hover:text-blue-700">
+
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          
+                          {/* Only show Edit button if edit permission is enabled */}
+                          {canEditEmployee &&
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(employee.ID);
+                        }}>
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                      }
+                          
+                          {/* Only show Delete button if delete permission is enabled */}
+                          {canDeleteEmployee &&
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(employee.ID);
+                        }}
+                        className="text-red-600 hover:text-red-700">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                      }
+                        </div>
+                      </TableCell>
+                    </motion.tr>
+                )}
+                </TableBody>
+              </Table>
             </div>
-          )}
+          }
 
           {/* Show permission status when actions are disabled */}
           {(!canEditEmployee || !canDeleteEmployee) && isModuleAccessEnabled &&

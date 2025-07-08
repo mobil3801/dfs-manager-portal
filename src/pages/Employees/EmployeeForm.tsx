@@ -8,10 +8,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import { Users, Save, ArrowLeft, Upload } from 'lucide-react';
+import { Users, Save, ArrowLeft, Camera, X } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import EnhancedFileUpload from '@/components/EnhancedFileUpload';
 import StationDropdown from '@/components/StationDropdown';
+import ProfilePicture from '@/components/ProfilePicture';
 
 interface EmployeeFormData {
   employee_id: string;
@@ -30,6 +31,7 @@ interface EmployeeFormData {
   reference_name: string;
   id_document_type: string;
   id_document_file_id: number | null;
+  profile_image_id: number | null;
 }
 
 const EmployeeForm: React.FC = () => {
@@ -49,9 +51,11 @@ const EmployeeForm: React.FC = () => {
     mailing_address: '',
     reference_name: '',
     id_document_type: '',
-    id_document_file_id: null
+    id_document_file_id: null,
+    profile_image_id: null
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedProfileImage, setSelectedProfileImage] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -166,7 +170,8 @@ const EmployeeForm: React.FC = () => {
           mailing_address: employee.mailing_address || '',
           reference_name: employee.reference_name || '',
           id_document_type: employee.id_document_type || '',
-          id_document_file_id: employee.id_document_file_id || null
+          id_document_file_id: employee.id_document_file_id || null,
+          profile_image_id: employee.profile_image_id || null
         });
       }
     } catch (error) {
@@ -181,14 +186,12 @@ const EmployeeForm: React.FC = () => {
     }
   };
 
-  const handleFileUpload = async () => {
-    if (!selectedFile) return null;
-
+  const handleFileUpload = async (file: File) => {
     setIsUploading(true);
     try {
       const { data: fileId, error } = await window.ezsite.apis.upload({
-        filename: selectedFile.name,
-        file: selectedFile
+        filename: file.name,
+        file: file
       });
       if (error) throw error;
       return fileId;
@@ -203,6 +206,15 @@ const EmployeeForm: React.FC = () => {
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const handleRemoveProfileImage = () => {
+    setSelectedProfileImage(null);
+    setFormData((prev) => ({ ...prev, profile_image_id: null }));
+    toast({
+      title: "Profile Picture Removed",
+      description: "The profile picture will be removed when you save the employee.",
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -221,11 +233,22 @@ const EmployeeForm: React.FC = () => {
     try {
       setLoading(true);
 
-      let fileId = formData.id_document_file_id;
+      let idDocumentFileId = formData.id_document_file_id;
+      let profileImageId = formData.profile_image_id;
 
+      // Upload ID document if selected
       if (selectedFile) {
-        fileId = await handleFileUpload();
-        if (fileId === null) {
+        idDocumentFileId = await handleFileUpload(selectedFile);
+        if (idDocumentFileId === null) {
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Upload profile image if selected
+      if (selectedProfileImage) {
+        profileImageId = await handleFileUpload(selectedProfileImage);
+        if (profileImageId === null) {
           setLoading(false);
           return;
         }
@@ -235,7 +258,8 @@ const EmployeeForm: React.FC = () => {
         ...formData,
         hire_date: formData.hire_date ? new Date(formData.hire_date).toISOString() : '',
         date_of_birth: formData.date_of_birth ? new Date(formData.date_of_birth).toISOString() : '',
-        id_document_file_id: fileId,
+        id_document_file_id: idDocumentFileId,
+        profile_image_id: profileImageId,
         created_by: 1
       };
 
@@ -299,6 +323,62 @@ const EmployeeForm: React.FC = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Profile Picture Section */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">Profile Picture</h3>
+              <div className="flex items-center space-x-6">
+                <div className="flex flex-col items-center space-y-3">
+                  <ProfilePicture
+                    imageId={selectedProfileImage ? null : formData.profile_image_id}
+                    firstName={formData.first_name}
+                    lastName={formData.last_name}
+                    size="xl"
+                    className="border-2 border-gray-200"
+                  />
+                  {(formData.profile_image_id || selectedProfileImage) && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRemoveProfileImage}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <X className="w-4 h-4 mr-1" />
+                      Remove
+                    </Button>
+                  )}
+                </div>
+                
+                <div className="flex-1 space-y-3">
+                  <Label>Upload Profile Picture</Label>
+                  <EnhancedFileUpload
+                    onFileSelect={setSelectedProfileImage}
+                    accept="image/*"
+                    label="Upload Profile Picture or Take Photo"
+                    currentFile={selectedProfileImage?.name}
+                    maxSize={5}
+                    allowCamera={true}
+                  />
+                  
+                  {selectedProfileImage && (
+                    <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <p className="text-sm font-medium text-blue-800">New profile picture selected:</p>
+                      <p className="text-sm text-blue-600">{selectedProfileImage.name}</p>
+                      <p className="text-xs text-blue-500 mt-1">
+                        This will replace the current profile picture when saved.
+                      </p>
+                    </div>
+                  )}
+                  
+                  <p className="text-xs text-gray-500">
+                    Supported formats: JPG, PNG, GIF (Max 5MB)
+                    <br />
+                    Recommended: Square image, at least 200x200 pixels
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Basic Information Section */}
             <div>
               <h3 className="text-lg font-semibold mb-4 text-gray-900">Basic Information</h3>
