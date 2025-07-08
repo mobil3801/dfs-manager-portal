@@ -325,9 +325,10 @@ const LicenseForm: React.FC = () => {
               <EnhancedFileUpload
                 onFileSelect={handleFileUpload}
                 accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,image/*"
-                label="Upload License Document"
+                label="Upload License Document or Take Photo"
                 currentFile={uploadedFile?.name || (formData.document_file_id > 0 ? `Document ID: ${formData.document_file_id}` : undefined)}
                 maxSize={10}
+                allowCamera={true}
                 disabled={uploadLoading} />
 
               

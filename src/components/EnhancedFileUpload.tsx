@@ -168,8 +168,8 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
 
           <div className="space-y-4">
             {/* Current file display */}
-            {currentFile && (
-              <Card>
+            {currentFile &&
+            <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Current file:</span>
@@ -177,7 +177,7 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
                   </div>
                 </CardContent>
               </Card>
-            )}
+            }
 
             {/* Upload option */}
             <Card className="cursor-pointer hover:bg-gray-50 transition-colors">
@@ -200,8 +200,8 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
             </Card>
 
             {/* Compression status */}
-            {isCompressing && (
-              <Card className="border-blue-200 bg-blue-50">
+            {isCompressing &&
+            <Card className="border-blue-200 bg-blue-50">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
@@ -212,20 +212,20 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
                   </div>
                 </CardContent>
               </Card>
-            )}
+            }
 
             {/* File type info */}
             <div className="text-center text-sm text-gray-500">
               <p>Accepted file types: {accept}</p>
               <p>Maximum file size: {maxSize}MB</p>
-              {isImageFile({ type: accept } as File) && (
-                <div className="mt-2 p-2 bg-green-50 rounded-lg border border-green-200">
+              {isImageFile({ type: accept } as File) &&
+              <div className="mt-2 p-2 bg-green-50 rounded-lg border border-green-200">
                   <div className="flex items-center justify-center gap-2 text-green-700">
                     <Zap className="h-4 w-4" />
                     <span className="text-xs font-medium">Auto-compression enabled for images &gt;1MB</span>
                   </div>
                 </div>
-              )}
+              }
             </div>
           </div>
         </DialogContent>
@@ -238,8 +238,8 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
         accept={accept}
         onChange={handleFileSelect}
         className="hidden" />
-    </div>
-  );
+    </div>);
+
 };
 
 export default EnhancedFileUpload;
