@@ -22,12 +22,14 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
   previewFile = null
 }) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   // Create preview URL for uploaded file
   useEffect(() => {
     if (previewFile) {
       const url = URL.createObjectURL(previewFile);
       setPreviewUrl(url);
+      setImageLoaded(false); // Reset image loaded state when new preview file is set
 
       // Cleanup URL when component unmounts or file changes
       return () => {
@@ -35,6 +37,7 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
       };
     } else {
       setPreviewUrl(null);
+      setImageLoaded(false);
     }
   }, [previewFile]);
 
@@ -70,24 +73,40 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
   // Determine which image to show (preview takes priority)
   const imageToShow = previewUrl || getImageUrl();
 
+  // Handle image load success
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+  };
+
+  // Handle image load error
+  const handleImageError = () => {
+    setImageLoaded(false);
+  };
+
   return (
     <Avatar className={`${getSizeClasses()} ${className}`}>
       {imageToShow &&
       <AvatarImage
         src={imageToShow}
         alt={`${firstName} ${lastName}`.trim() || 'Profile picture'}
-        className="object-cover" />
+        className="object-cover"
+        onLoad={handleImageLoad}
+        onError={handleImageError} />
 
 
       }
+      
+      {/* Only show fallback when no image is available or image failed to load */}
+      {(!imageToShow || !imageLoaded) &&
       <AvatarFallback className="bg-gray-100 text-gray-600 font-medium">
-        {getInitials() !== 'U' ?
+          {getInitials() !== 'U' ?
         getInitials() :
         showFallbackIcon ?
         <User className={size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-8 h-8' : size === 'xl' ? 'w-12 h-12' : 'w-5 h-5'} /> :
         'U'
         }
-      </AvatarFallback>
+        </AvatarFallback>
+      }
     </Avatar>);
 
 };
