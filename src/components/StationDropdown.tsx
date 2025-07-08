@@ -3,6 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useStationOptions } from '@/hooks/use-station-options';
+import { Building2, Eye } from 'lucide-react';
 
 interface StationDropdownProps {
   value: string;
@@ -29,7 +30,54 @@ const StationDropdown: React.FC<StationDropdownProps> = ({
   className = "",
   id
 }) => {
-  const { stationOptions, getStationColor } = useStationOptions(includeAll);
+  const { stationOptions, getStationColor, canSelectAll, getUserAccessibleStations } = useStationOptions(includeAll);
+
+  const getDisplayValue = (currentValue: string) => {
+    if (!currentValue) return null;
+
+    // Handle legacy 'ALL' value
+    if (currentValue === 'ALL') {
+      return (
+        <div className="flex items-center space-x-2">
+          <Eye className="w-4 h-4 text-indigo-600" />
+          <span>All Station</span>
+          {showBadge &&
+          <Badge className="text-white bg-indigo-600">
+              All ({getUserAccessibleStations.length})
+            </Badge>
+          }
+        </div>);
+
+    }
+
+    if (currentValue === 'ALL_STATIONS') {
+      return (
+        <div className="flex items-center space-x-2">
+          <Eye className="w-4 h-4 text-indigo-600" />
+          <span>All Station</span>
+          {showBadge &&
+          <Badge className="text-white bg-indigo-600">
+              All ({getUserAccessibleStations.length})
+            </Badge>
+          }
+        </div>);
+
+    }
+
+    const station = stationOptions.find((opt) => opt.value === currentValue);
+    if (station && showBadge) {
+      return (
+        <div className="flex items-center space-x-2">
+          <Building2 className="w-4 h-4" />
+          <Badge className={`text-white ${getStationColor(currentValue)}`}>
+            {station.label}
+          </Badge>
+        </div>);
+
+    }
+
+    return station?.label || currentValue;
+  };
 
   return (
     <div className={`space-y-2 ${className}`}>
@@ -44,31 +92,51 @@ const StationDropdown: React.FC<StationDropdownProps> = ({
         onValueChange={onValueChange}
         disabled={disabled}>
 
+
         <SelectTrigger id={id}>
           <SelectValue placeholder={placeholder}>
-            {value && showBadge ?
-            <Badge className={`text-white ${getStationColor(value)}`}>
-                {value}
-              </Badge> :
-
-            value || placeholder
-            }
+            {value ? getDisplayValue(value) : placeholder}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {stationOptions.map((station) =>
           <SelectItem key={station.value} value={station.value}>
-              <div className="flex items-center space-x-2">
-                {showBadge &&
-              <div className={`w-3 h-3 rounded-full ${station.color}`} />
-              }
-                <span>{station.label}</span>
-                {station.value === 'ALL' &&
-              <span className="text-xs text-gray-500">(All Stations)</span>
+              <div className="flex items-center space-x-2 w-full">
+                {station.value === 'ALL_STATIONS' ?
+              <>
+                    <Eye className="w-4 h-4 text-indigo-600" />
+                    <div className="flex items-center justify-between w-full">
+                      <span className="font-medium text-indigo-700">{station.label}</span>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant="secondary" className="text-xs">
+                          {getUserAccessibleStations.length} stations
+                        </Badge>
+                        <span className="text-xs text-gray-500">(View All)</span>
+                      </div>
+                    </div>
+                  </> :
+
+              <>
+                    <Building2 className="w-4 h-4" />
+                    {showBadge &&
+                <div className={`w-3 h-3 rounded-full ${station.color}`} />
+                }
+                    <span>{station.label}</span>
+                  </>
               }
               </div>
             </SelectItem>
           )}
+          
+          {/* Show accessible stations info when All Station option is available */}
+          {canSelectAll && includeAll &&
+          <div className="px-2 py-1 text-xs text-gray-500 border-t border-gray-100">
+              <div className="flex items-center space-x-1">
+                <Eye className="w-3 h-3" />
+                <span>You have access to {getUserAccessibleStations.length} station{getUserAccessibleStations.length !== 1 ? 's' : ''}</span>
+              </div>
+            </div>
+          }
         </SelectContent>
       </Select>
     </div>);

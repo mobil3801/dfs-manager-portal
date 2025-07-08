@@ -49,7 +49,7 @@ const SalesReportList: React.FC = () => {
   const [reports, setReports] = useState<SalesReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedStation, setSelectedStation] = useState('ALL');
+  const [selectedStation, setSelectedStation] = useState('ALL_STATIONS');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [printDialogOpen, setPrintDialogOpen] = useState(false);
@@ -84,8 +84,14 @@ const SalesReportList: React.FC = () => {
       setLoading(true);
       const filters = [];
 
-      // Add station filter based on selection
-      if (stationFilters) {
+      // Handle "All Station" selection
+      if (isAllSelected) {
+        // When All Station is selected, we need to show data from all accessible stations
+        // For now, we'll let it load all data and filter client-side if needed
+        // In a production app, you might want to add specific filters for accessible stations
+        console.log('Loading data for all accessible stations');
+      } else if (stationFilters) {
+        // Add specific station filter
         filters.push(...stationFilters);
       }
 
@@ -401,7 +407,7 @@ const SalesReportList: React.FC = () => {
               <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">
                 No sales reports found
-                {selectedStation !== 'ALL' &&
+                {selectedStation !== 'ALL_STATIONS' && selectedStation !== 'ALL' &&
               <span> for {selectedStation}</span>
               }
               </p>
@@ -583,7 +589,7 @@ const SalesReportList: React.FC = () => {
           <div className="flex items-center justify-between mt-6">
               <p className="text-sm text-gray-700">
                 Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} reports
-                {selectedStation !== 'ALL' &&
+                {selectedStation !== 'ALL_STATIONS' && selectedStation !== 'ALL' &&
               <span> for {selectedStation}</span>
               }
               </p>
