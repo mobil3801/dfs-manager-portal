@@ -13,6 +13,8 @@ import { useModuleAccess } from '@/contexts/ModuleAccessContext';
 import EnhancedSalesReportPrintDialog from '@/components/EnhancedSalesReportPrintDialog';
 import StationDropdown from '@/components/StationDropdown';
 import { useStationFilter } from '@/hooks/use-station-options';
+import ResponsiveTable from '@/components/ResponsiveTable';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SalesReport {
   ID: number;
@@ -56,6 +58,7 @@ const SalesReportList: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState<SalesReport | null>(null);
   const navigate = useNavigate();
   const { userProfile } = useAuth();
+  const isMobile = useIsMobile();
 
   // Module Access Control
   const {
@@ -270,7 +273,7 @@ const SalesReportList: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'}`}>
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center space-x-2">
@@ -334,8 +337,8 @@ const SalesReportList: React.FC = () => {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
+          <div className={`flex items-center ${isMobile ? 'flex-col space-y-4' : 'justify-between'}`}>
+            <div className={isMobile ? 'text-center' : ''}>
               <CardTitle className="flex items-center space-x-2">
                 <TrendingUp className="w-6 h-6" />
                 <span>Daily Sales Reports</span>
@@ -345,14 +348,17 @@ const SalesReportList: React.FC = () => {
                   </Badge>
                 }
               </CardTitle>
-              <CardDescription>
+              <CardDescription className={isMobile ? 'text-center mt-2' : ''}>
                 Track daily sales performance across {isAllSelected ? 'all stations' : 'selected station'}
               </CardDescription>
             </div>
             
             {/* Only show Add Report button if create permission is enabled */}
             {canCreateSales && canAddReport ?
-            <Button onClick={handleCreateReport} className="flex items-center space-x-2">
+            <Button 
+              onClick={handleCreateReport} 
+              className={`flex items-center space-x-2 ${isMobile ? 'w-full' : ''}`}
+            >
                 <Plus className="w-4 h-4" />
                 <span>Add Report</span>
               </Button> :

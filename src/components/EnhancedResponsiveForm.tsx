@@ -22,8 +22,8 @@ export const ResponsiveForm: React.FC<ResponsiveFormProps> = ({
   return (
     <div className={formClass}>
       {children}
-    </div>
-  );
+    </div>);
+
 };
 
 interface ResponsiveFormGridProps {
@@ -59,8 +59,8 @@ export const ResponsiveFormGrid: React.FC<ResponsiveFormGridProps> = ({
   return (
     <div className={gridClass}>
       {children}
-    </div>
-  );
+    </div>);
+
 };
 
 interface ResponsiveButtonGroupProps {
@@ -79,7 +79,7 @@ export const ResponsiveButtonGroup: React.FC<ResponsiveButtonGroupProps> = ({
   const getFlexClass = () => {
     if (direction === 'vertical') return 'flex-col space-y-2';
     if (direction === 'horizontal') return 'flex-row space-x-2';
-    
+
     // Responsive direction
     if (responsive.isMobile) {
       return 'flex-col space-y-2';
@@ -111,8 +111,8 @@ export const ResponsiveButtonGroup: React.FC<ResponsiveButtonGroupProps> = ({
   return (
     <div className={buttonGroupClass}>
       {responsiveChildren}
-    </div>
-  );
+    </div>);
+
 };
 
 interface ResponsiveCardContainerProps {
@@ -154,8 +154,8 @@ export const ResponsiveCardContainer: React.FC<ResponsiveCardContainerProps> = (
   return (
     <div className={containerClass}>
       {children}
-    </div>
-  );
+    </div>);
+
 };
 
 interface ResponsiveTextProps {
@@ -193,8 +193,8 @@ export const ResponsiveText: React.FC<ResponsiveTextProps> = ({
   return (
     <span className={textClass}>
       {children}
-    </span>
-  );
+    </span>);
+
 };
 
 interface ResponsiveModalProps {
@@ -212,19 +212,19 @@ export const ResponsiveModal: React.FC<ResponsiveModalProps> = ({
 
   const modalClass = cn(
     'bg-white rounded-lg shadow-xl',
-    responsive.isMobile && fullScreenOnMobile
-      ? 'fixed inset-0 m-0 rounded-none'
-      : responsive.isMobile
-      ? 'mx-2 my-4 max-h-[90vh] overflow-y-auto'
-      : 'max-w-4xl mx-auto max-h-[85vh] overflow-y-auto',
+    responsive.isMobile && fullScreenOnMobile ?
+    'fixed inset-0 m-0 rounded-none' :
+    responsive.isMobile ?
+    'mx-2 my-4 max-h-[90vh] overflow-y-auto' :
+    'max-w-4xl mx-auto max-h-[85vh] overflow-y-auto',
     className
   );
 
   return (
     <div className={modalClass}>
       {children}
-    </div>
-  );
+    </div>);
+
 };
 
 export default {

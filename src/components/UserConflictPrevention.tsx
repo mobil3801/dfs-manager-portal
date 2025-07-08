@@ -131,11 +131,11 @@ const UserConflictPrevention: React.FC = () => {
 
 
 
+
+
         // User not found or not logged in - this is fine for email uniqueness check
       } // Check email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;if (!emailRegex.test(email)) {results.push({ isValid: false, type: 'email', message: 'Invalid email format.', severity: 'error' });}if (results.length === 0) {results.push({ isValid: true, type: 'email', message: 'Email is available and valid.', severity: 'info' });}
-
-      setValidationResults(results);
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;if (!emailRegex.test(email)) {results.push({ isValid: false, type: 'email', message: 'Invalid email format.', severity: 'error' });}if (results.length === 0) {results.push({ isValid: true, type: 'email', message: 'Email is available and valid.', severity: 'info' });}setValidationResults(results);
     } catch (error) {
       console.error('Error validating email:', error);
     } finally {

@@ -12,6 +12,8 @@ import { useModuleAccess } from '@/contexts/ModuleAccessContext';
 import ViewModal from '@/components/ViewModal';
 import { useListKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { motion } from 'motion/react';
+import ResponsiveTable from '@/components/ResponsiveTable';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Employee {
   ID: number;
@@ -39,6 +41,7 @@ const EmployeeList: React.FC = () => {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   // Module Access Control
   const {
@@ -252,6 +255,205 @@ const EmployeeList: React.FC = () => {
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
+  // Define columns for responsive table
+  const tableColumns = [
+    {
+      key: 'employee_id',
+      label: 'Employee ID',
+      render: (value: string) => (
+        <span className="font-medium">{value}</span>
+      )
+    },
+    {
+      key: 'name',
+      label: 'Name',
+      render: (value: any, row: Employee) => (
+        <div>
+          <p className="font-medium">{row.first_name} {row.last_name}</p>
+          <p className="text-sm text-gray-500">{row.position}</p>
+        </div>
+      )
+    },
+    {
+      key: 'contact',
+      label: 'Contact',
+      render: (value: any, row: Employee) => (
+        <div className="space-y-1">
+          {row.email && (
+            <div className="flex items-center space-x-1 text-sm">
+              <Mail className="w-3 h-3" />
+              <span className="truncate max-w-[150px]">{row.email}</span>
+            </div>
+          )}
+          {row.phone && (
+            <div className="flex items-center space-x-1 text-sm">
+              <Phone className="w-3 h-3" />
+              <span>{row.phone}</span>
+            </div>
+          )}
+        </div>
+      )
+    },
+    {
+      key: 'station',
+      label: 'Station',
+      render: (value: string) => (
+        <Badge className={`text-white ${getStationBadgeColor(value)}`}>
+          {value}
+        </Badge>
+      )
+    },
+    {
+      key: 'hire_date',
+      label: 'Hire Date',
+      render: (value: string) => formatDate(value)
+    },
+    {
+      key: 'is_active',
+      label: 'Status',
+      render: (value: boolean) => (
+        <Badge variant={value ? "default" : "secondary"}>
+          {value ? "Active" : "Inactive"}
+        </Badge>
+      )
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      render: (value: any, row: Employee) => (
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleView(row);
+            }}
+            className="text-blue-600 hover:text-blue-700"
+          >
+            <Eye className="w-4 h-4" />
+          </Button>
+          
+          {canEditEmployee && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEdit(row.ID);
+              }}
+            >
+              <Edit className="w-4 h-4" />
+            </Button>
+          )}
+          
+          {canDeleteEmployee && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(row.ID);
+              }}
+              className="text-red-600 hover:text-red-700"
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
+      )
+    }
+  ];
+
+  const mobileCardRender = (employee: Employee, index: number) => (
+    <div className="p-4">
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex-1 min-w-0">
+          <h3 className="font-medium text-gray-900 truncate">
+            {employee.first_name} {employee.last_name}
+          </h3>
+          <p className="text-sm text-gray-500">{employee.position}</p>
+        </div>
+        <div className="flex items-center space-x-2 ml-2">
+          <Badge variant="outline" className="text-xs">
+            {employee.employee_id}
+          </Badge>
+          <Badge variant={employee.is_active ? "default" : "secondary"}>
+            {employee.is_active ? "Active" : "Inactive"}
+          </Badge>
+        </div>
+      </div>
+      
+      <div className="space-y-2 mb-4">
+        <Badge className={`text-white ${getStationBadgeColor(employee.station)}`}>
+          {employee.station}
+        </Badge>
+        
+        {employee.email && (
+          <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <Mail className="w-4 h-4" />
+            <span className="truncate">{employee.email}</span>
+          </div>
+        )}
+        
+        {employee.phone && (
+          <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <Phone className="w-4 h-4" />
+            <span>{employee.phone}</span>
+          </div>
+        )}
+        
+        <div className="text-sm text-gray-600">
+          Hired: {formatDate(employee.hire_date)}
+        </div>
+      </div>
+      
+      <div className="flex items-center space-x-2 pt-3 border-t">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleView(employee);
+          }}
+          className="text-blue-600 hover:text-blue-700 flex-1"
+        >
+          <Eye className="w-4 h-4 mr-1" />
+          View
+        </Button>
+        
+        {canEditEmployee && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEdit(employee.ID);
+            }}
+            className="flex-1"
+          >
+            <Edit className="w-4 h-4 mr-1" />
+            Edit
+          </Button>
+        )}
+        
+        {canDeleteEmployee && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(employee.ID);
+            }}
+            className="text-red-600 hover:text-red-700"
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+
   // Define view modal fields
   const getViewModalFields = (employee: Employee) => [
   {
@@ -317,13 +519,13 @@ const EmployeeList: React.FC = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col">
+          <div className={`flex items-center ${isMobile ? 'flex-col space-y-4' : 'justify-between'}`}>
+            <div className={`${isMobile ? 'text-center' : 'flex flex-col'}`}>
               <CardTitle className="flex items-center space-x-2">
                 <Users className="w-6 h-6" />
                 <span>Employee List</span>
               </CardTitle>
-              <CardDescription>
+              <CardDescription className={isMobile ? 'text-center mt-2' : ''}>
                 Manage your employees across all stations
               </CardDescription>
             </div>
@@ -332,7 +534,7 @@ const EmployeeList: React.FC = () => {
             {canCreateEmployee ?
             <Button
               onClick={handleCreateEmployee}
-              className="flex items-center space-x-2">
+              className={`flex items-center space-x-2 ${isMobile ? 'w-full' : ''}`}>
                 <Plus className="w-4 h-4" />
                 <span>Add Employee</span>
               </Button> :
@@ -345,8 +547,8 @@ const EmployeeList: React.FC = () => {
         </CardHeader>
         <CardContent>
           {/* Station Filter */}
-          <div className="flex items-center space-x-4 mb-6">
-            <div className="w-64">
+          <div className={`flex items-center mb-6 ${isMobile ? 'flex-col space-y-4' : 'space-x-4'}`}>
+            <div className={isMobile ? 'w-full' : 'w-64'}>
               <Select value={selectedStation} onValueChange={setSelectedStation}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select Station" />
@@ -359,10 +561,10 @@ const EmployeeList: React.FC = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div className="relative flex-1 max-w-sm">
+            <div className={`relative ${isMobile ? 'w-full' : 'flex-1 max-w-sm'}`}>
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
-                placeholder="Search employees..."
+                placeholder={isMobile ? "Search employees..." : "Search employees..."}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10" />
@@ -380,135 +582,30 @@ const EmployeeList: React.FC = () => {
           </div>
 
           {/* Employees Table */}
-          {loading ?
-          <div className="space-y-4">
-              {[...Array(5)].map((_, i) =>
-            <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
-            )}
-            </div> :
-          employees.length === 0 ?
-          <div className="text-center py-8">
+          <ResponsiveTable
+            data={employees}
+            columns={tableColumns}
+            loading={loading}
+            emptyMessage="No employees found"
+            onRowClick={isMobile ? (employee) => setSelectedEmployeeId(employee.ID) : undefined}
+            mobileCardRender={mobileCardRender}
+          />
+
+          {employees.length === 0 && !loading && (
+            <div className="text-center py-8">
               <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No employees found</p>
-              {canCreateEmployee &&
-            <Button
-              variant="outline"
-              className="mt-4"
-              onClick={handleCreateEmployee}>
+              {canCreateEmployee && (
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                  onClick={handleCreateEmployee}
+                >
                   Add Your First Employee
                 </Button>
-            }
-            </div> :
-
-          <div className="border rounded-lg overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Employee ID</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Contact</TableHead>
-                    <TableHead>Position</TableHead>
-                    <TableHead>Station</TableHead>
-                    <TableHead>Hire Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {employees.map((employee, index) =>
-                <motion.tr
-                  key={employee.ID}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className={`border-b hover:bg-gray-50 transition-colors cursor-pointer ${
-                  selectedEmployeeId === employee.ID ? 'bg-blue-50 border-blue-200' : ''}`
-                  }
-                  onClick={() => setSelectedEmployeeId(employee.ID)}>
-
-                      <TableCell className="font-medium">{employee.employee_id}</TableCell>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{employee.first_name} {employee.last_name}</p>
-                          <p className="text-sm text-gray-500">{employee.position}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          {employee.email &&
-                      <div className="flex items-center space-x-1 text-sm">
-                              <Mail className="w-3 h-3" />
-                              <span>{employee.email}</span>
-                            </div>
-                      }
-                          {employee.phone &&
-                      <div className="flex items-center space-x-1 text-sm">
-                              <Phone className="w-3 h-3" />
-                              <span>{employee.phone}</span>
-                            </div>
-                      }
-                        </div>
-                      </TableCell>
-                      <TableCell>{employee.position}</TableCell>
-                      <TableCell>
-                        <Badge className={`text-white ${getStationBadgeColor(employee.station)}`}>
-                          {employee.station}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{formatDate(employee.hire_date)}</TableCell>
-                      <TableCell>
-                        <Badge variant={employee.is_active ? "default" : "secondary"}>
-                          {employee.is_active ? "Active" : "Inactive"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleView(employee);
-                        }}
-                        className="text-blue-600 hover:text-blue-700">
-
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          
-                          {/* Only show Edit button if edit permission is enabled */}
-                          {canEditEmployee &&
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit(employee.ID);
-                        }}>
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                      }
-                          
-                          {/* Only show Delete button if delete permission is enabled */}
-                          {canDeleteEmployee &&
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(employee.ID);
-                        }}
-                        className="text-red-600 hover:text-red-700">
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                      }
-                        </div>
-                      </TableCell>
-                    </motion.tr>
-                )}
-                </TableBody>
-              </Table>
+              )}
             </div>
-          }
+          )}
 
           {/* Show permission status when actions are disabled */}
           {(!canEditEmployee || !canDeleteEmployee) && isModuleAccessEnabled &&
