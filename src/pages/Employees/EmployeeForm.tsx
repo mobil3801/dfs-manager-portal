@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import { Users, Save, ArrowLeft, Camera, X } from 'lucide-react';
+import { Users, Save, ArrowLeft, X } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import EnhancedFileUpload from '@/components/EnhancedFileUpload';
 import StationDropdown from '@/components/StationDropdown';
@@ -213,7 +213,7 @@ const EmployeeForm: React.FC = () => {
     setFormData((prev) => ({ ...prev, profile_image_id: null }));
     toast({
       title: "Profile Picture Removed",
-      description: "The profile picture will be removed when you save the employee.",
+      description: "The profile picture will be removed when you save the employee."
     });
   };
 
@@ -333,20 +333,20 @@ const EmployeeForm: React.FC = () => {
                     firstName={formData.first_name}
                     lastName={formData.last_name}
                     size="xl"
-                    className="border-2 border-gray-200"
-                  />
-                  {(formData.profile_image_id || selectedProfileImage) && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleRemoveProfileImage}
-                      className="text-red-600 hover:text-red-700"
-                    >
+                    className="border-2 border-gray-200" />
+
+                  {(formData.profile_image_id || selectedProfileImage) &&
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRemoveProfileImage}
+                    className="text-red-600 hover:text-red-700">
+
                       <X className="w-4 h-4 mr-1" />
                       Remove
                     </Button>
-                  )}
+                  }
                 </div>
                 
                 <div className="flex-1 space-y-3">
@@ -354,21 +354,20 @@ const EmployeeForm: React.FC = () => {
                   <EnhancedFileUpload
                     onFileSelect={setSelectedProfileImage}
                     accept="image/*"
-                    label="Upload Profile Picture or Take Photo"
+                    label="Upload Profile Picture"
                     currentFile={selectedProfileImage?.name}
-                    maxSize={5}
-                    allowCamera={true}
-                  />
+                    maxSize={5} />
+
                   
-                  {selectedProfileImage && (
-                    <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  {selectedProfileImage &&
+                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                       <p className="text-sm font-medium text-blue-800">New profile picture selected:</p>
                       <p className="text-sm text-blue-600">{selectedProfileImage.name}</p>
                       <p className="text-xs text-blue-500 mt-1">
                         This will replace the current profile picture when saved.
                       </p>
                     </div>
-                  )}
+                  }
                   
                   <p className="text-xs text-gray-500">
                     Supported formats: JPG, PNG, GIF (Max 5MB)
@@ -601,10 +600,9 @@ const EmployeeForm: React.FC = () => {
                   <EnhancedFileUpload
                     onFileSelect={setSelectedFile}
                     accept=".pdf,.jpg,.jpeg,.png,image/*"
-                    label="Upload ID Document or Take Photo"
+                    label="Upload ID Document"
                     currentFile={selectedFile?.name}
-                    maxSize={10}
-                    allowCamera={true} />
+                    maxSize={10} />
 
                   {selectedFile &&
                   <div className="p-3 bg-gray-50 rounded-lg">

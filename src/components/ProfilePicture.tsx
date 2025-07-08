@@ -50,24 +50,24 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
 
   return (
     <Avatar className={`${getSizeClasses()} ${className}`}>
-      {imageId && (
-        <AvatarImage 
-          src={getImageUrl()} 
-          alt={`${firstName} ${lastName}`.trim() || 'Profile picture'}
-          className="object-cover"
-        />
-      )}
+      {imageId &&
+      <AvatarImage
+        src={getImageUrl()}
+        alt={`${firstName} ${lastName}`.trim() || 'Profile picture'}
+        className="object-cover" />
+
+      }
       <AvatarFallback className="bg-gray-100 text-gray-600 font-medium">
-        {getInitials() !== 'U' ? (
-          getInitials()
-        ) : showFallbackIcon ? (
-          <User className={size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-8 h-8' : size === 'xl' ? 'w-12 h-12' : 'w-5 h-5'} />
-        ) : (
-          'U'
-        )}
+        {getInitials() !== 'U' ?
+        getInitials() :
+        showFallbackIcon ?
+        <User className={size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-8 h-8' : size === 'xl' ? 'w-12 h-12' : 'w-5 h-5'} /> :
+
+        'U'
+        }
       </AvatarFallback>
-    </Avatar>
-  );
+    </Avatar>);
+
 };
 
 export default ProfilePicture;

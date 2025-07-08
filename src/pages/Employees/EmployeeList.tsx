@@ -270,17 +270,17 @@ const EmployeeList: React.FC = () => {
     label: 'Profile Picture',
     value: employee.profile_image_id,
     type: 'custom' as const,
-    customComponent: (
-      <div className="flex justify-center">
+    customComponent:
+    <div className="flex justify-center">
         <ProfilePicture
-          imageId={employee.profile_image_id}
-          firstName={employee.first_name}
-          lastName={employee.last_name}
-          size="xl"
-          className="border-2 border-gray-200"
-        />
+        imageId={employee.profile_image_id}
+        firstName={employee.first_name}
+        lastName={employee.last_name}
+        size="xl"
+        className="border-2 border-gray-200" />
+
       </div>
-    )
+
   },
   {
     key: 'employee_id',
@@ -381,11 +381,11 @@ const EmployeeList: React.FC = () => {
                 </CardDescription>
               </div>
               
-              {canCreateEmployee && (
-                <Button size="sm" onClick={handleCreateEmployee}>
+              {canCreateEmployee &&
+              <Button size="sm" onClick={handleCreateEmployee}>
                   <Plus className="w-4 h-4" />
                 </Button>
-              )}
+              }
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -409,51 +409,51 @@ const EmployeeList: React.FC = () => {
                   placeholder="Search employees..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
+                  className="pl-10" />
+
               </div>
             </div>
 
             {/* Employee Cards */}
-            {loading ? (
-              <div className="space-y-3">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="h-20 bg-gray-100 rounded animate-pulse"></div>
-                ))}
-              </div>
-            ) : employees.length === 0 ? (
-              <div className="text-center py-8">
+            {loading ?
+            <div className="space-y-3">
+                {[...Array(5)].map((_, i) =>
+              <div key={i} className="h-20 bg-gray-100 rounded animate-pulse"></div>
+              )}
+              </div> :
+            employees.length === 0 ?
+            <div className="text-center py-8">
                 <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-500">No employees found</p>
-                {canCreateEmployee && (
-                  <Button variant="outline" className="mt-4" onClick={handleCreateEmployee}>
+                {canCreateEmployee &&
+              <Button variant="outline" className="mt-4" onClick={handleCreateEmployee}>
                     Add Your First Employee
                   </Button>
-                )}
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {employees.map((employee, index) => (
-                  <motion.div
-                    key={employee.ID}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                  >
-                    <Card 
-                      className={`cursor-pointer transition-colors ${
-                        selectedEmployeeId === employee.ID ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'
-                      }`}
-                      onClick={() => setSelectedEmployeeId(employee.ID)}
-                    >
+              }
+              </div> :
+
+            <div className="space-y-3">
+                {employees.map((employee, index) =>
+              <motion.div
+                key={employee.ID}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}>
+
+                    <Card
+                  className={`cursor-pointer transition-colors ${
+                  selectedEmployeeId === employee.ID ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'}`
+                  }
+                  onClick={() => setSelectedEmployeeId(employee.ID)}>
+
                       <CardContent className="p-4">
                         <div className="flex items-center space-x-3">
                           <ProfilePicture
-                            imageId={employee.profile_image_id}
-                            firstName={employee.first_name}
-                            lastName={employee.last_name}
-                            size="md"
-                          />
+                        imageId={employee.profile_image_id}
+                        firstName={employee.first_name}
+                        lastName={employee.last_name}
+                        size="md" />
+
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
@@ -469,50 +469,50 @@ const EmployeeList: React.FC = () => {
                             <p className="text-xs text-gray-400">{employee.employee_id}</p>
                             
                             <div className="flex items-center justify-between mt-2">
-                              <Badge 
-                                className={`text-white text-xs ${getStationBadgeColor(employee.station)}`}
-                              >
+                              <Badge
+                            className={`text-white text-xs ${getStationBadgeColor(employee.station)}`}>
+
                                 {employee.station}
                               </Badge>
                               
                               <div className="flex space-x-1">
                                 <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleView(employee);
-                                  }}
-                                  className="p-1 h-6 w-6"
-                                >
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleView(employee);
+                              }}
+                              className="p-1 h-6 w-6">
+
                                   <Eye className="w-3 h-3" />
                                 </Button>
-                                {canEditEmployee && (
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleEdit(employee.ID);
-                                    }}
-                                    className="p-1 h-6 w-6"
-                                  >
+                                {canEditEmployee &&
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEdit(employee.ID);
+                              }}
+                              className="p-1 h-6 w-6">
+
                                     <Edit className="w-3 h-3" />
                                   </Button>
-                                )}
-                                {canDeleteEmployee && (
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDelete(employee.ID);
-                                    }}
-                                    className="p-1 h-6 w-6 text-red-600 hover:text-red-700"
-                                  >
+                            }
+                                {canDeleteEmployee &&
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(employee.ID);
+                              }}
+                              className="p-1 h-6 w-6 text-red-600 hover:text-red-700">
+
                                     <Trash2 className="w-3 h-3" />
                                   </Button>
-                                )}
+                            }
                               </div>
                             </div>
                           </div>
@@ -520,65 +520,65 @@ const EmployeeList: React.FC = () => {
                       </CardContent>
                     </Card>
                   </motion.div>
-                ))}
+              )}
               </div>
-            )}
+            }
 
             {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between pt-4">
+            {totalPages > 1 &&
+            <div className="flex items-center justify-between pt-4">
                 <p className="text-xs text-gray-700">
                   {(currentPage - 1) * pageSize + 1}-{Math.min(currentPage * pageSize, totalCount)} of {totalCount}
                 </p>
                 <div className="flex space-x-2">
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                  >
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}>
+
                     Previous
                   </Button>
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                  >
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}>
+
                     Next
                   </Button>
                 </div>
               </div>
-            )}
+            }
           </CardContent>
         </Card>
 
         {/* View Modal */}
-        {selectedEmployee && (
-          <ViewModal
-            isOpen={viewModalOpen}
-            onClose={() => {
-              setViewModalOpen(false);
-              setSelectedEmployee(null);
-              setSelectedEmployeeId(null);
-            }}
-            title={`${selectedEmployee.first_name} ${selectedEmployee.last_name}`}
-            subtitle={`Employee ID: ${selectedEmployee.employee_id} • ${selectedEmployee.position}`}
-            data={selectedEmployee}
-            fields={getViewModalFields(selectedEmployee)}
-            onEdit={() => {
-              setViewModalOpen(false);
-              handleEdit(selectedEmployee.ID);
-            }}
-            onDelete={() => handleDelete(selectedEmployee.ID)}
-            onExport={handleExport}
-            canEdit={canEditEmployee}
-            canDelete={canDeleteEmployee}
-            canExport={true}
-          />
-        )}
-      </div>
-    );
+        {selectedEmployee &&
+        <ViewModal
+          isOpen={viewModalOpen}
+          onClose={() => {
+            setViewModalOpen(false);
+            setSelectedEmployee(null);
+            setSelectedEmployeeId(null);
+          }}
+          title={`${selectedEmployee.first_name} ${selectedEmployee.last_name}`}
+          subtitle={`Employee ID: ${selectedEmployee.employee_id} • ${selectedEmployee.position}`}
+          data={selectedEmployee}
+          fields={getViewModalFields(selectedEmployee)}
+          onEdit={() => {
+            setViewModalOpen(false);
+            handleEdit(selectedEmployee.ID);
+          }}
+          onDelete={() => handleDelete(selectedEmployee.ID)}
+          onExport={handleExport}
+          canEdit={canEditEmployee}
+          canDelete={canDeleteEmployee}
+          canExport={true} />
+
+        }
+      </div>);
+
   }
 
   return (
@@ -697,11 +697,11 @@ const EmployeeList: React.FC = () => {
 
                       <TableCell>
                         <ProfilePicture
-                          imageId={employee.profile_image_id}
-                          firstName={employee.first_name}
-                          lastName={employee.last_name}
-                          size="sm"
-                        />
+                      imageId={employee.profile_image_id}
+                      firstName={employee.first_name}
+                      lastName={employee.last_name}
+                      size="sm" />
+
                       </TableCell>
                       <TableCell className="font-medium">{employee.employee_id}</TableCell>
                       <TableCell>

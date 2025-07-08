@@ -156,7 +156,6 @@ const DocumentsUploadSection: React.FC<DocumentsUploadSectionProps> = ({
                     accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,image/*"
                     label={document.fileId ? 'Re-upload Document' : 'Upload Document'}
                     maxSize={15}
-                    allowCamera={true}
                     className="w-full" />
 
                 </div>

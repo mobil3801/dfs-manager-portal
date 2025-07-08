@@ -215,16 +215,16 @@ const ViewModal: React.FC<ViewModalProps> = ({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {visibleFields.map((field, index) => {
-                        // Special handling for custom components that should span full width
-                        const isFullWidth = field.type === 'custom' && field.key === 'profile_picture';
-                        
-                        return (
-                          <motion.div
-                            key={field.key}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05 }}
-                            className={`space-y-2 ${isFullWidth ? 'md:col-span-2' : ''}`}>
+                    // Special handling for custom components that should span full width
+                    const isFullWidth = field.type === 'custom' && field.key === 'profile_picture';
+
+                    return (
+                      <motion.div
+                        key={field.key}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className={`space-y-2 ${isFullWidth ? 'md:col-span-2' : ''}`}>
 
                             <div className="flex items-center space-x-2">
                               {getFieldIcon(field)}
@@ -237,9 +237,9 @@ const ViewModal: React.FC<ViewModalProps> = ({
                                 {formatValue(field)}
                               </div>
                             </div>
-                          </motion.div>
-                        );
-                      })}
+                          </motion.div>);
+
+                  })}
                     </div>
                 }
                 </div>
