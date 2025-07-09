@@ -47,6 +47,7 @@ import SMSManagement from '@/pages/Admin/SMSManagement';
 import UserValidationTestPage from '@/pages/Admin/UserValidationTestPage';
 import AuthDiagnosticPage from '@/pages/AuthDiagnosticPage';
 import ModuleAccessPage from '@/pages/Admin/ModuleAccessPage';
+import ProfilePictureDemo from '@/components/ProfilePictureDemo';
 
 import DatabaseMonitoring from '@/pages/Admin/DatabaseMonitoring';
 import AuditMonitoring from '@/pages/Admin/AuditMonitoring';
@@ -192,6 +193,9 @@ const AppRouter = () => {
             
             {/* Settings */}
             <Route path="settings" element={<AppSettings />} />
+            
+            {/* Profile Picture Demo */}
+            <Route path="profile-picture-demo" element={<ProfilePictureDemo />} />
             
             {/* Admin Routes */}
             <Route path="admin" element={<AdminPanel />} />

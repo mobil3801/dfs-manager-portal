@@ -12,7 +12,7 @@ interface ProfilePictureUploadProps {
   onFileSelect: (file: File | null) => void;
   firstName?: string;
   lastName?: string;
-  imageId?: number | null;
+  imageId?: number | string | null;
   previewFile?: File | null;
   maxSize?: number; // in MB
   className?: string;
@@ -64,7 +64,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
 
   const processFile = async (file: File) => {
     setIsCompressing(true);
-    
+
     try {
       // Always try to optimize images for profile pictures
       const result = await compressImage(file, {
@@ -105,7 +105,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
     if (file && validateFile(file)) {
       await processFile(file);
     }
-    
+
     // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -132,8 +132,8 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
           lastName={lastName}
           size="xl"
           className="border-4 border-gray-200 transition-all group-hover:border-blue-300"
-          previewFile={previewFile}
-        />
+          previewFile={previewFile} />
+
         
         {/* Edit overlay button */}
         <Button
@@ -142,8 +142,8 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
           variant="default"
           onClick={() => setIsOpen(true)}
           disabled={disabled}
-          className="absolute -bottom-2 -right-2 rounded-full w-8 h-8 p-0 shadow-lg bg-blue-600 hover:bg-blue-700"
-        >
+          className="absolute -bottom-2 -right-2 rounded-full w-8 h-8 p-0 shadow-lg bg-blue-600 hover:bg-blue-700">
+
           <Edit className="w-4 h-4" />
         </Button>
       </div>
@@ -156,36 +156,36 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
           size="sm"
           onClick={() => setIsOpen(true)}
           disabled={disabled}
-          className="flex items-center space-x-2"
-        >
+          className="flex items-center space-x-2">
+
           <Upload className="w-4 h-4" />
           <span>{hasImage ? 'Change Picture' : 'Upload Picture'}</span>
         </Button>
         
-        {showRemoveButton && hasImage && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleRemove}
-            disabled={disabled}
-            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-          >
+        {showRemoveButton && hasImage &&
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handleRemove}
+          disabled={disabled}
+          className="text-red-600 hover:text-red-700 hover:bg-red-50">
+
             <Trash2 className="w-4 h-4" />
           </Button>
-        )}
+        }
       </div>
 
       {/* Preview info */}
-      {previewFile && (
-        <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 w-full max-w-sm">
+      {previewFile &&
+      <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 w-full max-w-sm">
           <p className="text-sm font-medium text-blue-800">New picture selected:</p>
           <p className="text-sm text-blue-600">{previewFile.name}</p>
           <p className="text-xs text-blue-500 mt-1">
             This will replace the current picture when saved.
           </p>
         </div>
-      )}
+      }
 
       {/* Upload Dialog */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -206,15 +206,15 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
                 lastName={lastName}
                 size="lg"
                 className="border-2 border-gray-200"
-                previewFile={previewFile}
-              />
+                previewFile={previewFile} />
+
             </div>
 
             {/* Upload area */}
-            <Card 
+            <Card
               className="cursor-pointer hover:bg-gray-50 transition-colors border-dashed border-2"
-              onClick={() => fileInputRef.current?.click()}
-            >
+              onClick={() => fileInputRef.current?.click()}>
+
               <CardContent className="p-6">
                 <div className="flex flex-col items-center gap-3 text-center">
                   <div className="p-4 bg-blue-100 rounded-full">
@@ -231,8 +231,8 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
             </Card>
 
             {/* Compression status */}
-            {isCompressing && (
-              <Card className="border-blue-200 bg-blue-50">
+            {isCompressing &&
+            <Card className="border-blue-200 bg-blue-50">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
@@ -243,7 +243,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
                   </div>
                 </CardContent>
               </Card>
-            )}
+            }
 
             {/* File requirements */}
             <div className="text-center text-sm text-gray-500 space-y-1">
@@ -268,10 +268,10 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
         type="file"
         accept="image/*"
         onChange={handleFileSelect}
-        className="hidden"
-      />
-    </div>
-  );
+        className="hidden" />
+
+    </div>);
+
 };
 
 export default ProfilePictureUpload;

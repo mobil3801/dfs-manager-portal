@@ -336,6 +336,10 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -391,12 +395,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
         alertHistory.current = [...newAlerts, ...alertHistory.current]; // Show toast for critical alerts
         newAlerts.forEach((alert) => {if (alert.severity === 'critical') {toast({ title: alert.title, description: alert.message, variant: 'destructive' });}});}}, [toast]); /**
   * Generate optimization suggestions
-  */const generateSuggestions = useCallback((currentMetrics: PerformanceMetrics) => {const newSuggestions: OptimizationSuggestion[] = [];if (currentMetrics.memory.percentage > 70) {newSuggestions.push({ category: 'memory', title: 'Optimize Memory Usage', description: 'Consider implementing virtual scrolling for large lists and clearing unused data.', impact: 'high',
-            effort: 'medium',
-            action: () => {
-              // Trigger memory cleanup
-              if ('gc' in window) {
-                (window as any).gc();
+  */const generateSuggestions = useCallback((currentMetrics: PerformanceMetrics) => {const newSuggestions: OptimizationSuggestion[] = [];if (currentMetrics.memory.percentage > 70) {newSuggestions.push({ category: 'memory', title: 'Optimize Memory Usage', description: 'Consider implementing virtual scrolling for large lists and clearing unused data.', impact: 'high', effort: 'medium', action: () => {// Trigger memory cleanup
+              if ('gc' in window) {(window as any).gc();
               }
               toast({ title: 'Memory cleanup attempted', description: 'Forced garbage collection.' });
             }

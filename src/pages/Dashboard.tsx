@@ -13,7 +13,8 @@ import {
   Calendar,
   AlertTriangle,
   TrendingUp,
-  Activity } from
+  Activity,
+  Camera } from
 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -302,6 +303,13 @@ const Dashboard = () => {
               description="Register a new product"
               icon={Package}
               onClick={() => navigate('/products/new')} />
+
+            <QuickAction
+              title="Profile Pictures"
+              description="Demo uploaded profile picture display"
+              icon={Camera}
+              onClick={() => navigate('/profile-picture-demo')}
+              color="text-purple-600" />
 
             {isManager() &&
             <>
