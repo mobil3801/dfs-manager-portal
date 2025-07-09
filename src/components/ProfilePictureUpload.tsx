@@ -12,7 +12,7 @@ interface ProfilePictureUploadProps {
   onFileSelect: (file: File | null) => void;
   firstName?: string;
   lastName?: string;
-  imageId?: number | string | null;
+  imageId?: number | null;
   previewFile?: File | null;
   maxSize?: number; // in MB
   className?: string;

@@ -21,6 +21,7 @@ interface UserProfile {
   hire_date: string;
   is_active: boolean;
   detailed_permissions: any;
+  profile_image_id?: number | null;
 }
 
 interface AuthContextType {
@@ -52,7 +53,8 @@ const GUEST_PROFILE: UserProfile = {
   phone: '',
   hire_date: '',
   is_active: false,
-  detailed_permissions: {}
+  detailed_permissions: {},
+  profile_image_id: null
 };
 
 export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children }) => {
@@ -128,7 +130,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
             phone: '',
             hire_date: new Date().toISOString(),
             is_active: true,
-            detailed_permissions: {}
+            detailed_permissions: {},
+            profile_image_id: null
           });
         } else if (profileResponse.data?.List?.length > 0) {
           console.log('✅ User profile found:', profileResponse.data.List[0]);
@@ -145,7 +148,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
             phone: '',
             hire_date: new Date().toISOString(),
             is_active: true,
-            detailed_permissions: {}
+            detailed_permissions: {},
+            profile_image_id: null
           });
         }
       } catch (profileError) {
