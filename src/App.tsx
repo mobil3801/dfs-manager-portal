@@ -30,8 +30,8 @@ const createOptimizedLazyRoute = (importFn: () => Promise<any>, componentName: s
       console.error(`Failed to load ${componentName}:`, error);
       // Return a fallback component
       return {
-        default: () => (
-          <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        default: () =>
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
             <div className="text-center">
               <h2 className="text-xl font-semibold text-gray-900 mb-2">
                 Failed to load {componentName}
@@ -40,14 +40,14 @@ const createOptimizedLazyRoute = (importFn: () => Promise<any>, componentName: s
                 Please try refreshing the page or contact support if the problem persists.
               </p>
               <button
-                onClick={() => window.location.reload()}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+
                 Refresh Page
               </button>
             </div>
           </div>
-        )
+
       };
     }
   });
@@ -109,47 +109,47 @@ const queryClient = new QueryClient({
 });
 
 // Enhanced Loading Components
-const LoadingSpinner = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+const LoadingSpinner = () =>
+<div className="min-h-screen flex items-center justify-center bg-gray-50">
     <div className="text-center">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
       <p className="text-gray-600">Loading DFS Manager Portal...</p>
       <p className="text-sm text-gray-500 mt-2">Initializing authentication system...</p>
     </div>
-  </div>
-);
+  </div>;
+
 
 // Enhanced page loading with component-specific skeletons
-const EnhancedPageLoading = ({ componentName }: { componentName?: string }) => (
-  <div className="min-h-screen bg-gray-50">
+const EnhancedPageLoading = ({ componentName }: {componentName?: string;}) =>
+<div className="min-h-screen bg-gray-50">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <OptimizedLoader
-        componentName={componentName}
-        showProgress={true}
-        showRetry={true}
-        slowLoadingTimeout={3000}
-        onRetry={() => window.location.reload()}
-      />
+      componentName={componentName}
+      showProgress={true}
+      showRetry={true}
+      slowLoadingTimeout={3000}
+      onRetry={() => window.location.reload()} />
+
     </div>
-  </div>
-);
+  </div>;
+
 
 // Optimized Lazy Route Wrapper
-const OptimizedLazyRoute = ({ 
-  children, 
-  componentName 
-}: {
-  children: React.ReactNode;
-  componentName?: string;
-}) => (
-  <Suspense fallback={<EnhancedPageLoading componentName={componentName} />}>
+const OptimizedLazyRoute = ({
+  children,
+  componentName
+
+
+
+}: {children: React.ReactNode;componentName?: string;}) =>
+<Suspense fallback={<EnhancedPageLoading componentName={componentName} />}>
     {children}
-  </Suspense>
-);
+  </Suspense>;
+
 
 // Error Display Component
-const AuthError = ({ error, onRetry }: {error: string;onRetry: () => void;}) => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+const AuthError = ({ error, onRetry }: {error: string;onRetry: () => void;}) =>
+<div className="min-h-screen flex items-center justify-center bg-gray-50">
     <div className="max-w-md w-full text-center">
       <div className="bg-white rounded-lg shadow-lg p-6">
         <div className="text-red-600 mb-4">
@@ -161,22 +161,22 @@ const AuthError = ({ error, onRetry }: {error: string;onRetry: () => void;}) => 
         <p className="text-gray-600 mb-4">{error}</p>
         <div className="space-y-2">
           <button
-            onClick={onRetry}
-            className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
+          onClick={onRetry}
+          className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+
             Try Again
           </button>
           <button
-            onClick={() => window.location.href = '/login'}
-            className="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
-          >
+          onClick={() => window.location.href = '/login'}
+          className="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors">
+
             Go to Login
           </button>
         </div>
       </div>
     </div>
-  </div>
-);
+  </div>;
+
 
 // Protected Route Component with improved error handling
 const ProtectedRoute: React.FC<{children: React.ReactNode;}> = ({ children }) => {
@@ -213,12 +213,12 @@ const AppRouter = () => {
   React.useEffect(() => {
     if (isInitialized && user) {
       setupIntelligentPreloading();
-      
+
       // Preload based on user role
       if (user.role === 'admin' || user.role === 'super_admin') {
         RoutePreloader.preloadAdminRoutes();
       }
-      
+
       // Preload common routes
       RoutePreloader.preloadDashboardRoutes();
     }
@@ -309,8 +309,8 @@ const AppRouter = () => {
         {/* Auth Debugger - Only show in development or for debugging */}
         <AuthDebugger />
       </div>
-    </Router>
-  );
+    </Router>);
+
 };
 
 function App() {
@@ -326,8 +326,8 @@ function App() {
         </GlobalErrorBoundary>
       </TooltipProvider>
       <Toaster />
-    </QueryClientProvider>
-  );
+    </QueryClientProvider>);
+
 }
 
 export default App;

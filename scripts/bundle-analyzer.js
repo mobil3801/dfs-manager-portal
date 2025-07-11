@@ -25,29 +25,29 @@ class BundleAnalyzer {
    */
   async analyze() {
     console.log('🔍 Starting Bundle Analysis...\n');
-    
+
     try {
       // Run build
       console.log('📦 Building project...');
-      const buildOutput = execSync('npm run build', { 
+      const buildOutput = execSync('npm run build', {
         encoding: 'utf8',
         cwd: projectRoot
       });
-      
+
       // Parse build output
       this.chunks = this.parseBuildOutput(buildOutput);
       this.totalSize = this.chunks.reduce((sum, chunk) => sum + chunk.sizeKB, 0);
-      
+
       // Generate recommendations
       this.generateRecommendations();
-      
+
       // Create reports
       this.generateJsonReport();
       this.generateHtmlReport();
-      
+
       // Display results
       this.displayResults();
-      
+
     } catch (error) {
       console.error('❌ Bundle analysis failed:', error.message);
       process.exit(1);
@@ -60,7 +60,7 @@ class BundleAnalyzer {
   parseBuildOutput(output) {
     const chunks = [];
     const lines = output.split('\n');
-    
+
     for (const line of lines) {
       if (line.includes('│') && (line.includes('.js') || line.includes('.css'))) {
         const match = line.match(/^(.*?)│\s*([0-9.]+)\s*kB.*?│\s*gzip:\s*([0-9.]+)\s*kB/);
@@ -75,7 +75,7 @@ class BundleAnalyzer {
         }
       }
     }
-    
+
     return chunks.sort((a, b) => b.sizeKB - a.sizeKB);
   }
 
@@ -98,34 +98,34 @@ class BundleAnalyzer {
    */
   generateRecommendations() {
     this.recommendations = [];
-    
+
     // Check for large main bundle
-    const mainChunk = this.chunks.find(chunk => chunk.type === 'main');
+    const mainChunk = this.chunks.find((chunk) => chunk.type === 'main');
     if (mainChunk && mainChunk.sizeKB > 500) {
       this.recommendations.push({
         type: 'critical',
         title: 'Main Bundle Too Large',
         description: `Main bundle is ${mainChunk.sizeKB}KB. Consider implementing more aggressive code splitting.`,
         solutions: [
-          'Implement route-based code splitting',
-          'Use React.lazy() for heavy components',
-          'Move large dependencies to separate chunks'
-        ]
+        'Implement route-based code splitting',
+        'Use React.lazy() for heavy components',
+        'Move large dependencies to separate chunks']
+
       });
     }
 
     // Check for large vendor chunks
-    const vendorChunks = this.chunks.filter(chunk => chunk.type === 'vendor' && chunk.sizeKB > 200);
+    const vendorChunks = this.chunks.filter((chunk) => chunk.type === 'vendor' && chunk.sizeKB > 200);
     if (vendorChunks.length > 0) {
       this.recommendations.push({
         type: 'warning',
         title: 'Large Vendor Chunks',
         description: `Found ${vendorChunks.length} vendor chunks over 200KB.`,
         solutions: [
-          'Split vendor libraries into smaller chunks',
-          'Use dynamic imports for non-critical libraries',
-          'Consider alternative lighter libraries'
-        ]
+        'Split vendor libraries into smaller chunks',
+        'Use dynamic imports for non-critical libraries',
+        'Consider alternative lighter libraries']
+
       });
     }
 
@@ -137,10 +137,10 @@ class BundleAnalyzer {
         title: 'Potential Duplicate Dependencies',
         description: `Found ${potentialDuplicates.length} potentially duplicate chunks.`,
         solutions: [
-          'Review manual chunk configuration',
-          'Consolidate similar dependencies',
-          'Use bundle analyzer for detailed dependency analysis'
-        ]
+        'Review manual chunk configuration',
+        'Consolidate similar dependencies',
+        'Use bundle analyzer for detailed dependency analysis']
+
       });
     }
 
@@ -151,10 +151,10 @@ class BundleAnalyzer {
         title: 'Total Bundle Size Too Large',
         description: `Total bundle size is ${this.totalSize}KB. This may impact loading performance.`,
         solutions: [
-          'Implement lazy loading for non-critical features',
-          'Use tree shaking to remove unused code',
-          'Consider progressive loading strategies'
-        ]
+        'Implement lazy loading for non-critical features',
+        'Use tree shaking to remove unused code',
+        'Consider progressive loading strategies']
+
       });
     }
 
@@ -164,11 +164,11 @@ class BundleAnalyzer {
       title: 'Performance Optimization',
       description: 'Additional optimizations to consider.',
       solutions: [
-        'Enable gzip/brotli compression on server',
-        'Implement service worker caching',
-        'Use CDN for static assets',
-        'Implement preloading for critical routes'
-      ]
+      'Enable gzip/brotli compression on server',
+      'Implement service worker caching',
+      'Use CDN for static assets',
+      'Implement preloading for critical routes']
+
     });
   }
 
@@ -178,7 +178,7 @@ class BundleAnalyzer {
   findPotentialDuplicates() {
     const duplicates = [];
     const seen = new Set();
-    
+
     for (const chunk of this.chunks) {
       const basename = chunk.filename.split('-')[0];
       if (seen.has(basename)) {
@@ -187,7 +187,7 @@ class BundleAnalyzer {
         seen.add(basename);
       }
     }
-    
+
     return duplicates;
   }
 
@@ -206,7 +206,7 @@ class BundleAnalyzer {
       chunks: this.chunks,
       recommendations: this.recommendations,
       analysis: {
-        largeChunks: this.chunks.filter(chunk => chunk.sizeKB > 300),
+        largeChunks: this.chunks.filter((chunk) => chunk.sizeKB > 300),
         chunksByType: this.groupChunksByType(),
         compressionRatio: this.calculateCompressionRatio()
       }
@@ -234,7 +234,7 @@ class BundleAnalyzer {
    */
   calculateCompressionRatio() {
     const totalGzipSize = this.chunks.reduce((sum, chunk) => sum + chunk.gzipSizeKB, 0);
-    return Math.round((totalGzipSize / this.totalSize) * 100 * 100) / 100;
+    return Math.round(totalGzipSize / this.totalSize * 100 * 100) / 100;
   }
 
   /**
@@ -318,7 +318,7 @@ class BundleAnalyzer {
                     </tr>
                 </thead>
                 <tbody>
-                    ${this.chunks.slice(0, 20).map(chunk => `
+                    ${this.chunks.slice(0, 20).map((chunk) => `
                         <tr>
                             <td>${chunk.filename}</td>
                             <td>${chunk.sizeKB}KB</td>
@@ -326,7 +326,7 @@ class BundleAnalyzer {
                             <td>${chunk.type}</td>
                             <td>
                                 <div class="size-bar">
-                                    <div class="size-bar-fill" style="width: ${(chunk.sizeKB / Math.max(...this.chunks.map(c => c.sizeKB))) * 100}%"></div>
+                                    <div class="size-bar-fill" style="width: ${chunk.sizeKB / Math.max(...this.chunks.map((c) => c.sizeKB)) * 100}%"></div>
                                 </div>
                             </td>
                         </tr>
@@ -337,12 +337,12 @@ class BundleAnalyzer {
 
         <div class="card">
             <h2>Optimization Recommendations</h2>
-            ${this.recommendations.map(rec => `
+            ${this.recommendations.map((rec) => `
                 <div class="recommendation ${rec.type}">
                     <h4>${rec.title}</h4>
                     <p>${rec.description}</p>
                     <ul>
-                        ${rec.solutions.map(solution => `<li>${solution}</li>`).join('')}
+                        ${rec.solutions.map((solution) => `<li>${solution}</li>`).join('')}
                     </ul>
                 </div>
             `).join('')}
@@ -399,39 +399,39 @@ class BundleAnalyzer {
   displayResults() {
     console.log('\n📊 Bundle Analysis Results');
     console.log('===========================\n');
-    
+
     // Summary
     console.log(`📦 Total Chunks: ${this.chunks.length}`);
     console.log(`📏 Total Size: ${Math.round(this.totalSize)}KB (${Math.round(this.totalSize / 1024 * 100) / 100}MB)`);
     console.log(`🗜️  Compression Ratio: ${this.calculateCompressionRatio()}%\n`);
-    
+
     // Large chunks
-    const largeChunks = this.chunks.filter(chunk => chunk.sizeKB > 300);
+    const largeChunks = this.chunks.filter((chunk) => chunk.sizeKB > 300);
     if (largeChunks.length > 0) {
       console.log('🚨 Large Chunks (>300KB):');
-      largeChunks.forEach(chunk => {
+      largeChunks.forEach((chunk) => {
         console.log(`  ❌ ${chunk.filename}: ${chunk.sizeKB}KB`);
       });
       console.log();
     }
-    
+
     // Recommendations
     console.log('💡 Key Recommendations:');
-    this.recommendations.slice(0, 3).forEach(rec => {
+    this.recommendations.slice(0, 3).forEach((rec) => {
       const icon = rec.type === 'critical' ? '🚨' : rec.type === 'warning' ? '⚠️' : '💡';
       console.log(`  ${icon} ${rec.title}`);
       console.log(`     ${rec.description}`);
       console.log();
     });
-    
+
     // Reports
     console.log('📄 Reports Generated:');
     console.log(`  📊 JSON Report: ${this.reportPath}`);
     console.log(`  🌐 HTML Report: ${this.htmlReportPath}`);
     console.log();
-    
+
     // Status
-    const criticalIssues = this.recommendations.filter(r => r.type === 'critical').length;
+    const criticalIssues = this.recommendations.filter((r) => r.type === 'critical').length;
     if (criticalIssues > 0) {
       console.log(`⚠️  Found ${criticalIssues} critical optimization issue(s) that need attention.`);
     } else {

@@ -506,7 +506,7 @@ export default defineConfig(({ mode }) => ({
     // Additional optimizations
     reportCompressedSize: false, // Disable for faster builds
     write: true,
-    
+
     // Improve build performance
     commonjsOptions: {
       transformMixedEsModules: true
