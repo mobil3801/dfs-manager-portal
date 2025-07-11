@@ -8,18 +8,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  Monitor, 
-  Smartphone, 
-  Tablet, 
-  Laptop, 
+import {
+  Monitor,
+  Smartphone,
+  Tablet,
+  Laptop,
   ArrowRight,
   Menu,
   MoreHorizontal,
   Info,
   ChevronLeft,
-  ChevronRight
-} from 'lucide-react';
+  ChevronRight } from
+'lucide-react';
 
 const OverflowTestPage = () => {
   const [selectedViewport, setSelectedViewport] = useState('desktop');
@@ -45,16 +45,16 @@ const OverflowTestPage = () => {
   const generateTableData = (columnCount: string) => {
     const baseColumns = ['ID', 'Name', 'Email', 'Status'];
     const extraColumns = ['Department', 'Role', 'Location', 'Phone', 'Manager', 'Start Date', 'Salary', 'Projects'];
-    
-    const columns = columnCount === 'many' 
-      ? [...baseColumns, ...extraColumns]
-      : columnCount === 'extra'
-      ? [...baseColumns, ...extraColumns.slice(0, 4)]
-      : baseColumns;
+
+    const columns = columnCount === 'many' ?
+    [...baseColumns, ...extraColumns] :
+    columnCount === 'extra' ?
+    [...baseColumns, ...extraColumns.slice(0, 4)] :
+    baseColumns;
 
     const data = Array.from({ length: 10 }, (_, i) => {
       const row: Record<string, string> = {};
-      columns.forEach(col => {
+      columns.forEach((col) => {
         row[col] = col === 'ID' ? `${i + 1}` : `${col} ${i + 1}`;
       });
       return row;
@@ -64,10 +64,10 @@ const OverflowTestPage = () => {
   };
 
   const navigationItems = [
-    'Dashboard', 'Products', 'Orders', 'Customers', 'Analytics', 
-    'Reports', 'Settings', 'Users', 'Billing', 'Support',
-    'Documentation', 'API', 'Integrations', 'Webhooks', 'Monitoring'
-  ];
+  'Dashboard', 'Products', 'Orders', 'Customers', 'Analytics',
+  'Reports', 'Settings', 'Users', 'Billing', 'Support',
+  'Documentation', 'API', 'Integrations', 'Webhooks', 'Monitoring'];
+
 
   const { columns, data } = generateTableData(tableColumns);
 
@@ -113,8 +113,8 @@ const OverflowTestPage = () => {
                             <Icon className="h-4 w-4" />
                             {viewport.label}
                           </div>
-                        </SelectItem>
-                      );
+                        </SelectItem>);
+
                     })}
                   </SelectContent>
                 </Select>
@@ -152,13 +152,13 @@ const OverflowTestPage = () => {
         </Card>
 
         {/* Test Container */}
-        <div 
+        <div
           className="border-2 border-dashed border-gray-300 bg-white rounded-lg p-4 transition-all duration-300"
-          style={{ 
+          style={{
             maxWidth: viewports[selectedViewport as keyof typeof viewports].width,
             margin: '0 auto'
-          }}
-        >
+          }}>
+
           <div className="text-center mb-4">
             <Badge variant="secondary">
               Current Viewport: {viewports[selectedViewport as keyof typeof viewports].label}
@@ -183,11 +183,11 @@ const OverflowTestPage = () => {
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex items-center gap-1 overflow-x-auto pb-2">
-                      {navigationItems.map((item, index) => (
-                        <Button key={index} variant="outline" size="sm" className="whitespace-nowrap">
+                      {navigationItems.map((item, index) =>
+                      <Button key={index} variant="outline" size="sm" className="whitespace-nowrap">
                           {item}
                         </Button>
-                      ))}
+                      )}
                     </div>
                     <p className="text-sm text-muted-foreground">
                       Standard horizontal scrolling navigation
@@ -202,12 +202,12 @@ const OverflowTestPage = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-2 overflow-x-auto pb-2">
-                    {['Home', 'Products', 'Electronics', 'Laptops', 'Gaming Laptops', 'High Performance', 'Current Item'].map((item, index, array) => (
-                      <div key={index} className="flex items-center gap-2 whitespace-nowrap">
+                    {['Home', 'Products', 'Electronics', 'Laptops', 'Gaming Laptops', 'High Performance', 'Current Item'].map((item, index, array) =>
+                    <div key={index} className="flex items-center gap-2 whitespace-nowrap">
                         <span className="text-sm">{item}</span>
                         {index < array.length - 1 && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
                       </div>
-                    ))}
+                    )}
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Breadcrumb navigation with overflow
@@ -241,7 +241,7 @@ const OverflowTestPage = () => {
                 <CardContent>
                   <ScrollArea className="h-32 w-full rounded-md border">
                     <pre className="p-4 text-sm">
-{`const veryLongVariableName = 'This is a very long line of code that should demonstrate horizontal overflow behavior';
+                      {`const veryLongVariableName = 'This is a very long line of code that should demonstrate horizontal overflow behavior';
 const anotherLongLine = functionWithVeryLongName(parameterWithVeryLongName, anotherParameterWithVeryLongName);
 const result = someObject.someProperty.someNestedProperty.someVeryLongMethodName();`}
                     </pre>
@@ -256,18 +256,18 @@ const result = someObject.someProperty.someNestedProperty.someVeryLongMethodName
                 <CardContent>
                   <div className="space-y-4">
                     <div className="overflow-hidden rounded-lg">
-                      <img 
-                        src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=400&fit=crop" 
+                      <img
+                        src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=400&fit=crop"
                         alt="Wide image"
-                        className="w-full h-auto"
-                      />
+                        className="w-full h-auto" />
+
                     </div>
                     <div className="overflow-x-auto">
-                      <img 
-                        src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200&h=300&fit=crop" 
+                      <img
+                        src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200&h=300&fit=crop"
                         alt="Very wide image"
-                        className="h-32 w-auto"
-                      />
+                        className="h-32 w-auto" />
+
                     </div>
                   </div>
                 </CardContent>
@@ -285,23 +285,23 @@ const result = someObject.someProperty.someNestedProperty.someVeryLongMethodName
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          {columns.map((col) => (
-                            <TableHead key={col} className="whitespace-nowrap">
+                          {columns.map((col) =>
+                          <TableHead key={col} className="whitespace-nowrap">
                               {col}
                             </TableHead>
-                          ))}
+                          )}
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {data.slice(0, 5).map((row, index) => (
-                          <TableRow key={index}>
-                            {columns.map((col) => (
-                              <TableCell key={col} className="whitespace-nowrap">
+                        {data.slice(0, 5).map((row, index) =>
+                        <TableRow key={index}>
+                            {columns.map((col) =>
+                          <TableCell key={col} className="whitespace-nowrap">
                                 {row[col]}
                               </TableCell>
-                            ))}
+                          )}
                           </TableRow>
-                        ))}
+                        )}
                       </TableBody>
                     </Table>
                   </div>
@@ -317,23 +317,23 @@ const result = someObject.someProperty.someNestedProperty.someVeryLongMethodName
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          {columns.map((col) => (
-                            <TableHead key={col} className="whitespace-nowrap">
+                          {columns.map((col) =>
+                          <TableHead key={col} className="whitespace-nowrap">
                               {col}
                             </TableHead>
-                          ))}
+                          )}
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {data.map((row, index) => (
-                          <TableRow key={index}>
-                            {columns.map((col) => (
-                              <TableCell key={col} className="whitespace-nowrap">
+                        {data.map((row, index) =>
+                        <TableRow key={index}>
+                            {columns.map((col) =>
+                          <TableCell key={col} className="whitespace-nowrap">
                                 {row[col]}
                               </TableCell>
-                            ))}
+                          )}
                           </TableRow>
-                        ))}
+                        )}
                       </TableBody>
                     </Table>
                   </ScrollArea>
@@ -349,8 +349,8 @@ const result = someObject.someProperty.someNestedProperty.someVeryLongMethodName
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {Array.from({ length: 8 }, (_, i) => (
-                      <Card key={i} className="min-w-0">
+                    {Array.from({ length: 8 }, (_, i) =>
+                    <Card key={i} className="min-w-0">
                         <CardHeader className="pb-2">
                           <CardTitle className="text-base truncate">
                             Card with Very Long Title {i + 1}
@@ -367,7 +367,7 @@ const result = someObject.someProperty.someNestedProperty.someVeryLongMethodName
                           </div>
                         </CardContent>
                       </Card>
-                    ))}
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -378,8 +378,8 @@ const result = someObject.someProperty.someNestedProperty.someVeryLongMethodName
                 </CardHeader>
                 <CardContent>
                   <div className="flex gap-4 overflow-x-auto pb-4">
-                    {Array.from({ length: 10 }, (_, i) => (
-                      <Card key={i} className="min-w-[250px] flex-shrink-0">
+                    {Array.from({ length: 10 }, (_, i) =>
+                    <Card key={i} className="min-w-[250px] flex-shrink-0">
                         <CardHeader>
                           <CardTitle className="text-base">Card {i + 1}</CardTitle>
                         </CardHeader>
@@ -389,7 +389,7 @@ const result = someObject.someProperty.someNestedProperty.someVeryLongMethodName
                           </p>
                         </CardContent>
                       </Card>
-                    ))}
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -406,19 +406,19 @@ const result = someObject.someProperty.someNestedProperty.someVeryLongMethodName
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="text-sm font-medium">Very Long Field Label Name</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           className="w-full p-2 border rounded-md"
-                          placeholder="Enter very long placeholder text here"
-                        />
+                          placeholder="Enter very long placeholder text here" />
+
                       </div>
                       <div>
                         <label className="text-sm font-medium">Another Long Field</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           className="w-full p-2 border rounded-md"
-                          placeholder="Short placeholder"
-                        />
+                          placeholder="Short placeholder" />
+
                       </div>
                     </div>
                     
@@ -459,8 +459,8 @@ const result = someObject.someProperty.someNestedProperty.someVeryLongMethodName
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default OverflowTestPage;

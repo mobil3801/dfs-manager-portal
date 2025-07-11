@@ -13,7 +13,8 @@ import {
   Settings,
   AlertTriangle,
   CheckCircle,
-  Clock } from
+  Clock,
+  TestTube } from
 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -301,6 +302,12 @@ const AdminPanel = () => {
               description="Monitor system performance metrics"
               icon={Activity}
               onClick={() => navigate('/admin/performance')} />
+
+            <QuickAdminAction
+              title="Overflow Testing"
+              description="Test responsive design and navigation overflow behavior"
+              icon={TestTube}
+              onClick={() => navigate('/overflow-testing')} />
 
           </div>
         </TabsContent>
