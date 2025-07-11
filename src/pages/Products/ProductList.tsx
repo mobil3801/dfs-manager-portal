@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Search, Edit, Trash2, Package, FileText, Loader2, X, Save, History } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Package, FileText, Loader2, X, Save, History, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useModuleAccess } from '@/contexts/ModuleAccessContext';
@@ -73,6 +73,7 @@ const ProductList: React.FC = () => {
   const [hasMoreProducts, setHasMoreProducts] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [savingProductId, setSavingProductId] = useState<number | null>(null);
+  const [isAdjustingSerials, setIsAdjustingSerials] = useState(false);
 
   const pageSize = 50; // Load more products per batch
   const [loadedProductsCount, setLoadedProductsCount] = useState(pageSize);
@@ -170,6 +171,110 @@ const ProductList: React.FC = () => {
     setHasMoreProducts(loadedProductsCount < filteredProducts.length);
   };
 
+  // Auto-adjust serial numbers after edit/delete operations
+  const autoAdjustSerialNumbers = async () => {
+    try {
+      setIsAdjustingSerials(true);
+      console.log('Starting auto-adjustment of serial numbers...');
+
+      // Get all products ordered by ID (creation order)
+      const { data, error } = await window.ezsite.apis.tablePage('11726', {
+        PageNo: 1,
+        PageSize: 1000,
+        OrderByField: 'ID',
+        IsAsc: true,
+        Filters: []
+      });
+
+      if (error) throw error;
+
+      const products = data?.List || [];
+      console.log(`Found ${products.length} products for serial number adjustment`);
+
+      // Check if serial numbers need adjustment
+      let needsAdjustment = false;
+      for (let i = 0; i < products.length; i++) {
+        const expectedSerial = i + 1;
+        const currentSerial = products[i].serial_number;
+
+        if (currentSerial !== expectedSerial) {
+          needsAdjustment = true;
+          console.log(`Product ID ${products[i].ID} has serial ${currentSerial}, should be ${expectedSerial}`);
+          break;
+        }
+      }
+
+      if (!needsAdjustment) {
+        console.log('Serial numbers are already continuous, no adjustment needed');
+        return;
+      }
+
+      // Update serial numbers to be continuous
+      const updatePromises = products.map(async (product, index) => {
+        const newSerial = index + 1;
+        const currentSerial = product.serial_number;
+
+        // Only update if serial number is different
+        if (currentSerial !== newSerial) {
+          console.log(`Updating product ID ${product.ID} serial from ${currentSerial} to ${newSerial}`);
+
+          const updateData = {
+            ID: product.ID,
+            serial_number: newSerial,
+            // Include all other fields to maintain data integrity
+            product_name: product.product_name,
+            category: product.category || '',
+            quantity_in_stock: product.quantity_in_stock || 0,
+            minimum_stock: product.minimum_stock || 0,
+            supplier: product.supplier || '',
+            description: product.description || '',
+            weight: product.weight || 0,
+            weight_unit: product.weight_unit || 'lb',
+            department: product.department || 'Convenience Store',
+            merchant_id: product.merchant_id || null,
+            bar_code_case: product.bar_code_case || '',
+            bar_code_unit: product.bar_code_unit || '',
+            last_updated_date: new Date().toISOString(),
+            last_shopping_date: product.last_shopping_date || null,
+            case_price: product.case_price || 0,
+            unit_per_case: product.unit_per_case || 1,
+            unit_price: product.unit_price || 0,
+            retail_price: product.retail_price || 0,
+            overdue: product.overdue || false,
+            created_by: product.created_by || userProfile?.user_id || null
+          };
+
+          const { error: updateError } = await window.ezsite.apis.tableUpdate('11726', updateData);
+          if (updateError) {
+            console.error(`Failed to update serial for product ID ${product.ID}:`, updateError);
+            throw updateError;
+          }
+        }
+      });
+
+      // Wait for all updates to complete
+      await Promise.all(updatePromises);
+
+      console.log('Serial number auto-adjustment completed successfully');
+      toast({
+        title: "Serial Numbers Updated",
+        description: "Product serial numbers have been automatically adjusted to maintain continuity.",
+        duration: 3000
+      });
+
+    } catch (error) {
+      console.error('Error during serial number auto-adjustment:', error);
+      toast({
+        title: "Warning",
+        description: "Failed to auto-adjust serial numbers. Please check the system logs.",
+        variant: "destructive",
+        duration: 5000
+      });
+    } finally {
+      setIsAdjustingSerials(false);
+    }
+  };
+
   const handleDelete = async (productId: number) => {
     console.log('handleDelete called for product ID:', productId);
 
@@ -184,7 +289,7 @@ const ProductList: React.FC = () => {
     }
 
     // Show confirmation dialog
-    const confirmed = confirm('Are you sure you want to delete this product? This action cannot be undone.');
+    const confirmed = confirm('Are you sure you want to delete this product? This action cannot be undone. Serial numbers will be automatically adjusted to maintain continuity.');
     console.log('User confirmed deletion:', confirmed);
 
     if (!confirmed) {
@@ -204,8 +309,12 @@ const ProductList: React.FC = () => {
       console.log('Product deleted successfully');
       toast({
         title: "Success",
-        description: "Product deleted successfully"
+        description: "Product deleted successfully. Adjusting serial numbers...",
+        duration: 2000
       });
+
+      // Auto-adjust serial numbers after deletion
+      await autoAdjustSerialNumbers();
 
       // Reload all products
       loadAllProducts();
@@ -306,6 +415,10 @@ const ProductList: React.FC = () => {
           description: `New product created with serial #${newSerial}. Please edit it to add complete information.`,
           duration: 5000
         });
+
+        // Auto-adjust serial numbers after creation to ensure continuity
+        await autoAdjustSerialNumbers();
+
       } else {
         // Update existing product
         const product = products.find((p) => p.ID === productId);
@@ -314,7 +427,7 @@ const ProductList: React.FC = () => {
         }
 
         // Show confirmation dialog for updating existing product
-        const confirmed = confirm(`Save updates to "${product.product_name}"? This will update the product information with current values.`);
+        const confirmed = confirm(`Save updates to "${product.product_name}"? This will update the product information with current values. Serial numbers will be automatically adjusted if needed.`);
         if (!confirmed) {
           console.log('Product update cancelled by user');
           setSavingProductId(null);
@@ -363,6 +476,9 @@ const ProductList: React.FC = () => {
           description: `"${product.product_name}" updated successfully`,
           duration: 3000
         });
+
+        // Auto-adjust serial numbers after update to ensure continuity
+        await autoAdjustSerialNumbers();
       }
 
       // Reload all products to reflect changes
@@ -377,6 +493,15 @@ const ProductList: React.FC = () => {
     } finally {
       setSavingProductId(null);
     }
+  };
+
+  // Manual serial number adjustment function
+  const handleManualSerialAdjustment = async () => {
+    const confirmed = confirm('Manually adjust all serial numbers to be continuous (1, 2, 3, etc.)? This will update all products based on their creation order.');
+    if (!confirmed) return;
+
+    await autoAdjustSerialNumbers();
+    loadAllProducts();
   };
 
   // Load more products function
@@ -519,24 +644,48 @@ const ProductList: React.FC = () => {
               </CardDescription>
             </div>
             
-            {/* Only show Add Product button if create permission is enabled */}
-            {canCreateProduct &&
-            <Button
-              onClick={() => navigate('/products/new')}
-              className={`bg-brand-600 hover:bg-brand-700 text-white ${
-              responsive.isMobile ? 'w-full' : ''}`
-              }>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Product
+            <div className={`flex items-center space-x-2 ${responsive.isMobile ? 'flex-col space-y-2 space-x-0 w-full' : ''}`}>
+              {/* Serial Number Adjustment Button */}
+              <Button
+                onClick={handleManualSerialAdjustment}
+                variant="outline"
+                className={`bg-purple-50 hover:bg-purple-100 text-purple-600 border-purple-200 ${
+                responsive.isMobile ? 'w-full' : ''}`
+                }
+                disabled={isAdjustingSerials}>
+
+                {isAdjustingSerials ?
+                <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Adjusting...
+                  </> :
+
+                <>
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Fix Serial Numbers
+                  </>
+                }
               </Button>
-            }
-            
-            {/* Show permission message if create is disabled */}
-            {!canCreateProduct && isModuleAccessEnabled &&
-            <Badge variant="secondary" className="text-xs">
-                Create access disabled by admin
-              </Badge>
-            }
+
+              {/* Only show Add Product button if create permission is enabled */}
+              {canCreateProduct &&
+              <Button
+                onClick={() => navigate('/products/new')}
+                className={`bg-brand-600 hover:bg-brand-700 text-white ${
+                responsive.isMobile ? 'w-full' : ''}`
+                }>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Product
+                </Button>
+              }
+              
+              {/* Show permission message if create is disabled */}
+              {!canCreateProduct && isModuleAccessEnabled &&
+              <Badge variant="secondary" className="text-xs">
+                  Create access disabled by admin
+                </Badge>
+              }
+            </div>
           </div>
         </CardHeader>
         <CardContent>

@@ -39,13 +39,13 @@ const UserProfilePicture: React.FC<UserProfilePictureProps> = ({
 
     try {
       setIsLoading(true);
-      
+
       // Check if userProfile already has the profile_image_id
       if (userProfile.profile_image_id) {
         setProfileImageId(userProfile.profile_image_id);
         return;
       }
-      
+
       // Try to get the profile image ID from database
       if (userProfile.id) {
         const { data, error } = await window.ezsite.apis.tablePage('11725', {
@@ -76,7 +76,7 @@ const UserProfilePicture: React.FC<UserProfilePictureProps> = ({
 
     try {
       setProfileImageId(newImageId);
-      
+
       // Refresh user data to get the latest profile information
       await refreshUserData();
 
@@ -97,7 +97,7 @@ const UserProfilePicture: React.FC<UserProfilePictureProps> = ({
   // Get user's full name
   const getFullName = () => {
     if (!user) return { firstName: '', lastName: '' };
-    
+
     const nameParts = user.Name?.split(' ') || [];
     return {
       firstName: nameParts[0] || '',
@@ -116,9 +116,9 @@ const UserProfilePicture: React.FC<UserProfilePictureProps> = ({
         enableHover={enableHover}
         rounded={rounded}
         disabled={true}
-        allowEdit={false}
-      />
-    );
+        allowEdit={false} />);
+
+
   }
 
   return (
@@ -137,9 +137,9 @@ const UserProfilePicture: React.FC<UserProfilePictureProps> = ({
       userId={user.ID}
       tableName="user_profiles"
       recordId={userProfile?.id}
-      alt={`${firstName} ${lastName}`.trim() || user.Name || 'User profile picture'}
-    />
-  );
+      alt={`${firstName} ${lastName}`.trim() || user.Name || 'User profile picture'} />);
+
+
 };
 
 export default UserProfilePicture;

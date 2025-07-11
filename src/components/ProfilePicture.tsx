@@ -6,17 +6,17 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  User, 
-  AlertCircle, 
-  Loader2, 
-  Edit, 
+import {
+  User,
+  AlertCircle,
+  Loader2,
+  Edit,
   Upload,
   Image,
   X,
   Trash2,
-  Check
-} from 'lucide-react';
+  Check } from
+'lucide-react';
 import { cn } from '@/lib/utils';
 import { compressImage, formatFileSize, type CompressionResult } from '@/utils/imageCompression';
 
@@ -72,7 +72,7 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [isCompressing, setIsCompressing] = useState(false);
   const [compressionResult, setCompressionResult] = useState<CompressionResult | null>(null);
-  
+
   const maxRetries = 2;
   const { toast } = useToast();
 
@@ -161,13 +161,13 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
   const getImageUrl = () => {
     if (!imageId) return undefined;
     const timestamp = Date.now();
-    
+
     // Handle different types of imageId values
     if (typeof imageId === 'string' && imageId.startsWith('http')) {
       // If imageId is already a complete URL, use it directly
       return imageId;
     }
-    
+
     // Otherwise, construct the API URL
     const baseUrl = window.location.origin;
     return `${baseUrl}/api/files/${imageId}?t=${timestamp}`;
@@ -342,7 +342,7 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
       // Update the record with the new image ID
       if (tableName && recordId) {
         const updateData: any = { ID: recordId };
-        
+
         if (tableName === 'employees') {
           updateData.profile_image_id = fileId;
         } else if (tableName === 'user_profiles') {
@@ -389,7 +389,7 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
 
       if (tableName && recordId) {
         const updateData: any = { ID: recordId };
-        
+
         if (tableName === 'employees') {
           updateData.profile_image_id = null;
         } else if (tableName === 'user_profiles') {
@@ -447,95 +447,95 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
     <div className="relative inline-block group">
       <Avatar className={avatarClasses}>
         {/* Loading skeleton overlay */}
-        {isLoading && showLoadingState && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-full">
+        {isLoading && showLoadingState &&
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-full">
             <Loader2 className={cn(getFallbackIconSize(), 'animate-spin text-gray-400')} />
           </div>
-        )}
+        }
 
         {/* Main image */}
-        {imageToShow && (
-          <AvatarImage
-            src={imageToShow}
-            alt={getAltText()}
-            className={cn(
-              'object-cover transition-opacity duration-200',
-              isLoading && showLoadingState && 'opacity-0',
-              imageLoaded && 'opacity-100'
-            )}
-            onLoad={handleImageLoad}
-            onError={handleImageError}
-            onLoadStart={handleImageLoadStart}
-          />
-        )}
+        {imageToShow &&
+        <AvatarImage
+          src={imageToShow}
+          alt={getAltText()}
+          className={cn(
+            'object-cover transition-opacity duration-200',
+            isLoading && showLoadingState && 'opacity-0',
+            imageLoaded && 'opacity-100'
+          )}
+          onLoad={handleImageLoad}
+          onError={handleImageError}
+          onLoadStart={handleImageLoadStart} />
+
+        }
 
         {/* Fallback content */}
-        {shouldShowFallback && (
-          <AvatarFallback className={fallbackClasses}>
-            {imageError ? (
-              <div className="flex flex-col items-center justify-center space-y-1">
+        {shouldShowFallback &&
+        <AvatarFallback className={fallbackClasses}>
+            {imageError ?
+          <div className="flex flex-col items-center justify-center space-y-1">
                 <AlertCircle className={getFallbackIconSize()} />
-                {(size === 'xl' || size === '2xl') && (
-                  <span className="text-xs text-center">Error</span>
-                )}
-              </div>
-            ) : (
-              getInitials() !== 'U' ? (
-                <span className="font-semibold tracking-wider">
+                {(size === 'xl' || size === '2xl') &&
+            <span className="text-xs text-center">Error</span>
+            }
+              </div> :
+
+          getInitials() !== 'U' ?
+          <span className="font-semibold tracking-wider">
                   {getInitials()}
-                </span>
-              ) : (
-                showFallbackIcon ? (
-                  <User className={getFallbackIconSize()} />
-                ) : (
-                  <span className="font-semibold">U</span>
-                )
-              )
-            )}
+                </span> :
+
+          showFallbackIcon ?
+          <User className={getFallbackIconSize()} /> :
+
+          <span className="font-semibold">U</span>
+
+
+          }
           </AvatarFallback>
-        )}
+        }
       </Avatar>
 
       {/* Edit button */}
-      {allowEdit && !disabled && (
-        <Button
-          type="button"
-          size="sm"
-          variant="default"
-          onClick={() => setIsEditDialogOpen(true)}
-          className={cn(
-            'absolute -bottom-1 -right-1 rounded-full p-0 shadow-lg bg-blue-600 hover:bg-blue-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200',
-            getEditButtonSize()
-          )}
-        >
+      {allowEdit && !disabled &&
+      <Button
+        type="button"
+        size="sm"
+        variant="default"
+        onClick={() => setIsEditDialogOpen(true)}
+        className={cn(
+          'absolute -bottom-1 -right-1 rounded-full p-0 shadow-lg bg-blue-600 hover:bg-blue-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200',
+          getEditButtonSize()
+        )}>
+
           <Edit className="w-3 h-3" />
         </Button>
-      )}
+      }
 
       {/* Loading indicator for large sizes */}
-      {isLoading && showLoadingState && (size === 'xl' || size === '2xl') && (
-        <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-1">
+      {isLoading && showLoadingState && (size === 'xl' || size === '2xl') &&
+      <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-1">
           <Loader2 className="w-3 h-3 animate-spin text-white" />
         </div>
-      )}
+      }
 
       {/* Error indicator */}
-      {imageError && (size === 'xl' || size === '2xl') && (
-        <div className="absolute -bottom-1 -right-1 bg-red-500 rounded-full p-1">
+      {imageError && (size === 'xl' || size === '2xl') &&
+      <div className="absolute -bottom-1 -right-1 bg-red-500 rounded-full p-1">
           <AlertCircle className="w-3 h-3 text-white" />
         </div>
-      )}
+      }
 
       {/* Preview indicator */}
-      {previewFile && (
-        <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
+      {previewFile &&
+      <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
           <div className="w-3 h-3 bg-white rounded-full animate-pulse" />
         </div>
-      )}
+      }
 
       {/* Edit Dialog */}
-      {allowEdit && (
-        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      {allowEdit &&
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
@@ -548,29 +548,29 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
               {/* Current picture preview */}
               <div className="flex justify-center">
                 <Avatar className="w-24 h-24 border-2 border-gray-200">
-                  {selectedFile ? (
-                    <AvatarImage
-                      src={URL.createObjectURL(selectedFile)}
-                      alt="New profile picture"
-                      className="object-cover"
-                    />
-                  ) : imageToShow ? (
-                    <AvatarImage
-                      src={imageToShow}
-                      alt={getAltText()}
-                      className="object-cover"
-                    />
-                  ) : (
-                    <AvatarFallback className={fallbackClasses}>
-                      {getInitials() !== 'U' ? (
-                        <span className="font-semibold tracking-wider text-lg">
+                  {selectedFile ?
+                <AvatarImage
+                  src={URL.createObjectURL(selectedFile)}
+                  alt="New profile picture"
+                  className="object-cover" /> :
+
+                imageToShow ?
+                <AvatarImage
+                  src={imageToShow}
+                  alt={getAltText()}
+                  className="object-cover" /> :
+
+
+                <AvatarFallback className={fallbackClasses}>
+                      {getInitials() !== 'U' ?
+                  <span className="font-semibold tracking-wider text-lg">
                           {getInitials()}
-                        </span>
-                      ) : (
-                        <User className="w-8 h-8" />
-                      )}
+                        </span> :
+
+                  <User className="w-8 h-8" />
+                  }
                     </AvatarFallback>
-                  )}
+                }
                 </Avatar>
               </div>
 
@@ -592,8 +592,8 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
               </Card>
 
               {/* Compression status */}
-              {isCompressing && (
-                <Card className="border-blue-200 bg-blue-50">
+              {isCompressing &&
+            <Card className="border-blue-200 bg-blue-50">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
                       <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
@@ -604,75 +604,75 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
                     </div>
                   </CardContent>
                 </Card>
-              )}
+            }
 
               {/* Selected file info */}
-              {selectedFile && (
-                <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+              {selectedFile &&
+            <div className="p-3 bg-green-50 rounded-lg border border-green-200">
                   <p className="text-sm font-medium text-green-800">New picture selected:</p>
                   <p className="text-sm text-green-600">{selectedFile.name}</p>
-                  {compressionResult && (
-                    <p className="text-xs text-green-500 mt-1">
-                      {compressionResult.wasCompressed ? 
-                        `Optimized to ${formatFileSize(compressionResult.compressedSize)}` :
-                        `File size: ${formatFileSize(compressionResult.originalSize)}`
-                      }
+                  {compressionResult &&
+              <p className="text-xs text-green-500 mt-1">
+                      {compressionResult.wasCompressed ?
+                `Optimized to ${formatFileSize(compressionResult.compressedSize)}` :
+                `File size: ${formatFileSize(compressionResult.originalSize)}`
+                }
                     </p>
-                  )}
+              }
                 </div>
-              )}
+            }
 
               {/* Action buttons */}
               <div className="flex items-center justify-between">
                 <div className="flex space-x-2">
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => document.getElementById('profile-picture-input')?.click()}
-                    disabled={isUploading || isCompressing}
-                  >
+                  variant="outline"
+                  size="sm"
+                  onClick={() => document.getElementById('profile-picture-input')?.click()}
+                  disabled={isUploading || isCompressing}>
+
                     <Upload className="w-4 h-4 mr-2" />
                     Select Image
                   </Button>
                   
-                  {(imageId || selectedFile) && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleRemove}
-                      disabled={isUploading || isCompressing}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
+                  {(imageId || selectedFile) &&
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRemove}
+                  disabled={isUploading || isCompressing}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50">
+
                       <Trash2 className="w-4 h-4 mr-2" />
                       Remove
                     </Button>
-                  )}
+                }
                 </div>
                 
                 <div className="flex space-x-2">
                   <Button
-                    variant="outline"
-                    onClick={() => setIsEditDialogOpen(false)}
-                    disabled={isUploading || isCompressing}
-                  >
+                  variant="outline"
+                  onClick={() => setIsEditDialogOpen(false)}
+                  disabled={isUploading || isCompressing}>
+
                     Cancel
                   </Button>
                   
                   <Button
-                    onClick={handleUpload}
-                    disabled={!selectedFile || isUploading || isCompressing}
-                  >
-                    {isUploading ? (
-                      <>
+                  onClick={handleUpload}
+                  disabled={!selectedFile || isUploading || isCompressing}>
+
+                    {isUploading ?
+                  <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                         Uploading...
-                      </>
-                    ) : (
-                      <>
+                      </> :
+
+                  <>
                         <Check className="w-4 h-4 mr-2" />
                         Save Changes
                       </>
-                    )}
+                  }
                   </Button>
                 </div>
               </div>
@@ -693,7 +693,7 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
             </div>
           </DialogContent>
         </Dialog>
-      )}
+      }
 
       {/* Hidden file input */}
       <input
@@ -701,10 +701,10 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
         type="file"
         accept="image/*"
         onChange={handleFileSelect}
-        className="hidden"
-      />
-    </div>
-  );
+        className="hidden" />
+
+    </div>);
+
 };
 
 export default ProfilePicture;
