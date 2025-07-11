@@ -476,8 +476,8 @@ const EmployeeList: React.FC = () => {
                               <h3 className="font-medium text-gray-900 truncate">
                                 {employee.first_name} {employee.last_name}
                               </h3>
-                              <Badge 
-                                className={`text-white text-xs ${getEmploymentStatusColor(employee.employment_status || 'Ongoing')}`}>
+                              <Badge
+                            className={`text-white text-xs ${getEmploymentStatusColor(employee.employment_status || 'Ongoing')}`}>
                                 {employee.employment_status || 'Ongoing'}
                               </Badge>
                             </div>

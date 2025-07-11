@@ -68,15 +68,15 @@ const EmployeeForm: React.FC = () => {
 
   const positions = ['Manager', 'Supervisor', 'Cashier', 'Attendant', 'Mechanic', 'Cleaner'];
   const idDocumentTypes = ['Driving License', 'Passport', 'Green Card', 'SSN', 'Work Permit'];
-  
+
   const employmentStatuses = [
-    { value: 'Ongoing', label: 'Ongoing', color: 'bg-green-500' },
-    { value: 'Terminated', label: 'Terminated', color: 'bg-red-500' },
-    { value: 'Left', label: 'Left', color: 'bg-orange-500' }
-  ];
+  { value: 'Ongoing', label: 'Ongoing', color: 'bg-green-500' },
+  { value: 'Terminated', label: 'Terminated', color: 'bg-red-500' },
+  { value: 'Left', label: 'Left', color: 'bg-orange-500' }];
+
 
   const getEmploymentStatusColor = (status: string) => {
-    const statusConfig = employmentStatuses.find(s => s.value === status);
+    const statusConfig = employmentStatuses.find((s) => s.value === status);
     return statusConfig ? statusConfig.color : 'bg-gray-500';
   };
 
