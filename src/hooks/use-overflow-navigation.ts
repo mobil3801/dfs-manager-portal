@@ -27,7 +27,7 @@ export const useOverflowNavigation = ({
   const [isCalculating, setIsCalculating] = useState(true);
 
   // Filter items based on permissions
-  const accessibleItems = items.filter(item => canAccessRoute(item.requiredRole));
+  const accessibleItems = items.filter((item) => canAccessRoute(item.requiredRole));
 
   const calculateOverflow = useCallback(() => {
     if (!containerRef.current || !hiddenContainerRef.current) return;
@@ -62,14 +62,14 @@ export const useOverflowNavigation = ({
       setVisibleItems(accessibleItems.slice(0, visibleCount));
       setOverflowItems(accessibleItems.slice(visibleCount));
     }
-    
+
     setIsCalculating(false);
   }, [accessibleItems, moreButtonWidth, padding]);
 
   // Setup ResizeObserver and initial calculation
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
-    
+
     const handleResize = () => {
       setIsCalculating(true);
       clearTimeout(timeoutId);
@@ -79,7 +79,7 @@ export const useOverflowNavigation = ({
     };
 
     const resizeObserver = new ResizeObserver(handleResize);
-    
+
     if (containerRef.current) {
       resizeObserver.observe(containerRef.current);
     }

@@ -193,10 +193,10 @@ const TopNavigation = () => {
 
             {/* Center Section - Navigation Items with Overflow Handling (Desktop) */}
             <nav className="hidden lg:flex items-center flex-1 justify-center max-w-6xl mx-4">
-              <OverflowNavigation 
+              <OverflowNavigation
                 items={navigationItems}
-                canAccessRoute={canAccessRoute}
-              />
+                canAccessRoute={canAccessRoute} />
+
             </nav>
 
             {/* Right Section - User Profile and Mobile Menu Toggle */}

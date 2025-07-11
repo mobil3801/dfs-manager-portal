@@ -48,6 +48,7 @@ import UserValidationTestPage from '@/pages/Admin/UserValidationTestPage';
 import AuthDiagnosticPage from '@/pages/AuthDiagnosticPage';
 import ModuleAccessPage from '@/pages/Admin/ModuleAccessPage';
 import ProfilePictureDemo from '@/components/ProfilePictureDemo';
+import OverflowTestPage from '@/pages/OverflowTestPage';
 
 import DatabaseMonitoring from '@/pages/Admin/DatabaseMonitoring';
 import AuditMonitoring from '@/pages/Admin/AuditMonitoring';
@@ -196,6 +197,7 @@ const AppRouter = () => {
             
             {/* Profile Picture Demo */}
             <Route path="profile-picture-demo" element={<ProfilePictureDemo />} />
+            <Route path="overflow-test" element={<OverflowTestPage />} />
             
             {/* Admin Routes */}
             <Route path="admin" element={<AdminPanel />} />

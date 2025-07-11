@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Home, 
-  Users, 
-  Package, 
-  FileText, 
-  Settings, 
+import {
+  Home,
+  Users,
+  Package,
+  FileText,
+  Settings,
   Calendar,
   Building,
   DollarSign,
@@ -18,8 +18,8 @@ import {
   Info,
   Monitor,
   Smartphone,
-  Tablet
-} from 'lucide-react';
+  Tablet } from
+'lucide-react';
 import OverflowNavigation from '@/components/OverflowNavigation';
 import EnhancedOverflowNavigation from '@/components/EnhancedOverflowNavigation';
 
@@ -28,18 +28,18 @@ const OverflowNavigationDemo: React.FC = () => {
   const [showAllItems, setShowAllItems] = useState(true);
 
   const navigationItems = [
-    { name: 'Dashboard', href: '/dashboard', icon: Home, requiredRole: null },
-    { name: 'Products', href: '/products', icon: Package, requiredRole: null },
-    { name: 'Sales', href: '/sales', icon: FileText, requiredRole: null },
-    { name: 'Delivery', href: '/delivery', icon: Truck, requiredRole: null },
-    { name: 'Employees', href: '/employees', icon: Users, requiredRole: 'manager' },
-    { name: 'Vendors', href: '/vendors', icon: Building, requiredRole: 'manager' },
-    { name: 'Orders', href: '/orders', icon: Package, requiredRole: 'manager' },
-    { name: 'Licenses', href: '/licenses', icon: Calendar, requiredRole: 'manager' },
-    { name: 'Salary', href: '/salary', icon: DollarSign, requiredRole: 'manager' },
-    { name: 'Settings', href: '/settings', icon: Settings, requiredRole: null },
-    { name: 'Admin', href: '/admin', icon: Shield, requiredRole: 'admin' },
-  ];
+  { name: 'Dashboard', href: '/dashboard', icon: Home, requiredRole: null },
+  { name: 'Products', href: '/products', icon: Package, requiredRole: null },
+  { name: 'Sales', href: '/sales', icon: FileText, requiredRole: null },
+  { name: 'Delivery', href: '/delivery', icon: Truck, requiredRole: null },
+  { name: 'Employees', href: '/employees', icon: Users, requiredRole: 'manager' },
+  { name: 'Vendors', href: '/vendors', icon: Building, requiredRole: 'manager' },
+  { name: 'Orders', href: '/orders', icon: Package, requiredRole: 'manager' },
+  { name: 'Licenses', href: '/licenses', icon: Calendar, requiredRole: 'manager' },
+  { name: 'Salary', href: '/salary', icon: DollarSign, requiredRole: 'manager' },
+  { name: 'Settings', href: '/settings', icon: Settings, requiredRole: null },
+  { name: 'Admin', href: '/admin', icon: Shield, requiredRole: 'admin' }];
+
 
   const canAccessRoute = (requiredRole: string | null) => {
     if (!showAllItems && requiredRole === 'manager') return false;
@@ -48,11 +48,11 @@ const OverflowNavigationDemo: React.FC = () => {
   };
 
   const presetWidths = [
-    { name: 'Mobile', width: 320, icon: Smartphone },
-    { name: 'Tablet', width: 768, icon: Tablet },
-    { name: 'Desktop', width: 1024, icon: Monitor },
-    { name: 'Wide', width: 1400, icon: Monitor },
-  ];
+  { name: 'Mobile', width: 320, icon: Smartphone },
+  { name: 'Tablet', width: 768, icon: Tablet },
+  { name: 'Desktop', width: 1024, icon: Monitor },
+  { name: 'Wide', width: 1400, icon: Monitor }];
+
 
   return (
     <div className="space-y-6 p-6">
@@ -94,18 +94,18 @@ const OverflowNavigationDemo: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Container Width:</span>
                   <div className="flex items-center space-x-2">
-                    {presetWidths.map((preset) => (
-                      <Button
-                        key={preset.name}
-                        variant={containerWidth === preset.width ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setContainerWidth(preset.width)}
-                        className="flex items-center space-x-1"
-                      >
+                    {presetWidths.map((preset) =>
+                    <Button
+                      key={preset.name}
+                      variant={containerWidth === preset.width ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setContainerWidth(preset.width)}
+                      className="flex items-center space-x-1">
+
                         <preset.icon className="h-3 w-3" />
                         <span>{preset.name}</span>
                       </Button>
-                    ))}
+                    )}
                   </div>
                 </div>
 
@@ -116,8 +116,8 @@ const OverflowNavigationDemo: React.FC = () => {
                     max="1600"
                     value={containerWidth}
                     onChange={(e) => setContainerWidth(Number(e.target.value))}
-                    className="flex-1"
-                  />
+                    className="flex-1" />
+
                   <span className="text-sm text-gray-500 min-w-[80px]">
                     {containerWidth}px
                   </span>
@@ -127,22 +127,22 @@ const OverflowNavigationDemo: React.FC = () => {
                   <Button
                     variant={showAllItems ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setShowAllItems(!showAllItems)}
-                  >
+                    onClick={() => setShowAllItems(!showAllItems)}>
+
                     {showAllItems ? "Show All Items" : "Limited Items"}
                   </Button>
                   <span className="text-sm text-gray-500">
-                    ({showAllItems ? navigationItems.length : navigationItems.filter(item => canAccessRoute(item.requiredRole)).length} items)
+                    ({showAllItems ? navigationItems.length : navigationItems.filter((item) => canAccessRoute(item.requiredRole)).length} items)
                   </span>
                 </div>
               </div>
 
               {/* Demo Navigation */}
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                <div 
+                <div
                   className="bg-white border border-gray-200 rounded-lg shadow-sm"
-                  style={{ width: `${containerWidth}px`, maxWidth: '100%' }}
-                >
+                  style={{ width: `${containerWidth}px`, maxWidth: '100%' }}>
+
                   <div className="flex items-center justify-between h-16 px-4">
                     <div className="flex items-center space-x-2">
                       <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
@@ -154,8 +154,8 @@ const OverflowNavigationDemo: React.FC = () => {
                     <div className="flex-1 mx-4">
                       <OverflowNavigation
                         items={navigationItems}
-                        canAccessRoute={canAccessRoute}
-                      />
+                        canAccessRoute={canAccessRoute} />
+
                     </div>
 
                     <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
@@ -169,23 +169,23 @@ const OverflowNavigationDemo: React.FC = () => {
                 <div>
                   <h4 className="font-medium text-gray-900 mb-2">Visible Items</h4>
                   <div className="space-y-1">
-                    {navigationItems.filter(item => canAccessRoute(item.requiredRole)).slice(0, Math.floor(containerWidth / 120)).map((item) => (
-                      <div key={item.href} className="flex items-center space-x-2">
+                    {navigationItems.filter((item) => canAccessRoute(item.requiredRole)).slice(0, Math.floor(containerWidth / 120)).map((item) =>
+                    <div key={item.href} className="flex items-center space-x-2">
                         <item.icon className="h-3 w-3 text-blue-600" />
                         <span>{item.name}</span>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
                 <div>
                   <h4 className="font-medium text-gray-900 mb-2">Overflow Items</h4>
                   <div className="space-y-1">
-                    {navigationItems.filter(item => canAccessRoute(item.requiredRole)).slice(Math.floor(containerWidth / 120)).map((item) => (
-                      <div key={item.href} className="flex items-center space-x-2">
+                    {navigationItems.filter((item) => canAccessRoute(item.requiredRole)).slice(Math.floor(containerWidth / 120)).map((item) =>
+                    <div key={item.href} className="flex items-center space-x-2">
                         <item.icon className="h-3 w-3 text-gray-600" />
                         <span className="text-gray-600">{item.name}</span>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               </div>
@@ -206,8 +206,8 @@ const OverflowNavigationDemo: React.FC = () => {
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <OverflowNavigation
                     items={navigationItems}
-                    canAccessRoute={canAccessRoute}
-                  />
+                    canAccessRoute={canAccessRoute} />
+
                 </div>
               </div>
             </CardContent>
@@ -230,8 +230,8 @@ const OverflowNavigationDemo: React.FC = () => {
                     canAccessRoute={canAccessRoute}
                     showLoadingIndicator={true}
                     moreButtonWidth={110}
-                    padding={40}
-                  />
+                    padding={40} />
+
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
@@ -276,8 +276,8 @@ const OverflowNavigationDemo: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default OverflowNavigationDemo;
