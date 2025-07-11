@@ -394,6 +394,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -454,9 +456,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
   * Start monitoring
   */const startMonitoring = useCallback(() => {if (monitoringInterval.current) return;setIsMonitoring(true); // Collect initial metrics
       const initialMetrics = collectMetrics();setMetrics(initialMetrics);lastMetrics.current = initialMetrics; // Set up periodic collection
-      monitoringInterval.current = setInterval(() => {const currentMetrics = collectMetrics();setMetrics(currentMetrics);analyzeMetrics(currentMetrics);
-          generateSuggestions(currentMetrics);
-
+      monitoringInterval.current = setInterval(() => {const currentMetrics = collectMetrics();setMetrics(currentMetrics);analyzeMetrics(currentMetrics);generateSuggestions(currentMetrics);
           lastMetrics.current = currentMetrics;
         }, 5000); // Every 5 seconds
 
