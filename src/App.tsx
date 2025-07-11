@@ -47,6 +47,7 @@ import SMSManagement from '@/pages/Admin/SMSManagement';
 import UserValidationTestPage from '@/pages/Admin/UserValidationTestPage';
 import AuthDiagnosticPage from '@/pages/AuthDiagnosticPage';
 import ModuleAccessPage from '@/pages/Admin/ModuleAccessPage';
+import NavigationDebugPage from '@/pages/Admin/NavigationDebugPage';
 import ProfilePictureDemo from '@/components/ProfilePictureDemo';
 import OverflowTestPage from '@/pages/OverflowTestPage';
 import OverflowTestingPage from '@/pages/OverflowTestingPage';
@@ -211,6 +212,7 @@ const AppRouter = () => {
             <Route path="admin/user-validation" element={<UserValidationTestPage />} />
             <Route path="admin/auth-diagnostic" element={<AuthDiagnosticPage />} />
             <Route path="admin/module-access" element={<ModuleAccessPage />} />
+            <Route path="admin/navigation-debug" element={<NavigationDebugPage />} />
 
             <Route path="admin/database" element={<DatabaseMonitoring />} />
             <Route path="admin/audit" element={<AuditMonitoring />} />

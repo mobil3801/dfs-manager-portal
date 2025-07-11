@@ -43,14 +43,14 @@ export class OverflowDetector {
       enableLogging: true,
       enableReporting: true,
       excludeSelectors: [
-        '.overflow-auto',
-        '.overflow-x-auto',
-        '.overflow-y-auto',
-        '.overflow-scroll',
-        '.overflow-x-scroll',
-        '.overflow-y-scroll',
-        '[data-overflow-expected]'
-      ],
+      '.overflow-auto',
+      '.overflow-x-auto',
+      '.overflow-y-auto',
+      '.overflow-scroll',
+      '.overflow-x-scroll',
+      '.overflow-y-scroll',
+      '[data-overflow-expected]'],
+
       ...config
     };
   }
@@ -137,7 +137,7 @@ export class OverflowDetector {
 
     elements.forEach((element) => {
       const htmlElement = element as HTMLElement;
-      
+
       // Skip if element should be excluded
       if (this.shouldExcludeElement(htmlElement)) {
         return;
@@ -186,13 +186,13 @@ export class OverflowDetector {
 
     // Skip elements with intentional overflow
     if (overflow === 'auto' || overflow === 'scroll' ||
-        overflowX === 'auto' || overflowX === 'scroll' ||
-        overflowY === 'auto' || overflowY === 'scroll') {
+    overflowX === 'auto' || overflowX === 'scroll' ||
+    overflowY === 'auto' || overflowY === 'scroll') {
       return null;
     }
 
     const { scrollWidth, scrollHeight, clientWidth, clientHeight } = element;
-    
+
     const horizontalOverflow = scrollWidth > clientWidth + this.config.thresholds.horizontal;
     const verticalOverflow = scrollHeight > clientHeight + this.config.thresholds.vertical;
 
@@ -232,7 +232,7 @@ export class OverflowDetector {
     }
 
     if (element.className) {
-      const classes = element.className.split(' ').filter(c => c.length > 0);
+      const classes = element.className.split(' ').filter((c) => c.length > 0);
       if (classes.length > 0) {
         return `${element.tagName.toLowerCase()}.${classes.join('.')}`;
       }
@@ -250,7 +250,7 @@ export class OverflowDetector {
         width: window.innerWidth,
         height: window.innerHeight
       },
-      issues: issues.map(issue => ({
+      issues: issues.map((issue) => ({
         selector: issue.selector,
         type: issue.type,
         dimensions: {
@@ -271,12 +271,12 @@ export class OverflowDetector {
     try {
       const existingReports = JSON.parse(localStorage.getItem('overflowReports') || '[]');
       existingReports.push(report);
-      
+
       // Keep only last 50 reports
       if (existingReports.length > 50) {
         existingReports.splice(0, existingReports.length - 50);
       }
-      
+
       localStorage.setItem('overflowReports', JSON.stringify(existingReports));
     } catch (e) {
       console.warn('Failed to store overflow report:', e);
@@ -292,9 +292,9 @@ export class OverflowDetector {
       timestamp: Date.now(),
       totalIssues: this.issues.length,
       issuesByType: {
-        horizontal: this.issues.filter(i => i.type === 'horizontal').length,
-        vertical: this.issues.filter(i => i.type === 'vertical').length,
-        both: this.issues.filter(i => i.type === 'both').length
+        horizontal: this.issues.filter((i) => i.type === 'horizontal').length,
+        vertical: this.issues.filter((i) => i.type === 'vertical').length,
+        both: this.issues.filter((i) => i.type === 'both').length
       },
       viewport: {
         width: window.innerWidth,
@@ -331,7 +331,7 @@ export const getOverflowReport = (): any => {
 };
 
 // Automated CI/CD Testing Functions
-export const runAutomatedOverflowTests = async (viewports: Array<{width: number, height: number}>) => {
+export const runAutomatedOverflowTests = async (viewports: Array<{width: number;height: number;}>) => {
   const results: any[] = [];
 
   for (const viewport of viewports) {
@@ -348,7 +348,7 @@ export const runAutomatedOverflowTests = async (viewports: Array<{width: number,
       enableReporting: false
     });
 
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       detector.startMonitoring();
       setTimeout(() => {
         const report = detector.getReport();

@@ -27,8 +27,8 @@ import {
   Calendar,
   DollarSign,
   Building,
-  Shield
-} from 'lucide-react';
+  Shield } from
+'lucide-react';
 
 const ResponsiveNavigationTester: React.FC = () => {
   const [viewportWidth, setViewportWidth] = useState(1200);
@@ -38,19 +38,19 @@ const ResponsiveNavigationTester: React.FC = () => {
   const [newItemName, setNewItemName] = useState('');
 
   const defaultNavItems = [
-    { name: 'Dashboard', href: '/dashboard', icon: Home, requiredRole: null },
-    { name: 'Products', href: '/products', icon: Package, requiredRole: null },
-    { name: 'Orders', href: '/orders', icon: FileText, requiredRole: null },
-    { name: 'Customers', href: '/customers', icon: Users, requiredRole: null },
-    { name: 'Delivery', href: '/delivery', icon: Truck, requiredRole: null },
-    { name: 'Calendar', href: '/calendar', icon: Calendar, requiredRole: null },
-    { name: 'Finance', href: '/finance', icon: DollarSign, requiredRole: null },
-    { name: 'Buildings', href: '/buildings', icon: Building, requiredRole: null },
-    { name: 'Administration', href: '/admin', icon: Shield, requiredRole: null },
-    { name: 'Settings', href: '/settings', icon: Settings, requiredRole: null },
-    { name: 'Analytics', href: '/analytics', icon: Monitor, requiredRole: null },
-    { name: 'Reports', href: '/reports', icon: FileText, requiredRole: null }
-  ];
+  { name: 'Dashboard', href: '/dashboard', icon: Home, requiredRole: null },
+  { name: 'Products', href: '/products', icon: Package, requiredRole: null },
+  { name: 'Orders', href: '/orders', icon: FileText, requiredRole: null },
+  { name: 'Customers', href: '/customers', icon: Users, requiredRole: null },
+  { name: 'Delivery', href: '/delivery', icon: Truck, requiredRole: null },
+  { name: 'Calendar', href: '/calendar', icon: Calendar, requiredRole: null },
+  { name: 'Finance', href: '/finance', icon: DollarSign, requiredRole: null },
+  { name: 'Buildings', href: '/buildings', icon: Building, requiredRole: null },
+  { name: 'Administration', href: '/admin', icon: Shield, requiredRole: null },
+  { name: 'Settings', href: '/settings', icon: Settings, requiredRole: null },
+  { name: 'Analytics', href: '/analytics', icon: Monitor, requiredRole: null },
+  { name: 'Reports', href: '/reports', icon: FileText, requiredRole: null }];
+
 
   const [testItems, setTestItems] = useState(defaultNavItems.slice(0, itemCount));
 
@@ -90,13 +90,13 @@ const ResponsiveNavigationTester: React.FC = () => {
   };
 
   const presetViewports = [
-    { width: 375, label: 'iPhone SE' },
-    { width: 414, label: 'iPhone 11' },
-    { width: 768, label: 'iPad' },
-    { width: 1024, label: 'Laptop' },
-    { width: 1280, label: 'Desktop' },
-    { width: 1920, label: 'Large Desktop' }
-  ];
+  { width: 375, label: 'iPhone SE' },
+  { width: 414, label: 'iPhone 11' },
+  { width: 768, label: 'iPad' },
+  { width: 1024, label: 'Laptop' },
+  { width: 1280, label: 'Desktop' },
+  { width: 1920, label: 'Large Desktop' }];
+
 
   return (
     <div className="space-y-6">
@@ -139,20 +139,20 @@ const ResponsiveNavigationTester: React.FC = () => {
               max={1920}
               min={320}
               step={10}
-              className="w-full"
-            />
+              className="w-full" />
+
 
             <div className="flex flex-wrap gap-2">
-              {presetViewports.map((preset) => (
-                <Button
-                  key={preset.width}
-                  variant={viewportWidth === preset.width ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setViewportWidth(preset.width)}
-                >
+              {presetViewports.map((preset) =>
+              <Button
+                key={preset.width}
+                variant={viewportWidth === preset.width ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewportWidth(preset.width)}>
+
                   {preset.label}
                 </Button>
-              ))}
+              )}
             </div>
           </div>
 
@@ -165,8 +165,8 @@ const ResponsiveNavigationTester: React.FC = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => setItemCount(Math.max(1, itemCount - 1))}
-                  disabled={itemCount <= 1}
-                >
+                  disabled={itemCount <= 1}>
+
                   <Minus className="h-4 w-4" />
                 </Button>
                 <span className="text-sm px-2">{itemCount}</span>
@@ -174,8 +174,8 @@ const ResponsiveNavigationTester: React.FC = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => setItemCount(Math.min(defaultNavItems.length, itemCount + 1))}
-                  disabled={itemCount >= defaultNavItems.length}
-                >
+                  disabled={itemCount >= defaultNavItems.length}>
+
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
@@ -186,8 +186,8 @@ const ResponsiveNavigationTester: React.FC = () => {
                 placeholder="Add custom item..."
                 value={newItemName}
                 onChange={(e) => setNewItemName(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && addCustomItem()}
-              />
+                onKeyPress={(e) => e.key === 'Enter' && addCustomItem()} />
+
               <Button onClick={addCustomItem} size="sm">
                 <Plus className="h-4 w-4" />
               </Button>
@@ -197,8 +197,8 @@ const ResponsiveNavigationTester: React.FC = () => {
               <Switch
                 checked={useEnhanced}
                 onCheckedChange={setUseEnhanced}
-                id="enhanced-nav"
-              />
+                id="enhanced-nav" />
+
               <Label htmlFor="enhanced-nav">Use Enhanced Navigation</Label>
             </div>
           </div>
@@ -225,8 +225,8 @@ const ResponsiveNavigationTester: React.FC = () => {
             {/* Test Container */}
             <div
               className="border-2 border-dashed border-gray-300 bg-white rounded-lg p-4 mx-auto transition-all duration-300"
-              style={{ width: `${viewportWidth}px`, maxWidth: '100%' }}
-            >
+              style={{ width: `${viewportWidth}px`, maxWidth: '100%' }}>
+
               <div className="bg-gray-50 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold">Navigation Test</h3>
@@ -238,20 +238,20 @@ const ResponsiveNavigationTester: React.FC = () => {
                 {/* Navigation Component */}
                 <div className="border border-gray-200 rounded-lg bg-white">
                   <div className="p-2">
-                    {useEnhanced ? (
-                      <EnhancedOverflowNavigation
-                        items={testItems}
-                        canAccessRoute={canAccessRoute}
-                        moreButtonWidth={100}
-                        padding={32}
-                        showLoadingIndicator={true}
-                      />
-                    ) : (
-                      <OverflowNavigation
-                        items={testItems}
-                        canAccessRoute={canAccessRoute}
-                      />
-                    )}
+                    {useEnhanced ?
+                    <EnhancedOverflowNavigation
+                      items={testItems}
+                      canAccessRoute={canAccessRoute}
+                      moreButtonWidth={100}
+                      padding={32}
+                      showLoadingIndicator={true} /> :
+
+
+                    <OverflowNavigation
+                      items={testItems}
+                      canAccessRoute={canAccessRoute} />
+
+                    }
                   </div>
                 </div>
               </div>
@@ -275,22 +275,22 @@ const ResponsiveNavigationTester: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {testItems.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 border rounded">
+                {testItems.map((item, index) =>
+                <div key={index} className="flex items-center justify-between p-2 border rounded">
                     <div className="flex items-center space-x-2">
                       {React.createElement(item.icon, { className: "h-4 w-4" })}
                       <span>{item.name}</span>
                     </div>
                     <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeItem(index)}
-                      disabled={testItems.length <= 1}
-                    >
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeItem(index)}
+                    disabled={testItems.length <= 1}>
+
                       <Minus className="h-4 w-4" />
                     </Button>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -317,18 +317,18 @@ const ResponsiveNavigationTester: React.FC = () => {
                 <div className="space-y-2">
                   <h4 className="font-semibold">Expected Behavior:</h4>
                   <ul className="text-sm space-y-1 text-muted-foreground">
-                    {viewportWidth <= 480 && (
-                      <li>• Very limited space - most items should overflow</li>
-                    )}
-                    {viewportWidth > 480 && viewportWidth <= 768 && (
-                      <li>• Mobile/tablet - some items may overflow</li>
-                    )}
-                    {viewportWidth > 768 && viewportWidth <= 1024 && (
-                      <li>• Laptop size - should handle most standard navigation</li>
-                    )}
-                    {viewportWidth > 1024 && (
-                      <li>• Desktop - should display most or all items</li>
-                    )}
+                    {viewportWidth <= 480 &&
+                    <li>• Very limited space - most items should overflow</li>
+                    }
+                    {viewportWidth > 480 && viewportWidth <= 768 &&
+                    <li>• Mobile/tablet - some items may overflow</li>
+                    }
+                    {viewportWidth > 768 && viewportWidth <= 1024 &&
+                    <li>• Laptop size - should handle most standard navigation</li>
+                    }
+                    {viewportWidth > 1024 &&
+                    <li>• Desktop - should display most or all items</li>
+                    }
                     <li>• Items that don't fit should move to "More" dropdown</li>
                     <li>• Navigation should remain functional at all sizes</li>
                   </ul>
@@ -349,27 +349,27 @@ const ResponsiveNavigationTester: React.FC = () => {
                   <AlertDescription>
                     <strong>For your current setup ({viewportWidth}px, {testItems.length} items):</strong>
                     <ul className="mt-2 space-y-1">
-                      {viewportWidth <= 480 && (
-                        <>
+                      {viewportWidth <= 480 &&
+                      <>
                           <li>• Consider using a mobile-first hamburger menu</li>
                           <li>• Prioritize most important navigation items</li>
                           <li>• Use shorter item names where possible</li>
                         </>
-                      )}
-                      {viewportWidth > 480 && viewportWidth <= 768 && (
-                        <>
+                      }
+                      {viewportWidth > 480 && viewportWidth <= 768 &&
+                      <>
                           <li>• The enhanced navigation should handle overflow well</li>
                           <li>• Consider grouping related items</li>
                           <li>• Test with different item counts</li>
                         </>
-                      )}
-                      {viewportWidth > 768 && (
-                        <>
+                      }
+                      {viewportWidth > 768 &&
+                      <>
                           <li>• You have good space for navigation</li>
                           <li>• Consider adding more functionality</li>
                           <li>• Test edge cases with many items</li>
                         </>
-                      )}
+                      }
                     </ul>
                   </AlertDescription>
                 </Alert>
@@ -391,8 +391,8 @@ const ResponsiveNavigationTester: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ResponsiveNavigationTester;

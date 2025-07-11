@@ -19,8 +19,8 @@ import {
   Tablet,
   Bug,
   Download,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw } from
+'lucide-react';
 
 const OverflowTestSuite: React.FC = () => {
   const [testResults, setTestResults] = useState<any[]>([]);
@@ -42,13 +42,13 @@ const OverflowTestSuite: React.FC = () => {
   });
 
   const standardViewports = [
-    { width: 375, height: 667, name: 'iPhone SE' },
-    { width: 414, height: 896, name: 'iPhone 11' },
-    { width: 768, height: 1024, name: 'iPad' },
-    { width: 1024, height: 768, name: 'iPad Landscape' },
-    { width: 1280, height: 720, name: 'Laptop' },
-    { width: 1920, height: 1080, name: 'Desktop' }
-  ];
+  { width: 375, height: 667, name: 'iPhone SE' },
+  { width: 414, height: 896, name: 'iPhone 11' },
+  { width: 768, height: 1024, name: 'iPad' },
+  { width: 1024, height: 768, name: 'iPad Landscape' },
+  { width: 1280, height: 720, name: 'Laptop' },
+  { width: 1920, height: 1080, name: 'Desktop' }];
+
 
   const runComprehensiveTests = async () => {
     setIsRunningTests(true);
@@ -121,8 +121,8 @@ const OverflowTestSuite: React.FC = () => {
             onClick={refreshIssues}
             variant="outline"
             size="sm"
-            disabled={isRunningTests}
-          >
+            disabled={isRunningTests}>
+
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
@@ -130,8 +130,8 @@ const OverflowTestSuite: React.FC = () => {
             onClick={downloadReport}
             variant="outline"
             size="sm"
-            disabled={isRunningTests}
-          >
+            disabled={isRunningTests}>
+
             <Download className="h-4 w-4 mr-2" />
             Export Report
           </Button>
@@ -157,13 +157,13 @@ const OverflowTestSuite: React.FC = () => {
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-blue-600">
-                {issues.filter(i => i.type === 'horizontal').length}
+                {issues.filter((i) => i.type === 'horizontal').length}
               </div>
               <div className="text-sm text-muted-foreground">Horizontal</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-purple-600">
-                {issues.filter(i => i.type === 'vertical').length}
+                {issues.filter((i) => i.type === 'vertical').length}
               </div>
               <div className="text-sm text-muted-foreground">Vertical</div>
             </div>
@@ -173,19 +173,19 @@ const OverflowTestSuite: React.FC = () => {
             <Button
               onClick={isMonitoring ? stopMonitoring : startMonitoring}
               variant={isMonitoring ? "destructive" : "default"}
-              size="sm"
-            >
-              {isMonitoring ? (
-                <>
+              size="sm">
+
+              {isMonitoring ?
+              <>
                   <Square className="h-4 w-4 mr-2" />
                   Stop Monitoring
-                </>
-              ) : (
-                <>
+                </> :
+
+              <>
                   <Play className="h-4 w-4 mr-2" />
                   Start Monitoring
                 </>
-              )}
+              }
             </Button>
           </div>
         </CardContent>
@@ -208,49 +208,49 @@ const OverflowTestSuite: React.FC = () => {
               <Button
                 onClick={runComprehensiveTests}
                 disabled={isRunningTests}
-                className="min-w-[120px]"
-              >
-                {isRunningTests ? (
-                  <>
+                className="min-w-[120px]">
+
+                {isRunningTests ?
+                <>
                     <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                     Testing...
-                  </>
-                ) : (
-                  <>
+                  </> :
+
+                <>
                     <Play className="h-4 w-4 mr-2" />
                     Run Tests
                   </>
-                )}
+                }
               </Button>
             </div>
 
             {/* Test Progress */}
-            {isRunningTests && (
-              <div className="space-y-2">
+            {isRunningTests &&
+            <div className="space-y-2">
                 <Progress value={testProgress} className="w-full" />
                 <p className="text-sm text-center text-muted-foreground">
                   Running tests... {testProgress}%
                 </p>
               </div>
-            )}
+            }
 
             {/* Test Results */}
-            {testResults.length > 0 && (
-              <div className="space-y-4">
+            {testResults.length > 0 &&
+            <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Test Results</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {testResults.map((result, index) => {
-                    const Icon = result.viewport.width <= 480 ? Smartphone : 
-                                result.viewport.width <= 768 ? Tablet : Monitor;
-                    
-                    return (
-                      <Card
-                        key={index}
-                        className={`cursor-pointer transition-all hover:shadow-md ${
-                          selectedTest === result ? 'ring-2 ring-blue-500' : ''
-                        }`}
-                        onClick={() => setSelectedTest(result)}
-                      >
+                  const Icon = result.viewport.width <= 480 ? Smartphone :
+                  result.viewport.width <= 768 ? Tablet : Monitor;
+
+                  return (
+                    <Card
+                      key={index}
+                      className={`cursor-pointer transition-all hover:shadow-md ${
+                      selectedTest === result ? 'ring-2 ring-blue-500' : ''}`
+                      }
+                      onClick={() => setSelectedTest(result)}>
+
                         <CardHeader className="pb-2">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
@@ -270,12 +270,12 @@ const OverflowTestSuite: React.FC = () => {
                             <div className="text-sm text-muted-foreground">Issues Found</div>
                           </div>
                         </CardContent>
-                      </Card>
-                    );
-                  })}
+                      </Card>);
+
+                })}
                 </div>
               </div>
-            )}
+            }
           </div>
         </CardContent>
       </Card>
@@ -294,16 +294,16 @@ const OverflowTestSuite: React.FC = () => {
               <CardTitle>Current Overflow Issues</CardTitle>
             </CardHeader>
             <CardContent>
-              {issues.length === 0 ? (
-                <div className="text-center py-8">
+              {issues.length === 0 ?
+              <div className="text-center py-8">
                   <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
                   <p className="text-muted-foreground">No overflow issues detected</p>
-                </div>
-              ) : (
-                <ScrollArea className="h-96">
+                </div> :
+
+              <ScrollArea className="h-96">
                   <div className="space-y-4">
-                    {issues.map((issue, index) => (
-                      <div key={index} className="border rounded-lg p-4">
+                    {issues.map((issue, index) =>
+                  <div key={index} className="border rounded-lg p-4">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center space-x-2 mb-2">
@@ -326,10 +326,10 @@ const OverflowTestSuite: React.FC = () => {
                           </div>
                         </div>
                       </div>
-                    ))}
+                  )}
                   </div>
                 </ScrollArea>
-              )}
+              }
             </CardContent>
           </Card>
         </TabsContent>
@@ -340,8 +340,8 @@ const OverflowTestSuite: React.FC = () => {
               <CardTitle>Detailed Test Results</CardTitle>
             </CardHeader>
             <CardContent>
-              {selectedTest ? (
-                <div className="space-y-4">
+              {selectedTest ?
+              <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold">
                       {selectedTest.viewport.width} × {selectedTest.viewport.height}
@@ -372,8 +372,8 @@ const OverflowTestSuite: React.FC = () => {
 
                   <ScrollArea className="h-64">
                     <div className="space-y-2">
-                      {selectedTest.issues.map((issue: any, index: number) => (
-                        <div key={index} className="border rounded p-3">
+                      {selectedTest.issues.map((issue: any, index: number) =>
+                    <div key={index} className="border rounded p-3">
                           <div className="flex items-center justify-between">
                             <span className="font-medium">{issue.selector}</span>
                             <Badge variant="outline">{issue.type}</Badge>
@@ -382,15 +382,15 @@ const OverflowTestSuite: React.FC = () => {
                             {issue.scrollWidth} × {issue.scrollHeight} → {issue.clientWidth} × {issue.clientHeight}
                           </div>
                         </div>
-                      ))}
+                    )}
                     </div>
                   </ScrollArea>
-                </div>
-              ) : (
-                <div className="text-center py-8">
+                </div> :
+
+              <div className="text-center py-8">
                   <p className="text-muted-foreground">Select a test result to view details</p>
                 </div>
-              )}
+              }
             </CardContent>
           </Card>
         </TabsContent>
@@ -433,8 +433,8 @@ const OverflowTestSuite: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default OverflowTestSuite;

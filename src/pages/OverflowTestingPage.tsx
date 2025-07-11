@@ -14,8 +14,8 @@ import {
   AlertTriangle,
   CheckCircle,
   Info,
-  ExternalLink
-} from 'lucide-react';
+  ExternalLink } from
+'lucide-react';
 
 const OverflowTestingPage: React.FC = () => {
   return (
@@ -210,27 +210,27 @@ const OverflowTestingPage: React.FC = () => {
                       <h4 className="font-medium">Viewport Sizes</h4>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                         {[
-                          { name: 'iPhone SE', size: '375×667' },
-                          { name: 'iPhone 11', size: '414×896' },
-                          { name: 'iPad', size: '768×1024' },
-                          { name: 'iPad Landscape', size: '1024×768' },
-                          { name: 'Laptop', size: '1280×720' },
-                          { name: 'Desktop', size: '1920×1080' }
-                        ].map((viewport) => (
-                          <div key={viewport.name} className="p-2 bg-gray-50 rounded text-sm">
+                        { name: 'iPhone SE', size: '375×667' },
+                        { name: 'iPhone 11', size: '414×896' },
+                        { name: 'iPad', size: '768×1024' },
+                        { name: 'iPad Landscape', size: '1024×768' },
+                        { name: 'Laptop', size: '1280×720' },
+                        { name: 'Desktop', size: '1920×1080' }].
+                        map((viewport) =>
+                        <div key={viewport.name} className="p-2 bg-gray-50 rounded text-sm">
                             <div className="font-medium">{viewport.name}</div>
                             <div className="text-muted-foreground">{viewport.size}</div>
                           </div>
-                        ))}
+                        )}
                       </div>
                     </div>
 
                     <div className="space-y-2">
                       <h4 className="font-medium">Test Routes</h4>
                       <div className="flex flex-wrap gap-2">
-                        {['/', '/dashboard', '/products', '/orders', '/customers', '/settings'].map((route) => (
-                          <Badge key={route} variant="outline">{route}</Badge>
-                        ))}
+                        {['/', '/dashboard', '/products', '/orders', '/customers', '/settings'].map((route) =>
+                        <Badge key={route} variant="outline">{route}</Badge>
+                        )}
                       </div>
                     </div>
 
@@ -257,8 +257,8 @@ const OverflowTestingPage: React.FC = () => {
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default OverflowTestingPage;

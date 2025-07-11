@@ -13,22 +13,22 @@ const fs = require('fs');
 const path = require('path');
 
 const VIEWPORT_SIZES = [
-  { width: 375, height: 667, name: 'iPhone SE' },
-  { width: 414, height: 896, name: 'iPhone 11' },
-  { width: 768, height: 1024, name: 'iPad' },
-  { width: 1024, height: 768, name: 'iPad Landscape' },
-  { width: 1280, height: 720, name: 'Laptop' },
-  { width: 1920, height: 1080, name: 'Desktop' }
-];
+{ width: 375, height: 667, name: 'iPhone SE' },
+{ width: 414, height: 896, name: 'iPhone 11' },
+{ width: 768, height: 1024, name: 'iPad' },
+{ width: 1024, height: 768, name: 'iPad Landscape' },
+{ width: 1280, height: 720, name: 'Laptop' },
+{ width: 1920, height: 1080, name: 'Desktop' }];
+
 
 const TEST_ROUTES = [
-  '/',
-  '/dashboard',
-  '/products',
-  '/orders',
-  '/customers',
-  '/settings'
-];
+'/',
+'/dashboard',
+'/products',
+'/orders',
+'/customers',
+'/settings'];
+
 
 class OverflowCITester {
   constructor(options = {}) {
@@ -53,17 +53,17 @@ class OverflowCITester {
 
   async runTests() {
     console.log('🚀 Starting overflow detection tests...');
-    
+
     for (const route of TEST_ROUTES) {
       console.log(`\n📄 Testing route: ${route}`);
-      
+
       for (const viewport of VIEWPORT_SIZES) {
         console.log(`  📱 Testing viewport: ${viewport.name} (${viewport.width}x${viewport.height})`);
-        
+
         try {
           const result = await this.testRouteAtViewport(route, viewport);
           this.results.push(result);
-          
+
           if (result.issues.length > 0) {
             console.log(`    ⚠️  Found ${result.issues.length} overflow issues`);
           } else {
@@ -83,18 +83,18 @@ class OverflowCITester {
 
     await this.generateReport();
     await this.cleanup();
-    
+
     return this.results;
   }
 
   async testRouteAtViewport(route, viewport) {
     const page = await this.browser.newPage();
     await page.setViewport(viewport);
-    
+
     try {
-      await page.goto(`${this.baseUrl}${route}`, { 
+      await page.goto(`${this.baseUrl}${route}`, {
         waitUntil: 'networkidle2',
-        timeout: 30000 
+        timeout: 30000
       });
 
       // Wait for any dynamic content to load
@@ -103,28 +103,28 @@ class OverflowCITester {
       // Inject overflow detection script
       const issues = await page.evaluate((threshold) => {
         const overflowIssues = [];
-        
+
         // Get all elements
         const elements = document.querySelectorAll('*');
-        
+
         elements.forEach((element) => {
           // Skip elements that are intentionally scrollable
           const computedStyle = window.getComputedStyle(element);
           const overflow = computedStyle.overflow;
           const overflowX = computedStyle.overflowX;
           const overflowY = computedStyle.overflowY;
-          
+
           if (overflow === 'auto' || overflow === 'scroll' ||
-              overflowX === 'auto' || overflowX === 'scroll' ||
-              overflowY === 'auto' || overflowY === 'scroll') {
+          overflowX === 'auto' || overflowX === 'scroll' ||
+          overflowY === 'auto' || overflowY === 'scroll') {
             return;
           }
-          
+
           const { scrollWidth, scrollHeight, clientWidth, clientHeight } = element;
-          
+
           const horizontalOverflow = scrollWidth > clientWidth + threshold;
           const verticalOverflow = scrollHeight > clientHeight + threshold;
-          
+
           if (horizontalOverflow || verticalOverflow) {
             let type;
             if (horizontalOverflow && verticalOverflow) {
@@ -134,18 +134,18 @@ class OverflowCITester {
             } else {
               type = 'vertical';
             }
-            
+
             // Generate selector
             let selector = element.tagName.toLowerCase();
             if (element.id) {
               selector = `#${element.id}`;
             } else if (element.className) {
-              const classes = element.className.split(' ').filter(c => c.length > 0);
+              const classes = element.className.split(' ').filter((c) => c.length > 0);
               if (classes.length > 0) {
                 selector = `${selector}.${classes.join('.')}`;
               }
             }
-            
+
             overflowIssues.push({
               selector,
               type,
@@ -158,7 +158,7 @@ class OverflowCITester {
             });
           }
         });
-        
+
         return overflowIssues;
       }, this.threshold);
 
@@ -188,7 +188,7 @@ class OverflowCITester {
       timestamp: new Date().toISOString(),
       summary: {
         totalTests: this.results.length,
-        failedTests: this.results.filter(r => r.issues && r.issues.length > 0).length,
+        failedTests: this.results.filter((r) => r.issues && r.issues.length > 0).length,
         totalIssues: this.results.reduce((sum, r) => sum + (r.issues?.length || 0), 0)
       },
       testResults: this.results
@@ -240,11 +240,11 @@ class OverflowCITester {
         <p><strong>Total Tests:</strong> ${report.summary.totalTests}</p>
         <p><strong>Failed Tests:</strong> ${report.summary.failedTests}</p>
         <p><strong>Total Issues:</strong> ${report.summary.totalIssues}</p>
-        <p><strong>Success Rate:</strong> ${(((report.summary.totalTests - report.summary.failedTests) / report.summary.totalTests) * 100).toFixed(1)}%</p>
+        <p><strong>Success Rate:</strong> ${((report.summary.totalTests - report.summary.failedTests) / report.summary.totalTests * 100).toFixed(1)}%</p>
     </div>
 
     <h2>Test Results</h2>
-    ${report.testResults.map(result => `
+    ${report.testResults.map((result) => `
         <div class="test-result ${result.issues && result.issues.length > 0 ? 'warning' : 'success'}">
             <h3>${result.route} - ${result.viewport.name}</h3>
             <p><strong>Viewport:</strong> ${result.viewport.width}x${result.viewport.height}</p>
@@ -252,7 +252,7 @@ class OverflowCITester {
             
             ${result.issues && result.issues.length > 0 ? `
                 <h4>Issues:</h4>
-                ${result.issues.map(issue => `
+                ${result.issues.map((issue) => `
                     <div class="issue">
                         <strong>${issue.selector}</strong> - ${issue.type} overflow
                         <br>Scroll: ${issue.scrollWidth}x${issue.scrollHeight}, Client: ${issue.clientWidth}x${issue.clientHeight}
@@ -280,7 +280,7 @@ class OverflowCITester {
     console.log(`   Status: ${hasIssues ? '❌ FAILED' : '✅ PASSED'}`);
     console.log(`   Total Issues: ${report.summary.totalIssues}`);
     console.log(`   Failed Tests: ${report.summary.failedTests}/${report.summary.totalTests}`);
-    
+
     if (hasIssues) {
       console.log(`\n⚠️  Overflow issues detected! Check the report for details.`);
     } else {
@@ -302,7 +302,7 @@ class OverflowCITester {
 async function main() {
   const args = process.argv.slice(2);
   const baseUrl = args[0] || 'http://localhost:3000';
-  
+
   const tester = new OverflowCITester({
     baseUrl,
     outputDir: './overflow-test-reports',

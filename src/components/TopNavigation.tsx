@@ -8,8 +8,8 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger } from
-'@/components/ui/dropdown-menu';
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 import {
   Home,
   Users,
@@ -24,15 +24,30 @@ import {
   DollarSign,
   Building,
   Menu,
-  X } from
-'lucide-react';
+  X,
+  AlertCircle
+} from 'lucide-react';
 import OverflowNavigation from '@/components/OverflowNavigation';
 
 const TopNavigation = () => {
-  const { user, logout, isAdmin, isManager } = useAuth();
+  const { user, logout, isAdmin, isManager, isAuthenticated, isLoading, isInitialized } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [debugMode, setDebugMode] = useState(false);
+
+  // Debug logging
+  useEffect(() => {
+    if (debugMode) {
+      console.log('TopNavigation Debug:', {
+        isAuthenticated,
+        isLoading,
+        isInitialized,
+        user: user?.Name,
+        userRole: user ? (isAdmin() ? 'Admin' : isManager() ? 'Manager' : 'Employee') : 'None'
+      });
+    }
+  }, [isAuthenticated, isLoading, isInitialized, user, isAdmin, isManager, debugMode]);
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -51,72 +66,72 @@ const TopNavigation = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // All navigation items displayed horizontally in the top bar
+  // Navigation items with better role checking
   const navigationItems = [
-  {
-    name: 'Dashboard',
-    href: '/dashboard',
-    icon: Home,
-    requiredRole: null
-  },
-  {
-    name: 'Products',
-    href: '/products',
-    icon: Package,
-    requiredRole: null
-  },
-  {
-    name: 'Sales',
-    href: '/sales',
-    icon: FileText,
-    requiredRole: null
-  },
-  {
-    name: 'Delivery',
-    href: '/delivery',
-    icon: Truck,
-    requiredRole: null
-  },
-  {
-    name: 'Employees',
-    href: '/employees',
-    icon: Users,
-    requiredRole: 'manager'
-  },
-  {
-    name: 'Vendors',
-    href: '/vendors',
-    icon: Building,
-    requiredRole: 'manager'
-  },
-  {
-    name: 'Orders',
-    href: '/orders',
-    icon: Package,
-    requiredRole: 'manager'
-  },
-  {
-    name: 'Licenses',
-    href: '/licenses',
-    icon: Calendar,
-    requiredRole: 'manager'
-  },
-  {
-    name: 'Salary',
-    href: '/salary',
-    icon: DollarSign,
-    requiredRole: 'manager'
-  },
-  {
-    name: 'Settings',
-    href: '/settings',
-    icon: Settings,
-    requiredRole: null
-  }];
-
+    {
+      name: 'Dashboard',
+      href: '/dashboard',
+      icon: Home,
+      requiredRole: null
+    },
+    {
+      name: 'Products',
+      href: '/products',
+      icon: Package,
+      requiredRole: null
+    },
+    {
+      name: 'Sales',
+      href: '/sales',
+      icon: FileText,
+      requiredRole: null
+    },
+    {
+      name: 'Delivery',
+      href: '/delivery',
+      icon: Truck,
+      requiredRole: null
+    },
+    {
+      name: 'Employees',
+      href: '/employees',
+      icon: Users,
+      requiredRole: 'manager'
+    },
+    {
+      name: 'Vendors',
+      href: '/vendors',
+      icon: Building,
+      requiredRole: 'manager'
+    },
+    {
+      name: 'Orders',
+      href: '/orders',
+      icon: Package,
+      requiredRole: 'manager'
+    },
+    {
+      name: 'Licenses',
+      href: '/licenses',
+      icon: Calendar,
+      requiredRole: 'manager'
+    },
+    {
+      name: 'Salary',
+      href: '/salary',
+      icon: DollarSign,
+      requiredRole: 'manager'
+    },
+    {
+      name: 'Settings',
+      href: '/settings',
+      icon: Settings,
+      requiredRole: null
+    }
+  ];
 
   // Add admin section if user is admin
-  if (isAdmin()) {
+  if (isAuthenticated && isAdmin()) {
     navigationItems.push({
       name: 'Admin',
       href: '/admin',
@@ -138,28 +153,40 @@ const TopNavigation = () => {
     return location.pathname.startsWith(href);
   };
 
+  // Enhanced role checking with better fallbacks
   const canAccessRoute = (requiredRole: string | null) => {
+    // Allow access if no role is required
     if (!requiredRole) return true;
+    
+    // Ensure user is authenticated
+    if (!isAuthenticated) return false;
+    
+    // Check specific roles
     if (requiredRole === 'admin') return isAdmin();
     if (requiredRole === 'manager') return isManager();
+    
+    // Default to allowing access for authenticated users
     return true;
   };
 
-  const NavigationLink = ({ item, mobile = false }: {item: any;mobile?: boolean;}) => {
+  // Get accessible items for debugging
+  const accessibleItems = navigationItems.filter(item => canAccessRoute(item.requiredRole));
+
+  const NavigationLink = ({ item, mobile = false }: { item: any; mobile?: boolean }) => {
     if (!canAccessRoute(item.requiredRole)) return null;
 
     const Icon = item.icon;
     const isActive = isActiveRoute(item.href);
 
-    const baseClasses = mobile ?
-    "flex items-center space-x-3 px-4 py-3 text-left w-full transition-colors text-sm font-medium rounded-md mx-2" :
-    "flex items-center space-x-2 px-3 py-2 rounded-md transition-all duration-200 whitespace-nowrap text-sm font-medium hover:scale-105 min-w-fit";
+    const baseClasses = mobile
+      ? "flex items-center space-x-3 px-4 py-3 text-left w-full transition-colors text-sm font-medium rounded-md mx-2"
+      : "flex items-center space-x-2 px-3 py-2 rounded-md transition-all duration-200 whitespace-nowrap text-sm font-medium hover:scale-105 min-w-fit";
 
-    const activeClasses = isActive ?
-    "bg-blue-600 text-white shadow-md" :
-    mobile ?
-    "text-gray-700 hover:bg-gray-100 hover:text-gray-900" :
-    "text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:shadow-sm";
+    const activeClasses = isActive
+      ? "bg-blue-600 text-white shadow-md"
+      : mobile
+      ? "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:shadow-sm";
 
     const handleClick = () => {
       navigate(item.href);
@@ -170,13 +197,46 @@ const TopNavigation = () => {
       <button onClick={handleClick} className={`${baseClasses} ${activeClasses}`}>
         <Icon className="h-4 w-4 flex-shrink-0" />
         <span className="ml-2">{item.name}</span>
-      </button>);
-
+      </button>
+    );
   };
+
+  // Show loading state for navigation
+  if (!isInitialized || isLoading) {
+    return (
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 w-full shadow-sm">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-4">
+              <img
+                src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
+                alt="DFS Manager Portal"
+                className="h-10 w-auto"
+              />
+              <span className="text-xl font-bold text-gray-900 hidden sm:block">DFS Manager Portal</span>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex space-x-2">
+                <div className="w-16 h-8 bg-gray-200 rounded animate-pulse"></div>
+                <div className="w-16 h-8 bg-gray-200 rounded animate-pulse"></div>
+                <div className="w-16 h-8 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+              <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
+  // Don't render navigation if not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <>
-      {/* Fixed Top Navigation Bar - Horizontal Layout for All Pages */}
+      {/* Fixed Top Navigation Bar */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50 w-full shadow-sm">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -186,22 +246,35 @@ const TopNavigation = () => {
               <img
                 src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
                 alt="DFS Manager Portal"
-                className="h-10 w-auto" />
-
+                className="h-10 w-auto"
+              />
               <span className="text-xl font-bold text-gray-900 hidden sm:block">DFS Manager Portal</span>
             </div>
 
-            {/* Center Section - Navigation Items with Overflow Handling (Desktop) */}
+            {/* Center Section - Navigation Items (Desktop) */}
             <nav className="hidden lg:flex items-center flex-1 justify-center max-w-6xl mx-4">
               <OverflowNavigation
                 items={navigationItems}
-                canAccessRoute={canAccessRoute} />
-
+                canAccessRoute={canAccessRoute}
+                debug={debugMode}
+              />
             </nav>
 
-            {/* Right Section - User Profile and Mobile Menu Toggle */}
+            {/* Right Section - User Profile and Controls */}
             <div className="flex items-center space-x-2 flex-shrink-0 min-w-0">
               
+              {/* Debug Toggle (Development) */}
+              {process.env.NODE_ENV === 'development' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setDebugMode(!debugMode)}
+                  className="text-xs px-2 py-1"
+                >
+                  {debugMode ? 'Debug: ON' : 'Debug: OFF'}
+                </Button>
+              )}
+
               {/* User Profile Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -240,46 +313,58 @@ const TopNavigation = () => {
                 variant="ghost"
                 size="sm"
                 className="lg:hidden p-2"
-                onClick={() => setMobileMenuOpen(true)}>
-
+                onClick={() => setMobileMenuOpen(true)}
+              >
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Open navigation menu</span>
               </Button>
             </div>
           </div>
         </div>
+
+        {/* Debug Information */}
+        {debugMode && (
+          <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-2">
+            <div className="text-xs text-yellow-800">
+              <strong>Debug:</strong> Auth: {isAuthenticated ? 'Yes' : 'No'} | 
+              Items: {accessibleItems.length}/{navigationItems.length} | 
+              Role: {isAdmin() ? 'Admin' : isManager() ? 'Manager' : 'Employee'} | 
+              User: {user?.Name || 'None'}
+            </div>
+          </div>
+        )}
       </header>
 
-      {/* Mobile Navigation Menu - Right Side Slide-Out Panel */}
-      {mobileMenuOpen &&
-      <div className="lg:hidden fixed inset-0 z-50">
+      {/* Mobile Navigation Menu */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 z-50">
           {/* Overlay */}
           <div
-          className="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"
-          onClick={() => setMobileMenuOpen(false)} />
+            className="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"
+            onClick={() => setMobileMenuOpen(false)}
+          />
 
-          
-          {/* Menu Panel - Slides from Right Side */}
+          {/* Menu Panel */}
           <div className={`fixed top-0 right-0 w-80 max-w-[90vw] h-full bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
-        mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`
-        }>
+            mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}>
             <div className="flex flex-col h-full">
               
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b bg-gray-50">
                 <div className="flex items-center space-x-3">
                   <img
-                  src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
-                  alt="DFS Manager Portal"
-                  className="h-8 w-auto" />
-
+                    src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
+                    alt="DFS Manager Portal"
+                    className="h-8 w-auto"
+                  />
                   <span className="text-lg font-bold text-gray-900">DFS Manager Portal</span>
                 </div>
                 <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setMobileMenuOpen(false)}>
-
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
                   <X className="h-6 w-6" />
                   <span className="sr-only">Close menu</span>
                 </Button>
@@ -288,9 +373,9 @@ const TopNavigation = () => {
               {/* Navigation Items */}
               <div className="flex-1 py-4 overflow-y-auto">
                 <div className="space-y-2">
-                  {navigationItems.map((item) =>
-                <NavigationLink key={item.href} item={item} mobile />
-                )}
+                  {navigationItems.map((item) => (
+                    <NavigationLink key={item.href} item={item} mobile />
+                  ))}
                 </div>
               </div>
               
@@ -310,11 +395,11 @@ const TopNavigation = () => {
                   </div>
                 </div>
                 <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLogout}
-                className="w-full justify-start">
-
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="w-full justify-start"
+                >
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
                 </Button>
@@ -322,9 +407,9 @@ const TopNavigation = () => {
             </div>
           </div>
         </div>
-      }
-    </>);
-
+      )}
+    </>
+  );
 };
 
 export default TopNavigation;
