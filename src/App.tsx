@@ -94,11 +94,11 @@ const PageLoading = () =>
   </div>;
 
 // Lazy Route Wrapper Component
-const LazyRoute = ({ children }: { children: React.ReactNode }) => (
-  <Suspense fallback={<PageLoading />}>
+const LazyRoute = ({ children }: {children: React.ReactNode;}) =>
+<Suspense fallback={<PageLoading />}>
     {children}
-  </Suspense>
-);
+  </Suspense>;
+
 
 
 // Error Display Component
@@ -167,7 +167,7 @@ const AppRouter = () => {
   React.useEffect(() => {
     if (isInitialized && user) {
       preloadCriticalRoutes();
-      
+
       // Preload admin routes if user has admin access
       if (user.role === 'admin' || user.role === 'super_admin') {
         preloadAdminRoutes();
@@ -246,7 +246,7 @@ const AppRouter = () => {
             <Route path="admin/security" element={<LazyRoute><SecuritySettings /></LazyRoute>} />
             <Route path="admin/sms" element={<LazyRoute><SMSManagement /></LazyRoute>} />
             <Route path="admin/user-validation" element={<LazyRoute><UserValidationTestPage /></LazyRoute>} />
-            <Route path="admin/auth-diagnostic" element={<LazyRoute><AuthDiagnosticPage /></LazyRoute>} />
+            <Route path="auth-diagnostic" element={<LazyRoute><AuthDiagnosticPage /></LazyRoute>} />
             <Route path="admin/module-access" element={<LazyRoute><ModuleAccessPage /></LazyRoute>} />
             <Route path="admin/navigation-debug" element={<LazyRoute><NavigationDebugPage /></LazyRoute>} />
 

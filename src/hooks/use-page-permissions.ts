@@ -97,15 +97,27 @@ export const usePagePermissions = (pageKey: string) => {
       // Parse detailed permissions
       let userPermissions: DetailedPermissions = {};
       try {
-        if (profile.detailed_permissions && profile.detailed_permissions.trim() !== '' && profile.detailed_permissions !== '{}') {
-          userPermissions = JSON.parse(profile.detailed_permissions);
-          console.log('Parsed user permissions for page:', pageKey, userPermissions[pageKey]);
+        if (profile.detailed_permissions && 
+            profile.detailed_permissions.trim() !== '' && 
+            profile.detailed_permissions !== '{}' &&
+            profile.detailed_permissions !== 'null' &&
+            profile.detailed_permissions !== 'undefined') {
+          // Additional safety check for valid JSON
+          const trimmedPermissions = profile.detailed_permissions.trim();
+          if (trimmedPermissions.startsWith('{') && trimmedPermissions.endsWith('}')) {
+            userPermissions = JSON.parse(trimmedPermissions);
+            console.log('Parsed user permissions for page:', pageKey, userPermissions[pageKey]);
+          } else {
+            console.log('Invalid JSON format in detailed_permissions, applying role-based defaults');
+            userPermissions = getDefaultRolePermissions(profile.role);
+          }
         } else {
           console.log('No detailed permissions found, applying role-based defaults');
           userPermissions = getDefaultRolePermissions(profile.role);
         }
       } catch (parseError) {
         console.error('Error parsing permissions, applying role defaults:', parseError);
+        console.error('Invalid permission data:', profile.detailed_permissions);
         userPermissions = getDefaultRolePermissions(profile.role);
       }
 

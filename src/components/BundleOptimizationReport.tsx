@@ -6,49 +6,49 @@ import { CheckCircle, AlertCircle, TrendingUp, Package, Zap } from 'lucide-react
 
 const BundleOptimizationReport: React.FC = () => {
   const optimizations = [
-    {
-      title: "Route-Based Code Splitting",
-      description: "Implemented React.lazy() for all non-critical routes",
-      status: "implemented",
-      impact: "High",
-      savings: "~40-60% initial bundle size"
-    },
-    {
-      title: "Manual Chunking Strategy",
-      description: "Separated vendor libraries into optimized chunks",
-      status: "implemented",
-      impact: "High",
-      savings: "Better caching, parallel loading"
-    },
-    {
-      title: "Suspense Loading",
-      description: "Added loading states for lazy-loaded components",
-      status: "implemented",
-      impact: "Medium",
-      savings: "Better UX during code splitting"
-    },
-    {
-      title: "Selective Preloading",
-      description: "Preload critical routes after authentication",
-      status: "implemented",
-      impact: "Medium",
-      savings: "Faster navigation to common pages"
-    },
-    {
-      title: "Optimized Query Client",
-      description: "Enhanced caching and query configuration",
-      status: "implemented",
-      impact: "Medium",
-      savings: "Reduced API calls and re-renders"
-    },
-    {
-      title: "Bundle Analysis Tool",
-      description: "Added script to monitor bundle sizes",
-      status: "implemented",
-      impact: "Low",
-      savings: "Ongoing monitoring capability"
-    }
-  ];
+  {
+    title: "Route-Based Code Splitting",
+    description: "Implemented React.lazy() for all non-critical routes",
+    status: "implemented",
+    impact: "High",
+    savings: "~40-60% initial bundle size"
+  },
+  {
+    title: "Manual Chunking Strategy",
+    description: "Separated vendor libraries into optimized chunks",
+    status: "implemented",
+    impact: "High",
+    savings: "Better caching, parallel loading"
+  },
+  {
+    title: "Suspense Loading",
+    description: "Added loading states for lazy-loaded components",
+    status: "implemented",
+    impact: "Medium",
+    savings: "Better UX during code splitting"
+  },
+  {
+    title: "Selective Preloading",
+    description: "Preload critical routes after authentication",
+    status: "implemented",
+    impact: "Medium",
+    savings: "Faster navigation to common pages"
+  },
+  {
+    title: "Optimized Query Client",
+    description: "Enhanced caching and query configuration",
+    status: "implemented",
+    impact: "Medium",
+    savings: "Reduced API calls and re-renders"
+  },
+  {
+    title: "Bundle Analysis Tool",
+    description: "Added script to monitor bundle sizes",
+    status: "implemented",
+    impact: "Low",
+    savings: "Ongoing monitoring capability"
+  }];
+
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -88,8 +88,8 @@ const BundleOptimizationReport: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4">
-            {optimizations.map((optimization, index) => (
-              <div key={index} className="flex items-start gap-4 p-4 border rounded-lg">
+            {optimizations.map((optimization, index) =>
+            <div key={index} className="flex items-start gap-4 p-4 border rounded-lg">
                 <div className="flex-shrink-0">
                   {getStatusIcon(optimization.status)}
                 </div>
@@ -107,7 +107,7 @@ const BundleOptimizationReport: React.FC = () => {
                   </div>
                 </div>
               </div>
-            ))}
+            )}
           </div>
         </CardContent>
       </Card>
@@ -170,8 +170,8 @@ const BundleOptimizationReport: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default BundleOptimizationReport;
