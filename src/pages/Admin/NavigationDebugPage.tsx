@@ -73,8 +73,8 @@ const NavigationDebugPage: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default NavigationDebugPage;

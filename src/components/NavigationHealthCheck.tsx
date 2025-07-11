@@ -5,30 +5,30 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  CheckCircle, 
-  AlertCircle, 
-  XCircle, 
-  RefreshCw, 
+import {
+  CheckCircle,
+  AlertCircle,
+  XCircle,
+  RefreshCw,
   Settings,
   Eye,
-  EyeOff
-} from 'lucide-react';
+  EyeOff } from
+'lucide-react';
 
 interface NavigationHealthCheckProps {
   showDebugInfo?: boolean;
 }
 
-const NavigationHealthCheck: React.FC<NavigationHealthCheckProps> = ({ 
-  showDebugInfo = false 
+const NavigationHealthCheck: React.FC<NavigationHealthCheckProps> = ({
+  showDebugInfo = false
 }) => {
-  const { 
-    isAuthenticated, 
-    isLoading, 
-    isInitialized, 
-    user, 
-    userProfile, 
-    isAdmin, 
+  const {
+    isAuthenticated,
+    isLoading,
+    isInitialized,
+    user,
+    userProfile,
+    isAdmin,
     isManager,
     authError
   } = useAuth();
@@ -127,8 +127,8 @@ const NavigationHealthCheck: React.FC<NavigationHealthCheckProps> = ({
   return (
     <div className="space-y-4">
       {/* Main Status Alert */}
-      {healthStatus !== 'healthy' && (
-        <Alert variant={healthStatus === 'error' ? 'destructive' : 'default'}>
+      {healthStatus !== 'healthy' &&
+      <Alert variant={healthStatus === 'error' ? 'destructive' : 'default'}>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             <div className="flex items-center justify-between">
@@ -136,36 +136,36 @@ const NavigationHealthCheck: React.FC<NavigationHealthCheckProps> = ({
                 Navigation issues detected. {issues.length} issue{issues.length !== 1 ? 's' : ''} found.
               </span>
               <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowDetails(!showDetails)}
-              >
+              variant="outline"
+              size="sm"
+              onClick={() => setShowDetails(!showDetails)}>
+
                 {showDetails ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 {showDetails ? 'Hide' : 'Details'}
               </Button>
             </div>
           </AlertDescription>
         </Alert>
-      )}
+      }
 
       {/* Debug Info Card */}
-      {showDebugInfo && (
-        <Card className="border-dashed">
+      {showDebugInfo &&
+      <Card className="border-dashed">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center gap-2">
               {getStatusIcon()}
               <span className={getStatusColor()}>{getStatusText()}</span>
               <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowDetails(!showDetails)}
-              >
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowDetails(!showDetails)}>
+
                 {showDetails ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
             </CardTitle>
           </CardHeader>
-          {showDetails && (
-            <CardContent className="pt-0">
+          {showDetails &&
+        <CardContent className="pt-0">
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
@@ -190,47 +190,47 @@ const NavigationHealthCheck: React.FC<NavigationHealthCheckProps> = ({
                   </div>
                 </div>
 
-                {issues.length > 0 && (
-                  <div>
+                {issues.length > 0 &&
+            <div>
                     <h4 className="font-medium text-sm mb-2">Issues Found:</h4>
                     <ul className="text-sm space-y-1">
-                      {issues.map((issue, index) => (
-                        <li key={index} className="flex items-start gap-2">
+                      {issues.map((issue, index) =>
+                <li key={index} className="flex items-start gap-2">
                           <XCircle className="h-3 w-3 text-red-500 mt-0.5 flex-shrink-0" />
                           <span className="text-red-600">{issue}</span>
                         </li>
-                      ))}
+                )}
                     </ul>
                   </div>
-                )}
+            }
 
                 <div className="flex gap-2 pt-2">
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => window.location.reload()}
-                  >
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.reload()}>
+
                     <RefreshCw className="h-4 w-4 mr-2" />
                     Refresh Page
                   </Button>
-                  {isAdmin() && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => window.open('/admin/navigation-debug', '_blank')}
-                    >
+                  {isAdmin() &&
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.open('/admin/navigation-debug', '_blank')}>
+
                       <Settings className="h-4 w-4 mr-2" />
                       Debug Tools
                     </Button>
-                  )}
+              }
                 </div>
               </div>
             </CardContent>
-          )}
+        }
         </Card>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default NavigationHealthCheck;
