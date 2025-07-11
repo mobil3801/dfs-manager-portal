@@ -7,15 +7,14 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { ModuleAccessProvider } from '@/contexts/ModuleAccessContext';
 import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
 import AuthDebugger from '@/components/AuthDebugger';
-import { setupIntelligentPreloading, RoutePreloader } from '@/utils/lazyRoutes';
+import { setupIntelligentPreloading, RoutePreloader, LazyRoutes } from '@/utils/lazyRoutes';
 import OptimizedLoader, { SmartSkeleton } from '@/components/OptimizedLoader';
 
 // Layout
 import DashboardLayout from '@/components/Layout/DashboardLayout';
 
-// Core Pages (loaded immediately) - Keep only critical pages as static imports
-import Dashboard from '@/pages/Dashboard';
-import LoginPage from '@/pages/LoginPage';
+// Core Pages are now lazy-loaded for better code splitting
+// Dashboard and LoginPage are loaded from LazyRoutes to prevent duplicate imports
 
 // Optimized lazy loading with better error handling
 const createOptimizedLazyRoute = (importFn: () => Promise<any>, componentName: string) => {
@@ -231,14 +230,14 @@ const AppRouter = () => {
       <div className="App">
         <Routes>
           {/* Public Routes */}
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/login" element={<OptimizedLazyRoute componentName="LoginPage"><LazyRoutes.LoginPage /></OptimizedLazyRoute>} />
           <Route path="/onauthsuccess" element={<OptimizedLazyRoute componentName="OnAuthSuccessPage"><OnAuthSuccessPage /></OptimizedLazyRoute>} />
           <Route path="/resetpassword" element={<OptimizedLazyRoute componentName="ResetPasswordPage"><ResetPasswordPage /></OptimizedLazyRoute>} />
           
           {/* Protected Routes */}
           <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
             <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="dashboard" element={<OptimizedLazyRoute componentName="Dashboard"><LazyRoutes.Dashboard /></OptimizedLazyRoute>} />
             
             {/* Products */}
             <Route path="products" element={<OptimizedLazyRoute componentName="ProductList"><ProductList /></OptimizedLazyRoute>} />

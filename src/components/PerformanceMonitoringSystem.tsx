@@ -388,6 +388,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -447,9 +449,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
               if ('gc' in window) {(window as any).gc();}toast({ title: 'Memory cleanup attempted', description: 'Forced garbage collection.' });} });}if (currentMetrics.network.avgLatency > 1000) {newSuggestions.push({ category: 'network', title: 'Optimize Network Requests', description: 'Implement request batching and connection pooling to reduce latency.', impact: 'high', effort: 'medium' });}if (currentMetrics.resources.domNodes > 3000) {newSuggestions.push({ category: 'rendering', title: 'Reduce DOM Complexity', description: 'Consider using virtual scrolling or pagination to reduce DOM node count.', impact: 'medium', effort: 'high' });}if (currentMetrics.resources.cacheHitRate < 60) {newSuggestions.push({ category: 'caching', title: 'Improve Cache Strategy', description: 'Implement better caching strategies to improve cache hit rate.', impact: 'medium', effort: 'low' });}setSuggestions(newSuggestions);}, [toast]); /**
   * Start monitoring
   */const startMonitoring = useCallback(() => {if (monitoringInterval.current) return;setIsMonitoring(true); // Collect initial metrics
-      const initialMetrics = collectMetrics();setMetrics(initialMetrics);lastMetrics.current = initialMetrics;
-
-      // Set up periodic collection
+      const initialMetrics = collectMetrics();setMetrics(initialMetrics);lastMetrics.current = initialMetrics; // Set up periodic collection
       monitoringInterval.current = setInterval(() => {
         const currentMetrics = collectMetrics();
         setMetrics(currentMetrics);

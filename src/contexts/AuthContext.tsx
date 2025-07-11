@@ -399,7 +399,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       if (userProfile.detailed_permissions) {
         try {
           let permissions = userProfile.detailed_permissions;
-          
+
           // Handle string permissions
           if (typeof permissions === 'string') {
             // Skip parsing if it's empty string or null
@@ -409,7 +409,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
               permissions = JSON.parse(permissions);
             }
           }
-          
+
           // Ensure permissions is an object
           if (typeof permissions === 'object' && permissions !== null) {
             if (resource && permissions[resource] && permissions[resource][action]) {
