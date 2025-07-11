@@ -4,8 +4,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
+  DropdownMenuTrigger } from
+'@/components/ui/dropdown-menu';
 import { MoreHorizontal, AlertCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -231,8 +231,8 @@ const OverflowNavigation: React.FC<OverflowNavigationProps> = ({
     return (
       <div className="flex items-center justify-center text-gray-500 text-sm">
         {debug && <span>No accessible navigation items</span>}
-      </div>
-    );
+      </div>);
+
   }
 
   const NavigationButton: React.FC<{
@@ -247,28 +247,28 @@ const OverflowNavigation: React.FC<OverflowNavigationProps> = ({
       navigate(item.href);
     };
 
-    const baseClasses = isOverflow
-      ? "flex items-center space-x-2 px-3 py-2 text-left w-full transition-colors text-sm font-medium rounded-md"
-      : "flex items-center space-x-2 px-3 py-2 rounded-md transition-all duration-200 whitespace-nowrap text-sm font-medium hover:scale-105 min-w-fit";
+    const baseClasses = isOverflow ?
+    "flex items-center space-x-2 px-3 py-2 text-left w-full transition-colors text-sm font-medium rounded-md" :
+    "flex items-center space-x-2 px-3 py-2 rounded-md transition-all duration-200 whitespace-nowrap text-sm font-medium hover:scale-105 min-w-fit";
 
-    const activeClasses = isActive
-      ? isOverflow
-        ? "bg-blue-50 text-blue-600"
-        : "bg-blue-600 text-white shadow-md"
-      : isOverflow
-      ? "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:shadow-sm";
+    const activeClasses = isActive ?
+    isOverflow ?
+    "bg-blue-50 text-blue-600" :
+    "bg-blue-600 text-white shadow-md" :
+    isOverflow ?
+    "text-gray-700 hover:bg-gray-50 hover:text-gray-900" :
+    "text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:shadow-sm";
 
     if (isOverflow) {
       return (
         <DropdownMenuItem
           onClick={handleClick}
-          className={`${baseClasses} ${activeClasses}`}
-        >
+          className={`${baseClasses} ${activeClasses}`}>
+
           <Icon className="h-4 w-4 flex-shrink-0" />
           <span className="ml-2">{item.name}</span>
-        </DropdownMenuItem>
-      );
+        </DropdownMenuItem>);
+
     }
 
     return (
@@ -276,12 +276,12 @@ const OverflowNavigation: React.FC<OverflowNavigationProps> = ({
         onClick={handleClick}
         className={`${baseClasses} ${activeClasses}`}
         style={{ visibility: isHidden ? 'hidden' : 'visible' }}
-        data-testid={`nav-${item.name.toLowerCase()}`}
-      >
+        data-testid={`nav-${item.name.toLowerCase()}`}>
+
         <Icon className="h-4 w-4 flex-shrink-0" />
         <span className="ml-2">{item.name}</span>
-      </button>
-    );
+      </button>);
+
   };
 
   return (
@@ -289,104 +289,104 @@ const OverflowNavigation: React.FC<OverflowNavigationProps> = ({
       {/* Visible navigation container */}
       <div
         ref={containerRef}
-        className="flex items-center justify-center space-x-1 px-4 w-full"
-      >
+        className="flex items-center justify-center space-x-1 px-4 w-full">
+
         {/* Error State */}
-        {hasError && (
-          <div className="flex items-center space-x-2 text-red-500 text-sm">
+        {hasError &&
+        <div className="flex items-center space-x-2 text-red-500 text-sm">
             <AlertCircle className="h-4 w-4" />
             <span>Navigation error - showing fallback</span>
           </div>
-        )}
+        }
 
         {/* Show content based on state */}
-        {!isCalculating && !hasError && (
-          <>
+        {!isCalculating && !hasError &&
+        <>
             {/* Visible Navigation Items */}
-            {(forceShowAll ? accessibleItems : visibleItems).map((item) => (
-              <NavigationButton
-                key={item.href}
-                item={item}
-              />
-            ))}
+            {(forceShowAll ? accessibleItems : visibleItems).map((item) =>
+          <NavigationButton
+            key={item.href}
+            item={item} />
+
+          )}
 
             {/* More Button for Overflow Items */}
-            {!forceShowAll && overflowItems.length > 0 && (
-              <DropdownMenu>
+            {!forceShowAll && overflowItems.length > 0 &&
+          <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
-                    variant="ghost"
-                    size="sm"
-                    className="flex items-center space-x-1 px-3 py-2 rounded-md transition-all duration-200 text-sm font-medium hover:bg-gray-100 hover:scale-105 min-w-fit"
-                  >
+                variant="ghost"
+                size="sm"
+                className="flex items-center space-x-1 px-3 py-2 rounded-md transition-all duration-200 text-sm font-medium hover:bg-gray-100 hover:scale-105 min-w-fit">
+
                     <MoreHorizontal className="h-4 w-4" />
                     <span className="ml-1">More</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  {overflowItems.map((item) => (
-                    <NavigationButton
-                      key={item.href}
-                      item={item}
-                      isOverflow={true}
-                    />
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </>
-        )}
-
-        {/* Fallback: Show all items if calculation fails */}
-        {hasError && (
-          <div className="flex items-center space-x-1 flex-wrap justify-center">
-            {accessibleItems.map((item) => (
+                  {overflowItems.map((item) =>
               <NavigationButton
                 key={item.href}
                 item={item}
-              />
-            ))}
+                isOverflow={true} />
+
+              )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+          }
+          </>
+        }
+
+        {/* Fallback: Show all items if calculation fails */}
+        {hasError &&
+        <div className="flex items-center space-x-1 flex-wrap justify-center">
+            {accessibleItems.map((item) =>
+          <NavigationButton
+            key={item.href}
+            item={item} />
+
+          )}
           </div>
-        )}
+        }
       </div>
 
       {/* Hidden container for measurement */}
       <div
         ref={hiddenContainerRef}
         className="absolute top-0 left-0 opacity-0 pointer-events-none overflow-hidden whitespace-nowrap"
-        style={{ zIndex: -1 }}
-      >
+        style={{ zIndex: -1 }}>
+
         <div className="flex items-center space-x-1 px-4">
-          {accessibleItems.map((item) => (
-            <NavigationButton
-              key={`hidden-${item.href}`}
-              item={item}
-              isHidden={true}
-            />
-          ))}
+          {accessibleItems.map((item) =>
+          <NavigationButton
+            key={`hidden-${item.href}`}
+            item={item}
+            isHidden={true} />
+
+          )}
         </div>
       </div>
 
       {/* Loading indicator */}
-      {isCalculating && !hasError && (
-        <div className="flex items-center justify-center space-x-2 px-4 py-2">
+      {isCalculating && !hasError &&
+      <div className="flex items-center justify-center space-x-2 px-4 py-2">
           <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
           <div className="w-16 h-4 bg-gray-200 rounded animate-pulse"></div>
           <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
           <div className="w-20 h-4 bg-gray-200 rounded animate-pulse"></div>
         </div>
-      )}
+      }
 
       {/* Debug information */}
-      {debug && (
-        <div className="absolute top-full left-0 right-0 bg-yellow-50 border border-yellow-200 p-2 text-xs text-yellow-800 z-10">
+      {debug &&
+      <div className="absolute top-full left-0 right-0 bg-yellow-50 border border-yellow-200 p-2 text-xs text-yellow-800 z-10">
           <div>Items: {accessibleItems.length} | Visible: {visibleItems.length} | Overflow: {overflowItems.length}</div>
           <div>Calculating: {isCalculating ? 'Yes' : 'No'} | Error: {hasError ? 'Yes' : 'No'} | Attempts: {calculationAttempts}</div>
           <div>ForceShowAll: {forceShowAll ? 'Yes' : 'No'}</div>
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default OverflowNavigation;

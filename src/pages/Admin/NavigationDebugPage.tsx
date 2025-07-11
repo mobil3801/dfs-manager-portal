@@ -5,7 +5,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Settings } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdminAccess } from '@/hooks/use-admin-access';
-import NavigationDebugger from '@/components/NavigationDebugger';
+import EnhancedNavigationDebugger from '@/components/EnhancedNavigationDebugger';
 import AccessDenied from '@/components/AccessDenied';
 
 const NavigationDebugPage: React.FC = () => {
@@ -41,7 +41,7 @@ const NavigationDebugPage: React.FC = () => {
         </AlertDescription>
       </Alert>
 
-      <NavigationDebugger />
+      <EnhancedNavigationDebugger />
 
       <Card>
         <CardHeader>

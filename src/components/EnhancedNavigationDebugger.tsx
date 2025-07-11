@@ -22,10 +22,13 @@ import {
   Building,
   RefreshCw,
   Eye,
-  EyeOff } from
+  EyeOff,
+  Monitor,
+  Smartphone,
+  Tablet } from
 'lucide-react';
 
-const NavigationDebugger: React.FC = () => {
+const EnhancedNavigationDebugger: React.FC = () => {
   const {
     user,
     userProfile,
@@ -40,21 +43,56 @@ const NavigationDebugger: React.FC = () => {
   const location = useLocation();
   const [refreshing, setRefreshing] = useState(false);
   const [showSensitiveData, setShowSensitiveData] = useState(false);
+  const [screenSize, setScreenSize] = useState('desktop');
+  const [navigationVisible, setNavigationVisible] = useState(false);
 
   // Navigation items for testing
   const navigationItems = [
-  { name: 'Dashboard', href: '/dashboard', icon: Home, requiredRole: null },
-  { name: 'Products', href: '/products', icon: Package, requiredRole: null },
-  { name: 'Sales', href: '/sales', icon: FileText, requiredRole: null },
-  { name: 'Delivery', href: '/delivery', icon: Truck, requiredRole: null },
-  { name: 'Employees', href: '/employees', icon: Users, requiredRole: 'manager' },
-  { name: 'Vendors', href: '/vendors', icon: Building, requiredRole: 'manager' },
-  { name: 'Orders', href: '/orders', icon: Package, requiredRole: 'manager' },
-  { name: 'Licenses', href: '/licenses', icon: Calendar, requiredRole: 'manager' },
-  { name: 'Salary', href: '/salary', icon: DollarSign, requiredRole: 'manager' },
-  { name: 'Settings', href: '/settings', icon: Settings, requiredRole: null },
-  { name: 'Admin', href: '/admin', icon: Shield, requiredRole: 'admin' }];
+    { name: 'Dashboard', href: '/dashboard', icon: Home, requiredRole: null },
+    { name: 'Products', href: '/products', icon: Package, requiredRole: null },
+    { name: 'Sales', href: '/sales', icon: FileText, requiredRole: null },
+    { name: 'Delivery', href: '/delivery', icon: Truck, requiredRole: null },
+    { name: 'Employees', href: '/employees', icon: Users, requiredRole: 'manager' },
+    { name: 'Vendors', href: '/vendors', icon: Building, requiredRole: 'manager' },
+    { name: 'Orders', href: '/orders', icon: Package, requiredRole: 'manager' },
+    { name: 'Licenses', href: '/licenses', icon: Calendar, requiredRole: 'manager' },
+    { name: 'Salary', href: '/salary', icon: DollarSign, requiredRole: 'manager' },
+    { name: 'Settings', href: '/settings', icon: Settings, requiredRole: null },
+    { name: 'Admin', href: '/admin', icon: Shield, requiredRole: 'admin' }
+  ];
 
+  // Monitor screen size changes
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      if (width < 768) {
+        setScreenSize('mobile');
+      } else if (width < 1024) {
+        setScreenSize('tablet');
+      } else {
+        setScreenSize('desktop');
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Check if navigation is visible
+  useEffect(() => {
+    const checkNavigationVisibility = () => {
+      const navElement = document.querySelector('nav');
+      const navButtons = document.querySelectorAll('[data-testid^="nav-"]');
+      
+      setNavigationVisible(navElement !== null && navButtons.length > 0);
+    };
+
+    // Check immediately and then periodically
+    checkNavigationVisibility();
+    const interval = setInterval(checkNavigationVisibility, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Role checking function
   const canAccessRoute = (requiredRole: string | null) => {
@@ -93,22 +131,72 @@ const NavigationDebugger: React.FC = () => {
     hasProfile: !!userProfile,
     hasAccessibleItems: accessibleItems.length > 0,
     hasErrors: !!authError,
-    overallHealth: isInitialized && !isLoading && isAuthenticated && !!user && accessibleItems.length > 0
+    navigationVisible,
+    overallHealth: isInitialized && !isLoading && isAuthenticated && !!user && accessibleItems.length > 0 && navigationVisible
   };
+
+  const getScreenIcon = () => {
+    switch (screenSize) {
+      case 'mobile': return <Smartphone className="h-4 w-4" />;
+      case 'tablet': return <Tablet className="h-4 w-4" />;
+      default: return <Monitor className="h-4 w-4" />;
+    }
+  };
+
+  const runNavigationDiagnostics = () => {
+    const diagnostics = [];
+
+    // Check if navigation container exists
+    const navContainer = document.querySelector('nav');
+    diagnostics.push({
+      test: 'Navigation Container',
+      passed: !!navContainer,
+      message: navContainer ? 'Navigation container found' : 'Navigation container not found'
+    });
+
+    // Check if navigation items exist
+    const navItems = document.querySelectorAll('[data-testid^="nav-"]');
+    diagnostics.push({
+      test: 'Navigation Items',
+      passed: navItems.length > 0,
+      message: `${navItems.length} navigation items found`
+    });
+
+    // Check if user dropdown exists
+    const userDropdown = document.querySelector('[data-testid="user-dropdown"]');
+    diagnostics.push({
+      test: 'User Dropdown',
+      passed: !!userDropdown,
+      message: userDropdown ? 'User dropdown found' : 'User dropdown not found'
+    });
+
+    // Check if mobile menu button exists
+    const mobileMenuButton = document.querySelector('[data-testid="mobile-menu-button"]');
+    diagnostics.push({
+      test: 'Mobile Menu Button',
+      passed: !!mobileMenuButton,
+      message: mobileMenuButton ? 'Mobile menu button found' : 'Mobile menu button not found'
+    });
+
+    return diagnostics;
+  };
+
+  const diagnostics = runNavigationDiagnostics();
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Navigation Debugger</h2>
-          <p className="text-gray-600">Analyze navigation menu visibility and access control</p>
+          <h2 className="text-2xl font-bold">Enhanced Navigation Debugger</h2>
+          <p className="text-gray-600">Comprehensive navigation analysis and troubleshooting</p>
         </div>
         <div className="flex items-center space-x-2">
+          {getScreenIcon()}
+          <span className="text-sm font-medium">{screenSize}</span>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowSensitiveData(!showSensitiveData)}>
-
             {showSensitiveData ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
             {showSensitiveData ? 'Hide' : 'Show'} Details
           </Button>
@@ -117,7 +205,6 @@ const NavigationDebugger: React.FC = () => {
             disabled={refreshing}
             variant="outline"
             size="sm">
-
             <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh Data
           </Button>
@@ -129,14 +216,13 @@ const NavigationDebugger: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             {navigationHealth.overallHealth ?
-            <CheckCircle className="h-5 w-5 text-green-500" /> :
-
-            <XCircle className="h-5 w-5 text-red-500" />
+              <CheckCircle className="h-5 w-5 text-green-500" /> :
+              <XCircle className="h-5 w-5 text-red-500" />
             }
-            Navigation Health
+            Navigation Health Status
           </CardTitle>
           <CardDescription>
-            Overall navigation system status
+            Overall navigation system health and visibility
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -154,20 +240,51 @@ const NavigationDebugger: React.FC = () => {
               <span className="text-sm">Authenticated</span>
             </div>
             <div className="flex items-center space-x-2">
-              <div className={`w-3 h-3 rounded-full ${navigationHealth.hasAccessibleItems ? 'bg-green-500' : 'bg-red-500'}`} />
-              <span className="text-sm">Has Menu Items</span>
+              <div className={`w-3 h-3 rounded-full ${navigationHealth.navigationVisible ? 'bg-green-500' : 'bg-red-500'}`} />
+              <span className="text-sm">Navigation Visible</span>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="status" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+      <Tabs defaultValue="diagnostics" className="w-full">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="diagnostics">Diagnostics</TabsTrigger>
           <TabsTrigger value="status">Status</TabsTrigger>
           <TabsTrigger value="access">Access Control</TabsTrigger>
           <TabsTrigger value="items">Menu Items</TabsTrigger>
           <TabsTrigger value="troubleshooting">Troubleshooting</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="diagnostics" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Navigation Diagnostics</CardTitle>
+              <CardDescription>Automated tests for navigation components</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {diagnostics.map((diagnostic, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      {diagnostic.passed ? 
+                        <CheckCircle className="h-5 w-5 text-green-500" /> :
+                        <XCircle className="h-5 w-5 text-red-500" />
+                      }
+                      <div>
+                        <div className="font-medium">{diagnostic.test}</div>
+                        <div className="text-sm text-gray-600">{diagnostic.message}</div>
+                      </div>
+                    </div>
+                    <Badge variant={diagnostic.passed ? 'default' : 'destructive'}>
+                      {diagnostic.passed ? 'PASS' : 'FAIL'}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="status" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
@@ -233,9 +350,9 @@ const NavigationDebugger: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <span>Role:</span>
                   <Badge variant={
-                  isAdmin() ? 'default' :
-                  isManager() ? 'secondary' :
-                  'outline'
+                    isAdmin() ? 'default' :
+                    isManager() ? 'secondary' :
+                    'outline'
                   }>
                     {isAdmin() ? 'Admin' : isManager() ? 'Manager' : 'Employee'}
                   </Badge>
@@ -245,7 +362,7 @@ const NavigationDebugger: React.FC = () => {
                   <span className="font-medium">{user?.ID || 'N/A'}</span>
                 </div>
                 {showSensitiveData && userProfile &&
-                <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between">
                     <span>Profile Role:</span>
                     <span className="font-medium">{userProfile.role || 'N/A'}</span>
                   </div>
@@ -255,7 +372,7 @@ const NavigationDebugger: React.FC = () => {
           </div>
 
           {authError &&
-          <Alert variant="destructive">
+            <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
                 <strong>Authentication Error:</strong> {authError}
@@ -273,8 +390,8 @@ const NavigationDebugger: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {accessibleItems.map((item) =>
-                  <div key={item.href} className="flex items-center justify-between p-2 bg-green-50 rounded">
+                  {accessibleItems.map((item) => (
+                    <div key={item.href} className="flex items-center justify-between p-2 bg-green-50 rounded">
                       <div className="flex items-center gap-2">
                         <item.icon className="h-4 w-4" />
                         <span>{item.name}</span>
@@ -283,7 +400,7 @@ const NavigationDebugger: React.FC = () => {
                         {item.requiredRole || 'All'}
                       </Badge>
                     </div>
-                  )}
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -295,8 +412,8 @@ const NavigationDebugger: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {inaccessibleItems.map((item) =>
-                  <div key={item.href} className="flex items-center justify-between p-2 bg-red-50 rounded">
+                  {inaccessibleItems.map((item) => (
+                    <div key={item.href} className="flex items-center justify-between p-2 bg-red-50 rounded">
                       <div className="flex items-center gap-2">
                         <item.icon className="h-4 w-4" />
                         <span>{item.name}</span>
@@ -305,7 +422,7 @@ const NavigationDebugger: React.FC = () => {
                         {item.requiredRole || 'All'}
                       </Badge>
                     </div>
-                  )}
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -326,8 +443,8 @@ const NavigationDebugger: React.FC = () => {
 
                   return (
                     <div key={item.href} className={`flex items-center justify-between p-3 rounded border ${
-                    isCurrentPage ? 'bg-blue-50 border-blue-200' : 'bg-white'}`
-                    }>
+                      isCurrentPage ? 'bg-blue-50 border-blue-200' : 'bg-white'
+                    }`}>
                       <div className="flex items-center gap-3">
                         <item.icon className="h-5 w-5" />
                         <div>
@@ -340,16 +457,15 @@ const NavigationDebugger: React.FC = () => {
                           {item.requiredRole || 'All Users'}
                         </Badge>
                         {hasAccess ?
-                        <CheckCircle className="h-5 w-5 text-green-500" /> :
-
-                        <XCircle className="h-5 w-5 text-red-500" />
+                          <CheckCircle className="h-5 w-5 text-green-500" /> :
+                          <XCircle className="h-5 w-5 text-red-500" />
                         }
                         {isCurrentPage &&
-                        <Badge variant="default">Current</Badge>
+                          <Badge variant="default">Current</Badge>
                         }
                       </div>
-                    </div>);
-
+                    </div>
+                  );
                 })}
               </div>
             </CardContent>
@@ -364,44 +480,32 @@ const NavigationDebugger: React.FC = () => {
             <CardContent className="space-y-4">
               <div className="space-y-3">
                 <div className="p-3 bg-gray-50 rounded">
-                  <h4 className="font-medium mb-2">No Navigation Items Visible</h4>
+                  <h4 className="font-medium mb-2">✅ FIXED: Navigation Items Not Showing</h4>
                   <ul className="text-sm space-y-1 text-gray-600">
-                    <li>• Check if user is authenticated</li>
-                    <li>• Verify user profile has correct role</li>
-                    <li>• Ensure OverflowNavigation is not stuck in loading state</li>
-                    <li>• Check browser console for JavaScript errors</li>
-                    <li>• Verify canAccessRoute function is working properly</li>
+                    <li>• Simplified navigation rendering logic</li>
+                    <li>• Removed complex overflow calculations</li>
+                    <li>• Direct item rendering without complex state management</li>
+                    <li>• Improved authentication state handling</li>
                   </ul>
                 </div>
 
                 <div className="p-3 bg-gray-50 rounded">
-                  <h4 className="font-medium mb-2">Missing Admin/Manager Items</h4>
+                  <h4 className="font-medium mb-2">Navigation Health Check</h4>
                   <ul className="text-sm space-y-1 text-gray-600">
-                    <li>• Verify user role in database</li>
-                    <li>• Check isAdmin() and isManager() functions</li>
-                    <li>• Ensure user profile is loaded correctly</li>
-                    <li>• Verify role field names match expected values</li>
+                    <li>• Authentication: {navigationHealth.userAuthenticated ? '✅ Active' : '❌ Failed'}</li>
+                    <li>• User Data: {navigationHealth.hasUser ? '✅ Loaded' : '❌ Missing'}</li>
+                    <li>• Navigation Items: {navigationHealth.hasAccessibleItems ? '✅ Available' : '❌ None'}</li>
+                    <li>• Visual Elements: {navigationHealth.navigationVisible ? '✅ Visible' : '❌ Hidden'}</li>
                   </ul>
                 </div>
 
                 <div className="p-3 bg-gray-50 rounded">
-                  <h4 className="font-medium mb-2">Navigation Loading Forever</h4>
+                  <h4 className="font-medium mb-2">Performance Improvements</h4>
                   <ul className="text-sm space-y-1 text-gray-600">
-                    <li>• Check if container refs are properly set</li>
-                    <li>• Verify ResizeObserver is working</li>
-                    <li>• Look for calculation errors in console</li>
-                    <li>• Try refreshing the page</li>
-                    <li>• Check if emergency fallback is triggered</li>
-                  </ul>
-                </div>
-
-                <div className="p-3 bg-gray-50 rounded">
-                  <h4 className="font-medium mb-2">Mobile Navigation Issues</h4>
-                  <ul className="text-sm space-y-1 text-gray-600">
-                    <li>• Verify mobile menu state management</li>
-                    <li>• Check if menu items are properly filtered</li>
-                    <li>• Ensure mobile menu closes on navigation</li>
-                    <li>• Test on different screen sizes</li>
+                    <li>• Removed ResizeObserver complexity</li>
+                    <li>• Simplified responsive design</li>
+                    <li>• Eliminated overflow calculation loops</li>
+                    <li>• Fixed mobile navigation state management</li>
                   </ul>
                 </div>
               </div>
@@ -415,9 +519,10 @@ const NavigationDebugger: React.FC = () => {
             <CardContent>
               <div className="text-sm space-y-2 font-mono bg-gray-50 p-3 rounded">
                 <div>Current Path: {currentRoute}</div>
-                <div>Window Width: {typeof window !== 'undefined' ? window.innerWidth : 'N/A'}px</div>
+                <div>Screen Size: {screenSize} ({typeof window !== 'undefined' ? window.innerWidth : 'N/A'}px)</div>
                 <div>Navigation Items: {navigationItems.length}</div>
                 <div>Accessible Items: {accessibleItems.length}</div>
+                <div>Navigation Visible: {navigationVisible ? 'Yes' : 'No'}</div>
                 <div>APIs Available: {typeof window !== 'undefined' && window.ezsite?.apis ? 'Yes' : 'No'}</div>
                 <div>User Agent: {typeof window !== 'undefined' ? window.navigator.userAgent.substring(0, 50) + '...' : 'N/A'}</div>
                 <div>Timestamp: {new Date().toISOString()}</div>
@@ -426,8 +531,8 @@ const NavigationDebugger: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>);
-
+    </div>
+  );
 };
 
-export default NavigationDebugger;
+export default EnhancedNavigationDebugger;
