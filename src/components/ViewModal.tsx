@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
+
 import {
   Eye,
   Edit,
@@ -165,7 +165,7 @@ const ViewModal: React.FC<ViewModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         <AnimatePresence>
           {isOpen &&
           <motion.div
@@ -188,8 +188,8 @@ const ViewModal: React.FC<ViewModalProps> = ({
                 </div>
               </DialogHeader>
 
-              <ScrollArea className="max-h-[60vh] pr-4">
-                <div className="space-y-6 py-6 min-h-0">
+              <div className="max-h-[60vh] overflow-y-auto flex-1 modal-scrollbar">
+                <div className="space-y-6 py-6 pr-6 min-h-0">
                   {loading ?
                 <div className="space-y-4">
                       {[...Array(6)].map((_, i) =>
@@ -233,7 +233,7 @@ const ViewModal: React.FC<ViewModalProps> = ({
                     </div>
                 }
                 </div>
-              </ScrollArea>
+              </div>
 
               <Separator />
 
