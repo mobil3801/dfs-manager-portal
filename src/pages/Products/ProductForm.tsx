@@ -18,6 +18,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import EnhancedFileUpload from '@/components/EnhancedFileUpload';
+import FileDisplay from '@/components/FileDisplay';
 
 interface Vendor {
   id: number;
@@ -1181,6 +1183,66 @@ const ProductForm = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Product Image Upload */}
+                <div className="space-y-4">
+                  <h4 className="text-md font-medium">Product Images & Documents</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label>Product Image</Label>
+                      <EnhancedFileUpload
+                        accept="image/*"
+                        label="Upload Product Image"
+                        maxSize={5}
+                        useDatabaseStorage={true}
+                        associatedTable="products"
+                        associatedRecordId={parseInt(id || '0')}
+                        fileCategory="product_image"
+                        showPreview={true}
+                        onFileUpload={(result) => {
+                          toast({
+                            title: "Image uploaded",
+                            description: `${result.fileName} has been uploaded successfully`
+                          });
+                        }}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Product Documents</Label>
+                      <EnhancedFileUpload
+                        accept=".pdf,.doc,.docx,.txt"
+                        label="Upload Documents"
+                        maxSize={10}
+                        useDatabaseStorage={true}
+                        associatedTable="products"
+                        associatedRecordId={parseInt(id || '0')}
+                        fileCategory="product_document"
+                        showPreview={true}
+                        onFileUpload={(result) => {
+                          toast({
+                            title: "Document uploaded",
+                            description: `${result.fileName} has been uploaded successfully`
+                          });
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Display existing files if editing */}
+                {isEdit && parseInt(id || '0') > 0 && (
+                  <div className="space-y-4">
+                    <h4 className="text-md font-medium">Uploaded Files</h4>
+                    <FileDisplay
+                      associatedTable="products"
+                      associatedRecordId={parseInt(id || '0')}
+                      allowDelete={true}
+                      allowEdit={false}
+                      showDescription={true}
+                      viewMode="grid"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Form Actions */}

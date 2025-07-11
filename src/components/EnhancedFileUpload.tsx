@@ -3,32 +3,56 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Upload, FileText, Image, Loader2, Zap } from 'lucide-react';
+import { Upload, FileText, Image, Loader2, Zap, Eye, Download, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { compressImage, formatFileSize, isImageFile, type CompressionResult } from '@/utils/imageCompression';
 
+interface FileUploadResult {
+  fileId: number;
+  fileName: string;
+  fileSize: number;
+  fileType: string;
+  storeFileId: number;
+  uploadDate: string;
+  fileUrl: string;
+}
+
 interface EnhancedFileUploadProps {
-  onFileSelect: (file: File) => void;
+  onFileSelect?: (file: File) => void;
+  onFileUpload?: (result: FileUploadResult) => void;
   accept?: string;
   label?: string;
   currentFile?: string;
   maxSize?: number; // in MB
   className?: string;
   disabled?: boolean;
+  useDatabaseStorage?: boolean;
+  associatedTable?: string;
+  associatedRecordId?: number;
+  fileCategory?: string;
+  showPreview?: boolean;
 }
 
 const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
   onFileSelect,
+  onFileUpload,
   accept = "image/*",
   label = "Upload File",
   currentFile,
   maxSize = 10,
   className = "",
-  disabled = false
+  disabled = false,
+  useDatabaseStorage = false,
+  associatedTable = "",
+  associatedRecordId = 0,
+  fileCategory = "general",
+  showPreview = true
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCompressing, setIsCompressing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [compressionResult, setCompressionResult] = useState<CompressionResult | null>(null);
+  const [uploadResult, setUploadResult] = useState<FileUploadResult | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -75,6 +99,51 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
     return true;
   };
 
+  const uploadToDatabase = async (file: File): Promise<FileUploadResult> => {
+    try {
+      // Upload file to storage
+      const { data: storeFileId, error: uploadError } = await window.ezsite.apis.upload({
+        filename: file.name,
+        file: file
+      });
+
+      if (uploadError) throw uploadError;
+
+      // Save file metadata to database
+      const fileData = {
+        file_name: file.name,
+        file_size: file.size,
+        file_type: file.type,
+        store_file_id: storeFileId,
+        uploaded_by: 1, // This should be the current user ID
+        upload_date: new Date().toISOString(),
+        associated_table: associatedTable,
+        associated_record_id: associatedRecordId,
+        file_category: fileCategory,
+        is_active: true,
+        description: "",
+        file_url: `${window.location.origin}/file/${storeFileId}`
+      };
+
+      const { data: insertResult, error: insertError } = await window.ezsite.apis.tableCreate(26928, fileData);
+
+      if (insertError) throw insertError;
+
+      return {
+        fileId: insertResult.id,
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type,
+        storeFileId: storeFileId,
+        uploadDate: fileData.upload_date,
+        fileUrl: fileData.file_url
+      };
+    } catch (error) {
+      console.error('Database upload failed:', error);
+      throw error;
+    }
+  };
+
   const processFile = async (file: File) => {
     // Check if it's an image and larger than 1MB
     const needsCompression = isImageFile(file) && file.size > 1024 * 1024;
@@ -99,7 +168,29 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
           });
         }
 
-        onFileSelect(result.file);
+        // Choose between database upload or file selection
+        if (useDatabaseStorage) {
+          setIsUploading(true);
+          try {
+            const uploadResult = await uploadToDatabase(result.file);
+            setUploadResult(uploadResult);
+            if (onFileUpload) onFileUpload(uploadResult);
+            toast({
+              title: "File uploaded successfully",
+              description: `${result.file.name} has been uploaded to the database`
+            });
+          } catch (error) {
+            toast({
+              title: "Upload failed",
+              description: typeof error === 'string' ? error : "Failed to upload file to database",
+              variant: "destructive"
+            });
+          } finally {
+            setIsUploading(false);
+          }
+        } else {
+          if (onFileSelect) onFileSelect(result.file);
+        }
         setIsOpen(false);
       } catch (error) {
         console.error('Compression failed:', error);
@@ -108,18 +199,61 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
           description: "Using original file instead",
           variant: "destructive"
         });
-        onFileSelect(file);
+
+        if (useDatabaseStorage) {
+          setIsUploading(true);
+          try {
+            const uploadResult = await uploadToDatabase(file);
+            setUploadResult(uploadResult);
+            if (onFileUpload) onFileUpload(uploadResult);
+            toast({
+              title: "File uploaded successfully",
+              description: `${file.name} has been uploaded to the database`
+            });
+          } catch (error) {
+            toast({
+              title: "Upload failed",
+              description: typeof error === 'string' ? error : "Failed to upload file to database",
+              variant: "destructive"
+            });
+          } finally {
+            setIsUploading(false);
+          }
+        } else {
+          if (onFileSelect) onFileSelect(file);
+        }
         setIsOpen(false);
       } finally {
         setIsCompressing(false);
       }
     } else {
-      onFileSelect(file);
+      if (useDatabaseStorage) {
+        setIsUploading(true);
+        try {
+          const uploadResult = await uploadToDatabase(file);
+          setUploadResult(uploadResult);
+          if (onFileUpload) onFileUpload(uploadResult);
+          toast({
+            title: "File uploaded successfully",
+            description: `${file.name} has been uploaded to the database`
+          });
+        } catch (error) {
+          toast({
+            title: "Upload failed",
+            description: typeof error === 'string' ? error : "Failed to upload file to database",
+            variant: "destructive"
+          });
+        } finally {
+          setIsUploading(false);
+        }
+      } else {
+        if (onFileSelect) onFileSelect(file);
+        toast({
+          title: "File selected",
+          description: `${file.name} has been selected successfully`
+        });
+      }
       setIsOpen(false);
-      toast({
-        title: "File selected",
-        description: `${file.name} has been selected successfully`
-      });
     }
   };
 
@@ -136,6 +270,8 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
 
   const closeDialog = () => {
     setIsOpen(false);
+    setCompressionResult(null);
+    setUploadResult(null);
   };
 
   const getFileIcon = () => {
@@ -143,6 +279,21 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
       return <Image className="h-4 w-4" />;
     }
     return <FileText className="h-4 w-4" />;
+  };
+
+  const handlePreview = () => {
+    if (uploadResult?.fileUrl) {
+      window.open(uploadResult.fileUrl, '_blank');
+    }
+  };
+
+  const handleDownload = () => {
+    if (uploadResult?.fileUrl) {
+      const link = document.createElement('a');
+      link.href = uploadResult.fileUrl;
+      link.download = uploadResult.fileName;
+      link.click();
+    }
   };
 
   return (
@@ -179,6 +330,31 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
               </Card>
             }
 
+            {/* Upload result display */}
+            {uploadResult && showPreview &&
+            <Card className="border-green-200 bg-green-50">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <div>
+                      <p className="font-medium text-green-800">File uploaded successfully!</p>
+                      <p className="text-sm text-green-600">{uploadResult.fileName}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={handlePreview}>
+                      <Eye className="h-4 w-4 mr-2" />
+                      Preview
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={handleDownload}>
+                      <Download className="h-4 w-4 mr-2" />
+                      Download
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            }
+
             {/* Upload option */}
             <Card className="cursor-pointer hover:bg-gray-50 transition-colors">
               <CardContent className="p-6">
@@ -190,14 +366,31 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
                     <Upload className="h-8 w-8 text-blue-600" />
                   </div>
                   <div className="text-center">
-                    <h3 className="font-semibold">Upload From File</h3>
+                    <h3 className="font-semibold">
+                      {useDatabaseStorage ? 'Upload to Database' : 'Upload From File'}
+                    </h3>
                     <p className="text-sm text-gray-500 mt-1">
-                      Choose a file from your device
+                      {useDatabaseStorage ? 'Upload and store in database' : 'Choose a file from your device'}
                     </p>
                   </div>
                 </Button>
               </CardContent>
             </Card>
+
+            {/* Upload status */}
+            {isUploading &&
+            <Card className="border-blue-200 bg-blue-50">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                    <div>
+                      <p className="font-medium text-blue-800">Uploading to database...</p>
+                      <p className="text-sm text-blue-600">Please wait while your file is being processed</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            }
 
             {/* Compression status */}
             {isCompressing &&
