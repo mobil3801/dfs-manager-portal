@@ -301,6 +301,20 @@ const TopNavigation = () => {
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
                   </DropdownMenuItem>
+                  {isAdmin() && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel>Admin Tools</DropdownMenuLabel>
+                      <DropdownMenuItem onClick={() => navigate('/admin/build-errors')}>
+                        <AlertCircle className="mr-2 h-4 w-4" />
+                        Build Errors
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/admin/navigation-debug')}>
+                        <Settings className="mr-2 h-4 w-4" />
+                        Navigation Debug
+                      </DropdownMenuItem>
+                    </>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />

@@ -79,6 +79,7 @@ const UserValidationTestPage = createOptimizedLazyRoute(() => import('@/pages/Ad
 const AuthDiagnosticPage = createOptimizedLazyRoute(() => import('@/pages/AuthDiagnosticPage'), 'AuthDiagnosticPage');
 const ModuleAccessPage = createOptimizedLazyRoute(() => import('@/pages/Admin/ModuleAccessPage'), 'ModuleAccessPage');
 const NavigationDebugPage = createOptimizedLazyRoute(() => import('@/pages/Admin/NavigationDebugPage'), 'NavigationDebugPage');
+const BuildErrorPage = createOptimizedLazyRoute(() => import('@/pages/Admin/BuildErrorPage'), 'BuildErrorPage');
 const ProfilePictureDemo = createOptimizedLazyRoute(() => import('@/components/ProfilePictureDemo'), 'ProfilePictureDemo');
 const OverflowTestPage = createOptimizedLazyRoute(() => import('@/pages/OverflowTestPage'), 'OverflowTestPage');
 const OverflowTestingPage = createOptimizedLazyRoute(() => import('@/pages/OverflowTestingPage'), 'OverflowTestingPage');
@@ -299,6 +300,7 @@ const AppRouter = () => {
             <Route path="auth-diagnostic" element={<OptimizedLazyRoute componentName="AuthDiagnosticPage"><AuthDiagnosticPage /></OptimizedLazyRoute>} />
             <Route path="admin/module-access" element={<OptimizedLazyRoute componentName="ModuleAccessPage"><ModuleAccessPage /></OptimizedLazyRoute>} />
             <Route path="admin/navigation-debug" element={<OptimizedLazyRoute componentName="NavigationDebugPage"><NavigationDebugPage /></OptimizedLazyRoute>} />
+            <Route path="admin/build-errors" element={<OptimizedLazyRoute componentName="BuildErrorPage"><BuildErrorPage /></OptimizedLazyRoute>} />
             <Route path="admin/database" element={<OptimizedLazyRoute componentName="DatabaseMonitoring"><DatabaseMonitoring /></OptimizedLazyRoute>} />
             <Route path="admin/audit" element={<OptimizedLazyRoute componentName="AuditMonitoring"><AuditMonitoring /></OptimizedLazyRoute>} />
           </Route>
