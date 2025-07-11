@@ -4,14 +4,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Code, 
-  Download, 
-  TrendingUp, 
+import {
+  Code,
+  Download,
+  TrendingUp,
   AlertTriangle,
   CheckCircle,
-  Clock
-} from 'lucide-react';
+  Clock } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAdminAccess } from '@/hooks/use-admin-access';
 import AccessDenied from '@/components/AccessDenied';
@@ -38,7 +38,7 @@ const BuildErrorPage: React.FC = () => {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      
+
       toast({
         title: "Report Exported",
         description: "Build error report has been downloaded successfully.",
@@ -112,8 +112,8 @@ const BuildErrorPage: React.FC = () => {
                 variant: "default"
               });
             }}
-            preventPublishing={true}
-          />
+            preventPublishing={true} />
+
         </TabsContent>
         
         <TabsContent value="history" className="space-y-4">
@@ -178,8 +178,8 @@ const BuildErrorPage: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default BuildErrorPage;

@@ -4,13 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  AlertTriangle, 
-  CheckCircle, 
-  Code, 
+import {
+  AlertTriangle,
+  CheckCircle,
+  Code,
   ExternalLink,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { buildErrorManager } from '@/services/buildErrorManager';
 import { useNavigate } from 'react-router-dom';
@@ -62,7 +62,7 @@ const BuildErrorWidget: React.FC<BuildErrorWidgetProps> = ({ className = '' }) =
       const result = await buildErrorManager.runBuildCheck();
       setErrors(result.errors);
       setLastCheck(new Date());
-      
+
       if (result.errors.length === 0) {
         toast({
           title: "Build Clean! ✅",
@@ -89,10 +89,10 @@ const BuildErrorWidget: React.FC<BuildErrorWidgetProps> = ({ className = '' }) =
 
   const getErrorStats = () => {
     const total = errors.length;
-    const errorCount = errors.filter(e => e.severity === 'error' && !e.resolved).length;
-    const warningCount = errors.filter(e => e.severity === 'warning' && !e.resolved).length;
-    const resolved = errors.filter(e => e.resolved).length;
-    
+    const errorCount = errors.filter((e) => e.severity === 'error' && !e.resolved).length;
+    const warningCount = errors.filter((e) => e.severity === 'warning' && !e.resolved).length;
+    const resolved = errors.filter((e) => e.resolved).length;
+
     return { total, errorCount, warningCount, resolved };
   };
 
@@ -112,8 +112,8 @@ const BuildErrorWidget: React.FC<BuildErrorWidgetProps> = ({ className = '' }) =
             variant="ghost"
             size="sm"
             onClick={runQuickCheck}
-            disabled={loading}
-          >
+            disabled={loading}>
+
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           </Button>
         </CardTitle>
@@ -123,11 +123,11 @@ const BuildErrorWidget: React.FC<BuildErrorWidgetProps> = ({ className = '' }) =
           {/* Status Overview */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              {hasErrors ? (
-                <AlertTriangle className="h-5 w-5 text-red-500" />
-              ) : (
-                <CheckCircle className="h-5 w-5 text-green-500" />
-              )}
+              {hasErrors ?
+              <AlertTriangle className="h-5 w-5 text-red-500" /> :
+
+              <CheckCircle className="h-5 w-5 text-green-500" />
+              }
               <span className={`font-medium ${hasErrors ? 'text-red-600' : 'text-green-600'}`}>
                 {hasErrors ? 'Build Errors' : 'Build Clean'}
               </span>
@@ -150,16 +150,16 @@ const BuildErrorWidget: React.FC<BuildErrorWidgetProps> = ({ className = '' }) =
           </div>
 
           {/* Recent Errors */}
-          {errors.length > 0 && (
-            <div className="space-y-2">
+          {errors.length > 0 &&
+          <div className="space-y-2">
               <h4 className="text-sm font-medium">Recent Issues:</h4>
-              {errors.slice(0, 3).map(error => (
-                <div key={error.id} className="text-xs p-2 bg-gray-50 rounded">
+              {errors.slice(0, 3).map((error) =>
+            <div key={error.id} className="text-xs p-2 bg-gray-50 rounded">
                   <div className="flex items-center gap-2">
-                    <Badge 
-                      variant={error.severity === 'error' ? 'destructive' : 'secondary'}
-                      className="text-xs"
-                    >
+                    <Badge
+                  variant={error.severity === 'error' ? 'destructive' : 'secondary'}
+                  className="text-xs">
+
                       {error.severity}
                     </Badge>
                     <span className="font-mono text-gray-600">
@@ -170,19 +170,19 @@ const BuildErrorWidget: React.FC<BuildErrorWidgetProps> = ({ className = '' }) =
                     {error.message}
                   </div>
                 </div>
-              ))}
+            )}
             </div>
-          )}
+          }
 
           {/* Publishing Gate Warning */}
-          {hasErrors && (
-            <Alert className="bg-red-50 border-red-200">
+          {hasErrors &&
+          <Alert className="bg-red-50 border-red-200">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
                 <strong>Publishing Blocked:</strong> Resolve all errors before deploying.
               </AlertDescription>
             </Alert>
-          )}
+          }
 
           {/* Action Buttons */}
           <div className="flex gap-2">
@@ -190,16 +190,16 @@ const BuildErrorWidget: React.FC<BuildErrorWidgetProps> = ({ className = '' }) =
               variant="outline"
               size="sm"
               onClick={() => navigate('/admin/build-errors')}
-              className="flex-1"
-            >
+              className="flex-1">
+
               <ExternalLink className="h-4 w-4 mr-2" />
               View Details
             </Button>
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default BuildErrorWidget;

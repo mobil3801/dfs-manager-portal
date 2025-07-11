@@ -4,15 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Code, 
-  AlertTriangle, 
-  CheckCircle, 
+import {
+  Code,
+  AlertTriangle,
+  CheckCircle,
   Clock,
   ExternalLink,
   RefreshCw,
-  Shield
-} from 'lucide-react';
+  Shield } from
+'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { buildErrorManager } from '@/services/buildErrorManager';
@@ -36,9 +36,9 @@ interface BuildErrorSummaryProps {
   showActions?: boolean;
 }
 
-const BuildErrorSummary: React.FC<BuildErrorSummaryProps> = ({ 
-  className = '', 
-  showActions = true 
+const BuildErrorSummary: React.FC<BuildErrorSummaryProps> = ({
+  className = '',
+  showActions = true
 }) => {
   const [errors, setErrors] = useState<BuildError[]>([]);
   const [loading, setLoading] = useState(false);
@@ -68,7 +68,7 @@ const BuildErrorSummary: React.FC<BuildErrorSummaryProps> = ({
       const result = await buildErrorManager.runBuildCheck();
       setErrors(result.errors);
       setLastCheck(new Date());
-      
+
       if (result.errors.length === 0) {
         toast({
           title: "Build Clean! ✅",
@@ -95,10 +95,10 @@ const BuildErrorSummary: React.FC<BuildErrorSummaryProps> = ({
 
   const getErrorStats = () => {
     const total = errors.length;
-    const errorCount = errors.filter(e => e.severity === 'error' && !e.resolved).length;
-    const warningCount = errors.filter(e => e.severity === 'warning' && !e.resolved).length;
-    const resolved = errors.filter(e => e.resolved).length;
-    
+    const errorCount = errors.filter((e) => e.severity === 'error' && !e.resolved).length;
+    const warningCount = errors.filter((e) => e.severity === 'warning' && !e.resolved).length;
+    const resolved = errors.filter((e) => e.resolved).length;
+
     return { total, errorCount, warningCount, resolved };
   };
 
@@ -132,16 +132,16 @@ const BuildErrorSummary: React.FC<BuildErrorSummaryProps> = ({
             <Shield className="h-5 w-5" />
             Build Quality
           </div>
-          {showActions && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={runQuickCheck}
-              disabled={loading}
-            >
+          {showActions &&
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={runQuickCheck}
+            disabled={loading}>
+
               <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             </Button>
-          )}
+          }
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -176,36 +176,36 @@ const BuildErrorSummary: React.FC<BuildErrorSummaryProps> = ({
           </div>
 
           {/* Publishing Gate Status */}
-          {hasErrors && (
-            <Alert className="bg-red-50 border-red-200">
+          {hasErrors &&
+          <Alert className="bg-red-50 border-red-200">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
                 <strong>Publishing Blocked:</strong> Resolve all errors before deploying.
               </AlertDescription>
             </Alert>
-          )}
+          }
 
-          {!hasErrors && !hasWarnings && (
-            <Alert className="bg-green-50 border-green-200">
+          {!hasErrors && !hasWarnings &&
+          <Alert className="bg-green-50 border-green-200">
               <CheckCircle className="h-4 w-4" />
               <AlertDescription>
                 <strong>Ready to Deploy:</strong> All checks passed successfully.
               </AlertDescription>
             </Alert>
-          )}
+          }
 
           {/* Recent Errors Preview */}
-          {errors.length > 0 && (
-            <div className="space-y-2">
+          {errors.length > 0 &&
+          <div className="space-y-2">
               <h4 className="text-sm font-medium">Recent Issues:</h4>
               <div className="space-y-1 max-h-32 overflow-y-auto">
-                {errors.slice(0, 3).map(error => (
-                  <div key={error.id} className="text-xs p-2 bg-gray-50 rounded">
+                {errors.slice(0, 3).map((error) =>
+              <div key={error.id} className="text-xs p-2 bg-gray-50 rounded">
                     <div className="flex items-center gap-2 mb-1">
-                      <Badge 
-                        variant={error.severity === 'error' ? 'destructive' : 'secondary'}
-                        className="text-xs px-1 py-0"
-                      >
+                      <Badge
+                    variant={error.severity === 'error' ? 'destructive' : 'secondary'}
+                    className="text-xs px-1 py-0">
+
                         {error.severity}
                       </Badge>
                       <span className="font-mono text-gray-600 truncate">
@@ -216,34 +216,34 @@ const BuildErrorSummary: React.FC<BuildErrorSummaryProps> = ({
                       {error.message}
                     </div>
                   </div>
-                ))}
-                {errors.length > 3 && (
-                  <div className="text-xs text-gray-500 text-center py-1">
+              )}
+                {errors.length > 3 &&
+              <div className="text-xs text-gray-500 text-center py-1">
                     +{errors.length - 3} more errors
                   </div>
-                )}
+              }
               </div>
             </div>
-          )}
+          }
 
           {/* Action Buttons */}
-          {showActions && (
-            <div className="flex gap-2">
+          {showActions &&
+          <div className="flex gap-2">
               <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate('/admin/build-errors')}
-                className="flex-1"
-              >
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/admin/build-errors')}
+              className="flex-1">
+
                 <ExternalLink className="h-4 w-4 mr-2" />
                 View Details
               </Button>
             </div>
-          )}
+          }
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default BuildErrorSummary;

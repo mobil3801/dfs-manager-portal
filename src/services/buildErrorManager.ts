@@ -40,14 +40,14 @@ class BuildErrorManager {
         // Mock build errors for demonstration
         const mockErrors = this.generateMockErrors();
         this.errors = mockErrors;
-        
+
         const result: BuildResult = {
           success: mockErrors.length === 0,
-          errors: mockErrors.filter(e => e.severity === 'error'),
-          warnings: mockErrors.filter(e => e.severity === 'warning'),
+          errors: mockErrors.filter((e) => e.severity === 'error'),
+          warnings: mockErrors.filter((e) => e.severity === 'warning'),
           timestamp: new Date()
         };
-        
+
         this.buildHistory.push(result);
         resolve(result);
       }, 2000);
@@ -57,8 +57,8 @@ class BuildErrorManager {
   async resolveError(errorId: string): Promise<void> {
     return new Promise((resolve) => {
       setTimeout(() => {
-        this.errors = this.errors.map(error => 
-          error.id === errorId ? { ...error, resolved: true } : error
+        this.errors = this.errors.map((error) =>
+        error.id === errorId ? { ...error, resolved: true } : error
         );
         resolve();
       }, 500);
@@ -78,7 +78,7 @@ class BuildErrorManager {
       timestamp: new Date().toISOString(),
       summary: {
         totalErrors: this.errors.length,
-        resolvedErrors: this.errors.filter(e => e.resolved).length,
+        resolvedErrors: this.errors.filter((e) => e.resolved).length,
         errorsByCategory: this.getErrorsByCategory(),
         errorsBySeverity: this.getErrorsBySeverity()
       },
@@ -92,11 +92,11 @@ class BuildErrorManager {
   private generateMockErrors(): BuildError[] {
     // Generate realistic mock errors for demonstration
     const mockErrors: BuildError[] = [];
-    
+
     // Add some random errors based on current time to simulate real build process
     const now = new Date();
     const shouldHaveErrors = now.getSeconds() % 3 === 0; // 1/3 chance of having errors
-    
+
     if (shouldHaveErrors) {
       mockErrors.push({
         id: 'err-1',

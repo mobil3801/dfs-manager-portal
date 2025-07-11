@@ -7,19 +7,19 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { 
-  AlertTriangle, 
-  X, 
-  CheckCircle, 
-  Clock, 
-  FileText, 
-  Code, 
+import {
+  AlertTriangle,
+  X,
+  CheckCircle,
+  Clock,
+  FileText,
+  Code,
   ChevronDown,
   ChevronRight,
   Copy,
   RefreshCw,
-  Shield
-} from 'lucide-react';
+  Shield } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { buildErrorManager } from '@/services/buildErrorManager';
 import { ErrorGuidance } from '@/components/ErrorGuidance';
@@ -79,8 +79,8 @@ const BuildErrorReport: React.FC<BuildErrorReportProps> = ({
     try {
       const buildErrors = await buildErrorManager.getBuildErrors();
       setErrors(buildErrors);
-      
-      const hasErrors = buildErrors.some(error => error.severity === 'error' && !error.resolved);
+
+      const hasErrors = buildErrors.some((error) => error.severity === 'error' && !error.resolved);
       if (!hasErrors && onErrorsResolved) {
         onErrorsResolved();
       }
@@ -97,19 +97,19 @@ const BuildErrorReport: React.FC<BuildErrorReportProps> = ({
   const runBuildCheck = async () => {
     setIsBuilding(true);
     setBuildProgress(0);
-    
+
     try {
       const progressInterval = setInterval(() => {
-        setBuildProgress(prev => Math.min(prev + 10, 90));
+        setBuildProgress((prev) => Math.min(prev + 10, 90));
       }, 200);
 
       const result = await buildErrorManager.runBuildCheck();
-      
+
       clearInterval(progressInterval);
       setBuildProgress(100);
-      
+
       setErrors(result.errors);
-      
+
       if (result.errors.length === 0) {
         toast({
           title: "Build Successful! ✅",
@@ -137,8 +137,8 @@ const BuildErrorReport: React.FC<BuildErrorReportProps> = ({
   const resolveError = async (errorId: string) => {
     try {
       await buildErrorManager.resolveError(errorId);
-      setErrors(prev => prev.map(error => 
-        error.id === errorId ? { ...error, resolved: true } : error
+      setErrors((prev) => prev.map((error) =>
+      error.id === errorId ? { ...error, resolved: true } : error
       ));
       toast({
         title: "Error Resolved",
@@ -165,7 +165,7 @@ const BuildErrorReport: React.FC<BuildErrorReportProps> = ({
   };
 
   const toggleErrorExpansion = (errorId: string) => {
-    setExpandedErrors(prev => {
+    setExpandedErrors((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(errorId)) {
         newSet.delete(errorId);
@@ -178,10 +178,10 @@ const BuildErrorReport: React.FC<BuildErrorReportProps> = ({
 
   const getErrorStats = () => {
     const total = errors.length;
-    const resolved = errors.filter(e => e.resolved).length;
-    const errorCount = errors.filter(e => e.severity === 'error' && !e.resolved).length;
-    const warningCount = errors.filter(e => e.severity === 'warning' && !e.resolved).length;
-    
+    const resolved = errors.filter((e) => e.resolved).length;
+    const errorCount = errors.filter((e) => e.severity === 'error' && !e.resolved).length;
+    const warningCount = errors.filter((e) => e.severity === 'warning' && !e.resolved).length;
+
     return { total, resolved, errorCount, warningCount };
   };
 
@@ -210,14 +210,14 @@ const BuildErrorReport: React.FC<BuildErrorReportProps> = ({
           </div>
         </CardHeader>
         <CardContent>
-          {isBuilding && (
-            <div className="space-y-2">
+          {isBuilding &&
+          <div className="space-y-2">
               <Progress value={buildProgress} className="w-full" />
               <p className="text-sm text-gray-600">
                 Analyzing codebase... {buildProgress}%
               </p>
             </div>
-          )}
+          }
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
             <div className="text-center">
@@ -241,12 +241,12 @@ const BuildErrorReport: React.FC<BuildErrorReportProps> = ({
       </Card>
 
       {/* Build Gate Warning */}
-      {preventPublishing && hasBlockingErrors && (
-        <BuildGate 
-          errorCount={stats.errorCount}
-          onResolveAll={() => runBuildCheck()}
-        />
-      )}
+      {preventPublishing && hasBlockingErrors &&
+      <BuildGate
+        errorCount={stats.errorCount}
+        onResolveAll={() => runBuildCheck()} />
+
+      }
 
       {/* Error List */}
       <Card>
@@ -265,19 +265,19 @@ const BuildErrorReport: React.FC<BuildErrorReportProps> = ({
               <TabsTrigger value="resolved">Resolved ({stats.resolved})</TabsTrigger>
             </TabsList>
             
-            {(['all', 'errors', 'warnings', 'resolved'] as const).map(tab => (
-              <TabsContent key={tab} value={tab} className="space-y-4">
-                {errors
-                  .filter(error => {
-                    switch (tab) {
-                      case 'errors': return error.severity === 'error' && !error.resolved;
-                      case 'warnings': return error.severity === 'warning' && !error.resolved;
-                      case 'resolved': return error.resolved;
-                      default: return true;
-                    }
-                  })
-                  .map(error => (
-                    <Collapsible key={error.id}>
+            {(['all', 'errors', 'warnings', 'resolved'] as const).map((tab) =>
+            <TabsContent key={tab} value={tab} className="space-y-4">
+                {errors.
+              filter((error) => {
+                switch (tab) {
+                  case 'errors':return error.severity === 'error' && !error.resolved;
+                  case 'warnings':return error.severity === 'warning' && !error.resolved;
+                  case 'resolved':return error.resolved;
+                  default:return true;
+                }
+              }).
+              map((error) =>
+              <Collapsible key={error.id}>
                       <div className={`border rounded-lg p-4 ${error.resolved ? 'bg-green-50' : ''}`}>
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
@@ -288,12 +288,12 @@ const BuildErrorReport: React.FC<BuildErrorReportProps> = ({
                               <Badge variant="outline">
                                 {error.category}
                               </Badge>
-                              {error.resolved && (
-                                <Badge className="bg-green-100 text-green-800">
+                              {error.resolved &&
+                        <Badge className="bg-green-100 text-green-800">
                                   <CheckCircle className="h-3 w-3 mr-1" />
                                   Resolved
                                 </Badge>
-                              )}
+                        }
                             </div>
                             
                             <h3 className="font-semibold mb-1">{error.message}</h3>
@@ -304,37 +304,37 @@ const BuildErrorReport: React.FC<BuildErrorReportProps> = ({
                             <div className="flex items-center gap-2">
                               <CollapsibleTrigger asChild>
                                 <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => toggleErrorExpansion(error.id)}
-                                >
-                                  {expandedErrors.has(error.id) ? (
-                                    <ChevronDown className="h-4 w-4" />
-                                  ) : (
-                                    <ChevronRight className="h-4 w-4" />
-                                  )}
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => toggleErrorExpansion(error.id)}>
+
+                                  {expandedErrors.has(error.id) ?
+                            <ChevronDown className="h-4 w-4" /> :
+
+                            <ChevronRight className="h-4 w-4" />
+                            }
                                   Show Details
                                 </Button>
                               </CollapsibleTrigger>
                               
                               <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => copyErrorDetails(error)}
-                              >
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => copyErrorDetails(error)}>
+
                                 <Copy className="h-4 w-4" />
                               </Button>
                               
-                              {!error.resolved && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => resolveError(error.id)}
-                                >
+                              {!error.resolved &&
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => resolveError(error.id)}>
+
                                   <CheckCircle className="h-4 w-4" />
                                   Mark Resolved
                                 </Button>
-                              )}
+                        }
                             </div>
                           </div>
                         </div>
@@ -346,24 +346,24 @@ const BuildErrorReport: React.FC<BuildErrorReportProps> = ({
                         </CollapsibleContent>
                       </div>
                     </Collapsible>
-                  ))}
+              )}
                 
-                {errors.length === 0 && (
-                  <div className="text-center py-8">
+                {errors.length === 0 &&
+              <div className="text-center py-8">
                     <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4" />
                     <h3 className="text-lg font-semibold mb-2">No Build Errors Found!</h3>
                     <p className="text-gray-600">
                       Your codebase is clean and ready for publishing.
                     </p>
                   </div>
-                )}
+              }
               </TabsContent>
-            ))}
+            )}
           </Tabs>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default BuildErrorReport;

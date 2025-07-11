@@ -20,17 +20,15 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          // Core React ecosystem - split further
-          if (id.includes('react/jsx-runtime') || id.includes('react/jsx-dev-runtime')) {
-            return 'react-jsx';
-          }
-
-          if (id.includes('react-dom/client') || id.includes('react-dom/server')) {
-            return 'react-dom';
-          }
-
-          if (id.includes('react/') || id.includes('react-dom/') || id.includes('scheduler/')) {
-            return 'react-core';
+          // Core React ecosystem - bundle together for better caching
+          if (id.includes('react/jsx-runtime') || 
+              id.includes('react/jsx-dev-runtime') ||
+              id.includes('react-dom/client') || 
+              id.includes('react-dom/server') ||
+              id.includes('react/') || 
+              id.includes('react-dom/') || 
+              id.includes('scheduler/')) {
+            return 'react-vendor';
           }
 
           if (id.includes('react-router')) {
@@ -42,70 +40,38 @@ export default defineConfig(({ mode }) => ({
             return 'react-query';
           }
 
-          // Radix UI - more granular splitting
+          // Radix UI - group by functionality
           if (id.includes('@radix-ui/react-dialog') ||
-          id.includes('@radix-ui/react-popover') ||
-          id.includes('@radix-ui/react-tooltip')) {
-            return 'radix-dialog';
+              id.includes('@radix-ui/react-popover') ||
+              id.includes('@radix-ui/react-tooltip') ||
+              id.includes('@radix-ui/react-dropdown-menu') ||
+              id.includes('@radix-ui/react-menubar') ||
+              id.includes('@radix-ui/react-context-menu') ||
+              id.includes('@radix-ui/react-alert-dialog') ||
+              id.includes('@radix-ui/react-hover-card')) {
+            return 'radix-overlays';
           }
 
-          if (id.includes('@radix-ui/react-dropdown-menu') ||
-          id.includes('@radix-ui/react-menubar') ||
-          id.includes('@radix-ui/react-context-menu')) {
-            return 'radix-menu';
-          }
-
-          if (id.includes('@radix-ui/react-alert-dialog') ||
-          id.includes('@radix-ui/react-hover-card')) {
-            return 'radix-alert';
-          }
-
-          if (id.includes('@radix-ui/react-navigation-menu')) {
-            return 'radix-navigation';
-          }
-
-          if (id.includes('@radix-ui/react-select')) {
-            return 'radix-select';
-          }
-
-          if (id.includes('@radix-ui/react-checkbox') ||
-          id.includes('@radix-ui/react-radio-group') ||
-          id.includes('@radix-ui/react-slider') ||
-          id.includes('@radix-ui/react-switch')) {
-            return 'radix-form';
-          }
-
-          if (id.includes('@radix-ui/react-label')) {
-            return 'radix-label';
+          if (id.includes('@radix-ui/react-select') ||
+              id.includes('@radix-ui/react-checkbox') ||
+              id.includes('@radix-ui/react-radio-group') ||
+              id.includes('@radix-ui/react-slider') ||
+              id.includes('@radix-ui/react-switch') ||
+              id.includes('@radix-ui/react-label')) {
+            return 'radix-forms';
           }
 
           if (id.includes('@radix-ui/react-accordion') ||
-          id.includes('@radix-ui/react-collapsible') ||
-          id.includes('@radix-ui/react-tabs')) {
+              id.includes('@radix-ui/react-collapsible') ||
+              id.includes('@radix-ui/react-tabs') ||
+              id.includes('@radix-ui/react-separator') ||
+              id.includes('@radix-ui/react-aspect-ratio') ||
+              id.includes('@radix-ui/react-scroll-area')) {
             return 'radix-layout';
           }
 
-          if (id.includes('@radix-ui/react-separator') ||
-          id.includes('@radix-ui/react-aspect-ratio') ||
-          id.includes('@radix-ui/react-scroll-area')) {
-            return 'radix-misc';
-          }
-
-          if (id.includes('@radix-ui/react-toast') ||
-          id.includes('@radix-ui/react-progress')) {
-            return 'radix-feedback';
-          }
-
-          if (id.includes('@radix-ui/react-avatar')) {
-            return 'radix-avatar';
-          }
-
-          if (id.includes('@radix-ui/react-toggle')) {
-            return 'radix-toggle';
-          }
-
           if (id.includes('@radix-ui')) {
-            return 'radix-core';
+            return 'radix-misc';
           }
 
           // Charts and visualization
@@ -119,16 +85,10 @@ export default defineConfig(({ mode }) => ({
           }
 
           // Form handling
-          if (id.includes('react-hook-form')) {
-            return 'react-hook-form';
-          }
-
-          if (id.includes('@hookform/resolvers')) {
-            return 'hookform-resolvers';
-          }
-
-          if (id.includes('zod')) {
-            return 'zod';
+          if (id.includes('react-hook-form') ||
+              id.includes('@hookform/resolvers') ||
+              id.includes('zod')) {
+            return 'forms';
           }
 
           // Animation libraries
@@ -142,16 +102,10 @@ export default defineConfig(({ mode }) => ({
           }
 
           // UI utilities
-          if (id.includes('clsx')) {
-            return 'clsx';
-          }
-
-          if (id.includes('tailwind-merge')) {
-            return 'tailwind-merge';
-          }
-
-          if (id.includes('class-variance-authority')) {
-            return 'cva';
+          if (id.includes('clsx') ||
+              id.includes('tailwind-merge') ||
+              id.includes('class-variance-authority')) {
+            return 'ui-utils';
           }
 
           // File handling
@@ -169,216 +123,124 @@ export default defineConfig(({ mode }) => ({
             return 'dev-tools';
           }
 
-          // Application pages - split by major features
+          // Large admin pages - split them
           if (id.includes('src/pages/Admin/UserManagement')) {
-            return 'page-admin-users';
-          }
-
-          if (id.includes('src/pages/Admin/') && (
-          id.includes('SiteManagement') ||
-          id.includes('SystemLogs') ||
-          id.includes('SecuritySettings'))) {
-            return 'page-admin-management';
-          }
-
-          if (id.includes('src/pages/Admin/') && (
-          id.includes('SMSManagement') ||
-          id.includes('UserValidationTestPage') ||
-          id.includes('NavigationDebugPage'))) {
-            return 'page-admin-testing';
-          }
-
-          if (id.includes('src/pages/Admin/') && (
-          id.includes('DatabaseMonitoring') ||
-          id.includes('AuditMonitoring'))) {
-            return 'page-admin-monitoring';
-          }
-
-          if (id.includes('src/pages/Admin/')) {
-            return 'page-admin-common';
+            return 'admin-users';
           }
 
           if (id.includes('src/pages/Sales/SalesReportForm')) {
-            return 'page-sales-form';
-          }
-
-          if (id.includes('src/pages/Sales/')) {
-            return 'page-sales';
+            return 'sales-form';
           }
 
           if (id.includes('src/pages/Products/ProductForm')) {
-            return 'page-products-form';
+            return 'products-form';
           }
 
-          if (id.includes('src/pages/Products/')) {
-            return 'page-products';
+          // Group smaller admin pages
+          if (id.includes('src/pages/Admin/')) {
+            return 'admin-pages';
           }
 
-          if (id.includes('src/pages/Employees/')) {
-            return 'page-employees';
+          // Group business pages
+          if (id.includes('src/pages/Sales/') ||
+              id.includes('src/pages/Products/') ||
+              id.includes('src/pages/Employees/') ||
+              id.includes('src/pages/Licenses/') ||
+              id.includes('src/pages/Vendors/') ||
+              id.includes('src/pages/Orders/') ||
+              id.includes('src/pages/Salary/') ||
+              id.includes('src/pages/Delivery/')) {
+            return 'business-pages';
           }
 
-          if (id.includes('src/pages/Licenses/')) {
-            return 'page-licenses';
-          }
-
-          if (id.includes('src/pages/Vendors/') ||
-          id.includes('src/pages/Orders/')) {
-            return 'page-business';
-          }
-
-          if (id.includes('src/pages/Salary/') ||
-          id.includes('src/pages/Delivery/')) {
-            return 'page-operations';
-          }
-
-          if (id.includes('src/pages/Settings/')) {
-            return 'page-settings';
-          }
-
+          // Settings and common pages
           if (id.includes('src/pages/')) {
-            return 'page-common';
+            return 'common-pages';
           }
 
-          // Component chunking - more granular
+          // Component chunking - group by functionality
           if (id.includes('src/components/ErrorBoundary/')) {
-            return 'comp-error-boundary';
+            return 'error-boundary';
           }
 
           if (id.includes('src/components/') && (
-          id.includes('UserPermissionManager') ||
-          id.includes('RoleBasedDashboard') ||
-          id.includes('ComprehensivePermissionDialog'))) {
-            return 'comp-permissions';
+              id.includes('UserPermissionManager') ||
+              id.includes('RoleBasedDashboard') ||
+              id.includes('ComprehensivePermissionDialog') ||
+              id.includes('RoleTesting/'))) {
+            return 'permissions';
           }
 
           if (id.includes('src/components/') && (
-          id.includes('SMS') ||
-          id.includes('Email') ||
-          id.includes('Alert'))) {
-            return 'comp-communications';
+              id.includes('SMS') ||
+              id.includes('Email') ||
+              id.includes('Alert'))) {
+            return 'communications';
           }
 
           if (id.includes('src/components/') && (
-          id.includes('FileUpload') ||
-          id.includes('ProfilePicture') ||
-          id.includes('ImageCompression'))) {
-            return 'comp-files';
+              id.includes('FileUpload') ||
+              id.includes('ProfilePicture') ||
+              id.includes('ImageCompression'))) {
+            return 'file-components';
           }
 
           if (id.includes('src/components/') && (
-          id.includes('SalesChart') ||
-          id.includes('StationSalesBoxes') ||
-          id.includes('ComprehensiveDashboard'))) {
-            return 'comp-charts';
+              id.includes('SalesChart') ||
+              id.includes('StationSalesBoxes') ||
+              id.includes('ComprehensiveDashboard'))) {
+            return 'chart-components';
           }
 
           if (id.includes('src/components/') && (
-          id.includes('Print') ||
-          id.includes('Export') ||
-          id.includes('Report'))) {
-            return 'comp-reports';
+              id.includes('Print') ||
+              id.includes('Export') ||
+              id.includes('Report'))) {
+            return 'report-components';
           }
 
           if (id.includes('src/components/') && (
-          id.includes('Navigation') ||
-          id.includes('Overflow') ||
-          id.includes('TopNavigation'))) {
-            return 'comp-navigation';
+              id.includes('Navigation') ||
+              id.includes('Overflow') ||
+              id.includes('TopNavigation'))) {
+            return 'navigation-components';
           }
 
           if (id.includes('src/components/') && (
-          id.includes('Memory') ||
-          id.includes('Performance') ||
-          id.includes('Monitoring'))) {
-            return 'comp-monitoring';
-          }
-
-          if (id.includes('src/components/Layout/')) {
-            return 'comp-layout';
-          }
-
-          if (id.includes('src/components/RoleTesting/')) {
-            return 'comp-role-testing';
-          }
-
-          if (id.includes('src/components/UserValidation/')) {
-            return 'comp-user-validation';
-          }
-
-          if (id.includes('src/components/SalesReportSections/')) {
-            return 'comp-sales-sections';
+              id.includes('Memory') ||
+              id.includes('Performance') ||
+              id.includes('Monitoring'))) {
+            return 'monitoring-components';
           }
 
           if (id.includes('src/components/')) {
-            return 'comp-common';
+            return 'common-components';
           }
 
-          // Services chunking
-          if (id.includes('src/services/')) {
-            return 'services';
+          // Services, utilities, hooks, contexts - group together
+          if (id.includes('src/services/') ||
+              id.includes('src/utils/') ||
+              id.includes('src/hooks/') ||
+              id.includes('src/contexts/')) {
+            return 'app-core';
           }
 
-          // Utilities chunking
-          if (id.includes('src/utils/')) {
-            return 'utils';
-          }
-
-          // Hooks chunking
-          if (id.includes('src/hooks/')) {
-            return 'hooks';
-          }
-
-          // Contexts chunking
-          if (id.includes('src/contexts/')) {
-            return 'contexts';
-          }
-
-          // Misc vendor packages
-          if (id.includes('sonner')) {
-            return 'sonner';
-          }
-
-          if (id.includes('cmdk')) {
-            return 'cmdk';
-          }
-
-          if (id.includes('input-otp')) {
-            return 'input-otp';
-          }
-
-          if (id.includes('vaul')) {
-            return 'vaul';
-          }
-
-          // Carousel
-          if (id.includes('embla-carousel')) {
-            return 'carousel';
-          }
-
-          // Theme
-          if (id.includes('next-themes')) {
-            return 'theme';
-          }
-
-          // Panels
-          if (id.includes('react-resizable-panels')) {
-            return 'panels';
-          }
-
-          // Calendar
-          if (id.includes('react-day-picker')) {
-            return 'calendar';
-          }
-
-          // DnD
-          if (id.includes('@dnd-kit')) {
-            return 'dnd';
+          // Smaller vendor packages - group together
+          if (id.includes('sonner') ||
+              id.includes('cmdk') ||
+              id.includes('input-otp') ||
+              id.includes('vaul') ||
+              id.includes('embla-carousel') ||
+              id.includes('next-themes') ||
+              id.includes('react-resizable-panels') ||
+              id.includes('react-day-picker') ||
+              id.includes('@dnd-kit')) {
+            return 'vendor-misc';
           }
 
           // Catch-all for remaining vendor packages
           if (id.includes('node_modules')) {
-            return 'vendor-misc';
+            return 'vendor-other';
           }
         },
 

@@ -5,14 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Shield, 
-  AlertTriangle, 
-  Lock, 
-  CheckCircle, 
+import {
+  Shield,
+  AlertTriangle,
+  Lock,
+  CheckCircle,
   RefreshCw,
-  X
-} from 'lucide-react';
+  X } from
+'lucide-react';
 
 interface BuildGateProps {
   errorCount: number;
@@ -20,10 +20,10 @@ interface BuildGateProps {
   className?: string;
 }
 
-const BuildGate: React.FC<BuildGateProps> = ({ 
-  errorCount, 
-  onResolveAll, 
-  className = '' 
+const BuildGate: React.FC<BuildGateProps> = ({
+  errorCount,
+  onResolveAll,
+  className = ''
 }) => {
   const getGateStatus = () => {
     if (errorCount === 0) {
@@ -37,7 +37,7 @@ const BuildGate: React.FC<BuildGateProps> = ({
         description: 'All errors resolved. Ready for publishing!'
       };
     }
-    
+
     return {
       status: 'fail',
       color: 'text-red-600',
@@ -106,10 +106,10 @@ const BuildGate: React.FC<BuildGateProps> = ({
                 <span>Resolution Progress</span>
                 <span>{errorCount === 0 ? '100%' : '0%'}</span>
               </div>
-              <Progress 
-                value={errorCount === 0 ? 100 : 0} 
-                className="w-full"
-              />
+              <Progress
+                value={errorCount === 0 ? 100 : 0}
+                className="w-full" />
+
             </div>
 
             {/* Action Buttons */}
@@ -117,8 +117,8 @@ const BuildGate: React.FC<BuildGateProps> = ({
               <Button
                 onClick={onResolveAll}
                 variant={errorCount === 0 ? "default" : "destructive"}
-                className="flex-1"
-              >
+                className="flex-1">
+
                 <RefreshCw className="h-4 w-4 mr-2" />
                 {errorCount === 0 ? 'Verify Build' : 'Resolve All Errors'}
               </Button>
@@ -144,8 +144,8 @@ const BuildGate: React.FC<BuildGateProps> = ({
             </div>
 
             {/* Next Steps */}
-            {errorCount > 0 && (
-              <div className="bg-white bg-opacity-50 rounded-lg p-3 text-sm">
+            {errorCount > 0 &&
+            <div className="bg-white bg-opacity-50 rounded-lg p-3 text-sm">
                 <h4 className="font-medium mb-2">Next Steps:</h4>
                 <ol className="space-y-1 list-decimal list-inside">
                   <li>Review error details above</li>
@@ -154,12 +154,12 @@ const BuildGate: React.FC<BuildGateProps> = ({
                   <li>Repeat until all errors are resolved</li>
                 </ol>
               </div>
-            )}
+            }
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export { BuildGate };

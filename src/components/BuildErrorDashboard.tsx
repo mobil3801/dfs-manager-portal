@@ -4,15 +4,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  AlertTriangle, 
-  CheckCircle, 
-  Code, 
+import {
+  AlertTriangle,
+  CheckCircle,
+  Code,
   ExternalLink,
   TrendingUp,
   Clock,
-  Shield
-} from 'lucide-react';
+  Shield } from
+'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import BuildErrorWidget from '@/components/BuildErrorWidget';
 
@@ -92,11 +92,11 @@ const BuildErrorDashboard: React.FC<BuildErrorDashboardProps> = ({ className = '
                 </ul>
               </div>
               
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full"
-                onClick={() => navigate('/admin/build-errors')}
-              >
+                onClick={() => navigate('/admin/build-errors')}>
+
                 <ExternalLink className="h-4 w-4 mr-2" />
                 View Full Report
               </Button>
@@ -118,8 +118,8 @@ const BuildErrorDashboard: React.FC<BuildErrorDashboardProps> = ({ className = '
             <Button
               variant="outline"
               className="h-auto py-4 flex-col"
-              onClick={() => navigate('/admin/build-errors')}
-            >
+              onClick={() => navigate('/admin/build-errors')}>
+
               <Code className="h-6 w-6 mb-2" />
               <span className="text-sm">View All Errors</span>
             </Button>
@@ -127,8 +127,8 @@ const BuildErrorDashboard: React.FC<BuildErrorDashboardProps> = ({ className = '
             <Button
               variant="outline"
               className="h-auto py-4 flex-col"
-              onClick={() => window.location.reload()}
-            >
+              onClick={() => window.location.reload()}>
+
               <CheckCircle className="h-6 w-6 mb-2" />
               <span className="text-sm">Run Build Check</span>
             </Button>
@@ -136,8 +136,8 @@ const BuildErrorDashboard: React.FC<BuildErrorDashboardProps> = ({ className = '
             <Button
               variant="outline"
               className="h-auto py-4 flex-col"
-              onClick={() => navigate('/admin/navigation-debug')}
-            >
+              onClick={() => navigate('/admin/navigation-debug')}>
+
               <Shield className="h-6 w-6 mb-2" />
               <span className="text-sm">Debug Tools</span>
             </Button>
@@ -145,16 +145,16 @@ const BuildErrorDashboard: React.FC<BuildErrorDashboardProps> = ({ className = '
             <Button
               variant="outline"
               className="h-auto py-4 flex-col"
-              onClick={() => navigate('/admin')}
-            >
+              onClick={() => navigate('/admin')}>
+
               <TrendingUp className="h-6 w-6 mb-2" />
               <span className="text-sm">Admin Panel</span>
             </Button>
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default BuildErrorDashboard;
