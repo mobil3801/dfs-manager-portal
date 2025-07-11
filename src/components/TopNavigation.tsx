@@ -26,6 +26,7 @@ import {
   Menu,
   X } from
 'lucide-react';
+import OverflowNavigation from '@/components/OverflowNavigation';
 
 const TopNavigation = () => {
   const { user, logout, isAdmin, isManager } = useAuth();
@@ -190,15 +191,12 @@ const TopNavigation = () => {
               <span className="text-xl font-bold text-gray-900 hidden sm:block">DFS Manager Portal</span>
             </div>
 
-            {/* Center Section - ALL Navigation Items in Single Horizontal Line (Desktop) */}
+            {/* Center Section - Navigation Items with Overflow Handling (Desktop) */}
             <nav className="hidden lg:flex items-center flex-1 justify-center max-w-6xl mx-4">
-              <div className="flex items-center space-x-1 px-4 overflow-x-auto scrollbar-hide">
-                {navigationItems.
-                filter((item) => canAccessRoute(item.requiredRole)).
-                map((item) =>
-                <NavigationLink key={item.href} item={item} />
-                )}
-              </div>
+              <OverflowNavigation 
+                items={navigationItems}
+                canAccessRoute={canAccessRoute}
+              />
             </nav>
 
             {/* Right Section - User Profile and Mobile Menu Toggle */}
