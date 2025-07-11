@@ -10,7 +10,6 @@ import {
   Edit,
   Trash2,
   Download,
-  X,
   Calendar,
   User,
   Building2,
@@ -20,8 +19,8 @@ import {
   DollarSign,
   FileText,
   Hash,
-  Clock } from
-'lucide-react';
+  Clock 
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface ViewModalField {
@@ -96,39 +95,36 @@ const ViewModal: React.FC<ViewModalProps> = ({
         return (
           <Badge
             className={`${field.badgeColor || 'bg-gray-500'} text-white`}>
-
             {value}
-          </Badge>);
-
+          </Badge>
+        );
 
       case 'email':
         return (
           <a
             href={`mailto:${value}`}
             className="text-blue-600 hover:underline flex items-center space-x-1">
-
             <Mail className="w-3 h-3" />
             <span>{value}</span>
-          </a>);
-
+          </a>
+        );
 
       case 'phone':
         return (
           <a
             href={`tel:${value}`}
             className="text-blue-600 hover:underline flex items-center space-x-1">
-
             <Phone className="w-3 h-3" />
             <span>{value}</span>
-          </a>);
-
+          </a>
+        );
 
       case 'boolean':
         return (
           <Badge variant={value ? "default" : "secondary"}>
             {value ? 'Yes' : 'No'}
-          </Badge>);
-
+          </Badge>
+        );
 
       case 'number':
         return typeof value === 'number' ? value.toLocaleString() : value;
@@ -167,55 +163,81 @@ const ViewModal: React.FC<ViewModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         <AnimatePresence>
-          {isOpen &&
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.2 }}>
-
-              <DialogHeader className="border-b pb-4">
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="flex flex-col h-full"
+            >
+              <DialogHeader className="border-b pb-4 flex-shrink-0">
                 <div className="flex items-center space-x-2">
                   <Eye className="w-6 h-6 text-blue-600" />
                   <div>
                     <DialogTitle className="text-xl font-bold">{title}</DialogTitle>
-                    {subtitle &&
-                  <DialogDescription className="mt-1">
+                    {subtitle && (
+                      <DialogDescription className="mt-1">
                         {subtitle}
                       </DialogDescription>
-                  }
+                    )}
                   </div>
                 </div>
               </DialogHeader>
 
-              <div className="max-h-[60vh] overflow-y-auto flex-1 modal-scrollbar">
-                <div className="space-y-6 py-6 pr-6 min-h-0">
-                  {loading ?
-                <div className="space-y-4">
-                      {[...Array(6)].map((_, i) =>
-                  <div key={i} className="flex items-center space-x-3">
+              {/* Scrollable content area with custom scrollbar */}
+              <div className="flex-1 overflow-y-auto min-h-0" style={{
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#cbd5e1 #f1f5f9'
+              }}>
+                <style jsx>{`
+                  .custom-scrollbar {
+                    scrollbar-width: thin;
+                    scrollbar-color: #cbd5e1 #f1f5f9;
+                  }
+                  .custom-scrollbar::-webkit-scrollbar {
+                    width: 8px;
+                  }
+                  .custom-scrollbar::-webkit-scrollbar-track {
+                    background: #f1f5f9;
+                    border-radius: 4px;
+                  }
+                  .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: #cbd5e1;
+                    border-radius: 4px;
+                  }
+                  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: #94a3b8;
+                  }
+                `}</style>
+                
+                <div className="space-y-6 py-6 pr-2 custom-scrollbar">
+                  {loading ? (
+                    <div className="space-y-4">
+                      {[...Array(6)].map((_, i) => (
+                        <div key={i} className="flex items-center space-x-3">
                           <div className="w-4 h-4 bg-gray-200 rounded animate-pulse" />
                           <div className="flex-1 space-y-2">
                             <div className="h-4 bg-gray-200 rounded w-24 animate-pulse" />
                             <div className="h-4 bg-gray-100 rounded w-32 animate-pulse" />
                           </div>
                         </div>
-                  )}
-                    </div> :
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {visibleFields.map((field, index) => {
-                    // Special handling for custom components that should span full width
-                    const isFullWidth = field.type === 'custom' && field.key === 'profile_picture';
+                        // Special handling for custom components that should span full width
+                        const isFullWidth = field.type === 'custom' && field.key === 'profile_picture';
 
-                    return (
-                      <motion.div
-                        key={field.key}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className={`space-y-2 ${isFullWidth ? 'md:col-span-2' : ''}`}>
-
+                        return (
+                          <motion.div
+                            key={field.key}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            className={`space-y-2 ${isFullWidth ? 'md:col-span-2' : ''}`}
+                          >
                             <div className="flex items-center space-x-2">
                               {getFieldIcon(field)}
                               <span className="text-sm font-medium text-gray-700">
@@ -227,65 +249,65 @@ const ViewModal: React.FC<ViewModalProps> = ({
                                 {formatValue(field)}
                               </div>
                             </div>
-                          </motion.div>);
-
-                  })}
+                          </motion.div>
+                        );
+                      })}
                     </div>
-                }
+                  )}
                 </div>
               </div>
 
-              <Separator />
+              <Separator className="flex-shrink-0" />
 
-              <div className="flex items-center justify-between pt-4">
+              <div className="flex items-center justify-between pt-4 flex-shrink-0">
                 <div className="flex items-center space-x-2 text-xs text-gray-500">
                   <Clock className="w-3 h-3" />
                   <span>Press V to view, E to edit, D to delete</span>
                 </div>
                 
                 <div className="flex items-center space-x-2">
-                  {canExport && onExport &&
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onExport}
-                  className="flex items-center space-x-1">
-
+                  {canExport && onExport && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={onExport}
+                      className="flex items-center space-x-1"
+                    >
                       <Download className="w-4 h-4" />
                       <span>Export</span>
                     </Button>
-                }
+                  )}
                   
-                  {canDelete && onDelete &&
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onDelete}
-                  className="text-red-600 hover:text-red-700 flex items-center space-x-1">
-
+                  {canDelete && onDelete && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={onDelete}
+                      className="text-red-600 hover:text-red-700 flex items-center space-x-1"
+                    >
                       <Trash2 className="w-4 h-4" />
                       <span>Delete</span>
                     </Button>
-                }
+                  )}
                   
-                  {canEdit && onEdit &&
-                <Button
-                  size="sm"
-                  onClick={onEdit}
-                  className="flex items-center space-x-1">
-
+                  {canEdit && onEdit && (
+                    <Button
+                      size="sm"
+                      onClick={onEdit}
+                      className="flex items-center space-x-1"
+                    >
                       <Edit className="w-4 h-4" />
                       <span>Edit</span>
                     </Button>
-                }
+                  )}
                 </div>
               </div>
             </motion.div>
-          }
+          )}
         </AnimatePresence>
       </DialogContent>
-    </Dialog>);
-
+    </Dialog>
+  );
 };
 
 export default ViewModal;
