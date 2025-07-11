@@ -13,12 +13,9 @@ import OptimizedLoader, { SmartSkeleton } from '@/components/OptimizedLoader';
 // Layout
 import DashboardLayout from '@/components/Layout/DashboardLayout';
 
-// Core Pages (loaded immediately)
+// Core Pages (loaded immediately) - Keep only critical pages as static imports
 import Dashboard from '@/pages/Dashboard';
 import LoginPage from '@/pages/LoginPage';
-import OnAuthSuccessPage from '@/pages/OnAuthSuccessPage';
-import ResetPasswordPage from '@/pages/ResetPasswordPage';
-import NotFound from '@/pages/NotFound';
 
 // Optimized lazy loading with better error handling
 const createOptimizedLazyRoute = (importFn: () => Promise<any>, componentName: string) => {
@@ -89,6 +86,11 @@ const OverflowTestingPage = createOptimizedLazyRoute(() => import('@/pages/Overf
 const FileUploadTestPage = createOptimizedLazyRoute(() => import('@/components/FileUploadTestPage'), 'FileUploadTestPage');
 const DatabaseMonitoring = createOptimizedLazyRoute(() => import('@/pages/Admin/DatabaseMonitoring'), 'DatabaseMonitoring');
 const AuditMonitoring = createOptimizedLazyRoute(() => import('@/pages/Admin/AuditMonitoring'), 'AuditMonitoring');
+
+// Previously static imports now lazy-loaded
+const OnAuthSuccessPage = createOptimizedLazyRoute(() => import('@/pages/OnAuthSuccessPage'), 'OnAuthSuccessPage');
+const ResetPasswordPage = createOptimizedLazyRoute(() => import('@/pages/ResetPasswordPage'), 'ResetPasswordPage');
+const NotFound = createOptimizedLazyRoute(() => import('@/pages/NotFound'), 'NotFound');
 
 import './App.css';
 
@@ -230,8 +232,8 @@ const AppRouter = () => {
         <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
-          <Route path="/resetpassword" element={<ResetPasswordPage />} />
+          <Route path="/onauthsuccess" element={<OptimizedLazyRoute componentName="OnAuthSuccessPage"><OnAuthSuccessPage /></OptimizedLazyRoute>} />
+          <Route path="/resetpassword" element={<OptimizedLazyRoute componentName="ResetPasswordPage"><ResetPasswordPage /></OptimizedLazyRoute>} />
           
           {/* Protected Routes */}
           <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
@@ -303,7 +305,7 @@ const AppRouter = () => {
           </Route>
           
           {/* 404 */}
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<OptimizedLazyRoute componentName="NotFound"><NotFound /></OptimizedLazyRoute>} />
         </Routes>
         
         {/* Auth Debugger - Only show in development or for debugging */}

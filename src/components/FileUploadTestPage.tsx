@@ -14,7 +14,8 @@ import {
   Settings,
   Zap,
   Image,
-  File } from
+  File,
+  Download } from
 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import EnhancedFileUpload from '@/components/EnhancedFileUpload';
