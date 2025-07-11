@@ -1204,8 +1204,8 @@ const ProductForm = () => {
                             title: "Image uploaded",
                             description: `${result.fileName} has been uploaded successfully`
                           });
-                        }}
-                      />
+                        }} />
+
                     </div>
                     <div className="space-y-2">
                       <Label>Product Documents</Label>
@@ -1223,26 +1223,26 @@ const ProductForm = () => {
                             title: "Document uploaded",
                             description: `${result.fileName} has been uploaded successfully`
                           });
-                        }}
-                      />
+                        }} />
+
                     </div>
                   </div>
                 </div>
 
                 {/* Display existing files if editing */}
-                {isEdit && parseInt(id || '0') > 0 && (
-                  <div className="space-y-4">
+                {isEdit && parseInt(id || '0') > 0 &&
+                <div className="space-y-4">
                     <h4 className="text-md font-medium">Uploaded Files</h4>
                     <FileDisplay
-                      associatedTable="products"
-                      associatedRecordId={parseInt(id || '0')}
-                      allowDelete={true}
-                      allowEdit={false}
-                      showDescription={true}
-                      viewMode="grid"
-                    />
+                    associatedTable="products"
+                    associatedRecordId={parseInt(id || '0')}
+                    allowDelete={true}
+                    allowEdit={false}
+                    showDescription={true}
+                    viewMode="grid" />
+
                   </div>
-                )}
+                }
               </div>
 
               {/* Form Actions */}

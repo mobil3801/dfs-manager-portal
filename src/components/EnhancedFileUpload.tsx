@@ -130,7 +130,7 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
       if (insertError) throw insertError;
 
       return {
-        fileId: insertResult.id,
+        fileId: insertResult.id || insertResult.ID,
         fileName: file.name,
         fileSize: file.size,
         fileType: file.type,

@@ -51,6 +51,7 @@ import NavigationDebugPage from '@/pages/Admin/NavigationDebugPage';
 import ProfilePictureDemo from '@/components/ProfilePictureDemo';
 import OverflowTestPage from '@/pages/OverflowTestPage';
 import OverflowTestingPage from '@/pages/OverflowTestingPage';
+import FileUploadTestPage from '@/components/FileUploadTestPage';
 
 import DatabaseMonitoring from '@/pages/Admin/DatabaseMonitoring';
 import AuditMonitoring from '@/pages/Admin/AuditMonitoring';
@@ -201,6 +202,7 @@ const AppRouter = () => {
             <Route path="profile-picture-demo" element={<ProfilePictureDemo />} />
             <Route path="overflow-test" element={<OverflowTestPage />} />
             <Route path="overflow-testing" element={<OverflowTestingPage />} />
+            <Route path="file-upload-test" element={<FileUploadTestPage />} />
             
             {/* Admin Routes */}
             <Route path="admin" element={<AdminPanel />} />

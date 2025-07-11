@@ -58,25 +58,21 @@ const DocumentsUploadSection: React.FC<DocumentsUploadSectionProps> = ({
   }];
 
 
-  const uploadDocument = async (field: string, file: File) => {
+  const uploadDocument = async (result: any) => {
     try {
-      const { data: fileId, error } = await window.ezsite.apis.upload({
-        filename: file.name,
-        file: file
-      });
-
-      if (error) throw error;
-      onChange(field, fileId);
+      // The EnhancedFileUpload with database storage handles the upload
+      // We just need to update the field with the store_file_id
+      onChange(result.field, result.storeFileId);
 
       toast({
         title: 'Success',
-        description: `${field.replace('FileId', '').replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())} uploaded successfully`
+        description: `${result.fileName} uploaded successfully and saved to database`
       });
     } catch (error) {
-      console.error('Error uploading document:', error);
+      console.error('Error processing upload:', error);
       toast({
         title: 'Error',
-        description: 'Failed to upload document',
+        description: 'Failed to process document upload',
         variant: 'destructive'
       });
     }
@@ -152,7 +148,15 @@ const DocumentsUploadSection: React.FC<DocumentsUploadSectionProps> = ({
                 
                 <div className="space-y-2">
                   <EnhancedFileUpload
-                    onFileSelect={(file) => uploadDocument(document.field, file)}
+                    onFileUpload={(result) => {
+                      // Pass the field information with the result
+                      uploadDocument({ ...result, field: document.field });
+                    }}
+                    useDatabaseStorage={true}
+                    associatedTable="sales_report_documents"
+                    associatedRecordId={0}
+                    fileCategory="sales_document"
+                    showPreview={true}
                     accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,image/*"
                     label={document.fileId ? 'Re-upload Document' : 'Upload Document'}
                     maxSize={15}

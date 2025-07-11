@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, FileText, Image, Loader2, Zap, X, Eye, Download, AlertCircle, CheckCircle } from 'lucide-react';
+import { Upload, FileText, Image, Loader2, Zap, Eye, Download, CheckCircle, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { compressImage, formatFileSize, isImageFile, type CompressionResult } from '@/utils/imageCompression';
 
@@ -18,13 +18,14 @@ interface FileUploadResult {
   fileType: string;
   storeFileId: number;
   uploadDate: string;
+  fileUrl: string;
   description?: string;
   fileCategory?: string;
-  fileUrl?: string;
 }
 
-interface DatabaseFileUploadProps {
-  onFileUpload: (result: FileUploadResult) => void;
+interface UnifiedFileUploadProps {
+  onFileUpload?: (result: FileUploadResult) => void;
+  onFileSelect?: (file: File) => void;
   accept?: string;
   label?: string;
   maxSize?: number; // in MB
@@ -32,53 +33,63 @@ interface DatabaseFileUploadProps {
   disabled?: boolean;
   associatedTable?: string;
   associatedRecordId?: number;
-  existingFiles?: FileUploadResult[];
+  fileCategory?: string;
   showPreview?: boolean;
   allowMultiple?: boolean;
-  fileCategory?: string;
   placeholder?: string;
+  // New props for unified functionality
+  mode?: 'database' | 'select' | 'both';
+  showSettings?: boolean;
+  requireDescription?: boolean;
+  customCategories?: string[];
 }
 
-const DatabaseFileUpload: React.FC<DatabaseFileUploadProps> = ({
+const UnifiedFileUpload: React.FC<UnifiedFileUploadProps> = ({
   onFileUpload,
-  accept = "image/*",
-  label = "Upload File",
+  onFileSelect,
+  accept = 'image/*,application/pdf,.doc,.docx,.xls,.xlsx,.csv,.txt',
+  label = 'Upload Files',
   maxSize = 10,
-  className = "",
+  className = '',
   disabled = false,
-  associatedTable = "",
+  associatedTable = '',
   associatedRecordId = 0,
-  existingFiles = [],
+  fileCategory = 'general',
   showPreview = true,
   allowMultiple = false,
-  fileCategory = "general",
-  placeholder = "Select files to upload..."
+  placeholder = 'Select files to upload...',
+  mode = 'database',
+  showSettings = true,
+  requireDescription = false,
+  customCategories = []
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [description, setDescription] = useState("");
+  const [description, setDescription] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(fileCategory);
   const [previewFiles, setPreviewFiles] = useState<string[]>([]);
+  const [uploadResults, setUploadResults] = useState<FileUploadResult[]>([]);
   const [compressionResults, setCompressionResults] = useState<CompressionResult[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const isImageUpload = accept.includes('image');
+  const defaultCategories = ['general', 'document', 'image', 'receipt', 'invoice', 'report', 'license', 'certificate'];
+  const availableCategories = customCategories.length > 0 ? customCategories : defaultCategories;
 
   const validateFile = (file: File): boolean => {
     if (file.size > maxSize * 1024 * 1024) {
       toast({
-        title: "File too large",
+        title: 'File too large',
         description: `File size must be less than ${maxSize}MB`,
-        variant: "destructive"
+        variant: 'destructive'
       });
       return false;
     }
 
-    if (accept && accept !== "*/*") {
+    if (accept && accept !== '*/*') {
       const acceptedTypes = accept.split(',').map((type) => type.trim());
       const isAccepted = acceptedTypes.some((type) => {
         if (type.startsWith('.')) {
@@ -93,9 +104,9 @@ const DatabaseFileUpload: React.FC<DatabaseFileUploadProps> = ({
 
       if (!isAccepted) {
         toast({
-          title: "Invalid file type",
+          title: 'Invalid file type',
           description: `Please select a file of type: ${accept}`,
-          variant: "destructive"
+          variant: 'destructive'
         });
         return false;
       }
@@ -116,11 +127,11 @@ const DatabaseFileUpload: React.FC<DatabaseFileUploadProps> = ({
           initialQuality: 0.8
         });
 
-        setCompressionResults((prev) => [...prev, result]);
+        setCompressionResults(prev => [...prev, result]);
 
         if (result.wasCompressed) {
           toast({
-            title: "Image compressed",
+            title: 'Image compressed',
             description: `File size reduced from ${formatFileSize(result.originalSize)} to ${formatFileSize(result.compressedSize)} (${result.compressionRatio.toFixed(1)}x smaller)`,
             duration: 5000
           });
@@ -130,9 +141,9 @@ const DatabaseFileUpload: React.FC<DatabaseFileUploadProps> = ({
       } catch (error) {
         console.error('Compression failed:', error);
         toast({
-          title: "Compression failed",
-          description: "Using original file instead",
-          variant: "destructive"
+          title: 'Compression failed',
+          description: 'Using original file instead',
+          variant: 'destructive'
         });
         return file;
       }
@@ -172,15 +183,15 @@ const DatabaseFileUpload: React.FC<DatabaseFileUploadProps> = ({
       if (insertError) throw insertError;
 
       return {
-        fileId: insertResult.id || insertResult.ID,
+        fileId: insertResult.id,
         fileName: file.name,
         fileSize: file.size,
         fileType: file.type,
         storeFileId: storeFileId,
         uploadDate: fileData.upload_date,
+        fileUrl: fileData.file_url,
         description: description,
-        fileCategory: selectedCategory,
-        fileUrl: fileData.file_url
+        fileCategory: selectedCategory
       };
     } catch (error) {
       console.error('Upload failed:', error);
@@ -206,8 +217,17 @@ const DatabaseFileUpload: React.FC<DatabaseFileUploadProps> = ({
     });
     setPreviewFiles(previewUrls);
 
-    // If single file and no custom description needed, upload immediately
-    if (validFiles.length === 1 && !allowMultiple && !description) {
+    // If mode is select only, call onFileSelect for each file
+    if (mode === 'select' && onFileSelect) {
+      validFiles.forEach(file => onFileSelect(file));
+      toast({
+        title: 'Files selected',
+        description: `${validFiles.length} file(s) selected successfully`
+      });
+    }
+
+    // If mode is database and no settings required, upload immediately
+    if (mode === 'database' && !showSettings && !requireDescription) {
       await handleUpload(validFiles);
     }
   };
@@ -215,33 +235,49 @@ const DatabaseFileUpload: React.FC<DatabaseFileUploadProps> = ({
   const handleUpload = async (filesToUpload: File[] = selectedFiles) => {
     if (filesToUpload.length === 0) return;
 
+    if (requireDescription && !description.trim()) {
+      toast({
+        title: 'Description required',
+        description: 'Please provide a description for the files',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setIsUploading(true);
-    setUploadProgress(0);
 
     try {
       const results: FileUploadResult[] = [];
-      const totalFiles = filesToUpload.length;
 
-      for (let i = 0; i < filesToUpload.length; i++) {
-        const file = filesToUpload[i];
-        setUploadProgress((i + 1) / totalFiles * 100);
-
+      for (const file of filesToUpload) {
         const processedFile = await processFile(file);
-        const result = await uploadToDatabase(processedFile);
-        results.push(result);
-
-        // Call the callback for each uploaded file
-        onFileUpload(result);
+        
+        if (mode === 'database' || mode === 'both') {
+          const result = await uploadToDatabase(processedFile);
+          results.push(result);
+          
+          if (onFileUpload) {
+            onFileUpload(result);
+          }
+        }
+        
+        if (mode === 'select' || mode === 'both') {
+          if (onFileSelect) {
+            onFileSelect(processedFile);
+          }
+        }
       }
 
+      setUploadResults(results);
+
       toast({
-        title: "Upload successful",
-        description: `${results.length} file(s) uploaded successfully`
+        title: 'Upload successful',
+        description: `${results.length} file(s) processed successfully`
       });
 
       // Reset form
       setSelectedFiles([]);
-      setDescription("");
+      setDescription('');
       setPreviewFiles([]);
       setCompressionResults([]);
       setIsOpen(false);
@@ -249,13 +285,12 @@ const DatabaseFileUpload: React.FC<DatabaseFileUploadProps> = ({
     } catch (error) {
       console.error('Upload failed:', error);
       toast({
-        title: "Upload failed",
-        description: typeof error === 'string' ? error : "An error occurred during upload",
-        variant: "destructive"
+        title: 'Upload failed',
+        description: typeof error === 'string' ? error : 'An error occurred during upload',
+        variant: 'destructive'
       });
     } finally {
       setIsUploading(false);
-      setUploadProgress(0);
     }
   };
 
@@ -273,16 +308,13 @@ const DatabaseFileUpload: React.FC<DatabaseFileUploadProps> = ({
     return <FileText className="h-4 w-4" />;
   };
 
-  const formatFileType = (type: string) => {
-    return type.split('/')[1]?.toUpperCase() || 'FILE';
-  };
-
   const closeDialog = () => {
     setIsOpen(false);
     setSelectedFiles([]);
-    setDescription("");
+    setDescription('');
     setPreviewFiles([]);
     setCompressionResults([]);
+    setUploadResults([]);
   };
 
   return (
@@ -293,7 +325,6 @@ const DatabaseFileUpload: React.FC<DatabaseFileUploadProps> = ({
             variant="outline"
             disabled={disabled}
             className="w-full flex items-center gap-2">
-
             {getFileIcon()}
             {label}
           </Button>
@@ -308,39 +339,6 @@ const DatabaseFileUpload: React.FC<DatabaseFileUploadProps> = ({
           </DialogHeader>
 
           <div className="space-y-6">
-            {/* Existing Files Display */}
-            {existingFiles.length > 0 &&
-            <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-medium">Existing Files</h3>
-                    <Badge variant="secondary">{existingFiles.length} files</Badge>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {existingFiles.map((file, index) =>
-                  <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        {getFileIcon(file.fileType)}
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate">{file.fileName}</p>
-                          <p className="text-sm text-gray-500">
-                            {formatFileSize(file.fileSize)} • {formatFileType(file.fileType)}
-                          </p>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline" onClick={() => window.open(file.fileUrl, '_blank')}>
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={() => window.open(file.fileUrl, '_blank')}>
-                            <Download className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                  )}
-                  </div>
-                </CardContent>
-              </Card>
-            }
-
             {/* File Upload Section */}
             <Card className="cursor-pointer hover:bg-gray-50 transition-colors">
               <CardContent className="p-6">
@@ -362,47 +360,47 @@ const DatabaseFileUpload: React.FC<DatabaseFileUploadProps> = ({
             </Card>
 
             {/* Selected Files Preview */}
-            {selectedFiles.length > 0 &&
-            <Card>
+            {selectedFiles.length > 0 && (
+              <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-medium">Selected Files</h3>
                     <Badge variant="secondary">{selectedFiles.length} files</Badge>
                   </div>
                   <div className="space-y-3">
-                    {selectedFiles.map((file, index) =>
-                  <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        {previewFiles[index] && isImageFile(file) ?
-                    <img
-                      src={previewFiles[index]}
-                      alt={file.name}
-                      className="w-12 h-12 object-cover rounded" /> :
-
-
-                    getFileIcon(file.type)
-                    }
+                    {selectedFiles.map((file, index) => (
+                      <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        {previewFiles[index] && isImageFile(file) ? (
+                          <img
+                            src={previewFiles[index]}
+                            alt={file.name}
+                            className="w-12 h-12 object-cover rounded"
+                          />
+                        ) : (
+                          getFileIcon(file.type)
+                        )}
                         <div className="flex-1 min-w-0">
                           <p className="font-medium truncate">{file.name}</p>
                           <p className="text-sm text-gray-500">
-                            {formatFileSize(file.size)} • {formatFileType(file.type)}
+                            {formatFileSize(file.size)} • {file.type.split('/')[1]?.toUpperCase()}
                           </p>
                         </div>
                         <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => removeSelectedFile(index)}>
+                          size="sm"
+                          variant="outline"
+                          onClick={() => removeSelectedFile(index)}>
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
-                  )}
+                    ))}
                   </div>
                 </CardContent>
               </Card>
-            }
+            )}
 
-            {/* Upload Configuration */}
-            {selectedFiles.length > 0 &&
-            <Card>
+            {/* Upload Settings */}
+            {selectedFiles.length > 0 && (mode === 'database' || mode === 'both') && showSettings && (
+              <Card>
                 <CardContent className="p-4 space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="category">File Category</Label>
@@ -411,45 +409,43 @@ const DatabaseFileUpload: React.FC<DatabaseFileUploadProps> = ({
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="general">General</SelectItem>
-                        <SelectItem value="document">Document</SelectItem>
-                        <SelectItem value="image">Image</SelectItem>
-                        <SelectItem value="receipt">Receipt</SelectItem>
-                        <SelectItem value="invoice">Invoice</SelectItem>
-                        <SelectItem value="report">Report</SelectItem>
-                        <SelectItem value="license">License</SelectItem>
-                        <SelectItem value="certificate">Certificate</SelectItem>
+                        {availableCategories.map(cat => (
+                          <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="description">Description (Optional)</Label>
+                    <Label htmlFor="description">
+                      Description {requireDescription && <span className="text-red-500">*</span>}
+                    </Label>
                     <Textarea
-                    id="description"
-                    placeholder="Enter a description for these files..."
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows={3} />
-
+                      id="description"
+                      placeholder="Enter a description for these files..."
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      rows={3}
+                      required={requireDescription}
+                    />
                   </div>
 
                   <div className="flex gap-2">
                     <Button
-                    onClick={() => handleUpload()}
-                    disabled={isUploading}
-                    className="flex-1">
-                      {isUploading ?
-                    <>
+                      onClick={() => handleUpload()}
+                      disabled={isUploading}
+                      className="flex-1">
+                      {isUploading ? (
+                        <>
                           <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                          Uploading... {uploadProgress.toFixed(0)}%
-                        </> :
-
-                    <>
+                          Uploading...
+                        </>
+                      ) : (
+                        <>
                           <Upload className="h-4 w-4 mr-2" />
                           Upload {selectedFiles.length} file(s)
                         </>
-                    }
+                      )}
                     </Button>
                     <Button variant="outline" onClick={closeDialog}>
                       Cancel
@@ -457,61 +453,76 @@ const DatabaseFileUpload: React.FC<DatabaseFileUploadProps> = ({
                   </div>
                 </CardContent>
               </Card>
-            }
+            )}
 
-            {/* Upload Progress */}
-            {isUploading &&
-            <Card className="border-blue-200 bg-blue-50">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
-                    <div className="flex-1">
-                      <p className="font-medium text-blue-800">Uploading files...</p>
-                      <div className="w-full bg-blue-200 rounded-full h-2 mt-2">
-                        <div
-                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${uploadProgress}%` }} />
-
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            }
-
-            {/* Compression Results */}
-            {compressionResults.length > 0 &&
-            <Card className="border-green-200 bg-green-50">
+            {/* Upload Results */}
+            {uploadResults.length > 0 && showPreview && (
+              <Card className="border-green-200 bg-green-50">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3 mb-3">
                     <CheckCircle className="h-5 w-5 text-green-600" />
-                    <h3 className="font-medium text-green-800">Compression Results</h3>
+                    <h3 className="font-medium text-green-800">Upload Successful!</h3>
                   </div>
-                  {compressionResults.map((result, index) =>
-                <div key={index} className="text-sm text-green-700 mb-1">
-                      {result.wasCompressed ?
-                  <>Size reduced: {formatFileSize(result.originalSize)} → {formatFileSize(result.compressedSize)} ({result.compressionRatio.toFixed(1)}x smaller)</> :
-
-                  <>File was already optimized</>
-                  }
-                    </div>
-                )}
+                  <div className="space-y-2">
+                    {uploadResults.map((result, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 bg-white rounded border">
+                        <div className="flex items-center gap-3">
+                          <FileText className="h-4 w-4 text-green-600" />
+                          <div>
+                            <p className="font-medium text-sm">{result.fileName}</p>
+                            <p className="text-xs text-gray-500">
+                              {formatFileSize(result.fileSize)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" onClick={() => window.open(result.fileUrl, '_blank')}>
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => window.open(result.fileUrl, '_blank')}>
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
-            }
+            )}
+
+            {/* Compression Results */}
+            {compressionResults.length > 0 && (
+              <Card className="border-blue-200 bg-blue-50">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Zap className="h-5 w-5 text-blue-600" />
+                    <h3 className="font-medium text-blue-800">Compression Results</h3>
+                  </div>
+                  {compressionResults.map((result, index) => (
+                    <div key={index} className="text-sm text-blue-700 mb-1">
+                      {result.wasCompressed ? (
+                        <>Size reduced: {formatFileSize(result.originalSize)} → {formatFileSize(result.compressedSize)} ({result.compressionRatio.toFixed(1)}x smaller)</>
+                      ) : (
+                        <>File was already optimized</>
+                      )}
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
 
             {/* File Info */}
             <div className="text-center text-sm text-gray-500">
               <p>Accepted file types: {accept}</p>
               <p>Maximum file size: {maxSize}MB</p>
-              {isImageUpload &&
-              <div className="mt-2 p-2 bg-green-50 rounded-lg border border-green-200">
+              {isImageUpload && (
+                <div className="mt-2 p-2 bg-green-50 rounded-lg border border-green-200">
                   <div className="flex items-center justify-center gap-2 text-green-700">
                     <Zap className="h-4 w-4" />
-                    <span className="text-xs font-medium">Auto-compression enabled for images &gt;1MB</span>
+                    <span className="text-xs font-medium">Auto-compression enabled for images >1MB</span>
                   </div>
                 </div>
-              }
+              )}
             </div>
           </div>
         </DialogContent>
@@ -524,10 +535,10 @@ const DatabaseFileUpload: React.FC<DatabaseFileUploadProps> = ({
         accept={accept}
         multiple={allowMultiple}
         onChange={handleFileSelect}
-        className="hidden" />
-
-    </div>);
-
+        className="hidden"
+      />
+    </div>
+  );
 };
 
-export default DatabaseFileUpload;
+export default UnifiedFileUpload;
