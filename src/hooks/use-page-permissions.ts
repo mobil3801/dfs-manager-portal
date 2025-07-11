@@ -97,11 +97,11 @@ export const usePagePermissions = (pageKey: string) => {
       // Parse detailed permissions
       let userPermissions: DetailedPermissions = {};
       try {
-        if (profile.detailed_permissions && 
-            profile.detailed_permissions.trim() !== '' && 
-            profile.detailed_permissions !== '{}' &&
-            profile.detailed_permissions !== 'null' &&
-            profile.detailed_permissions !== 'undefined') {
+        if (profile.detailed_permissions &&
+        profile.detailed_permissions.trim() !== '' &&
+        profile.detailed_permissions !== '{}' &&
+        profile.detailed_permissions !== 'null' &&
+        profile.detailed_permissions !== 'undefined') {
           // Additional safety check for valid JSON
           const trimmedPermissions = profile.detailed_permissions.trim();
           if (trimmedPermissions.startsWith('{') && trimmedPermissions.endsWith('}')) {
