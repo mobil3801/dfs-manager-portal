@@ -48,18 +48,18 @@ const EnhancedNavigationDebugger: React.FC = () => {
 
   // Navigation items for testing
   const navigationItems = [
-    { name: 'Dashboard', href: '/dashboard', icon: Home, requiredRole: null },
-    { name: 'Products', href: '/products', icon: Package, requiredRole: null },
-    { name: 'Sales', href: '/sales', icon: FileText, requiredRole: null },
-    { name: 'Delivery', href: '/delivery', icon: Truck, requiredRole: null },
-    { name: 'Employees', href: '/employees', icon: Users, requiredRole: 'manager' },
-    { name: 'Vendors', href: '/vendors', icon: Building, requiredRole: 'manager' },
-    { name: 'Orders', href: '/orders', icon: Package, requiredRole: 'manager' },
-    { name: 'Licenses', href: '/licenses', icon: Calendar, requiredRole: 'manager' },
-    { name: 'Salary', href: '/salary', icon: DollarSign, requiredRole: 'manager' },
-    { name: 'Settings', href: '/settings', icon: Settings, requiredRole: null },
-    { name: 'Admin', href: '/admin', icon: Shield, requiredRole: 'admin' }
-  ];
+  { name: 'Dashboard', href: '/dashboard', icon: Home, requiredRole: null },
+  { name: 'Products', href: '/products', icon: Package, requiredRole: null },
+  { name: 'Sales', href: '/sales', icon: FileText, requiredRole: null },
+  { name: 'Delivery', href: '/delivery', icon: Truck, requiredRole: null },
+  { name: 'Employees', href: '/employees', icon: Users, requiredRole: 'manager' },
+  { name: 'Vendors', href: '/vendors', icon: Building, requiredRole: 'manager' },
+  { name: 'Orders', href: '/orders', icon: Package, requiredRole: 'manager' },
+  { name: 'Licenses', href: '/licenses', icon: Calendar, requiredRole: 'manager' },
+  { name: 'Salary', href: '/salary', icon: DollarSign, requiredRole: 'manager' },
+  { name: 'Settings', href: '/settings', icon: Settings, requiredRole: null },
+  { name: 'Admin', href: '/admin', icon: Shield, requiredRole: 'admin' }];
+
 
   // Monitor screen size changes
   useEffect(() => {
@@ -84,7 +84,7 @@ const EnhancedNavigationDebugger: React.FC = () => {
     const checkNavigationVisibility = () => {
       const navElement = document.querySelector('nav');
       const navButtons = document.querySelectorAll('[data-testid^="nav-"]');
-      
+
       setNavigationVisible(navElement !== null && navButtons.length > 0);
     };
 
@@ -137,9 +137,9 @@ const EnhancedNavigationDebugger: React.FC = () => {
 
   const getScreenIcon = () => {
     switch (screenSize) {
-      case 'mobile': return <Smartphone className="h-4 w-4" />;
-      case 'tablet': return <Tablet className="h-4 w-4" />;
-      default: return <Monitor className="h-4 w-4" />;
+      case 'mobile':return <Smartphone className="h-4 w-4" />;
+      case 'tablet':return <Tablet className="h-4 w-4" />;
+      default:return <Monitor className="h-4 w-4" />;
     }
   };
 
@@ -216,8 +216,8 @@ const EnhancedNavigationDebugger: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             {navigationHealth.overallHealth ?
-              <CheckCircle className="h-5 w-5 text-green-500" /> :
-              <XCircle className="h-5 w-5 text-red-500" />
+            <CheckCircle className="h-5 w-5 text-green-500" /> :
+            <XCircle className="h-5 w-5 text-red-500" />
             }
             Navigation Health Status
           </CardTitle>
@@ -264,13 +264,13 @@ const EnhancedNavigationDebugger: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {diagnostics.map((diagnostic, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                {diagnostics.map((diagnostic, index) =>
+                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex items-center space-x-3">
-                      {diagnostic.passed ? 
-                        <CheckCircle className="h-5 w-5 text-green-500" /> :
-                        <XCircle className="h-5 w-5 text-red-500" />
-                      }
+                      {diagnostic.passed ?
+                    <CheckCircle className="h-5 w-5 text-green-500" /> :
+                    <XCircle className="h-5 w-5 text-red-500" />
+                    }
                       <div>
                         <div className="font-medium">{diagnostic.test}</div>
                         <div className="text-sm text-gray-600">{diagnostic.message}</div>
@@ -280,7 +280,7 @@ const EnhancedNavigationDebugger: React.FC = () => {
                       {diagnostic.passed ? 'PASS' : 'FAIL'}
                     </Badge>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -350,9 +350,9 @@ const EnhancedNavigationDebugger: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <span>Role:</span>
                   <Badge variant={
-                    isAdmin() ? 'default' :
-                    isManager() ? 'secondary' :
-                    'outline'
+                  isAdmin() ? 'default' :
+                  isManager() ? 'secondary' :
+                  'outline'
                   }>
                     {isAdmin() ? 'Admin' : isManager() ? 'Manager' : 'Employee'}
                   </Badge>
@@ -362,7 +362,7 @@ const EnhancedNavigationDebugger: React.FC = () => {
                   <span className="font-medium">{user?.ID || 'N/A'}</span>
                 </div>
                 {showSensitiveData && userProfile &&
-                  <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between">
                     <span>Profile Role:</span>
                     <span className="font-medium">{userProfile.role || 'N/A'}</span>
                   </div>
@@ -372,7 +372,7 @@ const EnhancedNavigationDebugger: React.FC = () => {
           </div>
 
           {authError &&
-            <Alert variant="destructive">
+          <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
                 <strong>Authentication Error:</strong> {authError}
@@ -390,8 +390,8 @@ const EnhancedNavigationDebugger: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {accessibleItems.map((item) => (
-                    <div key={item.href} className="flex items-center justify-between p-2 bg-green-50 rounded">
+                  {accessibleItems.map((item) =>
+                  <div key={item.href} className="flex items-center justify-between p-2 bg-green-50 rounded">
                       <div className="flex items-center gap-2">
                         <item.icon className="h-4 w-4" />
                         <span>{item.name}</span>
@@ -400,7 +400,7 @@ const EnhancedNavigationDebugger: React.FC = () => {
                         {item.requiredRole || 'All'}
                       </Badge>
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -412,8 +412,8 @@ const EnhancedNavigationDebugger: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {inaccessibleItems.map((item) => (
-                    <div key={item.href} className="flex items-center justify-between p-2 bg-red-50 rounded">
+                  {inaccessibleItems.map((item) =>
+                  <div key={item.href} className="flex items-center justify-between p-2 bg-red-50 rounded">
                       <div className="flex items-center gap-2">
                         <item.icon className="h-4 w-4" />
                         <span>{item.name}</span>
@@ -422,7 +422,7 @@ const EnhancedNavigationDebugger: React.FC = () => {
                         {item.requiredRole || 'All'}
                       </Badge>
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -443,8 +443,8 @@ const EnhancedNavigationDebugger: React.FC = () => {
 
                   return (
                     <div key={item.href} className={`flex items-center justify-between p-3 rounded border ${
-                      isCurrentPage ? 'bg-blue-50 border-blue-200' : 'bg-white'
-                    }`}>
+                    isCurrentPage ? 'bg-blue-50 border-blue-200' : 'bg-white'}`
+                    }>
                       <div className="flex items-center gap-3">
                         <item.icon className="h-5 w-5" />
                         <div>
@@ -457,15 +457,15 @@ const EnhancedNavigationDebugger: React.FC = () => {
                           {item.requiredRole || 'All Users'}
                         </Badge>
                         {hasAccess ?
-                          <CheckCircle className="h-5 w-5 text-green-500" /> :
-                          <XCircle className="h-5 w-5 text-red-500" />
+                        <CheckCircle className="h-5 w-5 text-green-500" /> :
+                        <XCircle className="h-5 w-5 text-red-500" />
                         }
                         {isCurrentPage &&
-                          <Badge variant="default">Current</Badge>
+                        <Badge variant="default">Current</Badge>
                         }
                       </div>
-                    </div>
-                  );
+                    </div>);
+
                 })}
               </div>
             </CardContent>
@@ -531,8 +531,8 @@ const EnhancedNavigationDebugger: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default EnhancedNavigationDebugger;

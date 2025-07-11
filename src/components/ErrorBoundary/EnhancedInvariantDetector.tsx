@@ -282,6 +282,8 @@ const EnhancedInvariantDetector: React.FC = () => {
 
 
 
+
+
           // Silent catch for individual element processing
         }});keyMap.forEach((data, key) => {if (data.count > 1) {violations.push({ type: 'duplicate-key', severity: 'high', message: `Duplicate React key detected: "${key}" used ${data.count} times. This can cause invariant violations.`, fixSuggestion: 'Use unique keys for each element in lists. Consider using item.id + index or UUID.', component: data.element.tagName?.toLowerCase() });}});} catch (error) {console.warn('Error detecting duplicate keys:', error);}return violations;}, []); // Enhanced React Fiber state detection
   const detectFiberInconsistencies = useCallback(() => {const violations: Omit<InvariantViolation, 'id' | 'timestamp'>[] = [];try {const reactRoots = document.querySelectorAll('[data-reactroot], #root, [id*="react"]');reactRoots.forEach((root) => {try {const fiber = (root as any)._reactInternalFiber || (root as any).__reactInternalInstance || (root as any)._reactRootContainer;if (fiber) {// Check for common fiber inconsistencies
@@ -373,9 +375,7 @@ const EnhancedInvariantDetector: React.FC = () => {
         if (errorMessage.includes('Warning:') && (errorMessage.includes('Each child in a list should have a unique "key"') || errorMessage.includes('validateDOMNesting') || errorMessage.includes('Cannot update a component') || errorMessage.includes('Maximum update depth exceeded'))) {addViolation({ type: 'react-error', severity: 'high', message: `React Warning (potential invariant): ${errorMessage}`, fixSuggestion: 'Address this warning to prevent potential invariant violations.' });}originalError.apply(console, args);};console.warn = (...args) => {const warnMessage = args.join(' ');if (warnMessage.includes('Warning:') && (warnMessage.includes('key') || warnMessage.includes('ref') || warnMessage.includes('React.createElement') || warnMessage.includes('validateDOMNesting'))) {addViolation({ type: 'react-error', severity: 'medium', message: `React Warning: ${warnMessage}`, fixSuggestion: 'Address this warning to maintain React consistency.' });}originalWarn.apply(console, args);}; // Enhanced unhandled rejection handling
       const handleRejection = (event: PromiseRejectionEvent) => {const reason = String(event.reason);if (reason.includes('Invariant') || reason.includes('invariant')) {addViolation({ type: 'react-error', severity: 'high', message: `Unhandled Promise Rejection (Invariant): ${reason}`, fixSuggestion: 'Handle promises properly and check for async state updates.' });}};window.addEventListener('unhandledrejection', handleRejection); // Global error handler
       const handleGlobalError = (event: ErrorEvent) => {const message = event.message || String(event.error);if (message.includes('Invariant') || message.includes('invariant')) {addViolation({ type: 'react-error', severity: 'critical', message: `Global Error (Invariant): ${message}`, stackTrace: event.error?.stack, fixSuggestion: 'Check the stack trace for the source of the invariant violation.' });}};window.addEventListener('error', handleGlobalError);return () => {console.error = originalError;console.warn = originalWarn;window.removeEventListener('unhandledrejection', handleRejection);window.removeEventListener('error', handleGlobalError);};}, [addViolation]);useEffect(() => {if (!isActive) return; // Initial scan
-      scanForViolations();const interval = setInterval(scanForViolations, 2000);
-
-      // Enhanced mutation observer
+      scanForViolations();const interval = setInterval(scanForViolations, 2000); // Enhanced mutation observer
       const observer = new MutationObserver((mutations) => {
         let shouldScan = false;
 

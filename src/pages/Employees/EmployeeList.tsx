@@ -44,7 +44,6 @@ const EmployeeList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStation, setSelectedStation] = useState<string>('ALL');
-  const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -65,11 +64,9 @@ const EmployeeList: React.FC = () => {
   const canEditEmployee = canEdit('employees');
   const canDeleteEmployee = canDelete('employees');
 
-  const pageSize = 10;
-
   useEffect(() => {
     loadEmployees();
-  }, [currentPage, searchTerm, selectedStation]);
+  }, [searchTerm, selectedStation]);
 
   const loadEmployees = async () => {
     try {
@@ -84,9 +81,10 @@ const EmployeeList: React.FC = () => {
         filters.push({ name: 'station', op: 'Equal', value: selectedStation });
       }
 
+      // Fetch all employees by setting a very high PageSize
       const { data, error } = await window.ezsite.apis.tablePage('11727', {
-        PageNo: currentPage,
-        PageSize: pageSize,
+        PageNo: 1,
+        PageSize: 10000, // Set a very high page size to get all employees
         OrderByField: 'ID',
         IsAsc: true,
         Filters: filters
@@ -276,8 +274,6 @@ const EmployeeList: React.FC = () => {
     return new Date(dateString).toLocaleDateString();
   };
 
-  const totalPages = Math.ceil(totalCount / pageSize);
-
   // Define view modal fields with profile picture and employment status
   const getViewModalFields = (employee: Employee) => [
   {
@@ -394,10 +390,10 @@ const EmployeeList: React.FC = () => {
               <div>
                 <CardTitle className="flex items-center space-x-2 text-lg">
                   <Users className="w-5 h-5" />
-                  <span>Employees</span>
+                  <span>All Employees</span>
                 </CardTitle>
                 <CardDescription className="text-sm">
-                  Manage your team
+                  Displaying all {totalCount} employees
                 </CardDescription>
               </div>
               
@@ -536,31 +532,6 @@ const EmployeeList: React.FC = () => {
               )}
               </div>
             }
-
-            {/* Pagination */}
-            {totalPages > 1 &&
-            <div className="flex items-center justify-between pt-4">
-                <p className="text-xs text-gray-700">
-                  {(currentPage - 1) * pageSize + 1}-{Math.min(currentPage * pageSize, totalCount)} of {totalCount}
-                </p>
-                <div className="flex space-x-2">
-                  <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}>
-                    Previous
-                  </Button>
-                  <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}>
-                    Next
-                  </Button>
-                </div>
-              </div>
-            }
           </CardContent>
         </Card>
 
@@ -598,10 +569,10 @@ const EmployeeList: React.FC = () => {
             <div className="flex flex-col">
               <CardTitle className="flex items-center space-x-2">
                 <Users className="w-6 h-6" />
-                <span>Employee List</span>
+                <span>All Employees</span>
               </CardTitle>
               <CardDescription>
-                Manage your employees across all stations
+                Displaying all {totalCount} employees across all stations
               </CardDescription>
             </div>
             
@@ -800,33 +771,13 @@ const EmployeeList: React.FC = () => {
             </div>
           }
 
-          {/* Pagination */}
-          {totalPages > 1 &&
-          <div className="flex items-center justify-between mt-6">
-              <p className="text-sm text-gray-700">
-                Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} employees
-              </p>
-              <div className="flex items-center space-x-2">
-                <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}>
-                  Previous
-                </Button>
-                <span className="text-sm">
-                  Page {currentPage} of {totalPages}
-                </span>
-                <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}>
-                  Next
-                </Button>
-              </div>
-            </div>
-          }
+          {/* Summary Information */}
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-600">
+              <strong>Total Employees:</strong> {totalCount} • 
+              <strong> Currently Showing:</strong> All employees on one page
+            </p>
+          </div>
         </CardContent>
       </Card>
       
