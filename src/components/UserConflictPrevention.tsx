@@ -180,13 +180,13 @@ const UserConflictPrevention: React.FC = () => {
 
 
 
+
+
         // User not found or not logged in - this is fine for email uniqueness check
       } // Check email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;if (!emailRegex.test(email)) {results.push({ isValid: false, type: 'email', message: 'Invalid email format.', severity: 'error' });}if (results.length === 0) {results.push({ isValid: true, type: 'email', message: 'Email is available and valid.', severity: 'info' });}setValidationResults(results);} catch (error) {console.error('Error validating email:', error);} finally {setIsValidating(false);}};const validateRoleConflict = () => {if (!roleToCheck || !stationToCheck) {toast({ title: "Validation Required", description: "Please select both role and station to check for conflicts", variant: "destructive" });return;}const results: ValidationResult[] = []; // Check for role conflicts
     const conflictingUsers = existingUsers.filter((user) => user.role === roleToCheck && user.station === stationToCheck && user.is_active);if (conflictingUsers.length > 0) {// Special handling for Administrator role
-      if (roleToCheck === 'Administrator') {results.push({ isValid: false, type: 'role', message: `Administrator role already exists for ${stationToCheck}. Multiple administrators per station may cause conflicts.`, severity: 'warning' });} else {results.push({ isValid: true, type: 'role', message: `${conflictingUsers.length} user(s) already have the ${roleToCheck} role at ${stationToCheck}. This may be acceptable.`, severity: 'info' });}} else {results.push({ isValid: true, type: 'role', message: `No conflicts found for ${roleToCheck} role at ${stationToCheck}.`, severity: 'info'
-        });
-    }
+      if (roleToCheck === 'Administrator') {results.push({ isValid: false, type: 'role', message: `Administrator role already exists for ${stationToCheck}. Multiple administrators per station may cause conflicts.`, severity: 'warning' });} else {results.push({ isValid: true, type: 'role', message: `${conflictingUsers.length} user(s) already have the ${roleToCheck} role at ${stationToCheck}. This may be acceptable.`, severity: 'info' });}} else {results.push({ isValid: true, type: 'role', message: `No conflicts found for ${roleToCheck} role at ${stationToCheck}.`, severity: 'info' });}
 
     setValidationResults(results);
   };

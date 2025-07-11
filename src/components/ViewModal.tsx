@@ -175,31 +175,21 @@ const ViewModal: React.FC<ViewModalProps> = ({
             transition={{ duration: 0.2 }}>
 
               <DialogHeader className="border-b pb-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Eye className="w-6 h-6 text-blue-600" />
-                    <div>
-                      <DialogTitle className="text-xl font-bold">{title}</DialogTitle>
-                      {subtitle &&
-                    <DialogDescription className="mt-1">
-                          {subtitle}
-                        </DialogDescription>
-                    }
-                    </div>
+                <div className="flex items-center space-x-2">
+                  <Eye className="w-6 h-6 text-blue-600" />
+                  <div>
+                    <DialogTitle className="text-xl font-bold">{title}</DialogTitle>
+                    {subtitle &&
+                  <DialogDescription className="mt-1">
+                        {subtitle}
+                      </DialogDescription>
+                  }
                   </div>
-                  <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onClose}
-                  className="text-gray-500 hover:text-gray-700">
-
-                    <X className="w-4 h-4" />
-                  </Button>
                 </div>
               </DialogHeader>
 
               <ScrollArea className="max-h-[60vh] pr-4">
-                <div className="space-y-6 py-6">
+                <div className="space-y-6 py-6 min-h-0">
                   {loading ?
                 <div className="space-y-4">
                       {[...Array(6)].map((_, i) =>
