@@ -8,6 +8,7 @@ import { ModuleAccessProvider } from '@/contexts/ModuleAccessContext';
 import { ResponsiveLayoutProvider } from '@/contexts/ResponsiveLayoutContext';
 import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
 import AuthDebugger from '@/components/AuthDebugger';
+import MobileOptimizedApp from '@/components/MobileOptimizedApp';
 
 
 // Layout
@@ -51,12 +52,14 @@ import AuthDiagnosticPage from '@/pages/AuthDiagnosticPage';
 import ModuleAccessPage from '@/pages/Admin/ModuleAccessPage';
 import ProfilePictureDemo from '@/components/ProfilePictureDemo';
 import DeviceInfoDisplay from '@/components/DeviceInfoDisplay';
+import MobileResponsivePage from '@/components/MobileResponsivePage';
+import MobileCompatibilityChecker from '@/components/MobileCompatibilityChecker';
 
 import DatabaseMonitoring from '@/pages/Admin/DatabaseMonitoring';
 import AuditMonitoring from '@/pages/Admin/AuditMonitoring';
 
-const DeviceInfoDemo = () => (
-  <div className="space-y-6">
+const DeviceInfoDemo = () =>
+<div className="space-y-6">
     <div>
       <h1 className="text-2xl font-bold text-gray-900">Device Detection Demo</h1>
       <p className="mt-2 text-gray-600">
@@ -64,8 +67,8 @@ const DeviceInfoDemo = () => (
       </p>
     </div>
     <DeviceInfoDisplay showDetailed={true} />
-  </div>
-);
+  </div>;
+
 
 import './App.css';
 
@@ -215,6 +218,12 @@ const AppRouter = () => {
             {/* Device Info Demo */}
             <Route path="device-info" element={<DeviceInfoDemo />} />
             
+            {/* Mobile Responsive Demo */}
+            <Route path="mobile-responsive" element={<MobileResponsivePage />} />
+            
+            {/* Mobile Compatibility Checker */}
+            <Route path="mobile-compatibility" element={<MobileCompatibilityChecker />} />
+            
             {/* Admin Routes */}
             <Route path="admin" element={<AdminPanel />} />
             <Route path="admin/users" element={<UserManagement />} />
@@ -237,8 +246,8 @@ const AppRouter = () => {
         {/* Auth Debugger - Only show in development or for debugging */}
         <AuthDebugger />
       </div>
-    </Router>
-  );
+    </Router>);
+
 };
 
 function App() {
@@ -249,7 +258,9 @@ function App() {
           <AuthProvider>
             <ModuleAccessProvider>
               <ResponsiveLayoutProvider>
-                <AppRouter />
+                <MobileOptimizedApp>
+                  <AppRouter />
+                </MobileOptimizedApp>
               </ResponsiveLayoutProvider>
             </ModuleAccessProvider>
           </AuthProvider>

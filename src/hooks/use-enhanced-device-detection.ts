@@ -73,7 +73,7 @@ const DEVICE_PATTERNS = {
       'iPhone 6s Plus': /iPhone8,2/,
       'iPhone 6s': /iPhone8,1/,
       'iPhone 6 Plus': /iPhone7,1/,
-      'iPhone 6': /iPhone7,2/,
+      'iPhone 6': /iPhone7,2/
     }
   },
   Samsung: {
@@ -96,7 +96,7 @@ const DEVICE_PATTERNS = {
       'Galaxy Z Fold 5': /SM-F946/,
       'Galaxy Z Flip 5': /SM-F731/,
       'Galaxy Z Fold 4': /SM-F936/,
-      'Galaxy Z Flip 4': /SM-F721/,
+      'Galaxy Z Flip 4': /SM-F721/
     }
   },
   Google: {
@@ -111,7 +111,7 @@ const DEVICE_PATTERNS = {
       'Pixel 5': /Pixel 5/,
       'Pixel 4a': /Pixel 4a/,
       'Pixel 4': /Pixel 4/,
-      'Pixel 3': /Pixel 3/,
+      'Pixel 3': /Pixel 3/
     }
   },
   OnePlus: {
@@ -125,7 +125,7 @@ const DEVICE_PATTERNS = {
       'OnePlus 8T': /OnePlus8T/,
       'OnePlus 8 Pro': /OnePlus8Pro/,
       'OnePlus 8': /OnePlus8/,
-      'OnePlus Nord': /OnePlusNord/,
+      'OnePlus Nord': /OnePlusNord/
     }
   },
   Xiaomi: {
@@ -139,7 +139,7 @@ const DEVICE_PATTERNS = {
       'Mi 12': /2201123G/,
       'Redmi Note 13': /2312DRA50G/,
       'Redmi Note 12': /2211133G/,
-      'Redmi 12': /2306EPN60G/,
+      'Redmi 12': /2306EPN60G/
     }
   },
   Huawei: {
@@ -151,7 +151,7 @@ const DEVICE_PATTERNS = {
       'Mate 50 Pro': /DCO-L29/,
       'Nova 12': /BON-L29/,
       'Honor 90': /REA-L29/,
-      'Honor Magic 5': /PXD-L29/,
+      'Honor Magic 5': /PXD-L29/
     }
   },
   Oppo: {
@@ -162,7 +162,7 @@ const DEVICE_PATTERNS = {
       'Reno 11 Pro': /RMX3896/,
       'Reno 10 Pro': /RMX3663/,
       'A98': /RMX3834/,
-      'A78': /RMX3781/,
+      'A78': /RMX3781/
     }
   },
   Vivo: {
@@ -173,7 +173,7 @@ const DEVICE_PATTERNS = {
       'V29 Pro': /V2250/,
       'V27 Pro': /V2158/,
       'Y100': /V2237/,
-      'Y36': /V2351/,
+      'Y36': /V2351/
     }
   }
 };
@@ -205,7 +205,7 @@ export function useEnhancedDeviceDetection(): DeviceSpecs {
           supportsWebP: false,
           supportsIntersectionObserver: false,
           supportsPassiveEvents: false,
-          maxTouchPoints: 0,
+          maxTouchPoints: 0
         }
       };
     }
@@ -238,28 +238,28 @@ function detectDevice(): DeviceSpecs {
   const userAgent = navigator.userAgent;
   const screenWidth = window.innerWidth;
   const screenHeight = window.innerHeight;
-  
+
   // Detect brand and model
   const { brand, model } = detectBrandAndModel(userAgent);
-  
+
   // Detect OS
   const { os, osVersion } = detectOS(userAgent);
-  
+
   // Detect browser
   const { browser, browserVersion } = detectBrowser(userAgent);
-  
+
   // Device classification
   const isMobile = screenWidth < MOBILE_BREAKPOINT;
   const isTablet = screenWidth >= MOBILE_BREAKPOINT && screenWidth < TABLET_BREAKPOINT;
   const isDesktop = screenWidth >= TABLET_BREAKPOINT;
-  
+
   let deviceType: 'phone' | 'tablet' | 'desktop' = 'desktop';
-  if (isMobile) deviceType = 'phone';
-  else if (isTablet) deviceType = 'tablet';
-  
+  if (isMobile) deviceType = 'phone';else
+  if (isTablet) deviceType = 'tablet';
+
   // Detect capabilities
   const capabilities = detectCapabilities();
-  
+
   return {
     brand,
     model,
@@ -280,7 +280,7 @@ function detectDevice(): DeviceSpecs {
   };
 }
 
-function detectBrandAndModel(userAgent: string): { brand: string; model: string } {
+function detectBrandAndModel(userAgent: string): {brand: string;model: string;} {
   // Check for iPhone first
   if (DEVICE_PATTERNS.iPhone.pattern.test(userAgent)) {
     for (const [modelName, pattern] of Object.entries(DEVICE_PATTERNS.iPhone.models)) {
@@ -294,7 +294,7 @@ function detectBrandAndModel(userAgent: string): { brand: string; model: string 
   // Check other brands
   for (const [brandName, brandData] of Object.entries(DEVICE_PATTERNS)) {
     if (brandName === 'iPhone') continue; // Already checked
-    
+
     if (brandData.pattern.test(userAgent)) {
       for (const [modelName, pattern] of Object.entries(brandData.models)) {
         if (pattern.test(userAgent)) {
@@ -319,7 +319,7 @@ function detectBrandAndModel(userAgent: string): { brand: string; model: string 
   return { brand: 'Unknown', model: 'Unknown' };
 }
 
-function detectOS(userAgent: string): { os: string; osVersion: string } {
+function detectOS(userAgent: string): {os: string;osVersion: string;} {
   if (/iPhone|iPad|iPod/i.test(userAgent)) {
     const match = userAgent.match(/OS (\d+)[_.](\d+)[_.]?(\d+)?/);
     if (match) {
@@ -355,7 +355,7 @@ function detectOS(userAgent: string): { os: string; osVersion: string } {
   return { os: 'Unknown', osVersion: 'Unknown' };
 }
 
-function detectBrowser(userAgent: string): { browser: string; browserVersion: string } {
+function detectBrowser(userAgent: string): {browser: string;browserVersion: string;} {
   if (/Chrome/i.test(userAgent) && !/Edge/i.test(userAgent)) {
     const match = userAgent.match(/Chrome\/(\d+(?:\.\d+)*)/);
     return { browser: 'Chrome', browserVersion: match ? match[1] : 'Unknown' };
@@ -382,7 +382,7 @@ function detectBrowser(userAgent: string): { browser: string; browserVersion: st
 function detectCapabilities() {
   const canvas = document.createElement('canvas');
   const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-  
+
   return {
     supportsWebGL: !!gl,
     supportsWebP: (() => {
@@ -406,7 +406,7 @@ function detectCapabilities() {
       }
       return passiveSupported;
     })(),
-    maxTouchPoints: navigator.maxTouchPoints || 0,
+    maxTouchPoints: navigator.maxTouchPoints || 0
   };
 }
 
@@ -417,15 +417,15 @@ export function useDeviceOptimizations(): DeviceOptimizations {
   return React.useMemo(() => {
     const isLowEndDevice = device.devicePixelRatio < 2 && device.screenWidth < 375;
     const isHighEndDevice = device.devicePixelRatio >= 3 && device.screenWidth >= 414;
-    
+
     return {
       useLazyLoading: device.isMobile || isLowEndDevice,
       useVirtualScrolling: device.isMobile && device.screenWidth < 375,
-      reducedAnimations: isLowEndDevice || (device.brand === 'Android' && parseFloat(device.osVersion) < 8),
+      reducedAnimations: isLowEndDevice || device.brand === 'Android' && parseFloat(device.osVersion) < 8,
       compactLayout: device.isMobile || device.screenWidth < 375,
       largeClickTargets: device.touchDevice,
       highDPIOptimizations: device.devicePixelRatio >= 2,
-      batteryOptimizations: device.isMobile && isLowEndDevice,
+      batteryOptimizations: device.isMobile && isLowEndDevice
     };
   }, [device]);
 }
@@ -443,7 +443,7 @@ export function useDeviceStyles() {
       heading: device.isMobile ? 'text-lg' : device.isTablet ? 'text-xl' : 'text-2xl',
       button: optimizations.largeClickTargets ? 'min-h-[44px] px-4' : 'min-h-[36px] px-3',
       input: optimizations.largeClickTargets ? 'min-h-[44px]' : 'min-h-[36px]',
-      spacing: device.isMobile ? 'space-y-2' : device.isTablet ? 'space-y-3' : 'space-y-4',
+      spacing: device.isMobile ? 'space-y-2' : device.isTablet ? 'space-y-3' : 'space-y-4'
     };
 
     // Device-specific adjustments
@@ -451,31 +451,31 @@ export function useDeviceStyles() {
       // iPhone specific
       ...(device.brand === 'Apple' && device.model.includes('iPhone') && {
         safeArea: 'pb-safe-area-inset-bottom pt-safe-area-inset-top',
-        notchHandling: device.model.includes('iPhone X') || device.model.includes('iPhone 11') || 
-                      device.model.includes('iPhone 12') || device.model.includes('iPhone 13') ||
-                      device.model.includes('iPhone 14') || device.model.includes('iPhone 15'),
+        notchHandling: device.model.includes('iPhone X') || device.model.includes('iPhone 11') ||
+        device.model.includes('iPhone 12') || device.model.includes('iPhone 13') ||
+        device.model.includes('iPhone 14') || device.model.includes('iPhone 15')
       }),
-      
+
       // Samsung specific
       ...(device.brand === 'Samsung' && {
         oneUI: 'rounded-lg', // Samsung's One UI prefers rounded corners
-        edgeHandling: device.model.includes('Edge') ? 'px-2' : '',
+        edgeHandling: device.model.includes('Edge') ? 'px-2' : ''
       }),
-      
+
       // Foldable devices
       ...(device.model.includes('Fold') && {
-        foldable: 'max-w-sm mx-auto', // Optimize for folded state
+        foldable: 'max-w-sm mx-auto' // Optimize for folded state
       }),
-      
+
       // Small screens
       ...(device.screenWidth < 375 && {
-        compact: 'text-xs px-2 py-1',
+        compact: 'text-xs px-2 py-1'
       }),
-      
+
       // High DPI screens
       ...(device.devicePixelRatio >= 3 && {
-        highDPI: 'text-sm leading-relaxed',
-      }),
+        highDPI: 'text-sm leading-relaxed'
+      })
     };
 
     return { ...baseStyles, ...deviceSpecificStyles };

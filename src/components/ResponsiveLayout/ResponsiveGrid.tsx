@@ -11,10 +11,10 @@ interface ResponsiveGridProps {
   autoFit?: boolean;
 }
 
-export function ResponsiveGrid({ 
-  children, 
-  className = '', 
-  minItemWidth = 280, 
+export function ResponsiveGrid({
+  children,
+  className = '',
+  minItemWidth = 280,
   maxColumns = 4,
   gap = 'md',
   autoFit = true
@@ -31,33 +31,33 @@ export function ResponsiveGrid({
     if (device.isMobile) {
       return 'grid grid-cols-1';
     }
-    
+
     if (device.isTablet) {
       return 'grid grid-cols-2 lg:grid-cols-3';
     }
-    
+
     if (autoFit) {
       return `grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-${Math.min(maxColumns, 4)}`;
     }
-    
-    return `grid grid-cols-${layoutConfig.contentLayout === 'single-column' ? 1 : 
-                           layoutConfig.contentLayout === 'two-column' ? 2 : 3}`;
+
+    return `grid grid-cols-${layoutConfig.contentLayout === 'single-column' ? 1 :
+    layoutConfig.contentLayout === 'two-column' ? 2 : 3}`;
   }, [device, layoutConfig, autoFit, maxColumns]);
 
   return (
-    <div 
+    <div
       className={cn(
         gridClasses,
         gapClasses[gap],
         className
       )}
-      style={autoFit ? { 
-        gridTemplateColumns: `repeat(auto-fit, minmax(${minItemWidth}px, 1fr))` 
-      } : undefined}
-    >
+      style={autoFit ? {
+        gridTemplateColumns: `repeat(auto-fit, minmax(${minItemWidth}px, 1fr))`
+      } : undefined}>
+
       {children}
-    </div>
-  );
+    </div>);
+
 }
 
 interface ResponsiveColumnsProps {
@@ -70,26 +70,26 @@ interface ResponsiveColumnsProps {
   };
 }
 
-export function ResponsiveColumns({ 
-  children, 
+export function ResponsiveColumns({
+  children,
   className = '',
   columns = { mobile: 1, tablet: 2, desktop: 3 }
 }: ResponsiveColumnsProps) {
   const { device } = useResponsiveLayout();
 
   const columnClasses = React.useMemo(() => {
-    const cols = device.isMobile ? columns.mobile : 
-                 device.isTablet ? columns.tablet : 
-                 columns.desktop;
-    
+    const cols = device.isMobile ? columns.mobile :
+    device.isTablet ? columns.tablet :
+    columns.desktop;
+
     return `grid grid-cols-${cols}`;
   }, [device, columns]);
 
   return (
     <div className={cn(columnClasses, 'gap-4', className)}>
       {children}
-    </div>
-  );
+    </div>);
+
 }
 
 interface ResponsiveStackProps {
@@ -101,8 +101,8 @@ interface ResponsiveStackProps {
   spacing?: 'tight' | 'normal' | 'loose';
 }
 
-export function ResponsiveStack({ 
-  children, 
+export function ResponsiveStack({
+  children,
   className = '',
   direction = 'responsive',
   align = 'stretch',
@@ -113,7 +113,7 @@ export function ResponsiveStack({
 
   const stackClasses = React.useMemo(() => {
     const baseClasses = ['flex'];
-    
+
     // Direction
     if (direction === 'vertical') {
       baseClasses.push('flex-col');
@@ -123,7 +123,7 @@ export function ResponsiveStack({
       // Responsive direction
       baseClasses.push(device.isMobile ? 'flex-col' : 'flex-row');
     }
-    
+
     // Alignment
     const alignClasses = {
       start: 'items-start',
@@ -132,7 +132,7 @@ export function ResponsiveStack({
       stretch: 'items-stretch'
     };
     baseClasses.push(alignClasses[align]);
-    
+
     // Justify
     const justifyClasses = {
       start: 'justify-start',
@@ -142,7 +142,7 @@ export function ResponsiveStack({
       around: 'justify-around'
     };
     baseClasses.push(justifyClasses[justify]);
-    
+
     // Spacing
     const spacingClasses = {
       tight: device.isMobile ? 'gap-1' : 'gap-2',
@@ -150,15 +150,15 @@ export function ResponsiveStack({
       loose: device.isMobile ? 'gap-4' : 'gap-6'
     };
     baseClasses.push(spacingClasses[spacing || layoutConfig.spacing]);
-    
+
     return baseClasses.join(' ');
   }, [device, direction, align, justify, spacing, layoutConfig.spacing]);
 
   return (
     <div className={cn(stackClasses, className)}>
       {children}
-    </div>
-  );
+    </div>);
+
 }
 
 interface ResponsiveCardProps {
@@ -169,8 +169,8 @@ interface ResponsiveCardProps {
   padding?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
-export function ResponsiveCard({ 
-  children, 
+export function ResponsiveCard({
+  children,
   className = '',
   variant,
   interactive = false,
@@ -180,7 +180,7 @@ export function ResponsiveCard({
 
   const cardClasses = React.useMemo(() => {
     const baseClasses = ['rounded-lg border bg-card text-card-foreground shadow-sm'];
-    
+
     // Variant
     const cardVariant = variant || layoutConfig.cardLayout;
     if (cardVariant === 'compact') {
@@ -190,7 +190,7 @@ export function ResponsiveCard({
     } else {
       baseClasses.push('p-6');
     }
-    
+
     // Custom padding override
     if (padding) {
       baseClasses.pop(); // Remove default padding
@@ -202,29 +202,29 @@ export function ResponsiveCard({
       };
       baseClasses.push(paddingClasses[padding]);
     }
-    
+
     // Interactive
     if (interactive) {
       baseClasses.push('cursor-pointer hover:shadow-md transition-shadow');
     }
-    
+
     // Device-specific adjustments
     if (device.brand === 'Samsung') {
       baseClasses.push('rounded-xl'); // Samsung One UI prefers more rounded corners
     }
-    
+
     if (device.isMobile && device.screenWidth < 375) {
       baseClasses.push('mx-2'); // Extra margin on very small screens
     }
-    
+
     return baseClasses.join(' ');
   }, [device, layoutConfig, variant, interactive, padding]);
 
   return (
     <div className={cn(cardClasses, className)}>
       {children}
-    </div>
-  );
+    </div>);
+
 }
 
 interface ResponsiveContainerProps {
@@ -235,8 +235,8 @@ interface ResponsiveContainerProps {
   padding?: boolean;
 }
 
-export function ResponsiveContainer({ 
-  children, 
+export function ResponsiveContainer({
+  children,
   className = '',
   maxWidth = 'xl',
   center = true,
@@ -246,28 +246,28 @@ export function ResponsiveContainer({
 
   const containerClasses = React.useMemo(() => {
     const baseClasses = ['w-full'];
-    
+
     // Max width
     if (maxWidth !== 'full') {
       baseClasses.push(`max-w-${maxWidth}`);
     }
-    
+
     // Center
     if (center) {
       baseClasses.push('mx-auto');
     }
-    
+
     // Padding
     if (padding) {
       baseClasses.push(styles.container);
     }
-    
+
     return baseClasses.join(' ');
   }, [maxWidth, center, padding, styles.container]);
 
   return (
     <div className={cn(containerClasses, className)}>
       {children}
-    </div>
-  );
+    </div>);
+
 }

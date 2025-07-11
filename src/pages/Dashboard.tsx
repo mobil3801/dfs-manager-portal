@@ -132,12 +132,12 @@ const Dashboard = () => {
     icon: Icon,
     color,
     onClick
-  }: {title: string;value: number | string;icon: any;color: string;onClick?: () => void;}) => (
-    <ResponsiveCard
-      className={`cursor-pointer hover:shadow-lg transition-shadow ${onClick ? 'hover:bg-gray-50' : ''}`}
-      onClick={onClick}
-      variant={device.isMobile ? 'compact' : 'default'}
-    >
+  }: {title: string;value: number | string;icon: any;color: string;onClick?: () => void;}) =>
+  <ResponsiveCard
+    className={`cursor-pointer hover:shadow-lg transition-shadow ${onClick ? 'hover:bg-gray-50' : ''}`}
+    onClick={onClick}
+    variant={device.isMobile ? 'compact' : 'default'}>
+
       <div className="flex items-center justify-between">
         <div>
           <p className={`text-sm font-medium text-gray-600 ${device.isMobile ? 'text-xs' : ''}`}>{title}</p>
@@ -145,8 +145,8 @@ const Dashboard = () => {
         </div>
         <Icon className={`${device.isMobile ? 'h-6 w-6' : 'h-8 w-8'} ${color}`} />
       </div>
-    </ResponsiveCard>
-  );
+    </ResponsiveCard>;
+
 
 
   const QuickAction = ({
@@ -155,12 +155,12 @@ const Dashboard = () => {
     icon: Icon,
     onClick,
     color = "text-blue-600"
-  }: {title: string;description: string;icon: any;onClick: () => void;color?: string;}) => (
-    <ResponsiveCard 
-      className="hover:shadow-md transition-shadow cursor-pointer" 
-      onClick={onClick}
-      variant={device.isMobile ? 'compact' : 'default'}
-    >
+  }: {title: string;description: string;icon: any;onClick: () => void;color?: string;}) =>
+  <ResponsiveCard
+    className="hover:shadow-md transition-shadow cursor-pointer"
+    onClick={onClick}
+    variant={device.isMobile ? 'compact' : 'default'}>
+
       <div className="flex items-start space-x-3">
         <Icon className={`${device.isMobile ? 'h-5 w-5' : 'h-6 w-6'} ${color} mt-1`} />
         <div>
@@ -168,8 +168,8 @@ const Dashboard = () => {
           <p className={`text-gray-600 ${device.isMobile ? 'text-xs' : 'text-sm'}`}>{description}</p>
         </div>
       </div>
-    </ResponsiveCard>
-  );
+    </ResponsiveCard>;
+
 
 
   return (

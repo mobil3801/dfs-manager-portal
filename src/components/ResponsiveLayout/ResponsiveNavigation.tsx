@@ -24,21 +24,21 @@ interface ResponsiveNavigationProps {
 }
 
 const defaultNavigationItems: NavigationItem[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: Home, href: '/dashboard', section: 'main' },
-  { id: 'products', label: 'Products', icon: Package, href: '/products', section: 'main' },
-  { id: 'employees', label: 'Employees', icon: Users, href: '/employees', section: 'main' },
-  { id: 'sales', label: 'Sales', icon: BarChart3, href: '/sales', section: 'main' },
-  { id: 'orders', label: 'Orders', icon: ShoppingCart, href: '/orders', section: 'main' },
-  { id: 'vendors', label: 'Vendors', icon: Truck, href: '/vendors', section: 'main' },
-  { id: 'licenses', label: 'Licenses', icon: FileText, href: '/licenses', section: 'main' },
-  { id: 'salary', label: 'Salary', icon: DollarSign, href: '/salary', section: 'main' },
-  { id: 'delivery', label: 'Delivery', icon: Truck, href: '/delivery', section: 'main' },
-  { id: 'settings', label: 'Settings', icon: Settings, href: '/settings', section: 'settings' },
-];
+{ id: 'dashboard', label: 'Dashboard', icon: Home, href: '/dashboard', section: 'main' },
+{ id: 'products', label: 'Products', icon: Package, href: '/products', section: 'main' },
+{ id: 'employees', label: 'Employees', icon: Users, href: '/employees', section: 'main' },
+{ id: 'sales', label: 'Sales', icon: BarChart3, href: '/sales', section: 'main' },
+{ id: 'orders', label: 'Orders', icon: ShoppingCart, href: '/orders', section: 'main' },
+{ id: 'vendors', label: 'Vendors', icon: Truck, href: '/vendors', section: 'main' },
+{ id: 'licenses', label: 'Licenses', icon: FileText, href: '/licenses', section: 'main' },
+{ id: 'salary', label: 'Salary', icon: DollarSign, href: '/salary', section: 'main' },
+{ id: 'delivery', label: 'Delivery', icon: Truck, href: '/delivery', section: 'main' },
+{ id: 'settings', label: 'Settings', icon: Settings, href: '/settings', section: 'settings' }];
 
-export function ResponsiveNavigation({ 
-  logo, 
-  items = defaultNavigationItems, 
+
+export function ResponsiveNavigation({
+  logo,
+  items = defaultNavigationItems,
   className = '',
   onItemClick
 }: ResponsiveNavigationProps) {
@@ -71,17 +71,17 @@ export function ResponsiveNavigation({
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-64 p-0">
-              <MobileNavigationContent 
-                items={items} 
-                onItemClick={handleItemClick} 
+              <MobileNavigationContent
+                items={items}
+                onItemClick={handleItemClick}
                 isItemActive={isItemActive}
-                logo={logo}
-              />
+                logo={logo} />
+
             </SheetContent>
           </Sheet>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   // Bottom Tabs Navigation (iOS style)
@@ -89,34 +89,34 @@ export function ResponsiveNavigation({
     return (
       <div className={cn('fixed bottom-0 left-0 right-0 z-50 bg-background border-t', className)}>
         <div className="flex justify-around items-center py-2 px-4">
-          {items.slice(0, 5).map((item) => (
-            <button
-              key={item.id}
-              onClick={() => handleItemClick(item)}
-              className={cn(
-                'flex flex-col items-center justify-center p-2 rounded-lg transition-colors',
-                'min-w-0 flex-1 text-xs',
-                isItemActive(item) 
-                  ? 'text-primary bg-primary/10' 
-                  : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
+          {items.slice(0, 5).map((item) =>
+          <button
+            key={item.id}
+            onClick={() => handleItemClick(item)}
+            className={cn(
+              'flex flex-col items-center justify-center p-2 rounded-lg transition-colors',
+              'min-w-0 flex-1 text-xs',
+              isItemActive(item) ?
+              'text-primary bg-primary/10' :
+              'text-muted-foreground hover:text-foreground'
+            )}>
+
               <item.icon className="h-5 w-5 mb-1" />
               <span className="truncate">{item.label}</span>
-              {item.badge && (
-                <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs">
+              {item.badge &&
+            <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs">
                   {item.badge}
                 </Badge>
-              )}
+            }
             </button>
-          ))}
+          )}
         </div>
         {/* Safe area spacing for devices with home indicator */}
-        {device.brand === 'Apple' && (
-          <div className="h-safe-area-inset-bottom bg-background" />
-        )}
-      </div>
-    );
+        {device.brand === 'Apple' &&
+        <div className="h-safe-area-inset-bottom bg-background" />
+        }
+      </div>);
+
   }
 
   // Horizontal Navigation (Desktop/Tablet)
@@ -127,27 +127,27 @@ export function ResponsiveNavigation({
           {logo && <div className="flex-shrink-0">{logo}</div>}
           
           <div className="hidden md:flex md:items-center md:space-x-8">
-            {items.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handleItemClick(item)}
-                className={cn(
-                  'flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors',
-                  'relative',
-                  isItemActive(item)
-                    ? 'text-primary bg-primary/10'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
-                )}
-              >
+            {items.map((item) =>
+            <button
+              key={item.id}
+              onClick={() => handleItemClick(item)}
+              className={cn(
+                'flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                'relative',
+                isItemActive(item) ?
+                'text-primary bg-primary/10' :
+                'text-muted-foreground hover:text-foreground hover:bg-accent'
+              )}>
+
                 <item.icon className="h-4 w-4" />
                 <span>{item.label}</span>
-                {item.badge && (
-                  <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 text-xs">
+                {item.badge &&
+              <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 text-xs">
                     {item.badge}
                   </Badge>
-                )}
+              }
               </button>
-            ))}
+            )}
           </div>
 
           {/* Mobile menu button for medium screens */}
@@ -159,39 +159,39 @@ export function ResponsiveNavigation({
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-64 p-0">
-                <MobileNavigationContent 
-                  items={items} 
-                  onItemClick={handleItemClick} 
+                <MobileNavigationContent
+                  items={items}
+                  onItemClick={handleItemClick}
                   isItemActive={isItemActive}
-                  logo={logo}
-                />
+                  logo={logo} />
+
               </SheetContent>
             </Sheet>
           </div>
         </div>
       </div>
-    </nav>
-  );
+    </nav>);
+
 }
 
-function MobileNavigationContent({ 
-  items, 
-  onItemClick, 
+function MobileNavigationContent({
+  items,
+  onItemClick,
   isItemActive,
-  logo 
-}: {
-  items: NavigationItem[];
-  onItemClick: (item: NavigationItem) => void;
-  isItemActive: (item: NavigationItem) => boolean;
-  logo?: ReactNode;
-}) {
+  logo
+
+
+
+
+
+}: {items: NavigationItem[];onItemClick: (item: NavigationItem) => void;isItemActive: (item: NavigationItem) => boolean;logo?: ReactNode;}) {
   const { device } = useResponsiveLayout();
 
   const groupedItems = React.useMemo(() => {
     const groups = {
-      main: items.filter(item => item.section === 'main' || !item.section),
-      admin: items.filter(item => item.section === 'admin'),
-      settings: items.filter(item => item.section === 'settings')
+      main: items.filter((item) => item.section === 'main' || !item.section),
+      admin: items.filter((item) => item.section === 'admin'),
+      settings: items.filter((item) => item.section === 'settings')
     };
     return groups;
   }, [items]);
@@ -210,92 +210,92 @@ function MobileNavigationContent({
       <div className="flex-1 overflow-y-auto py-4">
         {/* Main Navigation */}
         <div className="px-4 space-y-2">
-          {groupedItems.main.map((item) => (
+          {groupedItems.main.map((item) =>
+          <button
+            key={item.id}
+            onClick={() => onItemClick(item)}
+            className={cn(
+              'flex items-center space-x-3 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+              'relative',
+              isItemActive(item) ?
+              'text-primary bg-primary/10' :
+              'text-muted-foreground hover:text-foreground hover:bg-accent'
+            )}>
+
+              <item.icon className="h-5 w-5" />
+              <span className="flex-1 text-left">{item.label}</span>
+              {item.badge &&
+            <Badge variant="destructive" className="h-5 w-5 p-0 text-xs">
+                  {item.badge}
+                </Badge>
+            }
+            </button>
+          )}
+        </div>
+
+        {/* Admin Section */}
+        {groupedItems.admin.length > 0 &&
+        <div className="px-4 mt-6">
+            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+              Admin
+            </div>
+            <div className="space-y-2">
+              {groupedItems.admin.map((item) =>
             <button
               key={item.id}
               onClick={() => onItemClick(item)}
               className={cn(
                 'flex items-center space-x-3 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors',
                 'relative',
-                isItemActive(item)
-                  ? 'text-primary bg-primary/10'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-accent'
-              )}
-            >
-              <item.icon className="h-5 w-5" />
-              <span className="flex-1 text-left">{item.label}</span>
-              {item.badge && (
-                <Badge variant="destructive" className="h-5 w-5 p-0 text-xs">
-                  {item.badge}
-                </Badge>
-              )}
-            </button>
-          ))}
-        </div>
+                isItemActive(item) ?
+                'text-primary bg-primary/10' :
+                'text-muted-foreground hover:text-foreground hover:bg-accent'
+              )}>
 
-        {/* Admin Section */}
-        {groupedItems.admin.length > 0 && (
-          <div className="px-4 mt-6">
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-              Admin
-            </div>
-            <div className="space-y-2">
-              {groupedItems.admin.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => onItemClick(item)}
-                  className={cn(
-                    'flex items-center space-x-3 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-                    'relative',
-                    isItemActive(item)
-                      ? 'text-primary bg-primary/10'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
-                  )}
-                >
                   <item.icon className="h-5 w-5" />
                   <span className="flex-1 text-left">{item.label}</span>
-                  {item.badge && (
-                    <Badge variant="destructive" className="h-5 w-5 p-0 text-xs">
+                  {item.badge &&
+              <Badge variant="destructive" className="h-5 w-5 p-0 text-xs">
                       {item.badge}
                     </Badge>
-                  )}
+              }
                 </button>
-              ))}
+            )}
             </div>
           </div>
-        )}
+        }
 
         {/* Settings Section */}
-        {groupedItems.settings.length > 0 && (
-          <div className="px-4 mt-6">
+        {groupedItems.settings.length > 0 &&
+        <div className="px-4 mt-6">
             <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
               Settings
             </div>
             <div className="space-y-2">
-              {groupedItems.settings.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => onItemClick(item)}
-                  className={cn(
-                    'flex items-center space-x-3 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-                    'relative',
-                    isItemActive(item)
-                      ? 'text-primary bg-primary/10'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
-                  )}
-                >
+              {groupedItems.settings.map((item) =>
+            <button
+              key={item.id}
+              onClick={() => onItemClick(item)}
+              className={cn(
+                'flex items-center space-x-3 w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                'relative',
+                isItemActive(item) ?
+                'text-primary bg-primary/10' :
+                'text-muted-foreground hover:text-foreground hover:bg-accent'
+              )}>
+
                   <item.icon className="h-5 w-5" />
                   <span className="flex-1 text-left">{item.label}</span>
-                  {item.badge && (
-                    <Badge variant="destructive" className="h-5 w-5 p-0 text-xs">
+                  {item.badge &&
+              <Badge variant="destructive" className="h-5 w-5 p-0 text-xs">
                       {item.badge}
                     </Badge>
-                  )}
+              }
                 </button>
-              ))}
+            )}
             </div>
           </div>
-        )}
+        }
       </div>
 
       {/* Footer */}
@@ -309,8 +309,8 @@ function MobileNavigationContent({
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }
 
 // Device-specific navigation component

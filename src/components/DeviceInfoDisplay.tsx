@@ -19,8 +19,8 @@ export default function DeviceInfoDisplay({ showDetailed = false, className = ''
   const { layoutConfig } = useResponsiveLayout();
 
   const DeviceIcon = device.deviceType === 'phone' ? Smartphone :
-                     device.deviceType === 'tablet' ? Tablet :
-                     Monitor;
+  device.deviceType === 'tablet' ? Tablet :
+  Monitor;
 
   const formatDeviceInfo = () => {
     const info = [];
@@ -50,9 +50,9 @@ export default function DeviceInfoDisplay({ showDetailed = false, className = ''
 
   const getDeviceTypeColor = () => {
     switch (device.deviceType) {
-      case 'phone': return 'bg-blue-500';
-      case 'tablet': return 'bg-purple-500';
-      default: return 'bg-green-500';
+      case 'phone':return 'bg-blue-500';
+      case 'tablet':return 'bg-purple-500';
+      default:return 'bg-green-500';
     }
   };
 
@@ -90,8 +90,8 @@ export default function DeviceInfoDisplay({ showDetailed = false, className = ''
         <Badge variant="outline" className="text-xs">
           {formatScreenInfo()}
         </Badge>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -187,11 +187,11 @@ export default function DeviceInfoDisplay({ showDetailed = false, className = ''
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
-            {getCapabilityBadges().map((badge, index) => (
-              <Badge key={index} variant="outline" className="text-xs">
+            {getCapabilityBadges().map((badge, index) =>
+            <Badge key={index} variant="outline" className="text-xs">
                 {badge.label}
               </Badge>
-            ))}
+            )}
           </div>
         </CardContent>
       </Card>
@@ -285,18 +285,18 @@ export default function DeviceInfoDisplay({ showDetailed = false, className = ''
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
-            {getOptimizationBadges().map((badge, index) => (
-              <Badge key={index} variant="outline" className="text-xs flex items-center space-x-1">
+            {getOptimizationBadges().map((badge, index) =>
+            <Badge key={index} variant="outline" className="text-xs flex items-center space-x-1">
                 {badge.icon && <badge.icon className="h-3 w-3" />}
                 <span>{badge.label}</span>
               </Badge>
-            ))}
+            )}
           </div>
-          {getOptimizationBadges().length === 0 && (
-            <p className="text-sm text-muted-foreground">No specific optimizations applied</p>
-          )}
+          {getOptimizationBadges().length === 0 &&
+          <p className="text-sm text-muted-foreground">No specific optimizations applied</p>
+          }
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 }
