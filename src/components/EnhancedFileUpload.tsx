@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Upload, FileText, Image, Loader2, Zap, Eye, Download, CheckCircle, X } from 'lucide-react';
+import { Upload, FileText, Image, Loader2, Zap, Eye, Download, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { compressImage, formatFileSize, isImageFile, type CompressionResult } from '@/utils/imageCompression';
 
@@ -31,7 +31,6 @@ interface EnhancedFileUploadProps {
   associatedRecordId?: number;
   fileCategory?: string;
   showPreview?: boolean;
-  existingFiles?: FileUploadResult[];
 }
 
 const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
@@ -43,21 +42,20 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
   maxSize = 10,
   className = "",
   disabled = false,
-  useDatabaseStorage = true,
+  useDatabaseStorage = false,
   associatedTable = "",
   associatedRecordId = 0,
   fileCategory = "general",
-  showPreview = true,
-  existingFiles = []
+  showPreview = true
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCompressing, setIsCompressing] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [compressionResult, setCompressionResult] = useState<CompressionResult | null>(null);
   const [uploadResult, setUploadResult] = useState<FileUploadResult | null>(null);
-  const [uploadedFiles, setUploadedFiles] = useState<FileUploadResult[]>(existingFiles);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
   const { toast } = useToast();
 
   // Check if the accept type includes images
@@ -124,15 +122,15 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
         file_category: fileCategory,
         is_active: true,
         description: "",
-        file_url: `${window.location.origin}/api/files/${storeFileId}`
+        file_url: `${window.location.origin}/file/${storeFileId}`
       };
 
-      const { data: insertResult, error: insertError } = await window.ezsite.apis.tableCreate('26928', fileData);
+      const { data: insertResult, error: insertError } = await window.ezsite.apis.tableCreate(26928, fileData);
 
       if (insertError) throw insertError;
 
-      const result: FileUploadResult = {
-        fileId: insertResult.ID,
+      return {
+        fileId: insertResult.id,
         fileName: file.name,
         fileSize: file.size,
         fileType: file.type,
@@ -140,11 +138,6 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
         uploadDate: fileData.upload_date,
         fileUrl: fileData.file_url
       };
-
-      // Add to uploaded files list
-      setUploadedFiles(prev => [...prev, result]);
-
-      return result;
     } catch (error) {
       console.error('Database upload failed:', error);
       throw error;
@@ -198,6 +191,7 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
         } else {
           if (onFileSelect) onFileSelect(result.file);
         }
+        setIsOpen(false);
       } catch (error) {
         console.error('Compression failed:', error);
         toast({
@@ -228,6 +222,7 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
         } else {
           if (onFileSelect) onFileSelect(file);
         }
+        setIsOpen(false);
       } finally {
         setIsCompressing(false);
       }
@@ -258,6 +253,7 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
           description: `${file.name} has been selected successfully`
         });
       }
+      setIsOpen(false);
     }
   };
 
@@ -285,40 +281,18 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
     return <FileText className="h-4 w-4" />;
   };
 
-  const handlePreview = (file: FileUploadResult) => {
-    if (file.fileUrl) {
-      window.open(file.fileUrl, '_blank');
+  const handlePreview = () => {
+    if (uploadResult?.fileUrl) {
+      window.open(uploadResult.fileUrl, '_blank');
     }
   };
 
-  const handleDownload = (file: FileUploadResult) => {
-    if (file.fileUrl) {
+  const handleDownload = () => {
+    if (uploadResult?.fileUrl) {
       const link = document.createElement('a');
-      link.href = file.fileUrl;
-      link.download = file.fileName;
+      link.href = uploadResult.fileUrl;
+      link.download = uploadResult.fileName;
       link.click();
-    }
-  };
-
-  const handleDeleteFile = async (fileId: number) => {
-    try {
-      const { error } = await window.ezsite.apis.tableDelete('26928', { ID: fileId });
-      if (error) throw error;
-
-      // Remove from uploaded files list
-      setUploadedFiles(prev => prev.filter(f => f.fileId !== fileId));
-      
-      toast({
-        title: "File deleted",
-        description: "File has been removed successfully"
-      });
-    } catch (error) {
-      console.error('Delete failed:', error);
-      toast({
-        title: "Delete failed",
-        description: typeof error === 'string' ? error : "Failed to delete file",
-        variant: "destructive"
-      });
     }
   };
 
@@ -329,14 +303,13 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
           <Button
             variant="outline"
             disabled={disabled}
-            className="w-full flex items-center gap-2"
-          >
+            className="w-full flex items-center gap-2">
             {getFileIcon()}
             {label}
           </Button>
         </DialogTrigger>
         
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {getFileIcon()}
@@ -346,8 +319,8 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
 
           <div className="space-y-4">
             {/* Current file display */}
-            {currentFile && (
-              <Card>
+            {currentFile &&
+            <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Current file:</span>
@@ -355,63 +328,11 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
                   </div>
                 </CardContent>
               </Card>
-            )}
-
-            {/* Uploaded files display */}
-            {uploadedFiles.length > 0 && showPreview && (
-              <Card className="border-green-200 bg-green-50">
-                <CardContent className="p-4">
-                  <h4 className="font-medium text-green-800 mb-3">Uploaded Files</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {uploadedFiles.map((file) => (
-                      <div key={file.fileId} className="flex items-center justify-between p-3 bg-white rounded-lg border">
-                        <div className="flex items-center gap-3">
-                          {file.fileType.startsWith('image/') ? (
-                            <Image className="h-8 w-8 text-blue-500" />
-                          ) : (
-                            <FileText className="h-8 w-8 text-blue-500" />
-                          )}
-                          <div>
-                            <p className="font-medium text-sm">{file.fileName}</p>
-                            <p className="text-xs text-gray-500">{formatFileSize(file.fileSize)}</p>
-                          </div>
-                        </div>
-                        <div className="flex gap-1">
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            onClick={() => handlePreview(file)}
-                            className="p-1 h-8 w-8"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            onClick={() => handleDownload(file)}
-                            className="p-1 h-8 w-8"
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            onClick={() => handleDeleteFile(file.fileId)}
-                            className="p-1 h-8 w-8 text-red-600 hover:text-red-700"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            }
 
             {/* Upload result display */}
-            {uploadResult && showPreview && (
-              <Card className="border-green-200 bg-green-50">
+            {uploadResult && showPreview &&
+            <Card className="border-green-200 bg-green-50">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3 mb-3">
                     <CheckCircle className="h-5 w-5 text-green-600" />
@@ -421,18 +342,18 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={() => handlePreview(uploadResult)}>
+                    <Button size="sm" variant="outline" onClick={handlePreview}>
                       <Eye className="h-4 w-4 mr-2" />
                       Preview
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => handleDownload(uploadResult)}>
+                    <Button size="sm" variant="outline" onClick={handleDownload}>
                       <Download className="h-4 w-4 mr-2" />
                       Download
                     </Button>
                   </div>
                 </CardContent>
               </Card>
-            )}
+            }
 
             {/* Upload option */}
             <Card className="cursor-pointer hover:bg-gray-50 transition-colors">
@@ -440,8 +361,7 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
                 <Button
                   variant="ghost"
                   className="w-full h-auto p-0 flex flex-col items-center gap-3"
-                  onClick={() => fileInputRef.current?.click()}
-                >
+                  onClick={() => fileInputRef.current?.click()}>
                   <div className="p-4 bg-blue-100 rounded-full">
                     <Upload className="h-8 w-8 text-blue-600" />
                   </div>
@@ -458,8 +378,8 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
             </Card>
 
             {/* Upload status */}
-            {isUploading && (
-              <Card className="border-blue-200 bg-blue-50">
+            {isUploading &&
+            <Card className="border-blue-200 bg-blue-50">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
@@ -470,11 +390,11 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
                   </div>
                 </CardContent>
               </Card>
-            )}
+            }
 
             {/* Compression status */}
-            {isCompressing && (
-              <Card className="border-blue-200 bg-blue-50">
+            {isCompressing &&
+            <Card className="border-blue-200 bg-blue-50">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">
                     <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
@@ -485,20 +405,20 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
                   </div>
                 </CardContent>
               </Card>
-            )}
+            }
 
             {/* File type info */}
             <div className="text-center text-sm text-gray-500">
               <p>Accepted file types: {accept}</p>
               <p>Maximum file size: {maxSize}MB</p>
-              {isImageFile({ type: accept } as File) && (
-                <div className="mt-2 p-2 bg-green-50 rounded-lg border border-green-200">
+              {isImageFile({ type: accept } as File) &&
+              <div className="mt-2 p-2 bg-green-50 rounded-lg border border-green-200">
                   <div className="flex items-center justify-center gap-2 text-green-700">
                     <Zap className="h-4 w-4" />
                     <span className="text-xs font-medium">Auto-compression enabled for images &gt;1MB</span>
                   </div>
                 </div>
-              )}
+              }
             </div>
           </div>
         </DialogContent>
@@ -510,10 +430,9 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
         type="file"
         accept={accept}
         onChange={handleFileSelect}
-        className="hidden"
-      />
-    </div>
-  );
+        className="hidden" />
+    </div>);
+
 };
 
 export default EnhancedFileUpload;

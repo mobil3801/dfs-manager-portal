@@ -15,7 +15,6 @@ import { motion } from 'motion/react';
 import ResponsiveTable from '@/components/ResponsiveTable';
 import { useIsMobile } from '@/hooks/use-mobile';
 import ProfilePicture from '@/components/ProfilePicture';
-import FileDisplay from '@/components/FileDisplay';
 
 interface Employee {
   ID: number;
@@ -379,22 +378,6 @@ const EmployeeList: React.FC = () => {
     label: 'Active Status',
     value: employee.is_active,
     type: 'boolean' as const
-  },
-  {
-    key: 'files',
-    label: 'Uploaded Files',
-    value: employee.ID,
-    type: 'custom' as const,
-    customComponent: (
-      <div className="w-full">
-        <FileDisplay
-          associatedTable="employees"
-          associatedRecordId={employee.ID}
-          showActions={false}
-          className="max-h-60 overflow-y-auto"
-        />
-      </div>
-    )
   }];
 
   // Mobile view for smaller screens

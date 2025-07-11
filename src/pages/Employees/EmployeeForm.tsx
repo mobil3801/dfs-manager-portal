@@ -14,7 +14,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import EnhancedFileUpload from '@/components/EnhancedFileUpload';
 import StationDropdown from '@/components/StationDropdown';
 import ProfilePictureUpload from '@/components/ProfilePictureUpload';
-import FileDisplay from '@/components/FileDisplay';
 
 interface EmployeeFormData {
   employee_id: string;
@@ -370,22 +369,11 @@ const EmployeeForm: React.FC = () => {
                 <div className="flex-1 space-y-3">
                   <Label>Upload Profile Picture</Label>
                   <EnhancedFileUpload
-                    onFileUpload={(result) => {
-                      setFormData((prev) => ({ ...prev, profile_image_id: result.storeFileId }));
-                      toast({
-                        title: "Profile picture uploaded",
-                        description: "Profile picture has been uploaded successfully"
-                      });
-                    }}
+                    onFileSelect={setSelectedProfileImage}
                     accept="image/*"
                     label="Upload Profile Picture"
-                    maxSize={5}
-                    useDatabaseStorage={true}
-                    associatedTable="employees"
-                    associatedRecordId={isEditing ? parseInt(id || '0') : 0}
-                    fileCategory="profile_image"
-                    showPreview={true}
-                  />
+                    currentFile={selectedProfileImage?.name}
+                    maxSize={5} />
                   
                   {selectedProfileImage &&
                   <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
@@ -639,22 +627,11 @@ const EmployeeForm: React.FC = () => {
                 <div className="space-y-2">
                   <Label>ID Document Upload</Label>
                   <EnhancedFileUpload
-                    onFileUpload={(result) => {
-                      setFormData((prev) => ({ ...prev, id_document_file_id: result.storeFileId }));
-                      toast({
-                        title: "Document uploaded",
-                        description: "ID document has been uploaded successfully"
-                      });
-                    }}
+                    onFileSelect={setSelectedFile}
                     accept=".pdf,.jpg,.jpeg,.png,image/*"
                     label="Upload ID Document"
-                    maxSize={10}
-                    useDatabaseStorage={true}
-                    associatedTable="employees"
-                    associatedRecordId={isEditing ? parseInt(id || '0') : 0}
-                    fileCategory="id_document"
-                    showPreview={true}
-                  />
+                    currentFile={selectedFile?.name}
+                    maxSize={10} />
 
                   {selectedFile &&
                   <div className="p-3 bg-gray-50 rounded-lg">
@@ -666,24 +643,6 @@ const EmployeeForm: React.FC = () => {
                     </div>
                   }
                   <p className="text-xs text-gray-500">Supported formats: PDF, JPG, PNG (Max 10MB)</p>
-
-                  {/* Show existing files for edit mode */}
-                  {isEditing && id && (
-                    <div className="mt-4">
-                      <h4 className="text-sm font-medium mb-2">Existing Files</h4>
-                      <FileDisplay
-                        associatedTable="employees"
-                        associatedRecordId={parseInt(id)}
-                        showActions={true}
-                        onFileDeleted={(fileId) => {
-                          toast({
-                            title: "File deleted",
-                            description: "File has been removed from this employee"
-                          });
-                        }}
-                      />
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
