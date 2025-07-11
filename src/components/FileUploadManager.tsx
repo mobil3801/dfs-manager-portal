@@ -73,10 +73,10 @@ const FileUploadManager: React.FC<FileUploadManagerProps> = ({
     try {
       setLoading(true);
       const filters = [
-        { name: 'associated_table', op: 'Equal', value: associatedTable },
-        { name: 'associated_record_id', op: 'Equal', value: associatedRecordId },
-        { name: 'is_active', op: 'Equal', value: true }
-      ];
+      { name: 'associated_table', op: 'Equal', value: associatedTable },
+      { name: 'associated_record_id', op: 'Equal', value: associatedRecordId },
+      { name: 'is_active', op: 'Equal', value: true }];
+
 
       const { data, error } = await window.ezsite.apis.tablePage(26928, {
         PageNo: 1,
@@ -101,13 +101,13 @@ const FileUploadManager: React.FC<FileUploadManagerProps> = ({
   };
 
   const handleFileUpload = async (result: FileUploadResult) => {
-    setFiles(prev => [result, ...prev]);
-    setRefreshKey(prev => prev + 1);
-    
+    setFiles((prev) => [result, ...prev]);
+    setRefreshKey((prev) => prev + 1);
+
     if (onFileUpload) {
       onFileUpload(result);
     }
-    
+
     toast({
       title: 'File uploaded successfully',
       description: `${result.fileName} has been uploaded to the database`
@@ -123,12 +123,12 @@ const FileUploadManager: React.FC<FileUploadManagerProps> = ({
 
       if (error) throw error;
 
-      setFiles(prev => prev.filter(f => (f.fileId || f.ID) !== fileId));
-      
+      setFiles((prev) => prev.filter((f) => (f.fileId || f.ID) !== fileId));
+
       if (onFileDelete) {
         onFileDelete(fileId);
       }
-      
+
       toast({
         title: 'File deleted',
         description: 'File has been successfully deleted'
@@ -204,7 +204,7 @@ const FileUploadManager: React.FC<FileUploadManagerProps> = ({
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="category">File Category</Label>
-                      <Select value={uploadSettings.category} onValueChange={(value) => setUploadSettings(prev => ({ ...prev, category: value }))}>
+                      <Select value={uploadSettings.category} onValueChange={(value) => setUploadSettings((prev) => ({ ...prev, category: value }))}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
@@ -226,17 +226,17 @@ const FileUploadManager: React.FC<FileUploadManagerProps> = ({
                         id="description"
                         placeholder="Enter a default description for uploaded files..."
                         value={uploadSettings.description}
-                        onChange={(e) => setUploadSettings(prev => ({ ...prev, description: e.target.value }))}
-                        rows={3}
-                      />
+                        onChange={(e) => setUploadSettings((prev) => ({ ...prev, description: e.target.value }))}
+                        rows={3} />
+
                     </div>
                     <div className="flex items-center space-x-2">
                       <input
                         type="checkbox"
                         id="allowMultiple"
                         checked={uploadSettings.allowMultiple}
-                        onChange={(e) => setUploadSettings(prev => ({ ...prev, allowMultiple: e.target.checked }))}
-                      />
+                        onChange={(e) => setUploadSettings((prev) => ({ ...prev, allowMultiple: e.target.checked }))} />
+
                       <Label htmlFor="allowMultiple">Allow multiple file uploads</Label>
                     </div>
                     <div className="flex justify-end gap-2">
@@ -273,15 +273,15 @@ const FileUploadManager: React.FC<FileUploadManagerProps> = ({
               associatedRecordId={associatedRecordId}
               fileCategory={uploadSettings.category}
               showPreview={true}
-              className="w-full"
-            />
+              className="w-full" />
+
           </div>
         </CardContent>
       </Card>
 
       {/* File Display */}
-      {showExistingFiles && (
-        <Card>
+      {showExistingFiles &&
+      <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span>Uploaded Files</span>
@@ -289,20 +289,20 @@ const FileUploadManager: React.FC<FileUploadManagerProps> = ({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {loading ? (
-              <div className="flex items-center justify-center p-8">
+            {loading ?
+          <div className="flex items-center justify-center p-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              </div>
-            ) : files.length === 0 ? (
-              <div className="text-center py-8">
+              </div> :
+          files.length === 0 ?
+          <div className="text-center py-8">
                 <File className="h-12 w-12 mx-auto mb-4 text-gray-400" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No files uploaded</h3>
                 <p className="text-sm text-gray-500">Files will appear here once uploaded</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {files.map((file) => (
-                  <div key={file.fileId} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
+              </div> :
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {files.map((file) =>
+            <div key={file.fileId} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-3 mb-2">
                       {getFileIcon(file.fileType)}
                       <div className="flex-1 min-w-0">
@@ -313,17 +313,17 @@ const FileUploadManager: React.FC<FileUploadManagerProps> = ({
                       </div>
                     </div>
 
-                    {file.description && (
-                      <p className="text-xs text-gray-600 mb-2 line-clamp-2">{file.description}</p>
-                    )}
+                    {file.description &&
+              <p className="text-xs text-gray-600 mb-2 line-clamp-2">{file.description}</p>
+              }
 
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex flex-wrap gap-1">
-                        {file.fileCategory && (
-                          <Badge variant="secondary" className={`text-xs ${getCategoryColor(file.fileCategory)}`}>
+                        {file.fileCategory &&
+                  <Badge variant="secondary" className={`text-xs ${getCategoryColor(file.fileCategory)}`}>
                             {file.fileCategory}
                           </Badge>
-                        )}
+                  }
                         <Badge variant="outline" className="text-xs">
                           {formatDate(file.uploadDate)}
                         </Badge>
@@ -332,42 +332,42 @@ const FileUploadManager: React.FC<FileUploadManagerProps> = ({
 
                     <div className="flex gap-2 mt-3">
                       <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => window.open(file.fileUrl, '_blank')}
-                      >
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.open(file.fileUrl, '_blank')}>
+
                         <Eye className="h-4 w-4" />
                       </Button>
                       <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          const link = document.createElement('a');
-                          link.href = file.fileUrl;
-                          link.download = file.fileName;
-                          link.click();
-                        }}
-                      >
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    const link = document.createElement('a');
+                    link.href = file.fileUrl;
+                    link.download = file.fileName;
+                    link.click();
+                  }}>
+
                         <Download className="h-4 w-4" />
                       </Button>
                       <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleFileDelete(file.fileId)}
-                        className="text-red-600 hover:text-red-700"
-                      >
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleFileDelete(file.fileId)}
+                  className="text-red-600 hover:text-red-700">
+
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
-                ))}
-              </div>
             )}
+              </div>
+          }
           </CardContent>
         </Card>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default FileUploadManager;

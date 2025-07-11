@@ -127,7 +127,7 @@ const UnifiedFileUpload: React.FC<UnifiedFileUploadProps> = ({
           initialQuality: 0.8
         });
 
-        setCompressionResults(prev => [...prev, result]);
+        setCompressionResults((prev) => [...prev, result]);
 
         if (result.wasCompressed) {
           toast({
@@ -219,7 +219,7 @@ const UnifiedFileUpload: React.FC<UnifiedFileUploadProps> = ({
 
     // If mode is select only, call onFileSelect for each file
     if (mode === 'select' && onFileSelect) {
-      validFiles.forEach(file => onFileSelect(file));
+      validFiles.forEach((file) => onFileSelect(file));
       toast({
         title: 'Files selected',
         description: `${validFiles.length} file(s) selected successfully`
@@ -251,16 +251,16 @@ const UnifiedFileUpload: React.FC<UnifiedFileUploadProps> = ({
 
       for (const file of filesToUpload) {
         const processedFile = await processFile(file);
-        
+
         if (mode === 'database' || mode === 'both') {
           const result = await uploadToDatabase(processedFile);
           results.push(result);
-          
+
           if (onFileUpload) {
             onFileUpload(result);
           }
         }
-        
+
         if (mode === 'select' || mode === 'both') {
           if (onFileSelect) {
             onFileSelect(processedFile);
@@ -360,25 +360,25 @@ const UnifiedFileUpload: React.FC<UnifiedFileUploadProps> = ({
             </Card>
 
             {/* Selected Files Preview */}
-            {selectedFiles.length > 0 && (
-              <Card>
+            {selectedFiles.length > 0 &&
+            <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-medium">Selected Files</h3>
                     <Badge variant="secondary">{selectedFiles.length} files</Badge>
                   </div>
                   <div className="space-y-3">
-                    {selectedFiles.map((file, index) => (
-                      <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        {previewFiles[index] && isImageFile(file) ? (
-                          <img
-                            src={previewFiles[index]}
-                            alt={file.name}
-                            className="w-12 h-12 object-cover rounded"
-                          />
-                        ) : (
-                          getFileIcon(file.type)
-                        )}
+                    {selectedFiles.map((file, index) =>
+                  <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        {previewFiles[index] && isImageFile(file) ?
+                    <img
+                      src={previewFiles[index]}
+                      alt={file.name}
+                      className="w-12 h-12 object-cover rounded" /> :
+
+
+                    getFileIcon(file.type)
+                    }
                         <div className="flex-1 min-w-0">
                           <p className="font-medium truncate">{file.name}</p>
                           <p className="text-sm text-gray-500">
@@ -386,21 +386,21 @@ const UnifiedFileUpload: React.FC<UnifiedFileUploadProps> = ({
                           </p>
                         </div>
                         <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => removeSelectedFile(index)}>
+                      size="sm"
+                      variant="outline"
+                      onClick={() => removeSelectedFile(index)}>
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
-                    ))}
+                  )}
                   </div>
                 </CardContent>
               </Card>
-            )}
+            }
 
             {/* Upload Settings */}
-            {selectedFiles.length > 0 && (mode === 'database' || mode === 'both') && showSettings && (
-              <Card>
+            {selectedFiles.length > 0 && (mode === 'database' || mode === 'both') && showSettings &&
+            <Card>
                 <CardContent className="p-4 space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="category">File Category</Label>
@@ -409,9 +409,9 @@ const UnifiedFileUpload: React.FC<UnifiedFileUploadProps> = ({
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
-                        {availableCategories.map(cat => (
-                          <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                        ))}
+                        {availableCategories.map((cat) =>
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                      )}
                       </SelectContent>
                     </Select>
                   </div>
@@ -421,31 +421,31 @@ const UnifiedFileUpload: React.FC<UnifiedFileUploadProps> = ({
                       Description {requireDescription && <span className="text-red-500">*</span>}
                     </Label>
                     <Textarea
-                      id="description"
-                      placeholder="Enter a description for these files..."
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      rows={3}
-                      required={requireDescription}
-                    />
+                    id="description"
+                    placeholder="Enter a description for these files..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={3}
+                    required={requireDescription} />
+
                   </div>
 
                   <div className="flex gap-2">
                     <Button
-                      onClick={() => handleUpload()}
-                      disabled={isUploading}
-                      className="flex-1">
-                      {isUploading ? (
-                        <>
+                    onClick={() => handleUpload()}
+                    disabled={isUploading}
+                    className="flex-1">
+                      {isUploading ?
+                    <>
                           <Loader2 className="h-4 w-4 animate-spin mr-2" />
                           Uploading...
-                        </>
-                      ) : (
-                        <>
+                        </> :
+
+                    <>
                           <Upload className="h-4 w-4 mr-2" />
                           Upload {selectedFiles.length} file(s)
                         </>
-                      )}
+                    }
                     </Button>
                     <Button variant="outline" onClick={closeDialog}>
                       Cancel
@@ -453,19 +453,19 @@ const UnifiedFileUpload: React.FC<UnifiedFileUploadProps> = ({
                   </div>
                 </CardContent>
               </Card>
-            )}
+            }
 
             {/* Upload Results */}
-            {uploadResults.length > 0 && showPreview && (
-              <Card className="border-green-200 bg-green-50">
+            {uploadResults.length > 0 && showPreview &&
+            <Card className="border-green-200 bg-green-50">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3 mb-3">
                     <CheckCircle className="h-5 w-5 text-green-600" />
                     <h3 className="font-medium text-green-800">Upload Successful!</h3>
                   </div>
                   <div className="space-y-2">
-                    {uploadResults.map((result, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 bg-white rounded border">
+                    {uploadResults.map((result, index) =>
+                  <div key={index} className="flex items-center justify-between p-2 bg-white rounded border">
                         <div className="flex items-center gap-3">
                           <FileText className="h-4 w-4 text-green-600" />
                           <div>
@@ -484,45 +484,45 @@ const UnifiedFileUpload: React.FC<UnifiedFileUploadProps> = ({
                           </Button>
                         </div>
                       </div>
-                    ))}
+                  )}
                   </div>
                 </CardContent>
               </Card>
-            )}
+            }
 
             {/* Compression Results */}
-            {compressionResults.length > 0 && (
-              <Card className="border-blue-200 bg-blue-50">
+            {compressionResults.length > 0 &&
+            <Card className="border-blue-200 bg-blue-50">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3 mb-3">
                     <Zap className="h-5 w-5 text-blue-600" />
                     <h3 className="font-medium text-blue-800">Compression Results</h3>
                   </div>
-                  {compressionResults.map((result, index) => (
-                    <div key={index} className="text-sm text-blue-700 mb-1">
-                      {result.wasCompressed ? (
-                        <>Size reduced: {formatFileSize(result.originalSize)} → {formatFileSize(result.compressedSize)} ({result.compressionRatio.toFixed(1)}x smaller)</>
-                      ) : (
-                        <>File was already optimized</>
-                      )}
+                  {compressionResults.map((result, index) =>
+                <div key={index} className="text-sm text-blue-700 mb-1">
+                      {result.wasCompressed ?
+                  <>Size reduced: {formatFileSize(result.originalSize)} → {formatFileSize(result.compressedSize)} ({result.compressionRatio.toFixed(1)}x smaller)</> :
+
+                  <>File was already optimized</>
+                  }
                     </div>
-                  ))}
+                )}
                 </CardContent>
               </Card>
-            )}
+            }
 
             {/* File Info */}
             <div className="text-center text-sm text-gray-500">
               <p>Accepted file types: {accept}</p>
               <p>Maximum file size: {maxSize}MB</p>
-              {isImageUpload && (
-                <div className="mt-2 p-2 bg-green-50 rounded-lg border border-green-200">
+              {isImageUpload &&
+              <div className="mt-2 p-2 bg-green-50 rounded-lg border border-green-200">
                   <div className="flex items-center justify-center gap-2 text-green-700">
                     <Zap className="h-4 w-4" />
                     <span className="text-xs font-medium">Auto-compression enabled for images >1MB</span>
                   </div>
                 </div>
-              )}
+              }
             </div>
           </div>
         </DialogContent>
@@ -535,10 +535,10 @@ const UnifiedFileUpload: React.FC<UnifiedFileUploadProps> = ({
         accept={accept}
         multiple={allowMultiple}
         onChange={handleFileSelect}
-        className="hidden"
-      />
-    </div>
-  );
+        className="hidden" />
+
+    </div>);
+
 };
 
 export default UnifiedFileUpload;

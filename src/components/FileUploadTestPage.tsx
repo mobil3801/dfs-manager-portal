@@ -4,18 +4,18 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Upload, 
-  Database, 
-  FileText, 
-  Eye, 
-  CheckCircle, 
-  AlertCircle, 
+import {
+  Upload,
+  Database,
+  FileText,
+  Eye,
+  CheckCircle,
+  AlertCircle,
   Settings,
   Zap,
   Image,
-  File
-} from 'lucide-react';
+  File } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import EnhancedFileUpload from '@/components/EnhancedFileUpload';
 import DatabaseFileUpload from '@/components/DatabaseFileUpload';
@@ -38,19 +38,19 @@ interface FileUploadResult {
 const FileUploadTestPage: React.FC = () => {
   const [uploadResults, setUploadResults] = useState<FileUploadResult[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [testResults, setTestResults] = useState<{[key: string]: boolean}>({});
+  const [testResults, setTestResults] = useState<{[key: string]: boolean;}>({});
   const { toast } = useToast();
 
   const handleFileUpload = (result: FileUploadResult) => {
-    setUploadResults(prev => [...prev, result]);
-    setRefreshKey(prev => prev + 1);
-    
+    setUploadResults((prev) => [...prev, result]);
+    setRefreshKey((prev) => prev + 1);
+
     // Mark test as successful
-    setTestResults(prev => ({
+    setTestResults((prev) => ({
       ...prev,
       [result.fileCategory || 'general']: true
     }));
-    
+
     toast({
       title: 'File uploaded successfully',
       description: `${result.fileName} has been uploaded and is accessible via View/Edit`
@@ -58,11 +58,11 @@ const FileUploadTestPage: React.FC = () => {
   };
 
   const handleFileSelect = (file: File) => {
-    setTestResults(prev => ({
+    setTestResults((prev) => ({
       ...prev,
       'file_select': true
     }));
-    
+
     toast({
       title: 'File selected',
       description: `${file.name} has been selected for processing`
@@ -72,15 +72,15 @@ const FileUploadTestPage: React.FC = () => {
   const clearTestResults = () => {
     setUploadResults([]);
     setTestResults({});
-    setRefreshKey(prev => prev + 1);
+    setRefreshKey((prev) => prev + 1);
   };
 
   const getTestStatus = (testName: string) => {
-    return testResults[testName] ? (
-      <CheckCircle className="h-5 w-5 text-green-600" />
-    ) : (
-      <AlertCircle className="h-5 w-5 text-gray-400" />
-    );
+    return testResults[testName] ?
+    <CheckCircle className="h-5 w-5 text-green-600" /> :
+
+    <AlertCircle className="h-5 w-5 text-gray-400" />;
+
   };
 
   return (
@@ -111,7 +111,7 @@ const FileUploadTestPage: React.FC = () => {
             <Button onClick={clearTestResults} variant="outline" size="sm">
               Clear Test Results
             </Button>
-            <Button onClick={() => setRefreshKey(prev => prev + 1)} variant="outline" size="sm">
+            <Button onClick={() => setRefreshKey((prev) => prev + 1)} variant="outline" size="sm">
               Refresh File Display
             </Button>
           </div>
@@ -175,8 +175,8 @@ const FileUploadTestPage: React.FC = () => {
                     accept="image/*,application/pdf,.doc,.docx"
                     label="Select File (No Upload)"
                     maxSize={5}
-                    useDatabaseStorage={false}
-                  />
+                    useDatabaseStorage={false} />
+
                 </div>
                 
                 <div className="space-y-4">
@@ -193,8 +193,8 @@ const FileUploadTestPage: React.FC = () => {
                     associatedTable="test_files"
                     associatedRecordId={1}
                     fileCategory="document"
-                    showPreview={true}
-                  />
+                    showPreview={true} />
+
                 </div>
               </div>
             </CardContent>
@@ -225,8 +225,8 @@ const FileUploadTestPage: React.FC = () => {
                     associatedTable="test_files"
                     associatedRecordId={2}
                     fileCategory="image"
-                    allowMultiple={false}
-                  />
+                    allowMultiple={false} />
+
                 </div>
                 
                 <div className="space-y-4">
@@ -243,8 +243,8 @@ const FileUploadTestPage: React.FC = () => {
                     associatedRecordId={3}
                     fileCategory="general"
                     allowMultiple={true}
-                    showPreview={true}
-                  />
+                    showPreview={true} />
+
                 </div>
               </div>
             </CardContent>
@@ -276,8 +276,8 @@ const FileUploadTestPage: React.FC = () => {
                     associatedRecordId={4}
                     fileCategory="document"
                     mode="database"
-                    showSettings={true}
-                  />
+                    showSettings={true} />
+
                 </div>
                 
                 <div className="space-y-4">
@@ -291,8 +291,8 @@ const FileUploadTestPage: React.FC = () => {
                     label="Select Files"
                     maxSize={5}
                     mode="select"
-                    showSettings={false}
-                  />
+                    showSettings={false} />
+
                 </div>
                 
                 <div className="space-y-4">
@@ -311,8 +311,8 @@ const FileUploadTestPage: React.FC = () => {
                     fileCategory="general"
                     mode="both"
                     showSettings={true}
-                    requireDescription={true}
-                  />
+                    requireDescription={true} />
+
                 </div>
               </div>
             </CardContent>
@@ -346,8 +346,8 @@ const FileUploadTestPage: React.FC = () => {
                     title: 'File deleted',
                     description: `File ID ${fileId} has been deleted`
                   });
-                }}
-              />
+                }} />
+
             </CardContent>
           </Card>
         </TabsContent>
@@ -377,8 +377,8 @@ const FileUploadTestPage: React.FC = () => {
                     allowEdit={true}
                     showDescription={true}
                     viewMode="grid"
-                    key={`doc-${refreshKey}`}
-                  />
+                    key={`doc-${refreshKey}`} />
+
                 </div>
                 
                 <Separator />
@@ -393,8 +393,8 @@ const FileUploadTestPage: React.FC = () => {
                     allowEdit={true}
                     showDescription={true}
                     viewMode="grid"
-                    key={`img-${refreshKey}`}
-                  />
+                    key={`img-${refreshKey}`} />
+
                 </div>
                 
                 <Separator />
@@ -408,8 +408,8 @@ const FileUploadTestPage: React.FC = () => {
                     allowEdit={true}
                     showDescription={true}
                     viewMode="list"
-                    key={`all-${refreshKey}`}
-                  />
+                    key={`all-${refreshKey}`} />
+
                 </div>
               </div>
             </CardContent>
@@ -418,15 +418,15 @@ const FileUploadTestPage: React.FC = () => {
       </Tabs>
 
       {/* Recent Upload Results */}
-      {uploadResults.length > 0 && (
-        <Card>
+      {uploadResults.length > 0 &&
+      <Card>
           <CardHeader>
             <CardTitle>Recent Upload Results</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {uploadResults.slice(-5).map((result, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+              {uploadResults.slice(-5).map((result, index) =>
+            <div key={index} className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
                   <div className="flex items-center gap-3">
                     <CheckCircle className="h-5 w-5 text-green-600" />
                     <div>
@@ -441,22 +441,22 @@ const FileUploadTestPage: React.FC = () => {
                       <Eye className="h-4 w-4" />
                     </Button>
                     <Button size="sm" variant="outline" onClick={() => {
-                      const link = document.createElement('a');
-                      link.href = result.fileUrl;
-                      link.download = result.fileName;
-                      link.click();
-                    }}>
+                  const link = document.createElement('a');
+                  link.href = result.fileUrl;
+                  link.download = result.fileName;
+                  link.click();
+                }}>
                       <Download className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
-              ))}
+            )}
             </div>
           </CardContent>
         </Card>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default FileUploadTestPage;

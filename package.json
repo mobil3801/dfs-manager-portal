@@ -23,7 +23,9 @@
     "deploy:vercel": "npm run build:safe \u0026\u0026 vercel --prod",
     "docker:build": "docker build -t dfs-manager-portal .",
     "docker:run": "docker run -p 80:80 dfs-manager-portal",
-    "docker:compose": "docker-compose up -d"
+    "docker:compose": "docker-compose up -d",
+    "analyze-bundle": "node scripts/analyze-bundle.js",
+    "build:analyze": "npm run build && npm run analyze-bundle"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
