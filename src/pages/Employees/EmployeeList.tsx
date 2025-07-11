@@ -28,6 +28,7 @@ interface Employee {
   hire_date: string;
   salary: number;
   is_active: boolean;
+  employment_status: string;
   created_by: number;
   profile_image_id?: number | null;
   date_of_birth?: string;
@@ -200,6 +201,7 @@ const EmployeeList: React.FC = () => {
     `Station,${selectedEmployee.station}`,
     `Hire Date,${selectedEmployee.hire_date}`,
     `Salary,${selectedEmployee.salary}`,
+    `Employment Status,${selectedEmployee.employment_status}`,
     `Status,${selectedEmployee.is_active ? 'Active' : 'Inactive'}`].
     join('\n');
 
@@ -256,6 +258,19 @@ const EmployeeList: React.FC = () => {
     }
   };
 
+  const getEmploymentStatusColor = (status: string) => {
+    switch (status) {
+      case 'Ongoing':
+        return 'bg-green-500';
+      case 'Terminated':
+        return 'bg-red-500';
+      case 'Left':
+        return 'bg-orange-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
   const formatDate = (dateString: string) => {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString();
@@ -263,7 +278,7 @@ const EmployeeList: React.FC = () => {
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
-  // Define view modal fields with profile picture
+  // Define view modal fields with profile picture and employment status
   const getViewModalFields = (employee: Employee) => [
   {
     key: 'profile_picture',
@@ -278,9 +293,7 @@ const EmployeeList: React.FC = () => {
         lastName={employee.last_name}
         size="xl"
         className="border-2 border-gray-200" />
-
       </div>
-
   },
   {
     key: 'employee_id',
@@ -322,6 +335,13 @@ const EmployeeList: React.FC = () => {
     badgeColor: getStationBadgeColor(employee.station)
   },
   {
+    key: 'employment_status',
+    label: 'Employment Status',
+    value: employee.employment_status,
+    type: 'badge' as const,
+    badgeColor: getEmploymentStatusColor(employee.employment_status)
+  },
+  {
     key: 'hire_date',
     label: 'Hire Date',
     value: employee.hire_date,
@@ -359,7 +379,7 @@ const EmployeeList: React.FC = () => {
   },
   {
     key: 'is_active',
-    label: 'Status',
+    label: 'Active Status',
     value: employee.is_active,
     type: 'boolean' as const
   }];
@@ -410,7 +430,6 @@ const EmployeeList: React.FC = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10" />
-
               </div>
             </div>
 
@@ -439,13 +458,11 @@ const EmployeeList: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}>
-
                     <Card
                   className={`cursor-pointer transition-colors ${
                   selectedEmployeeId === employee.ID ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'}`
                   }
                   onClick={() => setSelectedEmployeeId(employee.ID)}>
-
                       <CardContent className="p-4">
                         <div className="flex items-center space-x-3">
                           <ProfilePicture
@@ -453,15 +470,15 @@ const EmployeeList: React.FC = () => {
                         firstName={employee.first_name}
                         lastName={employee.last_name}
                         size="md" />
-
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
                               <h3 className="font-medium text-gray-900 truncate">
                                 {employee.first_name} {employee.last_name}
                               </h3>
-                              <Badge variant={employee.is_active ? "default" : "secondary"} className="text-xs">
-                                {employee.is_active ? "Active" : "Inactive"}
+                              <Badge 
+                                className={`text-white text-xs ${getEmploymentStatusColor(employee.employment_status || 'Ongoing')}`}>
+                                {employee.employment_status || 'Ongoing'}
                               </Badge>
                             </div>
                             
@@ -471,7 +488,6 @@ const EmployeeList: React.FC = () => {
                             <div className="flex items-center justify-between mt-2">
                               <Badge
                             className={`text-white text-xs ${getStationBadgeColor(employee.station)}`}>
-
                                 {employee.station}
                               </Badge>
                               
@@ -484,7 +500,6 @@ const EmployeeList: React.FC = () => {
                                 handleView(employee);
                               }}
                               className="p-1 h-6 w-6">
-
                                   <Eye className="w-3 h-3" />
                                 </Button>
                                 {canEditEmployee &&
@@ -496,7 +511,6 @@ const EmployeeList: React.FC = () => {
                                 handleEdit(employee.ID);
                               }}
                               className="p-1 h-6 w-6">
-
                                     <Edit className="w-3 h-3" />
                                   </Button>
                             }
@@ -509,7 +523,6 @@ const EmployeeList: React.FC = () => {
                                 handleDelete(employee.ID);
                               }}
                               className="p-1 h-6 w-6 text-red-600 hover:text-red-700">
-
                                     <Trash2 className="w-3 h-3" />
                                   </Button>
                             }
@@ -536,7 +549,6 @@ const EmployeeList: React.FC = () => {
                   size="sm"
                   onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}>
-
                     Previous
                   </Button>
                   <Button
@@ -544,7 +556,6 @@ const EmployeeList: React.FC = () => {
                   size="sm"
                   onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}>
-
                     Next
                   </Button>
                 </div>
@@ -575,10 +586,8 @@ const EmployeeList: React.FC = () => {
           canEdit={canEditEmployee}
           canDelete={canDeleteEmployee}
           canExport={true} />
-
         }
       </div>);
-
   }
 
   return (
@@ -637,8 +646,6 @@ const EmployeeList: React.FC = () => {
             </div>
           </div>
 
-
-
           {/* Employees Table */}
           {loading ?
           <div className="space-y-4">
@@ -670,6 +677,7 @@ const EmployeeList: React.FC = () => {
                     <TableHead>Contact</TableHead>
                     <TableHead>Position</TableHead>
                     <TableHead>Station</TableHead>
+                    <TableHead>Employment Status</TableHead>
                     <TableHead>Hire Date</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Actions</TableHead>
@@ -686,14 +694,12 @@ const EmployeeList: React.FC = () => {
                   selectedEmployeeId === employee.ID ? 'bg-blue-50 border-blue-200' : ''}`
                   }
                   onClick={() => setSelectedEmployeeId(employee.ID)}>
-
                       <TableCell>
                         <ProfilePicture
                       imageId={employee.profile_image_id}
                       firstName={employee.first_name}
                       lastName={employee.last_name}
                       size="sm" />
-
                       </TableCell>
                       <TableCell className="font-medium">{employee.employee_id}</TableCell>
                       <TableCell>
@@ -724,6 +730,11 @@ const EmployeeList: React.FC = () => {
                           {employee.station}
                         </Badge>
                       </TableCell>
+                      <TableCell>
+                        <Badge className={`text-white ${getEmploymentStatusColor(employee.employment_status || 'Ongoing')}`}>
+                          {employee.employment_status || 'Ongoing'}
+                        </Badge>
+                      </TableCell>
                       <TableCell>{formatDate(employee.hire_date)}</TableCell>
                       <TableCell>
                         <Badge variant={employee.is_active ? "default" : "secondary"}>
@@ -740,7 +751,6 @@ const EmployeeList: React.FC = () => {
                           handleView(employee);
                         }}
                         className="text-blue-600 hover:text-blue-700">
-
                             <Eye className="w-4 h-4" />
                           </Button>
                           
@@ -802,7 +812,6 @@ const EmployeeList: React.FC = () => {
                 size="sm"
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}>
-
                   Previous
                 </Button>
                 <span className="text-sm">
@@ -813,7 +822,6 @@ const EmployeeList: React.FC = () => {
                 size="sm"
                 onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}>
-
                   Next
                 </Button>
               </div>
@@ -844,7 +852,6 @@ const EmployeeList: React.FC = () => {
         canEdit={canEditEmployee}
         canDelete={canDeleteEmployee}
         canExport={true} />
-
       }
     </div>);
 

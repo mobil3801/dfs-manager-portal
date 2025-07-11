@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import { Users, Save, ArrowLeft, X } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -25,6 +26,7 @@ interface EmployeeFormData {
   hire_date: string;
   salary: number;
   is_active: boolean;
+  employment_status: string;
   date_of_birth: string;
   current_address: string;
   mailing_address: string;
@@ -46,6 +48,7 @@ const EmployeeForm: React.FC = () => {
     hire_date: '',
     salary: 0,
     is_active: true,
+    employment_status: 'Ongoing',
     date_of_birth: '',
     current_address: '',
     mailing_address: '',
@@ -65,6 +68,17 @@ const EmployeeForm: React.FC = () => {
 
   const positions = ['Manager', 'Supervisor', 'Cashier', 'Attendant', 'Mechanic', 'Cleaner'];
   const idDocumentTypes = ['Driving License', 'Passport', 'Green Card', 'SSN', 'Work Permit'];
+  
+  const employmentStatuses = [
+    { value: 'Ongoing', label: 'Ongoing', color: 'bg-green-500' },
+    { value: 'Terminated', label: 'Terminated', color: 'bg-red-500' },
+    { value: 'Left', label: 'Left', color: 'bg-orange-500' }
+  ];
+
+  const getEmploymentStatusColor = (status: string) => {
+    const statusConfig = employmentStatuses.find(s => s.value === status);
+    return statusConfig ? statusConfig.color : 'bg-gray-500';
+  };
 
   useEffect(() => {
     if (id) {
@@ -165,6 +179,7 @@ const EmployeeForm: React.FC = () => {
           hire_date: employee.hire_date ? employee.hire_date.split('T')[0] : '',
           salary: employee.salary || 0,
           is_active: employee.is_active !== false,
+          employment_status: employee.employment_status || 'Ongoing',
           date_of_birth: employee.date_of_birth ? employee.date_of_birth.split('T')[0] : '',
           current_address: employee.current_address || '',
           mailing_address: employee.mailing_address || '',
@@ -338,7 +353,6 @@ const EmployeeForm: React.FC = () => {
                     disabled={loading || isUploading}
                     showRemoveButton={true} />
 
-
                   {(formData.profile_image_id || selectedProfileImage) &&
                   <Button
                     type="button"
@@ -346,7 +360,6 @@ const EmployeeForm: React.FC = () => {
                     size="sm"
                     onClick={handleRemoveProfileImage}
                     className="text-red-600 hover:text-red-700">
-
                       <X className="w-4 h-4 mr-1" />
                       Remove
                     </Button>
@@ -361,7 +374,6 @@ const EmployeeForm: React.FC = () => {
                     label="Upload Profile Picture"
                     currentFile={selectedProfileImage?.name}
                     maxSize={5} />
-
                   
                   {selectedProfileImage &&
                   <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
@@ -405,7 +417,6 @@ const EmployeeForm: React.FC = () => {
                       size="sm"
                       onClick={generateEmployeeId}
                       className="shrink-0">
-
                         Regenerate
                       </Button>
                     }
@@ -437,7 +448,6 @@ const EmployeeForm: React.FC = () => {
                     onChange={(e) => handleInputChange('first_name', e.target.value)}
                     placeholder="Enter first name"
                     required />
-
                 </div>
 
                 <div className="space-y-2">
@@ -448,7 +458,6 @@ const EmployeeForm: React.FC = () => {
                     onChange={(e) => handleInputChange('last_name', e.target.value)}
                     placeholder="Enter last name"
                     required />
-
                 </div>
 
                 <div className="space-y-2">
@@ -458,7 +467,6 @@ const EmployeeForm: React.FC = () => {
                     type="date"
                     value={formData.date_of_birth}
                     onChange={(e) => handleInputChange('date_of_birth', e.target.value)} />
-
                 </div>
 
                 <div className="space-y-2">
@@ -469,7 +477,6 @@ const EmployeeForm: React.FC = () => {
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     placeholder="Enter email address" />
-
                 </div>
 
                 <div className="space-y-2">
@@ -479,7 +486,6 @@ const EmployeeForm: React.FC = () => {
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
                     placeholder="Enter phone number" />
-
                 </div>
 
                 <div className="space-y-2">
@@ -489,7 +495,6 @@ const EmployeeForm: React.FC = () => {
                     value={formData.reference_name}
                     onChange={(e) => handleInputChange('reference_name', e.target.value)}
                     placeholder="Enter reference name" />
-
                 </div>
               </div>
             </div>
@@ -506,7 +511,6 @@ const EmployeeForm: React.FC = () => {
                     onChange={(e) => handleInputChange('current_address', e.target.value)}
                     placeholder="Enter current address"
                     rows={3} />
-
                 </div>
 
                 <div className="space-y-2">
@@ -517,7 +521,6 @@ const EmployeeForm: React.FC = () => {
                     onChange={(e) => handleInputChange('mailing_address', e.target.value)}
                     placeholder="Enter mailing address"
                     rows={3} />
-
                 </div>
               </div>
             </div>
@@ -543,13 +546,37 @@ const EmployeeForm: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
+                  <Label htmlFor="employment_status">Employment Status *</Label>
+                  <Select value={formData.employment_status} onValueChange={(value) => handleInputChange('employment_status', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select employment status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {employmentStatuses.map((status) =>
+                      <SelectItem key={status.value} value={status.value}>
+                          <div className="flex items-center space-x-2">
+                            <div className={`w-2 h-2 rounded-full ${status.color}`}></div>
+                            <span>{status.label}</span>
+                          </div>
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <div className="flex items-center space-x-2 mt-2">
+                    <Badge className={`text-white ${getEmploymentStatusColor(formData.employment_status)}`}>
+                      {formData.employment_status}
+                    </Badge>
+                    <span className="text-xs text-gray-500">Current employment status</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="hire_date">Hire Date</Label>
                   <Input
                     id="hire_date"
                     type="date"
                     value={formData.hire_date}
                     onChange={(e) => handleInputChange('hire_date', e.target.value)} />
-
                 </div>
 
                 <div className="space-y-2">
@@ -560,7 +587,6 @@ const EmployeeForm: React.FC = () => {
                     min="0"
                     value={formData.salary}
                     onChange={(value) => handleInputChange('salary', value)} />
-
                 </div>
 
                 <div className="space-y-2">
@@ -570,7 +596,6 @@ const EmployeeForm: React.FC = () => {
                       id="is_active"
                       checked={formData.is_active}
                       onCheckedChange={(checked) => handleInputChange('is_active', checked)} />
-
                     <span className="text-sm text-gray-600">
                       {formData.is_active ? 'Active' : 'Inactive'}
                     </span>
@@ -627,13 +652,11 @@ const EmployeeForm: React.FC = () => {
                 type="button"
                 variant="outline"
                 onClick={() => navigate('/employees')}>
-
                 Cancel
               </Button>
               <Button type="submit" disabled={loading || isUploading}>
                 {loading || isUploading ?
                 'Saving...' :
-
                 <>
                     <Save className="w-4 h-4 mr-2" />
                     {isEditing ? 'Update Employee' : 'Create Employee'}
