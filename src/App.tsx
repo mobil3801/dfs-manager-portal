@@ -5,8 +5,10 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { ModuleAccessProvider } from '@/contexts/ModuleAccessContext';
+import { ResponsiveLayoutProvider } from '@/contexts/ResponsiveLayoutContext';
 import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
 import AuthDebugger from '@/components/AuthDebugger';
+
 
 // Layout
 import DashboardLayout from '@/components/Layout/DashboardLayout';
@@ -48,9 +50,22 @@ import UserValidationTestPage from '@/pages/Admin/UserValidationTestPage';
 import AuthDiagnosticPage from '@/pages/AuthDiagnosticPage';
 import ModuleAccessPage from '@/pages/Admin/ModuleAccessPage';
 import ProfilePictureDemo from '@/components/ProfilePictureDemo';
+import DeviceInfoDisplay from '@/components/DeviceInfoDisplay';
 
 import DatabaseMonitoring from '@/pages/Admin/DatabaseMonitoring';
 import AuditMonitoring from '@/pages/Admin/AuditMonitoring';
+
+const DeviceInfoDemo = () => (
+  <div className="space-y-6">
+    <div>
+      <h1 className="text-2xl font-bold text-gray-900">Device Detection Demo</h1>
+      <p className="mt-2 text-gray-600">
+        This page demonstrates the enhanced device detection and responsive layout system.
+      </p>
+    </div>
+    <DeviceInfoDisplay showDetailed={true} />
+  </div>
+);
 
 import './App.css';
 
@@ -197,6 +212,9 @@ const AppRouter = () => {
             {/* Profile Picture Demo */}
             <Route path="profile-picture-demo" element={<ProfilePictureDemo />} />
             
+            {/* Device Info Demo */}
+            <Route path="device-info" element={<DeviceInfoDemo />} />
+            
             {/* Admin Routes */}
             <Route path="admin" element={<AdminPanel />} />
             <Route path="admin/users" element={<UserManagement />} />
@@ -219,8 +237,8 @@ const AppRouter = () => {
         {/* Auth Debugger - Only show in development or for debugging */}
         <AuthDebugger />
       </div>
-    </Router>);
-
+    </Router>
+  );
 };
 
 function App() {
@@ -230,7 +248,9 @@ function App() {
         <GlobalErrorBoundary>
           <AuthProvider>
             <ModuleAccessProvider>
-              <AppRouter />
+              <ResponsiveLayoutProvider>
+                <AppRouter />
+              </ResponsiveLayoutProvider>
             </ModuleAccessProvider>
           </AuthProvider>
         </GlobalErrorBoundary>

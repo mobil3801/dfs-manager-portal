@@ -39,7 +39,7 @@ const EmployeeProfilePicture: React.FC<EmployeeProfilePictureProps> = ({
   const loadEmployeeData = async () => {
     try {
       setIsLoading(true);
-      
+
       const { data, error } = await window.ezsite.apis.tablePage('11727', {
         PageNo: 1,
         PageSize: 1,
@@ -78,7 +78,7 @@ const EmployeeProfilePicture: React.FC<EmployeeProfilePictureProps> = ({
         ...prev,
         profile_image_id: newImageId
       }));
-      
+
       // Reload employee data to get the latest information
       await loadEmployeeData();
 
@@ -111,9 +111,9 @@ const EmployeeProfilePicture: React.FC<EmployeeProfilePictureProps> = ({
         rounded={rounded}
         disabled={true}
         allowEdit={false}
-        showLoadingState={isLoading}
-      />
-    );
+        showLoadingState={isLoading} />);
+
+
   }
 
   return (
@@ -132,9 +132,9 @@ const EmployeeProfilePicture: React.FC<EmployeeProfilePictureProps> = ({
       employeeId={employeeId}
       tableName="employees"
       recordId={employeeId}
-      alt={`${employee.first_name} ${employee.last_name}`.trim() || 'Employee profile picture'}
-    />
-  );
+      alt={`${employee.first_name} ${employee.last_name}`.trim() || 'Employee profile picture'} />);
+
+
 };
 
 export default EmployeeProfilePicture;

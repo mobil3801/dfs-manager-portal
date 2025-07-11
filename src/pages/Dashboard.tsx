@@ -13,11 +13,15 @@ import {
   Calendar,
   AlertTriangle,
   TrendingUp,
-  Activity } from
+  Activity,
+  Smartphone } from
 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { ResponsiveGrid, ResponsiveCard, ResponsiveContainer } from '@/components/ResponsiveLayout';
+import { useResponsiveLayout } from '@/contexts/ResponsiveLayoutContext';
+import DeviceInfoDisplay from '@/components/DeviceInfoDisplay';
 
 interface DashboardStats {
   totalEmployees: number;
@@ -32,6 +36,7 @@ const Dashboard = () => {
   const { user, userProfile, isAdmin, isManager } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { device, layoutConfig } = useResponsiveLayout();
   const [stats, setStats] = useState<DashboardStats>({
     totalEmployees: 0,
     activeProducts: 0,
@@ -127,25 +132,21 @@ const Dashboard = () => {
     icon: Icon,
     color,
     onClick
-
-
-
-
-
-
-  }: {title: string;value: number | string;icon: any;color: string;onClick?: () => void;}) =>
-  <Card
-    className={`p-6 cursor-pointer hover:shadow-lg transition-shadow ${onClick ? 'hover:bg-gray-50' : ''}`}
-    onClick={onClick}>
-
+  }: {title: string;value: number | string;icon: any;color: string;onClick?: () => void;}) => (
+    <ResponsiveCard
+      className={`cursor-pointer hover:shadow-lg transition-shadow ${onClick ? 'hover:bg-gray-50' : ''}`}
+      onClick={onClick}
+      variant={device.isMobile ? 'compact' : 'default'}
+    >
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-bold">{loading ? '...' : value}</p>
+          <p className={`text-sm font-medium text-gray-600 ${device.isMobile ? 'text-xs' : ''}`}>{title}</p>
+          <p className={`font-bold ${device.isMobile ? 'text-lg' : 'text-2xl'}`}>{loading ? '...' : value}</p>
         </div>
-        <Icon className={`h-8 w-8 ${color}`} />
+        <Icon className={`${device.isMobile ? 'h-6 w-6' : 'h-8 w-8'} ${color}`} />
       </div>
-    </Card>;
+    </ResponsiveCard>
+  );
 
 
   const QuickAction = ({
@@ -154,22 +155,21 @@ const Dashboard = () => {
     icon: Icon,
     onClick,
     color = "text-blue-600"
-
-
-
-
-
-
-  }: {title: string;description: string;icon: any;onClick: () => void;color?: string;}) =>
-  <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={onClick}>
+  }: {title: string;description: string;icon: any;onClick: () => void;color?: string;}) => (
+    <ResponsiveCard 
+      className="hover:shadow-md transition-shadow cursor-pointer" 
+      onClick={onClick}
+      variant={device.isMobile ? 'compact' : 'default'}
+    >
       <div className="flex items-start space-x-3">
-        <Icon className={`h-6 w-6 ${color} mt-1`} />
+        <Icon className={`${device.isMobile ? 'h-5 w-5' : 'h-6 w-6'} ${color} mt-1`} />
         <div>
-          <h4 className="font-semibold">{title}</h4>
-          <p className="text-sm text-gray-600">{description}</p>
+          <h4 className={`font-semibold ${device.isMobile ? 'text-sm' : ''}`}>{title}</h4>
+          <p className={`text-gray-600 ${device.isMobile ? 'text-xs' : 'text-sm'}`}>{description}</p>
         </div>
       </div>
-    </Card>;
+    </ResponsiveCard>
+  );
 
 
   return (
