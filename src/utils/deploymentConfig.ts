@@ -113,7 +113,7 @@ export const checkDeploymentReadiness = () => {
 
 // Utility to log deployment info
 export const logDeploymentInfo = () => {
-  if (deploymentConfig.development.debugMode) {
+  if (deploymentConfig.development.debugMode || !deploymentConfig.isProduction) {
     console.group('🚀 DFS Manager Portal - EasySite Deployment Info');
     console.log('Platform:', 'EasySite');
     console.log('Project Name:', deploymentConfig.platform.projectName);
