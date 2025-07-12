@@ -2,19 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  CheckCircle, 
-  Globe, 
-  Rocket, 
-  Shield, 
-  Zap, 
+import {
+  CheckCircle,
+  Globe,
+  Rocket,
+  Shield,
+  Zap,
   Monitor,
   Database,
   Settings,
   ExternalLink,
   Copy,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const DeploymentSuccessPage = () => {
@@ -32,84 +32,84 @@ const DeploymentSuccessPage = () => {
   };
 
   const postDeploymentChecks = [
-    {
-      name: 'Application Load',
-      status: 'completed',
-      description: 'Main application loads successfully'
-    },
-    {
-      name: 'Authentication System',
-      status: 'completed',
-      description: 'Login and user management working'
-    },
-    {
-      name: 'Database Connection',
-      status: 'completed',
-      description: 'EasySite database connected'
-    },
-    {
-      name: 'API Integration',
-      status: 'completed',
-      description: 'EasySite APIs functioning correctly'
-    },
-    {
-      name: 'File Upload',
-      status: 'completed',
-      description: 'File upload and storage working'
-    },
-    {
-      name: 'Responsive Design',
-      status: 'completed',
-      description: 'Mobile and desktop layouts optimized'
-    }
-  ];
+  {
+    name: 'Application Load',
+    status: 'completed',
+    description: 'Main application loads successfully'
+  },
+  {
+    name: 'Authentication System',
+    status: 'completed',
+    description: 'Login and user management working'
+  },
+  {
+    name: 'Database Connection',
+    status: 'completed',
+    description: 'EasySite database connected'
+  },
+  {
+    name: 'API Integration',
+    status: 'completed',
+    description: 'EasySite APIs functioning correctly'
+  },
+  {
+    name: 'File Upload',
+    status: 'completed',
+    description: 'File upload and storage working'
+  },
+  {
+    name: 'Responsive Design',
+    status: 'completed',
+    description: 'Mobile and desktop layouts optimized'
+  }];
+
 
   const nextSteps = [
-    {
-      title: 'Configure Production Settings',
-      description: 'Set up environment variables and production configurations',
-      icon: Settings,
-      action: 'Configure'
-    },
-    {
-      title: 'Set Up Monitoring',
-      description: 'Enable error tracking and performance monitoring',
-      icon: Monitor,
-      action: 'Monitor'
-    },
-    {
-      title: 'Database Optimization',
-      description: 'Optimize database queries and set up indexes',
-      icon: Database,
-      action: 'Optimize'
-    },
-    {
-      title: 'Security Review',
-      description: 'Review security settings and access controls',
-      icon: Shield,
-      action: 'Review'
-    }
-  ];
+  {
+    title: 'Configure Production Settings',
+    description: 'Set up environment variables and production configurations',
+    icon: Settings,
+    action: 'Configure'
+  },
+  {
+    title: 'Set Up Monitoring',
+    description: 'Enable error tracking and performance monitoring',
+    icon: Monitor,
+    action: 'Monitor'
+  },
+  {
+    title: 'Database Optimization',
+    description: 'Optimize database queries and set up indexes',
+    icon: Database,
+    action: 'Optimize'
+  },
+  {
+    title: 'Security Review',
+    description: 'Review security settings and access controls',
+    icon: Shield,
+    action: 'Review'
+  }];
+
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({
       title: 'Copied to clipboard',
-      description: `${text} has been copied to your clipboard.`,
+      description: `${text} has been copied to your clipboard.`
     });
   };
 
   const performHealthCheck = () => {
     toast({
       title: 'Health check started',
-      description: 'Running comprehensive application health check...',
+      description: 'Running comprehensive application health check...'
     });
-    
+
     // Simulate health check
     setTimeout(() => {
       toast({
         title: 'Health check completed',
-        description: 'All systems are running normally.',
+        description: 'All systems are running normally.'
       });
     }, 2000);
   };
@@ -157,19 +157,19 @@ const DeploymentSuccessPage = () => {
                 <code className="bg-gray-100 px-3 py-2 rounded-md text-sm flex-1 mr-2">
                   {deploymentInfo.url}
                 </code>
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   variant="outline"
-                  onClick={() => copyToClipboard(deploymentInfo.url)}
-                >
+                  onClick={() => copyToClipboard(deploymentInfo.url)}>
+
                   <Copy className="w-4 h-4" />
                 </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
+                <Button
+                  size="sm"
+                  variant="outline"
                   className="ml-2"
-                  onClick={() => window.open(deploymentInfo.url, '_blank')}
-                >
+                  onClick={() => window.open(deploymentInfo.url, '_blank')}>
+
                   <ExternalLink className="w-4 h-4" />
                 </Button>
               </div>
@@ -181,11 +181,11 @@ const DeploymentSuccessPage = () => {
                 <code className="bg-gray-100 px-3 py-2 rounded-md text-sm flex-1 mr-2">
                   {projectToken}
                 </code>
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   variant="outline"
-                  onClick={() => copyToClipboard(projectToken)}
-                >
+                  onClick={() => copyToClipboard(projectToken)}>
+
                   <Copy className="w-4 h-4" />
                 </Button>
               </div>
@@ -218,27 +218,27 @@ const DeploymentSuccessPage = () => {
         <div className="flex items-center mb-6">
           <CheckCircle className="w-6 h-6 text-green-600 mr-3" />
           <h2 className="text-2xl font-semibold">Post-Deployment Verification</h2>
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             className="ml-auto"
-            onClick={performHealthCheck}
-          >
+            onClick={performHealthCheck}>
+
             <RefreshCw className="w-4 h-4 mr-2" />
             Run Health Check
           </Button>
         </div>
 
         <div className="grid md:grid-cols-2 gap-4">
-          {postDeploymentChecks.map((check, index) => (
-            <div key={index} className="flex items-center p-4 bg-green-50 rounded-lg">
+          {postDeploymentChecks.map((check, index) =>
+          <div key={index} className="flex items-center p-4 bg-green-50 rounded-lg">
               <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
               <div>
                 <h3 className="font-medium text-green-900">{check.name}</h3>
                 <p className="text-sm text-green-700">{check.description}</p>
               </div>
             </div>
-          ))}
+          )}
         </div>
       </Card>
 
@@ -293,8 +293,8 @@ const DeploymentSuccessPage = () => {
                     </Button>
                   </div>
                 </div>
-              </div>
-            );
+              </div>);
+
           })}
         </div>
       </Card>
@@ -324,8 +324,8 @@ const DeploymentSuccessPage = () => {
           </a>
         </p>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default DeploymentSuccessPage;

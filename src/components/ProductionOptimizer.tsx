@@ -4,18 +4,18 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  CheckCircle, 
-  AlertTriangle, 
-  Zap, 
-  Database, 
-  Shield, 
+import {
+  CheckCircle,
+  AlertTriangle,
+  Zap,
+  Database,
+  Shield,
   Gauge,
   Globe,
   Server,
   FileCheck,
-  Settings
-} from 'lucide-react';
+  Settings } from
+'lucide-react';
 
 interface OptimizationStatus {
   id: string;
@@ -28,73 +28,73 @@ interface OptimizationStatus {
 
 const ProductionOptimizer = () => {
   const [optimizations, setOptimizations] = useState<OptimizationStatus[]>([
-    {
-      id: 'bundle-size',
-      name: 'Bundle Size Optimization',
-      description: 'Main bundle: 448.65 kB (139.79 kB gzipped)',
-      status: 'completed',
-      impact: 'high'
-    },
-    {
-      id: 'code-splitting',
-      name: 'Code Splitting',
-      description: 'Application split into 140+ optimized chunks',
-      status: 'completed',
-      impact: 'high'
-    },
-    {
-      id: 'lazy-loading',
-      name: 'Lazy Loading',
-      description: 'All routes and heavy components lazy loaded',
-      status: 'completed',
-      impact: 'high'
-    },
-    {
-      id: 'tree-shaking',
-      name: 'Tree Shaking',
-      description: 'Unused code eliminated from production bundle',
-      status: 'completed',
-      impact: 'medium'
-    },
-    {
-      id: 'asset-optimization',
-      name: 'Asset Optimization',
-      description: 'Images and static assets optimized',
-      status: 'completed',
-      impact: 'medium'
-    },
-    {
-      id: 'caching-strategy',
-      name: 'Caching Strategy',
-      description: 'Long-term caching enabled for static assets',
-      status: 'warning',
-      impact: 'medium',
-      recommendation: 'Configure CDN and cache headers'
-    },
-    {
-      id: 'compression',
-      name: 'Gzip Compression',
-      description: '68.9% compression ratio achieved',
-      status: 'completed',
-      impact: 'high'
-    },
-    {
-      id: 'security',
-      name: 'Security Headers',
-      description: 'Production security measures',
-      status: 'warning',
-      impact: 'high',
-      recommendation: 'Configure CSP and security headers'
-    }
-  ]);
+  {
+    id: 'bundle-size',
+    name: 'Bundle Size Optimization',
+    description: 'Main bundle: 448.65 kB (139.79 kB gzipped)',
+    status: 'completed',
+    impact: 'high'
+  },
+  {
+    id: 'code-splitting',
+    name: 'Code Splitting',
+    description: 'Application split into 140+ optimized chunks',
+    status: 'completed',
+    impact: 'high'
+  },
+  {
+    id: 'lazy-loading',
+    name: 'Lazy Loading',
+    description: 'All routes and heavy components lazy loaded',
+    status: 'completed',
+    impact: 'high'
+  },
+  {
+    id: 'tree-shaking',
+    name: 'Tree Shaking',
+    description: 'Unused code eliminated from production bundle',
+    status: 'completed',
+    impact: 'medium'
+  },
+  {
+    id: 'asset-optimization',
+    name: 'Asset Optimization',
+    description: 'Images and static assets optimized',
+    status: 'completed',
+    impact: 'medium'
+  },
+  {
+    id: 'caching-strategy',
+    name: 'Caching Strategy',
+    description: 'Long-term caching enabled for static assets',
+    status: 'warning',
+    impact: 'medium',
+    recommendation: 'Configure CDN and cache headers'
+  },
+  {
+    id: 'compression',
+    name: 'Gzip Compression',
+    description: '68.9% compression ratio achieved',
+    status: 'completed',
+    impact: 'high'
+  },
+  {
+    id: 'security',
+    name: 'Security Headers',
+    description: 'Production security measures',
+    status: 'warning',
+    impact: 'high',
+    recommendation: 'Configure CSP and security headers'
+  }]
+  );
 
   const [overallScore, setOverallScore] = useState(0);
 
   useEffect(() => {
     // Calculate overall optimization score
-    const completed = optimizations.filter(opt => opt.status === 'completed').length;
+    const completed = optimizations.filter((opt) => opt.status === 'completed').length;
     const total = optimizations.length;
-    setOverallScore(Math.round((completed / total) * 100));
+    setOverallScore(Math.round(completed / total * 100));
   }, [optimizations]);
 
   const getStatusIcon = (status: string) => {
@@ -160,7 +160,7 @@ const ProductionOptimizer = () => {
         </div>
         <Progress value={overallScore} className="mb-2" />
         <p className="text-sm text-gray-600">
-          {optimizations.filter(opt => opt.status === 'completed').length} of {optimizations.length} optimizations completed
+          {optimizations.filter((opt) => opt.status === 'completed').length} of {optimizations.length} optimizations completed
         </p>
       </Card>
 
@@ -201,8 +201,8 @@ const ProductionOptimizer = () => {
           <h2 className="text-xl font-semibold">Optimization Details</h2>
         </div>
         <div className="space-y-3">
-          {optimizations.map((opt) => (
-            <div key={opt.id} className="flex items-start justify-between p-4 border border-gray-200 rounded-lg">
+          {optimizations.map((opt) =>
+          <div key={opt.id} className="flex items-start justify-between p-4 border border-gray-200 rounded-lg">
               <div className="flex items-start space-x-3">
                 {getStatusIcon(opt.status)}
                 <div className="flex-1">
@@ -213,18 +213,18 @@ const ProductionOptimizer = () => {
                     </Badge>
                   </div>
                   <p className="text-sm text-gray-600 mt-1">{opt.description}</p>
-                  {opt.recommendation && (
-                    <Alert className="mt-2">
+                  {opt.recommendation &&
+                <Alert className="mt-2">
                       <AlertTriangle className="h-4 w-4" />
                       <AlertDescription className="text-sm">
                         <strong>Recommendation:</strong> {opt.recommendation}
                       </AlertDescription>
                     </Alert>
-                  )}
+                }
                 </div>
               </div>
             </div>
-          ))}
+          )}
         </div>
       </Card>
 
@@ -298,8 +298,8 @@ const ProductionOptimizer = () => {
           View Full Report
         </Button>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ProductionOptimizer;

@@ -26,8 +26,7 @@
 		<link rel="dns-prefetch" href="https://easysite.ai">
 		<link rel="dns-prefetch" href="https://fonts.googleapis.com">
 		
-		<!-- Preload critical resources -->
-		<link rel="modulepreload" href="/src/main.tsx">
+		<!-- Preload critical resources will be handled by Vite during build -->
 		<link rel="preload" href="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png" as="image" type="image/png">
 		<title>DFS Manager Portal - Gas Station Management System</title>
 		
@@ -37,7 +36,7 @@
 		<link rel="apple-touch-icon" sizes="180x180" href="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png">
 		<link rel="manifest" href="/manifest.json">
 		
-		<!-- EZSite APIs --> 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		
+		<!-- EZSite APIs --> 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		 		
 		<!-- Global error handler for deployment -->
 		<script>
 			window.addEventListener('error', function(e) {
@@ -51,6 +50,8 @@
 			window.addEventListener('unhandledrejection', function(e) {
 				console.error('Unhandled promise rejection:', e.reason);
 			});
+		
+		
 		
 		
 		
