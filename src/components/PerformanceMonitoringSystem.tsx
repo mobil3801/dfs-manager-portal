@@ -377,6 +377,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -433,8 +434,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
         newAlerts.forEach((alert) => {if (alert.severity === 'critical') {toast({ title: alert.title, description: alert.message, variant: 'destructive' });}});}}, [toast]); /**
   * Generate optimization suggestions
   */const generateSuggestions = useCallback((currentMetrics: PerformanceMetrics) => {const newSuggestions: OptimizationSuggestion[] = [];if (currentMetrics.memory.percentage > 70) {newSuggestions.push({ category: 'memory', title: 'Optimize Memory Usage', description: 'Consider implementing virtual scrolling for large lists and clearing unused data.', impact: 'high', effort: 'medium', action: () => {// Trigger memory cleanup
-              if ('gc' in window) {(window as any).gc();}toast({ title: 'Memory cleanup attempted', description: 'Forced garbage collection.' });} });}if (currentMetrics.network.avgLatency > 1000) {newSuggestions.push({ category: 'network', title: 'Optimize Network Requests', description: 'Implement request batching and connection pooling to reduce latency.', impact: 'high', effort: 'medium' });}if (currentMetrics.resources.domNodes > 3000) {newSuggestions.push({ category: 'rendering', title: 'Reduce DOM Complexity', description: 'Consider using virtual scrolling or pagination to reduce DOM node count.', impact: 'medium', effort: 'high' });}if (currentMetrics.resources.cacheHitRate < 60) {newSuggestions.push({ category: 'caching', title: 'Improve Cache Strategy', description: 'Implement better caching strategies to improve cache hit rate.', impact: 'medium', effort: 'low' });}setSuggestions(newSuggestions);
-    }, [toast]);
+              if ('gc' in window) {(window as any).gc();}toast({ title: 'Memory cleanup attempted', description: 'Forced garbage collection.' });} });}if (currentMetrics.network.avgLatency > 1000) {newSuggestions.push({ category: 'network', title: 'Optimize Network Requests', description: 'Implement request batching and connection pooling to reduce latency.', impact: 'high', effort: 'medium' });}if (currentMetrics.resources.domNodes > 3000) {newSuggestions.push({ category: 'rendering', title: 'Reduce DOM Complexity', description: 'Consider using virtual scrolling or pagination to reduce DOM node count.', impact: 'medium', effort: 'high' });}if (currentMetrics.resources.cacheHitRate < 60) {newSuggestions.push({ category: 'caching', title: 'Improve Cache Strategy', description: 'Implement better caching strategies to improve cache hit rate.', impact: 'medium', effort: 'low' });}setSuggestions(newSuggestions);}, [toast]);
 
   /**
    * Start monitoring

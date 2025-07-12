@@ -310,14 +310,14 @@ const VendorList: React.FC = () => {
           </div>
 
           {/* Keyboard shortcuts hint */}
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-700">
-              <strong>Keyboard shortcuts:</strong> Select a row, then press <kbd className="px-1 py-0.5 bg-blue-100 rounded text-xs">V</kbd> to view, 
-              <kbd className="px-1 py-0.5 bg-blue-100 rounded text-xs ml-1">E</kbd> to edit, 
-              <kbd className="px-1 py-0.5 bg-blue-100 rounded text-xs ml-1">D</kbd> to delete, or 
-              <kbd className="px-1 py-0.5 bg-blue-100 rounded text-xs ml-1">Ctrl+N</kbd> to create new
-            </p>
-          </div>
+          
+
+
+
+
+
+
+
 
           {/* Vendors Table */}
           {loading ?
