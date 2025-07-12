@@ -2,14 +2,14 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  CheckCircle, 
-  TrendingDown, 
-  Zap, 
-  Package, 
+import {
+  CheckCircle,
+  TrendingDown,
+  Zap,
+  Package,
   ArrowRight,
-  Target
-} from 'lucide-react';
+  Target } from
+'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const OptimizationSuccessMessage = () => {
@@ -104,18 +104,18 @@ const OptimizationSuccessMessage = () => {
 
         {/* Action Buttons */}
         <div className="flex gap-3 pt-4">
-          <Button 
+          <Button
             onClick={() => navigate('/admin/bundle-optimization')}
-            className="flex items-center gap-2"
-          >
+            className="flex items-center gap-2">
+
             View Detailed Report
             <ArrowRight className="h-4 w-4" />
           </Button>
-          <Button 
+          <Button
             variant="outline"
             onClick={() => window.open('/BUNDLE_OPTIMIZATION_SUMMARY.md', '_blank')}
-            className="flex items-center gap-2"
-          >
+            className="flex items-center gap-2">
+
             <Package className="h-4 w-4" />
             Read Full Summary
           </Button>
@@ -131,8 +131,8 @@ const OptimizationSuccessMessage = () => {
           </ul>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default OptimizationSuccessMessage;

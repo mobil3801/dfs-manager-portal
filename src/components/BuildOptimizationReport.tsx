@@ -4,16 +4,16 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  CheckCircle, 
-  TrendingDown, 
-  TrendingUp, 
-  Package, 
+import {
+  CheckCircle,
+  TrendingDown,
+  TrendingUp,
+  Package,
   Zap,
   AlertTriangle,
   FileText,
-  BarChart3
-} from 'lucide-react';
+  BarChart3 } from
+'lucide-react';
 
 interface BuildMetrics {
   before: {
@@ -52,7 +52,7 @@ const BuildOptimizationReport = () => {
         mainBundle: 449, // Current optimized size
         totalSize: 1125, // Reduced total size
         gzippedSize: 140, // Slightly better gzip
-        chunkCount: 87    // More efficient chunking
+        chunkCount: 87 // More efficient chunking
       },
       improvements: {
         sizeSaved: 26,
@@ -89,8 +89,8 @@ const BuildOptimizationReport = () => {
             <span className="ml-2">Analyzing build improvements...</span>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   if (!metrics) return null;
@@ -345,8 +345,8 @@ const BuildOptimizationReport = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default BuildOptimizationReport;

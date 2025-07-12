@@ -5,18 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Zap, 
-  TrendingUp, 
-  Clock, 
-  Package, 
-  Image, 
+import {
+  Zap,
+  TrendingUp,
+  Clock,
+  Package,
+  Image,
   FileText,
   CheckCircle,
   AlertTriangle,
   Loader2,
-  Play
-} from 'lucide-react';
+  Play } from
+'lucide-react';
 
 interface OptimizationTask {
   id: string;
@@ -31,79 +31,79 @@ interface OptimizationTask {
 const PerformanceOptimizer = () => {
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [tasks, setTasks] = useState<OptimizationTask[]>([
-    {
-      id: 'bundle-analysis',
-      name: 'Bundle Size Analysis',
-      description: 'Analyze bundle composition and identify optimization opportunities',
-      status: 'pending',
-      impact: 'high',
-      progress: 0
-    },
-    {
-      id: 'tree-shaking',
-      name: 'Tree Shaking Optimization',
-      description: 'Remove unused code and dependencies',
-      status: 'pending',
-      impact: 'high',
-      progress: 0
-    },
-    {
-      id: 'code-splitting',
-      name: 'Advanced Code Splitting',
-      description: 'Optimize lazy loading and chunk splitting',
-      status: 'pending',
-      impact: 'medium',
-      progress: 0
-    },
-    {
-      id: 'css-optimization',
-      name: 'CSS Optimization',
-      description: 'Purge unused CSS and optimize stylesheets',
-      status: 'pending',
-      impact: 'medium',
-      progress: 0
-    },
-    {
-      id: 'asset-optimization',
-      name: 'Asset Optimization',
-      description: 'Optimize images and static assets',
-      status: 'pending',
-      impact: 'low',
-      progress: 0
-    }
-  ]);
+  {
+    id: 'bundle-analysis',
+    name: 'Bundle Size Analysis',
+    description: 'Analyze bundle composition and identify optimization opportunities',
+    status: 'pending',
+    impact: 'high',
+    progress: 0
+  },
+  {
+    id: 'tree-shaking',
+    name: 'Tree Shaking Optimization',
+    description: 'Remove unused code and dependencies',
+    status: 'pending',
+    impact: 'high',
+    progress: 0
+  },
+  {
+    id: 'code-splitting',
+    name: 'Advanced Code Splitting',
+    description: 'Optimize lazy loading and chunk splitting',
+    status: 'pending',
+    impact: 'medium',
+    progress: 0
+  },
+  {
+    id: 'css-optimization',
+    name: 'CSS Optimization',
+    description: 'Purge unused CSS and optimize stylesheets',
+    status: 'pending',
+    impact: 'medium',
+    progress: 0
+  },
+  {
+    id: 'asset-optimization',
+    name: 'Asset Optimization',
+    description: 'Optimize images and static assets',
+    status: 'pending',
+    impact: 'low',
+    progress: 0
+  }]
+  );
 
   const runOptimization = async () => {
     setIsOptimizing(true);
-    
+
     for (let i = 0; i < tasks.length; i++) {
       const task = tasks[i];
-      
+
       // Start task
-      setTasks(prev => prev.map(t => 
-        t.id === task.id ? { ...t, status: 'running', progress: 0 } : t
+      setTasks((prev) => prev.map((t) =>
+      t.id === task.id ? { ...t, status: 'running', progress: 0 } : t
       ));
 
       // Simulate progress
       for (let progress = 0; progress <= 100; progress += 20) {
-        await new Promise(resolve => setTimeout(resolve, 200));
-        setTasks(prev => prev.map(t => 
-          t.id === task.id ? { ...t, progress } : t
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        setTasks((prev) => prev.map((t) =>
+        t.id === task.id ? { ...t, progress } : t
         ));
       }
 
       // Complete task with results
       const results = getTaskResults(task.id);
-      setTasks(prev => prev.map(t => 
-        t.id === task.id ? { 
-          ...t, 
-          status: 'completed', 
-          progress: 100,
-          results 
-        } : t
+      setTasks((prev) => prev.map((t) =>
+      t.id === task.id ? {
+        ...t,
+        status: 'completed',
+        progress: 100,
+        results
+      } : t
       ));
 
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
 
     setIsOptimizing(false);
@@ -122,10 +122,10 @@ const PerformanceOptimizer = () => {
 
   const getImpactColor = (impact: string) => {
     switch (impact) {
-      case 'high': return 'bg-red-100 text-red-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'low': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'high':return 'bg-red-100 text-red-800';
+      case 'medium':return 'bg-yellow-100 text-yellow-800';
+      case 'low':return 'bg-green-100 text-green-800';
+      default:return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -142,8 +142,8 @@ const PerformanceOptimizer = () => {
     }
   };
 
-  const completedTasks = tasks.filter(t => t.status === 'completed').length;
-  const overallProgress = (completedTasks / tasks.length) * 100;
+  const completedTasks = tasks.filter((t) => t.status === 'completed').length;
+  const overallProgress = completedTasks / tasks.length * 100;
 
   return (
     <div className="space-y-6">
@@ -167,22 +167,22 @@ const PerformanceOptimizer = () => {
                   {completedTasks}/{tasks.length} completed
                 </div>
               </div>
-              <Button 
-                onClick={runOptimization} 
+              <Button
+                onClick={runOptimization}
                 disabled={isOptimizing}
-                size="lg"
-              >
-                {isOptimizing ? (
-                  <>
+                size="lg">
+
+                {isOptimizing ?
+                <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     Optimizing...
-                  </>
-                ) : (
-                  <>
+                  </> :
+
+                <>
                     <Play className="h-4 w-4 mr-2" />
                     Start Optimization
                   </>
-                )}
+                }
               </Button>
             </div>
             <Progress value={overallProgress} className="w-full" />
@@ -197,8 +197,8 @@ const PerformanceOptimizer = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {tasks.map((task) => (
-              <div key={task.id} className="border rounded-lg p-4">
+            {tasks.map((task) =>
+            <div key={task.id} className="border rounded-lg p-4">
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-3">
                     {getStatusIcon(task.status)}
@@ -212,23 +212,23 @@ const PerformanceOptimizer = () => {
                   </Badge>
                 </div>
                 
-                {task.status === 'running' && (
-                  <div className="mt-2">
+                {task.status === 'running' &&
+              <div className="mt-2">
                     <Progress value={task.progress} className="w-full" />
                     <div className="text-xs text-gray-500 mt-1">
                       {task.progress}% complete
                     </div>
                   </div>
-                )}
+              }
                 
-                {task.status === 'completed' && task.results && (
-                  <Alert className="mt-2">
+                {task.status === 'completed' && task.results &&
+              <Alert className="mt-2">
                     <CheckCircle className="h-4 w-4" />
                     <AlertDescription>{task.results}</AlertDescription>
                   </Alert>
-                )}
+              }
               </div>
-            ))}
+            )}
           </div>
         </CardContent>
       </Card>
@@ -330,8 +330,8 @@ const PerformanceOptimizer = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default PerformanceOptimizer;

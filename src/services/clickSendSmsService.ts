@@ -694,6 +694,10 @@ class ClickSendSMSService {
 
 
 
+
+
+
+
     // This is handled by counting records in the history table
     // No need for a separate counter field
   }private async logSMSHistory(historyData: any): Promise<void> {try {await window.ezsite.apis.tableCreate(24202, { ...historyData, sent_by_user_id: 1 // This should be the current user ID

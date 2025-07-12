@@ -2,12 +2,12 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Package, 
-  TrendingUp, 
+import {
+  Package,
+  TrendingUp,
   Zap,
-  BarChart3
-} from 'lucide-react';
+  BarChart3 } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAdminAccess } from '@/hooks/use-admin-access';
 import AccessDenied from '@/components/AccessDenied';
@@ -24,8 +24,8 @@ const BundleOptimizationPage = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
+      </div>);
+
   }
 
   if (!hasAdminAccess) {
@@ -128,8 +128,8 @@ const BundleOptimizationPage = () => {
           <BuildOptimizationReport />
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default BundleOptimizationPage;

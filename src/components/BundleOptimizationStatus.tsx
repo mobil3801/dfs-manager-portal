@@ -4,17 +4,17 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  CheckCircle, 
-  AlertTriangle, 
-  XCircle, 
-  TrendingDown, 
+import {
+  CheckCircle,
+  AlertTriangle,
+  XCircle,
+  TrendingDown,
   TrendingUp,
   Zap,
   FileText,
   Package,
-  Clock
-} from 'lucide-react';
+  Clock } from
+'lucide-react';
 
 interface BundleMetrics {
   totalSize: number;
@@ -44,19 +44,19 @@ const BundleOptimizationStatus = () => {
         chunkCount: 85, // Number of chunks from build output
         optimizationScore: 65, // Out of 100
         recommendations: [
-          'Main bundle (475KB) is too large - consider further code splitting',
-          'CSS bundle (105KB) could be optimized with unused CSS removal',
-          'Several vendor chunks could be better grouped',
-          'Enable tree shaking for unused exports',
-          'Consider lazy loading some admin features'
-        ],
+        'Main bundle (475KB) is too large - consider further code splitting',
+        'CSS bundle (105KB) could be optimized with unused CSS removal',
+        'Several vendor chunks could be better grouped',
+        'Enable tree shaking for unused exports',
+        'Consider lazy loading some admin features'],
+
         largestChunks: [
-          { name: 'index-SAuXO1wW.js', size: 475, type: 'app' },
-          { name: 'proxy-BMcXcMsq.js', size: 112, type: 'vendor' },
-          { name: 'UserManagement-DqnqESgn.js', size: 108, type: 'lazy' },
-          { name: 'SalesReportForm-m41HUJ7-.js', size: 99, type: 'lazy' },
-          { name: 'OverflowTestingPage-DS_wpYeH.js', size: 84, type: 'lazy' }
-        ]
+        { name: 'index-SAuXO1wW.js', size: 475, type: 'app' },
+        { name: 'proxy-BMcXcMsq.js', size: 112, type: 'vendor' },
+        { name: 'UserManagement-DqnqESgn.js', size: 108, type: 'lazy' },
+        { name: 'SalesReportForm-m41HUJ7-.js', size: 99, type: 'lazy' },
+        { name: 'OverflowTestingPage-DS_wpYeH.js', size: 84, type: 'lazy' }]
+
       };
 
       setMetrics(bundleMetrics);
@@ -87,10 +87,10 @@ const BundleOptimizationStatus = () => {
 
   const runOptimization = async () => {
     setOptimizing(true);
-    
+
     // Simulate optimization process
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
     if (metrics) {
       setMetrics({
         ...metrics,
@@ -98,14 +98,14 @@ const BundleOptimizationStatus = () => {
         totalSize: metrics.totalSize * 0.85,
         gzippedSize: metrics.gzippedSize * 0.82,
         recommendations: [
-          'Bundle size optimized!',
-          'Dead code eliminated',
-          'Vendor chunks reorganized',
-          'CSS optimized and purged'
-        ]
+        'Bundle size optimized!',
+        'Dead code eliminated',
+        'Vendor chunks reorganized',
+        'CSS optimized and purged']
+
       });
     }
-    
+
     setOptimizing(false);
   };
 
@@ -124,8 +124,8 @@ const BundleOptimizationStatus = () => {
             <span className="ml-2">Analyzing bundle...</span>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   if (!metrics) return null;
@@ -155,8 +155,8 @@ const BundleOptimizationStatus = () => {
                 {metrics.optimizationScore}
               </div>
               <Badge variant={getScoreBadgeVariant(metrics.optimizationScore)}>
-                {metrics.optimizationScore >= 80 ? 'Excellent' : 
-                 metrics.optimizationScore >= 60 ? 'Good' : 'Needs Work'}
+                {metrics.optimizationScore >= 80 ? 'Excellent' :
+                metrics.optimizationScore >= 60 ? 'Good' : 'Needs Work'}
               </Badge>
             </div>
           </div>
@@ -186,22 +186,22 @@ const BundleOptimizationStatus = () => {
           </div>
 
           {/* Optimization Button */}
-          <Button 
-            onClick={runOptimization} 
+          <Button
+            onClick={runOptimization}
             disabled={optimizing}
-            className="w-full"
-          >
-            {optimizing ? (
-              <>
+            className="w-full">
+
+            {optimizing ?
+            <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                 Optimizing Bundle...
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 <Zap className="h-4 w-4 mr-2" />
                 Run Optimization
               </>
-            )}
+            }
           </Button>
         </CardContent>
       </Card>
@@ -216,8 +216,8 @@ const BundleOptimizationStatus = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {metrics.largestChunks.map((chunk, index) => (
-              <div key={chunk.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            {metrics.largestChunks.map((chunk, index) =>
+            <div key={chunk.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center gap-3">
                   <div className="text-sm font-mono text-gray-600">
                     #{index + 1}
@@ -233,15 +233,15 @@ const BundleOptimizationStatus = () => {
                 </div>
                 <div className="text-right">
                   <div className="font-semibold">{formatSize(chunk.size)}</div>
-                  {chunk.size > 100 && (
-                    <div className="text-xs text-amber-600 flex items-center">
+                  {chunk.size > 100 &&
+                <div className="text-xs text-amber-600 flex items-center">
                       <AlertTriangle className="h-3 w-3 mr-1" />
                       Large
                     </div>
-                  )}
+                }
                 </div>
               </div>
-            ))}
+            )}
           </div>
         </CardContent>
       </Card>
@@ -256,12 +256,12 @@ const BundleOptimizationStatus = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {metrics.recommendations.map((rec, index) => (
-              <Alert key={index}>
+            {metrics.recommendations.map((rec, index) =>
+            <Alert key={index}>
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>{rec}</AlertDescription>
               </Alert>
-            ))}
+            )}
           </div>
         </CardContent>
       </Card>
@@ -303,8 +303,8 @@ const BundleOptimizationStatus = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default BundleOptimizationStatus;
