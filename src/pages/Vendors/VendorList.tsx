@@ -105,8 +105,34 @@ const VendorList: React.FC = () => {
       return;
     }
 
-    navigate(`/vendors/edit/${vendorId}`);
+    try {
+      // Validate vendor ID exists
+      const vendor = vendors.find((v) => v.ID === vendorId);
+      if (!vendor) {
+        toast({
+          title: "Error",
+          description: "Vendor not found. Please refresh the list and try again.",
+          variant: "destructive"
+        });
+        loadVendors(); // Refresh the list
+        return;
+      }
+
+      // Navigate to edit form
+      navigate(`/vendors/${vendorId}/edit`);
+
+      // Log for debugging
+      console.log('Navigating to edit vendor:', vendorId, vendor);
+    } catch (error) {
+      console.error('Error navigating to edit form:', error);
+      toast({
+        title: "Navigation Error",
+        description: "Failed to open edit form. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
+
 
   const handleDelete = async (vendorId: number) => {
     // Check delete permission

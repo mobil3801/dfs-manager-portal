@@ -154,7 +154,7 @@ const LicenseList: React.FC = () => {
       // Show progress toast
       toast({
         title: "🗑️ Deleting License",
-        description: "Removing associated files and data...",
+        description: "Removing associated files and data..."
       });
 
       // Step 2: Delete associated file if exists
@@ -250,7 +250,7 @@ const LicenseList: React.FC = () => {
 
       toast({
         title: "📱 Checking Licenses",
-        description: "Analyzing licenses for expiry alerts...",
+        description: "Analyzing licenses for expiry alerts..."
       });
 
       // Use the enhanced license alert service
@@ -258,7 +258,7 @@ const LicenseList: React.FC = () => {
 
       toast({
         title: "✅ License Alerts Complete",
-        description: "SMS alerts sent for expiring licenses. Check SMS History for details.",
+        description: "SMS alerts sent for expiring licenses. Check SMS History for details."
       });
 
     } catch (error) {
@@ -618,10 +618,22 @@ const LicenseList: React.FC = () => {
                               <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => navigate(`/licenses/${license.ID}/edit`)}
+                          onClick={() => {
+                            try {
+                              navigate(`/licenses/${license.ID}/edit`);
+                            } catch (error) {
+                              console.error('Error navigating to edit license:', error);
+                              toast({
+                                title: "Navigation Error",
+                                description: "Failed to open edit form. Please try again.",
+                                variant: "destructive"
+                              });
+                            }
+                          }}
                           title="Edit License">
                                 <Edit className="w-4 h-4" />
                               </Button>
+
                               {license.status.toLowerCase() === 'cancelled' || license.status.toLowerCase() === 'inactive' ?
                         <Button
                           variant="outline"

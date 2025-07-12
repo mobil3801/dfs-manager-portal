@@ -93,7 +93,33 @@ const OrderList: React.FC = () => {
       return;
     }
 
-    navigate(`/orders/${orderId}/edit`);
+    try {
+      // Validate order ID exists
+      const order = orders.find((o) => o.ID === orderId);
+      if (!order) {
+        toast({
+          title: "Error",
+          description: "Order not found. Please refresh the list and try again.",
+          variant: "destructive"
+        });
+        loadOrders(); // Refresh the list
+        return;
+      }
+
+      // Navigate to edit form
+      navigate(`/orders/${orderId}/edit`);
+
+
+      // Log for debugging
+      console.log('Navigating to edit order:', orderId, order);
+    } catch (error) {
+      console.error('Error navigating to edit form:', error);
+      toast({
+        title: "Navigation Error",
+        description: "Failed to open edit form. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleDelete = async (orderId: number) => {
@@ -107,7 +133,19 @@ const OrderList: React.FC = () => {
       return;
     }
 
-    if (!confirm('Are you sure you want to delete this order?')) {
+    // Validate order exists
+    const order = orders.find((o) => o.ID === orderId);
+    if (!order) {
+      toast({
+        title: "Error",
+        description: "Order not found. Please refresh the list and try again.",
+        variant: "destructive"
+      });
+      loadOrders();
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to delete order #${order.order_number}? This action cannot be undone.`)) {
       return;
     }
 
@@ -117,7 +155,7 @@ const OrderList: React.FC = () => {
 
       toast({
         title: "Success",
-        description: "Order deleted successfully"
+        description: `Order #${order.order_number} deleted successfully`
       });
       loadOrders();
       setViewModalOpen(false);
@@ -125,11 +163,12 @@ const OrderList: React.FC = () => {
       console.error('Error deleting order:', error);
       toast({
         title: "Error",
-        description: "Failed to delete order",
+        description: `Failed to delete order #${order.order_number}`,
         variant: "destructive"
       });
     }
   };
+
 
   const handleExport = () => {
     if (!selectedOrder) return;
@@ -143,8 +182,8 @@ const OrderList: React.FC = () => {
     `Station,${selectedOrder.station}`,
     `Total Amount,${selectedOrder.total_amount}`,
     `Status,${selectedOrder.status}`,
-    `Notes,${selectedOrder.notes}`].
-    join('\n');
+    `Notes,${selectedOrder.notes}`]
+    .join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -445,7 +484,8 @@ const OrderList: React.FC = () => {
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEdit(order.ID);
-                        }}>
+                        }}
+                        title="Edit Order">
                               <Edit className="w-4 h-4" />
                             </Button>
                       }
@@ -459,10 +499,12 @@ const OrderList: React.FC = () => {
                           e.stopPropagation();
                           handleDelete(order.ID);
                         }}
-                        className="text-red-600 hover:text-red-700">
+                        className="text-red-600 hover:text-red-700"
+                        title="Delete Order">
                               <Trash2 className="w-4 h-4" />
                             </Button>
                       }
+
                         </div>
                       </TableCell>
                     </motion.tr>

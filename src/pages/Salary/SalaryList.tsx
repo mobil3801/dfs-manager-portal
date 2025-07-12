@@ -921,7 +921,7 @@ const SalaryList: React.FC = () => {
                   Export PDF
                 </Button>
                 {isAdmin() &&
-                <Button
+              <Button
                 onClick={() => {
                   setShowViewDialog(false);
                   handleEditRecord(selectedRecord);
@@ -930,7 +930,7 @@ const SalaryList: React.FC = () => {
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Record
                 </Button>
-                }
+              }
               </div>
             </div>
           }

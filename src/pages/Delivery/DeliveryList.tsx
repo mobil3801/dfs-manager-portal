@@ -104,7 +104,33 @@ const DeliveryList: React.FC = () => {
       return;
     }
 
-    navigate(`/delivery/${id}/edit`);
+    try {
+      // Validate delivery exists
+      const delivery = deliveries.find((d) => d.id === id);
+      if (!delivery) {
+        toast({
+          title: "Error",
+          description: "Delivery record not found. Please refresh the list and try again.",
+          variant: "destructive"
+        });
+        loadDeliveries(); // Refresh the list
+        return;
+      }
+
+      // Navigate to edit form
+      navigate(`/delivery/${id}/edit`);
+
+      // Log for debugging
+      console.log('Navigating to edit delivery:', id, delivery);
+    } catch (error) {
+      console.error('Error navigating to edit form:', error);
+      toast({
+        title: "Navigation Error",
+        description: "Failed to open edit form. Please try again.",
+        variant: "destructive"
+      });
+    }
+
   };
 
   const handleDelete = async (id: number) => {
@@ -118,7 +144,19 @@ const DeliveryList: React.FC = () => {
       return;
     }
 
-    if (!confirm('Are you sure you want to delete this delivery record?')) {
+    // Validate delivery exists
+    const delivery = deliveries.find((d) => d.id === id);
+    if (!delivery) {
+      toast({
+        title: "Error",
+        description: "Delivery record not found. Please refresh the list and try again.",
+        variant: "destructive"
+      });
+      loadDeliveries();
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to delete delivery record for ${delivery.station} on ${formatDate(delivery.delivery_date)}? This action cannot be undone.`)) {
       return;
     }
 
@@ -128,7 +166,7 @@ const DeliveryList: React.FC = () => {
 
       toast({
         title: "Success",
-        description: "Delivery record deleted successfully"
+        description: `Delivery record for ${delivery.station} deleted successfully`
       });
 
       loadDeliveries();
@@ -136,10 +174,11 @@ const DeliveryList: React.FC = () => {
       console.error('Error deleting delivery:', error);
       toast({
         title: "Error",
-        description: "Failed to delete delivery record",
+        description: `Failed to delete delivery record for ${delivery.station}`,
         variant: "destructive"
       });
     }
+
   };
 
   const formatDate = (dateString: string) => {
@@ -342,40 +381,40 @@ const DeliveryList: React.FC = () => {
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleViewReport(delivery)}
-                        className="h-8 w-8 p-0 hover:bg-blue-50"
-                        title="View Report">
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewReport(delivery)}
+                          className="h-8 w-8 p-0 hover:bg-blue-50"
+                          title="View Report">
 
                             <Eye className="h-4 w-4 text-blue-600" />
                           </Button>
                           
                           {/* Only show Edit button if user is Administrator */}
                           {isAdmin() &&
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEdit(delivery.id)}
-                        className="h-8 w-8 p-0 hover:bg-orange-50"
-                        title="Edit Delivery">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEdit(delivery.id)}
+                          className="h-8 w-8 p-0 hover:bg-orange-50"
+                          title="Edit Delivery">
 
                             <Edit className="h-4 w-4 text-orange-600" />
                           </Button>
-                      }
+                        }
                           
                           {/* Only show Delete button if user is Administrator */}
                           {isAdmin() &&
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(delivery.id)}
-                        className="h-8 w-8 p-0 hover:bg-red-50"
-                        title="Delete Delivery">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(delivery.id)}
+                          className="h-8 w-8 p-0 hover:bg-red-50"
+                          title="Delete Delivery">
 
                             <Trash2 className="h-4 w-4 text-red-600" />
                           </Button>
-                      }
+                        }
                           </div>
                         </TableCell>
                       </TableRow>
