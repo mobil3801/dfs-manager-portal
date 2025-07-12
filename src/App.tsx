@@ -89,6 +89,7 @@ const OverflowTestingPage = createOptimizedLazyRoute(() => import('@/pages/Overf
 const FileUploadTestPage = createOptimizedLazyRoute(() => import('@/components/FileUploadTestPage'), 'FileUploadTestPage');
 const DatabaseMonitoring = createOptimizedLazyRoute(() => import('@/pages/Admin/DatabaseMonitoring'), 'DatabaseMonitoring');
 const AuditMonitoring = createOptimizedLazyRoute(() => import('@/pages/Admin/AuditMonitoring'), 'AuditMonitoring');
+const DeploymentSuccessPage = createOptimizedLazyRoute(() => import('@/pages/DeploymentSuccessPage'), 'DeploymentSuccessPage');
 
 // Previously static imports now lazy-loaded
 const OnAuthSuccessPage = createOptimizedLazyRoute(() => import('@/pages/OnAuthSuccessPage'), 'OnAuthSuccessPage');
@@ -307,6 +308,9 @@ const AppRouter = () => {
             <Route path="admin/bundle-optimization" element={<OptimizedLazyRoute componentName="BundleOptimizationPage"><BundleOptimizationPage /></OptimizedLazyRoute>} />
             <Route path="admin/database" element={<OptimizedLazyRoute componentName="DatabaseMonitoring"><DatabaseMonitoring /></OptimizedLazyRoute>} />
             <Route path="admin/audit" element={<OptimizedLazyRoute componentName="AuditMonitoring"><AuditMonitoring /></OptimizedLazyRoute>} />
+            
+            {/* Special Pages */}
+            <Route path="deployment-success" element={<OptimizedLazyRoute componentName="DeploymentSuccessPage"><DeploymentSuccessPage /></OptimizedLazyRoute>} />
           </Route>
           
           {/* 404 */}
