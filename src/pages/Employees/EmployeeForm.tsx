@@ -843,24 +843,24 @@ const EmployeeForm: React.FC = () => {
                             <div className="mb-3">
                               <div className="aspect-video bg-white rounded-lg overflow-hidden border border-blue-200">
                                 <img
-                                  src={`${window.location.origin}/api/files/${getExistingDocumentFileId(index)}`}
-                                  alt={`Existing Document ${index + 1} preview`}
-                                  className="w-full h-full object-contain"
-                                  onError={(e) => {
-                                    // Fallback to file icon if image fails to load
-                                    const target = e.target as HTMLImageElement;
-                                    target.style.display = 'none';
-                                    const fallbackDiv = target.nextElementSibling as HTMLDivElement;
-                                    if (fallbackDiv) {
-                                      fallbackDiv.style.display = 'flex';
-                                    }
-                                  }}
-                                />
+                              src={`${window.location.origin}/api/files/${getExistingDocumentFileId(index)}`}
+                              alt={`Existing Document ${index + 1} preview`}
+                              className="w-full h-full object-contain"
+                              onError={(e) => {
+                                // Fallback to file icon if image fails to load
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                const fallbackDiv = target.nextElementSibling as HTMLDivElement;
+                                if (fallbackDiv) {
+                                  fallbackDiv.style.display = 'flex';
+                                }
+                              }} />
+
                                 {/* Fallback for non-image files */}
-                                <div 
-                                  className="w-full h-full flex items-center justify-center bg-gray-100"
-                                  style={{ display: 'none' }}
-                                >
+                                <div
+                              className="w-full h-full flex items-center justify-center bg-gray-100"
+                              style={{ display: 'none' }}>
+
                                   <div className="text-center">
                                     <FileText className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                                     <p className="text-xs text-gray-500">Document File</p>
