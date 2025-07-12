@@ -26,6 +26,7 @@ interface Employee {
   phone: string;
   position: string;
   station: string;
+  shift: string;
   hire_date: string;
   salary: number;
   is_active: boolean;
@@ -222,6 +223,7 @@ const EmployeeList: React.FC = () => {
     `Phone,${selectedEmployee.phone}`,
     `Position,${selectedEmployee.position}`,
     `Station,${selectedEmployee.station}`,
+    `Shift,${selectedEmployee.shift}`,
     `Hire Date,${selectedEmployee.hire_date}`,
     `Salary,${selectedEmployee.salary}`,
     `Employment Status,${selectedEmployee.employment_status}`,
@@ -299,6 +301,44 @@ const EmployeeList: React.FC = () => {
     return new Date(dateString).toLocaleDateString();
   };
 
+  const ShiftBadge = ({ shift }: { shift: string }) => {
+    switch (shift) {
+      case 'Day':
+        return (
+          <Badge className="bg-white text-black border border-gray-300 hover:bg-gray-50">
+            {shift}
+          </Badge>
+        );
+      case 'Night':
+        return (
+          <Badge className="bg-black text-white hover:bg-gray-800">
+            {shift}
+          </Badge>
+        );
+      case 'Day & Night':
+        return (
+          <div className="relative overflow-hidden rounded-sm">
+            <Badge 
+              className="relative bg-gradient-to-r from-white from-50% to-black to-50% text-transparent border border-gray-300"
+              style={{ background: 'linear-gradient(90deg, white 50%, black 50%)' }}
+            >
+              <span className="absolute inset-0 flex">
+                <span className="flex-1 text-black text-center leading-[22px] text-xs font-medium">Day</span>
+                <span className="flex-1 text-white text-center leading-[22px] text-xs font-medium">Night</span>
+              </span>
+              Day & Night
+            </Badge>
+          </div>
+        );
+      default:
+        return (
+          <Badge className="bg-gray-100 text-gray-700">
+            {shift || 'N/A'}
+          </Badge>
+        );
+    }
+  };
+
   // Define view modal fields with profile picture and employment status
   const getViewModalFields = (employee: Employee) => [
   {
@@ -354,6 +394,13 @@ const EmployeeList: React.FC = () => {
     value: employee.station,
     type: 'badge' as const,
     badgeColor: getStationBadgeColor(employee.station)
+  },
+  {
+    key: 'shift',
+    label: 'Shift',
+    value: employee.shift,
+    type: 'custom' as const,
+    customComponent: <ShiftBadge shift={employee.shift} />
   },
   {
     key: 'employment_status',
@@ -507,10 +554,13 @@ const EmployeeList: React.FC = () => {
                             <p className="text-xs text-gray-400">{employee.employee_id}</p>
                             
                             <div className="flex items-center justify-between mt-2">
-                              <Badge
-                            className={`text-white text-xs ${getStationBadgeColor(employee.station)}`}>
-                                {employee.station}
-                              </Badge>
+                              <div className="flex items-center space-x-2">
+                                <Badge
+                              className={`text-white text-xs ${getStationBadgeColor(employee.station)}`}>
+                                  {employee.station}
+                                </Badge>
+                                <ShiftBadge shift={employee.shift} />
+                              </div>
                               
                               <div className="flex space-x-1">
                                 <Button
@@ -673,6 +723,7 @@ const EmployeeList: React.FC = () => {
                     <TableHead>Contact</TableHead>
                     <TableHead>Position</TableHead>
                     <TableHead>Station</TableHead>
+                    <TableHead>Shift</TableHead>
                     <TableHead>Employment Status</TableHead>
                     <TableHead>Hire Date</TableHead>
                     <TableHead>Status</TableHead>
@@ -725,6 +776,9 @@ const EmployeeList: React.FC = () => {
                         <Badge className={`text-white ${getStationBadgeColor(employee.station)}`}>
                           {employee.station}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <ShiftBadge shift={employee.shift} />
                       </TableCell>
                       <TableCell>
                         <Badge className={`text-white ${getEmploymentStatusColor(employee.employment_status || 'Ongoing')}`}>
@@ -798,12 +852,6 @@ const EmployeeList: React.FC = () => {
           }
 
           {/* Summary Information */}
-          
-
-
-
-
-
         </CardContent>
       </Card>
       
