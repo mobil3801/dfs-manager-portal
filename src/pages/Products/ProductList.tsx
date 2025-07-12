@@ -278,11 +278,11 @@ const ProductList: React.FC = () => {
   const handleDelete = async (productId: number) => {
     console.log('handleDelete called for product ID:', productId);
 
-    // Check delete permission with module access control
-    if (!canDeleteProduct) {
+    // Check if user is admin
+    if (userProfile?.role !== 'Administrator' && userProfile?.role !== 'Admin') {
       toast({
         title: "Access Denied",
-        description: "You don't have permission to delete products.",
+        description: "Only administrators can delete products.",
         variant: "destructive"
       });
       return;
@@ -554,11 +554,11 @@ const ProductList: React.FC = () => {
   const handleEdit = (productId: number) => {
     console.log('handleEdit called for product ID:', productId);
 
-    // Check edit permission with module access control
-    if (!canEditProduct) {
+    // Check if user is admin
+    if (userProfile?.role !== 'Administrator' && userProfile?.role !== 'Admin') {
       toast({
         title: "Access Denied",
-        description: "You don't have permission to edit products.",
+        description: "Only administrators can edit products.",
         variant: "destructive"
       });
       return;
@@ -763,7 +763,8 @@ const ProductList: React.FC = () => {
             onViewLogs={handleViewLogs}
             onSaveProduct={handleSaveProduct}
             onDeleteProduct={handleDelete}
-            savingProductId={savingProductId} /> :
+            savingProductId={savingProductId}
+            userRole={userProfile?.role} /> :
 
 
           <ResponsiveTable className="border rounded-lg overflow-hidden">
@@ -864,8 +865,8 @@ const ProductList: React.FC = () => {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-1">
-                            {/* Only show Edit button if edit permission is enabled */}
-                            {canEditProduct &&
+                            {/* Only show Edit button if user is admin */}
+                            {userProfile?.role === 'Administrator' || userProfile?.role === 'Admin' ?
                           <Button
                             variant="outline"
                             size="sm"
@@ -876,8 +877,8 @@ const ProductList: React.FC = () => {
                             title="Edit product"
                             className="text-blue-600 hover:text-blue-700">
                                 <Edit className="w-4 h-4" />
-                              </Button>
-                          }
+                              </Button> :
+                          null}
                             
                             <Button
                             variant="outline"
@@ -901,8 +902,8 @@ const ProductList: React.FC = () => {
                               <FileText className="w-4 h-4" />
                             </Button>
                             
-                            {/* Only show Delete button if delete permission is enabled */}
-                            {canDeleteProduct &&
+                            {/* Only show Delete button if user is admin */}
+                            {userProfile?.role === 'Administrator' || userProfile?.role === 'Admin' ?
                           <Button
                             variant="outline"
                             size="sm"
@@ -913,8 +914,8 @@ const ProductList: React.FC = () => {
                             className="text-red-600 hover:text-red-700"
                             title="Delete product">
                                 <Trash2 className="w-4 h-4" />
-                              </Button>
-                          }
+                              </Button> :
+                          null}
                           </div>
                         </TableCell>
                       </TableRow>);
