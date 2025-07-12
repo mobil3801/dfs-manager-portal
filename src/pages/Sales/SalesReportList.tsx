@@ -497,27 +497,27 @@ const SalesReportList: React.FC = () => {
                           </Button>
                           
                           {/* Only show Edit button if user is Administrator and has edit permission */}
-                          {canEditSales && isAdmin() && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleEdit(report.ID)}
-                              title="Edit Report">
+                          {canEditSales && isAdmin() &&
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(report.ID)}
+                        title="Edit Report">
                               <Edit className="w-4 h-4" />
                             </Button>
-                          )}
+                      }
                           
                           {/* Only show Delete button if user is Administrator and has delete permission */}
-                          {canDeleteSales && isAdmin() && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDelete(report.ID)}
-                              className="text-red-600 hover:text-red-700"
-                              title="Delete Report">
+                          {canDeleteSales && isAdmin() &&
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(report.ID)}
+                        className="text-red-600 hover:text-red-700"
+                        title="Delete Report">
                               <Trash2 className="w-4 h-4" />
                             </Button>
-                          )}
+                      }
                         </div>
                       </TableCell>
                     </TableRow>

@@ -397,15 +397,24 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     // Parse detailed permissions if they exist
     if (userProfile.detailed_permissions) {
       try {
-        const permissions = typeof userProfile.detailed_permissions === 'string' ?
-        JSON.parse(userProfile.detailed_permissions) :
-        userProfile.detailed_permissions;
+        let permissions;
+        if (typeof userProfile.detailed_permissions === 'string') {
+          // Only try to parse if it's a valid JSON string
+          if (userProfile.detailed_permissions.trim().startsWith('{') || userProfile.detailed_permissions.trim().startsWith('[')) {
+            permissions = JSON.parse(userProfile.detailed_permissions);
+          } else {
+            // Invalid JSON string, skip detailed permissions
+            permissions = {};
+          }
+        } else {
+          permissions = userProfile.detailed_permissions;
+        }
 
         if (resource && permissions[resource] && permissions[resource][action]) {
           return true;
         }
       } catch (error) {
-        console.error('Error parsing permissions:', error);
+        console.warn('Error parsing permissions, using default role-based permissions:', error);
       }
     }
 

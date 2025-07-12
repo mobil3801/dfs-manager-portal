@@ -143,8 +143,8 @@ const OrderList: React.FC = () => {
     `Station,${selectedOrder.station}`,
     `Total Amount,${selectedOrder.total_amount}`,
     `Status,${selectedOrder.status}`,
-    `Notes,${selectedOrder.notes}`]
-    .join('\n');
+    `Notes,${selectedOrder.notes}`].
+    join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -279,8 +279,8 @@ const OrderList: React.FC = () => {
     label: 'Notes',
     value: order.notes,
     type: 'text' as const
-  }
-];
+  }];
+
 
 
   return (
@@ -448,31 +448,31 @@ const OrderList: React.FC = () => {
                             <Eye className="w-4 h-4" />
                           </Button>
                           {/* Only show Edit button if user is Administrator */}
-                          {userProfile?.role === 'Administrator' && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEdit(order.ID);
-                              }}>
+                          {userProfile?.role === 'Administrator' &&
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(order.ID);
+                        }}>
                               <Edit className="w-4 h-4" />
                             </Button>
-                          )}
+                      }
                           
                           {/* Only show Delete button if user is Administrator */}
-                          {userProfile?.role === 'Administrator' && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDelete(order.ID);
-                              }}
-                              className="text-red-600 hover:text-red-700">
+                          {userProfile?.role === 'Administrator' &&
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(order.ID);
+                        }}
+                        className="text-red-600 hover:text-red-700">
                               <Trash2 className="w-4 h-4" />
                             </Button>
-                          )}
+                      }
                         </div>
                       </TableCell>
                     </motion.tr>
@@ -538,8 +538,8 @@ const OrderList: React.FC = () => {
         canExport={true} />
 
       }
-    </div>
-  );
+    </div>);
+
 
 };
 
