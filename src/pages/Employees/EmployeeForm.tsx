@@ -23,6 +23,7 @@ interface EmployeeFormData {
   phone: string;
   position: string;
   station: string;
+  shift: string;
   hire_date: string;
   salary: number;
   is_active: boolean;
@@ -45,6 +46,7 @@ const EmployeeForm: React.FC = () => {
     phone: '',
     position: '',
     station: '',
+    shift: '',
     hire_date: '',
     salary: 0,
     is_active: true,
@@ -67,6 +69,7 @@ const EmployeeForm: React.FC = () => {
   const { id } = useParams();
 
   const positions = ['Manager', 'Supervisor', 'Cashier', 'Attendant', 'Mechanic', 'Cleaner'];
+  const shifts = ['Day', 'Night', 'Day & Night'];
   const idDocumentTypes = ['Driving License', 'Passport', 'Green Card', 'SSN', 'Work Permit'];
 
   const employmentStatuses = [
@@ -176,6 +179,7 @@ const EmployeeForm: React.FC = () => {
           phone: employee.phone || '',
           position: employee.position || '',
           station: employee.station || '',
+          shift: employee.shift || '',
           hire_date: employee.hire_date ? employee.hire_date.split('T')[0] : '',
           salary: employee.salary || 0,
           is_active: employee.is_active !== false,
@@ -438,6 +442,22 @@ const EmployeeForm: React.FC = () => {
                     required
                     includeAll={false} // Individual employees should be assigned to specific stations
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="shift">Shift *</Label>
+                  <Select value={formData.shift} onValueChange={(value) => handleInputChange('shift', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select shift" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {shifts.map((shift) =>
+                      <SelectItem key={shift} value={shift}>
+                          {shift}
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
