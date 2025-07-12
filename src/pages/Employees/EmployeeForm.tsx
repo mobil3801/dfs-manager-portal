@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
-import { Users, Save, ArrowLeft, X } from 'lucide-react';
+import { Users, Save, ArrowLeft, X, FileText, Upload } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import EnhancedFileUpload from '@/components/EnhancedFileUpload';
 import StationDropdown from '@/components/StationDropdown';
@@ -34,7 +34,16 @@ interface EmployeeFormData {
   reference_name: string;
   id_document_type: string;
   id_document_file_id: number | null;
+  id_document_2_file_id: number | null;
+  id_document_3_file_id: number | null;
+  id_document_4_file_id: number | null;
   profile_image_id: number | null;
+}
+
+interface IDDocument {
+  file: File | null;
+  name: string;
+  preview: string | null;
 }
 
 const EmployeeForm: React.FC = () => {
@@ -57,9 +66,20 @@ const EmployeeForm: React.FC = () => {
     reference_name: '',
     id_document_type: '',
     id_document_file_id: null,
+    id_document_2_file_id: null,
+    id_document_3_file_id: null,
+    id_document_4_file_id: null,
     profile_image_id: null
   });
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  // ID Documents state - 4 separate documents
+  const [idDocuments, setIdDocuments] = useState<IDDocument[]>([
+  { file: null, name: '', preview: null },
+  { file: null, name: '', preview: null },
+  { file: null, name: '', preview: null },
+  { file: null, name: '', preview: null }]
+  );
+
   const [selectedProfileImage, setSelectedProfileImage] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -190,8 +210,27 @@ const EmployeeForm: React.FC = () => {
           reference_name: employee.reference_name || '',
           id_document_type: employee.id_document_type || '',
           id_document_file_id: employee.id_document_file_id || null,
+          id_document_2_file_id: employee.id_document_2_file_id || null,
+          id_document_3_file_id: employee.id_document_3_file_id || null,
+          id_document_4_file_id: employee.id_document_4_file_id || null,
           profile_image_id: employee.profile_image_id || null
         });
+
+        // Initialize ID documents state for editing
+        const newIdDocuments = [...idDocuments];
+        if (employee.id_document_file_id) {
+          newIdDocuments[0] = { file: null, name: 'Existing Document 1', preview: null };
+        }
+        if (employee.id_document_2_file_id) {
+          newIdDocuments[1] = { file: null, name: 'Existing Document 2', preview: null };
+        }
+        if (employee.id_document_3_file_id) {
+          newIdDocuments[2] = { file: null, name: 'Existing Document 3', preview: null };
+        }
+        if (employee.id_document_4_file_id) {
+          newIdDocuments[3] = { file: null, name: 'Existing Document 4', preview: null };
+        }
+        setIdDocuments(newIdDocuments);
       }
     } catch (error) {
       console.error('Error loading employee:', error);
@@ -227,6 +266,46 @@ const EmployeeForm: React.FC = () => {
     }
   };
 
+  const handleIDDocumentSelect = (file: File, index: number) => {
+    const newIdDocuments = [...idDocuments];
+
+    // Create preview URL for image files
+    let preview = null;
+    if (file.type.startsWith('image/')) {
+      preview = URL.createObjectURL(file);
+    }
+
+    newIdDocuments[index] = {
+      file: file,
+      name: file.name,
+      preview: preview
+    };
+
+    setIdDocuments(newIdDocuments);
+
+    toast({
+      title: "Document Selected",
+      description: `ID Document ${index + 1} has been selected for upload.`
+    });
+  };
+
+  const handleRemoveIDDocument = (index: number) => {
+    const newIdDocuments = [...idDocuments];
+
+    // Clean up preview URL
+    if (newIdDocuments[index].preview) {
+      URL.revokeObjectURL(newIdDocuments[index].preview!);
+    }
+
+    newIdDocuments[index] = { file: null, name: '', preview: null };
+    setIdDocuments(newIdDocuments);
+
+    toast({
+      title: "Document Removed",
+      description: `ID Document ${index + 1} has been removed.`
+    });
+  };
+
   const handleRemoveProfileImage = () => {
     setSelectedProfileImage(null);
     setFormData((prev) => ({ ...prev, profile_image_id: null }));
@@ -252,17 +331,13 @@ const EmployeeForm: React.FC = () => {
     try {
       setLoading(true);
 
-      let idDocumentFileId = formData.id_document_file_id;
       let profileImageId = formData.profile_image_id;
+      let idDocumentFileIds = [
+      formData.id_document_file_id,
+      formData.id_document_2_file_id,
+      formData.id_document_3_file_id,
+      formData.id_document_4_file_id];
 
-      // Upload ID document if selected
-      if (selectedFile) {
-        idDocumentFileId = await handleFileUpload(selectedFile);
-        if (idDocumentFileId === null) {
-          setLoading(false);
-          return;
-        }
-      }
 
       // Upload profile image if selected
       if (selectedProfileImage) {
@@ -273,11 +348,26 @@ const EmployeeForm: React.FC = () => {
         }
       }
 
+      // Upload ID documents if selected
+      for (let i = 0; i < idDocuments.length; i++) {
+        if (idDocuments[i].file) {
+          const uploadedFileId = await handleFileUpload(idDocuments[i].file!);
+          if (uploadedFileId === null) {
+            setLoading(false);
+            return;
+          }
+          idDocumentFileIds[i] = uploadedFileId;
+        }
+      }
+
       const dataToSubmit = {
         ...formData,
         hire_date: formData.hire_date ? new Date(formData.hire_date).toISOString() : '',
         date_of_birth: formData.date_of_birth ? new Date(formData.date_of_birth).toISOString() : '',
-        id_document_file_id: idDocumentFileId,
+        id_document_file_id: idDocumentFileIds[0],
+        id_document_2_file_id: idDocumentFileIds[1],
+        id_document_3_file_id: idDocumentFileIds[2],
+        id_document_4_file_id: idDocumentFileIds[3],
         profile_image_id: profileImageId,
         created_by: 1
       };
@@ -318,6 +408,29 @@ const EmployeeForm: React.FC = () => {
 
   const handleInputChange = (field: keyof EmployeeFormData, value: string | number | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // Calculate how many ID document boxes to show (progressive reveal)
+  const getVisibleIDDocumentBoxes = () => {
+    let visibleBoxes = 1; // Always show at least the first box
+
+    for (let i = 0; i < idDocuments.length; i++) {
+      if (idDocuments[i].file || isEditing && getExistingDocumentFileId(i)) {
+        visibleBoxes = Math.max(visibleBoxes, i + 2); // Show next box after this one
+      }
+    }
+
+    return Math.min(visibleBoxes, 4); // Maximum 4 boxes
+  };
+
+  const getExistingDocumentFileId = (index: number) => {
+    switch (index) {
+      case 0:return formData.id_document_file_id;
+      case 1:return formData.id_document_2_file_id;
+      case 2:return formData.id_document_3_file_id;
+      case 3:return formData.id_document_4_file_id;
+      default:return null;
+    }
   };
 
   return (
@@ -624,45 +737,119 @@ const EmployeeForm: React.FC = () => {
               </div>
             </div>
 
-            {/* ID Documentation Section */}
+            {/* ID Documentation Section with Progressive Preview Boxes */}
             <div>
               <h3 className="text-lg font-semibold mb-4 text-gray-900">ID Documentation</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="id_document_type">ID Document Type</Label>
-                  <Select value={formData.id_document_type} onValueChange={(value) => handleInputChange('id_document_type', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select ID document type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {idDocumentTypes.map((type) =>
-                      <SelectItem key={type} value={type}>
-                          {type}
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
+              <div className="space-y-6">
+                {/* ID Document Type Selection */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="id_document_type">ID Document Type</Label>
+                    <Select value={formData.id_document_type} onValueChange={(value) => handleInputChange('id_document_type', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select ID document type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {idDocumentTypes.map((type) =>
+                        <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label>ID Document Upload</Label>
-                  <EnhancedFileUpload
-                    onFileSelect={setSelectedFile}
-                    accept=".pdf,.jpg,.jpeg,.png,image/*"
-                    label="Upload ID Document"
-                    currentFile={selectedFile?.name}
-                    maxSize={10} />
+                {/* Progressive ID Document Upload Boxes */}
+                <div className="space-y-6">
+                  <h4 className="text-md font-medium text-gray-800">Upload ID Documents</h4>
+                  <p className="text-sm text-gray-600">Upload up to 4 ID documents. Additional boxes will appear as you upload files.</p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {Array.from({ length: getVisibleIDDocumentBoxes() }, (_, index) =>
+                    <div key={index} className="space-y-3 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                        <div className="flex items-center justify-between">
+                          <Label className="flex items-center space-x-2">
+                            <FileText className="w-4 h-4" />
+                            <span>ID Document {index + 1}</span>
+                            {index === 0 && <span className="text-red-500">*</span>}
+                          </Label>
+                          {(idDocuments[index].file || getExistingDocumentFileId(index)) &&
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleRemoveIDDocument(index)}
+                          className="text-red-600 hover:text-red-700 h-6 px-2">
+                              <X className="w-3 h-3" />
+                            </Button>
+                        }
+                        </div>
 
-                  {selectedFile &&
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                      <p className="text-sm font-medium">Selected file:</p>
-                      <p className="text-sm text-gray-600">{selectedFile.name}</p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {selectedFile.type.includes('image') ? 'Image file selected' : 'Document file selected'}
-                      </p>
-                    </div>
-                  }
-                  <p className="text-xs text-gray-500">Supported formats: PDF, JPG, PNG (Max 10MB)</p>
+                        <EnhancedFileUpload
+                        onFileSelect={(file) => handleIDDocumentSelect(file, index)}
+                        accept=".pdf,.jpg,.jpeg,.png,image/*"
+                        label={`Upload Document ${index + 1}`}
+                        currentFile={idDocuments[index].name}
+                        maxSize={10}
+                        disabled={loading || isUploading} />
+
+                        {/* Preview for uploaded file */}
+                        {idDocuments[index].file &&
+                      <div className="p-3 bg-white rounded-lg border border-gray-200">
+                            <div className="flex items-start space-x-3">
+                              {idDocuments[index].preview ?
+                          <img
+                            src={idDocuments[index].preview!}
+                            alt={`ID Document ${index + 1} preview`}
+                            className="w-16 h-16 object-cover rounded border" /> :
+
+
+                          <div className="w-16 h-16 bg-gray-100 rounded border flex items-center justify-center">
+                                  <FileText className="w-6 h-6 text-gray-400" />
+                                </div>
+                          }
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900 truncate">
+                                  {idDocuments[index].name}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {idDocuments[index].file!.type.includes('image') ? 'Image file' : 'Document file'}
+                                  {' • '}
+                                  {(idDocuments[index].file!.size / 1024 / 1024).toFixed(1)} MB
+                                </p>
+                                <Badge variant="secondary" className="mt-1 text-xs">
+                                  Ready for upload
+                                </Badge>
+                              </div>
+                            </div>
+                          </div>
+                      }
+
+                        {/* Show existing document in edit mode */}
+                        {isEditing && !idDocuments[index].file && getExistingDocumentFileId(index) &&
+                      <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <div className="flex items-center space-x-2">
+                              <FileText className="w-4 h-4 text-blue-600" />
+                              <span className="text-sm text-blue-800">Existing Document {index + 1}</span>
+                              <Badge variant="outline" className="text-xs text-blue-600 border-blue-300">
+                                Currently uploaded
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-blue-600 mt-1">
+                              Upload a new file to replace the existing document
+                            </p>
+                          </div>
+                      }
+                      </div>
+                    )}
+                  </div>
+
+                  <p className="text-xs text-gray-500">
+                    Supported formats: PDF, JPG, PNG (Max 10MB per file)
+                    <br />
+                    Tip: Additional upload boxes will appear automatically as you upload files
+                  </p>
                 </div>
               </div>
             </div>

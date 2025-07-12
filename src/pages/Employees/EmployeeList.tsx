@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Search, Edit, Trash2, Users, Mail, Phone, Plus, Eye, Download, User } from 'lucide-react';
+import { Search, Edit, Trash2, Users, Mail, Phone, Plus, Eye, Download, User, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useModuleAccess } from '@/contexts/ModuleAccessContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -39,6 +39,9 @@ interface Employee {
   reference_name?: string;
   id_document_type?: string;
   id_document_file_id?: number | null;
+  id_document_2_file_id?: number | null;
+  id_document_3_file_id?: number | null;
+  id_document_4_file_id?: number | null;
 }
 
 const EmployeeList: React.FC = () => {
@@ -301,45 +304,105 @@ const EmployeeList: React.FC = () => {
     return new Date(dateString).toLocaleDateString();
   };
 
-  const ShiftBadge = ({ shift }: { shift: string }) => {
+  const ShiftBadge = ({ shift }: {shift: string;}) => {
     switch (shift) {
       case 'Day':
         return (
           <Badge className="bg-white text-black border border-gray-300 hover:bg-gray-50">
             {shift}
-          </Badge>
-        );
+          </Badge>);
+
       case 'Night':
         return (
           <Badge className="bg-black text-white hover:bg-gray-800">
             {shift}
-          </Badge>
-        );
+          </Badge>);
+
       case 'Day & Night':
         return (
           <div className="relative overflow-hidden rounded-sm">
-            <Badge 
+            <Badge
               className="relative bg-gradient-to-r from-white from-50% to-black to-50% text-transparent border border-gray-300"
-              style={{ background: 'linear-gradient(90deg, white 50%, black 50%)' }}
-            >
+              style={{ background: 'linear-gradient(90deg, white 50%, black 50%)' }}>
+
               <span className="absolute inset-0 flex">
                 <span className="flex-1 text-black text-center leading-[22px] text-xs font-medium">Day</span>
                 <span className="flex-1 text-white text-center leading-[22px] text-xs font-medium">Night</span>
               </span>
               Day & Night
             </Badge>
-          </div>
-        );
+          </div>);
+
       default:
         return (
           <Badge className="bg-gray-100 text-gray-700">
             {shift || 'N/A'}
-          </Badge>
-        );
+          </Badge>);
+
     }
   };
 
-  // Define view modal fields with profile picture and employment status
+  // ID Documents Display Component
+  const IDDocumentsDisplay = ({ employee }: { employee: Employee }) => {
+    const documents = [
+      { fileId: employee.id_document_file_id, label: 'ID Document 1' },
+      { fileId: employee.id_document_2_file_id, label: 'ID Document 2' },
+      { fileId: employee.id_document_3_file_id, label: 'ID Document 3' },
+      { fileId: employee.id_document_4_file_id, label: 'ID Document 4' }
+    ].filter(doc => doc.fileId);
+
+    if (documents.length === 0) {
+      return (
+        <div className="text-center py-4 text-gray-500">
+          <FileText className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+          <p className="text-sm">No ID documents uploaded</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center space-x-2">
+          <FileText className="w-4 h-4 text-gray-600" />
+          <span className="font-medium text-gray-800">ID Documents ({documents.length})</span>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {documents.map((doc, index) => (
+            <div key={index} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <FileText className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm font-medium text-gray-700">{doc.label}</span>
+                </div>
+                <Badge variant="outline" className="text-xs">
+                  Uploaded
+                </Badge>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                File ID: {doc.fileId}
+              </p>
+              {employee.id_document_type && index === 0 && (
+                <p className="text-xs text-blue-600 mt-1">
+                  Type: {employee.id_document_type}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+        
+        {employee.id_document_type && (
+          <div className="mt-3 p-2 bg-blue-50 rounded border border-blue-200">
+            <p className="text-sm text-blue-800">
+              <strong>Document Type:</strong> {employee.id_document_type}
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Define view modal fields with profile picture, employment status, and ID documents
   const getViewModalFields = (employee: Employee) => [
   {
     key: 'profile_picture',
@@ -438,6 +501,13 @@ const EmployeeList: React.FC = () => {
     label: 'Reference Name',
     value: employee.reference_name,
     type: 'text' as const
+  },
+  {
+    key: 'id_documents',
+    label: 'ID Documents',
+    value: 'id_documents',
+    type: 'custom' as const,
+    customComponent: <IDDocumentsDisplay employee={employee} />
   },
   {
     key: 'salary',
