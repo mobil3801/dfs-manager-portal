@@ -9,8 +9,8 @@ import {
   TrendingUp,
   CheckCircle,
   Zap,
-  BarChart3
-} from 'lucide-react';
+  BarChart3 } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAdminAccess } from '@/hooks/use-admin-access';
 import AccessDenied from '@/components/AccessDenied';
@@ -40,12 +40,12 @@ const BuildOptimizationPage: React.FC = () => {
             improvement: 55
           },
           strategies: [
-            'Consolidated chunk strategy',
-            'React vendor bundling',
-            'Radix UI grouping',
-            'Page-level code splitting',
-            'Component grouping'
-          ]
+          'Consolidated chunk strategy',
+          'React vendor bundling',
+          'Radix UI grouping',
+          'Page-level code splitting',
+          'Component grouping']
+
         }
       };
 
@@ -188,20 +188,20 @@ const BuildOptimizationPage: React.FC = () => {
                   <h3 className="font-semibold mb-3">Largest Chunks</h3>
                   <div className="space-y-2">
                     {[
-                      { name: 'index-*.js', size: '444.19 KB', type: 'Main Bundle' },
-                      { name: 'proxy-*.js', size: '112.39 KB', type: 'Routing' },
-                      { name: 'UserManagement-*.js', size: '64.82 KB', type: 'Admin Page' },
-                      { name: 'SalesReportForm-*.js', size: '57.05 KB', type: 'Business Logic' },
-                      { name: 'LicenseList-*.js', size: '54.74 KB', type: 'Feature Page' }
-                    ].map((chunk, index) => (
-                      <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                    { name: 'index-*.js', size: '444.19 KB', type: 'Main Bundle' },
+                    { name: 'proxy-*.js', size: '112.39 KB', type: 'Routing' },
+                    { name: 'UserManagement-*.js', size: '64.82 KB', type: 'Admin Page' },
+                    { name: 'SalesReportForm-*.js', size: '57.05 KB', type: 'Business Logic' },
+                    { name: 'LicenseList-*.js', size: '54.74 KB', type: 'Feature Page' }].
+                    map((chunk, index) =>
+                    <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
                         <div>
                           <div className="font-medium">{chunk.name}</div>
                           <div className="text-sm text-gray-600">{chunk.type}</div>
                         </div>
                         <Badge variant="outline">{chunk.size}</Badge>
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               </div>
@@ -224,18 +224,18 @@ const BuildOptimizationPage: React.FC = () => {
                     <h3 className="font-semibold text-green-600">Implemented ✓</h3>
                     <div className="space-y-3">
                       {[
-                        'Intelligent chunk grouping',
-                        'Vendor bundle consolidation',
-                        'Page-level code splitting',
-                        'Component organization',
-                        'Terser optimization',
-                        'Tree shaking enabled'
-                      ].map((item, index) => (
-                        <div key={index} className="flex items-center gap-2">
+                      'Intelligent chunk grouping',
+                      'Vendor bundle consolidation',
+                      'Page-level code splitting',
+                      'Component organization',
+                      'Terser optimization',
+                      'Tree shaking enabled'].
+                      map((item, index) =>
+                      <div key={index} className="flex items-center gap-2">
                           <CheckCircle className="h-4 w-4 text-green-500" />
                           <span className="text-sm">{item}</span>
                         </div>
-                      ))}
+                      )}
                     </div>
                   </div>
                   
@@ -243,18 +243,18 @@ const BuildOptimizationPage: React.FC = () => {
                     <h3 className="font-semibold text-blue-600">Next Steps</h3>
                     <div className="space-y-3">
                       {[
-                        'Server-side gzip compression',
-                        'CDN implementation',
-                        'Service worker caching',
-                        'Route preloading',
-                        'Resource hints (preload/prefetch)',
-                        'Bundle size monitoring'
-                      ].map((item, index) => (
-                        <div key={index} className="flex items-center gap-2">
+                      'Server-side gzip compression',
+                      'CDN implementation',
+                      'Service worker caching',
+                      'Route preloading',
+                      'Resource hints (preload/prefetch)',
+                      'Bundle size monitoring'].
+                      map((item, index) =>
+                      <div key={index} className="flex items-center gap-2">
                           <div className="h-4 w-4 rounded-full border-2 border-blue-500" />
                           <span className="text-sm">{item}</span>
                         </div>
-                      ))}
+                      )}
                     </div>
                   </div>
                 </div>
@@ -264,7 +264,7 @@ const BuildOptimizationPage: React.FC = () => {
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <h4 className="font-medium mb-2">Nginx Configuration</h4>
                     <pre className="text-sm text-gray-700 overflow-x-auto">
-{`# Enable gzip compression
+                      {`# Enable gzip compression
 gzip on;
 gzip_vary on;
 gzip_min_length 1024;
@@ -286,8 +286,8 @@ gzip_types
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default BuildOptimizationPage;

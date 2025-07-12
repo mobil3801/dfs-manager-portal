@@ -21,13 +21,13 @@ export default defineConfig(({ mode }) => ({
       output: {
         manualChunks(id) {
           // Core React ecosystem - bundle together for better caching
-          if (id.includes('react/jsx-runtime') || 
-              id.includes('react/jsx-dev-runtime') ||
-              id.includes('react-dom/client') || 
-              id.includes('react-dom/server') ||
-              id.includes('react/') || 
-              id.includes('react-dom/') || 
-              id.includes('scheduler/')) {
+          if (id.includes('react/jsx-runtime') ||
+          id.includes('react/jsx-dev-runtime') ||
+          id.includes('react-dom/client') ||
+          id.includes('react-dom/server') ||
+          id.includes('react/') ||
+          id.includes('react-dom/') ||
+          id.includes('scheduler/')) {
             return 'react-vendor';
           }
 
@@ -42,31 +42,31 @@ export default defineConfig(({ mode }) => ({
 
           // Radix UI - group by functionality
           if (id.includes('@radix-ui/react-dialog') ||
-              id.includes('@radix-ui/react-popover') ||
-              id.includes('@radix-ui/react-tooltip') ||
-              id.includes('@radix-ui/react-dropdown-menu') ||
-              id.includes('@radix-ui/react-menubar') ||
-              id.includes('@radix-ui/react-context-menu') ||
-              id.includes('@radix-ui/react-alert-dialog') ||
-              id.includes('@radix-ui/react-hover-card')) {
+          id.includes('@radix-ui/react-popover') ||
+          id.includes('@radix-ui/react-tooltip') ||
+          id.includes('@radix-ui/react-dropdown-menu') ||
+          id.includes('@radix-ui/react-menubar') ||
+          id.includes('@radix-ui/react-context-menu') ||
+          id.includes('@radix-ui/react-alert-dialog') ||
+          id.includes('@radix-ui/react-hover-card')) {
             return 'radix-overlays';
           }
 
           if (id.includes('@radix-ui/react-select') ||
-              id.includes('@radix-ui/react-checkbox') ||
-              id.includes('@radix-ui/react-radio-group') ||
-              id.includes('@radix-ui/react-slider') ||
-              id.includes('@radix-ui/react-switch') ||
-              id.includes('@radix-ui/react-label')) {
+          id.includes('@radix-ui/react-checkbox') ||
+          id.includes('@radix-ui/react-radio-group') ||
+          id.includes('@radix-ui/react-slider') ||
+          id.includes('@radix-ui/react-switch') ||
+          id.includes('@radix-ui/react-label')) {
             return 'radix-forms';
           }
 
           if (id.includes('@radix-ui/react-accordion') ||
-              id.includes('@radix-ui/react-collapsible') ||
-              id.includes('@radix-ui/react-tabs') ||
-              id.includes('@radix-ui/react-separator') ||
-              id.includes('@radix-ui/react-aspect-ratio') ||
-              id.includes('@radix-ui/react-scroll-area')) {
+          id.includes('@radix-ui/react-collapsible') ||
+          id.includes('@radix-ui/react-tabs') ||
+          id.includes('@radix-ui/react-separator') ||
+          id.includes('@radix-ui/react-aspect-ratio') ||
+          id.includes('@radix-ui/react-scroll-area')) {
             return 'radix-layout';
           }
 
@@ -86,8 +86,8 @@ export default defineConfig(({ mode }) => ({
 
           // Form handling
           if (id.includes('react-hook-form') ||
-              id.includes('@hookform/resolvers') ||
-              id.includes('zod')) {
+          id.includes('@hookform/resolvers') ||
+          id.includes('zod')) {
             return 'forms';
           }
 
@@ -103,8 +103,8 @@ export default defineConfig(({ mode }) => ({
 
           // UI utilities
           if (id.includes('clsx') ||
-              id.includes('tailwind-merge') ||
-              id.includes('class-variance-authority')) {
+          id.includes('tailwind-merge') ||
+          id.includes('class-variance-authority')) {
             return 'ui-utils';
           }
 
@@ -143,13 +143,13 @@ export default defineConfig(({ mode }) => ({
 
           // Group business pages
           if (id.includes('src/pages/Sales/') ||
-              id.includes('src/pages/Products/') ||
-              id.includes('src/pages/Employees/') ||
-              id.includes('src/pages/Licenses/') ||
-              id.includes('src/pages/Vendors/') ||
-              id.includes('src/pages/Orders/') ||
-              id.includes('src/pages/Salary/') ||
-              id.includes('src/pages/Delivery/')) {
+          id.includes('src/pages/Products/') ||
+          id.includes('src/pages/Employees/') ||
+          id.includes('src/pages/Licenses/') ||
+          id.includes('src/pages/Vendors/') ||
+          id.includes('src/pages/Orders/') ||
+          id.includes('src/pages/Salary/') ||
+          id.includes('src/pages/Delivery/')) {
             return 'business-pages';
           }
 
@@ -164,52 +164,52 @@ export default defineConfig(({ mode }) => ({
           }
 
           if (id.includes('src/components/') && (
-              id.includes('UserPermissionManager') ||
-              id.includes('RoleBasedDashboard') ||
-              id.includes('ComprehensivePermissionDialog') ||
-              id.includes('RoleTesting/'))) {
+          id.includes('UserPermissionManager') ||
+          id.includes('RoleBasedDashboard') ||
+          id.includes('ComprehensivePermissionDialog') ||
+          id.includes('RoleTesting/'))) {
             return 'permissions';
           }
 
           if (id.includes('src/components/') && (
-              id.includes('SMS') ||
-              id.includes('Email') ||
-              id.includes('Alert'))) {
+          id.includes('SMS') ||
+          id.includes('Email') ||
+          id.includes('Alert'))) {
             return 'communications';
           }
 
           if (id.includes('src/components/') && (
-              id.includes('FileUpload') ||
-              id.includes('ProfilePicture') ||
-              id.includes('ImageCompression'))) {
+          id.includes('FileUpload') ||
+          id.includes('ProfilePicture') ||
+          id.includes('ImageCompression'))) {
             return 'file-components';
           }
 
           if (id.includes('src/components/') && (
-              id.includes('SalesChart') ||
-              id.includes('StationSalesBoxes') ||
-              id.includes('ComprehensiveDashboard'))) {
+          id.includes('SalesChart') ||
+          id.includes('StationSalesBoxes') ||
+          id.includes('ComprehensiveDashboard'))) {
             return 'chart-components';
           }
 
           if (id.includes('src/components/') && (
-              id.includes('Print') ||
-              id.includes('Export') ||
-              id.includes('Report'))) {
+          id.includes('Print') ||
+          id.includes('Export') ||
+          id.includes('Report'))) {
             return 'report-components';
           }
 
           if (id.includes('src/components/') && (
-              id.includes('Navigation') ||
-              id.includes('Overflow') ||
-              id.includes('TopNavigation'))) {
+          id.includes('Navigation') ||
+          id.includes('Overflow') ||
+          id.includes('TopNavigation'))) {
             return 'navigation-components';
           }
 
           if (id.includes('src/components/') && (
-              id.includes('Memory') ||
-              id.includes('Performance') ||
-              id.includes('Monitoring'))) {
+          id.includes('Memory') ||
+          id.includes('Performance') ||
+          id.includes('Monitoring'))) {
             return 'monitoring-components';
           }
 
@@ -219,22 +219,22 @@ export default defineConfig(({ mode }) => ({
 
           // Services, utilities, hooks, contexts - group together
           if (id.includes('src/services/') ||
-              id.includes('src/utils/') ||
-              id.includes('src/hooks/') ||
-              id.includes('src/contexts/')) {
+          id.includes('src/utils/') ||
+          id.includes('src/hooks/') ||
+          id.includes('src/contexts/')) {
             return 'app-core';
           }
 
           // Smaller vendor packages - group together
           if (id.includes('sonner') ||
-              id.includes('cmdk') ||
-              id.includes('input-otp') ||
-              id.includes('vaul') ||
-              id.includes('embla-carousel') ||
-              id.includes('next-themes') ||
-              id.includes('react-resizable-panels') ||
-              id.includes('react-day-picker') ||
-              id.includes('@dnd-kit')) {
+          id.includes('cmdk') ||
+          id.includes('input-otp') ||
+          id.includes('vaul') ||
+          id.includes('embla-carousel') ||
+          id.includes('next-themes') ||
+          id.includes('react-resizable-panels') ||
+          id.includes('react-day-picker') ||
+          id.includes('@dnd-kit')) {
             return 'vendor-misc';
           }
 

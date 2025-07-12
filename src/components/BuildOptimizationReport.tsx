@@ -22,74 +22,74 @@ const BuildOptimizationReport = () => {
   };
 
   const improvements = [
-    {
-      metric: 'Total Chunks',
-      before: optimizationData.before.totalChunks,
-      after: optimizationData.after.totalChunks,
-      improvement: ((optimizationData.before.totalChunks - optimizationData.after.totalChunks) / optimizationData.before.totalChunks * 100).toFixed(1),
-      icon: Package,
-      color: 'green'
-    },
-    {
-      metric: 'Main Bundle Size',
-      before: optimizationData.before.mainBundleSize,
-      after: optimizationData.after.mainBundleSize,
-      improvement: ((optimizationData.before.mainBundleSize - optimizationData.after.mainBundleSize) / optimizationData.before.mainBundleSize * 100).toFixed(1),
-      icon: Zap,
-      color: 'blue',
-      unit: 'KB'
-    },
-    {
-      metric: 'Total Bundle Size',
-      before: optimizationData.before.totalSize,
-      after: optimizationData.after.totalSize,
-      improvement: ((optimizationData.before.totalSize - optimizationData.after.totalSize) / optimizationData.before.totalSize * 100).toFixed(1),
-      icon: TrendingUp,
-      color: 'purple',
-      unit: 'KB'
-    },
-    {
-      metric: 'Large Chunks (>300KB)',
-      before: optimizationData.before.largeChunks,
-      after: optimizationData.after.largeChunks,
-      improvement: ((optimizationData.before.largeChunks - optimizationData.after.largeChunks) / optimizationData.before.largeChunks * 100).toFixed(1),
-      icon: AlertTriangle,
-      color: 'orange'
-    }
-  ];
+  {
+    metric: 'Total Chunks',
+    before: optimizationData.before.totalChunks,
+    after: optimizationData.after.totalChunks,
+    improvement: ((optimizationData.before.totalChunks - optimizationData.after.totalChunks) / optimizationData.before.totalChunks * 100).toFixed(1),
+    icon: Package,
+    color: 'green'
+  },
+  {
+    metric: 'Main Bundle Size',
+    before: optimizationData.before.mainBundleSize,
+    after: optimizationData.after.mainBundleSize,
+    improvement: ((optimizationData.before.mainBundleSize - optimizationData.after.mainBundleSize) / optimizationData.before.mainBundleSize * 100).toFixed(1),
+    icon: Zap,
+    color: 'blue',
+    unit: 'KB'
+  },
+  {
+    metric: 'Total Bundle Size',
+    before: optimizationData.before.totalSize,
+    after: optimizationData.after.totalSize,
+    improvement: ((optimizationData.before.totalSize - optimizationData.after.totalSize) / optimizationData.before.totalSize * 100).toFixed(1),
+    icon: TrendingUp,
+    color: 'purple',
+    unit: 'KB'
+  },
+  {
+    metric: 'Large Chunks (>300KB)',
+    before: optimizationData.before.largeChunks,
+    after: optimizationData.after.largeChunks,
+    improvement: ((optimizationData.before.largeChunks - optimizationData.after.largeChunks) / optimizationData.before.largeChunks * 100).toFixed(1),
+    icon: AlertTriangle,
+    color: 'orange'
+  }];
+
 
   const optimizationStrategies = [
-    {
-      title: 'Consolidated Chunk Strategy',
-      description: 'Grouped related dependencies to reduce HTTP requests',
-      status: 'implemented',
-      impact: 'High'
-    },
-    {
-      title: 'React Vendor Bundling',
-      description: 'Combined React ecosystem libraries into single vendor chunk',
-      status: 'implemented',
-      impact: 'Medium'
-    },
-    {
-      title: 'Radix UI Grouping',
-      description: 'Organized Radix UI components by functionality',
-      status: 'implemented',
-      impact: 'Medium'
-    },
-    {
-      title: 'Page-Level Code Splitting',
-      description: 'Separated large admin pages into individual chunks',
-      status: 'implemented',
-      impact: 'High'
-    },
-    {
-      title: 'Component Grouping',
-      description: 'Organized components by feature and functionality',
-      status: 'implemented',
-      impact: 'Medium'
-    }
-  ];
+  {
+    title: 'Consolidated Chunk Strategy',
+    description: 'Grouped related dependencies to reduce HTTP requests',
+    status: 'implemented',
+    impact: 'High'
+  },
+  {
+    title: 'React Vendor Bundling',
+    description: 'Combined React ecosystem libraries into single vendor chunk',
+    status: 'implemented',
+    impact: 'Medium'
+  },
+  {
+    title: 'Radix UI Grouping',
+    description: 'Organized Radix UI components by functionality',
+    status: 'implemented',
+    impact: 'Medium'
+  },
+  {
+    title: 'Page-Level Code Splitting',
+    description: 'Separated large admin pages into individual chunks',
+    status: 'implemented',
+    impact: 'High'
+  },
+  {
+    title: 'Component Grouping',
+    description: 'Organized components by feature and functionality',
+    status: 'implemented',
+    impact: 'Medium'
+  }];
+
 
   return (
     <div className="space-y-6">
@@ -133,15 +133,15 @@ const BuildOptimizationReport = () => {
                         -{item.improvement}%
                       </Badge>
                     </div>
-                    <Progress 
-                      value={parseFloat(item.improvement)} 
-                      className="h-2"
-                    />
+                    <Progress
+                      value={parseFloat(item.improvement)}
+                      className="h-2" />
+
                   </div>
                 </div>
               </CardContent>
-            </Card>
-          );
+            </Card>);
+
         })}
       </div>
 
@@ -154,8 +154,8 @@ const BuildOptimizationReport = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {optimizationStrategies.map((strategy, index) => (
-              <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
+            {optimizationStrategies.map((strategy, index) =>
+            <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
                 <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
@@ -167,7 +167,7 @@ const BuildOptimizationReport = () => {
                   <p className="text-sm text-gray-600">{strategy.description}</p>
                 </div>
               </div>
-            ))}
+            )}
           </div>
         </CardContent>
       </Card>
@@ -217,8 +217,8 @@ const BuildOptimizationReport = () => {
           Monitor loading times and consider implementing the performance recommendations above for further improvements.
         </AlertDescription>
       </Alert>
-    </div>
-  );
+    </div>);
+
 };
 
 export default BuildOptimizationReport;
