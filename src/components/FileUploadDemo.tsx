@@ -35,8 +35,8 @@ const FileUploadDemo: React.FC = () => {
   };
 
   const handleFileUpload = (result: FileUploadResult) => {
-    setUploadedFiles(prev => [...prev, result]);
-    setRefreshKey(prev => prev + 1);
+    setUploadedFiles((prev) => [...prev, result]);
+    setRefreshKey((prev) => prev + 1);
     toast({
       title: "File uploaded successfully",
       description: `${result.fileName} has been uploaded to the database`
@@ -46,7 +46,7 @@ const FileUploadDemo: React.FC = () => {
   const clearAll = () => {
     setSelectedFile(null);
     setUploadedFiles([]);
-    setRefreshKey(prev => prev + 1);
+    setRefreshKey((prev) => prev + 1);
   };
 
   return (
@@ -99,11 +99,11 @@ const FileUploadDemo: React.FC = () => {
                 onFileSelect={handleFileSelect}
                 accept="image/*,application/pdf,.doc,.docx"
                 label="Select Document or Image"
-                maxSize={5}
-              />
+                maxSize={5} />
 
-              {selectedFile && (
-                <Card className="bg-blue-50 border-blue-200">
+
+              {selectedFile &&
+              <Card className="bg-blue-50 border-blue-200">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
                       <FileText className="h-5 w-5 text-blue-600" />
@@ -116,7 +116,7 @@ const FileUploadDemo: React.FC = () => {
                     </div>
                   </CardContent>
                 </Card>
-              )}
+              }
             </CardContent>
           </Card>
         </TabsContent>
@@ -144,16 +144,16 @@ const FileUploadDemo: React.FC = () => {
                 associatedTable="demo_files"
                 associatedRecordId={1}
                 fileCategory="document"
-                showPreview={true}
-              />
+                showPreview={true} />
 
-              {uploadedFiles.length > 0 && (
-                <Card className="bg-green-50 border-green-200">
+
+              {uploadedFiles.length > 0 &&
+              <Card className="bg-green-50 border-green-200">
                   <CardContent className="p-4">
                     <h4 className="font-medium mb-2">Recently Uploaded Files</h4>
                     <div className="space-y-2">
-                      {uploadedFiles.map((file, index) => (
-                        <div key={index} className="flex items-center justify-between p-2 bg-white rounded border">
+                      {uploadedFiles.map((file, index) =>
+                    <div key={index} className="flex items-center justify-between p-2 bg-white rounded border">
                           <div className="flex items-center gap-3">
                             <FileText className="h-4 w-4 text-green-600" />
                             <div>
@@ -164,18 +164,18 @@ const FileUploadDemo: React.FC = () => {
                             </div>
                           </div>
                           <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => window.open(file.fileUrl, '_blank')}
-                          >
+                        size="sm"
+                        variant="outline"
+                        onClick={() => window.open(file.fileUrl, '_blank')}>
+
                             <Eye className="h-4 w-4" />
                           </Button>
                         </div>
-                      ))}
+                    )}
                     </div>
                   </CardContent>
                 </Card>
-              )}
+              }
             </CardContent>
           </Card>
         </TabsContent>
@@ -199,8 +199,8 @@ const FileUploadDemo: React.FC = () => {
                 fileCategory="mixed"
                 associatedTable="demo_files"
                 associatedRecordId={2}
-                placeholder="Select multiple files of any type..."
-              />
+                placeholder="Select multiple files of any type..." />
+
             </CardContent>
           </Card>
         </TabsContent>
@@ -222,8 +222,8 @@ const FileUploadDemo: React.FC = () => {
                 allowEdit={true}
                 showDescription={true}
                 viewMode="grid"
-                key={refreshKey}
-              />
+                key={refreshKey} />
+
 
               <Separator className="my-4" />
 
@@ -233,14 +233,14 @@ const FileUploadDemo: React.FC = () => {
                 fileCategory="mixed"
                 allowDelete={true}
                 viewMode="list"
-                key={refreshKey + 1000}
-              />
+                key={refreshKey + 1000} />
+
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default FileUploadDemo;
