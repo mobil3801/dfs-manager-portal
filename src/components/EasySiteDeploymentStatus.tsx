@@ -26,19 +26,19 @@ const EasySiteDeploymentStatus = () => {
   }, []);
 
   const getStatusIcon = (status: boolean) => {
-    return status ? (
-      <CheckCircle className="h-4 w-4 text-green-500" />
-    ) : (
-      <XCircle className="h-4 w-4 text-red-500" />
-    );
+    return status ?
+    <CheckCircle className="h-4 w-4 text-green-500" /> :
+
+    <XCircle className="h-4 w-4 text-red-500" />;
+
   };
 
   const getStatusBadge = (status: boolean) => {
-    return status ? (
-      <Badge variant="default" className="bg-green-100 text-green-800">Ready</Badge>
-    ) : (
-      <Badge variant="destructive">Not Ready</Badge>
-    );
+    return status ?
+    <Badge variant="default" className="bg-green-100 text-green-800">Ready</Badge> :
+
+    <Badge variant="destructive">Not Ready</Badge>;
+
   };
 
   if (!readiness) {
@@ -48,8 +48,8 @@ const EasySiteDeploymentStatus = () => {
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
           <span className="ml-2">Checking deployment status...</span>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -68,11 +68,11 @@ const EasySiteDeploymentStatus = () => {
           {/* Overall Status */}
           <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
             <div className="flex items-center gap-2">
-              {readiness.allReady ? (
-                <CheckCircle className="h-6 w-6 text-green-500" />
-              ) : (
-                <AlertCircle className="h-6 w-6 text-orange-500" />
-              )}
+              {readiness.allReady ?
+              <CheckCircle className="h-6 w-6 text-green-500" /> :
+
+              <AlertCircle className="h-6 w-6 text-orange-500" />
+              }
               <span className="font-semibold">
                 Overall Status: {readiness.allReady ? 'Deployment Ready' : 'Issues Detected'}
               </span>
@@ -156,37 +156,37 @@ const EasySiteDeploymentStatus = () => {
           <div>
             <h4 className="font-medium text-sm text-gray-700 mb-3">Enabled Features</h4>
             <div className="flex flex-wrap gap-2">
-              {Object.entries(deploymentConfig.features).map(([feature, enabled]) => (
-                <Badge 
-                  key={feature} 
-                  variant={enabled ? "default" : "secondary"}
-                  className={enabled ? "bg-green-100 text-green-800" : ""}
-                >
-                  {feature.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+              {Object.entries(deploymentConfig.features).map(([feature, enabled]) =>
+              <Badge
+                key={feature}
+                variant={enabled ? "default" : "secondary"}
+                className={enabled ? "bg-green-100 text-green-800" : ""}>
+
+                  {feature.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
                 </Badge>
-              ))}
+              )}
             </div>
           </div>
 
           {/* Actions */}
           <div className="flex gap-2 pt-4">
-            <Button 
-              onClick={checkStatus} 
+            <Button
+              onClick={checkStatus}
               disabled={isChecking}
-              size="sm"
-            >
+              size="sm">
+
               {isChecking ? 'Checking...' : 'Refresh Status'}
             </Button>
-            {readiness.allReady && (
-              <Badge variant="default" className="bg-green-100 text-green-800 px-3 py-1">
+            {readiness.allReady &&
+            <Badge variant="default" className="bg-green-100 text-green-800 px-3 py-1">
                 ✅ Ready for Production
               </Badge>
-            )}
+            }
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default EasySiteDeploymentStatus;

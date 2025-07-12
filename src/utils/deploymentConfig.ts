@@ -133,19 +133,19 @@ export const initializeEasySitePlatform = () => {
   if (typeof window !== 'undefined') {
     // Log platform info
     logDeploymentInfo();
-    
+
     // Check platform readiness
     const readiness = checkEasySitePlatformReadiness();
-    
+
     if (readiness.allReady) {
       console.log('✅ EasySite Platform Ready - DFS Manager Portal');
     } else {
       console.warn('⚠️ EasySite Platform Not Fully Ready:', readiness.checks);
     }
-    
+
     return readiness;
   }
-  
+
   return null;
 };
 
