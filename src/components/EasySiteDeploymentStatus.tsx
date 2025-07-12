@@ -28,7 +28,7 @@ const EasySiteDeploymentStatus: React.FC = () => {
 
   useEffect(() => {
     checkStatus();
-    
+
     // Auto-refresh status every 30 seconds
     const interval = setInterval(checkStatus, 30000);
     return () => clearInterval(interval);
@@ -41,8 +41,8 @@ const EasySiteDeploymentStatus: React.FC = () => {
           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
           <span className="text-sm text-gray-600">Checking deployment status...</span>
         </div>
-      </Card>
-    );
+      </Card>);
+
   }
 
   const getStatusIcon = (isReady: boolean) => {
@@ -85,17 +85,17 @@ const EasySiteDeploymentStatus: React.FC = () => {
             </div>
           </div>
           <Badge
-            variant={getOverallStatusColor() === 'green' ? 'default' : 
-                   getOverallStatusColor() === 'yellow' ? 'secondary' : 'destructive'}
-          >
+            variant={getOverallStatusColor() === 'green' ? 'default' :
+            getOverallStatusColor() === 'yellow' ? 'secondary' : 'destructive'}>
+
             {Math.round(deploymentStatus.readinessScore)}% Ready
           </Badge>
         </div>
 
         {/* Status Checks */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {Object.entries(deploymentStatus.checks).map(([check, isReady]) => (
-            <div key={check} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+          {Object.entries(deploymentStatus.checks).map(([check, isReady]) =>
+          <div key={check} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <span className="text-sm font-medium text-gray-700 capitalize">
                 {check.replace(/([A-Z])/g, ' $1').trim()}
               </span>
@@ -106,7 +106,7 @@ const EasySiteDeploymentStatus: React.FC = () => {
                 </span>
               </div>
             </div>
-          ))}
+          )}
         </div>
 
         {/* Platform Info */}
@@ -140,18 +140,18 @@ const EasySiteDeploymentStatus: React.FC = () => {
             <Button variant="outline" size="sm" onClick={checkStatus}>
               Refresh Status
             </Button>
-            {deploymentStatus.allReady && (
-              <Button size="sm" className="text-xs">
+            {deploymentStatus.allReady &&
+            <Button size="sm" className="text-xs">
                 <ExternalLink className="h-3 w-3 mr-1" />
                 View Live Site
               </Button>
-            )}
+            }
           </div>
         </div>
 
         {/* Warning for incomplete deployment */}
-        {!deploymentStatus.allReady && (
-          <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+        {!deploymentStatus.allReady &&
+        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
             <div className="flex items-start space-x-2">
               <AlertCircle className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
               <div className="text-sm">
@@ -163,10 +163,10 @@ const EasySiteDeploymentStatus: React.FC = () => {
               </div>
             </div>
           </div>
-        )}
+        }
       </div>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default EasySiteDeploymentStatus;

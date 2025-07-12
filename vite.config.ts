@@ -345,7 +345,7 @@ export default defineConfig(({ mode }) => ({
     },
 
     // Reduced chunk size limit for better performance
-    chunkSizeWarningLimit: 300,
+    chunkSizeWarningLimit: 200,
 
     // CSS optimization
     cssCodeSplit: true,
