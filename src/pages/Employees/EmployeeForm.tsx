@@ -826,17 +826,50 @@ const EmployeeForm: React.FC = () => {
                           </div>
                       }
 
-                        {/* Show existing document in edit mode */}
+                        {/* Show existing document in edit mode with image preview */}
                         {isEditing && !idDocuments[index].file && getExistingDocumentFileId(index) &&
                       <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                            <div className="flex items-center space-x-2">
-                              <FileText className="w-4 h-4 text-blue-600" />
-                              <span className="text-sm text-blue-800">Existing Document {index + 1}</span>
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center space-x-2">
+                                <FileText className="w-4 h-4 text-blue-600" />
+                                <span className="text-sm text-blue-800">Existing Document {index + 1}</span>
+                              </div>
                               <Badge variant="outline" className="text-xs text-blue-600 border-blue-300">
                                 Currently uploaded
                               </Badge>
                             </div>
-                            <p className="text-xs text-blue-600 mt-1">
+                            
+                            {/* Image Preview for existing document */}
+                            <div className="mb-3">
+                              <div className="aspect-video bg-white rounded-lg overflow-hidden border border-blue-200">
+                                <img
+                                  src={`${window.location.origin}/api/files/${getExistingDocumentFileId(index)}`}
+                                  alt={`Existing Document ${index + 1} preview`}
+                                  className="w-full h-full object-contain"
+                                  onError={(e) => {
+                                    // Fallback to file icon if image fails to load
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    const fallbackDiv = target.nextElementSibling as HTMLDivElement;
+                                    if (fallbackDiv) {
+                                      fallbackDiv.style.display = 'flex';
+                                    }
+                                  }}
+                                />
+                                {/* Fallback for non-image files */}
+                                <div 
+                                  className="w-full h-full flex items-center justify-center bg-gray-100"
+                                  style={{ display: 'none' }}
+                                >
+                                  <div className="text-center">
+                                    <FileText className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                                    <p className="text-xs text-gray-500">Document File</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <p className="text-xs text-blue-600">
                               Upload a new file to replace the existing document
                             </p>
                           </div>

@@ -342,64 +342,91 @@ const EmployeeList: React.FC = () => {
     }
   };
 
-  // ID Documents Display Component
-  const IDDocumentsDisplay = ({ employee }: { employee: Employee }) => {
+  // ID Documents Display Component with Image Previews
+  const IDDocumentsDisplay = ({ employee }: {employee: Employee;}) => {
     const documents = [
-      { fileId: employee.id_document_file_id, label: 'ID Document 1' },
-      { fileId: employee.id_document_2_file_id, label: 'ID Document 2' },
-      { fileId: employee.id_document_3_file_id, label: 'ID Document 3' },
-      { fileId: employee.id_document_4_file_id, label: 'ID Document 4' }
-    ].filter(doc => doc.fileId);
+    { fileId: employee.id_document_file_id, label: 'ID Document 1' },
+    { fileId: employee.id_document_2_file_id, label: 'ID Document 2' },
+    { fileId: employee.id_document_3_file_id, label: 'ID Document 3' },
+    { fileId: employee.id_document_4_file_id, label: 'ID Document 4' }].
+    filter((doc) => doc.fileId);
 
     if (documents.length === 0) {
       return (
         <div className="text-center py-4 text-gray-500">
           <FileText className="w-8 h-8 mx-auto mb-2 text-gray-400" />
           <p className="text-sm">No ID documents uploaded</p>
-        </div>
-      );
+        </div>);
+
     }
 
     return (
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div className="flex items-center space-x-2">
           <FileText className="w-4 h-4 text-gray-600" />
           <span className="font-medium text-gray-800">ID Documents ({documents.length})</span>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {documents.map((doc, index) => (
-            <div key={index} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <FileText className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm font-medium text-gray-700">{doc.label}</span>
-                </div>
-                <Badge variant="outline" className="text-xs">
-                  Uploaded
-                </Badge>
-              </div>
-              <p className="text-xs text-gray-500 mt-1">
-                File ID: {doc.fileId}
-              </p>
-              {employee.id_document_type && index === 0 && (
-                <p className="text-xs text-blue-600 mt-1">
-                  Type: {employee.id_document_type}
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
-        
-        {employee.id_document_type && (
-          <div className="mt-3 p-2 bg-blue-50 rounded border border-blue-200">
+        {/* Document Type Information */}
+        {employee.id_document_type &&
+        <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
             <p className="text-sm text-blue-800">
               <strong>Document Type:</strong> {employee.id_document_type}
             </p>
           </div>
-        )}
-      </div>
-    );
+        }
+        
+        {/* Image Previews Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {documents.map((doc, index) =>
+          <div key={index} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+              {/* Document Label */}
+              <div className="p-3 bg-gray-50 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <FileText className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium text-gray-700">{doc.label}</span>
+                  </div>
+                  <Badge variant="outline" className="text-xs">
+                    Uploaded
+                  </Badge>
+                </div>
+              </div>
+              
+              {/* Image Preview */}
+              <div className="p-3">
+                <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                  <img
+                    src={`${window.location.origin}/api/files/${doc.fileId}`}
+                    alt={`${doc.label} preview`}
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      // Fallback to file icon if image fails to load
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const fallbackDiv = target.nextElementSibling as HTMLDivElement;
+                      if (fallbackDiv) {
+                        fallbackDiv.style.display = 'flex';
+                      }
+                    }}
+                  />
+                  {/* Fallback for non-image files */}
+                  <div 
+                    className="w-full h-full flex items-center justify-center bg-gray-100"
+                    style={{ display: 'none' }}
+                  >
+                    <div className="text-center">
+                      <FileText className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-xs text-gray-500">Document File</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>);
+
   };
 
   // Define view modal fields with profile picture, employment status, and ID documents
