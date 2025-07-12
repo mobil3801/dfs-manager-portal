@@ -507,17 +507,7 @@ const LicenseList: React.FC = () => {
                 className="pl-10" />
             </div>
             
-            <div className="flex items-center space-x-2">
-              <Button
-                variant={showCancelled ? "default" : "outline"}
-                size="sm"
-                onClick={() => setShowCancelled(!showCancelled)}
-                className="flex items-center space-x-2">
 
-                <Archive className="w-4 h-4" />
-                <span>{showCancelled ? 'Hide' : 'Show'} Cancelled</span>
-              </Button>
-            </div>
           </div>
 
           {/* Licenses Table */}
