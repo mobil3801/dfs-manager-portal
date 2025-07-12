@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { toast } from '@/hooks/use-toast';
 import { Plus, Search, Edit, Trash2, ShoppingCart, Calendar, DollarSign, Eye, Download, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import ViewModal from '@/components/ViewModal';
 import { useListKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { motion } from 'motion/react';
@@ -34,6 +35,7 @@ const OrderList: React.FC = () => {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const navigate = useNavigate();
+  const { userProfile } = useAuth();
 
   const pageSize = 10;
 
@@ -81,10 +83,30 @@ const OrderList: React.FC = () => {
   };
 
   const handleEdit = (orderId: number) => {
+    // Check edit permission - only Admin users can edit orders
+    if (!userProfile || userProfile.role !== 'Administrator') {
+      toast({
+        title: "Access Denied",
+        description: "Only administrators can edit orders.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     navigate(`/orders/edit/${orderId}`);
   };
 
   const handleDelete = async (orderId: number) => {
+    // Check delete permission - only Admin users can delete orders
+    if (!userProfile || userProfile.role !== 'Administrator') {
+      toast({
+        title: "Access Denied",
+        description: "Only administrators can delete orders.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!confirm('Are you sure you want to delete this order?')) {
       return;
     }
@@ -121,8 +143,8 @@ const OrderList: React.FC = () => {
     `Station,${selectedOrder.station}`,
     `Total Amount,${selectedOrder.total_amount}`,
     `Status,${selectedOrder.status}`,
-    `Notes,${selectedOrder.notes}`].
-    join('\n');
+    `Notes,${selectedOrder.notes}`]
+    .join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -257,7 +279,8 @@ const OrderList: React.FC = () => {
     label: 'Notes',
     value: order.notes,
     type: 'text' as const
-  }];
+  }
+];
 
 
   return (
@@ -424,27 +447,32 @@ const OrderList: React.FC = () => {
 
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit(order.ID);
-                        }}>
-
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(order.ID);
-                        }}
-                        className="text-red-600 hover:text-red-700">
-
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          {/* Only show Edit button if user is Administrator */}
+                          {userProfile?.role === 'Administrator' && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEdit(order.ID);
+                              }}>
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          )}
+                          
+                          {/* Only show Delete button if user is Administrator */}
+                          {userProfile?.role === 'Administrator' && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(order.ID);
+                              }}
+                              className="text-red-600 hover:text-red-700">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </motion.tr>
@@ -505,12 +533,13 @@ const OrderList: React.FC = () => {
         }}
         onDelete={() => handleDelete(selectedOrder.ID)}
         onExport={handleExport}
-        canEdit={true}
-        canDelete={true}
+        canEdit={userProfile?.role === 'Administrator'}
+        canDelete={userProfile?.role === 'Administrator'}
         canExport={true} />
 
       }
-    </div>);
+    </div>
+  );
 
 };
 

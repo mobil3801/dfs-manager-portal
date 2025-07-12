@@ -41,7 +41,7 @@ const LicenseList: React.FC = () => {
   const [licenseToDelete, setLicenseToDelete] = useState<License | null>(null);
   const [showCancelled, setShowCancelled] = useState(true);
   const navigate = useNavigate();
-  const { userProfile } = useAuth();
+  const { userProfile, isAdmin } = useAuth();
 
   const pageSize = 10;
 
@@ -319,8 +319,8 @@ const LicenseList: React.FC = () => {
     }
   };
 
-  // Check if user is Administrator
-  const isAdmin = userProfile?.role === 'Administrator';
+  // Check if user is Administrator using AuthContext method
+  // const { isAdmin } = useAuth(); // Already declared above
 
   const handleReactivate = async (licenseId: number) => {
     try {
@@ -492,27 +492,25 @@ const LicenseList: React.FC = () => {
               </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
-              {isAdmin &&
-              <>
+              {isAdmin() && (
+                <>
                   <Button
-                  onClick={sendExpiryAlerts}
-                  disabled={sendingSMS}
-                  variant="outline"
-                  className="flex items-center space-x-2">
-
+                    onClick={sendExpiryAlerts}
+                    disabled={sendingSMS}
+                    variant="outline"
+                    className="flex items-center space-x-2">
                     <Send className="w-4 h-4" />
                     <span>{sendingSMS ? 'Sending...' : 'Send SMS Alerts'}</span>
                   </Button>
                   <Button
-                  onClick={() => navigate('/admin/sms-alerts')}
-                  variant="outline"
-                  className="flex items-center space-x-2">
-
+                    onClick={() => navigate('/admin/sms-alerts')}
+                    variant="outline"
+                    className="flex items-center space-x-2">
                     <MessageSquare className="w-4 h-4" />
                     <span>SMS Settings</span>
                   </Button>
                 </>
-              }
+              )}
               <Button onClick={() => navigate('/licenses/new')} className="flex items-center space-x-2">
                 <Plus className="w-4 h-4" />
                 <span>Add License</span>
@@ -638,38 +636,38 @@ const LicenseList: React.FC = () => {
                               <MessageSquare className="w-4 h-4" />
                             </Button>
                       }
-                          {isAdmin &&
-                      <>
+                          {isAdmin() && (
+                            <>
                               <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => navigate(`/licenses/edit/${license.ID}`)}
-                          title="Edit License">
+                                variant="outline"
+                                size="sm"
+                                onClick={() => navigate(`/licenses/edit/${license.ID}`)}
+                                title="Edit License">
                                 <Edit className="w-4 h-4" />
                               </Button>
-                              {license.status.toLowerCase() === 'cancelled' || license.status.toLowerCase() === 'inactive' ?
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleReactivate(license.ID)}
-                          disabled={deletingLicenseId === license.ID}
-                          className={`${deletingLicenseId === license.ID ? 'text-gray-400' : 'text-green-600 hover:text-green-700'}`}
-                          title={deletingLicenseId === license.ID ? "Processing..." : "Reactivate License"}>
+                              {license.status.toLowerCase() === 'cancelled' || license.status.toLowerCase() === 'inactive' ? (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleReactivate(license.ID)}
+                                  disabled={deletingLicenseId === license.ID}
+                                  className={`${deletingLicenseId === license.ID ? 'text-gray-400' : 'text-green-600 hover:text-green-700'}`}
+                                  title={deletingLicenseId === license.ID ? "Processing..." : "Reactivate License"}>
                                   <CheckCircle className={`w-4 h-4 ${deletingLicenseId === license.ID ? 'animate-spin' : ''}`} />
-                                </Button> :
-
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openDeleteDialog(license)}
-                          disabled={deletingLicenseId === license.ID}
-                          className={`${deletingLicenseId === license.ID ? 'text-gray-400' : 'text-red-600 hover:text-red-700'}`}
-                          title={deletingLicenseId === license.ID ? "Processing..." : "Delete License"}>
+                                </Button>
+                              ) : (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => openDeleteDialog(license)}
+                                  disabled={deletingLicenseId === license.ID}
+                                  className={`${deletingLicenseId === license.ID ? 'text-gray-400' : 'text-red-600 hover:text-red-700'}`}
+                                  title={deletingLicenseId === license.ID ? "Processing..." : "Delete License"}>
                                   <Trash2 className={`w-4 h-4 ${deletingLicenseId === license.ID ? 'animate-spin' : ''}`} />
                                 </Button>
-                        }
+                              )}
                             </>
-                      }
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
