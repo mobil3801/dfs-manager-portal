@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Search, Edit, Trash2, Truck, Filter, Download, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 import EnhancedDeliveryPrintDialog from '@/components/EnhancedDeliveryPrintDialog';
 
@@ -29,6 +30,7 @@ interface DeliveryRecord {
 const DeliveryList: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { userProfile, isAdmin } = useAuth();
   const [deliveries, setDeliveries] = useState<DeliveryRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -91,7 +93,31 @@ const DeliveryList: React.FC = () => {
     }
   };
 
+  const handleEdit = (id: number) => {
+    // Check edit permission - only Admin users can edit deliveries
+    if (!isAdmin()) {
+      toast({
+        title: "Access Denied",
+        description: "Only administrators can edit delivery records.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    navigate(`/delivery/${id}/edit`);
+  };
+
   const handleDelete = async (id: number) => {
+    // Check delete permission - only Admin users can delete deliveries
+    if (!isAdmin()) {
+      toast({
+        title: "Access Denied",
+        description: "Only administrators can delete delivery records.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!confirm('Are you sure you want to delete this delivery record?')) {
       return;
     }
@@ -284,7 +310,7 @@ const DeliveryList: React.FC = () => {
                       <TableHead>Regular (Delivered)</TableHead>
                       <TableHead>Plus Delivered</TableHead>
                       <TableHead>Super Delivered</TableHead>
-                      <TableHead>Full Report</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -314,20 +340,59 @@ const DeliveryList: React.FC = () => {
                           {formatNumber(delivery.super_delivered)} gal
                         </TableCell>
                         <TableCell>
-                          <Button
+                          <div className="flex items-center space-x-2">
+                            <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleViewReport(delivery)}
-                        className="h-8 w-8 p-0 hover:bg-blue-50">
+                        className="h-8 w-8 p-0 hover:bg-blue-50"
+                        title="View Report">
 
                             <Eye className="h-4 w-4 text-blue-600" />
                           </Button>
+                          
+                          {/* Only show Edit button if user is Administrator */}
+                          {isAdmin() &&
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(delivery.id)}
+                        className="h-8 w-8 p-0 hover:bg-orange-50"
+                        title="Edit Delivery">
+
+                            <Edit className="h-4 w-4 text-orange-600" />
+                          </Button>
+                      }
+                          
+                          {/* Only show Delete button if user is Administrator */}
+                          {isAdmin() &&
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(delivery.id)}
+                        className="h-8 w-8 p-0 hover:bg-red-50"
+                        title="Delete Delivery">
+
+                            <Trash2 className="h-4 w-4 text-red-600" />
+                          </Button>
+                      }
+                          </div>
                         </TableCell>
                       </TableRow>
                   )}
                   </TableBody>
                 </Table>
               </div>
+
+              {/* Show permission status when actions are disabled */}
+              {!isAdmin() &&
+            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-sm text-amber-700">
+                    <strong>Access Restrictions:</strong>
+                    Only administrators can edit or delete delivery records.
+                  </p>
+                </div>
+            }
 
               {/* Pagination */}
               {totalPages > 1 &&

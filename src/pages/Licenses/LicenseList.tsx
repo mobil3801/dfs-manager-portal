@@ -124,6 +124,16 @@ const LicenseList: React.FC = () => {
   };
 
   const handleHardDelete = async (licenseId: number) => {
+    // Check if user is admin before allowing hard delete
+    if (!isAdmin()) {
+      toast({
+        title: "Access Denied",
+        description: "Only administrators can permanently delete licenses.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setDeletingLicenseId(licenseId);
 
     try {
@@ -144,7 +154,7 @@ const LicenseList: React.FC = () => {
       // Show progress toast
       toast({
         title: "🗑️ Deleting License",
-        description: "Removing associated files and data..."
+        description: "Removing associated files and data...",
       });
 
       // Step 2: Delete associated file if exists
@@ -240,7 +250,7 @@ const LicenseList: React.FC = () => {
 
       toast({
         title: "📱 Checking Licenses",
-        description: "Analyzing licenses for expiry alerts..."
+        description: "Analyzing licenses for expiry alerts...",
       });
 
       // Use the enhanced license alert service
@@ -248,7 +258,7 @@ const LicenseList: React.FC = () => {
 
       toast({
         title: "✅ License Alerts Complete",
-        description: "SMS alerts sent for expiring licenses. Check SMS History for details."
+        description: "SMS alerts sent for expiring licenses. Check SMS History for details.",
       });
 
     } catch (error) {
@@ -288,39 +298,6 @@ const LicenseList: React.FC = () => {
       });
     }
   };
-
-  const checkShouldSendAlert = async (licenseId: number, frequencyDays: number) => {
-    try {
-      // Check if we've sent an alert for this license recently
-      const { data, error } = await window.ezsite.apis.tablePage('12613', {
-        PageNo: 1,
-        PageSize: 1,
-        OrderByField: 'sent_date',
-        IsAsc: false,
-        Filters: [
-        { name: 'license_id', op: 'Equal', value: licenseId }]
-
-      });
-
-      if (error) throw error;
-
-      if (data?.List && data.List.length > 0) {
-        const lastAlert = data.List[0];
-        const lastAlertDate = new Date(lastAlert.sent_date);
-        const daysSinceLastAlert = Math.ceil((new Date().getTime() - lastAlertDate.getTime()) / (1000 * 3600 * 24));
-
-        return daysSinceLastAlert >= frequencyDays;
-      }
-
-      return true; // No previous alert found, should send
-    } catch (error) {
-      console.error('Error checking alert frequency:', error);
-      return true; // Default to sending if we can't check
-    }
-  };
-
-  // Check if user is Administrator using AuthContext method
-  // const { isAdmin } = useAuth(); // Already declared above
 
   const handleReactivate = async (licenseId: number) => {
     try {
@@ -503,7 +480,7 @@ const LicenseList: React.FC = () => {
                     <span>{sendingSMS ? 'Sending...' : 'Send SMS Alerts'}</span>
                   </Button>
                   <Button
-                  onClick={() => navigate('/admin/sms-alerts')}
+                  onClick={() => navigate('/admin/sms')}
                   variant="outline"
                   className="flex items-center space-x-2">
                     <MessageSquare className="w-4 h-4" />
@@ -641,7 +618,7 @@ const LicenseList: React.FC = () => {
                               <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => navigate(`/licenses/edit/${license.ID}`)}
+                          onClick={() => navigate(`/licenses/${license.ID}/edit`)}
                           title="Edit License">
                                 <Edit className="w-4 h-4" />
                               </Button>
@@ -674,6 +651,16 @@ const LicenseList: React.FC = () => {
                 )}
                 </TableBody>
               </Table>
+            </div>
+          }
+
+          {/* Show permission status when actions are disabled */}
+          {!isAdmin() &&
+          <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-sm text-amber-700">
+                <strong>Access Restrictions:</strong>
+                Only administrators can edit, delete, or manage SMS alerts for licenses.
+              </p>
             </div>
           }
 

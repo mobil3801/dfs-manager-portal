@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Plus, Search, Eye, Edit, Trash2, Download, DollarSign, Calendar, Users, RefreshCw, FileText, AlertCircle, Wifi, WifiOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { useRealtime, useRealtimeData } from '@/hooks/use-realtime';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface SalaryRecord {
   id: number;
@@ -67,9 +67,9 @@ const SalaryList: React.FC = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [retryCount, setRetryCount] = useState(0);
   const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
-  const [realtimeUpdates, setRealtimeUpdates] = useState(0);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { userProfile, isAdmin } = useAuth();
 
   const pageSize = 10;
   const SALARY_TABLE_ID = '11788';
@@ -274,6 +274,16 @@ const SalaryList: React.FC = () => {
   };
 
   const handleEditRecord = (record: SalaryRecord) => {
+    // Check edit permission - only Admin users can edit salary records
+    if (!isAdmin()) {
+      toast({
+        title: "Access Denied",
+        description: "Only administrators can edit salary records.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const employeeName = getEmployeeName(record.employee_id);
     console.log('📝 Navigating to edit salary record:', { id: record.id, employee: employeeName });
 
@@ -287,6 +297,16 @@ const SalaryList: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
+    // Check delete permission - only Admin users can delete salary records
+    if (!isAdmin()) {
+      toast({
+        title: "Access Denied",
+        description: "Only administrators can delete salary records.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const record = salaryRecords.find((r) => r.id === id);
     const employeeName = record ? getEmployeeName(record.employee_id) : 'Unknown';
 
@@ -318,6 +338,16 @@ const SalaryList: React.FC = () => {
   };
 
   const handleStatusUpdate = async (id: number, newStatus: string) => {
+    // Check permission - only Admin users can update status
+    if (!isAdmin()) {
+      toast({
+        title: "Access Denied",
+        description: "Only administrators can update salary record status.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       const record = salaryRecords.find((r) => r.id === id);
       if (!record) return;
@@ -636,7 +666,8 @@ const SalaryList: React.FC = () => {
                       <TableCell>
                         <Select
                       value={record.status}
-                      onValueChange={(value) => handleStatusUpdate(record.id, value)}>
+                      onValueChange={(value) => handleStatusUpdate(record.id, value)}
+                      disabled={!isAdmin()}>
 
                           <SelectTrigger className="w-auto h-auto p-0 border-none">
                             <Badge variant={getStatusBadgeVariant(record.status)}>
@@ -661,7 +692,9 @@ const SalaryList: React.FC = () => {
 
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Button
+                          {/* Only show Edit button if user is Administrator */}
+                          {isAdmin() &&
+                      <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleEditRecord(record)}
@@ -669,6 +702,7 @@ const SalaryList: React.FC = () => {
 
                             <Edit className="h-4 w-4" />
                           </Button>
+                      }
                           <Button
                         variant="ghost"
                         size="sm"
@@ -677,7 +711,9 @@ const SalaryList: React.FC = () => {
 
                             <FileText className="h-4 w-4" />
                           </Button>
-                          <Button
+                          {/* Only show Delete button if user is Administrator */}
+                          {isAdmin() &&
+                      <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(record.id)}
@@ -686,6 +722,7 @@ const SalaryList: React.FC = () => {
 
                             <Trash2 className="h-4 w-4" />
                           </Button>
+                      }
                         </div>
                       </TableCell>
                     </TableRow>
@@ -702,6 +739,16 @@ const SalaryList: React.FC = () => {
                   </Link>
                 </div>
             }
+            </div>
+          }
+
+          {/* Show permission status when actions are disabled */}
+          {!isAdmin() &&
+          <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-sm text-amber-700">
+                <strong>Access Restrictions:</strong>
+                Only administrators can edit, delete, or update status of salary records.
+              </p>
             </div>
           }
         </CardContent>
@@ -873,6 +920,7 @@ const SalaryList: React.FC = () => {
                   <Download className="h-4 w-4 mr-2" />
                   Export PDF
                 </Button>
+                {isAdmin() &&
                 <Button
                 onClick={() => {
                   setShowViewDialog(false);
@@ -882,6 +930,7 @@ const SalaryList: React.FC = () => {
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Record
                 </Button>
+                }
               </div>
             </div>
           }

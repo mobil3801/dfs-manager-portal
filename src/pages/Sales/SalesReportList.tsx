@@ -67,8 +67,8 @@ const SalesReportList: React.FC = () => {
 
   // Permission checks for sales module
   const canCreateSales = canCreate('sales');
-  const canEditSales = canEdit('sales');
-  const canDeleteSales = canDelete('sales');
+  const canEditSales = canEdit('sales') && isAdmin(); // Restrict edit to admin only
+  const canDeleteSales = canDelete('sales') && isAdmin(); // Restrict delete to admin only
 
   const pageSize = 10;
 
@@ -119,11 +119,11 @@ const SalesReportList: React.FC = () => {
   };
 
   const handleDelete = async (reportId: number) => {
-    // Check delete permission
+    // Check delete permission - only admin users can delete
     if (!canDeleteSales) {
       toast({
         title: "Access Denied",
-        description: "You don't have permission to delete sales reports.",
+        description: "Only administrators can delete sales reports.",
         variant: "destructive"
       });
       return;
@@ -153,17 +153,17 @@ const SalesReportList: React.FC = () => {
   };
 
   const handleEdit = (reportId: number) => {
-    // Check edit permission
+    // Check edit permission - only admin users can edit
     if (!canEditSales) {
       toast({
         title: "Access Denied",
-        description: "You don't have permission to edit sales reports.",
+        description: "Only administrators can edit sales reports.",
         variant: "destructive"
       });
       return;
     }
 
-    navigate(`/sales/edit/${reportId}`);
+    navigate(`/sales/${reportId}/edit`);
   };
 
   const handleCreateReport = () => {
@@ -491,13 +491,13 @@ const SalesReportList: React.FC = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => handlePrint(report)}
-                        title="Document Print">
+                        title="View / Print Report">
 
                             <Printer className="w-4 h-4" />
                           </Button>
                           
                           {/* Only show Edit button if user is Administrator and has edit permission */}
-                          {canEditSales && isAdmin() &&
+                          {canEditSales &&
                       <Button
                         variant="outline"
                         size="sm"
@@ -508,7 +508,7 @@ const SalesReportList: React.FC = () => {
                       }
                           
                           {/* Only show Delete button if user is Administrator and has delete permission */}
-                          {canDeleteSales && isAdmin() &&
+                          {canDeleteSales &&
                       <Button
                         variant="outline"
                         size="sm"
@@ -571,8 +571,8 @@ const SalesReportList: React.FC = () => {
           <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
               <p className="text-sm text-amber-700">
                 <strong>Access Restrictions:</strong>
-                {!canEditSales && " Edit access disabled by admin."}
-                {!canDeleteSales && " Delete access disabled by admin."}
+                {!canEditSales && " Edit access restricted to administrators."}
+                {!canDeleteSales && " Delete access restricted to administrators."}
               </p>
             </div>
           }

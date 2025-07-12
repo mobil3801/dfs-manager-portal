@@ -35,7 +35,7 @@ const OrderList: React.FC = () => {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const navigate = useNavigate();
-  const { userProfile } = useAuth();
+  const { userProfile, isAdmin } = useAuth();
 
   const pageSize = 10;
 
@@ -84,7 +84,7 @@ const OrderList: React.FC = () => {
 
   const handleEdit = (orderId: number) => {
     // Check edit permission - only Admin users can edit orders
-    if (!userProfile || userProfile.role !== 'Administrator') {
+    if (!isAdmin()) {
       toast({
         title: "Access Denied",
         description: "Only administrators can edit orders.",
@@ -93,12 +93,12 @@ const OrderList: React.FC = () => {
       return;
     }
 
-    navigate(`/orders/edit/${orderId}`);
+    navigate(`/orders/${orderId}/edit`);
   };
 
   const handleDelete = async (orderId: number) => {
     // Check delete permission - only Admin users can delete orders
-    if (!userProfile || userProfile.role !== 'Administrator') {
+    if (!isAdmin()) {
       toast({
         title: "Access Denied",
         description: "Only administrators can delete orders.",
@@ -356,16 +356,6 @@ const OrderList: React.FC = () => {
             </div>
           </div>
 
-          {/* Keyboard shortcuts hint */}
-          
-
-
-
-
-
-
-
-
           {/* Orders Table */}
           {loading ?
           <div className="space-y-4">
@@ -448,7 +438,7 @@ const OrderList: React.FC = () => {
                             <Eye className="w-4 h-4" />
                           </Button>
                           {/* Only show Edit button if user is Administrator */}
-                          {userProfile?.role === 'Administrator' &&
+                          {isAdmin() &&
                       <Button
                         variant="outline"
                         size="sm"
@@ -461,7 +451,7 @@ const OrderList: React.FC = () => {
                       }
                           
                           {/* Only show Delete button if user is Administrator */}
-                          {userProfile?.role === 'Administrator' &&
+                          {isAdmin() &&
                       <Button
                         variant="outline"
                         size="sm"
@@ -479,6 +469,16 @@ const OrderList: React.FC = () => {
                 )}
                 </TableBody>
               </Table>
+            </div>
+          }
+
+          {/* Show permission status when actions are disabled */}
+          {!isAdmin() &&
+          <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-sm text-amber-700">
+                <strong>Access Restrictions:</strong>
+                Only administrators can edit or delete orders.
+              </p>
             </div>
           }
 
@@ -533,8 +533,8 @@ const OrderList: React.FC = () => {
         }}
         onDelete={() => handleDelete(selectedOrder.ID)}
         onExport={handleExport}
-        canEdit={userProfile?.role === 'Administrator'}
-        canDelete={userProfile?.role === 'Administrator'}
+        canEdit={isAdmin()}
+        canDelete={isAdmin()}
         canExport={true} />
 
       }

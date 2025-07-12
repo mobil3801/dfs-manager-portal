@@ -147,10 +147,10 @@ const AuthDiagnosticPage: React.FC = () => {
             role: auth.userProfile.role
           };
         } catch (permissionError) {
-          addTestResult('Permissions', 'Role Detection', 'fail', 
+          addTestResult('Permissions', 'Role Detection', 'fail',
           `Permission system error: ${permissionError instanceof Error ? permissionError.message : String(permissionError)}`);
-          results.permissionSystem = { 
-            roleDetectionWorking: false, 
+          results.permissionSystem = {
+            roleDetectionWorking: false,
             error: permissionError instanceof Error ? permissionError.message : String(permissionError)
           };
         }
