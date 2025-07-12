@@ -73,6 +73,44 @@ const EmployeeList: React.FC = () => {
   const canEditEmployee = canEdit('employees') && isAdminUser;
   const canDeleteEmployee = canDelete('employees') && isAdminUser;
 
+  // Custom sorting function for Status and Station priority
+  const sortEmployeesByStatusAndStation = (employees: Employee[]) => {
+    return employees.sort((a, b) => {
+      // Define status priority: Ongoing = 1, Left = 2, Terminated = 3
+      const getStatusPriority = (status: string) => {
+        switch (status) {
+          case 'Ongoing':return 1;
+          case 'Left':return 2;
+          case 'Terminated':return 3;
+          default:return 1; // Default to Ongoing priority for any unspecified status
+        }
+      };
+
+      const statusA = a.employment_status || 'Ongoing';
+      const statusB = b.employment_status || 'Ongoing';
+
+      const priorityA = getStatusPriority(statusA);
+      const priorityB = getStatusPriority(statusB);
+
+      // First sort by status priority
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
+
+      // Within the same status, sort by station alphabetically
+      const stationA = a.station || '';
+      const stationB = b.station || '';
+      if (stationA !== stationB) {
+        return stationA.localeCompare(stationB);
+      }
+
+      // Within the same status and station, sort by name for consistency
+      const nameA = `${a.first_name} ${a.last_name}`;
+      const nameB = `${b.first_name} ${b.last_name}`;
+      return nameA.localeCompare(nameB);
+    });
+  };
+
   useEffect(() => {
     loadEmployees();
   }, [searchTerm, selectedStation]);
@@ -101,7 +139,10 @@ const EmployeeList: React.FC = () => {
 
       if (error) throw error;
 
-      setEmployees(data?.List || []);
+      // Apply custom sorting by Status and Station
+      const sortedEmployees = sortEmployeesByStatusAndStation(data?.List || []);
+
+      setEmployees(sortedEmployees);
       setTotalCount(data?.VirtualCount || 0);
     } catch (error) {
       console.error('Error loading employees:', error);
@@ -751,7 +792,7 @@ const EmployeeList: React.FC = () => {
                 <span>All Employees</span>
               </CardTitle>
               <CardDescription>
-                Displaying all {totalCount} employees across all stations
+                Displaying all {totalCount} employees across all stations (sorted by status: Ongoing → Left → Terminated, then by station)
               </CardDescription>
             </div>
             
