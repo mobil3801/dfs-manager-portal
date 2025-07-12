@@ -134,33 +134,33 @@ const ProductCards: React.FC<ProductCardsProps> = ({
                     <FileText className="w-4 h-4" />
                   </Button>
                   {/* Only show Save button if user is admin */}
-                  {(userRole === 'Administrator' || userRole === 'Admin') && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onSaveProduct(product.ID)}
-                      disabled={savingProductId === product.ID}
-                      className="p-2"
-                      title="Save product">
+                  {(userRole === 'Administrator' || userRole === 'Admin') &&
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onSaveProduct(product.ID)}
+                    disabled={savingProductId === product.ID}
+                    className="p-2"
+                    title="Save product">
 
                       {savingProductId === product.ID ?
-                      <Loader2 className="w-4 h-4 animate-spin" /> :
-                      <Save className="w-4 h-4" />
-                      }
+                    <Loader2 className="w-4 h-4 animate-spin" /> :
+                    <Save className="w-4 h-4" />
+                    }
                     </Button>
-                  )}
+                  }
                   {/* Only show Delete button if user is admin */}
-                  {(userRole === 'Administrator' || userRole === 'Admin') && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onDeleteProduct(product.ID)}
-                      className="p-2 text-red-600 hover:text-red-700"
-                      title="Delete product">
+                  {(userRole === 'Administrator' || userRole === 'Admin') &&
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onDeleteProduct(product.ID)}
+                    className="p-2 text-red-600 hover:text-red-700"
+                    title="Delete product">
 
                       <Trash2 className="w-4 h-4" />
                     </Button>
-                  )}
+                  }
                 </div>
               </div>
               {product.description &&

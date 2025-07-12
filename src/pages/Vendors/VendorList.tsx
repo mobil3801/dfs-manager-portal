@@ -8,6 +8,7 @@ import { toast } from '@/hooks/use-toast';
 import { Plus, Search, Edit, Trash2, Building2, Mail, Phone, MapPin, Eye, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useModuleAccess } from '@/contexts/ModuleAccessContext';
+import { useAuth } from '@/contexts/AuthContext';
 import ViewModal from '@/components/ViewModal';
 import { useListKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { motion } from 'motion/react';
@@ -36,6 +37,9 @@ const VendorList: React.FC = () => {
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
   const navigate = useNavigate();
 
+  // Auth context for admin checking
+  const { isAdmin } = useAuth();
+
   // Module Access Control
   const {
     canCreate,
@@ -46,8 +50,8 @@ const VendorList: React.FC = () => {
 
   // Permission checks for vendors module
   const canCreateVendor = canCreate('vendors');
-  const canEditVendor = canEdit('vendors');
-  const canDeleteVendor = canDelete('vendors');
+  const canEditVendor = canEdit('vendors') && isAdmin(); // Restrict to admin only
+  const canDeleteVendor = canDelete('vendors') && isAdmin(); // Restrict to admin only
 
   const pageSize = 10;
 
@@ -95,6 +99,16 @@ const VendorList: React.FC = () => {
   };
 
   const handleEdit = (vendorId: number) => {
+    // Check admin permission first
+    if (!isAdmin()) {
+      toast({
+        title: "Access Denied",
+        description: "Only administrators can edit vendors.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Check edit permission
     if (!canEditVendor) {
       toast({
@@ -135,6 +149,16 @@ const VendorList: React.FC = () => {
 
 
   const handleDelete = async (vendorId: number) => {
+    // Check admin permission first
+    if (!isAdmin()) {
+      toast({
+        title: "Access Denied",
+        description: "Only administrators can delete vendors.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Check delete permission
     if (!canDeleteVendor) {
       toast({
@@ -338,13 +362,6 @@ const VendorList: React.FC = () => {
           {/* Keyboard shortcuts hint */}
           
 
-
-
-
-
-
-
-
           {/* Vendors Table */}
           {loading ?
           <div className="space-y-4">
@@ -448,8 +465,8 @@ const VendorList: React.FC = () => {
                             <Eye className="w-4 h-4" />
                           </Button>
                           
-                          {/* Only show Edit button if edit permission is enabled */}
-                          {canEditVendor &&
+                          {/* Only show Edit button if user is admin */}
+                          {isAdmin() && canEditVendor &&
                       <Button
                         variant="outline"
                         size="sm"
@@ -461,8 +478,8 @@ const VendorList: React.FC = () => {
                             </Button>
                       }
                           
-                          {/* Only show Delete button if delete permission is enabled */}
-                          {canDeleteVendor &&
+                          {/* Only show Delete button if user is admin */}
+                          {isAdmin() && canDeleteVendor &&
                       <Button
                         variant="outline"
                         size="sm"
@@ -484,12 +501,13 @@ const VendorList: React.FC = () => {
           }
 
           {/* Show permission status when actions are disabled */}
-          {(!canEditVendor || !canDeleteVendor) && isModuleAccessEnabled &&
+          {(!isAdmin() || !canEditVendor || !canDeleteVendor) && isModuleAccessEnabled &&
           <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
               <p className="text-sm text-amber-700">
                 <strong>Access Restrictions:</strong>
-                {!canEditVendor && " Edit access disabled by admin."}
-                {!canDeleteVendor && " Delete access disabled by admin."}
+                {!isAdmin() && " Edit and Delete access restricted to administrators only."}
+                {isAdmin() && !canEditVendor && " Edit access disabled by admin."}
+                {isAdmin() && !canDeleteVendor && " Delete access disabled by admin."}
               </p>
             </div>
           }
@@ -545,8 +563,8 @@ const VendorList: React.FC = () => {
         }}
         onDelete={() => handleDelete(selectedVendor.ID)}
         onExport={handleExport}
-        canEdit={canEditVendor}
-        canDelete={canDeleteVendor}
+        canEdit={isAdmin() && canEditVendor}
+        canDelete={isAdmin() && canDeleteVendor}
         canExport={true} />
 
       }
