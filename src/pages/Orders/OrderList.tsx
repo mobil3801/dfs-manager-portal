@@ -182,8 +182,8 @@ const OrderList: React.FC = () => {
     `Station,${selectedOrder.station}`,
     `Total Amount,${selectedOrder.total_amount}`,
     `Status,${selectedOrder.status}`,
-    `Notes,${selectedOrder.notes}`]
-    .join('\n');
+    `Notes,${selectedOrder.notes}`].
+    join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);

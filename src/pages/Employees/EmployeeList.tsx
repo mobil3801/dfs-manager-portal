@@ -9,6 +9,7 @@ import { toast } from '@/hooks/use-toast';
 import { Search, Edit, Trash2, Users, Mail, Phone, Plus, Eye, Download, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useModuleAccess } from '@/contexts/ModuleAccessContext';
+import { useAuth } from '@/contexts/AuthContext';
 import ViewModal from '@/components/ViewModal';
 import { useListKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { motion } from 'motion/react';
@@ -51,6 +52,10 @@ const EmployeeList: React.FC = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
+  // Authentication and Admin Check
+  const { isAdmin } = useAuth();
+  const isAdminUser = isAdmin();
+
   // Module Access Control
   const {
     canCreate,
@@ -59,10 +64,10 @@ const EmployeeList: React.FC = () => {
     isModuleAccessEnabled
   } = useModuleAccess();
 
-  // Permission checks for employees module
+  // Permission checks for employees module - only admin users can edit/delete
   const canCreateEmployee = canCreate('employees');
-  const canEditEmployee = canEdit('employees');
-  const canDeleteEmployee = canDelete('employees');
+  const canEditEmployee = canEdit('employees') && isAdminUser;
+  const canDeleteEmployee = canDelete('employees') && isAdminUser;
 
   useEffect(() => {
     loadEmployees();
@@ -113,7 +118,17 @@ const EmployeeList: React.FC = () => {
   };
 
   const handleEdit = (employeeId: number) => {
-    // Check edit permission
+    // Check admin permission for edit
+    if (!isAdminUser) {
+      toast({
+        title: "Admin Access Required",
+        description: "Only administrators can edit employee records.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check module edit permission
     if (!canEditEmployee) {
       toast({
         title: "Access Denied",
@@ -152,7 +167,17 @@ const EmployeeList: React.FC = () => {
   };
 
   const handleDelete = async (employeeId: number) => {
-    // Check delete permission
+    // Check admin permission for delete
+    if (!isAdminUser) {
+      toast({
+        title: "Admin Access Required",
+        description: "Only administrators can delete employee records.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check module delete permission
     if (!canDeleteEmployee) {
       toast({
         title: "Access Denied",
@@ -761,12 +786,13 @@ const EmployeeList: React.FC = () => {
           }
 
           {/* Show permission status when actions are disabled */}
-          {(!canEditEmployee || !canDeleteEmployee) && isModuleAccessEnabled &&
+          {(!isAdminUser || !canEditEmployee || !canDeleteEmployee) &&
           <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
               <p className="text-sm text-amber-700">
                 <strong>Access Restrictions:</strong>
-                {!canEditEmployee && " Edit access disabled by admin."}
-                {!canDeleteEmployee && " Delete access disabled by admin."}
+                {!isAdminUser && " Edit & Delete access restricted to administrators only."}
+                {isAdminUser && !canEditEmployee && " Edit access disabled by module settings."}
+                {isAdminUser && !canDeleteEmployee && " Delete access disabled by module settings."}
               </p>
             </div>
           }
