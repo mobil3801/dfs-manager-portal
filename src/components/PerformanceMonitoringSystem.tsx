@@ -418,6 +418,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -481,10 +483,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
       monitoringInterval.current = setInterval(() => {const currentMetrics = collectMetrics();setMetrics(currentMetrics);analyzeMetrics(currentMetrics);generateSuggestions(currentMetrics);lastMetrics.current = currentMetrics;}, 5000); // Every 5 seconds
       toast({ title: 'Performance Monitoring Started', description: 'Real-time performance monitoring is now active.' });}, [collectMetrics, analyzeMetrics, generateSuggestions, toast]); /**
   * Stop monitoring
-  */const stopMonitoring = useCallback(() => {if (monitoringInterval.current) {clearInterval(monitoringInterval.current);monitoringInterval.current = null;}if (performanceObserver.current) {performanceObserver.current.disconnect();}setIsMonitoring(false);toast({
-        title: 'Performance Monitoring Stopped',
-        description: 'Real-time performance monitoring has been paused.'
-      });
+  */const stopMonitoring = useCallback(() => {if (monitoringInterval.current) {clearInterval(monitoringInterval.current);monitoringInterval.current = null;}if (performanceObserver.current) {performanceObserver.current.disconnect();}setIsMonitoring(false);toast({ title: 'Performance Monitoring Stopped', description: 'Real-time performance monitoring has been paused.'
+        });
     }, [toast]);
 
   /**
