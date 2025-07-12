@@ -3,7 +3,7 @@ import App from './App.tsx';
 import './index.css';
 import { initializeMemoryLeakDetection } from './utils/memoryLeakIntegration';
 import { setupInvalidCharacterErrorMonitor } from './utils/errorPreventionHelper';
-import { logDeploymentInfo } from './utils/deploymentConfig';
+import { logDeploymentInfo, initializeEasySitePlatform } from './utils/deploymentConfig';
 
 // Performance API Polyfill for environments that don't support it
 if (typeof window !== 'undefined' && !window.performance) {
@@ -86,11 +86,11 @@ try {
   console.warn('Invalid character error monitoring initialization failed:', error);
 }
 
-// Log deployment information
+// Initialize EasySite Platform and log deployment information
 try {
-  logDeploymentInfo();
+  initializeEasySitePlatform();
 } catch (error) {
-  console.warn('Deployment info logging failed:', error);
+  console.warn('EasySite Platform initialization failed:', error);
 }
 
 // Create and render the application

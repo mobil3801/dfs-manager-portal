@@ -1,5 +1,13 @@
 // Deployment Configuration and Utilities
 export const deploymentConfig = {
+  // EasySite Platform Configuration
+  platform: {
+    projectName: 'DFS Manager Portal',
+    projectToken: 'z20jntw7fp3a',
+    deploymentTarget: 'easysite',
+    baseUrl: import.meta.env.VITE_EASYSITE_BASE_URL || 'https://ezsite.ai'
+  },
+
   // Check if we're in production
   isProduction: import.meta.env.PROD,
 
@@ -72,12 +80,15 @@ export const deploymentConfig = {
   }
 };
 
-// Deployment readiness checker
-export const checkDeploymentReadiness = () => {
+// EasySite platform deployment checker
+export const checkEasySitePlatformReadiness = () => {
   const checks = {
-    environment: true,
+    projectName: !!deploymentConfig.platform.projectName,
+    projectToken: !!deploymentConfig.platform.projectToken,
     apis: typeof window !== 'undefined' && !!window.ezsite?.apis,
-    build: true, // If we're running, build succeeded
+    authentication: typeof window !== 'undefined' && !!window.ezsite?.apis?.login,
+    database: typeof window !== 'undefined' && !!window.ezsite?.apis?.tablePage,
+    fileUpload: typeof window !== 'undefined' && !!window.ezsite?.apis?.upload,
     runtime: true // If we're running, runtime is working
   };
 
@@ -86,22 +97,56 @@ export const checkDeploymentReadiness = () => {
   return {
     checks,
     allReady,
-    readinessScore: Object.values(checks).filter(Boolean).length / Object.keys(checks).length * 100
+    readinessScore: Object.values(checks).filter(Boolean).length / Object.keys(checks).length * 100,
+    platform: 'EasySite',
+    projectInfo: {
+      name: deploymentConfig.platform.projectName,
+      token: deploymentConfig.platform.projectToken
+    }
   };
+};
+
+// Legacy deployment readiness checker (for compatibility)
+export const checkDeploymentReadiness = () => {
+  return checkEasySitePlatformReadiness();
 };
 
 // Utility to log deployment info
 export const logDeploymentInfo = () => {
   if (deploymentConfig.development.debugMode) {
-    console.group('🚀 DFS Manager Portal - Deployment Info');
+    console.group('🚀 DFS Manager Portal - EasySite Deployment Info');
+    console.log('Platform:', 'EasySite');
+    console.log('Project Name:', deploymentConfig.platform.projectName);
+    console.log('Project Token:', deploymentConfig.platform.projectToken);
     console.log('App Name:', deploymentConfig.appName);
     console.log('Version:', deploymentConfig.appVersion);
     console.log('Environment:', deploymentConfig.appEnvironment);
     console.log('Production Build:', deploymentConfig.isProduction);
     console.log('Features:', deploymentConfig.features);
-    console.log('Readiness:', checkDeploymentReadiness());
+    console.log('Platform Readiness:', checkEasySitePlatformReadiness());
     console.groupEnd();
   }
+};
+
+// EasySite platform initialization
+export const initializeEasySitePlatform = () => {
+  if (typeof window !== 'undefined') {
+    // Log platform info
+    logDeploymentInfo();
+    
+    // Check platform readiness
+    const readiness = checkEasySitePlatformReadiness();
+    
+    if (readiness.allReady) {
+      console.log('✅ EasySite Platform Ready - DFS Manager Portal');
+    } else {
+      console.warn('⚠️ EasySite Platform Not Fully Ready:', readiness.checks);
+    }
+    
+    return readiness;
+  }
+  
+  return null;
 };
 
 export default deploymentConfig;
