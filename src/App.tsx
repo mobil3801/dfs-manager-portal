@@ -7,6 +7,8 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { ModuleAccessProvider } from '@/contexts/ModuleAccessContext';
 import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
 import AuthDebugger from '@/components/AuthDebugger';
+import DeploymentChecker from '@/components/DeploymentChecker';
+import ProductionErrorFallback from '@/components/ProductionErrorFallback';
 import { setupIntelligentPreloading, RoutePreloader, LazyRoutes } from '@/utils/lazyRoutes';
 import OptimizedLoader, { SmartSkeleton } from '@/components/OptimizedLoader';
 
@@ -311,6 +313,9 @@ const AppRouter = () => {
         
         {/* Auth Debugger - Only show in development or for debugging */}
         <AuthDebugger />
+        
+        {/* Deployment Status Checker - Development only */}
+        <DeploymentChecker />
       </div>
     </Router>);
 
@@ -320,7 +325,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <GlobalErrorBoundary>
+        <GlobalErrorBoundary fallback={ProductionErrorFallback}>
           <AuthProvider>
             <ModuleAccessProvider>
               <AppRouter />
