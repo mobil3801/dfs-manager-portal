@@ -772,12 +772,12 @@ const EmployeeList: React.FC = () => {
           }
 
           {/* Summary Information */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600">
-              <strong>Total Employees:</strong> {totalCount} • 
-              <strong> Currently Showing:</strong> All employees on one page
-            </p>
-          </div>
+          
+
+
+
+
+
         </CardContent>
       </Card>
       
