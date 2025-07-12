@@ -37,15 +37,16 @@ const Logo: React.FC<LogoProps> = ({
             const target = e.target as HTMLImageElement;
             target.style.display = 'none';
             target.nextElementSibling?.classList.remove('hidden');
-          }} />
+          }} 
+        />
 
         {/* Fallback logo */}
         <div className={`hidden ${sizeClasses[size]} bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold ${textSizeClasses[size]}`}>
           DFS
         </div>
       </div>
-      {showText &&
-      <div className="flex flex-col">
+      {showText && (
+        <div className="flex flex-col">
           <span className={`font-bold text-gray-800 ${textSizeClasses[size]}`}>
             DFS Manager
           </span>
@@ -53,9 +54,9 @@ const Logo: React.FC<LogoProps> = ({
             Gas Station Management
           </span>
         </div>
-      }
-    </div>);
-
+      )}
+    </div>
+  );
 };
 
-export { Logo };
+export default Logo;

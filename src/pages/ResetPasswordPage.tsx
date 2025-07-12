@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Eye, EyeOff, Lock, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
-import { Logo } from '@/components/Logo';
+import Logo from '@/components/Logo';
 import { useToast } from '@/hooks/use-toast';
 
 const ResetPasswordPage: React.FC = () => {

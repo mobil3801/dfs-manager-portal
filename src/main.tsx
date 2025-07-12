@@ -99,12 +99,12 @@ try {
   if (!rootElement) {
     throw new Error('Root element not found');
   }
-  
+
   createRoot(rootElement).render(<App />);
   console.log('✅ DFS Manager Portal initialized successfully');
 } catch (error) {
   console.error('❌ Failed to initialize application:', error);
-  
+
   // Fallback error display
   document.body.innerHTML = `
     <div style="

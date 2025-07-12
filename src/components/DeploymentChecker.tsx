@@ -59,9 +59,9 @@ const DeploymentChecker: React.FC = () => {
 
   const getStatusIcon = (isReady: boolean) => {
     if (isChecking) return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
-    return isReady 
-      ? <CheckCircle className="w-4 h-4 text-green-500" />
-      : <XCircle className="w-4 h-4 text-red-500" />;
+    return isReady ?
+    <CheckCircle className="w-4 h-4 text-green-500" /> :
+    <XCircle className="w-4 h-4 text-red-500" />;
   };
 
   const getStatusBadge = (isReady: boolean) => {
@@ -69,8 +69,8 @@ const DeploymentChecker: React.FC = () => {
     return (
       <Badge variant={isReady ? "default" : "destructive"}>
         {isReady ? "Ready" : "Failed"}
-      </Badge>
-    );
+      </Badge>);
+
   };
 
   const allReady = Object.values(status).every(Boolean) && !isChecking;
@@ -123,18 +123,18 @@ const DeploymentChecker: React.FC = () => {
             </div>
             
             <div className="mt-3 pt-2 border-t">
-              <Badge 
+              <Badge
                 variant={allReady ? "default" : "secondary"}
-                className="w-full justify-center"
-              >
+                className="w-full justify-center">
+
                 {allReady ? "🚀 Ready for Deployment" : "⏳ Initializing..."}
               </Badge>
             </div>
           </div>
         </AlertDescription>
       </Alert>
-    </div>
-  );
+    </div>);
+
 };
 
 export default DeploymentChecker;

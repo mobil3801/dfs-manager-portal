@@ -1,6 +1,6 @@
 import React from 'react';
 import AdminUserSetup from '@/components/AdminUserSetup';
-import { Logo } from '@/components/Logo';
+import Logo from '@/components/Logo';
 
 const AdminSetupPage: React.FC = () => {
   return (

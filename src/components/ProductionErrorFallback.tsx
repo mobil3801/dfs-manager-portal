@@ -34,30 +34,30 @@ const ProductionErrorFallback: React.FC<ProductionErrorFallbackProps> = ({
           </p>
         </div>
 
-        {process.env.NODE_ENV === 'development' && error && (
-          <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded text-left">
+        {process.env.NODE_ENV === 'development' && error &&
+        <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded text-left">
             <h3 className="font-medium text-red-800 mb-2">Error Details:</h3>
             <pre className="text-xs text-red-700 overflow-auto">
               {error.message}
             </pre>
           </div>
-        )}
+        }
 
         <div className="space-y-3">
-          <Button 
-            onClick={resetError || handleReload} 
+          <Button
+            onClick={resetError || handleReload}
             className="w-full"
-            variant="default"
-          >
+            variant="default">
+
             <RefreshCw className="w-4 h-4 mr-2" />
             Try Again
           </Button>
           
-          <Button 
-            onClick={handleHome} 
+          <Button
+            onClick={handleHome}
             variant="outline"
-            className="w-full"
-          >
+            className="w-full">
+
             <Home className="w-4 h-4 mr-2" />
             Go to Homepage
           </Button>
@@ -69,8 +69,8 @@ const ProductionErrorFallback: React.FC<ProductionErrorFallbackProps> = ({
           </p>
         </div>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ProductionErrorFallback;
