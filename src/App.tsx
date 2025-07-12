@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -7,94 +7,53 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { ModuleAccessProvider } from '@/contexts/ModuleAccessContext';
 import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
 import AuthDebugger from '@/components/AuthDebugger';
-import DeploymentChecker from '@/components/DeploymentChecker';
-import ProductionErrorFallback from '@/components/ProductionErrorFallback';
-import { setupIntelligentPreloading, RoutePreloader, LazyRoutes } from '@/utils/lazyRoutes';
-import OptimizedLoader, { SmartSkeleton } from '@/components/OptimizedLoader';
 
 // Layout
 import DashboardLayout from '@/components/Layout/DashboardLayout';
 
-// Core Pages are now lazy-loaded for better code splitting
-// Dashboard and LoginPage are loaded from LazyRoutes to prevent duplicate imports
+// Pages
+import Dashboard from '@/pages/Dashboard';
+import LoginPage from '@/pages/LoginPage';
+import OnAuthSuccessPage from '@/pages/OnAuthSuccessPage';
+import ResetPasswordPage from '@/pages/ResetPasswordPage';
+import NotFound from '@/pages/NotFound';
 
-// Optimized lazy loading with better error handling
-const createOptimizedLazyRoute = (importFn: () => Promise<any>, componentName: string) => {
-  return React.lazy(async () => {
-    try {
-      const module = await importFn();
-      return module;
-    } catch (error) {
-      console.error(`Failed to load ${componentName}:`, error);
-      // Return a fallback component
-      return {
-        default: () =>
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-            <div className="text-center">
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                Failed to load {componentName}
-              </h2>
-              <p className="text-gray-600 mb-4">
-                Please try refreshing the page or contact support if the problem persists.
-              </p>
-              <button
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+// Feature Pages
+import ProductList from '@/pages/Products/ProductList';
+import ProductForm from '@/pages/Products/ProductForm';
+import EmployeeList from '@/pages/Employees/EmployeeList';
+import EmployeeForm from '@/pages/Employees/EmployeeForm';
+import SalesReportList from '@/pages/Sales/SalesReportList';
+import SalesReportForm from '@/pages/Sales/SalesReportForm';
+import VendorList from '@/pages/Vendors/VendorList';
+import VendorForm from '@/pages/Vendors/VendorForm';
+import OrderList from '@/pages/Orders/OrderList';
+import OrderForm from '@/pages/Orders/OrderForm';
+import LicenseList from '@/pages/Licenses/LicenseList';
+import LicenseForm from '@/pages/Licenses/LicenseForm';
+import SalaryList from '@/pages/Salary/SalaryList';
+import SalaryForm from '@/pages/Salary/SalaryForm';
+import DeliveryList from '@/pages/Delivery/DeliveryList';
+import DeliveryForm from '@/pages/Delivery/DeliveryForm';
+import AppSettings from '@/pages/Settings/AppSettings';
 
-                Refresh Page
-              </button>
-            </div>
-          </div>
+// Admin Pages
+import AdminPanel from '@/pages/Admin/AdminPanel';
+import UserManagement from '@/pages/Admin/UserManagement';
+import SiteManagement from '@/pages/Admin/SiteManagement';
+import SystemLogs from '@/pages/Admin/SystemLogs';
+import SecuritySettings from '@/pages/Admin/SecuritySettings';
+import SMSManagement from '@/pages/Admin/SMSManagement';
+import UserValidationTestPage from '@/pages/Admin/UserValidationTestPage';
+import AuthDiagnosticPage from '@/pages/AuthDiagnosticPage';
+import ModuleAccessPage from '@/pages/Admin/ModuleAccessPage';
+import NavigationDebugPage from '@/pages/Admin/NavigationDebugPage';
+import ProfilePictureDemo from '@/components/ProfilePictureDemo';
+import OverflowTestPage from '@/pages/OverflowTestPage';
+import OverflowTestingPage from '@/pages/OverflowTestingPage';
 
-      };
-    }
-  });
-};
-
-// Lazy-loaded Feature Pages with optimized loading
-const ProductList = createOptimizedLazyRoute(() => import('@/pages/Products/ProductList'), 'ProductList');
-const ProductForm = createOptimizedLazyRoute(() => import('@/pages/Products/ProductForm'), 'ProductForm');
-const EmployeeList = createOptimizedLazyRoute(() => import('@/pages/Employees/EmployeeList'), 'EmployeeList');
-const EmployeeForm = createOptimizedLazyRoute(() => import('@/pages/Employees/EmployeeForm'), 'EmployeeForm');
-const SalesReportList = createOptimizedLazyRoute(() => import('@/pages/Sales/SalesReportList'), 'SalesReportList');
-const SalesReportForm = createOptimizedLazyRoute(() => import('@/pages/Sales/SalesReportForm'), 'SalesReportForm');
-const VendorList = createOptimizedLazyRoute(() => import('@/pages/Vendors/VendorList'), 'VendorList');
-const VendorForm = createOptimizedLazyRoute(() => import('@/pages/Vendors/VendorForm'), 'VendorForm');
-const OrderList = createOptimizedLazyRoute(() => import('@/pages/Orders/OrderList'), 'OrderList');
-const OrderForm = createOptimizedLazyRoute(() => import('@/pages/Orders/OrderForm'), 'OrderForm');
-const LicenseList = createOptimizedLazyRoute(() => import('@/pages/Licenses/LicenseList'), 'LicenseList');
-const LicenseForm = createOptimizedLazyRoute(() => import('@/pages/Licenses/LicenseForm'), 'LicenseForm');
-const SalaryList = createOptimizedLazyRoute(() => import('@/pages/Salary/SalaryList'), 'SalaryList');
-const SalaryForm = createOptimizedLazyRoute(() => import('@/pages/Salary/SalaryForm'), 'SalaryForm');
-const DeliveryList = createOptimizedLazyRoute(() => import('@/pages/Delivery/DeliveryList'), 'DeliveryList');
-const DeliveryForm = createOptimizedLazyRoute(() => import('@/pages/Delivery/DeliveryForm'), 'DeliveryForm');
-const AppSettings = createOptimizedLazyRoute(() => import('@/pages/Settings/AppSettings'), 'AppSettings');
-
-// Lazy-loaded Admin Pages with optimized loading
-const AdminPanel = createOptimizedLazyRoute(() => import('@/pages/Admin/AdminPanel'), 'AdminPanel');
-const UserManagement = createOptimizedLazyRoute(() => import('@/pages/Admin/UserManagement'), 'UserManagement');
-const SiteManagement = createOptimizedLazyRoute(() => import('@/pages/Admin/SiteManagement'), 'SiteManagement');
-const SystemLogs = createOptimizedLazyRoute(() => import('@/pages/Admin/SystemLogs'), 'SystemLogs');
-const SecuritySettings = createOptimizedLazyRoute(() => import('@/pages/Admin/SecuritySettings'), 'SecuritySettings');
-const SMSManagement = createOptimizedLazyRoute(() => import('@/pages/Admin/SMSManagement'), 'SMSManagement');
-const UserValidationTestPage = createOptimizedLazyRoute(() => import('@/pages/Admin/UserValidationTestPage'), 'UserValidationTestPage');
-const AuthDiagnosticPage = createOptimizedLazyRoute(() => import('@/pages/AuthDiagnosticPage'), 'AuthDiagnosticPage');
-const ModuleAccessPage = createOptimizedLazyRoute(() => import('@/pages/Admin/ModuleAccessPage'), 'ModuleAccessPage');
-const NavigationDebugPage = createOptimizedLazyRoute(() => import('@/pages/Admin/NavigationDebugPage'), 'NavigationDebugPage');
-const BuildErrorPage = createOptimizedLazyRoute(() => import('@/pages/Admin/BuildErrorPage'), 'BuildErrorPage');
-const BundleOptimizationPage = createOptimizedLazyRoute(() => import('@/pages/Admin/BundleOptimizationPage'), 'BundleOptimizationPage');
-const ProfilePictureDemo = createOptimizedLazyRoute(() => import('@/components/ProfilePictureDemo'), 'ProfilePictureDemo');
-const OverflowTestPage = createOptimizedLazyRoute(() => import('@/pages/OverflowTestPage'), 'OverflowTestPage');
-const OverflowTestingPage = createOptimizedLazyRoute(() => import('@/pages/OverflowTestingPage'), 'OverflowTestingPage');
-const FileUploadTestPage = createOptimizedLazyRoute(() => import('@/components/FileUploadTestPage'), 'FileUploadTestPage');
-const DatabaseMonitoring = createOptimizedLazyRoute(() => import('@/pages/Admin/DatabaseMonitoring'), 'DatabaseMonitoring');
-const AuditMonitoring = createOptimizedLazyRoute(() => import('@/pages/Admin/AuditMonitoring'), 'AuditMonitoring');
-const DeploymentSuccessPage = createOptimizedLazyRoute(() => import('@/pages/DeploymentSuccessPage'), 'DeploymentSuccessPage');
-
-// Previously static imports now lazy-loaded
-const OnAuthSuccessPage = createOptimizedLazyRoute(() => import('@/pages/OnAuthSuccessPage'), 'OnAuthSuccessPage');
-const ResetPasswordPage = createOptimizedLazyRoute(() => import('@/pages/ResetPasswordPage'), 'ResetPasswordPage');
-const NotFound = createOptimizedLazyRoute(() => import('@/pages/NotFound'), 'NotFound');
+import DatabaseMonitoring from '@/pages/Admin/DatabaseMonitoring';
+import AuditMonitoring from '@/pages/Admin/AuditMonitoring';
 
 import './App.css';
 
@@ -103,18 +62,12 @@ const queryClient = new QueryClient({
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      cacheTime: 10 * 60 * 1000, // 10 minutes
-      refetchOnMount: false,
-      refetchOnReconnect: 'always'
-    },
-    mutations: {
-      retry: 1
+      staleTime: 5 * 60 * 1000 // 5 minutes
     }
   }
 });
 
-// Enhanced Loading Components
+// Loading Spinner Component
 const LoadingSpinner = () =>
 <div className="min-h-screen flex items-center justify-center bg-gray-50">
     <div className="text-center">
@@ -123,34 +76,6 @@ const LoadingSpinner = () =>
       <p className="text-sm text-gray-500 mt-2">Initializing authentication system...</p>
     </div>
   </div>;
-
-
-// Enhanced page loading with component-specific skeletons
-const EnhancedPageLoading = ({ componentName }: {componentName?: string;}) =>
-<div className="min-h-screen bg-gray-50">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <OptimizedLoader
-      componentName={componentName}
-      showProgress={true}
-      showRetry={true}
-      slowLoadingTimeout={3000}
-      onRetry={() => window.location.reload()} />
-
-    </div>
-  </div>;
-
-
-// Optimized Lazy Route Wrapper
-const OptimizedLazyRoute = ({
-  children,
-  componentName
-
-
-
-}: {children: React.ReactNode;componentName?: string;}) =>
-<Suspense fallback={<EnhancedPageLoading componentName={componentName} />}>
-    {children}
-  </Suspense>;
 
 
 // Error Display Component
@@ -208,120 +133,97 @@ const ProtectedRoute: React.FC<{children: React.ReactNode;}> = ({ children }) =>
 
 // Main App Router Component
 const AppRouter = () => {
-  const { isInitialized, user } = useAuth();
+  const { isInitialized } = useAuth();
 
   // Show loading during initial authentication setup
   if (!isInitialized) {
     return <LoadingSpinner />;
   }
 
-  // Setup intelligent preloading after authentication
-  React.useEffect(() => {
-    if (isInitialized && user) {
-      setupIntelligentPreloading();
-
-      // Preload based on user role
-      if (user.role === 'admin' || user.role === 'super_admin') {
-        RoutePreloader.preloadAdminRoutes();
-      }
-
-      // Preload common routes
-      RoutePreloader.preloadDashboardRoutes();
-    }
-  }, [isInitialized, user]);
-
   return (
     <Router>
       <div className="App">
         <Routes>
           {/* Public Routes */}
-          <Route path="/login" element={<OptimizedLazyRoute componentName="LoginPage"><LazyRoutes.LoginPage /></OptimizedLazyRoute>} />
-          <Route path="/onauthsuccess" element={<OptimizedLazyRoute componentName="OnAuthSuccessPage"><OnAuthSuccessPage /></OptimizedLazyRoute>} />
-          <Route path="/resetpassword" element={<OptimizedLazyRoute componentName="ResetPasswordPage"><ResetPasswordPage /></OptimizedLazyRoute>} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
+          <Route path="/resetpassword" element={<ResetPasswordPage />} />
           
           {/* Protected Routes */}
           <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
             <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<OptimizedLazyRoute componentName="Dashboard"><LazyRoutes.Dashboard /></OptimizedLazyRoute>} />
+            <Route path="dashboard" element={<Dashboard />} />
             
             {/* Products */}
-            <Route path="products" element={<OptimizedLazyRoute componentName="ProductList"><ProductList /></OptimizedLazyRoute>} />
-            <Route path="products/new" element={<OptimizedLazyRoute componentName="ProductForm"><ProductForm /></OptimizedLazyRoute>} />
-            <Route path="products/:id/edit" element={<OptimizedLazyRoute componentName="ProductForm"><ProductForm /></OptimizedLazyRoute>} />
+            <Route path="products" element={<ProductList />} />
+            <Route path="products/new" element={<ProductForm />} />
+            <Route path="products/:id/edit" element={<ProductForm />} />
             
             {/* Employees */}
-            <Route path="employees" element={<OptimizedLazyRoute componentName="EmployeeList"><EmployeeList /></OptimizedLazyRoute>} />
-            <Route path="employees/new" element={<OptimizedLazyRoute componentName="EmployeeForm"><EmployeeForm /></OptimizedLazyRoute>} />
-            <Route path="employees/:id/edit" element={<OptimizedLazyRoute componentName="EmployeeForm"><EmployeeForm /></OptimizedLazyRoute>} />
+            <Route path="employees" element={<EmployeeList />} />
+            <Route path="employees/new" element={<EmployeeForm />} />
+            <Route path="employees/:id/edit" element={<EmployeeForm />} />
             
             {/* Sales */}
-            <Route path="sales" element={<OptimizedLazyRoute componentName="SalesReportList"><SalesReportList /></OptimizedLazyRoute>} />
-            <Route path="sales/new" element={<OptimizedLazyRoute componentName="SalesReportForm"><SalesReportForm /></OptimizedLazyRoute>} />
-            <Route path="sales/:id/edit" element={<OptimizedLazyRoute componentName="SalesReportForm"><SalesReportForm /></OptimizedLazyRoute>} />
+            <Route path="sales" element={<SalesReportList />} />
+            <Route path="sales/new" element={<SalesReportForm />} />
+            <Route path="sales/:id/edit" element={<SalesReportForm />} />
             
             {/* Vendors */}
-            <Route path="vendors" element={<OptimizedLazyRoute componentName="VendorList"><VendorList /></OptimizedLazyRoute>} />
-            <Route path="vendors/new" element={<OptimizedLazyRoute componentName="VendorForm"><VendorForm /></OptimizedLazyRoute>} />
-            <Route path="vendors/:id/edit" element={<OptimizedLazyRoute componentName="VendorForm"><VendorForm /></OptimizedLazyRoute>} />
+            <Route path="vendors" element={<VendorList />} />
+            <Route path="vendors/new" element={<VendorForm />} />
+            <Route path="vendors/:id/edit" element={<VendorForm />} />
             
             {/* Orders */}
-            <Route path="orders" element={<OptimizedLazyRoute componentName="OrderList"><OrderList /></OptimizedLazyRoute>} />
-            <Route path="orders/new" element={<OptimizedLazyRoute componentName="OrderForm"><OrderForm /></OptimizedLazyRoute>} />
-            <Route path="orders/:id/edit" element={<OptimizedLazyRoute componentName="OrderForm"><OrderForm /></OptimizedLazyRoute>} />
+            <Route path="orders" element={<OrderList />} />
+            <Route path="orders/new" element={<OrderForm />} />
+            <Route path="orders/:id/edit" element={<OrderForm />} />
             
             {/* Licenses */}
-            <Route path="licenses" element={<OptimizedLazyRoute componentName="LicenseList"><LicenseList /></OptimizedLazyRoute>} />
-            <Route path="licenses/new" element={<OptimizedLazyRoute componentName="LicenseForm"><LicenseForm /></OptimizedLazyRoute>} />
-            <Route path="licenses/:id/edit" element={<OptimizedLazyRoute componentName="LicenseForm"><LicenseForm /></OptimizedLazyRoute>} />
+            <Route path="licenses" element={<LicenseList />} />
+            <Route path="licenses/new" element={<LicenseForm />} />
+            <Route path="licenses/:id/edit" element={<LicenseForm />} />
             
             {/* Salary */}
-            <Route path="salary" element={<OptimizedLazyRoute componentName="SalaryList"><SalaryList /></OptimizedLazyRoute>} />
-            <Route path="salary/new" element={<OptimizedLazyRoute componentName="SalaryForm"><SalaryForm /></OptimizedLazyRoute>} />
-            <Route path="salary/:id/edit" element={<OptimizedLazyRoute componentName="SalaryForm"><SalaryForm /></OptimizedLazyRoute>} />
+            <Route path="salary" element={<SalaryList />} />
+            <Route path="salary/new" element={<SalaryForm />} />
+            <Route path="salary/:id/edit" element={<SalaryForm />} />
             
             {/* Delivery */}
-            <Route path="delivery" element={<OptimizedLazyRoute componentName="DeliveryList"><DeliveryList /></OptimizedLazyRoute>} />
-            <Route path="delivery/new" element={<OptimizedLazyRoute componentName="DeliveryForm"><DeliveryForm /></OptimizedLazyRoute>} />
-            <Route path="delivery/:id/edit" element={<OptimizedLazyRoute componentName="DeliveryForm"><DeliveryForm /></OptimizedLazyRoute>} />
+            <Route path="delivery" element={<DeliveryList />} />
+            <Route path="delivery/new" element={<DeliveryForm />} />
+            <Route path="delivery/:id/edit" element={<DeliveryForm />} />
             
             {/* Settings */}
-            <Route path="settings" element={<OptimizedLazyRoute componentName="AppSettings"><AppSettings /></OptimizedLazyRoute>} />
+            <Route path="settings" element={<AppSettings />} />
             
-            {/* Test Pages */}
-            <Route path="profile-picture-demo" element={<OptimizedLazyRoute componentName="ProfilePictureDemo"><ProfilePictureDemo /></OptimizedLazyRoute>} />
-            <Route path="overflow-test" element={<OptimizedLazyRoute componentName="OverflowTestPage"><OverflowTestPage /></OptimizedLazyRoute>} />
-            <Route path="overflow-testing" element={<OptimizedLazyRoute componentName="OverflowTestingPage"><OverflowTestingPage /></OptimizedLazyRoute>} />
-            <Route path="file-upload-test" element={<OptimizedLazyRoute componentName="FileUploadTestPage"><FileUploadTestPage /></OptimizedLazyRoute>} />
+            {/* Profile Picture Demo */}
+            <Route path="profile-picture-demo" element={<ProfilePictureDemo />} />
+            <Route path="overflow-test" element={<OverflowTestPage />} />
+            <Route path="overflow-testing" element={<OverflowTestingPage />} />
             
             {/* Admin Routes */}
-            <Route path="admin" element={<OptimizedLazyRoute componentName="AdminPanel"><AdminPanel /></OptimizedLazyRoute>} />
-            <Route path="admin/users" element={<OptimizedLazyRoute componentName="UserManagement"><UserManagement /></OptimizedLazyRoute>} />
-            <Route path="admin/sites" element={<OptimizedLazyRoute componentName="SiteManagement"><SiteManagement /></OptimizedLazyRoute>} />
-            <Route path="admin/logs" element={<OptimizedLazyRoute componentName="SystemLogs"><SystemLogs /></OptimizedLazyRoute>} />
-            <Route path="admin/security" element={<OptimizedLazyRoute componentName="SecuritySettings"><SecuritySettings /></OptimizedLazyRoute>} />
-            <Route path="admin/sms" element={<OptimizedLazyRoute componentName="SMSManagement"><SMSManagement /></OptimizedLazyRoute>} />
-            <Route path="admin/user-validation" element={<OptimizedLazyRoute componentName="UserValidationTestPage"><UserValidationTestPage /></OptimizedLazyRoute>} />
-            <Route path="auth-diagnostic" element={<OptimizedLazyRoute componentName="AuthDiagnosticPage"><AuthDiagnosticPage /></OptimizedLazyRoute>} />
-            <Route path="admin/module-access" element={<OptimizedLazyRoute componentName="ModuleAccessPage"><ModuleAccessPage /></OptimizedLazyRoute>} />
-            <Route path="admin/navigation-debug" element={<OptimizedLazyRoute componentName="NavigationDebugPage"><NavigationDebugPage /></OptimizedLazyRoute>} />
-            <Route path="admin/build-errors" element={<OptimizedLazyRoute componentName="BuildErrorPage"><BuildErrorPage /></OptimizedLazyRoute>} />
-            <Route path="admin/bundle-optimization" element={<OptimizedLazyRoute componentName="BundleOptimizationPage"><BundleOptimizationPage /></OptimizedLazyRoute>} />
-            <Route path="admin/database" element={<OptimizedLazyRoute componentName="DatabaseMonitoring"><DatabaseMonitoring /></OptimizedLazyRoute>} />
-            <Route path="admin/audit" element={<OptimizedLazyRoute componentName="AuditMonitoring"><AuditMonitoring /></OptimizedLazyRoute>} />
-            
-            {/* Special Pages */}
-            <Route path="deployment-success" element={<OptimizedLazyRoute componentName="DeploymentSuccessPage"><DeploymentSuccessPage /></OptimizedLazyRoute>} />
+            <Route path="admin" element={<AdminPanel />} />
+            <Route path="admin/users" element={<UserManagement />} />
+            <Route path="admin/sites" element={<SiteManagement />} />
+            <Route path="admin/logs" element={<SystemLogs />} />
+            <Route path="admin/security" element={<SecuritySettings />} />
+            <Route path="admin/sms" element={<SMSManagement />} />
+            <Route path="admin/user-validation" element={<UserValidationTestPage />} />
+            <Route path="admin/auth-diagnostic" element={<AuthDiagnosticPage />} />
+            <Route path="admin/module-access" element={<ModuleAccessPage />} />
+            <Route path="admin/navigation-debug" element={<NavigationDebugPage />} />
+
+            <Route path="admin/database" element={<DatabaseMonitoring />} />
+            <Route path="admin/audit" element={<AuditMonitoring />} />
           </Route>
           
           {/* 404 */}
-          <Route path="*" element={<OptimizedLazyRoute componentName="NotFound"><NotFound /></OptimizedLazyRoute>} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
         
         {/* Auth Debugger - Only show in development or for debugging */}
         <AuthDebugger />
-        
-        {/* Deployment Status Checker - Development only */}
-        <DeploymentChecker />
       </div>
     </Router>);
 
@@ -331,7 +233,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <GlobalErrorBoundary fallback={ProductionErrorFallback}>
+        <GlobalErrorBoundary>
           <AuthProvider>
             <ModuleAccessProvider>
               <AppRouter />

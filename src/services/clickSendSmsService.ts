@@ -582,134 +582,6 @@ class ClickSendSMSService {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // This is handled by counting records in the history table
     // No need for a separate counter field
   }private async logSMSHistory(historyData: any): Promise<void> {try {await window.ezsite.apis.tableCreate(24202, { ...historyData, sent_by_user_id: 1 // This should be the current user ID
@@ -720,5 +592,36 @@ class ClickSendSMSService {
         const { data: historyData } = await window.ezsite.apis.tablePage(24202, { PageNo: 1, PageSize: 1, OrderByField: 'id', IsAsc: false, Filters: [{ name: 'sent_at', op: 'StringStartsWith', value: today }, { name: 'status', op: 'Equal', value: 'Sent' }] });const used = historyData?.VirtualCount || 0;const limit = config.daily_limit;const percentage = used / limit * 100;return { used, limit, percentage };}return { used: 0, limit: 100, percentage: 0 };} catch (error) {console.error('Error getting daily usage:', error);return { used: 0, limit: 100, percentage: 0 };}}isServiceConfigured(): boolean {return this.isConfigured;}getConfiguration(): ClickSendConfig | null {return this.config;}async getServiceStatus(): Promise<{available: boolean;message: string;providers?: any;quota?: any;}> {try {if (!this.isConfigured) {return { available: false, message: 'SMS service not configured. Please configure ClickSend settings.' };}const accountResponse = await this.makeClickSendRequest('GET', '/account');const providers = [{ name: 'ClickSend', available: this.isConfigured && accountResponse.success }];const quota = { quotaRemaining: accountResponse.success ? accountResponse.data?.data?.balance || 0 : 0 };return { available: accountResponse.success, message: accountResponse.success ? 'ClickSend SMS service is configured and ready' : 'ClickSend connection failed', providers, quota };} catch (error) {console.error('Error checking service status:', error);return { available: false, message: 'Error checking service status' };}}async sendSimpleSMS(phoneNumber: string, message: string, fromNumber?: string): Promise<SMSResponse> {const originalConfig = this.config;if (fromNumber && this.config) {this.config = { ...this.config, fromNumber };}try {const result = await this.sendSMS({ to: phoneNumber, message: message, type: 'custom' });return result;} finally {if (originalConfig) {this.config = originalConfig;}}}async getAvailableFromNumbers(): Promise<{number: string;provider: string;isActive: boolean;testMode: boolean;}[]> {try {// Get from correct table (24201)
       const { data, error } = await window.ezsite.apis.tablePage(24201, { PageNo: 1, PageSize: 10, OrderByField: 'id', IsAsc: false, Filters: [] });if (error) throw new Error(error);return (data?.List || []).map((provider: any) => ({ number: provider.from_number || 'DFS', provider: 'ClickSend', isActive: provider.is_enabled, testMode: provider.test_mode || false }));} catch (error) {console.error('Error getting available from numbers:', error);return [{ number: 'DFS', provider: 'ClickSend', isActive: true, testMode: false }];}}async sendCustomSMS(phoneNumber: string, message: string, fromNumber: string): Promise<SMSResponse> {return this.sendSimpleSMS(phoneNumber, message, fromNumber);}async getAccountBalance(): Promise<number> {try {const response = await this.makeClickSendRequest('GET', '/account');if (response.success && response.data) {return response.data.data.balance || 0;}return 0;} catch (error) {console.error('Error getting account balance:', error);return 0;}}}export const clickSendSmsService = new ClickSendSMSService(); // Enhanced SMS Service with production features
 class ProductionClickSendSMSService extends ClickSendSMSService {async loadEnvironmentConfig(): Promise<void> {try {// Always use the provided credentials as primary
-      const envConfig = { username: 'mobil3801beach@gmail.com', apiKey: '54DC23E4-34D7-C6B1-0601-112E36A46B49', fromNumber: 'DFS', testMode: import.meta.env.VITE_SMS_TEST_MODE === 'true' || false, webhookUrl: import.meta.env.VITE_SMS_WEBHOOK_URL };await this.configure(envConfig);console.log('📱 ClickSend SMS service configured with provided credentials');} catch (error) {console.error('Error loading SMS configuration:', error);throw error;}}async initializeForProduction(): Promise<void> {try {await this.loadEnvironmentConfig();console.log('🚀 Production ClickSend SMS service initialized with your credentials');} catch (error) {console.error('❌ Failed to initialize production SMS service:', error);throw error;}}}export const productionClickSendSmsService = new ProductionClickSendSMSService(); // Export for backward compatibility and as the main SMS service
-export const smsService = clickSendSmsService;export const productionSmsService = productionClickSendSmsService;export default clickSendSmsService;
+      const envConfig = {
+        username: 'mobil3801beach@gmail.com',
+        apiKey: '54DC23E4-34D7-C6B1-0601-112E36A46B49',
+        fromNumber: 'DFS',
+        testMode: import.meta.env.VITE_SMS_TEST_MODE === 'true' || false,
+        webhookUrl: import.meta.env.VITE_SMS_WEBHOOK_URL
+      };
+
+      await this.configure(envConfig);
+      console.log('📱 ClickSend SMS service configured with provided credentials');
+    } catch (error) {
+      console.error('Error loading SMS configuration:', error);
+      throw error;
+    }
+  }
+
+  async initializeForProduction(): Promise<void> {
+    try {
+      await this.loadEnvironmentConfig();
+      console.log('🚀 Production ClickSend SMS service initialized with your credentials');
+    } catch (error) {
+      console.error('❌ Failed to initialize production SMS service:', error);
+      throw error;
+    }
+  }
+}
+
+export const productionClickSendSmsService = new ProductionClickSendSMSService();
+
+// Export for backward compatibility and as the main SMS service
+export const smsService = clickSendSmsService;
+export const productionSmsService = productionClickSendSmsService;
+export default clickSendSmsService;

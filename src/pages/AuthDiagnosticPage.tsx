@@ -131,28 +131,20 @@ const AuthDiagnosticPage: React.FC = () => {
 
       // Test 5: Permission System
       if (auth.userProfile) {
-        try {
-          const isAdmin = auth.isAdmin();
-          const isManager = auth.isManager();
-          const canView = auth.hasPermission('view');
+        const isAdmin = auth.isAdmin();
+        const isManager = auth.isManager();
+        const canView = auth.hasPermission('view');
 
-          addTestResult('Permissions', 'Role Detection', 'pass',
-          `Admin: ${isAdmin}, Manager: ${isManager}, Can View: ${canView}`);
+        addTestResult('Permissions', 'Role Detection', 'pass',
+        `Admin: ${isAdmin}, Manager: ${isManager}, Can View: ${canView}`);
 
-          results.permissionSystem = {
-            roleDetectionWorking: true,
-            isAdmin,
-            isManager,
-            canView,
-            role: auth.userProfile.role
-          };
-        } catch (permissionError) {
-          addTestResult('Permissions', 'Role Detection', 'fail', `Permission check failed: ${permissionError instanceof Error ? permissionError.message : String(permissionError)}`);
-          results.permissionSystem = {
-            roleDetectionWorking: false,
-            error: permissionError instanceof Error ? permissionError.message : String(permissionError)
-          };
-        }
+        results.permissionSystem = {
+          roleDetectionWorking: true,
+          isAdmin,
+          isManager,
+          canView,
+          role: auth.userProfile.role
+        };
       } else {
         addTestResult('Permissions', 'Role Detection', 'warning', 'Cannot test permissions without user profile');
         results.permissionSystem = { roleDetectionWorking: false };

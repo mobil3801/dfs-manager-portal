@@ -8,8 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { formatFileSize } from '@/utils/imageCompression';
 
 interface FileDisplayItem {
-  id?: number;
-  ID?: number;
+  id: number;
   file_name: string;
   file_size: number;
   file_type: string;
@@ -55,12 +54,12 @@ const FileDisplay: React.FC<FileDisplayProps> = ({
   const loadFiles = async () => {
     try {
       setLoading(true);
-
+      
       const filters = [
-      { name: "associated_table", op: "Equal", value: associatedTable },
-      { name: "associated_record_id", op: "Equal", value: associatedRecordId },
-      { name: "is_active", op: "Equal", value: true }];
-
+        { name: "associated_table", op: "Equal", value: associatedTable },
+        { name: "associated_record_id", op: "Equal", value: associatedRecordId },
+        { name: "is_active", op: "Equal", value: true }
+      ];
 
       if (fileCategory) {
         filters.push({ name: "file_category", op: "Equal", value: fileCategory });
@@ -93,9 +92,8 @@ const FileDisplay: React.FC<FileDisplayProps> = ({
     if (!confirm(`Are you sure you want to delete "${file.file_name}"?`)) return;
 
     try {
-      const fileId = file.id || file.ID;
       const { error } = await window.ezsite.apis.tableUpdate(26928, {
-        id: fileId,
+        id: file.id,
         is_active: false
       });
 
@@ -175,25 +173,25 @@ const FileDisplay: React.FC<FileDisplayProps> = ({
         <img
           src={file.file_url}
           alt={file.file_name}
-          className="max-w-full max-h-96 object-contain rounded-lg" />);
-
-
+          className="max-w-full max-h-96 object-contain rounded-lg"
+        />
+      );
     } else if (file.file_type === 'application/pdf') {
       return (
         <iframe
           src={file.file_url}
           className="w-full h-96 rounded-lg border"
-          title={file.file_name} />);
-
-
+          title={file.file_name}
+        />
+      );
     } else {
       return (
         <div className="flex flex-col items-center justify-center p-8 bg-gray-50 rounded-lg">
           {getFileIcon(file.file_type)}
           <p className="mt-2 text-sm text-gray-600">Preview not available</p>
           <p className="text-xs text-gray-500">Click download to view this file</p>
-        </div>);
-
+        </div>
+      );
     }
   };
 
@@ -201,8 +199,8 @@ const FileDisplay: React.FC<FileDisplayProps> = ({
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>);
-
+      </div>
+    );
   }
 
   if (files.length === 0) {
@@ -213,8 +211,8 @@ const FileDisplay: React.FC<FileDisplayProps> = ({
           <h3 className="text-lg font-medium text-gray-900 mb-2">No files uploaded</h3>
           <p className="text-sm text-gray-500">Files will appear here once uploaded</p>
         </CardContent>
-      </Card>);
-
+      </Card>
+    );
   }
 
   return (
@@ -228,13 +226,13 @@ const FileDisplay: React.FC<FileDisplayProps> = ({
         </CardHeader>
         <CardContent>
           <div className={viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-3"}>
-            {files.map((file) =>
-            <div
-              key={file.id}
-              className={`p-4 border rounded-lg hover:shadow-md transition-shadow ${
-              viewMode === 'list' ? 'flex items-center gap-4' : ''}`
-              }>
-
+            {files.map((file) => (
+              <div
+                key={file.id}
+                className={`p-4 border rounded-lg hover:shadow-md transition-shadow ${
+                  viewMode === 'list' ? 'flex items-center gap-4' : ''
+                }`}
+              >
                 <div className={`${viewMode === 'list' ? 'flex items-center gap-3 flex-1' : ''}`}>
                   <div className="flex items-center gap-3 mb-2">
                     {getFileIcon(file.file_type)}
@@ -246,17 +244,17 @@ const FileDisplay: React.FC<FileDisplayProps> = ({
                     </div>
                   </div>
 
-                  {showDescription && file.description &&
-                <p className="text-xs text-gray-600 mb-2 line-clamp-2">{file.description}</p>
-                }
+                  {showDescription && file.description && (
+                    <p className="text-xs text-gray-600 mb-2 line-clamp-2">{file.description}</p>
+                  )}
 
                   <div className="flex items-center justify-between">
                     <div className="flex flex-wrap gap-1">
-                      {file.file_category &&
-                    <Badge variant="secondary" className={`text-xs ${getCategoryColor(file.file_category)}`}>
+                      {file.file_category && (
+                        <Badge variant="secondary" className={`text-xs ${getCategoryColor(file.file_category)}`}>
                           {file.file_category}
                         </Badge>
-                    }
+                      )}
                       <Badge variant="outline" className="text-xs">
                         {formatDate(file.upload_date)}
                       </Badge>
@@ -266,32 +264,32 @@ const FileDisplay: React.FC<FileDisplayProps> = ({
 
                 <div className={`flex gap-2 ${viewMode === 'list' ? 'flex-shrink-0' : 'mt-3'}`}>
                   <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handlePreview(file)}>
-
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handlePreview(file)}
+                  >
                     <Eye className="h-4 w-4" />
                   </Button>
                   <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleDownload(file)}>
-
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDownload(file)}
+                  >
                     <Download className="h-4 w-4" />
                   </Button>
-                  {allowDelete &&
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleDelete(file)}
-                  className="text-red-600 hover:text-red-700">
-
+                  {allowDelete && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleDelete(file)}
+                      className="text-red-600 hover:text-red-700"
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                }
+                  )}
                 </div>
               </div>
-            )}
+            ))}
           </div>
         </CardContent>
       </Card>
@@ -317,15 +315,15 @@ const FileDisplay: React.FC<FileDisplayProps> = ({
           </DialogHeader>
 
           <div className="space-y-4">
-            {selectedFile &&
-            <>
+            {selectedFile && (
+              <>
                 <div className="flex items-center justify-between">
                   <div className="flex gap-2">
-                    {selectedFile.file_category &&
-                  <Badge className={getCategoryColor(selectedFile.file_category)}>
+                    {selectedFile.file_category && (
+                      <Badge className={getCategoryColor(selectedFile.file_category)}>
                         {selectedFile.file_category}
                       </Badge>
-                  }
+                    )}
                     <Badge variant="outline">
                       {formatDate(selectedFile.upload_date)}
                     </Badge>
@@ -336,22 +334,22 @@ const FileDisplay: React.FC<FileDisplayProps> = ({
                   </Button>
                 </div>
 
-                {selectedFile.description &&
-              <div className="p-3 bg-gray-50 rounded-lg">
+                {selectedFile.description && (
+                  <div className="p-3 bg-gray-50 rounded-lg">
                     <p className="text-sm">{selectedFile.description}</p>
                   </div>
-              }
+                )}
 
                 <div className="flex justify-center">
                   {renderFilePreview(selectedFile)}
                 </div>
               </>
-            }
+            )}
           </div>
         </DialogContent>
       </Dialog>
-    </div>);
-
+    </div>
+  );
 };
 
 export default FileDisplay;

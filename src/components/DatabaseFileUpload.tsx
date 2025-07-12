@@ -172,7 +172,7 @@ const DatabaseFileUpload: React.FC<DatabaseFileUploadProps> = ({
       if (insertError) throw insertError;
 
       return {
-        fileId: insertResult.id || insertResult.ID,
+        fileId: insertResult.id,
         fileName: file.name,
         fileSize: file.size,
         fileType: file.type,

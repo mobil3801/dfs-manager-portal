@@ -186,75 +186,70 @@ const UserConflictPrevention: React.FC = () => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         // User not found or not logged in - this is fine for email uniqueness check
       } // Check email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;if (!emailRegex.test(email)) {results.push({ isValid: false, type: 'email', message: 'Invalid email format.', severity: 'error' });}if (results.length === 0) {results.push({ isValid: true, type: 'email', message: 'Email is available and valid.', severity: 'info' });}setValidationResults(results);} catch (error) {console.error('Error validating email:', error);} finally {setIsValidating(false);}};const validateRoleConflict = () => {if (!roleToCheck || !stationToCheck) {toast({ title: "Validation Required", description: "Please select both role and station to check for conflicts", variant: "destructive" });return;}const results: ValidationResult[] = []; // Check for role conflicts
     const conflictingUsers = existingUsers.filter((user) => user.role === roleToCheck && user.station === stationToCheck && user.is_active);if (conflictingUsers.length > 0) {// Special handling for Administrator role
-      if (roleToCheck === 'Administrator') {results.push({ isValid: false, type: 'role', message: `Administrator role already exists for ${stationToCheck}. Multiple administrators per station may cause conflicts.`, severity: 'warning' });} else {results.push({ isValid: true, type: 'role', message: `${conflictingUsers.length} user(s) already have the ${roleToCheck} role at ${stationToCheck}. This may be acceptable.`, severity: 'info' });}} else {results.push({ isValid: true, type: 'role', message: `No conflicts found for ${roleToCheck} role at ${stationToCheck}.`, severity: 'info' });}setValidationResults(results);};const checkAdminProtection = () => {const results: ValidationResult[] = [];const adminUsers = existingUsers.filter((user) => user.role === 'Administrator' && user.is_active);if (adminUsers.length === 1) {results.push({ isValid: false, type: 'admin_protection', message: 'Only one administrator exists. Deactivating or removing this user could lock you out of the system.', severity: 'error' });} else if (adminUsers.length > 1) {results.push({ isValid: true, type: 'admin_protection', message: `${adminUsers.length} administrators exist. System has adequate admin coverage.`, severity: 'info' });} else {results.push({ isValid: false, type: 'admin_protection', message: 'No active administrators found. This is a critical security issue.', severity: 'error' });}setValidationResults(results);};const getResultIcon = (result: ValidationResult) => {switch (result.severity) {case 'error':return <AlertTriangle className="w-4 h-4 text-red-500" />;case 'warning':return <AlertTriangle className="w-4 h-4 text-yellow-500" />;case 'info':return <CheckCircle className="w-4 h-4 text-green-500" />;default:return <CheckCircle className="w-4 h-4 text-blue-500" />;}};const getResultVariant = (severity: string) => {switch (severity) {case 'error':return 'destructive';case 'warning':return 'default';default:return 'default';}};return <div className="space-y-6">
+      if (roleToCheck === 'Administrator') {results.push({ isValid: false, type: 'role', message: `Administrator role already exists for ${stationToCheck}. Multiple administrators per station may cause conflicts.`, severity: 'warning' });} else {results.push({ isValid: true, type: 'role', message: `${conflictingUsers.length} user(s) already have the ${roleToCheck} role at ${stationToCheck}. This may be acceptable.`, severity: 'info' });}} else {results.push({ isValid: true, type: 'role', message: `No conflicts found for ${roleToCheck} role at ${stationToCheck}.`, severity: 'info' });}setValidationResults(results);};
+  const checkAdminProtection = () => {
+    const results: ValidationResult[] = [];
+
+    const adminUsers = existingUsers.filter((user) =>
+    user.role === 'Administrator' && user.is_active
+    );
+
+    if (adminUsers.length === 1) {
+      results.push({
+        isValid: false,
+        type: 'admin_protection',
+        message: 'Only one administrator exists. Deactivating or removing this user could lock you out of the system.',
+        severity: 'error'
+      });
+    } else if (adminUsers.length > 1) {
+      results.push({
+        isValid: true,
+        type: 'admin_protection',
+        message: `${adminUsers.length} administrators exist. System has adequate admin coverage.`,
+        severity: 'info'
+      });
+    } else {
+      results.push({
+        isValid: false,
+        type: 'admin_protection',
+        message: 'No active administrators found. This is a critical security issue.',
+        severity: 'error'
+      });
+    }
+
+    setValidationResults(results);
+  };
+
+  const getResultIcon = (result: ValidationResult) => {
+    switch (result.severity) {
+      case 'error':
+        return <AlertTriangle className="w-4 h-4 text-red-500" />;
+      case 'warning':
+        return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
+      case 'info':
+        return <CheckCircle className="w-4 h-4 text-green-500" />;
+      default:
+        return <CheckCircle className="w-4 h-4 text-blue-500" />;
+    }
+  };
+
+  const getResultVariant = (severity: string) => {
+    switch (severity) {
+      case 'error':
+        return 'destructive';
+      case 'warning':
+        return 'default';
+      default:
+        return 'default';
+    }
+  };
+
+  return (
+    <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -291,26 +286,31 @@ const UserConflictPrevention: React.FC = () => {
                 <Label htmlFor="email-check">Email Address</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input id="email-check" type="email" placeholder="Enter email to check availability..." value={emailToCheck} onChange={(e) => setEmailToCheck(e.target.value)}
-                  className="pl-10" />
+                  <Input
+                    id="email-check"
+                    type="email"
+                    placeholder="Enter email to check availability..."
+                    value={emailToCheck}
+                    onChange={(e) => setEmailToCheck(e.target.value)}
+                    className="pl-10" />
 
                   {isValidating &&
-                <RefreshCw className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 animate-spin" />
-                }
+                  <RefreshCw className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 animate-spin" />
+                  }
                 </div>
               </div>
 
               <div className="space-y-2">
                 {validationResults.
-              filter((result) => result.type === 'email' || result.type === 'admin_protection').
-              map((result, index) =>
-              <Alert key={index} variant={getResultVariant(result.severity)}>
+                filter((result) => result.type === 'email' || result.type === 'admin_protection').
+                map((result, index) =>
+                <Alert key={index} variant={getResultVariant(result.severity)}>
                       <div className="flex items-center gap-2">
                         {getResultIcon(result)}
                         <AlertDescription>{result.message}</AlertDescription>
                       </div>
                     </Alert>
-              )}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -331,8 +331,8 @@ const UserConflictPrevention: React.FC = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {roles.map((role) =>
-                    <SelectItem key={role} value={role}>{role}</SelectItem>
-                    )}
+                      <SelectItem key={role} value={role}>{role}</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -345,8 +345,8 @@ const UserConflictPrevention: React.FC = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {stations.map((station) =>
-                    <SelectItem key={station} value={station}>{station}</SelectItem>
-                    )}
+                      <SelectItem key={station} value={station}>{station}</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -359,15 +359,15 @@ const UserConflictPrevention: React.FC = () => {
 
               <div className="space-y-2">
                 {validationResults.
-              filter((result) => result.type === 'role').
-              map((result, index) =>
-              <Alert key={index} variant={getResultVariant(result.severity)}>
+                filter((result) => result.type === 'role').
+                map((result, index) =>
+                <Alert key={index} variant={getResultVariant(result.severity)}>
                       <div className="flex items-center gap-2">
                         {getResultIcon(result)}
                         <AlertDescription>{result.message}</AlertDescription>
                       </div>
                     </Alert>
-              )}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -394,15 +394,15 @@ const UserConflictPrevention: React.FC = () => {
 
               <div className="space-y-2">
                 {validationResults.
-              filter((result) => result.type === 'admin_protection').
-              map((result, index) =>
-              <Alert key={index} variant={getResultVariant(result.severity)}>
+                filter((result) => result.type === 'admin_protection').
+                map((result, index) =>
+                <Alert key={index} variant={getResultVariant(result.severity)}>
                       <div className="flex items-center gap-2">
                         {getResultIcon(result)}
                         <AlertDescription>{result.message}</AlertDescription>
                       </div>
                     </Alert>
-              )}
+                )}
               </div>
 
               <div className="mt-4 p-4 bg-gray-50 rounded-lg">
@@ -429,7 +429,7 @@ const UserConflictPrevention: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>;
+    </div>);
 
 };
 

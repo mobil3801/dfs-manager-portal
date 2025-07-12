@@ -385,59 +385,42 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
   };
 
   const hasPermission = (action: string, resource?: string): boolean => {
-    try {
-      if (!userProfile || userProfile.role === 'Guest') {
-        return false;
-      }
-
-      // Admins have all permissions
-      if (userProfile.role === 'Administrator' || userProfile.role === 'Admin') {
-        return true;
-      }
-
-      // Parse detailed permissions if they exist
-      if (userProfile.detailed_permissions) {
-        try {
-          let permissions = userProfile.detailed_permissions;
-
-          // Handle string permissions
-          if (typeof permissions === 'string') {
-            // Skip parsing if it's empty string or null
-            if (!permissions.trim()) {
-              permissions = {};
-            } else {
-              permissions = JSON.parse(permissions);
-            }
-          }
-
-          // Ensure permissions is an object
-          if (typeof permissions === 'object' && permissions !== null) {
-            if (resource && permissions[resource] && permissions[resource][action]) {
-              return true;
-            }
-          }
-        } catch (permissionError) {
-          console.warn('Error parsing permissions, using default role permissions:', permissionError);
-          // Continue with default permissions instead of throwing
-        }
-      }
-
-      // Default permissions for managers
-      if (userProfile.role === 'Management' || userProfile.role === 'Manager') {
-        const managerActions = ['view', 'create', 'edit'];
-        return managerActions.includes(action);
-      }
-
-      // Default permissions for employees
-      if (userProfile.role === 'Employee') {
-        return action === 'view';
-      }
-
-      return false;
-    } catch (error) {
-      console.error('Critical error in hasPermission:', error);
+    if (!userProfile || userProfile.role === 'Guest') {
       return false;
     }
+
+    // Admins have all permissions
+    if (userProfile.role === 'Administrator' || userProfile.role === 'Admin') {
+      return true;
+    }
+
+    // Parse detailed permissions if they exist
+    if (userProfile.detailed_permissions) {
+      try {
+        const permissions = typeof userProfile.detailed_permissions === 'string' ?
+        JSON.parse(userProfile.detailed_permissions) :
+        userProfile.detailed_permissions;
+
+        if (resource && permissions[resource] && permissions[resource][action]) {
+          return true;
+        }
+      } catch (error) {
+        console.error('Error parsing permissions:', error);
+      }
+    }
+
+    // Default permissions for managers
+    if (userProfile.role === 'Management' || userProfile.role === 'Manager') {
+      const managerActions = ['view', 'create', 'edit'];
+      return managerActions.includes(action);
+    }
+
+    // Default permissions for employees
+    if (userProfile.role === 'Employee') {
+      return action === 'view';
+    }
+
+    return false;
   };
 
   const isAdmin = (): boolean => {

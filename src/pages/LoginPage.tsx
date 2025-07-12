@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, Eye, EyeOff, Mail, Lock, UserPlus, LogIn, AlertCircle, CheckCircle2 } from 'lucide-react';
-import Logo from '@/components/Logo';
+import { Logo } from '@/components/Logo';
 import { useToast } from '@/hooks/use-toast';
 
 type AuthMode = 'login' | 'register' | 'forgot-password';

@@ -3,7 +3,6 @@ import App from './App.tsx';
 import './index.css';
 import { initializeMemoryLeakDetection } from './utils/memoryLeakIntegration';
 import { setupInvalidCharacterErrorMonitor } from './utils/errorPreventionHelper';
-import { logDeploymentInfo, initializeEasySitePlatform } from './utils/deploymentConfig';
 
 // Performance API Polyfill for environments that don't support it
 if (typeof window !== 'undefined' && !window.performance) {
@@ -86,64 +85,4 @@ try {
   console.warn('Invalid character error monitoring initialization failed:', error);
 }
 
-// Initialize EasySite Platform and log deployment information
-try {
-  initializeEasySitePlatform();
-} catch (error) {
-  console.warn('EasySite Platform initialization failed:', error);
-}
-
-// Create and render the application
-try {
-  const rootElement = document.getElementById("root");
-  if (!rootElement) {
-    throw new Error('Root element not found');
-  }
-
-  createRoot(rootElement).render(<App />);
-  console.log('✅ DFS Manager Portal initialized successfully');
-} catch (error) {
-  console.error('❌ Failed to initialize application:', error);
-
-  // Fallback error display
-  document.body.innerHTML = `
-    <div style="
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #f9fafb;
-      font-family: system-ui, -apple-system, sans-serif;
-      padding: 20px;
-    ">
-      <div style="
-        max-width: 400px;
-        text-align: center;
-        background: white;
-        padding: 40px;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      ">
-        <div style="color: #ef4444; font-size: 48px; margin-bottom: 20px;">⚠️</div>
-        <h1 style="color: #111827; margin-bottom: 16px; font-size: 20px;">Application Failed to Load</h1>
-        <p style="color: #6b7280; margin-bottom: 24px; line-height: 1.5;">
-          We're sorry, but the DFS Manager Portal failed to initialize. Please try refreshing the page.
-        </p>
-        <button 
-          onclick="window.location.reload()" 
-          style="
-            background: #3b82f6;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-          "
-        >
-          Refresh Page
-        </button>
-      </div>
-    </div>
-  `;
-}
+createRoot(document.getElementById("root")!).render(<App />);

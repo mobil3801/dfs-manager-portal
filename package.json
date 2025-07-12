@@ -1,8 +1,7 @@
 {
   "name": "dfs-manager-portal",
   "private": true,
-  "version": "1.0.0",
-  "description": "DFS Manager Portal - EasySite Platform Deployment (Token: z20jntw7fp3a)",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -24,9 +23,7 @@
     "deploy:vercel": "npm run build:safe \u0026\u0026 vercel --prod",
     "docker:build": "docker build -t dfs-manager-portal .",
     "docker:run": "docker run -p 80:80 dfs-manager-portal",
-    "docker:compose": "docker-compose up -d",
-    "analyze-bundle": "node scripts/analyze-bundle.js",
-    "build:analyze": "npm run build && npm run analyze-bundle"
+    "docker:compose": "docker-compose up -d"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

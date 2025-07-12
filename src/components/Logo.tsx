@@ -39,7 +39,6 @@ const Logo: React.FC<LogoProps> = ({
             target.nextElementSibling?.classList.remove('hidden');
           }} />
 
-
         {/* Fallback logo */}
         <div className={`hidden ${sizeClasses[size]} bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold ${textSizeClasses[size]}`}>
           DFS
@@ -59,4 +58,4 @@ const Logo: React.FC<LogoProps> = ({
 
 };
 
-export default Logo;
+export { Logo };
