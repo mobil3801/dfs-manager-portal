@@ -8,9 +8,18 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { DollarSign, Users, Building, Save, Plus, Calculator } from 'lucide-react';
+import { DollarSign, Users, Building, Save, Plus, Calculator, Calendar, Clock, Info } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
+import { 
+  getCurrentPayPeriod, 
+  calculatePayDate, 
+  validatePayPeriod, 
+  formatDateForInput, 
+  generatePayPeriodOptions,
+  adjustToPayPeriod,
+  formatPayPeriod 
+} from '@/utils/payPeriodUtils';
 
 interface SalaryRecord {
   id?: number;
@@ -75,35 +84,38 @@ const SalaryList: React.FC = () => {
   // Form states for each station
   const [salaryForms, setSalaryForms] = useState<{[key: string]: SalaryRecord;}>({});
 
-  const getDefaultFormData = (station: string): SalaryRecord => ({
-    employee_id: '',
-    pay_period_start: format(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
-    pay_period_end: format(new Date(), 'yyyy-MM-dd'),
-    pay_date: format(new Date(), 'yyyy-MM-dd'),
-    pay_frequency: 'Weekly',
-    hourly_rate: 0,
-    regular_hours: 0,
-    assign_hours: 0,
-    overtime_hours: 0,
-    overtime_rate: 0,
-    overtime_pay: 0,
-    bonus_amount: 0,
-    commission: 0,
-    gross_pay: 0,
-    federal_tax: 0,
-    state_tax: 0,
-    social_security: 0,
-    medicare: 0,
-    health_insurance: 0,
-    retirement_401k: 0,
-    other_deductions: 0,
-    total_deductions: 0,
-    net_pay: 0,
-    station: station === 'OTHERS' ? '' : station,
-    status: 'Pending',
-    notes: '',
-    created_by: userProfile?.id || 1
-  });
+  const getDefaultFormData = (station: string): SalaryRecord => {
+    const currentPayPeriod = getCurrentPayPeriod();
+    return {
+      employee_id: '',
+      pay_period_start: formatDateForInput(currentPayPeriod.startDate),
+      pay_period_end: formatDateForInput(currentPayPeriod.endDate),
+      pay_date: formatDateForInput(currentPayPeriod.payDate),
+      pay_frequency: 'Weekly',
+      hourly_rate: 0,
+      regular_hours: 0,
+      assign_hours: 0,
+      overtime_hours: 0,
+      overtime_rate: 0,
+      overtime_pay: 0,
+      bonus_amount: 0,
+      commission: 0,
+      gross_pay: 0,
+      federal_tax: 0,
+      state_tax: 0,
+      social_security: 0,
+      medicare: 0,
+      health_insurance: 0,
+      retirement_401k: 0,
+      other_deductions: 0,
+      total_deductions: 0,
+      net_pay: 0,
+      station: station === 'OTHERS' ? '' : station,
+      status: 'Pending',
+      notes: '',
+      created_by: userProfile?.id || 1
+    };
+  };
 
   useEffect(() => {
     fetchEmployees();
@@ -169,6 +181,43 @@ const SalaryList: React.FC = () => {
 
       return newForms;
     });
+  };
+
+  const handlePayPeriodSelection = (stationId: string, selectedStartDate: string) => {
+    const adjustedPayPeriod = adjustToPayPeriod(selectedStartDate);
+    setSalaryForms((prev) => ({
+      ...prev,
+      [stationId]: {
+        ...prev[stationId],
+        pay_period_start: formatDateForInput(adjustedPayPeriod.startDate),
+        pay_period_end: formatDateForInput(adjustedPayPeriod.endDate),
+        pay_date: formatDateForInput(adjustedPayPeriod.payDate)
+      }
+    }));
+  };
+
+  const handlePayPeriodStartChange = (stationId: string, startDate: string) => {
+    const adjustedPayPeriod = adjustToPayPeriod(startDate);
+    setSalaryForms((prev) => ({
+      ...prev,
+      [stationId]: {
+        ...prev[stationId],
+        pay_period_start: formatDateForInput(adjustedPayPeriod.startDate),
+        pay_period_end: formatDateForInput(adjustedPayPeriod.endDate),
+        pay_date: formatDateForInput(adjustedPayPeriod.payDate)
+      }
+    }));
+  };
+
+  const handlePayPeriodEndChange = (stationId: string, endDate: string) => {
+    setSalaryForms((prev) => ({
+      ...prev,
+      [stationId]: {
+        ...prev[stationId],
+        pay_period_end: endDate,
+        pay_date: formatDateForInput(calculatePayDate(endDate))
+      }
+    }));
   };
 
   const handleEmployeeChange = (stationId: string, employeeId: string) => {
@@ -311,50 +360,97 @@ const SalaryList: React.FC = () => {
                 </Select>
               </div>
 
-              {/* Pay Period Information */}
-              <div className="grid grid-cols-2 gap-4">
+              {/* Pay Period Configuration */}
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Pay Period Configuration
+                </Label>
+                
+                {/* Pay Period Quick Selection */}
                 <div className="space-y-2">
-                  <Label htmlFor={`pay-start-${station.id}`}>Pay Period Start</Label>
-                  <Input
-                  id={`pay-start-${station.id}`}
-                  type="date"
-                  value={form.pay_period_start}
-                  onChange={(e) => handleFormChange(station.id, 'pay_period_start', e.target.value)} />
-
+                  <Label htmlFor={`pay-period-quick-${station.id}`}>Quick Select Pay Period</Label>
+                  <Select onValueChange={(value) => handlePayPeriodSelection(station.id, value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a predefined pay period" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {generatePayPeriodOptions().map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`pay-end-${station.id}`}>Pay Period End</Label>
-                  <Input
-                  id={`pay-end-${station.id}`}
-                  type="date"
-                  value={form.pay_period_end}
-                  onChange={(e) => handleFormChange(station.id, 'pay_period_end', e.target.value)} />
 
+                {/* Pay Period Dates */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor={`pay-start-${station.id}`}>Pay Period Start</Label>
+                    <Input
+                      id={`pay-start-${station.id}`}
+                      type="date"
+                      value={form.pay_period_start}
+                      onChange={(e) => handlePayPeriodStartChange(station.id, e.target.value)} />
+                    <div className="text-xs text-muted-foreground">
+                      Must be a Sunday
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`pay-end-${station.id}`}>Pay Period End</Label>
+                    <Input
+                      id={`pay-end-${station.id}`}
+                      type="date"
+                      value={form.pay_period_end}
+                      onChange={(e) => handlePayPeriodEndChange(station.id, e.target.value)} />
+                    <div className="text-xs text-muted-foreground">
+                      Must be a Saturday
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`pay-date-${station.id}`}>Pay Date</Label>
+                    <Input
+                      id={`pay-date-${station.id}`}
+                      type="date"
+                      value={form.pay_date}
+                      onChange={(e) => handleFormChange(station.id, 'pay_date', e.target.value)}
+                      className="bg-muted" />
+                    <div className="text-xs text-muted-foreground">
+                      Auto-calculated: Following Sunday
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              {/* Pay Date and Frequency */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor={`pay-date-${station.id}`}>Pay Date</Label>
-                  <Input
-                  id={`pay-date-${station.id}`}
-                  type="date"
-                  value={form.pay_date}
-                  onChange={(e) => handleFormChange(station.id, 'pay_date', e.target.value)} />
+                {/* Pay Period Validation */}
+                {(() => {
+                  const validation = validatePayPeriod(form.pay_period_start, form.pay_period_end);
+                  return !validation.isValid && validation.errors.length > 0 && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-md p-3">
+                      <div className="flex items-center gap-2 text-amber-700 text-sm font-medium mb-2">
+                        <Info className="h-4 w-4" />
+                        Pay Period Issues:
+                      </div>
+                      <ul className="text-amber-600 text-sm space-y-1">
+                        {validation.errors.map((error, index) => (
+                          <li key={index}>• {error}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  );
+                })()}
 
-                </div>
+                {/* Pay Frequency */}
                 <div className="space-y-2">
                   <Label htmlFor={`frequency-${station.id}`}>Pay Frequency</Label>
                   <Select
-                  value={form.pay_frequency}
-                  onValueChange={(value) => handleFormChange(station.id, 'pay_frequency', value)}>
-
+                    value={form.pay_frequency}
+                    onValueChange={(value) => handleFormChange(station.id, 'pay_frequency', value)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Weekly">Weekly</SelectItem>
+                      <SelectItem value="Weekly">Weekly (Sunday to Saturday)</SelectItem>
                       <SelectItem value="Biweekly">Biweekly</SelectItem>
                       <SelectItem value="Monthly">Monthly</SelectItem>
                       <SelectItem value="Semi-monthly">Semi-monthly</SelectItem>
@@ -557,6 +653,36 @@ const SalaryList: React.FC = () => {
           Manage salary records for employees by station
         </p>
       </div>
+
+      {/* Pay Period Summary */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            Current Pay Period
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+              <div>
+                <div className="text-sm text-muted-foreground">Pay Period</div>
+                <div className="font-semibold">{formatPayPeriod(getCurrentPayPeriod())}</div>
+              </div>
+              <div>
+                <div className="text-sm text-muted-foreground">Pay Date</div>
+                <div className="font-semibold text-green-700">
+                  {format(getCurrentPayPeriod().payDate, 'MMM dd, yyyy')}
+                </div>
+              </div>
+              <div>
+                <div className="text-sm text-muted-foreground">Frequency</div>
+                <div className="font-semibold">Weekly (Sunday to Saturday)</div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Station Summary */}
       <Card>
