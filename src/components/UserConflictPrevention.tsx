@@ -245,6 +245,8 @@ const UserConflictPrevention: React.FC = () => {
 
 
 
+
+
         // User not found or not logged in - this is fine for email uniqueness check
       } // Check email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;if (!emailRegex.test(email)) {results.push({ isValid: false, type: 'email', message: 'Invalid email format.', severity: 'error' });}if (results.length === 0) {results.push({ isValid: true, type: 'email', message: 'Email is available and valid.', severity: 'info' });}setValidationResults(results);} catch (error) {console.error('Error validating email:', error);} finally {setIsValidating(false);}};const validateRoleConflict = () => {if (!roleToCheck || !stationToCheck) {toast({ title: "Validation Required", description: "Please select both role and station to check for conflicts", variant: "destructive" });return;}const results: ValidationResult[] = []; // Check for role conflicts
@@ -286,9 +288,7 @@ const UserConflictPrevention: React.FC = () => {
                 <Label htmlFor="email-check">Email Address</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                  id="email-check"
-                  type="email"
+                  <Input id="email-check" type="email"
                   placeholder="Enter email to check availability..."
                   value={emailToCheck}
                   onChange={(e) => setEmailToCheck(e.target.value)}

@@ -10,15 +10,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Calculator, Save, DollarSign, Calendar, Clock } from 'lucide-react';
 import { format } from 'date-fns';
-import { 
-  getCurrentPayPeriod, 
-  calculatePayDate, 
-  validatePayPeriod, 
-  formatDateForInput, 
+import {
+  getCurrentPayPeriod,
+  calculatePayDate,
+  validatePayPeriod,
+  formatDateForInput,
   generatePayPeriodOptions,
   adjustToPayPeriod,
-  formatPayPeriod 
-} from '@/utils/payPeriodUtils';
+  formatPayPeriod } from
+'@/utils/payPeriodUtils';
 
 interface SalaryRecord {
   id?: number;
@@ -124,10 +124,13 @@ const SalaryForm: React.FC = () => {
   }, [
   formData.hourly_rate,
   formData.regular_hours,
-  formData.assign_hours,
-  formData.overtime_pay,
+  formData.overtime_rate,
+  formData.overtime_hours,
   formData.bonus_amount,
-  formData.commission]
+  formData.commission,
+  formData.health_insurance,
+  formData.retirement_401k,
+  formData.other_deductions]
   );
 
   // Validate pay period whenever dates change
@@ -195,15 +198,20 @@ const SalaryForm: React.FC = () => {
   };
 
   const calculatePayroll = () => {
-    // Calculate gross pay
-    const regularPay = formData.hourly_rate * formData.regular_hours;
-    const assignPay = formData.hourly_rate * formData.assign_hours;
-    const grossPay = regularPay + assignPay + formData.overtime_pay + formData.bonus_amount + formData.commission;
+    // Calculate overtime pay: Over Rate × Overtime Hours = Over Time Pay
+    const overtimePay = formData.overtime_rate * formData.overtime_hours;
+    
+    // Calculate gross pay: (Hourly Rate × Worked Hour) + Bonus + Commission + (Over Rate × Overtime Hours = Over Time Pay)
+    const grossPay = (formData.hourly_rate * formData.regular_hours) + formData.bonus_amount + formData.commission + overtimePay;
+    
+    // Calculate net pay: Gross Pay − (Health Insurance + 401(K) + Other Deductions)
+    const netPay = grossPay - (formData.health_insurance + formData.retirement_401k + formData.other_deductions);
 
     setFormData((prev) => ({
       ...prev,
+      overtime_pay: overtimePay,
       gross_pay: grossPay,
-      net_pay: grossPay
+      net_pay: netPay
     }));
   };
 
@@ -374,11 +382,11 @@ const SalaryForm: React.FC = () => {
                   <SelectValue placeholder="Select a predefined pay period" />
                 </SelectTrigger>
                 <SelectContent>
-                  {payPeriodOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
+                  {payPeriodOptions.map((option) =>
+                  <SelectItem key={option.value} value={option.value}>
                       {option.label}
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -391,7 +399,7 @@ const SalaryForm: React.FC = () => {
                   type="date"
                   value={formData.pay_period_start}
                   onChange={(e) => handlePayPeriodStartChange(e.target.value)}
-                  required 
+                  required
                   className={!payPeriodValidation.isValid ? 'border-red-500' : ''} />
                 <div className="text-xs text-muted-foreground">
                   Must be a Sunday
@@ -428,19 +436,19 @@ const SalaryForm: React.FC = () => {
             </div>
 
             {/* Pay Period Validation */}
-            {!payPeriodValidation.isValid && payPeriodValidation.errors.length > 0 && (
-              <div className="bg-red-50 border border-red-200 rounded-md p-3">
+            {!payPeriodValidation.isValid && payPeriodValidation.errors.length > 0 &&
+            <div className="bg-red-50 border border-red-200 rounded-md p-3">
                 <div className="flex items-center gap-2 text-red-700 text-sm font-medium mb-2">
                   <Clock className="h-4 w-4" />
                   Pay Period Configuration Issues:
                 </div>
                 <ul className="text-red-600 text-sm space-y-1">
-                  {payPeriodValidation.errors.map((error, index) => (
-                    <li key={index}>• {error}</li>
-                  ))}
+                  {payPeriodValidation.errors.map((error, index) =>
+                <li key={index}>• {error}</li>
+                )}
                 </ul>
               </div>
-            )}
+            }
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
