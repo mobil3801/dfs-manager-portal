@@ -19,9 +19,9 @@ interface SalaryRecord {
   pay_period_end: string;
   pay_date: string;
   pay_frequency: string;
-  base_salary: number;
   hourly_rate: number;
   regular_hours: number;
+  assign_hours: number;
   overtime_hours: number;
   overtime_rate: number;
   overtime_pay: number;
@@ -57,7 +57,7 @@ interface Employee {
 const SalaryList: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState<{[key: string]: boolean}>({});
+  const [submitting, setSubmitting] = useState<{[key: string]: boolean;}>({});
   const { toast } = useToast();
   const { userProfile, isAdmin } = useAuth();
 
@@ -66,24 +66,24 @@ const SalaryList: React.FC = () => {
 
   // Station configurations
   const stations = [
-    { id: 'MOBIL', name: 'Mobil', color: 'bg-blue-50 border-blue-200' },
-    { id: 'AMOCO ROSEDALE', name: 'Amoco Rosedale', color: 'bg-green-50 border-green-200' },
-    { id: 'AMOCO BROOKLYN', name: 'Amoco Brooklyn', color: 'bg-purple-50 border-purple-200' },
-    { id: 'OTHERS', name: 'Others', color: 'bg-gray-50 border-gray-200' }
-  ];
+  { id: 'MOBIL', name: 'Mobil', color: 'bg-blue-50 border-blue-200' },
+  { id: 'AMOCO ROSEDALE', name: 'Amoco Rosedale', color: 'bg-green-50 border-green-200' },
+  { id: 'AMOCO BROOKLYN', name: 'Amoco Brooklyn', color: 'bg-purple-50 border-purple-200' },
+  { id: 'OTHERS', name: 'Others', color: 'bg-gray-50 border-gray-200' }];
+
 
   // Form states for each station
-  const [salaryForms, setSalaryForms] = useState<{[key: string]: SalaryRecord}>({});
+  const [salaryForms, setSalaryForms] = useState<{[key: string]: SalaryRecord;}>({});
 
   const getDefaultFormData = (station: string): SalaryRecord => ({
     employee_id: '',
-    pay_period_start: format(new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
+    pay_period_start: format(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
     pay_period_end: format(new Date(), 'yyyy-MM-dd'),
     pay_date: format(new Date(), 'yyyy-MM-dd'),
-    pay_frequency: 'Biweekly',
-    base_salary: 0,
+    pay_frequency: 'Weekly',
     hourly_rate: 0,
-    regular_hours: 80,
+    regular_hours: 0,
+    assign_hours: 0,
     overtime_hours: 0,
     overtime_rate: 0,
     overtime_pay: 0,
@@ -111,8 +111,8 @@ const SalaryList: React.FC = () => {
   }, []);
 
   const initializeForms = () => {
-    const forms: {[key: string]: SalaryRecord} = {};
-    stations.forEach(station => {
+    const forms: {[key: string]: SalaryRecord;} = {};
+    stations.forEach((station) => {
       forms[station.id] = getDefaultFormData(station.id);
     });
     setSalaryForms(forms);
@@ -148,62 +148,63 @@ const SalaryList: React.FC = () => {
 
   const getEmployeesByStation = (stationId: string) => {
     if (stationId === 'OTHERS') {
-      return employees.filter(emp => 
-        emp.station && 
-        !['MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN'].includes(emp.station)
+      return employees.filter((emp) =>
+      emp.station &&
+      !['MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN'].includes(emp.station)
       );
     }
-    return employees.filter(emp => emp.station === stationId);
+    return employees.filter((emp) => emp.station === stationId);
   };
 
   const handleFormChange = (stationId: string, field: keyof SalaryRecord, value: string | number) => {
-    setSalaryForms(prev => {
+    setSalaryForms((prev) => {
       const newForms = { ...prev };
       newForms[stationId] = { ...newForms[stationId], [field]: value };
-      
+
       // Auto-calculate if it's a calculation field
-      if (['base_salary', 'hourly_rate', 'regular_hours', 'overtime_hours', 'bonus_amount', 'commission'].includes(field)) {
+      if (['hourly_rate', 'regular_hours', 'assign_hours', 'overtime_hours', 'bonus_amount', 'commission'].includes(field)) {
         const form = newForms[stationId];
         calculatePayroll(form, stationId, newForms);
       }
-      
+
       return newForms;
     });
   };
 
   const handleEmployeeChange = (stationId: string, employeeId: string) => {
-    const employee = employees.find(emp => emp.employee_id === employeeId);
+    const employee = employees.find((emp) => emp.employee_id === employeeId);
     if (employee) {
-      setSalaryForms(prev => {
+      setSalaryForms((prev) => {
         const newForms = { ...prev };
         newForms[stationId] = {
           ...newForms[stationId],
           employee_id: employeeId,
           station: employee.station,
-          hourly_rate: employee.salary / 2080 // Assuming 2080 work hours per year
+          hourly_rate: employee.salary || 0 // Use employee salary as hourly rate
         };
-        
+
         // Recalculate with new hourly rate
         calculatePayroll(newForms[stationId], stationId, newForms);
-        
+
         return newForms;
       });
     }
   };
 
-  const calculatePayroll = (form: SalaryRecord, stationId: string, allForms: {[key: string]: SalaryRecord}) => {
+  const calculatePayroll = (form: SalaryRecord, stationId: string, allForms: {[key: string]: SalaryRecord;}) => {
     const overtimeRate = form.hourly_rate * 1.5;
     const overtimePay = form.overtime_hours * overtimeRate;
     const regularPay = form.hourly_rate * form.regular_hours;
-    const grossPay = form.base_salary + regularPay + overtimePay + form.bonus_amount + form.commission;
-    
+    const assignPay = form.hourly_rate * form.assign_hours;
+    const grossPay = regularPay + assignPay + overtimePay + form.bonus_amount + form.commission;
+
     // Calculate taxes and deductions
     const federalTax = grossPay * 0.12; // Example rate
     const stateTax = grossPay * 0.05; // Example rate
     const socialSecurity = grossPay * 0.062;
     const medicare = grossPay * 0.0145;
-    const totalDeductions = federalTax + stateTax + socialSecurity + medicare + 
-                          form.health_insurance + form.retirement_401k + form.other_deductions;
+    const totalDeductions = federalTax + stateTax + socialSecurity + medicare +
+    form.health_insurance + form.retirement_401k + form.other_deductions;
     const netPay = grossPay - totalDeductions;
 
     allForms[stationId] = {
@@ -231,7 +232,7 @@ const SalaryList: React.FC = () => {
       return;
     }
 
-    setSubmitting(prev => ({ ...prev, [stationId]: true }));
+    setSubmitting((prev) => ({ ...prev, [stationId]: true }));
 
     try {
       const submitData = {
@@ -251,7 +252,7 @@ const SalaryList: React.FC = () => {
       });
 
       // Reset form
-      setSalaryForms(prev => ({
+      setSalaryForms((prev) => ({
         ...prev,
         [stationId]: getDefaultFormData(stationId)
       }));
@@ -263,7 +264,7 @@ const SalaryList: React.FC = () => {
         variant: 'destructive'
       });
     } finally {
-      setSubmitting(prev => ({ ...prev, [stationId]: false }));
+      setSubmitting((prev) => ({ ...prev, [stationId]: false }));
     }
   };
 
@@ -287,29 +288,29 @@ const SalaryList: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {stationEmployees.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+          {stationEmployees.length === 0 ?
+          <div className="text-center py-8 text-muted-foreground">
               <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
               <p>No active employees found for this station</p>
-            </div>
-          ) : (
-            <>
+            </div> :
+
+          <>
               {/* Employee Selection */}
               <div className="space-y-2">
                 <Label htmlFor={`employee-${station.id}`}>Employee *</Label>
-                <Select 
-                  value={form.employee_id} 
-                  onValueChange={(value) => handleEmployeeChange(station.id, value)}
-                >
+                <Select
+                value={form.employee_id}
+                onValueChange={(value) => handleEmployeeChange(station.id, value)}>
+
                   <SelectTrigger>
                     <SelectValue placeholder="Select employee" />
                   </SelectTrigger>
                   <SelectContent>
-                    {stationEmployees.map((employee) => (
-                      <SelectItem key={employee.employee_id} value={employee.employee_id}>
+                    {stationEmployees.map((employee) =>
+                  <SelectItem key={employee.employee_id} value={employee.employee_id}>
                         {employee.first_name} {employee.last_name} ({employee.employee_id})
                       </SelectItem>
-                    ))}
+                  )}
                   </SelectContent>
                 </Select>
               </div>
@@ -319,20 +320,20 @@ const SalaryList: React.FC = () => {
                 <div className="space-y-2">
                   <Label htmlFor={`pay-start-${station.id}`}>Pay Period Start</Label>
                   <Input
-                    id={`pay-start-${station.id}`}
-                    type="date"
-                    value={form.pay_period_start}
-                    onChange={(e) => handleFormChange(station.id, 'pay_period_start', e.target.value)}
-                  />
+                  id={`pay-start-${station.id}`}
+                  type="date"
+                  value={form.pay_period_start}
+                  onChange={(e) => handleFormChange(station.id, 'pay_period_start', e.target.value)} />
+
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor={`pay-end-${station.id}`}>Pay Period End</Label>
                   <Input
-                    id={`pay-end-${station.id}`}
-                    type="date"
-                    value={form.pay_period_end}
-                    onChange={(e) => handleFormChange(station.id, 'pay_period_end', e.target.value)}
-                  />
+                  id={`pay-end-${station.id}`}
+                  type="date"
+                  value={form.pay_period_end}
+                  onChange={(e) => handleFormChange(station.id, 'pay_period_end', e.target.value)} />
+
                 </div>
               </div>
 
@@ -341,18 +342,18 @@ const SalaryList: React.FC = () => {
                 <div className="space-y-2">
                   <Label htmlFor={`pay-date-${station.id}`}>Pay Date</Label>
                   <Input
-                    id={`pay-date-${station.id}`}
-                    type="date"
-                    value={form.pay_date}
-                    onChange={(e) => handleFormChange(station.id, 'pay_date', e.target.value)}
-                  />
+                  id={`pay-date-${station.id}`}
+                  type="date"
+                  value={form.pay_date}
+                  onChange={(e) => handleFormChange(station.id, 'pay_date', e.target.value)} />
+
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor={`frequency-${station.id}`}>Pay Frequency</Label>
-                  <Select 
-                    value={form.pay_frequency} 
-                    onValueChange={(value) => handleFormChange(station.id, 'pay_frequency', value)}
-                  >
+                  <Select
+                  value={form.pay_frequency}
+                  onValueChange={(value) => handleFormChange(station.id, 'pay_frequency', value)}>
+
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -374,58 +375,58 @@ const SalaryList: React.FC = () => {
                 </Label>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor={`base-salary-${station.id}`}>Base Salary</Label>
-                    <NumberInput
-                      id={`base-salary-${station.id}`}
-                      step="0.01"
-                      value={form.base_salary}
-                      onChange={(value) => handleFormChange(station.id, 'base_salary', value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
                     <Label htmlFor={`hourly-rate-${station.id}`}>Hourly Rate</Label>
                     <NumberInput
-                      id={`hourly-rate-${station.id}`}
-                      step="0.01"
-                      value={form.hourly_rate}
-                      onChange={(value) => handleFormChange(station.id, 'hourly_rate', value)}
-                    />
+                    id={`hourly-rate-${station.id}`}
+                    step="0.01"
+                    value={form.hourly_rate}
+                    onChange={(value) => handleFormChange(station.id, 'hourly_rate', value)} />
+
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor={`regular-hours-${station.id}`}>Regular Hours</Label>
                     <NumberInput
-                      id={`regular-hours-${station.id}`}
-                      step="0.01"
-                      value={form.regular_hours}
-                      onChange={(value) => handleFormChange(station.id, 'regular_hours', value)}
-                    />
+                    id={`regular-hours-${station.id}`}
+                    step="0.01"
+                    value={form.regular_hours}
+                    onChange={(value) => handleFormChange(station.id, 'regular_hours', value)} />
+
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`assign-hours-${station.id}`}>Assign Hours</Label>
+                    <NumberInput
+                    id={`assign-hours-${station.id}`}
+                    step="0.01"
+                    value={form.assign_hours}
+                    onChange={(value) => handleFormChange(station.id, 'assign_hours', value)} />
+
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor={`overtime-hours-${station.id}`}>Overtime Hours</Label>
                     <NumberInput
-                      id={`overtime-hours-${station.id}`}
-                      step="0.01"
-                      value={form.overtime_hours}
-                      onChange={(value) => handleFormChange(station.id, 'overtime_hours', value)}
-                    />
+                    id={`overtime-hours-${station.id}`}
+                    step="0.01"
+                    value={form.overtime_hours}
+                    onChange={(value) => handleFormChange(station.id, 'overtime_hours', value)} />
+
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor={`bonus-${station.id}`}>Bonus</Label>
                     <NumberInput
-                      id={`bonus-${station.id}`}
-                      step="0.01"
-                      value={form.bonus_amount}
-                      onChange={(value) => handleFormChange(station.id, 'bonus_amount', value)}
-                    />
+                    id={`bonus-${station.id}`}
+                    step="0.01"
+                    value={form.bonus_amount}
+                    onChange={(value) => handleFormChange(station.id, 'bonus_amount', value)} />
+
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor={`commission-${station.id}`}>Commission</Label>
                     <NumberInput
-                      id={`commission-${station.id}`}
-                      step="0.01"
-                      value={form.commission}
-                      onChange={(value) => handleFormChange(station.id, 'commission', value)}
-                    />
+                    id={`commission-${station.id}`}
+                    step="0.01"
+                    value={form.commission}
+                    onChange={(value) => handleFormChange(station.id, 'commission', value)} />
+
                   </div>
                 </div>
               </div>
@@ -471,29 +472,29 @@ const SalaryList: React.FC = () => {
                   <div className="space-y-2">
                     <Label htmlFor={`health-insurance-${station.id}`}>Health Insurance</Label>
                     <NumberInput
-                      id={`health-insurance-${station.id}`}
-                      step="0.01"
-                      value={form.health_insurance}
-                      onChange={(value) => handleFormChange(station.id, 'health_insurance', value)}
-                    />
+                    id={`health-insurance-${station.id}`}
+                    step="0.01"
+                    value={form.health_insurance}
+                    onChange={(value) => handleFormChange(station.id, 'health_insurance', value)} />
+
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor={`retirement-${station.id}`}>401(k)</Label>
                     <NumberInput
-                      id={`retirement-${station.id}`}
-                      step="0.01"
-                      value={form.retirement_401k}
-                      onChange={(value) => handleFormChange(station.id, 'retirement_401k', value)}
-                    />
+                    id={`retirement-${station.id}`}
+                    step="0.01"
+                    value={form.retirement_401k}
+                    onChange={(value) => handleFormChange(station.id, 'retirement_401k', value)} />
+
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor={`other-deductions-${station.id}`}>Other Deductions</Label>
                     <NumberInput
-                      id={`other-deductions-${station.id}`}
-                      step="0.01"
-                      value={form.other_deductions}
-                      onChange={(value) => handleFormChange(station.id, 'other_deductions', value)}
-                    />
+                    id={`other-deductions-${station.id}`}
+                    step="0.01"
+                    value={form.other_deductions}
+                    onChange={(value) => handleFormChange(station.id, 'other_deductions', value)} />
+
                   </div>
                 </div>
               </div>
@@ -502,47 +503,47 @@ const SalaryList: React.FC = () => {
               <div className="space-y-2">
                 <Label htmlFor={`notes-${station.id}`}>Notes</Label>
                 <Textarea
-                  id={`notes-${station.id}`}
-                  value={form.notes}
-                  onChange={(e) => handleFormChange(station.id, 'notes', e.target.value)}
-                  placeholder="Additional notes about this salary record..."
-                  rows={3}
-                />
+                id={`notes-${station.id}`}
+                value={form.notes}
+                onChange={(e) => handleFormChange(station.id, 'notes', e.target.value)}
+                placeholder="Additional notes about this salary record..."
+                rows={3} />
+
               </div>
 
               {/* Submit Button */}
               <div className="flex justify-end pt-4">
                 <Button
-                  onClick={() => handleSubmit(station.id)}
-                  disabled={isSubmittingForm || !form.employee_id}
-                  className="w-full"
-                >
-                  {isSubmittingForm ? (
-                    <>
+                onClick={() => handleSubmit(station.id)}
+                disabled={isSubmittingForm || !form.employee_id}
+                className="w-full">
+
+                  {isSubmittingForm ?
+                <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                       Creating...
-                    </>
-                  ) : (
-                    <>
+                    </> :
+
+                <>
                       <Save className="h-4 w-4 mr-2" />
                       Create Salary Record
                     </>
-                  )}
+                }
                 </Button>
               </div>
             </>
-          )}
+          }
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -562,14 +563,14 @@ const SalaryList: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-4 gap-4">
-            {stations.map(station => {
+            {stations.map((station) => {
               const stationEmployees = getEmployeesByStation(station.id);
               return (
                 <div key={station.id} className="text-center">
                   <div className="text-2xl font-bold">{stationEmployees.length}</div>
                   <div className="text-sm text-muted-foreground">{station.name}</div>
-                </div>
-              );
+                </div>);
+
             })}
           </div>
         </CardContent>
@@ -577,10 +578,10 @@ const SalaryList: React.FC = () => {
 
       {/* Station Salary Forms */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {stations.map(station => renderSalaryForm(station))}
+        {stations.map((station) => renderSalaryForm(station))}
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SalaryList;

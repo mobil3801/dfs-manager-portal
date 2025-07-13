@@ -18,9 +18,9 @@ interface SalaryRecord {
   pay_period_end: string;
   pay_date: string;
   pay_frequency: string;
-  base_salary: number;
   hourly_rate: number;
   regular_hours: number;
+  assign_hours: number;
   overtime_hours: number;
   overtime_rate: number;
   overtime_pay: number;
@@ -65,10 +65,11 @@ const SalaryForm: React.FC = () => {
     pay_period_start: '',
     pay_period_end: '',
     pay_date: format(new Date(), 'yyyy-MM-dd'),
-    pay_frequency: 'Biweekly',
+    pay_frequency: 'Weekly',
     base_salary: 0,
     hourly_rate: 0,
-    regular_hours: 80,
+    regular_hours: 0,
+    assign_hours: 0,
     overtime_hours: 0,
     overtime_rate: 0,
     overtime_pay: 0,
@@ -103,9 +104,9 @@ const SalaryForm: React.FC = () => {
   useEffect(() => {
     calculatePayroll();
   }, [
-  formData.base_salary,
   formData.hourly_rate,
   formData.regular_hours,
+  formData.assign_hours,
   formData.overtime_hours,
   formData.bonus_amount,
   formData.commission]
@@ -174,7 +175,8 @@ const SalaryForm: React.FC = () => {
 
     // Calculate gross pay
     const regularPay = formData.hourly_rate * formData.regular_hours;
-    const grossPay = formData.base_salary + regularPay + overtimePay + formData.bonus_amount + formData.commission;
+    const assignPay = formData.hourly_rate * formData.assign_hours;
+    const grossPay = regularPay + assignPay + overtimePay + formData.bonus_amount + formData.commission;
 
     setFormData((prev) => ({
       ...prev,
@@ -192,7 +194,7 @@ const SalaryForm: React.FC = () => {
         ...prev,
         employee_id: employeeId,
         station: employee.station,
-        hourly_rate: employee.salary / 2080 // Assuming 2080 work hours per year
+        hourly_rate: employee.salary || 0 // Use employee salary as hourly rate
       }));
     }
   };
@@ -364,16 +366,6 @@ const SalaryForm: React.FC = () => {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="base_salary">Base Salary</Label>
-                <NumberInput
-                  id="base_salary"
-                  step="0.01"
-                  value={formData.base_salary}
-                  onChange={(value) => handleInputChange('base_salary', value)} />
-
-              </div>
-
-              <div className="space-y-2">
                 <Label htmlFor="hourly_rate">Hourly Rate</Label>
                 <NumberInput
                   id="hourly_rate"
@@ -392,6 +384,17 @@ const SalaryForm: React.FC = () => {
                   onChange={(value) => handleInputChange('regular_hours', value)} />
 
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="assign_hours">Assign Hours</Label>
+                <NumberInput
+                  id="assign_hours"
+                  step="0.01"
+                  value={formData.assign_hours}
+                  onChange={(value) => handleInputChange('assign_hours', value)} />
+
+              </div>
+
 
               <div className="space-y-2">
                 <Label htmlFor="overtime_hours">Overtime Hours</Label>
