@@ -2,18 +2,18 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { NumberInput } from '@/components/ui/number-input';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Search, Eye, Edit, Trash2, Download, DollarSign, Calendar, Users, RefreshCw, FileText, AlertCircle, Wifi, WifiOff } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import { format } from 'date-fns';
+import { DollarSign, Users, Building, Save, Plus, Calculator } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { format } from 'date-fns';
 
 interface SalaryRecord {
-  id: number;
+  id?: number;
   employee_id: string;
   pay_period_start: string;
   pay_period_end: string;
@@ -50,95 +50,77 @@ interface Employee {
   last_name: string;
   position: string;
   station: string;
+  salary: number;
+  is_active: boolean;
 }
 
 const SalaryList: React.FC = () => {
-  const [salaryRecords, setSalaryRecords] = useState<SalaryRecord[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [stationFilter, setStationFilter] = useState('all');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalRecords, setTotalRecords] = useState(0);
-  const [selectedRecord, setSelectedRecord] = useState<SalaryRecord | null>(null);
-  const [showViewDialog, setShowViewDialog] = useState(false);
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [retryCount, setRetryCount] = useState(0);
-  const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
+  const [submitting, setSubmitting] = useState<{[key: string]: boolean}>({});
   const { toast } = useToast();
-  const navigate = useNavigate();
   const { userProfile, isAdmin } = useAuth();
 
-  const pageSize = 10;
   const SALARY_TABLE_ID = '11788';
   const EMPLOYEES_TABLE_ID = '11727';
 
-  // Monitor online status for real-time functionality
-  useEffect(() => {
-    const handleOnline = () => {
-      setIsOnline(true);
-      handleRefresh(true); // Silent refresh when coming back online
-      toast({
-        title: 'Back Online',
-        description: 'Real-time data synchronization resumed',
-        variant: 'default'
-      });
-    };
+  // Station configurations
+  const stations = [
+    { id: 'MOBIL', name: 'Mobil', color: 'bg-blue-50 border-blue-200' },
+    { id: 'AMOCO ROSEDALE', name: 'Amoco Rosedale', color: 'bg-green-50 border-green-200' },
+    { id: 'AMOCO BROOKLYN', name: 'Amoco Brooklyn', color: 'bg-purple-50 border-purple-200' },
+    { id: 'OTHERS', name: 'Others', color: 'bg-gray-50 border-gray-200' }
+  ];
 
-    const handleOffline = () => {
-      setIsOnline(false);
-      toast({
-        title: 'Offline',
-        description: 'Real-time updates paused',
-        variant: 'destructive'
-      });
-    };
+  // Form states for each station
+  const [salaryForms, setSalaryForms] = useState<{[key: string]: SalaryRecord}>({});
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
+  const getDefaultFormData = (station: string): SalaryRecord => ({
+    employee_id: '',
+    pay_period_start: format(new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
+    pay_period_end: format(new Date(), 'yyyy-MM-dd'),
+    pay_date: format(new Date(), 'yyyy-MM-dd'),
+    pay_frequency: 'Biweekly',
+    base_salary: 0,
+    hourly_rate: 0,
+    regular_hours: 80,
+    overtime_hours: 0,
+    overtime_rate: 0,
+    overtime_pay: 0,
+    bonus_amount: 0,
+    commission: 0,
+    gross_pay: 0,
+    federal_tax: 0,
+    state_tax: 0,
+    social_security: 0,
+    medicare: 0,
+    health_insurance: 0,
+    retirement_401k: 0,
+    other_deductions: 0,
+    total_deductions: 0,
+    net_pay: 0,
+    station: station === 'OTHERS' ? '' : station,
+    status: 'Pending',
+    notes: '',
+    created_by: userProfile?.id || 1
+  });
 
   useEffect(() => {
     fetchEmployees();
-    fetchSalaryRecords();
-  }, [currentPage, statusFilter, stationFilter, searchTerm]);
+    initializeForms();
+  }, []);
 
-  // Enhanced real-time refresh with better error handling
-  useEffect(() => {
-    if (!isOnline) return;
-
-    const interval = setInterval(() => {
-      if (document.visibilityState === 'visible') {
-        handleRefresh(true); // Silent refresh only when tab is visible
-      }
-    }, 15000); // Increased frequency to 15 seconds for real-time feel
-
-    return () => clearInterval(interval);
-  }, [currentPage, statusFilter, stationFilter, searchTerm, isOnline]);
-
-  // Refresh when page becomes visible (user returns to tab)
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && isOnline) {
-        handleRefresh(true);
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [isOnline]);
+  const initializeForms = () => {
+    const forms: {[key: string]: SalaryRecord} = {};
+    stations.forEach(station => {
+      forms[station.id] = getDefaultFormData(station.id);
+    });
+    setSalaryForms(forms);
+  };
 
   const fetchEmployees = useCallback(async () => {
     try {
-      console.log('👥 Fetching employees data...');
-
+      console.log('🔄 Fetching employees data...');
       const { data, error } = await window.ezsite.apis.tablePage(EMPLOYEES_TABLE_ID, {
         PageNo: 1,
         PageSize: 1000,
@@ -149,10 +131,9 @@ const SalaryList: React.FC = () => {
 
       if (error) throw error;
 
-      const employees = data?.List || [];
-      console.log('✅ Employees fetched successfully:', employees.length);
-
-      setEmployees(employees);
+      const employeesList = data?.List || [];
+      console.log('✅ Employees fetched successfully:', employeesList.length);
+      setEmployees(employeesList);
     } catch (error) {
       console.error('❌ Error fetching employees:', error);
       toast({
@@ -160,784 +141,446 @@ const SalaryList: React.FC = () => {
         description: 'Failed to fetch employee data',
         variant: 'destructive'
       });
+    } finally {
+      setLoading(false);
     }
   }, [toast]);
 
-  const fetchSalaryRecords = useCallback(async (silent = false) => {
-    if (!silent) setLoading(true);
-    try {
-      const filters = [];
-
-      if (statusFilter !== 'all') {
-        filters.push({ name: 'status', op: 'Equal', value: statusFilter });
-      }
-
-      if (stationFilter !== 'all') {
-        filters.push({ name: 'station', op: 'Equal', value: stationFilter });
-      }
-
-      if (searchTerm) {
-        filters.push({ name: 'employee_id', op: 'StringContains', value: searchTerm });
-      }
-
-      console.log('🔄 Fetching salary records - Real-time update:', {
-        currentPage,
-        pageSize,
-        filters,
-        silent,
-        timestamp: new Date().toISOString()
-      });
-
-      const { data, error } = await window.ezsite.apis.tablePage(SALARY_TABLE_ID, {
-        PageNo: currentPage,
-        PageSize: pageSize,
-        OrderByField: 'pay_date',
-        IsAsc: false,
-        Filters: filters
-      });
-
-      if (error) throw error;
-
-      const records = data?.List || [];
-      const totalCount = data?.VirtualCount || 0;
-
-      console.log('✅ Salary records fetched successfully:', {
-        recordsCount: records.length,
-        totalCount,
-        timestamp: new Date().toISOString()
-      });
-
-      setSalaryRecords(records);
-      setTotalRecords(totalCount);
-      setLastUpdateTime(new Date());
-      setRetryCount(0); // Reset retry count on successful fetch
-    } catch (error) {
-      console.error('❌ Error fetching salary records:', error);
-      setRetryCount((prev) => prev + 1);
-
-      if (!silent) {
-        toast({
-          title: 'Error',
-          description: `Failed to fetch salary records. ${retryCount < 3 ? 'Retrying...' : 'Please check your connection.'}`,
-          variant: 'destructive'
-        });
-
-        // Auto-retry up to 3 times with exponential backoff
-        if (retryCount < 3) {
-          setTimeout(() => {
-            console.log(`🔄 Auto-retrying... Attempt ${retryCount + 1}/3`);
-            fetchSalaryRecords(true);
-          }, Math.pow(2, retryCount) * 1000); // 1s, 2s, 4s delays
-        }
-      }
-    } finally {
-      if (!silent) setLoading(false);
-    }
-  }, [currentPage, pageSize, statusFilter, stationFilter, searchTerm, toast]);
-
-  const handleRefresh = useCallback(async (silent = false) => {
-    if (!silent) setRefreshing(true);
-    try {
-      console.log('🔄 Starting data refresh...', { silent, timestamp: new Date().toISOString() });
-
-      await Promise.all([
-      fetchEmployees(),
-      fetchSalaryRecords(silent)]
+  const getEmployeesByStation = (stationId: string) => {
+    if (stationId === 'OTHERS') {
+      return employees.filter(emp => 
+        emp.station && 
+        !['MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN'].includes(emp.station)
       );
-
-      console.log('✅ Data refresh completed successfully');
-
-      if (!silent) {
-        toast({
-          title: 'Success',
-          description: '🔄 Data refreshed successfully',
-          variant: 'default'
-        });
-      }
-    } catch (error) {
-      console.error('❌ Error refreshing data:', error);
-      if (!silent) {
-        toast({
-          title: 'Error',
-          description: '❌ Failed to refresh data. Please try again.',
-          variant: 'destructive'
-        });
-      }
-    } finally {
-      if (!silent) setRefreshing(false);
     }
-  }, [fetchEmployees, fetchSalaryRecords, toast]);
-
-  const handleViewRecord = (record: SalaryRecord) => {
-    setSelectedRecord(record);
-    setShowViewDialog(true);
+    return employees.filter(emp => emp.station === stationId);
   };
 
-  const handleEditRecord = (record: SalaryRecord) => {
-    // Check edit permission - only Admin users can edit salary records
-    if (!isAdmin()) {
-      toast({
-        title: "Access Denied",
-        description: "Only administrators can edit salary records.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const employeeName = getEmployeeName(record.employee_id);
-    console.log('📝 Navigating to edit salary record:', { id: record.id, employee: employeeName });
-
-    toast({
-      title: 'Opening Editor',
-      description: `📝 Loading salary record for ${employeeName}...`,
-      variant: 'default'
+  const handleFormChange = (stationId: string, field: keyof SalaryRecord, value: string | number) => {
+    setSalaryForms(prev => {
+      const newForms = { ...prev };
+      newForms[stationId] = { ...newForms[stationId], [field]: value };
+      
+      // Auto-calculate if it's a calculation field
+      if (['base_salary', 'hourly_rate', 'regular_hours', 'overtime_hours', 'bonus_amount', 'commission'].includes(field)) {
+        const form = newForms[stationId];
+        calculatePayroll(form, stationId, newForms);
+      }
+      
+      return newForms;
     });
-
-    navigate(`/salary/${record.id}/edit`);
   };
 
-  const handleDelete = async (id: number) => {
-    // Check delete permission - only Admin users can delete salary records
-    if (!isAdmin()) {
-      toast({
-        title: "Access Denied",
-        description: "Only administrators can delete salary records.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const record = salaryRecords.find((r) => r.id === id);
-    const employeeName = record ? getEmployeeName(record.employee_id) : 'Unknown';
-
-    if (!confirm(`Are you sure you want to delete the salary record for ${employeeName}?\n\nThis action cannot be undone.`)) return;
-
-    try {
-      console.log('🗑️ Deleting salary record:', id);
-
-      const { error } = await window.ezsite.apis.tableDelete(SALARY_TABLE_ID, { ID: id });
-      if (error) throw error;
-
-      console.log('✅ Salary record deleted successfully');
-
-      toast({
-        title: 'Success',
-        description: `🗑️ Salary record for ${employeeName} deleted successfully`
-      });
-
-      // Immediate real-time update
-      await fetchSalaryRecords();
-    } catch (error) {
-      console.error('❌ Error deleting salary record:', error);
-      toast({
-        title: 'Error',
-        description: `❌ Failed to delete salary record for ${employeeName}`,
-        variant: 'destructive'
+  const handleEmployeeChange = (stationId: string, employeeId: string) => {
+    const employee = employees.find(emp => emp.employee_id === employeeId);
+    if (employee) {
+      setSalaryForms(prev => {
+        const newForms = { ...prev };
+        newForms[stationId] = {
+          ...newForms[stationId],
+          employee_id: employeeId,
+          station: employee.station,
+          hourly_rate: employee.salary / 2080 // Assuming 2080 work hours per year
+        };
+        
+        // Recalculate with new hourly rate
+        calculatePayroll(newForms[stationId], stationId, newForms);
+        
+        return newForms;
       });
     }
   };
 
-  const handleStatusUpdate = async (id: number, newStatus: string) => {
-    // Check permission - only Admin users can update status
-    if (!isAdmin()) {
-      toast({
-        title: "Access Denied",
-        description: "Only administrators can update salary record status.",
-        variant: "destructive"
-      });
-      return;
-    }
+  const calculatePayroll = (form: SalaryRecord, stationId: string, allForms: {[key: string]: SalaryRecord}) => {
+    const overtimeRate = form.hourly_rate * 1.5;
+    const overtimePay = form.overtime_hours * overtimeRate;
+    const regularPay = form.hourly_rate * form.regular_hours;
+    const grossPay = form.base_salary + regularPay + overtimePay + form.bonus_amount + form.commission;
+    
+    // Calculate taxes and deductions
+    const federalTax = grossPay * 0.12; // Example rate
+    const stateTax = grossPay * 0.05; // Example rate
+    const socialSecurity = grossPay * 0.062;
+    const medicare = grossPay * 0.0145;
+    const totalDeductions = federalTax + stateTax + socialSecurity + medicare + 
+                          form.health_insurance + form.retirement_401k + form.other_deductions;
+    const netPay = grossPay - totalDeductions;
 
-    try {
-      const record = salaryRecords.find((r) => r.id === id);
-      if (!record) return;
-
-      const employeeName = getEmployeeName(record.employee_id);
-      console.log('🔄 Updating salary record status:', { id, newStatus, employeeName });
-
-      const { error } = await window.ezsite.apis.tableUpdate(SALARY_TABLE_ID, {
-        ID: id,
-        ...record,
-        status: newStatus,
-        pay_period_start: new Date(record.pay_period_start).toISOString(),
-        pay_period_end: new Date(record.pay_period_end).toISOString(),
-        pay_date: new Date(record.pay_date).toISOString()
-      });
-
-      if (error) throw error;
-
-      console.log('✅ Status updated successfully');
-
-      toast({
-        title: 'Success',
-        description: `📋 ${employeeName}'s salary status updated to ${newStatus}`
-      });
-
-      // Immediate real-time update
-      await fetchSalaryRecords();
-    } catch (error) {
-      console.error('❌ Error updating status:', error);
-      toast({
-        title: 'Error',
-        description: '❌ Failed to update status. Please try again.',
-        variant: 'destructive'
-      });
-    }
-  };
-
-  const getEmployeeName = (employeeId: string) => {
-    const employee = employees.find((emp) => emp.employee_id === employeeId);
-    return employee ? `${employee.first_name} ${employee.last_name}` : employeeId;
-  };
-
-  const getStatusBadgeVariant = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'paid':return 'default';
-      case 'processed':return 'secondary';
-      case 'pending':return 'outline';
-      case 'cancelled':return 'destructive';
-      default:return 'outline';
-    }
-  };
-
-  const calculateSummaryStats = () => {
-    const totalGrossPay = salaryRecords.reduce((sum, record) => sum + (record.gross_pay || 0), 0);
-    const totalNetPay = salaryRecords.reduce((sum, record) => sum + (record.net_pay || 0), 0);
-    const uniqueEmployees = new Set(salaryRecords.map((record) => record.employee_id)).size;
-
-    return {
-      totalGrossPay,
-      totalNetPay,
-      uniqueEmployees,
-      totalRecords: salaryRecords.length
+    allForms[stationId] = {
+      ...form,
+      overtime_rate: overtimeRate,
+      overtime_pay: overtimePay,
+      gross_pay: grossPay,
+      federal_tax: federalTax,
+      state_tax: stateTax,
+      social_security: socialSecurity,
+      medicare: medicare,
+      total_deductions: totalDeductions,
+      net_pay: netPay
     };
   };
 
-  const exportToPDF = (record: SalaryRecord) => {
-    // Create a printable salary slip
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
+  const handleSubmit = async (stationId: string) => {
+    const form = salaryForms[stationId];
+    if (!form.employee_id) {
+      toast({
+        title: 'Error',
+        description: 'Please select an employee',
+        variant: 'destructive'
+      });
+      return;
+    }
 
-    const employeeName = getEmployeeName(record.employee_id);
-    const content = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Salary Slip - ${employeeName}</title>
-        <style>
-          body { font-family: Arial, sans-serif; margin: 20px; }
-          .header { text-align: center; margin-bottom: 30px; }
-          .details { margin: 20px 0; }
-          .row { display: flex; justify-content: space-between; margin: 10px 0; }
-          .section { margin: 20px 0; border-top: 1px solid #ccc; padding-top: 15px; }
-          .total { font-weight: bold; font-size: 1.2em; }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <h1>DFS Manager Portal</h1>
-          <h2>Salary Slip</h2>
-        </div>
-        
-        <div class="details">
-          <div class="row"><span>Employee:</span><span>${employeeName} (${record.employee_id})</span></div>
-          <div class="row"><span>Station:</span><span>${record.station}</span></div>
-          <div class="row"><span>Pay Period:</span><span>${format(new Date(record.pay_period_start), 'MMM dd')} - ${format(new Date(record.pay_period_end), 'MMM dd, yyyy')}</span></div>
-          <div class="row"><span>Pay Date:</span><span>${format(new Date(record.pay_date), 'MMM dd, yyyy')}</span></div>
-          <div class="row"><span>Pay Frequency:</span><span>${record.pay_frequency}</span></div>
-        </div>
+    setSubmitting(prev => ({ ...prev, [stationId]: true }));
 
-        <div class="section">
-          <h3>Earnings</h3>
-          <div class="row"><span>Base Salary:</span><span>$${record.base_salary?.toLocaleString() || '0.00'}</span></div>
-          <div class="row"><span>Regular Hours (${record.regular_hours}):</span><span>$${(record.hourly_rate * record.regular_hours)?.toLocaleString() || '0.00'}</span></div>
-          <div class="row"><span>Overtime Hours (${record.overtime_hours}):</span><span>$${record.overtime_pay?.toLocaleString() || '0.00'}</span></div>
-          <div class="row"><span>Bonus:</span><span>$${record.bonus_amount?.toLocaleString() || '0.00'}</span></div>
-          <div class="row"><span>Commission:</span><span>$${record.commission?.toLocaleString() || '0.00'}</span></div>
-          <div class="row total"><span>Gross Pay:</span><span>$${record.gross_pay?.toLocaleString() || '0.00'}</span></div>
-        </div>
+    try {
+      const submitData = {
+        ...form,
+        pay_period_start: new Date(form.pay_period_start).toISOString(),
+        pay_period_end: new Date(form.pay_period_end).toISOString(),
+        pay_date: new Date(form.pay_date).toISOString()
+      };
 
-        <div class="section">
-          <h3>Deductions</h3>
-          <div class="row"><span>Federal Tax:</span><span>$${record.federal_tax?.toLocaleString() || '0.00'}</span></div>
-          <div class="row"><span>State Tax:</span><span>$${record.state_tax?.toLocaleString() || '0.00'}</span></div>
-          <div class="row"><span>Social Security:</span><span>$${record.social_security?.toLocaleString() || '0.00'}</span></div>
-          <div class="row"><span>Medicare:</span><span>$${record.medicare?.toLocaleString() || '0.00'}</span></div>
-          <div class="row"><span>Health Insurance:</span><span>$${record.health_insurance?.toLocaleString() || '0.00'}</span></div>
-          <div class="row"><span>401(k):</span><span>$${record.retirement_401k?.toLocaleString() || '0.00'}</span></div>
-          <div class="row"><span>Other Deductions:</span><span>$${record.other_deductions?.toLocaleString() || '0.00'}</span></div>
-          <div class="row total"><span>Total Deductions:</span><span>$${record.total_deductions?.toLocaleString() || '0.00'}</span></div>
-        </div>
+      const { error } = await window.ezsite.apis.tableCreate(SALARY_TABLE_ID, submitData);
+      if (error) throw error;
 
-        <div class="section">
-          <div class="row total" style="font-size: 1.5em; color: green;"><span>Net Pay:</span><span>$${record.net_pay?.toLocaleString() || '0.00'}</span></div>
-        </div>
+      toast({
+        title: 'Success',
+        description: `Salary record created successfully for ${stationId}`,
+        variant: 'default'
+      });
 
-        ${record.notes ? `<div class="section"><h3>Notes</h3><p>${record.notes}</p></div>` : ''}
-        
-        <div style="margin-top: 50px; text-align: center; font-size: 0.9em; color: #666;">
-          Generated on ${format(new Date(), 'PPpp')}
-        </div>
-      </body>
-      </html>
-    `;
-
-    printWindow.document.write(content);
-    printWindow.document.close();
-    printWindow.print();
+      // Reset form
+      setSalaryForms(prev => ({
+        ...prev,
+        [stationId]: getDefaultFormData(stationId)
+      }));
+    } catch (error) {
+      console.error('Error creating salary record:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to create salary record',
+        variant: 'destructive'
+      });
+    } finally {
+      setSubmitting(prev => ({ ...prev, [stationId]: false }));
+    }
   };
 
-  const stats = calculateSummaryStats();
-  const totalPages = Math.ceil(totalRecords / pageSize);
+  const renderSalaryForm = (station: any) => {
+    const stationEmployees = getEmployeesByStation(station.id);
+    const form = salaryForms[station.id] || getDefaultFormData(station.id);
+    const isSubmittingForm = submitting[station.id] || false;
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Salary Management</h1>
-          <p className="text-muted-foreground">Manage employee salary records and payroll</p>
-        </div>
-        <div className="flex gap-2">
-          <div className="flex items-center gap-2">
-            <Badge variant={isOnline ? 'default' : 'destructive'} className="text-xs">
-              {isOnline ? '🟢 Live' : '🔴 Offline'}
-            </Badge>
-            {refreshing &&
-            <Badge variant="secondary" className="text-xs animate-pulse">
-                🔄 Syncing...
-              </Badge>
-            }
-          </div>
-          <Button
-            variant="outline"
-            onClick={() => handleRefresh(false)}
-            disabled={refreshing}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            {refreshing ? 'Refreshing...' : 'Refresh'}
-          </Button>
-          <Link to="/salary/new">
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Salary Record
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="flex items-center p-4">
-            <DollarSign className="h-8 w-8 text-green-600 mr-3" />
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Gross Pay</p>
-              <p className="text-2xl font-bold">${stats.totalGrossPay.toLocaleString()}</p>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="flex items-center p-4">
-            <DollarSign className="h-8 w-8 text-blue-600 mr-3" />
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Net Pay</p>
-              <p className="text-2xl font-bold">${stats.totalNetPay.toLocaleString()}</p>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="flex items-center p-4">
-            <Users className="h-8 w-8 text-purple-600 mr-3" />
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Employees</p>
-              <p className="text-2xl font-bold">{stats.uniqueEmployees}</p>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="flex items-center p-4">
-            <Calendar className="h-8 w-8 text-orange-600 mr-3" />
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Records</p>
-              <p className="text-2xl font-bold">{totalRecords}</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[200px]">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search by employee ID..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8" />
-
-              </div>
-            </div>
-            
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="Pending">Pending</SelectItem>
-                <SelectItem value="Processed">Processed</SelectItem>
-                <SelectItem value="Paid">Paid</SelectItem>
-                <SelectItem value="Cancelled">Cancelled</SelectItem>
-              </SelectContent>
-            </Select>
-            
-            <Select value={stationFilter} onValueChange={setStationFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Station" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Stations</SelectItem>
-                <SelectItem value="MOBIL">MOBIL</SelectItem>
-                <SelectItem value="AMOCO ROSEDALE">AMOCO ROSEDALE</SelectItem>
-                <SelectItem value="AMOCO BROOKLYN">AMOCO BROOKLYN</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Salary Records Table */}
-      <Card>
+    return (
+      <Card key={station.id} className={`${station.color} border-2`}>
         <CardHeader>
-          <CardTitle>Salary Records</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Building className="h-5 w-5" />
+            {station.name}
+          </CardTitle>
           <CardDescription>
-            Showing {salaryRecords.length} of {totalRecords} salary records
-            {refreshing && <span className="text-blue-600 ml-2">(🔄 Real-time sync active...)</span>}
-            {!isOnline && <span className="text-red-600 ml-2">(🔴 Offline mode)</span>}
-            <div className="text-xs text-muted-foreground mt-1">
-              Last updated: {format(lastUpdateTime, 'MMM dd, yyyy · h:mm:ss a')}
-              {retryCount > 0 && <span className="text-orange-600 ml-2">(🔄 Retry {retryCount}/3)</span>}
-            </div>
+            Salary management for {station.name} station
+            <Badge variant="outline" className="ml-2">
+              {stationEmployees.length} employee{stationEmployees.length !== 1 ? 's' : ''}
+            </Badge>
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          {loading ?
-          <div className="flex justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            </div> :
-
-          <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Employee</TableHead>
-                    <TableHead>Pay Period</TableHead>
-                    <TableHead>Pay Date</TableHead>
-                    <TableHead>Frequency</TableHead>
-                    <TableHead>Gross Pay</TableHead>
-                    <TableHead>Net Pay</TableHead>
-                    <TableHead>Station</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {salaryRecords.map((record) =>
-                <TableRow key={record.id}>
-                      <TableCell className="font-medium">
-                        {getEmployeeName(record.employee_id)}
-                        <div className="text-xs text-muted-foreground">ID: {record.employee_id}</div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          {format(new Date(record.pay_period_start), 'MMM dd')} - {format(new Date(record.pay_period_end), 'MMM dd, yyyy')}
-                        </div>
-                      </TableCell>
-                      <TableCell>{format(new Date(record.pay_date), 'MMM dd, yyyy')}</TableCell>
-                      <TableCell>{record.pay_frequency}</TableCell>
-                      <TableCell className="font-medium">${record.gross_pay?.toLocaleString() || '0'}</TableCell>
-                      <TableCell className="font-medium text-green-600">${record.net_pay?.toLocaleString() || '0'}</TableCell>
-                      <TableCell>{record.station}</TableCell>
-                      <TableCell>
-                        <Select
-                      value={record.status}
-                      onValueChange={(value) => handleStatusUpdate(record.id, value)}
-                      disabled={!isAdmin()}>
-
-                          <SelectTrigger className="w-auto h-auto p-0 border-none">
-                            <Badge variant={getStatusBadgeVariant(record.status)}>
-                              {record.status}
-                            </Badge>
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Pending">Pending</SelectItem>
-                            <SelectItem value="Processed">Processed</SelectItem>
-                            <SelectItem value="Paid">Paid</SelectItem>
-                            <SelectItem value="Cancelled">Cancelled</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleViewRecord(record)}
-                        title="View Details">
-
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          {/* Only show Edit button if user is Administrator */}
-                          {isAdmin() &&
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEditRecord(record)}
-                        title="Edit Record">
-
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                      }
-                          <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => exportToPDF(record)}
-                        title="Export PDF">
-
-                            <FileText className="h-4 w-4" />
-                          </Button>
-                          {/* Only show Delete button if user is Administrator */}
-                          {isAdmin() &&
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(record.id)}
-                        className="text-destructive hover:text-destructive"
-                        title="Delete Record">
-
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                      }
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                )}
-                </TableBody>
-              </Table>
-              
-              {salaryRecords.length === 0 &&
+        <CardContent className="space-y-4">
+          {stationEmployees.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-                  <AlertCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                  <p>No salary records found.</p>
-                  <Link to="/salary/new" className="text-primary hover:underline">
-                    Create your first salary record
-                  </Link>
-                </div>
-            }
+              <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+              <p>No active employees found for this station</p>
             </div>
-          }
+          ) : (
+            <>
+              {/* Employee Selection */}
+              <div className="space-y-2">
+                <Label htmlFor={`employee-${station.id}`}>Employee *</Label>
+                <Select 
+                  value={form.employee_id} 
+                  onValueChange={(value) => handleEmployeeChange(station.id, value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select employee" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {stationEmployees.map((employee) => (
+                      <SelectItem key={employee.employee_id} value={employee.employee_id}>
+                        {employee.first_name} {employee.last_name} ({employee.employee_id})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          {/* Show permission status when actions are disabled */}
-          {!isAdmin() &&
-          <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-              <p className="text-sm text-amber-700">
-                <strong>Access Restrictions:</strong>
-                Only administrators can edit, delete, or update status of salary records.
-              </p>
-            </div>
-          }
-        </CardContent>
-      </Card>
-
-      {/* Pagination */}
-      {totalPages > 1 &&
-      <div className="flex justify-center gap-2">
-          <Button
-          variant="outline"
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}>
-
-            Previous
-          </Button>
-          <span className="flex items-center px-4">
-            Page {currentPage} of {totalPages}
-          </span>
-          <Button
-          variant="outline"
-          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-          disabled={currentPage === totalPages}>
-
-            Next
-          </Button>
-        </div>
-      }
-
-      {/* View Record Dialog */}
-      <Dialog open={showViewDialog} onOpenChange={setShowViewDialog}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Salary Record Details</DialogTitle>
-            <DialogDescription>
-              Complete salary information for {selectedRecord ? getEmployeeName(selectedRecord.employee_id) : ''}
-            </DialogDescription>
-          </DialogHeader>
-          
-          {selectedRecord &&
-          <div className="space-y-6">
-              {/* Basic Info */}
+              {/* Pay Period Information */}
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Employee</label>
-                  <p className="font-medium">{getEmployeeName(selectedRecord.employee_id)} ({selectedRecord.employee_id})</p>
+                <div className="space-y-2">
+                  <Label htmlFor={`pay-start-${station.id}`}>Pay Period Start</Label>
+                  <Input
+                    id={`pay-start-${station.id}`}
+                    type="date"
+                    value={form.pay_period_start}
+                    onChange={(e) => handleFormChange(station.id, 'pay_period_start', e.target.value)}
+                  />
                 </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Station</label>
-                  <p>{selectedRecord.station}</p>
+                <div className="space-y-2">
+                  <Label htmlFor={`pay-end-${station.id}`}>Pay Period End</Label>
+                  <Input
+                    id={`pay-end-${station.id}`}
+                    type="date"
+                    value={form.pay_period_end}
+                    onChange={(e) => handleFormChange(station.id, 'pay_period_end', e.target.value)}
+                  />
                 </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Pay Period</label>
-                  <p>{format(new Date(selectedRecord.pay_period_start), 'MMM dd')} - {format(new Date(selectedRecord.pay_period_end), 'MMM dd, yyyy')}</p>
+              </div>
+
+              {/* Pay Date and Frequency */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor={`pay-date-${station.id}`}>Pay Date</Label>
+                  <Input
+                    id={`pay-date-${station.id}`}
+                    type="date"
+                    value={form.pay_date}
+                    onChange={(e) => handleFormChange(station.id, 'pay_date', e.target.value)}
+                  />
                 </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Pay Date</label>
-                  <p>{format(new Date(selectedRecord.pay_date), 'MMM dd, yyyy')}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Pay Frequency</label>
-                  <p>{selectedRecord.pay_frequency}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Status</label>
-                  <Badge variant={getStatusBadgeVariant(selectedRecord.status)}>
-                    {selectedRecord.status}
-                  </Badge>
+                <div className="space-y-2">
+                  <Label htmlFor={`frequency-${station.id}`}>Pay Frequency</Label>
+                  <Select 
+                    value={form.pay_frequency} 
+                    onValueChange={(value) => handleFormChange(station.id, 'pay_frequency', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Weekly">Weekly</SelectItem>
+                      <SelectItem value="Biweekly">Biweekly</SelectItem>
+                      <SelectItem value="Monthly">Monthly</SelectItem>
+                      <SelectItem value="Semi-monthly">Semi-monthly</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
               {/* Earnings */}
-              <div>
-                <h3 className="text-lg font-semibold mb-3">Earnings</h3>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Base Salary</label>
-                    <p className="font-medium">${selectedRecord.base_salary?.toLocaleString() || '0.00'}</p>
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold flex items-center gap-2">
+                  <DollarSign className="h-4 w-4" />
+                  Earnings
+                </Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor={`base-salary-${station.id}`}>Base Salary</Label>
+                    <NumberInput
+                      id={`base-salary-${station.id}`}
+                      step="0.01"
+                      value={form.base_salary}
+                      onChange={(value) => handleFormChange(station.id, 'base_salary', value)}
+                    />
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Hourly Rate</label>
-                    <p className="font-medium">${selectedRecord.hourly_rate?.toFixed(2) || '0.00'}</p>
+                  <div className="space-y-2">
+                    <Label htmlFor={`hourly-rate-${station.id}`}>Hourly Rate</Label>
+                    <NumberInput
+                      id={`hourly-rate-${station.id}`}
+                      step="0.01"
+                      value={form.hourly_rate}
+                      onChange={(value) => handleFormChange(station.id, 'hourly_rate', value)}
+                    />
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Regular Hours</label>
-                    <p className="font-medium">{selectedRecord.regular_hours || 0}</p>
+                  <div className="space-y-2">
+                    <Label htmlFor={`regular-hours-${station.id}`}>Regular Hours</Label>
+                    <NumberInput
+                      id={`regular-hours-${station.id}`}
+                      step="0.01"
+                      value={form.regular_hours}
+                      onChange={(value) => handleFormChange(station.id, 'regular_hours', value)}
+                    />
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Overtime Hours</label>
-                    <p className="font-medium">{selectedRecord.overtime_hours || 0}</p>
+                  <div className="space-y-2">
+                    <Label htmlFor={`overtime-hours-${station.id}`}>Overtime Hours</Label>
+                    <NumberInput
+                      id={`overtime-hours-${station.id}`}
+                      step="0.01"
+                      value={form.overtime_hours}
+                      onChange={(value) => handleFormChange(station.id, 'overtime_hours', value)}
+                    />
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Overtime Pay</label>
-                    <p className="font-medium">${selectedRecord.overtime_pay?.toLocaleString() || '0.00'}</p>
+                  <div className="space-y-2">
+                    <Label htmlFor={`bonus-${station.id}`}>Bonus</Label>
+                    <NumberInput
+                      id={`bonus-${station.id}`}
+                      step="0.01"
+                      value={form.bonus_amount}
+                      onChange={(value) => handleFormChange(station.id, 'bonus_amount', value)}
+                    />
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Bonus</label>
-                    <p className="font-medium">${selectedRecord.bonus_amount?.toLocaleString() || '0.00'}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Commission</label>
-                    <p className="font-medium">${selectedRecord.commission?.toLocaleString() || '0.00'}</p>
-                  </div>
-                  <div className="col-span-3 border-t pt-2">
-                    <label className="text-sm font-medium text-muted-foreground">Gross Pay</label>
-                    <p className="text-xl font-bold text-green-600">${selectedRecord.gross_pay?.toLocaleString() || '0.00'}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Deductions */}
-              <div>
-                <h3 className="text-lg font-semibold mb-3">Deductions</h3>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Federal Tax</label>
-                    <p className="font-medium">${selectedRecord.federal_tax?.toLocaleString() || '0.00'}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">State Tax</label>
-                    <p className="font-medium">${selectedRecord.state_tax?.toLocaleString() || '0.00'}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Social Security</label>
-                    <p className="font-medium">${selectedRecord.social_security?.toLocaleString() || '0.00'}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Medicare</label>
-                    <p className="font-medium">${selectedRecord.medicare?.toLocaleString() || '0.00'}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Health Insurance</label>
-                    <p className="font-medium">${selectedRecord.health_insurance?.toLocaleString() || '0.00'}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">401(k)</label>
-                    <p className="font-medium">${selectedRecord.retirement_401k?.toLocaleString() || '0.00'}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Other Deductions</label>
-                    <p className="font-medium">${selectedRecord.other_deductions?.toLocaleString() || '0.00'}</p>
-                  </div>
-                  <div className="col-span-3 border-t pt-2">
-                    <label className="text-sm font-medium text-muted-foreground">Total Deductions</label>
-                    <p className="text-xl font-bold text-red-600">${selectedRecord.total_deductions?.toLocaleString() || '0.00'}</p>
+                  <div className="space-y-2">
+                    <Label htmlFor={`commission-${station.id}`}>Commission</Label>
+                    <NumberInput
+                      id={`commission-${station.id}`}
+                      step="0.01"
+                      value={form.commission}
+                      onChange={(value) => handleFormChange(station.id, 'commission', value)}
+                    />
                   </div>
                 </div>
               </div>
 
-              {/* Net Pay */}
-              <div className="border-t pt-4">
-                <label className="text-sm font-medium text-muted-foreground">Net Pay</label>
-                <p className="text-3xl font-bold text-green-600">${selectedRecord.net_pay?.toLocaleString() || '0.00'}</p>
+              {/* Calculated Values */}
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold flex items-center gap-2">
+                  <Calculator className="h-4 w-4" />
+                  Calculated Values
+                </Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Overtime Rate</Label>
+                    <div className="p-2 bg-muted rounded-md text-sm">
+                      ${form.overtime_rate.toFixed(2)}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Overtime Pay</Label>
+                    <div className="p-2 bg-muted rounded-md text-sm">
+                      ${form.overtime_pay.toFixed(2)}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Gross Pay</Label>
+                    <div className="p-2 bg-green-50 border border-green-200 rounded-md text-sm font-semibold text-green-700">
+                      ${form.gross_pay.toFixed(2)}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Net Pay</Label>
+                    <div className="p-2 bg-blue-50 border border-blue-200 rounded-md text-sm font-semibold text-blue-700">
+                      ${form.net_pay.toFixed(2)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Additional Deductions */}
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold">Additional Deductions</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor={`health-insurance-${station.id}`}>Health Insurance</Label>
+                    <NumberInput
+                      id={`health-insurance-${station.id}`}
+                      step="0.01"
+                      value={form.health_insurance}
+                      onChange={(value) => handleFormChange(station.id, 'health_insurance', value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`retirement-${station.id}`}>401(k)</Label>
+                    <NumberInput
+                      id={`retirement-${station.id}`}
+                      step="0.01"
+                      value={form.retirement_401k}
+                      onChange={(value) => handleFormChange(station.id, 'retirement_401k', value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`other-deductions-${station.id}`}>Other Deductions</Label>
+                    <NumberInput
+                      id={`other-deductions-${station.id}`}
+                      step="0.01"
+                      value={form.other_deductions}
+                      onChange={(value) => handleFormChange(station.id, 'other_deductions', value)}
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Notes */}
-              {selectedRecord.notes &&
-            <div>
-                  <label className="text-sm font-medium text-muted-foreground">Notes</label>
-                  <p className="mt-1 p-3 bg-muted rounded-md">{selectedRecord.notes}</p>
-                </div>
-            }
-
-              {/* Actions */}
-              <div className="flex justify-end gap-2 pt-4 border-t">
-                <Button
-                variant="outline"
-                onClick={() => exportToPDF(selectedRecord)}>
-
-                  <Download className="h-4 w-4 mr-2" />
-                  Export PDF
-                </Button>
-                {isAdmin() &&
-              <Button
-                onClick={() => {
-                  setShowViewDialog(false);
-                  handleEditRecord(selectedRecord);
-                }}>
-
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit Record
-                </Button>
-              }
+              <div className="space-y-2">
+                <Label htmlFor={`notes-${station.id}`}>Notes</Label>
+                <Textarea
+                  id={`notes-${station.id}`}
+                  value={form.notes}
+                  onChange={(e) => handleFormChange(station.id, 'notes', e.target.value)}
+                  placeholder="Additional notes about this salary record..."
+                  rows={3}
+                />
               </div>
-            </div>
-          }
-        </DialogContent>
-      </Dialog>
-    </div>);
 
+              {/* Submit Button */}
+              <div className="flex justify-end pt-4">
+                <Button
+                  onClick={() => handleSubmit(station.id)}
+                  disabled={isSubmittingForm || !form.employee_id}
+                  className="w-full"
+                >
+                  {isSubmittingForm ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4 mr-2" />
+                      Create Salary Record
+                    </>
+                  )}
+                </Button>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="text-center">
+        <h1 className="text-3xl font-bold">Station-Based Salary Management</h1>
+        <p className="text-muted-foreground mt-2">
+          Manage salary records for employees by station
+        </p>
+      </div>
+
+      {/* Station Summary */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Station Overview</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-4 gap-4">
+            {stations.map(station => {
+              const stationEmployees = getEmployeesByStation(station.id);
+              return (
+                <div key={station.id} className="text-center">
+                  <div className="text-2xl font-bold">{stationEmployees.length}</div>
+                  <div className="text-sm text-muted-foreground">{station.name}</div>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Station Salary Forms */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {stations.map(station => renderSalaryForm(station))}
+      </div>
+    </div>
+  );
 };
 
 export default SalaryList;
