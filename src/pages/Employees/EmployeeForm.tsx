@@ -28,6 +28,8 @@ interface EmployeeFormData {
   salary: number;
   is_active: boolean;
   employment_status: string;
+  terminated_date: string;
+  left_date: string;
   date_of_birth: string;
   current_address: string;
   mailing_address: string;
@@ -60,6 +62,8 @@ const EmployeeForm: React.FC = () => {
     salary: 0,
     is_active: true,
     employment_status: 'Ongoing',
+    terminated_date: '',
+    left_date: '',
     date_of_birth: '',
     current_address: '',
     mailing_address: '',
@@ -204,6 +208,8 @@ const EmployeeForm: React.FC = () => {
           salary: employee.salary || 0,
           is_active: employee.is_active !== false,
           employment_status: employee.employment_status || 'Ongoing',
+          terminated_date: employee.terminated_date ? employee.terminated_date.split('T')[0] : '',
+          left_date: employee.left_date ? employee.left_date.split('T')[0] : '',
           date_of_birth: employee.date_of_birth ? employee.date_of_birth.split('T')[0] : '',
           current_address: employee.current_address || '',
           mailing_address: employee.mailing_address || '',
@@ -363,6 +369,8 @@ const EmployeeForm: React.FC = () => {
       const dataToSubmit = {
         ...formData,
         hire_date: formData.hire_date ? new Date(formData.hire_date).toISOString() : '',
+        terminated_date: formData.terminated_date ? new Date(formData.terminated_date).toISOString() : '',
+        left_date: formData.left_date ? new Date(formData.left_date).toISOString() : '',
         date_of_birth: formData.date_of_birth ? new Date(formData.date_of_birth).toISOString() : '',
         id_document_file_id: idDocumentFileIds[0],
         id_document_2_file_id: idDocumentFileIds[1],
@@ -702,6 +710,31 @@ const EmployeeForm: React.FC = () => {
                     <span className="text-xs text-gray-500">Current employment status</span>
                   </div>
                 </div>
+
+                {/* Conditional Date Fields based on Employment Status */}
+                {formData.employment_status === 'Terminated' &&
+                <div className="space-y-2">
+                    <Label htmlFor="terminated_date">Terminated Date *</Label>
+                    <Input
+                    id="terminated_date"
+                    type="date"
+                    value={formData.terminated_date}
+                    onChange={(e) => handleInputChange('terminated_date', e.target.value)}
+                    required />
+                  </div>
+                }
+
+                {formData.employment_status === 'Left' &&
+                <div className="space-y-2">
+                    <Label htmlFor="left_date">Left Date *</Label>
+                    <Input
+                    id="left_date"
+                    type="date"
+                    value={formData.left_date}
+                    onChange={(e) => handleInputChange('left_date', e.target.value)}
+                    required />
+                  </div>
+                }
 
                 <div className="space-y-2">
                   <Label htmlFor="hire_date">Hire Date</Label>
