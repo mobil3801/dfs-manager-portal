@@ -829,82 +829,132 @@ const EmployeeForm: React.FC = () => {
 
                         {/* Preview for uploaded file */}
                         {idDocuments[index].file &&
-                      <div className="p-3 bg-white rounded-lg border border-gray-200">
-                            <div className="flex items-start space-x-3">
-                              {idDocuments[index].preview ?
-                          <img
-                            src={idDocuments[index].preview!}
-                            alt={`ID Document ${index + 1} preview`}
-                            className="w-16 h-16 object-cover rounded border" /> :
-
-
-                          <div className="w-16 h-16 bg-gray-100 rounded border flex items-center justify-center">
-                                  <FileText className="w-6 h-6 text-gray-400" />
+                      <div className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
+                            <div className="space-y-3">
+                              {/* Image Preview Section */}
+                              {idDocuments[index].preview ? (
+                                <div className="relative">
+                                  <div className="aspect-video bg-gray-50 rounded-lg overflow-hidden border-2 border-dashed border-gray-200">
+                                    <img
+                                      src={idDocuments[index].preview!}
+                                      alt={`ID Document ${index + 1} preview`}
+                                      className="w-full h-full object-contain hover:object-cover transition-all duration-200 cursor-pointer"
+                                      onClick={() => window.open(idDocuments[index].preview!, '_blank')}
+                                    />
+                                  </div>
+                                  <div className="absolute top-2 right-2">
+                                    <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-300">
+                                      Image Preview
+                                    </Badge>
+                                  </div>
                                 </div>
-                          }
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900 truncate">
-                                  {idDocuments[index].name}
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  {idDocuments[index].file!.type.includes('image') ? 'Image file' : 'Document file'}
-                                  {' • '}
-                                  {(idDocuments[index].file!.size / 1024 / 1024).toFixed(1)} MB
-                                </p>
-                                <Badge variant="secondary" className="mt-1 text-xs">
-                                  Ready for upload
-                                </Badge>
+                              ) : (
+                                <div className="aspect-video bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center">
+                                  <div className="text-center">
+                                    <FileText className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                                    <p className="text-sm text-gray-500 font-medium">Document File</p>
+                                    <p className="text-xs text-gray-400">No preview available</p>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* File Information */}
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-sm font-medium text-gray-900 truncate">
+                                    {idDocuments[index].name}
+                                  </p>
+                                  <Badge variant="secondary" className="text-xs">
+                                    Ready for upload
+                                  </Badge>
+                                </div>
+                                <div className="flex items-center space-x-4 text-xs text-gray-500">
+                                  <span className="flex items-center space-x-1">
+                                    <FileText className="w-3 h-3" />
+                                    <span>{idDocuments[index].file!.type.includes('image') ? 'Image file' : 'Document file'}</span>
+                                  </span>
+                                  <span>
+                                    {(idDocuments[index].file!.size / 1024 / 1024).toFixed(1)} MB
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           </div>
                       }
 
-                        {/* Show existing document in edit mode with image preview */}
+                        {/* Show existing document in edit mode with enhanced image preview */}
                         {isEditing && !idDocuments[index].file && getExistingDocumentFileId(index) &&
-                      <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center space-x-2">
-                                <FileText className="w-4 h-4 text-blue-600" />
-                                <span className="text-sm text-blue-800">Existing Document {index + 1}</span>
+                      <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <div className="space-y-3">
+                              {/* Header */}
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-2">
+                                  <FileText className="w-4 h-4 text-blue-600" />
+                                  <span className="text-sm font-medium text-blue-800">Current Document {index + 1}</span>
+                                </div>
+                                <Badge variant="outline" className="text-xs text-blue-600 border-blue-300">
+                                  Uploaded
+                                </Badge>
                               </div>
-                              <Badge variant="outline" className="text-xs text-blue-600 border-blue-300">
-                                Currently uploaded
-                              </Badge>
-                            </div>
-                            
-                            {/* Image Preview for existing document */}
-                            <div className="mb-3">
-                              <div className="aspect-video bg-white rounded-lg overflow-hidden border border-blue-200">
-                                <img
-                              src={`${window.location.origin}/api/files/${getExistingDocumentFileId(index)}`}
-                              alt={`Existing Document ${index + 1} preview`}
-                              className="w-full h-full object-contain"
-                              onError={(e) => {
-                                // Fallback to file icon if image fails to load
-                                const target = e.target as HTMLImageElement;
-                                target.style.display = 'none';
-                                const fallbackDiv = target.nextElementSibling as HTMLDivElement;
-                                if (fallbackDiv) {
-                                  fallbackDiv.style.display = 'flex';
-                                }
-                              }} />
+                              
+                              {/* Enhanced Image Preview */}
+                              <div className="relative">
+                                <div className="aspect-video bg-white rounded-lg overflow-hidden border border-blue-200 shadow-sm">
+                                  <img
+                                    src={`${window.location.origin}/api/files/${getExistingDocumentFileId(index)}`}
+                                    alt={`Current Document ${index + 1} preview`}
+                                    className="w-full h-full object-contain hover:object-cover transition-all duration-200 cursor-pointer"
+                                    onClick={() => window.open(`${window.location.origin}/api/files/${getExistingDocumentFileId(index)}`, '_blank')}
+                                    onError={(e) => {
+                                      // Enhanced fallback handling for non-image files
+                                      const target = e.target as HTMLImageElement;
+                                      target.style.display = 'none';
+                                      const fallbackDiv = target.nextElementSibling as HTMLDivElement;
+                                      if (fallbackDiv) {
+                                        fallbackDiv.style.display = 'flex';
+                                      }
+                                    }}
+                                  />
 
-                                {/* Fallback for non-image files */}
-                                <div
-                              className="w-full h-full flex items-center justify-center bg-gray-100"
-                              style={{ display: 'none' }}>
-
-                                  <div className="text-center">
-                                    <FileText className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                                    <p className="text-xs text-gray-500">Document File</p>
+                                  {/* Enhanced fallback for non-image files */}
+                                  <div
+                                    className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100"
+                                    style={{ display: 'none' }}>
+                                    <div className="text-center p-6">
+                                      <FileText className="w-12 h-12 text-blue-400 mx-auto mb-3" />
+                                      <p className="text-sm font-medium text-gray-700">Document File</p>
+                                      <p className="text-xs text-gray-500 mt-1">Click to view file</p>
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="mt-3 text-blue-600 border-blue-300 hover:bg-blue-50"
+                                        onClick={() => window.open(`${window.location.origin}/api/files/${getExistingDocumentFileId(index)}`, '_blank')}
+                                      >
+                                        View File
+                                      </Button>
+                                    </div>
                                   </div>
                                 </div>
+                                
+                                {/* View Full Size Overlay */}
+                                <div className="absolute top-2 right-2 opacity-0 hover:opacity-100 transition-opacity duration-200">
+                                  <Button
+                                    type="button"
+                                    variant="secondary"
+                                    size="sm"
+                                    className="text-xs bg-white/90 hover:bg-white"
+                                    onClick={() => window.open(`${window.location.origin}/api/files/${getExistingDocumentFileId(index)}`, '_blank')}
+                                  >
+                                    View Full Size
+                                  </Button>
+                                </div>
                               </div>
+                              
+                              <p className="text-xs text-blue-600">
+                                Upload a new file to replace the current document
+                              </p>
                             </div>
-                            
-                            <p className="text-xs text-blue-600">
-                              Upload a new file to replace the existing document
-                            </p>
                           </div>
                       }
                       </div>
