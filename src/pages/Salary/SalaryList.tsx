@@ -677,18 +677,18 @@ const SalaryList: React.FC = () => {
         </CardContent>
       </Card>
 
-      {!selectedStation ? (
-        <>
+      {!selectedStation ?
+      <>
           {/* Station Selection Boxes */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {stations.map((station) => {
-              const stationEmployees = getEmployeesByStation(station.id);
-              return (
-                <Card 
-                  key={station.id} 
-                  className={`${station.color} border-2 cursor-pointer transition-all duration-200 transform hover:scale-105`}
-                  onClick={() => setSelectedStation(station.id)}
-                >
+            const stationEmployees = getEmployeesByStation(station.id);
+            return (
+              <Card
+                key={station.id}
+                className={`${station.color} border-2 cursor-pointer transition-all duration-200 transform hover:scale-105`}
+                onClick={() => setSelectedStation(station.id)}>
+
                   <CardHeader className="text-center pb-4">
                     <div className="flex justify-center mb-4">
                       <Building className="h-12 w-12 text-gray-600" />
@@ -706,26 +706,26 @@ const SalaryList: React.FC = () => {
                       Tap to access salary forms
                     </div>
                   </CardContent>
-                </Card>
-              );
-            })}
+                </Card>);
+
+          })}
           </div>
-        </>
-      ) : (
-        <>
+        </> :
+
+      <>
           {/* Back Button and Selected Station Form */}
           <div className="flex items-center gap-4 mb-6">
-            <Button 
-              variant="outline" 
-              onClick={() => setSelectedStation(null)}
-              className="flex items-center gap-2"
-            >
+            <Button
+            variant="outline"
+            onClick={() => setSelectedStation(null)}
+            className="flex items-center gap-2">
+
               <ArrowLeft className="h-4 w-4" />
               Back to Station Selection
             </Button>
             <div>
               <h2 className="text-2xl font-bold">
-                {stations.find(s => s.id === selectedStation)?.name} - Salary Management
+                {stations.find((s) => s.id === selectedStation)?.name} - Salary Management
               </h2>
               <p className="text-muted-foreground">
                 Fill out the salary form for employees at this station
@@ -734,11 +734,11 @@ const SalaryList: React.FC = () => {
           </div>
           
           {/* Selected Station Salary Form */}
-          {renderSalaryForm(stations.find(s => s.id === selectedStation)!)}
+          {renderSalaryForm(stations.find((s) => s.id === selectedStation)!)}
         </>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 
 };
 

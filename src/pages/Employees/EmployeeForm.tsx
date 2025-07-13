@@ -546,10 +546,10 @@ const EmployeeForm: React.FC = () => {
                       </Button>
                     }
                   </div>
-                  {!isEditing &&
-                  <p className="text-xs text-gray-500">
-                      Auto-generated format: DFS#### (sequential numbering starting from DFS1001)
-                    </p>
+                  {!isEditing
+
+
+
                   }
                 </div>
 
