@@ -832,31 +832,31 @@ const EmployeeForm: React.FC = () => {
                       <div className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
                             <div className="space-y-3">
                               {/* Image Preview Section */}
-                              {idDocuments[index].preview ? (
-                                <div className="relative">
+                              {idDocuments[index].preview ?
+                          <div className="relative">
                                   <div className="aspect-video bg-gray-50 rounded-lg overflow-hidden border-2 border-dashed border-gray-200">
                                     <img
-                                      src={idDocuments[index].preview!}
-                                      alt={`ID Document ${index + 1} preview`}
-                                      className="w-full h-full object-contain hover:object-cover transition-all duration-200 cursor-pointer"
-                                      onClick={() => window.open(idDocuments[index].preview!, '_blank')}
-                                    />
+                                src={idDocuments[index].preview!}
+                                alt={`ID Document ${index + 1} preview`}
+                                className="w-full h-full object-contain hover:object-cover transition-all duration-200 cursor-pointer"
+                                onClick={() => window.open(idDocuments[index].preview!, '_blank')} />
+
                                   </div>
                                   <div className="absolute top-2 right-2">
                                     <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-300">
                                       Image Preview
                                     </Badge>
                                   </div>
-                                </div>
-                              ) : (
-                                <div className="aspect-video bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center">
+                                </div> :
+
+                          <div className="aspect-video bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center">
                                   <div className="text-center">
                                     <FileText className="w-12 h-12 text-gray-400 mx-auto mb-2" />
                                     <p className="text-sm text-gray-500 font-medium">Document File</p>
                                     <p className="text-xs text-gray-400">No preview available</p>
                                   </div>
                                 </div>
-                              )}
+                          }
 
                               {/* File Information */}
                               <div className="space-y-2">
@@ -901,36 +901,36 @@ const EmployeeForm: React.FC = () => {
                               <div className="relative">
                                 <div className="aspect-video bg-white rounded-lg overflow-hidden border border-blue-200 shadow-sm">
                                   <img
-                                    src={`${window.location.origin}/api/files/${getExistingDocumentFileId(index)}`}
-                                    alt={`Current Document ${index + 1} preview`}
-                                    className="w-full h-full object-contain hover:object-cover transition-all duration-200 cursor-pointer"
-                                    onClick={() => window.open(`${window.location.origin}/api/files/${getExistingDocumentFileId(index)}`, '_blank')}
-                                    onError={(e) => {
-                                      // Enhanced fallback handling for non-image files
-                                      const target = e.target as HTMLImageElement;
-                                      target.style.display = 'none';
-                                      const fallbackDiv = target.nextElementSibling as HTMLDivElement;
-                                      if (fallbackDiv) {
-                                        fallbackDiv.style.display = 'flex';
-                                      }
-                                    }}
-                                  />
+                                src={`${window.location.origin}/api/files/${getExistingDocumentFileId(index)}`}
+                                alt={`Current Document ${index + 1} preview`}
+                                className="w-full h-full object-contain hover:object-cover transition-all duration-200 cursor-pointer"
+                                onClick={() => window.open(`${window.location.origin}/api/files/${getExistingDocumentFileId(index)}`, '_blank')}
+                                onError={(e) => {
+                                  // Enhanced fallback handling for non-image files
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const fallbackDiv = target.nextElementSibling as HTMLDivElement;
+                                  if (fallbackDiv) {
+                                    fallbackDiv.style.display = 'flex';
+                                  }
+                                }} />
+
 
                                   {/* Enhanced fallback for non-image files */}
                                   <div
-                                    className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100"
-                                    style={{ display: 'none' }}>
+                                className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100"
+                                style={{ display: 'none' }}>
                                     <div className="text-center p-6">
                                       <FileText className="w-12 h-12 text-blue-400 mx-auto mb-3" />
                                       <p className="text-sm font-medium text-gray-700">Document File</p>
                                       <p className="text-xs text-gray-500 mt-1">Click to view file</p>
                                       <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        className="mt-3 text-blue-600 border-blue-300 hover:bg-blue-50"
-                                        onClick={() => window.open(`${window.location.origin}/api/files/${getExistingDocumentFileId(index)}`, '_blank')}
-                                      >
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="mt-3 text-blue-600 border-blue-300 hover:bg-blue-50"
+                                    onClick={() => window.open(`${window.location.origin}/api/files/${getExistingDocumentFileId(index)}`, '_blank')}>
+
                                         View File
                                       </Button>
                                     </div>
@@ -940,12 +940,12 @@ const EmployeeForm: React.FC = () => {
                                 {/* View Full Size Overlay */}
                                 <div className="absolute top-2 right-2 opacity-0 hover:opacity-100 transition-opacity duration-200">
                                   <Button
-                                    type="button"
-                                    variant="secondary"
-                                    size="sm"
-                                    className="text-xs bg-white/90 hover:bg-white"
-                                    onClick={() => window.open(`${window.location.origin}/api/files/${getExistingDocumentFileId(index)}`, '_blank')}
-                                  >
+                                type="button"
+                                variant="secondary"
+                                size="sm"
+                                className="text-xs bg-white/90 hover:bg-white"
+                                onClick={() => window.open(`${window.location.origin}/api/files/${getExistingDocumentFileId(index)}`, '_blank')}>
+
                                     View Full Size
                                   </Button>
                                 </div>
