@@ -361,17 +361,13 @@ const EmployeeList: React.FC = () => {
 
       case 'Day & Night':
         return (
-          <div className="relative overflow-hidden rounded-sm">
-            <Badge
-              className="relative bg-gradient-to-r from-white from-50% to-black to-50% text-transparent border border-gray-300"
-              style={{ background: 'linear-gradient(90deg, white 50%, black 50%)' }}>
-
-              <span className="absolute inset-0 flex">
-                <span className="flex-1 text-black text-center leading-[22px] text-xs font-medium">Day</span>
-                <span className="flex-1 text-white text-center leading-[22px] text-xs font-medium">Night</span>
-              </span>
-              Day & Night
-            </Badge>
+          <div className="relative inline-flex rounded-md overflow-hidden border border-gray-300">
+            <div className="bg-white text-black px-2 py-1 text-xs font-medium border-r border-gray-300">
+              Day
+            </div>
+            <div className="bg-black text-white px-2 py-1 text-xs font-medium">
+              Night
+            </div>
           </div>);
 
       default:
