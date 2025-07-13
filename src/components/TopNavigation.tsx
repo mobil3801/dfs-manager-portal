@@ -180,7 +180,8 @@ const TopNavigation = () => {
 
     const baseClasses = mobile ?
     "flex items-center space-x-3 px-4 py-3 text-left w-full transition-colors text-sm font-medium rounded-md mx-2" :
-    "flex items-center space-x-2 px-3 py-2 rounded-md transition-all duration-200 whitespace-nowrap text-sm font-medium hover:scale-105 min-w-fit";
+    "flex items-center space-x-2 px-2 py-1.5 rounded-md transition-all duration-200 whitespace-nowrap text-sm font-medium hover:scale-105 min-w-fit max-w-fit flex-shrink-0";
+
 
     const activeClasses = isActive ?
     "bg-blue-600 text-white shadow-md" :
@@ -240,21 +241,21 @@ const TopNavigation = () => {
     <>
       {/* Fixed Top Navigation Bar */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50 w-full shadow-sm">
-        <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+        <div className="w-full max-w-full px-4 sm:px-6 lg:px-8 overflow-hidden">
+          <div className="flex items-center justify-between h-16 min-w-0">
             
             {/* Left Section - Logo and Brand */}
             <div className="flex items-center space-x-4 flex-shrink-0 min-w-0">
               <img
                 src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
                 alt="DFS Manager Portal"
-                className="h-10 w-auto" />
-              <span className="text-xl font-bold text-gray-900 hidden sm:block">DFS Manager Portal</span>
+                className="h-10 w-auto flex-shrink-0" />
+              <span className="text-xl font-bold text-gray-900 hidden sm:block truncate">DFS Manager Portal</span>
             </div>
 
             {/* Center Section - Navigation Items (Desktop) */}
-            <nav className="hidden lg:flex items-center flex-1 justify-center max-w-6xl mx-4">
-              <div className="flex items-center space-x-1">
+            <nav className="hidden lg:flex items-center flex-1 justify-center min-w-0 mx-4">
+              <div className="flex items-center space-x-1 overflow-x-auto scrollbar-hide max-w-full">
                 {/* Show accessible navigation items directly */}
                 {accessibleItems.map((item) =>
                 <NavigationLink key={item.href} item={item} />
@@ -279,13 +280,13 @@ const TopNavigation = () => {
               {/* User Profile Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center space-x-2 px-3 py-2 h-auto">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Button variant="ghost" className="flex items-center space-x-2 px-2 py-1.5 h-auto min-w-0 max-w-fit">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                       <span className="text-sm font-medium text-blue-700">
                         {user?.Name?.charAt(0)?.toUpperCase() || 'U'}
                       </span>
                     </div>
-                    <div className="hidden xl:block text-left min-w-0">
+                    <div className="hidden xl:block text-left min-w-0 max-w-32">
                       <p className="text-sm font-medium text-gray-900 leading-none truncate">
                         {user?.Name || 'User'}
                       </p>
@@ -308,6 +309,7 @@ const TopNavigation = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+
 
               {/* Mobile Menu Button */}
               <Button
@@ -344,32 +346,33 @@ const TopNavigation = () => {
           onClick={() => setMobileMenuOpen(false)} />
 
           {/* Menu Panel */}
-          <div className={`fixed top-0 right-0 w-80 max-w-[90vw] h-full bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
+          <div className={`fixed top-0 right-0 w-80 max-w-[90vw] h-full bg-white shadow-xl transform transition-transform duration-300 ease-in-out overflow-hidden ${
         mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`
         }>
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col h-full max-h-full">
               
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b bg-gray-50">
-                <div className="flex items-center space-x-3">
+              <div className="flex items-center justify-between p-4 border-b bg-gray-50 flex-shrink-0">
+                <div className="flex items-center space-x-3 min-w-0 flex-1">
                   <img
                   src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
                   alt="DFS Manager Portal"
-                  className="h-8 w-auto" />
-                  <span className="text-lg font-bold text-gray-900">DFS Manager Portal</span>
+                  className="h-8 w-auto flex-shrink-0" />
+                  <span className="text-lg font-bold text-gray-900 truncate">DFS Manager Portal</span>
                 </div>
                 <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setMobileMenuOpen(false)}>
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex-shrink-0">
                   <X className="h-6 w-6" />
                   <span className="sr-only">Close menu</span>
                 </Button>
               </div>
               
               {/* Navigation Items */}
-              <div className="flex-1 py-4 overflow-y-auto">
-                <div className="space-y-2">
+              <div className="flex-1 py-4 overflow-y-auto min-h-0">
+                <div className="space-y-2 px-2">
                   {navigationItems.map((item) =>
                 <NavigationLink key={item.href} item={item} mobile />
                 )}
@@ -377,9 +380,9 @@ const TopNavigation = () => {
               </div>
               
               {/* User Section */}
-              <div className="border-t p-4 bg-gray-50">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+              <div className="border-t p-4 bg-gray-50 flex-shrink-0">
+                <div className="flex items-center space-x-3 mb-4 min-w-0">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                     <span className="text-sm font-medium text-blue-700">
                       {user?.Name?.charAt(0)?.toUpperCase() || 'U'}
                     </span>
@@ -404,6 +407,7 @@ const TopNavigation = () => {
           </div>
         </div>
       }
+
     </>);
 
 };
