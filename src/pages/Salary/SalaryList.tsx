@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { DollarSign, Users, Building, Save, Plus, Calculator, Calendar, Clock, Info } from 'lucide-react';
+import { DollarSign, Users, Building, Save, Plus, Calculator, Calendar, Clock, Info, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
 import {
@@ -75,14 +75,15 @@ const SalaryList: React.FC = () => {
 
   // Station configurations
   const stations = [
-  { id: 'MOBIL', name: 'Mobil', color: 'bg-blue-50 border-blue-200' },
-  { id: 'AMOCO ROSEDALE', name: 'Amoco Rosedale', color: 'bg-green-50 border-green-200' },
-  { id: 'AMOCO BROOKLYN', name: 'Amoco Brooklyn', color: 'bg-purple-50 border-purple-200' },
-  { id: 'OTHERS', name: 'Others', color: 'bg-gray-50 border-gray-200' }];
+  { id: 'MOBIL', name: 'MOBIL', color: 'bg-blue-50 border-blue-200 hover:bg-blue-100' },
+  { id: 'AMOCO ROSEDALE', name: 'AMOCO (Rosedale)', color: 'bg-green-50 border-green-200 hover:bg-green-100' },
+  { id: 'AMOCO BROOKLYN', name: 'AMOCO (Brooklyn)', color: 'bg-purple-50 border-purple-200 hover:bg-purple-100' },
+  { id: 'MANAGER', name: 'Manager', color: 'bg-orange-50 border-orange-200 hover:bg-orange-100' }];
 
 
   // Form states for each station
   const [salaryForms, setSalaryForms] = useState<{[key: string]: SalaryRecord;}>({});
+  const [selectedStation, setSelectedStation] = useState<string | null>(null);
 
   const getDefaultFormData = (station: string): SalaryRecord => {
     const currentPayPeriod = getCurrentPayPeriod();
@@ -110,7 +111,7 @@ const SalaryList: React.FC = () => {
       other_deductions: 0,
       total_deductions: 0,
       net_pay: 0,
-      station: station === 'OTHERS' ? '' : station,
+      station: station === 'MANAGER' ? '' : station,
       status: 'Pending',
       notes: '',
       created_by: userProfile?.id || 1
@@ -159,7 +160,7 @@ const SalaryList: React.FC = () => {
   }, [toast]);
 
   const getEmployeesByStation = (stationId: string) => {
-    if (stationId === 'OTHERS') {
+    if (stationId === 'MANAGER') {
       return employees.filter((emp) =>
       emp.station &&
       !['MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN'].includes(emp.station)
@@ -243,10 +244,10 @@ const SalaryList: React.FC = () => {
   const calculatePayroll = (form: SalaryRecord, stationId: string, allForms: {[key: string]: SalaryRecord;}) => {
     // Calculate overtime pay: Over Rate × Overtime Hours = Over Time Pay
     const overtimePay = form.overtime_rate * form.overtime_hours;
-    
+
     // Calculate gross pay: (Hourly Rate × Worked Hour) + Bonus + Commission + (Over Rate × Overtime Hours = Over Time Pay)
-    const grossPay = (form.hourly_rate * form.regular_hours) + form.bonus_amount + form.commission + overtimePay;
-    
+    const grossPay = form.hourly_rate * form.regular_hours + form.bonus_amount + form.commission + overtimePay;
+
     // Calculate net pay: Gross Pay − (Health Insurance + 401(K) + Other Deductions)
     const netPay = grossPay - (form.health_insurance + form.retirement_401k + form.other_deductions);
 
@@ -642,7 +643,7 @@ const SalaryList: React.FC = () => {
       <div className="text-center">
         <h1 className="text-3xl font-bold">Station-Based Salary Management</h1>
         <p className="text-muted-foreground mt-2">
-          Manage salary records for employees by station
+          Select a station below to manage salary records
         </p>
       </div>
 
@@ -676,31 +677,68 @@ const SalaryList: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Station Summary */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Station Overview</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-4 gap-4">
+      {!selectedStation ? (
+        <>
+          {/* Station Selection Boxes */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {stations.map((station) => {
               const stationEmployees = getEmployeesByStation(station.id);
               return (
-                <div key={station.id} className="text-center">
-                  <div className="text-2xl font-bold">{stationEmployees.length}</div>
-                  <div className="text-sm text-muted-foreground">{station.name}</div>
-                </div>);
-
+                <Card 
+                  key={station.id} 
+                  className={`${station.color} border-2 cursor-pointer transition-all duration-200 transform hover:scale-105`}
+                  onClick={() => setSelectedStation(station.id)}
+                >
+                  <CardHeader className="text-center pb-4">
+                    <div className="flex justify-center mb-4">
+                      <Building className="h-12 w-12 text-gray-600" />
+                    </div>
+                    <CardTitle className="text-xl font-bold">{station.name}</CardTitle>
+                    <CardDescription className="text-sm">
+                      Click to manage salary records
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="text-center pt-0">
+                    <Badge variant="outline" className="text-lg px-4 py-2">
+                      {stationEmployees.length} employee{stationEmployees.length !== 1 ? 's' : ''}
+                    </Badge>
+                    <div className="mt-4 text-sm text-muted-foreground">
+                      Tap to access salary forms
+                    </div>
+                  </CardContent>
+                </Card>
+              );
             })}
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Station Salary Forms */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {stations.map((station) => renderSalaryForm(station))}
-      </div>
-    </div>);
+        </>
+      ) : (
+        <>
+          {/* Back Button and Selected Station Form */}
+          <div className="flex items-center gap-4 mb-6">
+            <Button 
+              variant="outline" 
+              onClick={() => setSelectedStation(null)}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Station Selection
+            </Button>
+            <div>
+              <h2 className="text-2xl font-bold">
+                {stations.find(s => s.id === selectedStation)?.name} - Salary Management
+              </h2>
+              <p className="text-muted-foreground">
+                Fill out the salary form for employees at this station
+              </p>
+            </div>
+          </div>
+          
+          {/* Selected Station Salary Form */}
+          {renderSalaryForm(stations.find(s => s.id === selectedStation)!)}
+        </>
+      )}
+    </div>
+  );
 
 };
 

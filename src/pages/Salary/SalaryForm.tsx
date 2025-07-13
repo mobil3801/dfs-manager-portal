@@ -200,10 +200,10 @@ const SalaryForm: React.FC = () => {
   const calculatePayroll = () => {
     // Calculate overtime pay: Over Rate × Overtime Hours = Over Time Pay
     const overtimePay = formData.overtime_rate * formData.overtime_hours;
-    
+
     // Calculate gross pay: (Hourly Rate × Worked Hour) + Bonus + Commission + (Over Rate × Overtime Hours = Over Time Pay)
-    const grossPay = (formData.hourly_rate * formData.regular_hours) + formData.bonus_amount + formData.commission + overtimePay;
-    
+    const grossPay = formData.hourly_rate * formData.regular_hours + formData.bonus_amount + formData.commission + overtimePay;
+
     // Calculate net pay: Gross Pay − (Health Insurance + 401(K) + Other Deductions)
     const netPay = grossPay - (formData.health_insurance + formData.retirement_401k + formData.other_deductions);
 
@@ -353,8 +353,9 @@ const SalaryForm: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="MOBIL">MOBIL</SelectItem>
-                    <SelectItem value="AMOCO ROSEDALE">AMOCO ROSEDALE</SelectItem>
-                    <SelectItem value="AMOCO BROOKLYN">AMOCO BROOKLYN</SelectItem>
+                    <SelectItem value="AMOCO ROSEDALE">AMOCO (Rosedale)</SelectItem>
+                    <SelectItem value="AMOCO BROOKLYN">AMOCO (Brooklyn)</SelectItem>
+                    <SelectItem value="MANAGER">Manager</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
