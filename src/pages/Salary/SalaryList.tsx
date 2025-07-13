@@ -162,7 +162,7 @@ const SalaryList: React.FC = () => {
       newForms[stationId] = { ...newForms[stationId], [field]: value };
 
       // Auto-calculate if it's a calculation field
-      if (['hourly_rate', 'regular_hours', 'assign_hours', 'overtime_hours', 'bonus_amount', 'commission'].includes(field)) {
+      if (['hourly_rate', 'regular_hours', 'assign_hours', 'overtime_rate', 'overtime_pay', 'bonus_amount', 'commission'].includes(field)) {
         const form = newForms[stationId];
         calculatePayroll(form, stationId, newForms);
       }
@@ -192,11 +192,9 @@ const SalaryList: React.FC = () => {
   };
 
   const calculatePayroll = (form: SalaryRecord, stationId: string, allForms: {[key: string]: SalaryRecord;}) => {
-    const overtimeRate = form.hourly_rate * 1.5;
-    const overtimePay = form.overtime_hours * overtimeRate;
     const regularPay = form.hourly_rate * form.regular_hours;
     const assignPay = form.hourly_rate * form.assign_hours;
-    const grossPay = regularPay + assignPay + overtimePay + form.bonus_amount + form.commission;
+    const grossPay = regularPay + assignPay + form.overtime_pay + form.bonus_amount + form.commission;
 
     // Calculate taxes and deductions
     const federalTax = grossPay * 0.12; // Example rate
@@ -209,8 +207,6 @@ const SalaryList: React.FC = () => {
 
     allForms[stationId] = {
       ...form,
-      overtime_rate: overtimeRate,
-      overtime_pay: overtimePay,
       gross_pay: grossPay,
       federal_tax: federalTax,
       state_tax: stateTax,
@@ -384,7 +380,7 @@ const SalaryList: React.FC = () => {
 
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor={`regular-hours-${station.id}`}>Regular Hours</Label>
+                    <Label htmlFor={`regular-hours-${station.id}`}>Worked Hour</Label>
                     <NumberInput
                     id={`regular-hours-${station.id}`}
                     step="0.01"
@@ -439,16 +435,22 @@ const SalaryList: React.FC = () => {
                 </Label>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Overtime Rate</Label>
-                    <div className="p-2 bg-muted rounded-md text-sm">
-                      ${form.overtime_rate.toFixed(2)}
-                    </div>
+                    <Label htmlFor={`overtime-rate-${station.id}`}>Overtime Rate</Label>
+                    <NumberInput
+                    id={`overtime-rate-${station.id}`}
+                    step="0.01"
+                    value={form.overtime_rate}
+                    onChange={(value) => handleFormChange(station.id, 'overtime_rate', value)} />
+
                   </div>
                   <div className="space-y-2">
-                    <Label>Overtime Pay</Label>
-                    <div className="p-2 bg-muted rounded-md text-sm">
-                      ${form.overtime_pay.toFixed(2)}
-                    </div>
+                    <Label htmlFor={`overtime-pay-${station.id}`}>Overtime Pay</Label>
+                    <NumberInput
+                    id={`overtime-pay-${station.id}`}
+                    step="0.01"
+                    value={form.overtime_pay}
+                    onChange={(value) => handleFormChange(station.id, 'overtime_pay', value)} />
+
                   </div>
                   <div className="space-y-2">
                     <Label>Gross Pay</Label>

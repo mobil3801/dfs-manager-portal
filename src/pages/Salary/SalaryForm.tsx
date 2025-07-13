@@ -107,7 +107,7 @@ const SalaryForm: React.FC = () => {
   formData.hourly_rate,
   formData.regular_hours,
   formData.assign_hours,
-  formData.overtime_hours,
+  formData.overtime_pay,
   formData.bonus_amount,
   formData.commission]
   );
@@ -169,19 +169,13 @@ const SalaryForm: React.FC = () => {
   };
 
   const calculatePayroll = () => {
-    // Calculate overtime pay
-    const overtimeRate = formData.hourly_rate * 1.5;
-    const overtimePay = formData.overtime_hours * overtimeRate;
-
     // Calculate gross pay
     const regularPay = formData.hourly_rate * formData.regular_hours;
     const assignPay = formData.hourly_rate * formData.assign_hours;
-    const grossPay = regularPay + assignPay + overtimePay + formData.bonus_amount + formData.commission;
+    const grossPay = regularPay + assignPay + formData.overtime_pay + formData.bonus_amount + formData.commission;
 
     setFormData((prev) => ({
       ...prev,
-      overtime_rate: overtimeRate,
-      overtime_pay: overtimePay,
       gross_pay: grossPay,
       net_pay: grossPay
     }));
@@ -376,7 +370,7 @@ const SalaryForm: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="regular_hours">Regular Hours</Label>
+                <Label htmlFor="regular_hours">Worked Hour</Label>
                 <NumberInput
                   id="regular_hours"
                   step="0.01"
@@ -407,26 +401,22 @@ const SalaryForm: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="overtime_rate">Overtime Rate (Auto-calculated)</Label>
-                <Input
+                <Label htmlFor="overtime_rate">Overtime Rate</Label>
+                <NumberInput
                   id="overtime_rate"
-                  type="number"
                   step="0.01"
-                  value={formData.overtime_rate.toFixed(2)}
-                  disabled
-                  className="bg-muted" />
+                  value={formData.overtime_rate}
+                  onChange={(value) => handleInputChange('overtime_rate', value)} />
 
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="overtime_pay">Overtime Pay (Auto-calculated)</Label>
-                <Input
+                <Label htmlFor="overtime_pay">Overtime Pay</Label>
+                <NumberInput
                   id="overtime_pay"
-                  type="number"
                   step="0.01"
-                  value={formData.overtime_pay.toFixed(2)}
-                  disabled
-                  className="bg-muted" />
+                  value={formData.overtime_pay}
+                  onChange={(value) => handleInputChange('overtime_pay', value)} />
 
               </div>
 
