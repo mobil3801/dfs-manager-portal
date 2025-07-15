@@ -98,17 +98,17 @@ const TopNavigation = () => {
     href: '/employees',
     icon: Users,
     requiredRole: 'manager'
-  },
-  {
-    name: 'Vendor',
-    href: '/vendors',
-    icon: Building,
-    requiredRole: 'manager'
   }];
 
 
   // Secondary navigation items - shown in "More Menu" dropdown
   const secondaryNavItems = [
+  {
+    name: 'Vendor',
+    href: '/vendors',
+    icon: Building,
+    requiredRole: 'manager'
+  },
   {
     name: 'Order',
     href: '/orders',

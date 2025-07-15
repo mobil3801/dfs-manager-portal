@@ -452,6 +452,8 @@ const EmployeeList: React.FC = () => {
                 onClick={() => {
 
 
+
+
                   // This will be handled by the InstantDocumentPreview component
                 }}>
                   <Eye className="w-3 h-3" />
@@ -467,9 +469,7 @@ const EmployeeList: React.FC = () => {
           <p>• Use the download button to save documents locally</p>
         </div>
 
-      </div>);
-
-  };
+      </div>);};
 
 
   // Define view modal fields with profile picture, employment status, and ID documents

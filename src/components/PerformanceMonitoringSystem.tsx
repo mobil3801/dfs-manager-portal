@@ -474,6 +474,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -563,8 +565,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
           <Badge variant={isMonitoring ? 'default' : 'secondary'}>
             {isMonitoring ? 'Active' : 'Paused'}
           </Badge>
-          <Button onClick={isMonitoring ? stopMonitoring : startMonitoring} variant="outline"
-          size="sm">
+          <Button onClick={isMonitoring ? stopMonitoring : startMonitoring} variant="outline" size="sm">
 
             {isMonitoring ? 'Pause' : 'Start'} Monitoring
           </Button>
@@ -572,8 +573,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
       </div>
 
       {/* Active Alerts */}
-      {alerts.length > 0 &&
-    <motion.div
+      {alerts.length > 0 && <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       className="space-y-2">
