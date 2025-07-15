@@ -441,6 +441,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -508,9 +510,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
   * Auto-dismiss alerts
   */useEffect(() => {const dismissTimeout = setTimeout(() => {setAlerts((prev) => prev.filter((alert) => !alert.autoResolve || Date.now() - alert.timestamp < 30000));}, 30000);return () => clearTimeout(dismissTimeout);}, [alerts]); /**
   * Initialize monitoring on mount
-  */useEffect(() => {startMonitoring();return () => {stopMonitoring();};
-    }, [startMonitoring, stopMonitoring]);
-
+  */useEffect(() => {startMonitoring();return () => {stopMonitoring();};}, [startMonitoring, stopMonitoring]);
   /**
    * Get status color based on metric value
    */

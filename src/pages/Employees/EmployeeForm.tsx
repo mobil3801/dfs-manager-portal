@@ -303,12 +303,40 @@ const EmployeeForm: React.FC = () => {
       URL.revokeObjectURL(newIdDocuments[index].preview!);
     }
 
-    newIdDocuments[index] = { file: null, name: '', preview: null };
+    // Remove the document at the specified index
+    newIdDocuments.splice(index, 1);
+
+    // Add a new empty document at the end to maintain array length
+    newIdDocuments.push({ file: null, name: '', preview: null });
+
     setIdDocuments(newIdDocuments);
+
+    // Update form data to reorder existing file IDs
+    const updatedFormData = { ...formData };
+    const currentFileIds = [
+    formData.id_document_file_id,
+    formData.id_document_2_file_id,
+    formData.id_document_3_file_id,
+    formData.id_document_4_file_id];
+
+
+    // Remove the file ID at the specified index
+    currentFileIds.splice(index, 1);
+
+    // Add null at the end to maintain array length
+    currentFileIds.push(null);
+
+    // Reassign file IDs to form data
+    updatedFormData.id_document_file_id = currentFileIds[0];
+    updatedFormData.id_document_2_file_id = currentFileIds[1];
+    updatedFormData.id_document_3_file_id = currentFileIds[2];
+    updatedFormData.id_document_4_file_id = currentFileIds[3];
+
+    setFormData(updatedFormData);
 
     toast({
       title: "Document Removed",
-      description: `ID Document ${index + 1} has been removed.`
+      description: `ID Document ${index + 1} has been removed. Documents have been automatically reordered.`
     });
   };
 
