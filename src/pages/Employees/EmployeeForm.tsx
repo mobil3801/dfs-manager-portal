@@ -628,12 +628,38 @@ const EmployeeForm: React.FC = () => {
       console.log('Starting form submission...');
 
       let profileImageId = formData.profile_image_id;
+
+      // Initialize ID document file IDs with current formData values
       let idDocumentFileIds = [
       formData.id_document_file_id,
       formData.id_document_2_file_id,
       formData.id_document_3_file_id,
       formData.id_document_4_file_id];
 
+
+      // Process each ID document slot
+      for (let i = 0; i < idDocuments.length; i++) {
+        const document = idDocuments[i];
+
+        // If there's a new file to upload, upload it
+        if (document.file) {
+          console.log(`Uploading ID document ${i + 1}...`);
+          const uploadedFileId = await handleFileUpload(document.file, `id_document_${i + 1}`);
+          if (uploadedFileId === null) {
+            setLoading(false);
+            return;
+          }
+          idDocumentFileIds[i] = uploadedFileId;
+        }
+        // If the document was cleared (no file, no existing file ID), set to null
+        else if (!document.file && !document.existingFileId) {
+          idDocumentFileIds[i] = null;
+        }
+        // If there's an existing file but no new file, keep the existing file ID
+        else if (!document.file && document.existingFileId) {
+          idDocumentFileIds[i] = document.existingFileId;
+        }
+      }
 
       // Upload profile image if selected
       if (selectedProfileImage) {
@@ -645,19 +671,7 @@ const EmployeeForm: React.FC = () => {
         }
       }
 
-      // Upload ID documents if selected
-      for (let i = 0; i < idDocuments.length; i++) {
-        if (idDocuments[i].file) {
-          console.log(`Uploading ID document ${i + 1}...`);
-          const uploadedFileId = await handleFileUpload(idDocuments[i].file!, `id_document_${i + 1}`);
-          if (uploadedFileId === null) {
-            setLoading(false);
-            return;
-          }
-          idDocumentFileIds[i] = uploadedFileId;
-        }
-      }
-
+      // Create the data object to submit
       const dataToSubmit = {
         ...formData,
         hire_date: formData.hire_date ? new Date(formData.hire_date).toISOString() : '',
@@ -673,9 +687,19 @@ const EmployeeForm: React.FC = () => {
       };
 
       console.log('Data to submit:', dataToSubmit);
+      console.log('Files to delete:', filesToDelete);
 
       if (isEditing && id) {
         console.log('Updating employee...');
+
+        // First, delete files that were marked for deletion BEFORE updating employee record
+        if (filesToDelete.length > 0) {
+          console.log('Deleting marked files:', filesToDelete);
+          await deleteFilesFromDatabase(filesToDelete);
+          setFilesToDelete([]); // Clear the list after deletion
+        }
+
+        // Update the employee record with new data
         const { error } = await window.ezsite.apis.tableUpdate('11727', {
           ID: parseInt(id),
           ...dataToSubmit
@@ -687,18 +711,6 @@ const EmployeeForm: React.FC = () => {
 
         // Update file_uploads records with the correct associated_record_id
         await updateFileAssociations(parseInt(id), idDocumentFileIds, profileImageId);
-
-        // Delete files that were marked for deletion AFTER successful update
-        if (filesToDelete.length > 0) {
-          console.log('Deleting marked files:', filesToDelete);
-          await deleteFilesFromDatabase(filesToDelete);
-          setFilesToDelete([]); // Clear the list after deletion
-
-          toast({
-            title: "Files Deleted",
-            description: `${filesToDelete.length} file(s) have been permanently deleted from storage.`
-          });
-        }
 
         toast({
           title: "Success",

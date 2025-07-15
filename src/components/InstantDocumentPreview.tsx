@@ -11,8 +11,8 @@ import {
   AlertCircle,
   Image,
   Loader2,
-  Maximize2
-} from 'lucide-react';
+  Maximize2 } from
+'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface InstantDocumentPreviewProps {
@@ -175,30 +175,30 @@ const InstantDocumentPreview: React.FC<InstantDocumentPreviewProps> = ({
           getAspectRatioClasses()
         )}>
           {/* Loading state */}
-          {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+          {isLoading &&
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
               <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
             </div>
-          )}
+          }
 
           {/* Image preview - show immediately if showInstantPreview is true */}
-          {previewUrl && isImage && !imageError && showPreview && (
-            <img
-              src={previewUrl}
-              alt={getDisplayName()}
-              className={cn(
-                'w-full h-full object-contain hover:object-cover transition-all duration-300 cursor-pointer rounded-t-lg',
-                isLoading && 'opacity-0'
-              )}
-              onLoad={handleImageLoad}
-              onError={handleImageError}
-              onClick={showFullscreen ? handleFullScreenView : undefined}
-            />
-          )}
+          {previewUrl && isImage && !imageError && showPreview &&
+          <img
+            src={previewUrl}
+            alt={getDisplayName()}
+            className={cn(
+              'w-full h-full object-contain hover:object-cover transition-all duration-300 cursor-pointer rounded-t-lg',
+              isLoading && 'opacity-0'
+            )}
+            onLoad={handleImageLoad}
+            onError={handleImageError}
+            onClick={showFullscreen ? handleFullScreenView : undefined} />
+
+          }
 
           {/* Preview button or file display */}
-          {!showPreview && !isLoading && (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 border-2 border-dashed border-blue-300 rounded-lg">
+          {!showPreview && !isLoading &&
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 border-2 border-dashed border-blue-300 rounded-lg">
               <div className="text-center p-6">
                 <div className="relative mb-4">
                   <FileText className="w-16 h-16 text-blue-500 mx-auto mb-3 drop-shadow-sm" />
@@ -212,35 +212,35 @@ const InstantDocumentPreview: React.FC<InstantDocumentPreviewProps> = ({
                 </p>
                 <div className="flex flex-col space-y-2">
                   <Button
-                    type="button"
-                    variant="default"
-                    size="sm"
-                    className="bg-blue-600 hover:bg-blue-700 text-white shadow-md"
-                    onClick={() => setShowPreview(true)}
-                  >
+                  type="button"
+                  variant="default"
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700 text-white shadow-md"
+                  onClick={() => setShowPreview(true)}>
+
                     <Eye className="w-4 h-4 mr-2" />
                     Preview Document
                   </Button>
-                  {showDownload && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="text-blue-600 border-blue-300 hover:bg-blue-50"
-                      onClick={handleDownload}
-                    >
+                  {showDownload &&
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                  onClick={handleDownload}>
+
                       <Download className="w-4 h-4 mr-2" />
                       Download
                     </Button>
-                  )}
+                }
                 </div>
               </div>
             </div>
-          )}
+          }
 
           {/* Non-image file fallback when preview is shown */}
-          {showPreview && (!isImage || imageError) && !isLoading && (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-dashed border-gray-300 rounded-lg">
+          {showPreview && (!isImage || imageError) && !isLoading &&
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-dashed border-gray-300 rounded-lg">
               <div className="text-center p-6">
                 <div className="relative mb-4">
                   <FileText className="w-16 h-16 text-gray-500 mx-auto mb-3 drop-shadow-sm" />
@@ -254,99 +254,99 @@ const InstantDocumentPreview: React.FC<InstantDocumentPreviewProps> = ({
                 </p>
                 <div className="flex flex-col space-y-2">
                   <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="text-gray-600 border-gray-300 hover:bg-gray-50"
-                    onClick={() => setShowPreview(false)}
-                  >
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="text-gray-600 border-gray-300 hover:bg-gray-50"
+                  onClick={() => setShowPreview(false)}>
+
                     <X className="w-4 h-4 mr-2" />
                     Close Preview
                   </Button>
-                  {showFullscreen && (
-                    <Button
-                      type="button"
-                      variant="default"
-                      size="sm"
-                      className="bg-blue-600 hover:bg-blue-700 text-white shadow-md"
-                      onClick={handleFullScreenView}
-                    >
+                  {showFullscreen &&
+                <Button
+                  type="button"
+                  variant="default"
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700 text-white shadow-md"
+                  onClick={handleFullScreenView}>
+
                       <Eye className="w-4 h-4 mr-2" />
                       Open in New Tab
                     </Button>
-                  )}
+                }
                 </div>
               </div>
             </div>
-          )}
+          }
 
           {/* Action buttons overlay */}
           <div className="absolute top-3 right-3 flex space-x-2">
             {/* Preview status indicators */}
-            {file && !showPreview && (
-              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-300 shadow-sm">
+            {file && !showPreview &&
+            <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-300 shadow-sm">
                 Ready to Preview
               </Badge>
-            )}
+            }
 
-            {fileId && !file && !showPreview && (
-              <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 border-blue-300 shadow-sm">
+            {fileId && !file && !showPreview &&
+            <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 border-blue-300 shadow-sm">
                 Click to Preview
               </Badge>
-            )}
+            }
 
-            {showPreview && (
-              <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-700 border-gray-300 shadow-sm">
+            {showPreview &&
+            <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-700 border-gray-300 shadow-sm">
                 Previewing
               </Badge>
-            )}
+            }
 
             {/* Remove button */}
-            {showRemoveButton && onRemove && (
+            {showRemoveButton && onRemove &&
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={onRemove}
+              disabled={disabled}
+              className="h-6 w-6 p-0 bg-red-500 hover:bg-red-600 text-white border-red-500">
+
+                <X className="w-3 h-3" />
+              </Button>
+            }
+          </div>
+
+          {/* Action buttons overlay when showing preview */}
+          {showPreview && previewUrl &&
+          <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center bg-black bg-opacity-30">
+              <div className="flex space-x-2">
+                {showFullscreen &&
               <Button
                 type="button"
                 variant="secondary"
                 size="sm"
-                onClick={onRemove}
-                disabled={disabled}
-                className="h-6 w-6 p-0 bg-red-500 hover:bg-red-600 text-white border-red-500"
-              >
-                <X className="w-3 h-3" />
-              </Button>
-            )}
-          </div>
+                className="bg-white/90 hover:bg-white shadow-md"
+                onClick={handleFullScreenView}>
 
-          {/* Action buttons overlay when showing preview */}
-          {showPreview && previewUrl && (
-            <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center bg-black bg-opacity-30">
-              <div className="flex space-x-2">
-                {showFullscreen && (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    className="bg-white/90 hover:bg-white shadow-md"
-                    onClick={handleFullScreenView}
-                  >
                     <Maximize2 className="w-4 h-4 mr-2" />
                     Full Screen
                   </Button>
-                )}
-                {showDownload && (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    className="bg-white/90 hover:bg-white shadow-md"
-                    onClick={handleDownload}
-                  >
+              }
+                {showDownload &&
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="bg-white/90 hover:bg-white shadow-md"
+                onClick={handleDownload}>
+
                     <Download className="w-4 h-4 mr-2" />
                     Download
                   </Button>
-                )}
+              }
               </div>
             </div>
-          )}
+          }
         </div>
 
         {/* File Information */}
@@ -360,19 +360,19 @@ const InstantDocumentPreview: React.FC<InstantDocumentPreviewProps> = ({
               className={cn(
                 'text-xs',
                 file ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-green-100 text-green-700 border-green-300'
-              )}
-            >
+              )}>
+
               {file ? 'Ready for upload' : 'Uploaded'}
             </Badge>
           </div>
 
           <div className="flex items-center space-x-4 text-xs text-gray-500">
             <span className="flex items-center space-x-1">
-              {isImage && !imageError ? (
-                <Image className="w-3 h-3" />
-              ) : (
-                <FileText className="w-3 h-3" />
-              )}
+              {isImage && !imageError ?
+              <Image className="w-3 h-3" /> :
+
+              <FileText className="w-3 h-3" />
+              }
               <span>{isImage && !imageError ? 'Image file' : 'Document file'}</span>
             </span>
 
@@ -386,77 +386,77 @@ const InstantDocumentPreview: React.FC<InstantDocumentPreviewProps> = ({
           {/* Action buttons */}
           <div className="flex items-center justify-between pt-2">
             <div className="flex space-x-2">
-              {!showPreview && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowPreview(true)}
-                  className="text-xs"
-                >
-                  <Eye className="w-3 h-3 mr-1" />
-                  Preview
-                </Button>
-              )}
-
-              {showPreview && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowPreview(false)}
-                  className="text-xs"
-                >
-                  <X className="w-3 h-3 mr-1" />
-                  Close
-                </Button>
-              )}
-
-              {showFullscreen && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleFullScreenView}
-                  className="text-xs"
-                >
-                  <Eye className="w-3 h-3 mr-1" />
-                  View
-                </Button>
-              )}
-
-              {showDownload && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDownload}
-                  className="text-xs"
-                >
-                  <Download className="w-3 h-3 mr-1" />
-                  Download
-                </Button>
-              )}
-            </div>
-
-            {showRemoveButton && onRemove && (
+              {!showPreview &&
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={onRemove}
-                disabled={disabled}
-                className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
-              >
+                onClick={() => setShowPreview(true)}
+                className="text-xs">
+
+                  <Eye className="w-3 h-3 mr-1" />
+                  Preview
+                </Button>
+              }
+
+              {showPreview &&
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowPreview(false)}
+                className="text-xs">
+
+                  <X className="w-3 h-3 mr-1" />
+                  Close
+                </Button>
+              }
+
+              {showFullscreen &&
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleFullScreenView}
+                className="text-xs">
+
+                  <Eye className="w-3 h-3 mr-1" />
+                  View
+                </Button>
+              }
+
+              {showDownload &&
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleDownload}
+                className="text-xs">
+
+                  <Download className="w-3 h-3 mr-1" />
+                  Download
+                </Button>
+              }
+            </div>
+
+            {showRemoveButton && onRemove &&
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={onRemove}
+              disabled={disabled}
+              className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50">
+
                 <X className="w-3 h-3 mr-1" />
                 Remove
               </Button>
-            )}
+            }
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default InstantDocumentPreview;
