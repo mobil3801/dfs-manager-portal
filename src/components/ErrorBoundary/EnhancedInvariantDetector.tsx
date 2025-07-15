@@ -361,6 +361,8 @@ const EnhancedInvariantDetector: React.FC = () => {
 
 
 
+
+
           // Silent catch for individual element processing
         }});keyMap.forEach((data, key) => {if (data.count > 1) {violations.push({ type: 'duplicate-key', severity: 'high', message: `Duplicate React key detected: "${key}" used ${data.count} times. This can cause invariant violations.`, fixSuggestion: 'Use unique keys for each element in lists. Consider using item.id + index or UUID.', component: data.element.tagName?.toLowerCase() });}});} catch (error) {console.warn('Error detecting duplicate keys:', error);}return violations;}, []); // Enhanced React Fiber state detection
   const detectFiberInconsistencies = useCallback(() => {const violations: Omit<InvariantViolation, 'id' | 'timestamp'>[] = [];try {const reactRoots = document.querySelectorAll('[data-reactroot], #root, [id*="react"]');reactRoots.forEach((root) => {try {const fiber = (root as any)._reactInternalFiber || (root as any).__reactInternalInstance || (root as any)._reactRootContainer;if (fiber) {// Check for common fiber inconsistencies
@@ -453,8 +455,7 @@ const EnhancedInvariantDetector: React.FC = () => {
       const handleRejection = (event: PromiseRejectionEvent) => {const reason = String(event.reason);if (reason.includes('Invariant') || reason.includes('invariant')) {addViolation({ type: 'react-error', severity: 'high', message: `Unhandled Promise Rejection (Invariant): ${reason}`, fixSuggestion: 'Handle promises properly and check for async state updates.' });}};window.addEventListener('unhandledrejection', handleRejection); // Global error handler
       const handleGlobalError = (event: ErrorEvent) => {const message = event.message || String(event.error);if (message.includes('Invariant') || message.includes('invariant')) {addViolation({ type: 'react-error', severity: 'critical', message: `Global Error (Invariant): ${message}`, stackTrace: event.error?.stack, fixSuggestion: 'Check the stack trace for the source of the invariant violation.' });}};window.addEventListener('error', handleGlobalError);return () => {console.error = originalError;console.warn = originalWarn;window.removeEventListener('unhandledrejection', handleRejection);window.removeEventListener('error', handleGlobalError);};}, [addViolation]);useEffect(() => {if (!isActive) return; // Initial scan
       scanForViolations();const interval = setInterval(scanForViolations, 2000); // Enhanced mutation observer
-      const observer = new MutationObserver((mutations) => {let shouldScan = false;mutations.forEach((mutation) => {if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {shouldScan = true;}if (mutation.type === 'attributes' && (mutation.attributeName === 'class' || mutation.attributeName === 'key' || mutation.attributeName === 'data-key' || mutation.attributeName?.startsWith('data-react'))) {shouldScan = true;}});if (shouldScan) {setTimeout(scanForViolations, 100);}});observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'key', 'data-key', 'style', 'data-react-key'] });return () => {clearInterval(interval);observer.disconnect();};}, [isActive, scanForViolations]);const clearViolations = () => {setViolations([]);setScanCount(0);setErrorCount(0);setLastInvariantError(null);renderCountRef.current = 0;toast({ title: "Violations Cleared", description: "All detected violations have been cleared" });};const getSeverityIcon = (severity: string) => {switch (severity) {case 'critical':return <AlertOctagon className="h-4 w-4 text-red-600" />;case 'high':return <XCircle className="h-4 w-4 text-red-500" />;case 'medium':return <AlertTriangle className="h-4 w-4 text-yellow-500" />;default:return <Bug className="h-4 w-4 text-blue-500" />;}};const getSeverityColor = (severity: string) => {switch (severity) {case 'critical':return 'bg-red-50 text-red-900 border-red-200';case 'high':return 'bg-orange-50 text-orange-900 border-orange-200';case 'medium':return 'bg-yellow-50 text-yellow-900 border-yellow-200';default:return 'bg-blue-50 text-blue-900 border-blue-200';}};const criticalViolations = violations.filter((v) => v.severity === 'critical');const highViolations = violations.filter((v) => v.severity === 'high');const mediumViolations = violations.filter((v) => v.severity === 'medium');const lowViolations = violations.filter((v) => v.severity === 'low');return (
-    <Card className="w-full">
+      const observer = new MutationObserver((mutations) => {let shouldScan = false;mutations.forEach((mutation) => {if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {shouldScan = true;}if (mutation.type === 'attributes' && (mutation.attributeName === 'class' || mutation.attributeName === 'key' || mutation.attributeName === 'data-key' || mutation.attributeName?.startsWith('data-react'))) {shouldScan = true;}});if (shouldScan) {setTimeout(scanForViolations, 100);}});observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'key', 'data-key', 'style', 'data-react-key'] });return () => {clearInterval(interval);observer.disconnect();};}, [isActive, scanForViolations]);const clearViolations = () => {setViolations([]);setScanCount(0);setErrorCount(0);setLastInvariantError(null);renderCountRef.current = 0;toast({ title: "Violations Cleared", description: "All detected violations have been cleared" });};const getSeverityIcon = (severity: string) => {switch (severity) {case 'critical':return <AlertOctagon className="h-4 w-4 text-red-600" />;case 'high':return <XCircle className="h-4 w-4 text-red-500" />;case 'medium':return <AlertTriangle className="h-4 w-4 text-yellow-500" />;default:return <Bug className="h-4 w-4 text-blue-500" />;}};const getSeverityColor = (severity: string) => {switch (severity) {case 'critical':return 'bg-red-50 text-red-900 border-red-200';case 'high':return 'bg-orange-50 text-orange-900 border-orange-200';case 'medium':return 'bg-yellow-50 text-yellow-900 border-yellow-200';default:return 'bg-blue-50 text-blue-900 border-blue-200';}};const criticalViolations = violations.filter((v) => v.severity === 'critical');const highViolations = violations.filter((v) => v.severity === 'high');const mediumViolations = violations.filter((v) => v.severity === 'medium');const lowViolations = violations.filter((v) => v.severity === 'low');return <Card className="w-full">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -470,10 +471,9 @@ const EnhancedInvariantDetector: React.FC = () => {
             <Badge variant={isActive ? "default" : "secondary"}>
               {isActive ? "Active" : "Paused"}
             </Badge>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsActive(!isActive)}>
+            <Button variant="outline"
+          size="sm"
+          onClick={() => setIsActive(!isActive)}>
 
               {isActive ? "Pause" : "Resume"}
             </Button>
@@ -482,14 +482,14 @@ const EnhancedInvariantDetector: React.FC = () => {
       </CardHeader>
       <CardContent className="space-y-4">
         {lastInvariantError &&
-        <Alert className="bg-red-50 border-red-200">
+      <Alert className="bg-red-50 border-red-200">
             <AlertOctagon className="h-4 w-4 text-red-600" />
             <AlertDescription>
               <div className="font-semibold text-red-800 mb-1">Last Invariant Error Detected:</div>
               <div className="text-sm text-red-700">{lastInvariantError}</div>
             </AlertDescription>
           </Alert>
-        }
+      }
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center">
@@ -516,18 +516,18 @@ const EnhancedInvariantDetector: React.FC = () => {
           </div>
           <div className="flex gap-2">
             <Button
-              variant="outline"
-              size="sm"
-              onClick={scanForViolations}
-              disabled={!isActive}>
+            variant="outline"
+            size="sm"
+            onClick={scanForViolations}
+            disabled={!isActive}>
 
               <RefreshCw className="h-4 w-4 mr-1" />
               Scan Now
             </Button>
             <Button
-              variant="outline"
-              size="sm"
-              onClick={clearViolations}>
+            variant="outline"
+            size="sm"
+            onClick={clearViolations}>
 
               Clear All
             </Button>
@@ -535,16 +535,16 @@ const EnhancedInvariantDetector: React.FC = () => {
         </div>
 
         {violations.length === 0 ?
-        <Alert>
+      <Alert>
             <CheckCircle className="h-4 w-4" />
             <AlertDescription>
               No React invariant violations detected. Your application appears stable.
             </AlertDescription>
           </Alert> :
 
-        <div className="space-y-2 max-h-96 overflow-y-auto">
+      <div className="space-y-2 max-h-96 overflow-y-auto">
             {violations.slice(-30).reverse().map((violation) =>
-          <Alert key={violation.id} className={getSeverityColor(violation.severity)}>
+        <Alert key={violation.id} className={getSeverityColor(violation.severity)}>
                 <div className="flex items-start gap-2">
                   {getSeverityIcon(violation.severity)}
                   <div className="flex-1">
@@ -559,26 +559,26 @@ const EnhancedInvariantDetector: React.FC = () => {
                         {new Date(violation.timestamp).toLocaleTimeString()}
                       </span>
                       {violation.autoFixed &&
-                  <Badge variant="outline" className="text-xs bg-green-100 text-green-800">
+                <Badge variant="outline" className="text-xs bg-green-100 text-green-800">
                           Auto-Fixed
                         </Badge>
-                  }
+                }
                     </div>
                     <AlertDescription className="text-sm mb-2">
                       {violation.message}
                     </AlertDescription>
                     {violation.fixSuggestion &&
-                <div className="text-xs text-gray-700 bg-gray-100 p-2 rounded mb-2">
+              <div className="text-xs text-gray-700 bg-gray-100 p-2 rounded mb-2">
                         💡 Fix Suggestion: {violation.fixSuggestion}
                       </div>
-                }
+              }
                     {violation.component &&
-                <div className="text-xs text-gray-600 mb-1">
+              <div className="text-xs text-gray-600 mb-1">
                         Component: {violation.component}
                       </div>
-                }
+              }
                     {violation.stackTrace &&
-                <details className="text-xs">
+              <details className="text-xs">
                         <summary className="cursor-pointer text-gray-600 hover:text-gray-800">
                           Show Stack Trace
                         </summary>
@@ -586,15 +586,15 @@ const EnhancedInvariantDetector: React.FC = () => {
                           {violation.stackTrace}
                         </pre>
                       </details>
-                }
+              }
                   </div>
                 </div>
               </Alert>
-          )}
+        )}
           </div>
-        }
+      }
       </CardContent>
-    </Card>);
+    </Card>;
 
 };
 

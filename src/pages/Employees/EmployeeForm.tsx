@@ -317,55 +317,64 @@ const EmployeeForm: React.FC = () => {
   };
 
   const handleRemoveIDDocument = (index: number) => {
-    const newIdDocuments = [...idDocuments];
+    try {
+      const newIdDocuments = [...idDocuments];
 
-    // Clean up preview URL
-    if (newIdDocuments[index].preview) {
-      URL.revokeObjectURL(newIdDocuments[index].preview!);
+      // Clean up preview URL
+      if (newIdDocuments[index].preview) {
+        URL.revokeObjectURL(newIdDocuments[index].preview!);
+      }
+
+      // Get the existing file ID that needs to be deleted
+      const existingFileId = getExistingDocumentFileId(index);
+      if (existingFileId) {
+        // Add to files to delete list for permanent removal
+        setFilesToDelete((prev) => [...prev, existingFileId]);
+      }
+
+      // Remove the document at the specified index
+      newIdDocuments.splice(index, 1);
+
+      // Add a new empty document at the end to maintain array length
+      newIdDocuments.push({ file: null, name: '', preview: null });
+
+      setIdDocuments(newIdDocuments);
+
+      // Update form data to reorder existing file IDs
+      const updatedFormData = { ...formData };
+      const currentFileIds = [
+      formData.id_document_file_id,
+      formData.id_document_2_file_id,
+      formData.id_document_3_file_id,
+      formData.id_document_4_file_id];
+
+
+      // Remove the file ID at the specified index
+      currentFileIds.splice(index, 1);
+
+      // Add null at the end to maintain array length
+      currentFileIds.push(null);
+
+      // Reassign file IDs to form data
+      updatedFormData.id_document_file_id = currentFileIds[0];
+      updatedFormData.id_document_2_file_id = currentFileIds[1];
+      updatedFormData.id_document_3_file_id = currentFileIds[2];
+      updatedFormData.id_document_4_file_id = currentFileIds[3];
+
+      setFormData(updatedFormData);
+
+      toast({
+        title: "Document Removed",
+        description: `ID Document ${index + 1} has been removed. Documents have been automatically reordered.`
+      });
+    } catch (error) {
+      console.error('Error removing document:', error);
+      toast({
+        title: "Error",
+        description: "Failed to remove document. Please try again.",
+        variant: "destructive"
+      });
     }
-
-    // Get the existing file ID that needs to be deleted
-    const existingFileId = getExistingDocumentFileId(index);
-    if (existingFileId) {
-      // Add to files to delete list for permanent removal
-      setFilesToDelete((prev) => [...prev, existingFileId]);
-    }
-
-    // Remove the document at the specified index
-    newIdDocuments.splice(index, 1);
-
-    // Add a new empty document at the end to maintain array length
-    newIdDocuments.push({ file: null, name: '', preview: null });
-
-    setIdDocuments(newIdDocuments);
-
-    // Update form data to reorder existing file IDs
-    const updatedFormData = { ...formData };
-    const currentFileIds = [
-    formData.id_document_file_id,
-    formData.id_document_2_file_id,
-    formData.id_document_3_file_id,
-    formData.id_document_4_file_id];
-
-
-    // Remove the file ID at the specified index
-    currentFileIds.splice(index, 1);
-
-    // Add null at the end to maintain array length
-    currentFileIds.push(null);
-
-    // Reassign file IDs to form data
-    updatedFormData.id_document_file_id = currentFileIds[0];
-    updatedFormData.id_document_2_file_id = currentFileIds[1];
-    updatedFormData.id_document_3_file_id = currentFileIds[2];
-    updatedFormData.id_document_4_file_id = currentFileIds[3];
-
-    setFormData(updatedFormData);
-
-    toast({
-      title: "Document Removed",
-      description: `ID Document ${index + 1} has been removed. Documents have been automatically reordered.`
-    });
   };
 
   const handleRemoveProfileImage = () => {
@@ -879,7 +888,11 @@ const EmployeeForm: React.FC = () => {
                           type="button"
                           variant="outline"
                           size="sm"
-                          onClick={() => handleRemoveIDDocument(index)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleRemoveIDDocument(index);
+                          }}
                           className="text-red-600 hover:text-red-700 h-6 px-2">
                               <X className="w-3 h-3" />
                             </Button>
