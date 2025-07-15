@@ -676,11 +676,11 @@ const EmployeeForm: React.FC = () => {
                       </Button>
                     }
                   </div>
-                  {!isEditing
-
-
-
-                  }
+                  {!isEditing && (
+                    <p className="text-xs text-green-600 bg-green-50 p-2 rounded mt-2">
+                      Employee ID is automatically generated
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">

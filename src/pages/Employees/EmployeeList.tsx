@@ -417,18 +417,18 @@ const EmployeeList: React.FC = () => {
         {/* Enhanced Document Previews Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {documents.map((doc, index) =>
-            <DocumentPreview
-              key={index}
-              fileId={doc.fileId}
-              fileName={doc.label}
-              documentName={doc.label}
-              size="lg"
-              aspectRatio="landscape"
-              showRemoveButton={false}
-              showDownload={true}
-              showFullscreen={true}
-              className="border border-gray-200"
-            />
+          <DocumentPreview
+            key={index}
+            fileId={doc.fileId}
+            fileName={doc.label}
+            documentName={doc.label}
+            size="lg"
+            aspectRatio="landscape"
+            showRemoveButton={false}
+            showDownload={true}
+            showFullscreen={true}
+            className="border border-gray-200" />
+
           )}
         </div>
 
