@@ -16,6 +16,8 @@ import StationDropdown from '@/components/StationDropdown';
 import ProfilePictureUpload from '@/components/ProfilePictureUpload';
 import DocumentPreview from '@/components/DocumentPreview';
 import IDDocumentUpload from '@/components/IDDocumentUpload';
+import { displayPhoneNumber, formatPhoneNumber } from '@/utils/phoneFormatter';
+
 
 interface EmployeeFormData {
   employee_id: string;
@@ -763,6 +765,12 @@ const EmployeeForm: React.FC = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handlePhoneChange = (value: string) => {
+    // Store the raw value but format it for display
+    setFormData((prev) => ({ ...prev, phone: value }));
+  };
+
+
   // Calculate how many ID document boxes to show (progressive reveal)
   const getVisibleIDDocumentBoxes = () => {
     let visibleBoxes = 1; // Always show at least the first box
@@ -970,9 +978,15 @@ const EmployeeForm: React.FC = () => {
                   <Input
                     id="phone"
                     value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                    placeholder="Enter phone number" />
+                    onChange={(e) => handlePhoneChange(e.target.value)}
+                    placeholder="Enter phone number (e.g., 1234567890)" />
+                  {formData.phone && (
+                    <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+                      <span className="font-medium">Display format:</span> {displayPhoneNumber(formData.phone)}
+                    </div>
+                  )}
                 </div>
+
 
                 <div className="space-y-2">
                   <Label htmlFor="reference_name">Reference Name</Label>

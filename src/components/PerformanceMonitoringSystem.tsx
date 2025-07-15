@@ -476,6 +476,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -573,9 +575,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
       </div>
 
       {/* Active Alerts */}
-      {alerts.length > 0 && <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
+      {alerts.length > 0 && <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
       className="space-y-2">
 
           {alerts.slice(0, 3).map((alert) =>

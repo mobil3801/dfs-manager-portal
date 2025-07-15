@@ -18,6 +18,8 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import ProfilePicture from '@/components/ProfilePicture';
 import DocumentPreview from '@/components/DocumentPreview';
 import InstantDocumentPreview from '@/components/InstantDocumentPreview';
+import { displayPhoneNumber } from '@/utils/phoneFormatter';
+
 
 interface Employee {
   ID: number;
@@ -454,6 +456,8 @@ const EmployeeList: React.FC = () => {
 
 
 
+
+
                   // This will be handled by the InstantDocumentPreview component
                 }}>
                   <Eye className="w-3 h-3" />
@@ -470,8 +474,6 @@ const EmployeeList: React.FC = () => {
         </div>
 
       </div>);};
-
-
   // Define view modal fields with profile picture, employment status, and ID documents
   const getViewModalFields = (employee: Employee) => [
   {
@@ -512,9 +514,10 @@ const EmployeeList: React.FC = () => {
   {
     key: 'phone',
     label: 'Phone',
-    value: employee.phone,
+    value: displayPhoneNumber(employee.phone),
     type: 'phone' as const
   },
+
   {
     key: 'position',
     label: 'Position',
@@ -913,7 +916,7 @@ const EmployeeList: React.FC = () => {
                           {employee.phone &&
                       <div className="flex items-center space-x-1 text-sm">
                               <Phone className="w-3 h-3" />
-                              <span>{employee.phone}</span>
+                              <span>{displayPhoneNumber(employee.phone)}</span>
                             </div>
                       }
                         </div>
