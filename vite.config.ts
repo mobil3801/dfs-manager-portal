@@ -7,11 +7,11 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
-    historyApiFallback: true, // This enables client-side routing
+    historyApiFallback: true // This enables client-side routing
   },
   plugins: [
-    react()
-  ],
+  react()],
+
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src")

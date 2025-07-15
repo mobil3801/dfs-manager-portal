@@ -14,6 +14,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import EnhancedFileUpload from '@/components/EnhancedFileUpload';
 import StationDropdown from '@/components/StationDropdown';
 import ProfilePictureUpload from '@/components/ProfilePictureUpload';
+import DocumentPreview from '@/components/DocumentPreview';
 
 interface EmployeeFormData {
   employee_id: string;
@@ -963,151 +964,43 @@ const EmployeeForm: React.FC = () => {
                           disabled={loading || isUploading} />
 
 
-                          {/* Instant Preview - Larger Size for Driver License */}
+                          {/* Instant Preview with DocumentPreview Component */}
                           {idDocuments[index].file &&
-                        <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-                              <div className="space-y-4">
-                                {/* Enhanced Image Preview Section - Driver License Size */}
-                                {idDocuments[index].preview ?
-                            <div className="relative">
-                                    {/* Larger preview container - optimized for driver license dimensions */}
-                                    <div className="w-full h-80 bg-gray-50 rounded-lg overflow-hidden border-2 border-dashed border-gray-200 flex items-center justify-center">
-                                      <img
-                                  src={idDocuments[index].preview!}
-                                  alt={`ID Document ${index + 1} preview`}
-                                  className="max-w-full max-h-full object-contain hover:object-cover transition-all duration-200 cursor-pointer shadow-md rounded"
-                                  onClick={() => window.open(idDocuments[index].preview!, '_blank')} />
+                            <DocumentPreview
+                              file={idDocuments[index].file}
+                              fileName={idDocuments[index].name}
+                              documentName={`ID Document ${index + 1}`}
+                              size="xl"
+                              aspectRatio="landscape"
+                              showRemoveButton={false}
+                              showDownload={false}
+                              showFullscreen={true}
+                              className="mt-4"
+                            />
+                          }</find>
 
-                                    </div>
-                                    <div className="absolute top-3 right-3">
-                                      <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-300 shadow-sm">
-                                        Instant Preview
-                                      </Badge>
-                                    </div>
-                                    <div className="absolute bottom-3 left-3">
-                                      <Button
-                                  type="button"
-                                  variant="secondary"
-                                  size="sm"
-                                  className="text-xs bg-white/90 hover:bg-white shadow-sm"
-                                  onClick={() => window.open(idDocuments[index].preview!, '_blank')}>
-
-                                        View Full Size
-                                      </Button>
-                                    </div>
-                                  </div> :
-
-                            <div className="w-full h-80 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center">
-                                    <div className="text-center">
-                                      <FileText className="w-16 h-16 text-gray-400 mx-auto mb-3" />
-                                      <p className="text-sm text-gray-500 font-medium">Document File</p>
-                                      <p className="text-xs text-gray-400">No preview available</p>
-                                    </div>
-                                  </div>
-                            }
-
-                                {/* Enhanced File Information */}
-                                <div className="space-y-3 bg-gray-50 p-4 rounded-lg">
-                                  <div className="flex items-center justify-between">
-                                    <p className="text-sm font-medium text-gray-900 truncate">
-                                      {idDocuments[index].name}
-                                    </p>
-                                    <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 border-blue-300">
-                                      Ready for upload
-                                    </Badge>
-                                  </div>
-                                  <div className="flex items-center space-x-4 text-xs text-gray-500">
-                                    <span className="flex items-center space-x-1">
-                                      <FileText className="w-3 h-3" />
-                                      <span>{idDocuments[index].file!.type.includes('image') ? 'Image file' : 'Document file'}</span>
-                                    </span>
-                                    <span>
-                                      {(idDocuments[index].file!.size / 1024 / 1024).toFixed(1)} MB
-                                    </span>
-                                    <span className="flex items-center space-x-1">
-                                      <span>✓ Uploaded and ready to save</span>
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                        }
                         </div>
 
-                        {/* Show existing document in edit mode with enhanced image preview - Driver License Size */}
+                        {/* Show existing document in edit mode with DocumentPreview Component */}
                         {isEditing && !idDocuments[index].file && getExistingDocumentFileId(index) &&
-                      <div className="p-6 bg-blue-50 rounded-lg border border-blue-200">
-                            <div className="space-y-4">
-                              {/* Header */}
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-2">
-                                  <FileText className="w-4 h-4 text-blue-600" />
-                                  <span className="text-sm font-medium text-blue-800">Current Document {index + 1}</span>
-                                </div>
-                                <Badge variant="outline" className="text-xs text-blue-600 border-blue-300 shadow-sm">
-                                  Uploaded
-                                </Badge>
-                              </div>
-                              
-                              {/* Enhanced Image Preview - Driver License Size */}
-                              <div className="relative">
-                                <div className="w-full h-80 bg-white rounded-lg overflow-hidden border border-blue-200 shadow-sm flex items-center justify-center">
-                                  <img
-                                src={`${window.location.origin}/api/files/${getExistingDocumentFileId(index)}`}
-                                alt={`Current Document ${index + 1} preview`}
-                                className="max-w-full max-h-full object-contain hover:object-cover transition-all duration-200 cursor-pointer shadow-md rounded"
-                                onClick={() => window.open(`${window.location.origin}/api/files/${getExistingDocumentFileId(index)}`, '_blank')}
-                                onError={(e) => {
-                                  // Enhanced fallback handling for non-image files
-                                  const target = e.target as HTMLImageElement;
-                                  target.style.display = 'none';
-                                  const fallbackDiv = target.nextElementSibling as HTMLDivElement;
-                                  if (fallbackDiv) {
-                                    fallbackDiv.style.display = 'flex';
-                                  }
-                                }} />
-
-                                  {/* Enhanced fallback for non-image files */}
-                                  <div
-                                className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100"
-                                style={{ display: 'none' }}>
-                                    <div className="text-center p-6">
-                                      <FileText className="w-16 h-16 text-blue-400 mx-auto mb-3" />
-                                      <p className="text-sm font-medium text-gray-700">Document File</p>
-                                      <p className="text-xs text-gray-500 mt-1">Click to view file</p>
-                                      <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    className="mt-3 text-blue-600 border-blue-300 hover:bg-blue-50"
-                                    onClick={() => window.open(`${window.location.origin}/api/files/${getExistingDocumentFileId(index)}`, '_blank')}>
-
-                                        View File
-                                      </Button>
-                                    </div>
-                                  </div>
-                                </div>
-                                
-                                {/* View Full Size Overlay */}
-                                <div className="absolute top-3 right-3 opacity-0 hover:opacity-100 transition-opacity duration-200">
-                                  <Button
-                                type="button"
-                                variant="secondary"
-                                size="sm"
-                                className="text-xs bg-white/90 hover:bg-white shadow-sm"
-                                onClick={() => window.open(`${window.location.origin}/api/files/${getExistingDocumentFileId(index)}`, '_blank')}>
-
-                                    View Full Size
-                                  </Button>
-                                </div>
-                              </div>
-                              
-                              <p className="text-xs text-blue-600 bg-blue-100 p-2 rounded">
-                                Upload a new file to replace the current document. The new file will be saved when you click "Save Employee".
-                              </p>
-                            </div>
+                          <div className="mt-4">
+                            <DocumentPreview
+                              fileId={getExistingDocumentFileId(index)}
+                              fileName={`Current Document ${index + 1}`}
+                              documentName={`ID Document ${index + 1}`}
+                              size="xl"
+                              aspectRatio="landscape"
+                              showRemoveButton={false}
+                              showDownload={true}
+                              showFullscreen={true}
+                              className="border-blue-200 bg-blue-50"
+                            />
+                            <p className="text-xs text-blue-600 bg-blue-100 p-2 rounded mt-2">
+                              Upload a new file to replace the current document. The new file will be saved when you click "Save Employee".
+                            </p>
                           </div>
-                      }
+                        }</find>
+
                       </div>
                     )}
                   </div>

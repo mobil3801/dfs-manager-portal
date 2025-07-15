@@ -16,6 +16,7 @@ import { motion } from 'motion/react';
 import ResponsiveTable from '@/components/ResponsiveTable';
 import { useIsMobile } from '@/hooks/use-mobile';
 import ProfilePicture from '@/components/ProfilePicture';
+import DocumentPreview from '@/components/DocumentPreview';
 
 interface Employee {
   ID: number;
@@ -413,55 +414,24 @@ const EmployeeList: React.FC = () => {
           </div>
         }
         
-        {/* Image Previews Grid */}
+        {/* Enhanced Document Previews Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {documents.map((doc, index) =>
-          <div key={index} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-              {/* Document Label */}
-              <div className="p-3 bg-gray-50 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <FileText className="w-4 h-4 text-blue-600" />
-                    <span className="text-sm font-medium text-gray-700">{doc.label}</span>
-                  </div>
-                  <Badge variant="outline" className="text-xs">
-                    Uploaded
-                  </Badge>
-                </div>
-              </div>
-              
-              {/* Image Preview */}
-              <div className="p-3">
-                <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                  <img
-                  src={`${window.location.origin}/api/files/${doc.fileId}`}
-                  alt={`${doc.label} preview`}
-                  className="w-full h-full object-contain"
-                  onError={(e) => {
-                    // Fallback to file icon if image fails to load
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    const fallbackDiv = target.nextElementSibling as HTMLDivElement;
-                    if (fallbackDiv) {
-                      fallbackDiv.style.display = 'flex';
-                    }
-                  }} />
-
-                  {/* Fallback for non-image files */}
-                  <div
-                  className="w-full h-full flex items-center justify-center bg-gray-100"
-                  style={{ display: 'none' }}>
-
-                    <div className="text-center">
-                      <FileText className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-xs text-gray-500">Document File</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <DocumentPreview
+              key={index}
+              fileId={doc.fileId}
+              fileName={doc.label}
+              documentName={doc.label}
+              size="lg"
+              aspectRatio="landscape"
+              showRemoveButton={false}
+              showDownload={true}
+              showFullscreen={true}
+              className="border border-gray-200"
+            />
           )}
         </div>
+
       </div>);
 
   };
