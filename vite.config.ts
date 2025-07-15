@@ -45,8 +45,8 @@ export default defineConfig(({ mode }) => ({
 
           // Form handling libraries
           if (id.includes('node_modules/react-hook-form/') ||
-              id.includes('node_modules/@hookform/') ||
-              id.includes('node_modules/zod/')) {
+          id.includes('node_modules/@hookform/') ||
+          id.includes('node_modules/zod/')) {
             return 'forms';
           }
 
@@ -72,14 +72,14 @@ export default defineConfig(({ mode }) => ({
 
           // Animation libraries - split as they can be large
           if (id.includes('node_modules/motion/') ||
-              id.includes('node_modules/framer-motion/')) {
+          id.includes('node_modules/framer-motion/')) {
             return 'animation';
           }
 
           // Utility libraries - keep together but separate
           if (id.includes('node_modules/clsx/') ||
-              id.includes('node_modules/class-variance-authority/') ||
-              id.includes('node_modules/tailwind-merge/')) {
+          id.includes('node_modules/class-variance-authority/') ||
+          id.includes('node_modules/tailwind-merge/')) {
             return 'utils';
           }
 
@@ -100,16 +100,16 @@ export default defineConfig(({ mode }) => ({
 
           // Other specialized UI libraries
           if (id.includes('node_modules/input-otp/') ||
-              id.includes('node_modules/react-day-picker/') ||
-              id.includes('node_modules/embla-carousel-react/') ||
-              id.includes('node_modules/react-resizable-panels/') ||
-              id.includes('node_modules/vaul/')) {
+          id.includes('node_modules/react-day-picker/') ||
+          id.includes('node_modules/embla-carousel-react/') ||
+          id.includes('node_modules/react-resizable-panels/') ||
+          id.includes('node_modules/vaul/')) {
             return 'ui-specialized';
           }
 
           // Internationalization
           if (id.includes('node_modules/i18next/') ||
-              id.includes('node_modules/react-i18next/')) {
+          id.includes('node_modules/react-i18next/')) {
             return 'i18n';
           }
 
@@ -128,78 +128,203 @@ export default defineConfig(({ mode }) => ({
             return 'vendor';
           }
 
-          // App-specific chunks - split by feature area
-          if (id.includes('/pages/Products/') || 
-              (id.includes('/components/') && (id.includes('Product') || id.includes('BarcodeScanner')))) {
-            return 'feature-products';
+          // App-specific chunks - more granular splitting
+          
+          // Main dashboard and core features
+          if (id.includes('/pages/Dashboard.tsx') || id.includes('/pages/HomePage.tsx')) {
+            return 'core-dashboard';
           }
 
-          if (id.includes('/pages/Employees/') || 
-              (id.includes('/components/') && id.includes('Employee'))) {
-            return 'feature-employees';
+          // Authentication pages
+          if (id.includes('/pages/LoginPage.tsx') || id.includes('/pages/ResetPasswordPage.tsx') || id.includes('/pages/OnAuthSuccessPage.tsx')) {
+            return 'auth-pages';
           }
 
-          if (id.includes('/pages/Sales/') || 
-              (id.includes('/components/') && (id.includes('Sales') || id.includes('Lottery')))) {
-            return 'feature-sales';
+          // Product management - split forms from lists
+          if (id.includes('/pages/Products/ProductList.tsx') || 
+              id.includes('/components/ProductLogs.tsx') || 
+              id.includes('/components/ProductCards.tsx') ||
+              id.includes('/components/ProductSearchBar.tsx')) {
+            return 'products-list';
+          }
+          
+          if (id.includes('/pages/Products/ProductForm.tsx') || 
+              id.includes('/components/BarcodeScanner.tsx') ||
+              id.includes('/components/ProductSelectionDialog.tsx')) {
+            return 'products-form';
           }
 
-          if (id.includes('/pages/Vendors/') || 
-              (id.includes('/components/') && id.includes('Vendor'))) {
-            return 'feature-vendors';
+          // Employee management
+          if (id.includes('/pages/Employees/EmployeeList.tsx')) {
+            return 'employees-list';
+          }
+          if (id.includes('/pages/Employees/EmployeeForm.tsx')) {
+            return 'employees-form';
           }
 
-          if (id.includes('/pages/Orders/') || 
-              (id.includes('/components/') && id.includes('Order'))) {
-            return 'feature-orders';
+          // Sales management - split reports from forms
+          if (id.includes('/pages/Sales/SalesReportList.tsx')) {
+            return 'sales-reports';
+          }
+          if (id.includes('/pages/Sales/SalesReportForm.tsx') || 
+              id.includes('/components/SalesReportSections/')) {
+            return 'sales-form';
           }
 
-          if (id.includes('/pages/Licenses/') || 
-              (id.includes('/components/') && id.includes('License'))) {
-            return 'feature-licenses';
+          // Vendor management
+          if (id.includes('/pages/Vendors/VendorList.tsx')) {
+            return 'vendors-list';
+          }
+          if (id.includes('/pages/Vendors/VendorForm.tsx')) {
+            return 'vendors-form';
           }
 
-          if (id.includes('/pages/Salary/') || 
-              (id.includes('/components/') && id.includes('Salary'))) {
-            return 'feature-salary';
+          // Order management
+          if (id.includes('/pages/Orders/OrderList.tsx')) {
+            return 'orders-list';
+          }
+          if (id.includes('/pages/Orders/OrderForm.tsx')) {
+            return 'orders-form';
           }
 
-          if (id.includes('/pages/Delivery/') || 
-              (id.includes('/components/') && id.includes('Delivery'))) {
-            return 'feature-delivery';
+          // License management
+          if (id.includes('/pages/Licenses/LicenseList.tsx')) {
+            return 'licenses-list';
+          }
+          if (id.includes('/pages/Licenses/LicenseForm.tsx')) {
+            return 'licenses-form';
           }
 
-          if (id.includes('/pages/Admin/') || 
-              (id.includes('/components/') && (id.includes('Admin') || id.includes('User') || id.includes('Role')))) {
-            return 'feature-admin';
+          // Salary management
+          if (id.includes('/pages/Salary/SalaryList.tsx')) {
+            return 'salary-list';
+          }
+          if (id.includes('/pages/Salary/SalaryForm.tsx')) {
+            return 'salary-form';
           }
 
-          if (id.includes('/pages/Settings/') || 
-              (id.includes('/components/') && id.includes('Settings'))) {
-            return 'feature-settings';
+          // Delivery management
+          if (id.includes('/pages/Delivery/DeliveryList.tsx')) {
+            return 'delivery-list';
+          }
+          if (id.includes('/pages/Delivery/DeliveryForm.tsx')) {
+            return 'delivery-form';
+          }
+
+          // Settings
+          if (id.includes('/pages/Settings/AppSettings.tsx')) {
+            return 'settings';
+          }
+
+          // Admin pages - split into separate chunks
+          if (id.includes('/pages/Admin/AdminPanel.tsx') || 
+              id.includes('/pages/Admin/AdminDashboard.tsx')) {
+            return 'admin-dashboard';
+          }
+
+          if (id.includes('/pages/Admin/UserManagement.tsx') || 
+              id.includes('/components/EnhancedUserManagementWithValidation.tsx') ||
+              id.includes('/components/UserPermissionManager.tsx') ||
+              id.includes('/components/RealTimePermissionManager.tsx')) {
+            return 'admin-users';
+          }
+
+          if (id.includes('/pages/Admin/SiteManagement.tsx') || 
+              id.includes('/components/StationEditDialog.tsx')) {
+            return 'admin-sites';
+          }
+
+          if (id.includes('/pages/Admin/SystemLogs.tsx') || 
+              id.includes('/pages/Admin/AuditMonitoring.tsx') ||
+              id.includes('/components/AuditLogViewer.tsx')) {
+            return 'admin-logs';
+          }
+
+          if (id.includes('/pages/Admin/SecuritySettings.tsx') || 
+              id.includes('/components/ComprehensivePermissionDialog.tsx')) {
+            return 'admin-security';
+          }
+
+          if (id.includes('/pages/Admin/SMSManagement.tsx') || 
+              id.includes('/components/SMSServiceManager.tsx') ||
+              id.includes('/components/SMSTestManager.tsx') ||
+              id.includes('/components/ClickSendServiceManager.tsx')) {
+            return 'admin-sms';
+          }
+
+          if (id.includes('/pages/Admin/DatabaseMonitoring.tsx') || 
+              id.includes('/components/DatabaseConnectionMonitor.tsx') ||
+              id.includes('/components/DatabasePerformanceMonitor.tsx')) {
+            return 'admin-monitoring';
+          }
+
+          if (id.includes('/pages/Admin/NavigationDebugPage.tsx') || 
+              id.includes('/pages/Admin/UserValidationTestPage.tsx') ||
+              id.includes('/pages/OverflowTestingPage.tsx') ||
+              id.includes('/pages/OverflowTestPage.tsx')) {
+            return 'admin-testing';
           }
 
           // Error handling and monitoring
-          if (id.includes('/ErrorBoundary/') || 
-              id.includes('ErrorBoundary') || 
-              id.includes('/services/') && (id.includes('error') || id.includes('monitoring'))) {
+          if (id.includes('/components/ErrorBoundary/') ||
+              id.includes('/components/ErrorAnalyticsDashboard.tsx') ||
+              id.includes('/components/ErrorMonitoringWidget.tsx') ||
+              id.includes('/services/errorLogger.tsx') ||
+              id.includes('/services/enhancedErrorLogger.tsx')) {
             return 'error-handling';
           }
 
-          // SMS and communication features
-          if (id.includes('/components/') && id.includes('SMS') || 
-              id.includes('/services/') && id.includes('sms')) {
-            return 'feature-sms';
+          // Memory and performance monitoring
+          if (id.includes('/components/MemoryLeakDashboard.tsx') ||
+              id.includes('/components/PerformanceMonitoringSystem.tsx') ||
+              id.includes('/services/memoryLeakMonitor.tsx') ||
+              id.includes('/utils/memoryLeakIntegration.tsx')) {
+            return 'performance-monitoring';
           }
 
-          // File handling
-          if (id.includes('/components/') && (id.includes('File') || id.includes('Upload') || id.includes('Image'))) {
+          // File handling components
+          if (id.includes('/components/EnhancedFileUpload.tsx') ||
+              id.includes('/components/FileDisplay.tsx') ||
+              id.includes('/components/DatabaseFileUpload.tsx') ||
+              id.includes('/components/ProfilePicture.tsx') ||
+              id.includes('/utils/imageCompression.tsx')) {
             return 'file-handling';
           }
 
-          // UI components
+          // Print dialogs and reports
+          if (id.includes('/components/PrintDialog.tsx') ||
+              id.includes('/components/SalesReportPrintDialog.tsx') ||
+              id.includes('/components/EnhancedSalesReportPrintDialog.tsx') ||
+              id.includes('/components/DeliveryReportDialog.tsx') ||
+              id.includes('/components/EnhancedDeliveryPrintDialog.tsx')) {
+            return 'print-reports';
+          }
+
+          // Charts and analytics
+          if (id.includes('/components/SalesChart.tsx') ||
+              id.includes('/components/ComprehensiveDashboard.tsx') ||
+              id.includes('/utils/analytics-')) {
+            return 'analytics';
+          }
+
+          // UI components - split into logical groups
           if (id.includes('/components/ui/')) {
             return 'ui-components';
+          }
+
+          // Navigation components
+          if (id.includes('/components/TopNavigation.tsx') ||
+              id.includes('/components/OverflowNavigation.tsx') ||
+              id.includes('/components/NavigationDebugger.tsx') ||
+              id.includes('/components/Layout/')) {
+            return 'navigation';
+          }
+
+          // Form components
+          if (id.includes('/components/ExpenseFormDialog.tsx') ||
+              id.includes('/components/CreateUserDialog.tsx') ||
+              id.includes('/components/DraftManagementDialog.tsx')) {
+            return 'form-dialogs';
           }
 
           // Utility modules
@@ -211,11 +336,25 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('/contexts/')) {
             return 'contexts';
           }
+
+          // Remaining components - group by size and usage
+          if (id.includes('/components/') && id.includes('Demo')) {
+            return 'demo-components';
+          }
+
+          if (id.includes('/components/') && (id.includes('Test') || id.includes('Debug'))) {
+            return 'debug-components';
+          }
+
+          // Small utility components
+          if (id.includes('/components/')) {
+            return 'misc-components';
+          }
         }
       }
     },
     // Optimize chunk size settings
-    chunkSizeWarningLimit: 500, // Keep the warning at 500kb
+    chunkSizeWarningLimit: 300, // Lower warning threshold to catch issues earlier
     // Enable gzip compression analysis
     reportCompressedSize: true,
     // Enable CSS code splitting
@@ -225,7 +364,15 @@ export default defineConfig(({ mode }) => ({
     // Minification settings
     minify: 'esbuild',
     // Target modern browsers for better optimization
-    target: 'es2020'
+    target: 'es2020',
+    // Add tree shaking optimizations
+    external: (id) => {
+      // Externalize very large libraries that might not be used
+      if (id.includes('@monaco-editor/react') && process.env.NODE_ENV === 'production') {
+        return false; // Keep internal for now, but consider CDN in future
+      }
+      return false;
+    }
   },
   // Optimize dependencies
   optimizeDeps: {
@@ -236,7 +383,10 @@ export default defineConfig(({ mode }) => ({
       '@tanstack/react-query',
       'lucide-react',
       'date-fns',
-      'recharts'
+      'recharts',
+      'clsx',
+      'tailwind-merge',
+      'class-variance-authority'
     ],
     // Exclude heavy dependencies from optimization
     exclude: [
@@ -247,6 +397,14 @@ export default defineConfig(({ mode }) => ({
   },
   // Define constants for better tree shaking
   define: {
-    __DEV__: mode === 'development'
+    __DEV__: mode === 'development',
+    __PROD__: mode === 'production'
+  },
+  // Additional performance optimizations
+  esbuild: {
+    // Remove console logs in production
+    drop: mode === 'production' ? ['console', 'debugger'] : [],
+    // Enable legal comments only in development
+    legalComments: mode === 'development' ? 'inline' : 'none'
   }
 }));
