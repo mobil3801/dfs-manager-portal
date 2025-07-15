@@ -252,15 +252,6 @@ const UserConflictPrevention: React.FC = () => {
 
 
 
-
-
-
-
-
-
-
-
-
         // User not found or not logged in - this is fine for email uniqueness check
       } // Check email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;if (!emailRegex.test(email)) {results.push({ isValid: false, type: 'email', message: 'Invalid email format.', severity: 'error' });}if (results.length === 0) {results.push({ isValid: true, type: 'email', message: 'Email is available and valid.', severity: 'info' });}setValidationResults(results);} catch (error) {console.error('Error validating email:', error);} finally {setIsValidating(false);}};const validateRoleConflict = () => {if (!roleToCheck || !stationToCheck) {toast({ title: "Validation Required", description: "Please select both role and station to check for conflicts", variant: "destructive" });return;}const results: ValidationResult[] = []; // Check for role conflicts
@@ -304,17 +295,22 @@ const UserConflictPrevention: React.FC = () => {
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input id="email-check" type="email" placeholder="Enter email to check availability..." value={emailToCheck} onChange={(e) => setEmailToCheck(e.target.value)} className="pl-10" />
 
-                  {isValidating && <RefreshCw className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 animate-spin" />}
+                  {isValidating && <RefreshCw className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 animate-spin" />
+                }
                 </div>
               </div>
 
               <div className="space-y-2">
-                {validationResults.filter((result) => result.type === 'email' || result.type === 'admin_protection').map((result, index) => <Alert key={index} variant={getResultVariant(result.severity)}>
+                {validationResults.
+              filter((result) => result.type === 'email' || result.type === 'admin_protection').
+              map((result, index) =>
+              <Alert key={index} variant={getResultVariant(result.severity)}>
                       <div className="flex items-center gap-2">
                         {getResultIcon(result)}
                         <AlertDescription>{result.message}</AlertDescription>
                       </div>
-                    </Alert>)}
+                    </Alert>
+              )}
               </div>
             </CardContent>
           </Card>
@@ -334,7 +330,9 @@ const UserConflictPrevention: React.FC = () => {
                       <SelectValue placeholder="Select role to check..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {roles.map((role) => <SelectItem key={role} value={role}>{role}</SelectItem>)}
+                      {roles.map((role) =>
+                    <SelectItem key={role} value={role}>{role}</SelectItem>
+                    )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -346,7 +344,9 @@ const UserConflictPrevention: React.FC = () => {
                       <SelectValue placeholder="Select station..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {stations.map((station) => <SelectItem key={station} value={station}>{station}</SelectItem>)}
+                      {stations.map((station) =>
+                    <SelectItem key={station} value={station}>{station}</SelectItem>
+                    )}
                     </SelectContent>
                   </Select>
                 </div>

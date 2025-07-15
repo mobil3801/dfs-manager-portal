@@ -1,20 +1,29 @@
 {
-  "name": "dfs-manager-frontend",
+  "name": "dfs-manager-portal",
   "private": true,
-  "version": "1.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:analyze": "tsc \u0026\u0026 vite build --mode analyze",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "build:dev": "vite build --mode development",
+    "build:prod": "vite build --mode production",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
+    "lint:check": "eslint . --ext .ts,.tsx,.js,.jsx --max-warnings 0",
+    "type-check": "tsc --noEmit",
+    "check-imports": "node scripts/check-imports.js",
+    "setup-hooks": "bash scripts/setup-git-hooks.sh",
+    "dev:safe": "npm run lint:check \u0026\u0026 npm run type-check \u0026\u0026 npm run dev",
+    "build:safe": "npm run lint:check \u0026\u0026 npm run type-check \u0026\u0026 npm run build",
+    "quality-check": "npm run lint:check \u0026\u0026 npm run type-check \u0026\u0026 npm run check-imports",
     "preview": "vite preview",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "test:run": "vitest run",
-    "bundle:analyze": "npx vite-bundle-analyzer dist/stats.json",
-    "size:check": "bundlesize",
-    "build:dev": "vite build --mode development"
+    "serve": "vite preview --host",
+    "deploy:netlify": "npm run build:safe \u0026\u0026 netlify deploy --prod --dir=dist",
+    "deploy:vercel": "npm run build:safe \u0026\u0026 vercel --prod",
+    "docker:build": "docker build -t dfs-manager-portal .",
+    "docker:run": "docker run -p 80:80 dfs-manager-portal",
+    "docker:compose": "docker-compose up -d"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -75,38 +84,21 @@
     "@monaco-editor/react": "^4.7.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.9.0",
+    "@tailwindcss/typography": "^0.5.15",
     "@types/node": "^22.5.5",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.9.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
+    "globals": "^15.9.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.11",
     "typescript": "^5.5.3",
-    "vite": "^5.4.19",
-    "vite-bundle-analyzer": "^0.7.0",
-    "bundlesize": "^0.18.1",
-    "vitest": "^1.0.0",
-    "@eslint/js": "^9.9.0",
-    "@tailwindcss/typography": "^0.5.15",
-    "globals": "^15.9.0",
-    "typescript-eslint": "^8.0.1"
-  },
-  "bundlesize": [
-    {
-      "path": "./dist/assets/index-*.js",
-      "maxSize": "600 kB",
-      "compression": "gzip"
-    },
-    {
-      "path": "./dist/assets/index-*.css",
-      "maxSize": "20 kB",
-      "compression": "gzip"
-    }
-  ]
+    "typescript-eslint": "^8.0.1",
+    "vite": "^5.4.1"
+  }
 }
