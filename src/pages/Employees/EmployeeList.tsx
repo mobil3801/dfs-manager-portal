@@ -392,18 +392,24 @@ const EmployeeList: React.FC = () => {
 
     if (documents.length === 0) {
       return (
-        <div className="text-center py-4 text-gray-500">
-          <FileText className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-          <p className="text-sm">No ID documents uploaded</p>
+        <div className="text-center py-6 text-gray-500">
+          <FileText className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+          <p className="text-sm font-medium">No ID documents uploaded</p>
+          <p className="text-xs text-gray-400 mt-1">ID documents will appear here once uploaded</p>
         </div>);
 
     }
 
     return (
       <div className="space-y-4">
-        <div className="flex items-center space-x-2">
-          <FileText className="w-4 h-4 text-gray-600" />
-          <span className="font-medium text-gray-800">ID Documents ({documents.length})</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <FileText className="w-4 h-4 text-gray-600" />
+            <span className="font-medium text-gray-800">ID Documents ({documents.length})</span>
+          </div>
+          <Badge variant="outline" className="text-xs">
+            Click to view full size
+          </Badge>
         </div>
         
         {/* Document Type Information */}
@@ -415,28 +421,56 @@ const EmployeeList: React.FC = () => {
           </div>
         }
         
-        {/* Enhanced Document Previews Grid with Instant Preview */}
+        {/* Enhanced Document Previews Grid with Instant Preview - Always Visible */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {documents.map((doc, index) =>
-          <InstantDocumentPreview
-            key={index}
-            fileId={doc.fileId}
-            fileName={doc.label}
-            documentName={doc.label}
-            size="lg"
-            aspectRatio="landscape"
-            showRemoveButton={false}
-            showDownload={true}
-            showFullscreen={true}
-            showInstantPreview={true}
-            className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow" />
+          {documents.map((doc, index) => (
+            <div key={index} className="relative">
+              <InstantDocumentPreview
+                fileId={doc.fileId}
+                fileName={doc.label}
+                documentName={doc.label}
+                size="lg"
+                aspectRatio="landscape"
+                showRemoveButton={false}
+                showDownload={true}
+                showFullscreen={true}
+                showInstantPreview={true}
+                className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow rounded-lg overflow-hidden"
+              />
+              
+              {/* Document Label */}
+              <div className="absolute top-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+                {doc.label}
+              </div>
+              
+              {/* View Full Size Button */}
+              <div className="absolute top-2 right-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="h-6 px-2 bg-white bg-opacity-90 hover:bg-opacity-100"
+                  onClick={() => {
+                    // This will be handled by the InstantDocumentPreview component
+                  }}
+                >
+                  <Eye className="w-3 h-3" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
 
-          )}
+        {/* Additional Information */}
+        <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
+          <p>• All ID documents are instantly visible without additional clicks</p>
+          <p>• Click on any document to view in full screen</p>
+          <p>• Use the download button to save documents locally</p>
         </div>
 
       </div>);
 
   };
+
 
   // Define view modal fields with profile picture, employment status, and ID documents
   const getViewModalFields = (employee: Employee) => [

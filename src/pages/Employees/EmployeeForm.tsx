@@ -15,6 +15,7 @@ import EnhancedFileUpload from '@/components/EnhancedFileUpload';
 import StationDropdown from '@/components/StationDropdown';
 import ProfilePictureUpload from '@/components/ProfilePictureUpload';
 import DocumentPreview from '@/components/DocumentPreview';
+import IDDocumentUpload from '@/components/IDDocumentUpload';
 
 interface EmployeeFormData {
   employee_id: string;
@@ -1137,89 +1138,30 @@ const EmployeeForm: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Progressive ID Document Upload Boxes */}
+                {/* Enhanced ID Document Upload Boxes with Instant Preview */}
                 <div className="space-y-6">
                   <h4 className="text-md font-medium text-gray-800">Upload ID Documents</h4>
                   <p className="text-sm text-gray-600">Upload up to 4 ID documents. Additional boxes will appear as you upload files.</p>
                   
                   <div className="space-y-6">
                     {Array.from({ length: getVisibleIDDocumentBoxes() }, (_, index) =>
-                    <div key={index} className="space-y-4 p-6 border border-gray-200 rounded-lg bg-gray-50">
-                        <div className="flex items-center justify-between">
-                          <Label className="flex items-center space-x-2">
-                            <FileText className="w-4 h-4" />
-                            <span>ID Document {index + 1}</span>
-                            {index === 0 && <span className="text-red-500">*</span>}
-                          </Label>
-                          {(idDocuments[index].file || idDocuments[index].existingFileId) &&
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleRemoveIDDocument(index);
-                          }}
-                          className="text-red-600 hover:text-red-700 h-6 px-2">
-                              <X className="w-3 h-3" />
-                            </Button>
-                        }
-                        </div>
-
-                        {/* Enhanced Upload Area */}
-                        <div className="space-y-4">
-                          <EnhancedFileUpload
+                      <div key={index} className="p-6 border border-gray-200 rounded-lg bg-gray-50">
+                        <IDDocumentUpload
+                          label={`ID Document ${index + 1}`}
                           onFileSelect={(file) => handleIDDocumentSelect(file, index)}
-                          accept=".pdf,.jpg,.jpeg,.png,image/*"
-                          label={`Upload Document ${index + 1}`}
-                          currentFile={idDocuments[index].name}
-                          maxSize={10}
-                          disabled={loading || isUploading} />
-
-                          {/* Preview for newly selected files */}
-                          {idDocuments[index].file &&
-                        <div className="mt-4">
-                              <DocumentPreview
-                            file={idDocuments[index].file}
-                            fileName={idDocuments[index].name}
-                            documentName={`ID Document ${index + 1}`}
-                            size="xl"
-                            aspectRatio="landscape"
-                            showRemoveButton={false}
-                            showDownload={false}
-                            showFullscreen={true}
-                            className="mt-4" />
-                            </div>
-                        }
-
-                          {/* Preview for existing files (only in edit mode) */}
-                          {isEditing && !idDocuments[index].file && idDocuments[index].existingFileId &&
-                        <div className="mt-4">
-                              <DocumentPreview
-                            fileId={idDocuments[index].existingFileId}
-                            fileName={`Current Document ${index + 1}`}
-                            documentName={`ID Document ${index + 1}`}
-                            size="xl"
-                            aspectRatio="landscape"
-                            showRemoveButton={false}
-                            showDownload={true}
-                            showFullscreen={true}
-                            className="border-blue-200 bg-blue-50" />
-
-                              <p className="text-xs text-blue-600 bg-blue-100 p-2 rounded mt-2">
-                                Upload a new file to replace the current document. The new file will be saved when you click "Save Employee".
-                              </p>
-                            </div>
-                        }
-                        </div>
+                          onRemove={() => handleRemoveIDDocument(index)}
+                          existingFileId={idDocuments[index].existingFileId}
+                          selectedFile={idDocuments[index].file}
+                          preview={idDocuments[index].preview}
+                          disabled={loading || isUploading}
+                          required={index === 0}
+                          className="w-full"
+                        />
                       </div>
                     )}
                   </div>
 
                   <p className="text-xs text-gray-500">
-                    Supported formats: PDF, JPG, PNG (Max 10MB per file)
-                    <br />
                     Tip: Additional upload boxes will appear automatically as you upload files
                   </p>
                 </div>

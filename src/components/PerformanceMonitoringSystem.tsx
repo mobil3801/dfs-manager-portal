@@ -470,6 +470,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -548,9 +550,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
             <p>Collecting performance metrics...</p>
           </div>
         </CardContent>
-      </Card>;}
-  return (
-    <div className="space-y-6">
+      </Card>;}return <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold flex items-center gap-2">
@@ -562,9 +562,9 @@ const PerformanceMonitoringSystem: React.FC = () => {
             {isMonitoring ? 'Active' : 'Paused'}
           </Badge>
           <Button
-            onClick={isMonitoring ? stopMonitoring : startMonitoring}
-            variant="outline"
-            size="sm">
+          onClick={isMonitoring ? stopMonitoring : startMonitoring}
+          variant="outline"
+          size="sm">
 
             {isMonitoring ? 'Pause' : 'Start'} Monitoring
           </Button>
@@ -573,16 +573,16 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
       {/* Active Alerts */}
       {alerts.length > 0 &&
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-2">
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-2">
 
           {alerts.slice(0, 3).map((alert) =>
-        <Alert
-          key={alert.id}
-          variant={alert.type === 'error' ? 'destructive' : 'default'}
-          className="animate-pulse">
+      <Alert
+        key={alert.id}
+        variant={alert.type === 'error' ? 'destructive' : 'default'}
+        className="animate-pulse">
 
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
@@ -596,9 +596,9 @@ const PerformanceMonitoringSystem: React.FC = () => {
                 </div>
               </AlertDescription>
             </Alert>
-        )}
+      )}
         </motion.div>
-      }
+    }
 
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
@@ -651,8 +651,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
                     {formatTime(metrics.timing.apiResponseTime)}
                   </span>
                   <Progress
-                    value={Math.min(metrics.timing.apiResponseTime / 3000 * 100, 100)}
-                    className="h-2" />
+                  value={Math.min(metrics.timing.apiResponseTime / 3000 * 100, 100)}
+                  className="h-2" />
 
                   <p className="text-xs text-muted-foreground">
                     Avg response time
@@ -842,7 +842,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
         <TabsContent value="suggestions" className="space-y-4">
           <div className="space-y-4">
             {suggestions.map((suggestion, index) =>
-            <Card key={index}>
+          <Card key={index}>
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between">
                     <div className="space-y-2">
@@ -861,18 +861,18 @@ const PerformanceMonitoringSystem: React.FC = () => {
                       </p>
                     </div>
                     {suggestion.action &&
-                  <Button onClick={suggestion.action} size="sm">
+                <Button onClick={suggestion.action} size="sm">
                         <Zap className="mr-2 h-4 w-4" />
                         Apply Fix
                       </Button>
-                  }
+                }
                   </div>
                 </CardContent>
               </Card>
-            )}
+          )}
             
             {suggestions.length === 0 &&
-            <Card>
+          <Card>
                 <CardContent className="flex items-center justify-center h-32">
                   <div className="text-center">
                     <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
@@ -881,11 +881,11 @@ const PerformanceMonitoringSystem: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
-            }
+          }
           </div>
         </TabsContent>
       </Tabs>
-    </div>);
+    </div>;
 
 };
 
