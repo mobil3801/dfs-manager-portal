@@ -6,14 +6,25 @@ import path from "path";
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
-    port: 8080
+    port: 8080,
+    historyApiFallback: true, // This enables client-side routing
   },
   plugins: [
-  react()],
-
+    react()
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src")
+    }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom']
+        }
+      }
     }
   }
 }));

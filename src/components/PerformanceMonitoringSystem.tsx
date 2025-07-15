@@ -449,6 +449,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -518,9 +520,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
   * Initialize monitoring on mount
   */useEffect(() => {startMonitoring();return () => {stopMonitoring();};}, [startMonitoring, stopMonitoring]); /**
   * Get status color based on metric value
-  */const getStatusColor = (value: number, thresholds: {good: number;warning: number;}) => {if (value <= thresholds.good) return 'text-green-600';if (value <= thresholds.warning) return 'text-yellow-600';return 'text-red-600';};
-
-  /**
+  */const getStatusColor = (value: number, thresholds: {good: number;warning: number;}) => {if (value <= thresholds.good) return 'text-green-600';if (value <= thresholds.warning) return 'text-yellow-600';return 'text-red-600';}; /**
    * Format metric values
    */
   const formatBytes = (bytes: number) => {
