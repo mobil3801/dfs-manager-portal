@@ -379,6 +379,8 @@ const EnhancedInvariantDetector: React.FC = () => {
 
 
 
+
+
           // Silent catch for individual element processing
         }});keyMap.forEach((data, key) => {if (data.count > 1) {violations.push({ type: 'duplicate-key', severity: 'high', message: `Duplicate React key detected: "${key}" used ${data.count} times. This can cause invariant violations.`, fixSuggestion: 'Use unique keys for each element in lists. Consider using item.id + index or UUID.', component: data.element.tagName?.toLowerCase() });}});} catch (error) {console.warn('Error detecting duplicate keys:', error);}return violations;}, []); // Enhanced React Fiber state detection
   const detectFiberInconsistencies = useCallback(() => {const violations: Omit<InvariantViolation, 'id' | 'timestamp'>[] = [];try {const reactRoots = document.querySelectorAll('[data-reactroot], #root, [id*="react"]');reactRoots.forEach((root) => {try {const fiber = (root as any)._reactInternalFiber || (root as any).__reactInternalInstance || (root as any)._reactRootContainer;if (fiber) {// Check for common fiber inconsistencies
@@ -561,14 +563,12 @@ const EnhancedInvariantDetector: React.FC = () => {
                       </span>
                       {violation.autoFixed && <Badge variant="outline" className="text-xs bg-green-100 text-green-800">
                           Auto-Fixed
-                        </Badge>
-                  }
+                        </Badge>}
                     </div>
                     <AlertDescription className="text-sm mb-2">
                       {violation.message}
                     </AlertDescription>
-                    {violation.fixSuggestion &&
-                <div className="text-xs text-gray-700 bg-gray-100 p-2 rounded mb-2">
+                    {violation.fixSuggestion && <div className="text-xs text-gray-700 bg-gray-100 p-2 rounded mb-2">
                         💡 Fix Suggestion: {violation.fixSuggestion}
                       </div>
                 }

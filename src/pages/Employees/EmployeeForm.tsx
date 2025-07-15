@@ -47,6 +47,7 @@ interface IDDocument {
   file: File | null;
   name: string;
   preview: string | null;
+  existingFileId: number | null;
 }
 
 const EmployeeForm: React.FC = () => {
@@ -79,11 +80,11 @@ const EmployeeForm: React.FC = () => {
 
   // ID Documents state - 4 separate documents
   const [idDocuments, setIdDocuments] = useState<IDDocument[]>([
-  { file: null, name: '', preview: null },
-  { file: null, name: '', preview: null },
-  { file: null, name: '', preview: null },
-  { file: null, name: '', preview: null }]
-  );
+    { file: null, name: '', preview: null, existingFileId: null },
+    { file: null, name: '', preview: null, existingFileId: null },
+    { file: null, name: '', preview: null, existingFileId: null },
+    { file: null, name: '', preview: null, existingFileId: null }
+  ]);
 
   const [selectedProfileImage, setSelectedProfileImage] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -93,13 +94,6 @@ const EmployeeForm: React.FC = () => {
   // Track files to be deleted from database
   const [filesToDelete, setFilesToDelete] = useState<number[]>([]);
 
-  // Debug log for file deletion tracking
-  useEffect(() => {
-    if (filesToDelete.length > 0) {
-      console.log('Files marked for deletion:', filesToDelete);
-    }
-  }, [filesToDelete]);
-
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -108,10 +102,10 @@ const EmployeeForm: React.FC = () => {
   const idDocumentTypes = ['Driving License', 'Passport', 'Green Card', 'SSN', 'Work Permit'];
 
   const employmentStatuses = [
-  { value: 'Ongoing', label: 'Ongoing', color: 'bg-green-500' },
-  { value: 'Terminated', label: 'Terminated', color: 'bg-red-500' },
-  { value: 'Left', label: 'Left', color: 'bg-orange-500' }];
-
+    { value: 'Ongoing', label: 'Ongoing', color: 'bg-green-500' },
+    { value: 'Terminated', label: 'Terminated', color: 'bg-red-500' },
+    { value: 'Left', label: 'Left', color: 'bg-orange-500' }
+  ];
 
   const getEmploymentStatusColor = (status: string) => {
     const statusConfig = employmentStatuses.find((s) => s.value === status);
@@ -132,29 +126,18 @@ const EmployeeForm: React.FC = () => {
   useEffect(() => {
     return () => {
       // Clean up all preview URLs
-      idDocuments.forEach(doc => {
+      idDocuments.forEach((doc) => {
         if (doc.preview) {
           URL.revokeObjectURL(doc.preview);
         }
       });
-      
+
       // Clean up profile image preview
       if (selectedProfileImage) {
         URL.revokeObjectURL(URL.createObjectURL(selectedProfileImage));
       }
     };
   }, []);
-
-  // Clean up preview URLs when idDocuments change
-  useEffect(() => {
-    return () => {
-      idDocuments.forEach(doc => {
-        if (doc.preview) {
-          URL.revokeObjectURL(doc.preview);
-        }
-      });
-    };
-  }, [idDocuments]);
 
   const generateEmployeeId = async () => {
     try {
@@ -177,11 +160,11 @@ const EmployeeForm: React.FC = () => {
       // If there are existing DFS IDs, find the highest number and increment
       if (data && data.List && data.List.length > 0) {
         const existingNumbers = data.List.
-        map((emp) => {
-          const match = emp.employee_id.match(/^DFS(\d+)$/);
-          return match ? parseInt(match[1]) : 0;
-        }).
-        filter((num) => num > 0);
+          map((emp) => {
+            const match = emp.employee_id.match(/^DFS(\d+)$/);
+            return match ? parseInt(match[1]) : 0;
+          }).
+          filter((num) => num > 0);
 
         if (existingNumbers.length > 0) {
           nextNumber = Math.max(...existingNumbers) + 1;
@@ -261,27 +244,21 @@ const EmployeeForm: React.FC = () => {
           profile_image_id: employee.profile_image_id || null
         });
 
-        // Initialize ID documents state for editing - only show existing documents
+        // Initialize ID documents state for editing
         const newIdDocuments = [
-        { file: null, name: '', preview: null },
-        { file: null, name: '', preview: null },
-        { file: null, name: '', preview: null },
-        { file: null, name: '', preview: null }];
+          { file: null, name: '', preview: null, existingFileId: employee.id_document_file_id || null },
+          { file: null, name: '', preview: null, existingFileId: employee.id_document_2_file_id || null },
+          { file: null, name: '', preview: null, existingFileId: employee.id_document_3_file_id || null },
+          { file: null, name: '', preview: null, existingFileId: employee.id_document_4_file_id || null }
+        ];
 
+        // Update names for existing documents
+        newIdDocuments.forEach((doc, index) => {
+          if (doc.existingFileId) {
+            doc.name = `Existing Document ${index + 1}`;
+          }
+        });
 
-        // Only populate if the document actually exists
-        if (employee.id_document_file_id) {
-          newIdDocuments[0] = { file: null, name: 'Existing Document 1', preview: null };
-        }
-        if (employee.id_document_2_file_id) {
-          newIdDocuments[1] = { file: null, name: 'Existing Document 2', preview: null };
-        }
-        if (employee.id_document_3_file_id) {
-          newIdDocuments[2] = { file: null, name: 'Existing Document 3', preview: null };
-        }
-        if (employee.id_document_4_file_id) {
-          newIdDocuments[3] = { file: null, name: 'Existing Document 4', preview: null };
-        }
         setIdDocuments(newIdDocuments);
 
         // Clear any pending deletions when loading fresh data
@@ -300,13 +277,17 @@ const EmployeeForm: React.FC = () => {
   };
 
   const handleFileUpload = async (file: File, fileCategory: string = 'document') => {
-    setIsUploading(true);
     try {
+      setIsUploading(true);
       const { data: fileId, error } = await window.ezsite.apis.upload({
         filename: file.name,
         file: file
       });
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Upload error:', error);
+        throw new Error(error);
+      }
 
       // Create file_uploads record for tracking
       const fileUploadData = {
@@ -330,6 +311,7 @@ const EmployeeForm: React.FC = () => {
         // Don't fail the upload if the record creation fails
       }
 
+      console.log('File uploaded successfully:', fileId);
       return fileId;
     } catch (error) {
       console.error('Error uploading file:', error);
@@ -346,9 +328,18 @@ const EmployeeForm: React.FC = () => {
 
   // Function to permanently delete files from database storage
   const deleteFilesFromDatabase = async (fileIds: number[]) => {
+    if (!fileIds || fileIds.length === 0) {
+      console.log('No files to delete');
+      return;
+    }
+
+    console.log('Deleting files from database:', fileIds);
+    
     try {
-      // Delete files from file_uploads table using the correct field name
+      // Delete files from file_uploads table
       for (const fileId of fileIds) {
+        console.log('Processing file for deletion:', fileId);
+        
         // First, get the file record to find the correct ID
         const { data: fileData, error: fetchError } = await window.ezsite.apis.tablePage('26928', {
           PageNo: 1,
@@ -362,18 +353,21 @@ const EmployeeForm: React.FC = () => {
         }
 
         if (fileData && fileData.List && fileData.List.length > 0) {
+          const fileRecord = fileData.List[0];
+          console.log('Found file record to delete:', fileRecord);
+          
           // Mark file as inactive instead of deleting (for audit trail)
           const { error: deactivateError } = await window.ezsite.apis.tableUpdate('26928', {
-            ID: fileData.List[0].id,
+            ID: fileRecord.id,
             is_active: false,
-            description: `${fileData.List[0].description} - Deleted on ${new Date().toISOString()}`
+            description: `${fileRecord.description} - Deleted on ${new Date().toISOString()}`
           });
-          
+
           if (deactivateError) {
             console.error(`Error deactivating file ${fileId}:`, deactivateError);
             // Try to delete if update fails
             const { error: deleteError } = await window.ezsite.apis.tableDelete('26928', {
-              ID: fileData.List[0].id
+              ID: fileRecord.id
             });
             if (deleteError) {
               console.error(`Error deleting file ${fileId}:`, deleteError);
@@ -383,6 +377,8 @@ const EmployeeForm: React.FC = () => {
           } else {
             console.log(`Successfully deactivated file ${fileId} in database`);
           }
+        } else {
+          console.warn(`No file record found for file ID ${fileId}`);
         }
       }
     } catch (error) {
@@ -473,7 +469,8 @@ const EmployeeForm: React.FC = () => {
     newIdDocuments[index] = {
       file: file,
       name: file.name,
-      preview: preview
+      preview: preview,
+      existingFileId: newIdDocuments[index].existingFileId // Preserve existing file ID
     };
 
     setIdDocuments(newIdDocuments);
@@ -487,15 +484,18 @@ const EmployeeForm: React.FC = () => {
   const handleRemoveIDDocument = (index: number) => {
     try {
       const newIdDocuments = [...idDocuments];
+      const document = newIdDocuments[index];
 
       // Clean up preview URL
-      if (newIdDocuments[index].preview) {
-        URL.revokeObjectURL(newIdDocuments[index].preview!);
+      if (document.preview) {
+        URL.revokeObjectURL(document.preview);
       }
 
       // Get the existing file ID that needs to be deleted
-      const existingFileId = getExistingDocumentFileId(index);
+      const existingFileId = document.existingFileId || getExistingDocumentFileId(index);
+      
       if (existingFileId) {
+        console.log('Marking file for deletion:', existingFileId);
         // Add to files to delete list for permanent removal
         setFilesToDelete((prev) => {
           const newFilesToDelete = [...prev];
@@ -506,14 +506,19 @@ const EmployeeForm: React.FC = () => {
         });
       }
 
-      // Clear the document at the specified index instead of removing it
-      newIdDocuments[index] = { file: null, name: '', preview: null };
+      // Clear the document at the specified index
+      newIdDocuments[index] = { 
+        file: null, 
+        name: '', 
+        preview: null, 
+        existingFileId: null 
+      };
 
       setIdDocuments(newIdDocuments);
 
       // Update form data to clear the file ID at the specified index
       const updatedFormData = { ...formData };
-      
+
       switch (index) {
         case 0:
           updatedFormData.id_document_file_id = null;
@@ -620,30 +625,19 @@ const EmployeeForm: React.FC = () => {
 
     try {
       setLoading(true);
-
-      // Permanently delete files that were marked for deletion
-      if (filesToDelete.length > 0) {
-        console.log('Deleting files:', filesToDelete);
-        await deleteFilesFromDatabase(filesToDelete);
-        setFilesToDelete([]); // Clear the list after deletion
-
-        // Show deletion confirmation
-        toast({
-          title: "Files Deleted",
-          description: `${filesToDelete.length} file(s) have been permanently deleted from storage.`
-        });
-      }
+      console.log('Starting form submission...');
 
       let profileImageId = formData.profile_image_id;
       let idDocumentFileIds = [
-      formData.id_document_file_id,
-      formData.id_document_2_file_id,
-      formData.id_document_3_file_id,
-      formData.id_document_4_file_id];
-
+        formData.id_document_file_id,
+        formData.id_document_2_file_id,
+        formData.id_document_3_file_id,
+        formData.id_document_4_file_id
+      ];
 
       // Upload profile image if selected
       if (selectedProfileImage) {
+        console.log('Uploading profile image...');
         profileImageId = await handleFileUpload(selectedProfileImage, 'profile_image');
         if (profileImageId === null) {
           setLoading(false);
@@ -654,6 +648,7 @@ const EmployeeForm: React.FC = () => {
       // Upload ID documents if selected
       for (let i = 0; i < idDocuments.length; i++) {
         if (idDocuments[i].file) {
+          console.log(`Uploading ID document ${i + 1}...`);
           const uploadedFileId = await handleFileUpload(idDocuments[i].file!, `id_document_${i + 1}`);
           if (uploadedFileId === null) {
             setLoading(false);
@@ -677,23 +672,45 @@ const EmployeeForm: React.FC = () => {
         created_by: 1
       };
 
+      console.log('Data to submit:', dataToSubmit);
+
       if (isEditing && id) {
+        console.log('Updating employee...');
         const { error } = await window.ezsite.apis.tableUpdate('11727', {
           ID: parseInt(id),
           ...dataToSubmit
         });
-        if (error) throw error;
+        if (error) {
+          console.error('Update error:', error);
+          throw new Error(error);
+        }
 
         // Update file_uploads records with the correct associated_record_id
         await updateFileAssociations(parseInt(id), idDocumentFileIds, profileImageId);
+
+        // Delete files that were marked for deletion AFTER successful update
+        if (filesToDelete.length > 0) {
+          console.log('Deleting marked files:', filesToDelete);
+          await deleteFilesFromDatabase(filesToDelete);
+          setFilesToDelete([]); // Clear the list after deletion
+          
+          toast({
+            title: "Files Deleted",
+            description: `${filesToDelete.length} file(s) have been permanently deleted from storage.`
+          });
+        }
 
         toast({
           title: "Success",
           description: "Employee updated successfully"
         });
       } else {
+        console.log('Creating employee...');
         const { error } = await window.ezsite.apis.tableCreate('11727', dataToSubmit);
-        if (error) throw error;
+        if (error) {
+          console.error('Create error:', error);
+          throw new Error(error);
+        }
 
         // Get the created employee ID to update file associations
         const { data: createdEmployee } = await window.ezsite.apis.tablePage('11727', {
@@ -715,12 +732,13 @@ const EmployeeForm: React.FC = () => {
         });
       }
 
+      console.log('Form submission completed successfully');
       navigate('/employees');
     } catch (error) {
       console.error('Error saving employee:', error);
       toast({
         title: "Error",
-        description: `Failed to ${isEditing ? 'update' : 'create'} employee`,
+        description: `Failed to ${isEditing ? 'update' : 'create'} employee: ${error}`,
         variant: "destructive"
       });
     } finally {
@@ -737,7 +755,7 @@ const EmployeeForm: React.FC = () => {
     let visibleBoxes = 1; // Always show at least the first box
 
     for (let i = 0; i < idDocuments.length; i++) {
-      if (idDocuments[i].file || isEditing && getExistingDocumentFileId(i)) {
+      if (idDocuments[i].file || idDocuments[i].existingFileId) {
         visibleBoxes = Math.max(visibleBoxes, i + 2); // Show next box after this one
       }
     }
@@ -747,11 +765,11 @@ const EmployeeForm: React.FC = () => {
 
   const getExistingDocumentFileId = (index: number) => {
     switch (index) {
-      case 0:return formData.id_document_file_id;
-      case 1:return formData.id_document_2_file_id;
-      case 2:return formData.id_document_3_file_id;
-      case 3:return formData.id_document_4_file_id;
-      default:return null;
+      case 0: return formData.id_document_file_id;
+      case 1: return formData.id_document_2_file_id;
+      case 2: return formData.id_document_3_file_id;
+      case 3: return formData.id_document_4_file_id;
+      default: return null;
     }
   };
 
@@ -793,12 +811,12 @@ const EmployeeForm: React.FC = () => {
                     showRemoveButton={true} />
 
                   {(formData.profile_image_id || selectedProfileImage) &&
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleRemoveProfileImage}
-                    className="text-red-600 hover:text-red-700">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRemoveProfileImage}
+                      className="text-red-600 hover:text-red-700">
                       <X className="w-4 h-4 mr-1" />
                       Remove
                     </Button>
@@ -815,7 +833,7 @@ const EmployeeForm: React.FC = () => {
                     maxSize={5} />
                   
                   {selectedProfileImage &&
-                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                       <p className="text-sm font-medium text-blue-800">New profile picture selected:</p>
                       <p className="text-sm text-blue-600">{selectedProfileImage.name}</p>
                       <p className="text-xs text-blue-500 mt-1">
@@ -850,18 +868,18 @@ const EmployeeForm: React.FC = () => {
                       required />
 
                     {!isEditing &&
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={generateEmployeeId}
-                      className="shrink-0">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={generateEmployeeId}
+                        className="shrink-0">
                         Regenerate
                       </Button>
                     }
                   </div>
                   {!isEditing &&
-                  <p className="text-xs text-green-600 bg-green-50 p-2 rounded mt-2">
+                    <p className="text-xs text-green-600 bg-green-50 p-2 rounded mt-2">
                       Employee ID is automatically generated
                     </p>
                   }
@@ -887,7 +905,7 @@ const EmployeeForm: React.FC = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {shifts.map((shift) =>
-                      <SelectItem key={shift} value={shift}>
+                        <SelectItem key={shift} value={shift}>
                           {shift}
                         </SelectItem>
                       )}
@@ -992,7 +1010,7 @@ const EmployeeForm: React.FC = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {positions.map((position) =>
-                      <SelectItem key={position} value={position}>
+                        <SelectItem key={position} value={position}>
                           {position}
                         </SelectItem>
                       )}
@@ -1008,7 +1026,7 @@ const EmployeeForm: React.FC = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {employmentStatuses.map((status) =>
-                      <SelectItem key={status.value} value={status.value}>
+                        <SelectItem key={status.value} value={status.value}>
                           <div className="flex items-center space-x-2">
                             <div className={`w-2 h-2 rounded-full ${status.color}`}></div>
                             <span>{status.label}</span>
@@ -1027,26 +1045,26 @@ const EmployeeForm: React.FC = () => {
 
                 {/* Conditional Date Fields based on Employment Status */}
                 {formData.employment_status === 'Terminated' &&
-                <div className="space-y-2">
+                  <div className="space-y-2">
                     <Label htmlFor="terminated_date">Terminated Date *</Label>
                     <Input
-                    id="terminated_date"
-                    type="date"
-                    value={formData.terminated_date}
-                    onChange={(e) => handleInputChange('terminated_date', e.target.value)}
-                    required />
+                      id="terminated_date"
+                      type="date"
+                      value={formData.terminated_date}
+                      onChange={(e) => handleInputChange('terminated_date', e.target.value)}
+                      required />
                   </div>
                 }
 
                 {formData.employment_status === 'Left' &&
-                <div className="space-y-2">
+                  <div className="space-y-2">
                     <Label htmlFor="left_date">Left Date *</Label>
                     <Input
-                    id="left_date"
-                    type="date"
-                    value={formData.left_date}
-                    onChange={(e) => handleInputChange('left_date', e.target.value)}
-                    required />
+                      id="left_date"
+                      type="date"
+                      value={formData.left_date}
+                      onChange={(e) => handleInputChange('left_date', e.target.value)}
+                      required />
                   </div>
                 }
 
@@ -1098,7 +1116,7 @@ const EmployeeForm: React.FC = () => {
                       </SelectTrigger>
                       <SelectContent>
                         {idDocumentTypes.map((type) =>
-                        <SelectItem key={type} value={type}>
+                          <SelectItem key={type} value={type}>
                             {type}
                           </SelectItem>
                         )}
@@ -1114,75 +1132,75 @@ const EmployeeForm: React.FC = () => {
                   
                   <div className="space-y-6">
                     {Array.from({ length: getVisibleIDDocumentBoxes() }, (_, index) =>
-                    <div key={index} className="space-y-4 p-6 border border-gray-200 rounded-lg bg-gray-50">
+                      <div key={index} className="space-y-4 p-6 border border-gray-200 rounded-lg bg-gray-50">
                         <div className="flex items-center justify-between">
                           <Label className="flex items-center space-x-2">
                             <FileText className="w-4 h-4" />
                             <span>ID Document {index + 1}</span>
                             {index === 0 && <span className="text-red-500">*</span>}
                           </Label>
-                          {(idDocuments[index].file || getExistingDocumentFileId(index)) &&
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleRemoveIDDocument(index);
-                          }}
-                          className="text-red-600 hover:text-red-700 h-6 px-2">
+                          {(idDocuments[index].file || idDocuments[index].existingFileId) &&
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleRemoveIDDocument(index);
+                              }}
+                              className="text-red-600 hover:text-red-700 h-6 px-2">
                               <X className="w-3 h-3" />
                             </Button>
-                        }
+                          }
                         </div>
 
-                        {/* Enhanced Upload Area - Larger for Driver License Preview */}
+                        {/* Enhanced Upload Area */}
                         <div className="space-y-4">
                           <EnhancedFileUpload
-                          onFileSelect={(file) => handleIDDocumentSelect(file, index)}
-                          accept=".pdf,.jpg,.jpeg,.png,image/*"
-                          label={`Upload Document ${index + 1}`}
-                          currentFile={idDocuments[index].name}
-                          maxSize={10}
-                          disabled={loading || isUploading} />
+                            onFileSelect={(file) => handleIDDocumentSelect(file, index)}
+                            accept=".pdf,.jpg,.jpeg,.png,image/*"
+                            label={`Upload Document ${index + 1}`}
+                            currentFile={idDocuments[index].name}
+                            maxSize={10}
+                            disabled={loading || isUploading} />
 
-                          {/* Instant Preview with DocumentPreview Component */}
-                          {idDocuments[index].file && (
-                            <DocumentPreview
-                              file={idDocuments[index].file}
-                              fileName={idDocuments[index].name}
-                              documentName={`ID Document ${index + 1}`}
-                              size="xl"
-                              aspectRatio="landscape"
-                              showRemoveButton={false}
-                              showDownload={false}
-                              showFullscreen={true}
-                              className="mt-4" />
-                          )}
+                          {/* Preview for newly selected files */}
+                          {idDocuments[index].file &&
+                            <div className="mt-4">
+                              <DocumentPreview
+                                file={idDocuments[index].file}
+                                fileName={idDocuments[index].name}
+                                documentName={`ID Document ${index + 1}`}
+                                size="xl"
+                                aspectRatio="landscape"
+                                showRemoveButton={false}
+                                showDownload={false}
+                                showFullscreen={true}
+                                className="mt-4" />
+                            </div>
+                          }
 
+                          {/* Preview for existing files (only in edit mode) */}
+                          {isEditing && !idDocuments[index].file && idDocuments[index].existingFileId &&
+                            <div className="mt-4">
+                              <DocumentPreview
+                                fileId={idDocuments[index].existingFileId}
+                                fileName={`Current Document ${index + 1}`}
+                                documentName={`ID Document ${index + 1}`}
+                                size="xl"
+                                aspectRatio="landscape"
+                                showRemoveButton={false}
+                                showDownload={true}
+                                showFullscreen={true}
+                                className="border-blue-200 bg-blue-50" />
+
+                              <p className="text-xs text-blue-600 bg-blue-100 p-2 rounded mt-2">
+                                Upload a new file to replace the current document. The new file will be saved when you click "Save Employee".
+                              </p>
+                            </div>
+                          }
                         </div>
-
-                        {/* Show existing document in edit mode with DocumentPreview Component */}
-                        {isEditing && !idDocuments[index].file && getExistingDocumentFileId(index) && (
-                          <div className="mt-4">
-                            <DocumentPreview
-                              fileId={getExistingDocumentFileId(index)}
-                              fileName={`Current Document ${index + 1}`}
-                              documentName={`ID Document ${index + 1}`}
-                              size="xl"
-                              aspectRatio="landscape"
-                              showRemoveButton={false}
-                              showDownload={true}
-                              showFullscreen={true}
-                              className="border-blue-200 bg-blue-50" />
-
-                            <p className="text-xs text-blue-600 bg-blue-100 p-2 rounded mt-2">
-                              Upload a new file to replace the current document. The new file will be saved when you click "Save Employee".
-                            </p>
-                          </div>
-                        )}
-
                       </div>
                     )}
                   </div>
@@ -1205,8 +1223,8 @@ const EmployeeForm: React.FC = () => {
               </Button>
               <Button type="submit" disabled={loading || isUploading}>
                 {loading || isUploading ?
-                'Saving...' :
-                <>
+                  'Saving...' :
+                  <>
                     <Save className="w-4 h-4 mr-2" />
                     {isEditing ? 'Update Employee' : 'Create Employee'}
                   </>
@@ -1216,8 +1234,8 @@ const EmployeeForm: React.FC = () => {
           </form>
         </CardContent>
       </Card>
-    </div>);
-
+    </div>
+  );
 };
 
 export default EmployeeForm;

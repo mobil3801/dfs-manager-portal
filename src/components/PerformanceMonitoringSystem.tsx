@@ -463,6 +463,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -534,9 +536,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
   * Get status color based on metric value
   */const getStatusColor = (value: number, thresholds: {good: number;warning: number;}) => {if (value <= thresholds.good) return 'text-green-600';if (value <= thresholds.warning) return 'text-yellow-600';return 'text-red-600';}; /**
   * Format metric values
-  */const formatBytes = (bytes: number) => {if (bytes === 0) return '0 B';const k = 1024;const sizes = ['B', 'KB', 'MB', 'GB'];const i = Math.floor(Math.log(bytes) / Math.log(k));return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];};const formatTime = (ms: number) => {if (ms < 1000) return `${ms.toFixed(0)}ms`;return `${(ms / 1000).toFixed(2)}s`;};
-
-  if (!metrics) {
+  */const formatBytes = (bytes: number) => {if (bytes === 0) return '0 B';const k = 1024;const sizes = ['B', 'KB', 'MB', 'GB'];const i = Math.floor(Math.log(bytes) / Math.log(k));return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];};const formatTime = (ms: number) => {if (ms < 1000) return `${ms.toFixed(0)}ms`;return `${(ms / 1000).toFixed(2)}s`;};if (!metrics) {
     return (
       <Card>
         <CardContent className="flex items-center justify-center h-48">
