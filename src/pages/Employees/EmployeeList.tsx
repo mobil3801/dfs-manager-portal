@@ -17,6 +17,7 @@ import ResponsiveTable from '@/components/ResponsiveTable';
 import { useIsMobile } from '@/hooks/use-mobile';
 import ProfilePicture from '@/components/ProfilePicture';
 import DocumentPreview from '@/components/DocumentPreview';
+import InstantDocumentPreview from '@/components/InstantDocumentPreview';
 
 interface Employee {
   ID: number;
@@ -380,7 +381,7 @@ const EmployeeList: React.FC = () => {
     }
   };
 
-  // ID Documents Display Component with Image Previews
+  // Enhanced ID Documents Display Component with Instant Image Previews
   const IDDocumentsDisplay = ({ employee }: {employee: Employee;}) => {
     const documents = [
     { fileId: employee.id_document_file_id, label: 'ID Document 1' },
@@ -414,10 +415,10 @@ const EmployeeList: React.FC = () => {
           </div>
         }
         
-        {/* Enhanced Document Previews Grid */}
+        {/* Enhanced Document Previews Grid with Instant Preview */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {documents.map((doc, index) =>
-          <DocumentPreview
+          <InstantDocumentPreview
             key={index}
             fileId={doc.fileId}
             fileName={doc.label}
@@ -427,7 +428,8 @@ const EmployeeList: React.FC = () => {
             showRemoveButton={false}
             showDownload={true}
             showFullscreen={true}
-            className="border border-gray-200" />
+            showInstantPreview={true}
+            className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow" />
 
           )}
         </div>
