@@ -89,6 +89,9 @@ const EmployeeForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
+  // Track files to be deleted from database
+  const [filesToDelete, setFilesToDelete] = useState<number[]>([]);
+
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -272,6 +275,24 @@ const EmployeeForm: React.FC = () => {
     }
   };
 
+  // Function to permanently delete files from database storage
+  const deleteFilesFromDatabase = async (fileIds: number[]) => {
+    try {
+      // Delete files from file_uploads table
+      for (const fileId of fileIds) {
+        const { error } = await window.ezsite.apis.tableDelete('26928', {
+          store_file_id: fileId
+        });
+        if (error) {
+          console.error(`Error deleting file ${fileId}:`, error);
+          // Continue with other files even if one fails
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting files from database:', error);
+    }
+  };
+
   const handleIDDocumentSelect = (file: File, index: number) => {
     const newIdDocuments = [...idDocuments];
 
@@ -301,6 +322,13 @@ const EmployeeForm: React.FC = () => {
     // Clean up preview URL
     if (newIdDocuments[index].preview) {
       URL.revokeObjectURL(newIdDocuments[index].preview!);
+    }
+
+    // Get the existing file ID that needs to be deleted
+    const existingFileId = getExistingDocumentFileId(index);
+    if (existingFileId) {
+      // Add to files to delete list for permanent removal
+      setFilesToDelete((prev) => [...prev, existingFileId]);
     }
 
     // Remove the document at the specified index
@@ -341,6 +369,11 @@ const EmployeeForm: React.FC = () => {
   };
 
   const handleRemoveProfileImage = () => {
+    // Track existing profile image for deletion
+    if (formData.profile_image_id) {
+      setFilesToDelete((prev) => [...prev, formData.profile_image_id!]);
+    }
+
     setSelectedProfileImage(null);
     setFormData((prev) => ({ ...prev, profile_image_id: null }));
     toast({
@@ -364,6 +397,12 @@ const EmployeeForm: React.FC = () => {
 
     try {
       setLoading(true);
+
+      // Permanently delete files that were marked for deletion
+      if (filesToDelete.length > 0) {
+        await deleteFilesFromDatabase(filesToDelete);
+        setFilesToDelete([]); // Clear the list after deletion
+      }
 
       let profileImageId = formData.profile_image_id;
       let idDocumentFileIds = [

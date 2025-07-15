@@ -255,6 +255,8 @@ const UserConflictPrevention: React.FC = () => {
 
 
 
+
+
         // User not found or not logged in - this is fine for email uniqueness check
       } // Check email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;if (!emailRegex.test(email)) {results.push({ isValid: false, type: 'email', message: 'Invalid email format.', severity: 'error' });}if (results.length === 0) {results.push({ isValid: true, type: 'email', message: 'Email is available and valid.', severity: 'info' });}setValidationResults(results);} catch (error) {console.error('Error validating email:', error);} finally {setIsValidating(false);}};const validateRoleConflict = () => {if (!roleToCheck || !stationToCheck) {toast({ title: "Validation Required", description: "Please select both role and station to check for conflicts", variant: "destructive" });return;}const results: ValidationResult[] = []; // Check for role conflicts
@@ -303,14 +305,12 @@ const UserConflictPrevention: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                {validationResults.filter((result) => result.type === 'email' || result.type === 'admin_protection').map((result, index) =>
-              <Alert key={index} variant={getResultVariant(result.severity)}>
+                {validationResults.filter((result) => result.type === 'email' || result.type === 'admin_protection').map((result, index) => <Alert key={index} variant={getResultVariant(result.severity)}>
                       <div className="flex items-center gap-2">
                         {getResultIcon(result)}
                         <AlertDescription>{result.message}</AlertDescription>
                       </div>
-                    </Alert>
-              )}
+                    </Alert>)}
               </div>
             </CardContent>
           </Card>
