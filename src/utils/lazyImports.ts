@@ -1,16 +1,16 @@
 import { lazy } from 'react';
 
 // Utility function to create lazy imports with error handling
-export const createLazyImport = <T extends React.ComponentType<any>>(
-  importFn: () => Promise<{ default: T }>
-) => {
+export const createLazyImport = <T extends React.ComponentType<any>,>(
+importFn: () => Promise<{default: T;}>) =>
+{
   return lazy(() =>
-    importFn().catch((error) => {
-      console.error('Failed to load component:', error);
-      // Return a fallback component in case of import failure
-      return {
-        default: (() => (
-          <div className="min-h-[400px] flex items-center justify-center">
+  importFn().catch((error) => {
+    console.error('Failed to load component:', error);
+    // Return a fallback component in case of import failure
+    return {
+      default: (() =>
+      <div className="min-h-[400px] flex items-center justify-center">
             <div className="text-center">
               <div className="text-red-600 mb-4">
                 <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -20,16 +20,16 @@ export const createLazyImport = <T extends React.ComponentType<any>>(
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Failed to Load Component</h3>
               <p className="text-gray-600 mb-4">The component could not be loaded. Please try refreshing the page.</p>
               <button
-                onClick={() => window.location.reload()}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
+            onClick={() => window.location.reload()}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+
                 Refresh Page
               </button>
             </div>
-          </div>
-        )) as T
-      };
-    })
+          </div>) as
+      T
+    };
+  })
   );
 };
 
@@ -37,21 +37,21 @@ export const createLazyImport = <T extends React.ComponentType<any>>(
 export const lazyImports = {
   // Chart components
   SalesChart: createLazyImport(() => import('@/components/SalesChart')),
-  
+
   // Heavy UI components
   EnhancedFileUpload: createLazyImport(() => import('@/components/EnhancedFileUpload')),
   ProfilePicture: createLazyImport(() => import('@/components/ProfilePicture')),
-  
+
   // Admin components
   ErrorAnalyticsDashboard: createLazyImport(() => import('@/components/ErrorAnalyticsDashboard')),
   MemoryLeakDashboard: createLazyImport(() => import('@/components/MemoryLeakDashboard')),
-  
+
   // Complex forms
   ComprehensivePermissionDialog: createLazyImport(() => import('@/components/ComprehensivePermissionDialog')),
-  
+
   // Specialized components
   BarcodeScanner: createLazyImport(() => import('@/components/BarcodeScanner')),
-  SMSTestManager: createLazyImport(() => import('@/components/SMSTestManager')),
+  SMSTestManager: createLazyImport(() => import('@/components/SMSTestManager'))
 };
 
 export default lazyImports;

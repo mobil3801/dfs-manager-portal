@@ -7,14 +7,14 @@ interface LazyComponentLoaderProps {
   minHeight?: string;
 }
 
-const DefaultLoader = ({ minHeight = '400px' }: { minHeight?: string }) => (
-  <div className="flex items-center justify-center" style={{ minHeight }}>
+const DefaultLoader = ({ minHeight = '400px' }: {minHeight?: string;}) =>
+<div className="flex items-center justify-center" style={{ minHeight }}>
     <div className="text-center">
       <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-3" />
       <p className="text-gray-600">Loading component...</p>
     </div>
-  </div>
-);
+  </div>;
+
 
 const LazyComponentLoader: React.FC<LazyComponentLoaderProps> = ({
   children,
@@ -24,8 +24,8 @@ const LazyComponentLoader: React.FC<LazyComponentLoaderProps> = ({
   return (
     <Suspense fallback={fallback || <DefaultLoader minHeight={minHeight} />}>
       {children}
-    </Suspense>
-  );
+    </Suspense>);
+
 };
 
 export default LazyComponentLoader;

@@ -164,222 +164,222 @@ const AppRouter = () => {
             
             {/* Products */}
             <Route path="products" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <ProductList />
               </Suspense>
             } />
             <Route path="products/new" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <ProductForm />
               </Suspense>
             } />
             <Route path="products/:id/edit" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <ProductForm />
               </Suspense>
             } />
             
             {/* Employees */}
             <Route path="employees" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <EmployeeList />
               </Suspense>
             } />
             <Route path="employees/new" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <EmployeeForm />
               </Suspense>
             } />
             <Route path="employees/:id/edit" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <EmployeeForm />
               </Suspense>
             } />
             
             {/* Sales */}
             <Route path="sales" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <SalesReportList />
               </Suspense>
             } />
             <Route path="sales/new" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <SalesReportForm />
               </Suspense>
             } />
             <Route path="sales/:id/edit" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <SalesReportForm />
               </Suspense>
             } />
             
             {/* Vendors */}
             <Route path="vendors" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <VendorList />
               </Suspense>
             } />
             <Route path="vendors/new" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <VendorForm />
               </Suspense>
             } />
             <Route path="vendors/:id/edit" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <VendorForm />
               </Suspense>
             } />
             
             {/* Orders */}
             <Route path="orders" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <OrderList />
               </Suspense>
             } />
             <Route path="orders/new" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <OrderForm />
               </Suspense>
             } />
             <Route path="orders/:id/edit" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <OrderForm />
               </Suspense>
             } />
             
             {/* Licenses */}
             <Route path="licenses" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <LicenseList />
               </Suspense>
             } />
             <Route path="licenses/new" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <LicenseForm />
               </Suspense>
             } />
             <Route path="licenses/:id/edit" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <LicenseForm />
               </Suspense>
             } />
             
             {/* Salary */}
             <Route path="salary" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <SalaryList />
               </Suspense>
             } />
             <Route path="salary/new" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <SalaryForm />
               </Suspense>
             } />
             <Route path="salary/:id/edit" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <SalaryForm />
               </Suspense>
             } />
             
             {/* Delivery */}
             <Route path="delivery" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <DeliveryList />
               </Suspense>
             } />
             <Route path="delivery/new" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <DeliveryForm />
               </Suspense>
             } />
             <Route path="delivery/:id/edit" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <DeliveryForm />
               </Suspense>
             } />
             
             {/* Settings */}
             <Route path="settings" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <AppSettings />
               </Suspense>
             } />
             
             {/* Demo and Test Pages */}
             <Route path="profile-picture-demo" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <ProfilePictureDemo />
               </Suspense>
             } />
             <Route path="overflow-test" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <OverflowTestPage />
               </Suspense>
             } />
             <Route path="overflow-testing" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <OverflowTestingPage />
               </Suspense>
             } />
             
             {/* Admin Routes */}
             <Route path="admin" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <AdminPanel />
               </Suspense>
             } />
             <Route path="admin/users" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <UserManagement />
               </Suspense>
             } />
             <Route path="admin/sites" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <SiteManagement />
               </Suspense>
             } />
             <Route path="admin/logs" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <SystemLogs />
               </Suspense>
             } />
             <Route path="admin/security" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <SecuritySettings />
               </Suspense>
             } />
             <Route path="admin/sms" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <SMSManagement />
               </Suspense>
             } />
             <Route path="admin/user-validation" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <UserValidationTestPage />
               </Suspense>
             } />
             <Route path="admin/auth-diagnostic" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <AuthDiagnosticPage />
               </Suspense>
             } />
             <Route path="admin/module-access" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <ModuleAccessPage />
               </Suspense>
             } />
             <Route path="admin/navigation-debug" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <NavigationDebugPage />
               </Suspense>
             } />
             <Route path="admin/database" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <DatabaseMonitoring />
               </Suspense>
             } />
             <Route path="admin/audit" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <AuditMonitoring />
               </Suspense>
             } />

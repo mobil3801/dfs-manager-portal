@@ -676,11 +676,11 @@ const EmployeeForm: React.FC = () => {
                       </Button>
                     }
                   </div>
-                  {!isEditing && (
-                    <p className="text-xs text-green-600 bg-green-50 p-2 rounded mt-2">
+                  {!isEditing &&
+                  <p className="text-xs text-green-600 bg-green-50 p-2 rounded mt-2">
                       Employee ID is automatically generated
                     </p>
-                  )}
+                  }
                 </div>
 
                 <div className="space-y-2">
@@ -965,40 +965,40 @@ const EmployeeForm: React.FC = () => {
 
                           {/* Instant Preview with DocumentPreview Component */}
                           {idDocuments[index].file &&
-                            <DocumentPreview
-                              file={idDocuments[index].file}
-                              fileName={idDocuments[index].name}
-                              documentName={`ID Document ${index + 1}`}
-                              size="xl"
-                              aspectRatio="landscape"
-                              showRemoveButton={false}
-                              showDownload={false}
-                              showFullscreen={true}
-                              className="mt-4"
-                            />
-                          }
+                        <DocumentPreview
+                          file={idDocuments[index].file}
+                          fileName={idDocuments[index].name}
+                          documentName={`ID Document ${index + 1}`}
+                          size="xl"
+                          aspectRatio="landscape"
+                          showRemoveButton={false}
+                          showDownload={false}
+                          showFullscreen={true}
+                          className="mt-4" />
+
+                        }
 
                         </div>
 
                         {/* Show existing document in edit mode with DocumentPreview Component */}
                         {isEditing && !idDocuments[index].file && getExistingDocumentFileId(index) &&
-                          <div className="mt-4">
+                      <div className="mt-4">
                             <DocumentPreview
-                              fileId={getExistingDocumentFileId(index)}
-                              fileName={`Current Document ${index + 1}`}
-                              documentName={`ID Document ${index + 1}`}
-                              size="xl"
-                              aspectRatio="landscape"
-                              showRemoveButton={false}
-                              showDownload={true}
-                              showFullscreen={true}
-                              className="border-blue-200 bg-blue-50"
-                            />
+                          fileId={getExistingDocumentFileId(index)}
+                          fileName={`Current Document ${index + 1}`}
+                          documentName={`ID Document ${index + 1}`}
+                          size="xl"
+                          aspectRatio="landscape"
+                          showRemoveButton={false}
+                          showDownload={true}
+                          showFullscreen={true}
+                          className="border-blue-200 bg-blue-50" />
+
                             <p className="text-xs text-blue-600 bg-blue-100 p-2 rounded mt-2">
                               Upload a new file to replace the current document. The new file will be saved when you click "Save Employee".
                             </p>
                           </div>
-                        }
+                      }
 
                       </div>
                     )}

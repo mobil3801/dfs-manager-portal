@@ -189,25 +189,42 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
 
           {/* Non-image file fallback */}
           {(!isImage || imageError) && !isLoading &&
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 border-2 border-dashed border-blue-300 rounded-lg">
               <div className="text-center p-6">
-                <FileText className="w-16 h-16 text-gray-400 mx-auto mb-3" />
-                <p className="text-sm font-medium text-gray-700">Document File</p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {imageError ? 'Preview not available' : 'No preview available'}
+                <div className="relative mb-4">
+                  <FileText className="w-16 h-16 text-blue-500 mx-auto mb-3 drop-shadow-sm" />
+                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                    <Eye className="w-3 h-3 text-white" />
+                  </div>
+                </div>
+                <p className="text-sm font-semibold text-blue-800 mb-1">Document Preview</p>
+                <p className="text-xs text-blue-600 mb-3">
+                  {imageError ? 'Image preview unavailable' : 'Ready for preview'}
                 </p>
-                {showFullscreen &&
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="mt-3 text-blue-600 border-blue-300 hover:bg-blue-50"
-                onClick={handleFullScreenView}>
-
-                    <Eye className="w-4 h-4 mr-2" />
-                    View File
-                  </Button>
-              }
+                <div className="flex flex-col space-y-2">
+                  {showFullscreen &&
+                <Button
+                  type="button"
+                  variant="default"
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700 text-white shadow-md"
+                  onClick={handleFullScreenView}>
+                      <Eye className="w-4 h-4 mr-2" />
+                      Preview Document
+                    </Button>
+                }
+                  {showDownload &&
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                  onClick={handleDownload}>
+                      <Download className="w-4 h-4 mr-2" />
+                      Download
+                    </Button>
+                }
+                </div>
               </div>
             </div>
           }
