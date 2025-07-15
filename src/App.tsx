@@ -18,43 +18,11 @@ import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import NotFound from '@/pages/NotFound';
 import Dashboard from '@/pages/Dashboard';
 
-// Lazy load feature pages for code splitting
-const ProductList = React.lazy(() => import('@/pages/Products/ProductList'));
-const ProductForm = React.lazy(() => import('@/pages/Products/ProductForm'));
-const EmployeeList = React.lazy(() => import('@/pages/Employees/EmployeeList'));
-const EmployeeForm = React.lazy(() => import('@/pages/Employees/EmployeeForm'));
-const SalesReportList = React.lazy(() => import('@/pages/Sales/SalesReportList'));
-const SalesReportForm = React.lazy(() => import('@/pages/Sales/SalesReportForm'));
-const VendorList = React.lazy(() => import('@/pages/Vendors/VendorList'));
-const VendorForm = React.lazy(() => import('@/pages/Vendors/VendorForm'));
-const OrderList = React.lazy(() => import('@/pages/Orders/OrderList'));
-const OrderForm = React.lazy(() => import('@/pages/Orders/OrderForm'));
-const LicenseList = React.lazy(() => import('@/pages/Licenses/LicenseList'));
-const LicenseForm = React.lazy(() => import('@/pages/Licenses/LicenseForm'));
-const SalaryList = React.lazy(() => import('@/pages/Salary/SalaryList'));
-const SalaryForm = React.lazy(() => import('@/pages/Salary/SalaryForm'));
-const DeliveryList = React.lazy(() => import('@/pages/Delivery/DeliveryList'));
-const DeliveryForm = React.lazy(() => import('@/pages/Delivery/DeliveryForm'));
-const AppSettings = React.lazy(() => import('@/pages/Settings/AppSettings'));
+// Use optimized loading components
+import { LoadingSpinner, PageLoadingSpinner } from '@/components/LoadingComponents/OptimizedSpinners';
 
-// Lazy load admin pages
-const AdminPanel = React.lazy(() => import('@/pages/Admin/AdminPanel'));
-const UserManagement = React.lazy(() => import('@/pages/Admin/UserManagement'));
-const SiteManagement = React.lazy(() => import('@/pages/Admin/SiteManagement'));
-const SystemLogs = React.lazy(() => import('@/pages/Admin/SystemLogs'));
-const SecuritySettings = React.lazy(() => import('@/pages/Admin/SecuritySettings'));
-const SMSManagement = React.lazy(() => import('@/pages/Admin/SMSManagement'));
-const UserValidationTestPage = React.lazy(() => import('@/pages/Admin/UserValidationTestPage'));
-const AuthDiagnosticPage = React.lazy(() => import('@/pages/AuthDiagnosticPage'));
-const ModuleAccessPage = React.lazy(() => import('@/pages/Admin/ModuleAccessPage'));
-const NavigationDebugPage = React.lazy(() => import('@/pages/Admin/NavigationDebugPage'));
-const DatabaseMonitoring = React.lazy(() => import('@/pages/Admin/DatabaseMonitoring'));
-const AuditMonitoring = React.lazy(() => import('@/pages/Admin/AuditMonitoring'));
-
-// Lazy load demo/testing pages
-const ProfilePictureDemo = React.lazy(() => import('@/components/ProfilePictureDemo'));
-const OverflowTestPage = React.lazy(() => import('@/pages/OverflowTestPage'));
-const OverflowTestingPage = React.lazy(() => import('@/pages/OverflowTestingPage'));
+// Use the enhanced lazy routes
+import { LazyRoutes, preloadRoutes, preloadBasedOnRole } from '@/routes/lazyRoutes';
 
 import './App.css';
 
@@ -63,34 +31,14 @@ const queryClient = new QueryClient({
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000 // 5 minutes
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      cacheTime: 10 * 60 * 1000 // 10 minutes
     }
   }
 });
 
-// Enhanced Loading Spinner Component
-const LoadingSpinner = ({ message = "Loading..." }: { message?: string }) => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-      <p className="text-gray-600">{message}</p>
-      <p className="text-sm text-gray-500 mt-2">Please wait...</p>
-    </div>
-  </div>
-);
-
-// Page Loading Component for lazy loaded routes
-const PageLoadingSpinner = () => (
-  <div className="flex items-center justify-center py-12">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-      <p className="text-gray-600 text-sm">Loading page...</p>
-    </div>
-  </div>
-);
-
 // Error Display Component
-const AuthError = ({ error, onRetry }: {error: string; onRetry: () => void;}) => (
+const AuthError = ({ error, onRetry }: { error: string; onRetry: () => void }) => (
   <div className="min-h-screen flex items-center justify-center bg-gray-50">
     <div className="max-w-md w-full text-center">
       <div className="bg-white rounded-lg shadow-lg p-6">
@@ -120,9 +68,29 @@ const AuthError = ({ error, onRetry }: {error: string; onRetry: () => void;}) =>
   </div>
 );
 
-// Protected Route Component with improved error handling
-const ProtectedRoute: React.FC<{children: React.ReactNode;}> = ({ children }) => {
-  const { isAuthenticated, isLoading, authError, isInitialized, refreshUserData } = useAuth();
+// Optimized lazy route wrapper
+const LazyRouteWrapper = ({ 
+  component: Component, 
+  routeName 
+}: { 
+  component: React.ComponentType<any>, 
+  routeName: string 
+}) => (
+  <Suspense fallback={<PageLoadingSpinner route={routeName} compact />}>
+    <Component />
+  </Suspense>
+);
+
+// Enhanced Protected Route Component
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated, isLoading, authError, isInitialized, refreshUserData, user } = useAuth();
+
+  // Preload routes based on user role once authenticated
+  React.useEffect(() => {
+    if (isAuthenticated && user?.role) {
+      preloadBasedOnRole(user.role);
+    }
+  }, [isAuthenticated, user?.role]);
 
   // Show loading while initializing
   if (!isInitialized || isLoading) {
@@ -146,6 +114,14 @@ const ProtectedRoute: React.FC<{children: React.ReactNode;}> = ({ children }) =>
 const AppRouter = () => {
   const { isInitialized } = useAuth();
 
+  // Preload critical routes on app initialization
+  React.useEffect(() => {
+    if (isInitialized) {
+      // Delay preloading to not interfere with initial load
+      setTimeout(preloadRoutes, 2000);
+    }
+  }, [isInitialized]);
+
   // Show loading during initial authentication setup
   if (!isInitialized) {
     return <LoadingSpinner message="Initializing authentication system..." />;
@@ -165,235 +141,67 @@ const AppRouter = () => {
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             
-            {/* Products */}
-            <Route path="products" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <ProductList />
-              </Suspense>
-            } />
-            <Route path="products/new" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <ProductForm />
-              </Suspense>
-            } />
-            <Route path="products/:id/edit" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <ProductForm />
-              </Suspense>
-            } />
+            {/* Feature Routes with Lazy Loading */}
+            <Route path="products" element={<LazyRouteWrapper component={LazyRoutes.ProductList} routeName="Products" />} />
+            <Route path="products/new" element={<LazyRouteWrapper component={LazyRoutes.ProductForm} routeName="New Product" />} />
+            <Route path="products/:id/edit" element={<LazyRouteWrapper component={LazyRoutes.ProductForm} routeName="Edit Product" />} />
             
-            {/* Employees */}
-            <Route path="employees" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <EmployeeList />
-              </Suspense>
-            } />
-            <Route path="employees/new" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <EmployeeForm />
-              </Suspense>
-            } />
-            <Route path="employees/:id/edit" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <EmployeeForm />
-              </Suspense>
-            } />
+            <Route path="employees" element={<LazyRouteWrapper component={LazyRoutes.EmployeeList} routeName="Employees" />} />
+            <Route path="employees/new" element={<LazyRouteWrapper component={LazyRoutes.EmployeeForm} routeName="New Employee" />} />
+            <Route path="employees/:id/edit" element={<LazyRouteWrapper component={LazyRoutes.EmployeeForm} routeName="Edit Employee" />} />
             
-            {/* Sales */}
-            <Route path="sales" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <SalesReportList />
-              </Suspense>
-            } />
-            <Route path="sales/new" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <SalesReportForm />
-              </Suspense>
-            } />
-            <Route path="sales/:id/edit" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <SalesReportForm />
-              </Suspense>
-            } />
+            <Route path="sales" element={<LazyRouteWrapper component={LazyRoutes.SalesReportList} routeName="Sales Reports" />} />
+            <Route path="sales/new" element={<LazyRouteWrapper component={LazyRoutes.SalesReportForm} routeName="New Sales Report" />} />
+            <Route path="sales/:id/edit" element={<LazyRouteWrapper component={LazyRoutes.SalesReportForm} routeName="Edit Sales Report" />} />
             
-            {/* Vendors */}
-            <Route path="vendors" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <VendorList />
-              </Suspense>
-            } />
-            <Route path="vendors/new" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <VendorForm />
-              </Suspense>
-            } />
-            <Route path="vendors/:id/edit" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <VendorForm />
-              </Suspense>
-            } />
+            <Route path="vendors" element={<LazyRouteWrapper component={LazyRoutes.VendorList} routeName="Vendors" />} />
+            <Route path="vendors/new" element={<LazyRouteWrapper component={LazyRoutes.VendorForm} routeName="New Vendor" />} />
+            <Route path="vendors/:id/edit" element={<LazyRouteWrapper component={LazyRoutes.VendorForm} routeName="Edit Vendor" />} />
             
-            {/* Orders */}
-            <Route path="orders" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <OrderList />
-              </Suspense>
-            } />
-            <Route path="orders/new" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <OrderForm />
-              </Suspense>
-            } />
-            <Route path="orders/:id/edit" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <OrderForm />
-              </Suspense>
-            } />
+            <Route path="orders" element={<LazyRouteWrapper component={LazyRoutes.OrderList} routeName="Orders" />} />
+            <Route path="orders/new" element={<LazyRouteWrapper component={LazyRoutes.OrderForm} routeName="New Order" />} />
+            <Route path="orders/:id/edit" element={<LazyRouteWrapper component={LazyRoutes.OrderForm} routeName="Edit Order" />} />
             
-            {/* Licenses */}
-            <Route path="licenses" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <LicenseList />
-              </Suspense>
-            } />
-            <Route path="licenses/new" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <LicenseForm />
-              </Suspense>
-            } />
-            <Route path="licenses/:id/edit" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <LicenseForm />
-              </Suspense>
-            } />
+            <Route path="licenses" element={<LazyRouteWrapper component={LazyRoutes.LicenseList} routeName="Licenses" />} />
+            <Route path="licenses/new" element={<LazyRouteWrapper component={LazyRoutes.LicenseForm} routeName="New License" />} />
+            <Route path="licenses/:id/edit" element={<LazyRouteWrapper component={LazyRoutes.LicenseForm} routeName="Edit License" />} />
             
-            {/* Salary */}
-            <Route path="salary" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <SalaryList />
-              </Suspense>
-            } />
-            <Route path="salary/new" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <SalaryForm />
-              </Suspense>
-            } />
-            <Route path="salary/:id/edit" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <SalaryForm />
-              </Suspense>
-            } />
+            <Route path="salary" element={<LazyRouteWrapper component={LazyRoutes.SalaryList} routeName="Salary Records" />} />
+            <Route path="salary/new" element={<LazyRouteWrapper component={LazyRoutes.SalaryForm} routeName="New Salary Record" />} />
+            <Route path="salary/:id/edit" element={<LazyRouteWrapper component={LazyRoutes.SalaryForm} routeName="Edit Salary Record" />} />
             
-            {/* Delivery */}
-            <Route path="delivery" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <DeliveryList />
-              </Suspense>
-            } />
-            <Route path="delivery/new" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <DeliveryForm />
-              </Suspense>
-            } />
-            <Route path="delivery/:id/edit" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <DeliveryForm />
-              </Suspense>
-            } />
+            <Route path="delivery" element={<LazyRouteWrapper component={LazyRoutes.DeliveryList} routeName="Delivery Records" />} />
+            <Route path="delivery/new" element={<LazyRouteWrapper component={LazyRoutes.DeliveryForm} routeName="New Delivery Record" />} />
+            <Route path="delivery/:id/edit" element={<LazyRouteWrapper component={LazyRoutes.DeliveryForm} routeName="Edit Delivery Record" />} />
             
-            {/* Settings */}
-            <Route path="settings" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <AppSettings />
-              </Suspense>
-            } />
-            
-            {/* Demo/Testing Pages */}
-            <Route path="profile-picture-demo" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <ProfilePictureDemo />
-              </Suspense>
-            } />
-            <Route path="overflow-test" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <OverflowTestPage />
-              </Suspense>
-            } />
-            <Route path="overflow-testing" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <OverflowTestingPage />
-              </Suspense>
-            } />
+            <Route path="settings" element={<LazyRouteWrapper component={LazyRoutes.AppSettings} routeName="Settings" />} />
             
             {/* Admin Routes */}
-            <Route path="admin" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <AdminPanel />
-              </Suspense>
-            } />
-            <Route path="admin/users" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <UserManagement />
-              </Suspense>
-            } />
-            <Route path="admin/sites" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <SiteManagement />
-              </Suspense>
-            } />
-            <Route path="admin/logs" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <SystemLogs />
-              </Suspense>
-            } />
-            <Route path="admin/security" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <SecuritySettings />
-              </Suspense>
-            } />
-            <Route path="admin/sms" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <SMSManagement />
-              </Suspense>
-            } />
-            <Route path="admin/user-validation" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <UserValidationTestPage />
-              </Suspense>
-            } />
-            <Route path="admin/auth-diagnostic" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <AuthDiagnosticPage />
-              </Suspense>
-            } />
-            <Route path="admin/module-access" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <ModuleAccessPage />
-              </Suspense>
-            } />
-            <Route path="admin/navigation-debug" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <NavigationDebugPage />
-              </Suspense>
-            } />
-            <Route path="admin/database" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <DatabaseMonitoring />
-              </Suspense>
-            } />
-            <Route path="admin/audit" element={
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <AuditMonitoring />
-              </Suspense>
-            } />
+            <Route path="admin" element={<LazyRouteWrapper component={LazyRoutes.AdminPanel} routeName="Admin Panel" />} />
+            <Route path="admin/users" element={<LazyRouteWrapper component={LazyRoutes.UserManagement} routeName="User Management" />} />
+            <Route path="admin/sites" element={<LazyRouteWrapper component={LazyRoutes.SiteManagement} routeName="Site Management" />} />
+            <Route path="admin/logs" element={<LazyRouteWrapper component={LazyRoutes.SystemLogs} routeName="System Logs" />} />
+            <Route path="admin/security" element={<LazyRouteWrapper component={LazyRoutes.SecuritySettings} routeName="Security Settings" />} />
+            <Route path="admin/sms" element={<LazyRouteWrapper component={LazyRoutes.SMSManagement} routeName="SMS Management" />} />
+            <Route path="admin/user-validation" element={<LazyRouteWrapper component={LazyRoutes.UserValidationTestPage} routeName="User Validation Test" />} />
+            <Route path="admin/auth-diagnostic" element={<LazyRouteWrapper component={LazyRoutes.AuthDiagnosticPage} routeName="Auth Diagnostic" />} />
+            <Route path="admin/module-access" element={<LazyRouteWrapper component={LazyRoutes.ModuleAccessPage} routeName="Module Access" />} />
+            <Route path="admin/navigation-debug" element={<LazyRouteWrapper component={LazyRoutes.NavigationDebugPage} routeName="Navigation Debug" />} />
+            <Route path="admin/database" element={<LazyRouteWrapper component={LazyRoutes.DatabaseMonitoring} routeName="Database Monitoring" />} />
+            <Route path="admin/audit" element={<LazyRouteWrapper component={LazyRoutes.AuditMonitoring} routeName="Audit Monitoring" />} />
+            
+            {/* Demo/Testing Routes */}
+            <Route path="profile-picture-demo" element={<LazyRouteWrapper component={LazyRoutes.ProfilePictureDemo} routeName="Profile Picture Demo" />} />
+            <Route path="overflow-test" element={<LazyRouteWrapper component={LazyRoutes.OverflowTestPage} routeName="Overflow Test" />} />
+            <Route path="overflow-testing" element={<LazyRouteWrapper component={LazyRoutes.OverflowTestingPage} routeName="Overflow Testing" />} />
           </Route>
           
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
         
-        {/* Auth Debugger - Only show in development or for debugging */}
-        <AuthDebugger />
+        {/* Auth Debugger - Only show in development */}
+        {process.env.NODE_ENV === 'development' && <AuthDebugger />}
       </div>
     </Router>
   );

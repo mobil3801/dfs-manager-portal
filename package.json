@@ -1,13 +1,19 @@
 {
-  "name": "dfs-manager",
+  "name": "dfs-manager-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:analyze": "tsc \u0026\u0026 vite build --mode analyze",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "build:analyze": "npm run build \u0026\u0026 npx vite-bundle-analyzer dist",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "bundle:analyze": "npx vite-bundle-analyzer dist/stats.json",
+    "size:check": "bundlesize",
     "build:dev": "vite build --mode development"
   },
   "dependencies": {
@@ -69,10 +75,11 @@
     "@monaco-editor/react": "^4.7.0"
   },
   "devDependencies": {
+    "@types/node": "^22.5.5",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "@typescript-eslint/eslint-plugin": "^7.15.0",
-    "@typescript-eslint/parser": "^7.15.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.9.0",
@@ -81,12 +88,25 @@
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.11",
     "typescript": "^5.5.3",
-    "vite": "^5.4.1",
-    "vite-bundle-analyzer": "^0.11.0",
+    "vite": "^5.4.19",
+    "vite-bundle-analyzer": "^0.7.0",
+    "bundlesize": "^0.18.1",
+    "vitest": "^1.0.0",
     "@eslint/js": "^9.9.0",
     "@tailwindcss/typography": "^0.5.15",
-    "@types/node": "^22.5.5",
     "globals": "^15.9.0",
     "typescript-eslint": "^8.0.1"
-  }
+  },
+  "bundlesize": [
+    {
+      "path": "./dist/assets/index-*.js",
+      "maxSize": "600 kB",
+      "compression": "gzip"
+    },
+    {
+      "path": "./dist/assets/index-*.css",
+      "maxSize": "20 kB",
+      "compression": "gzip"
+    }
+  ]
 }

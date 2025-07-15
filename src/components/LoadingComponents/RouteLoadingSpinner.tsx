@@ -7,9 +7,9 @@ interface RouteLoadingSpinnerProps {
   showSkeleton?: boolean;
 }
 
-const RouteLoadingSpinner: React.FC<RouteLoadingSpinnerProps> = ({ 
-  route, 
-  showSkeleton = false 
+const RouteLoadingSpinner: React.FC<RouteLoadingSpinnerProps> = ({
+  route,
+  showSkeleton = false
 }) => {
   if (showSkeleton) {
     return (
@@ -24,16 +24,16 @@ const RouteLoadingSpinner: React.FC<RouteLoadingSpinnerProps> = ({
           <Skeleton className="h-4 w-1/2" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => (
-            <Card key={i} className="p-4 space-y-2">
+          {[...Array(6)].map((_, i) =>
+          <Card key={i} className="p-4 space-y-2">
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-3 w-3/4" />
               <Skeleton className="h-3 w-1/2" />
             </Card>
-          ))}
+          )}
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -52,43 +52,43 @@ const RouteLoadingSpinner: React.FC<RouteLoadingSpinnerProps> = ({
           Please wait while we prepare your content
         </p>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 // Different loading states for different route types
-export const ProductLoadingSpinner = () => (
-  <RouteLoadingSpinner route="Products" showSkeleton />
-);
+export const ProductLoadingSpinner = () =>
+<RouteLoadingSpinner route="Products" showSkeleton />;
 
-export const EmployeeLoadingSpinner = () => (
-  <RouteLoadingSpinner route="Employees" showSkeleton />
-);
 
-export const SalesLoadingSpinner = () => (
-  <RouteLoadingSpinner route="Sales Reports" showSkeleton />
-);
+export const EmployeeLoadingSpinner = () =>
+<RouteLoadingSpinner route="Employees" showSkeleton />;
 
-export const AdminLoadingSpinner = () => (
-  <RouteLoadingSpinner route="Admin Panel" />
-);
 
-export const FormLoadingSpinner = () => (
-  <div className="p-6 space-y-4">
+export const SalesLoadingSpinner = () =>
+<RouteLoadingSpinner route="Sales Reports" showSkeleton />;
+
+
+export const AdminLoadingSpinner = () =>
+<RouteLoadingSpinner route="Admin Panel" />;
+
+
+export const FormLoadingSpinner = () =>
+<div className="p-6 space-y-4">
     <Skeleton className="h-8 w-64" />
     <div className="space-y-4">
-      {[...Array(5)].map((_, i) => (
-        <div key={i} className="space-y-2">
+      {[...Array(5)].map((_, i) =>
+    <div key={i} className="space-y-2">
           <Skeleton className="h-4 w-24" />
           <Skeleton className="h-10 w-full" />
         </div>
-      ))}
+    )}
     </div>
     <div className="flex justify-end space-x-2">
       <Skeleton className="h-10 w-20" />
       <Skeleton className="h-10 w-20" />
     </div>
-  </div>
-);
+  </div>;
+
 
 export default RouteLoadingSpinner;

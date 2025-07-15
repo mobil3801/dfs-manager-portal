@@ -63,9 +63,9 @@ class LazyLoadErrorBoundary extends Component<Props, State> {
             </h2>
             
             <p className="text-gray-600 mb-4">
-              {this.props.componentName 
-                ? `The ${this.props.componentName} component failed to load.`
-                : 'A component failed to load.'
+              {this.props.componentName ?
+              `The ${this.props.componentName} component failed to load.` :
+              'A component failed to load.'
               }
             </p>
 
@@ -78,27 +78,27 @@ class LazyLoadErrorBoundary extends Component<Props, State> {
             </Alert>
 
             <div className="flex flex-col gap-2">
-              <Button 
+              <Button
                 onClick={this.handleRetry}
                 className="w-full"
-                variant="default"
-              >
+                variant="default">
+
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Try Again
               </Button>
               
-              <Button 
+              <Button
                 onClick={this.handleGoHome}
                 className="w-full"
-                variant="outline"
-              >
+                variant="outline">
+
                 <Home className="h-4 w-4 mr-2" />
                 Go to Dashboard
               </Button>
             </div>
 
-            {process.env.NODE_ENV === 'development' && this.state.error && (
-              <details className="mt-4 text-left">
+            {process.env.NODE_ENV === 'development' && this.state.error &&
+            <details className="mt-4 text-left">
                 <summary className="cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900">
                   Error Details (Development)
                 </summary>
@@ -107,10 +107,10 @@ class LazyLoadErrorBoundary extends Component<Props, State> {
                   {this.state.errorInfo?.componentStack}
                 </pre>
               </details>
-            )}
+            }
           </Card>
-        </div>
-      );
+        </div>);
+
     }
 
     return this.props.children;
