@@ -26,7 +26,8 @@ import {
   Menu,
   X,
   AlertCircle,
-  MoreHorizontal } from
+  MoreHorizontal,
+  ClipboardList } from
 'lucide-react';
 
 const TopNavigation = () => {
@@ -66,8 +67,8 @@ const TopNavigation = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Navigation items with better role checking
-  const navigationItems = [
+  // Primary navigation items - always visible in main nav
+  const primaryNavItems = [
   {
     name: 'Dashboard',
     href: '/dashboard',
@@ -93,21 +94,25 @@ const TopNavigation = () => {
     requiredRole: null
   },
   {
-    name: 'Employees',
+    name: 'Employee',
     href: '/employees',
     icon: Users,
     requiredRole: 'manager'
   },
   {
-    name: 'Vendors',
+    name: 'Vendor',
     href: '/vendors',
     icon: Building,
     requiredRole: 'manager'
-  },
+  }];
+
+
+  // Secondary navigation items - shown in "More Menu" dropdown
+  const secondaryNavItems = [
   {
-    name: 'Orders',
+    name: 'Order',
     href: '/orders',
-    icon: Package,
+    icon: ClipboardList,
     requiredRole: 'manager'
   },
   {
@@ -132,7 +137,7 @@ const TopNavigation = () => {
 
   // Add admin section if user is admin
   if (isAuthenticated && isAdmin()) {
-    navigationItems.push({
+    secondaryNavItems.push({
       name: 'Admin',
       href: '/admin',
       icon: Shield,
@@ -170,9 +175,11 @@ const TopNavigation = () => {
   };
 
   // Get accessible items for debugging
-  const accessibleItems = navigationItems.filter((item) => canAccessRoute(item.requiredRole));
+  const accessiblePrimaryItems = primaryNavItems.filter((item) => canAccessRoute(item.requiredRole));
+  const accessibleSecondaryItems = secondaryNavItems.filter((item) => canAccessRoute(item.requiredRole));
+  const allNavigationItems = [...primaryNavItems, ...secondaryNavItems];
 
-  const NavigationLink = ({ item, mobile = false }: {item: any;mobile?: boolean;}) => {
+  const NavigationLink = ({ item, mobile = false, dropdown = false }: {item: any;mobile?: boolean;dropdown?: boolean;}) => {
     if (!canAccessRoute(item.requiredRole)) return null;
 
     const Icon = item.icon;
@@ -180,19 +187,31 @@ const TopNavigation = () => {
 
     const baseClasses = mobile ?
     "flex items-center space-x-3 px-4 py-3 text-left w-full transition-colors text-sm font-medium rounded-md mx-2" :
-    "flex items-center space-x-2 px-2 py-1.5 rounded-md transition-all duration-200 whitespace-nowrap text-sm font-medium hover:scale-105 min-w-fit max-w-fit flex-shrink-0";
-
+    dropdown ?
+    "flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-gray-900 w-full" :
+    "flex items-center space-x-2 px-3 py-2 rounded-md transition-all duration-200 whitespace-nowrap text-sm font-medium hover:scale-105 min-w-fit max-w-fit flex-shrink-0";
 
     const activeClasses = isActive ?
     "bg-blue-600 text-white shadow-md" :
     mobile ?
     "text-gray-700 hover:bg-gray-100 hover:text-gray-900" :
+    dropdown ?
+    "text-gray-700 hover:text-gray-900" :
     "text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:shadow-sm";
 
     const handleClick = () => {
       navigate(item.href);
       if (mobile) setMobileMenuOpen(false);
     };
+
+    if (dropdown) {
+      return (
+        <DropdownMenuItem onClick={handleClick} className={baseClasses}>
+          <Icon className="mr-2 h-4 w-4" />
+          {item.name}
+        </DropdownMenuItem>);
+
+    }
 
     return (
       <button
@@ -202,6 +221,33 @@ const TopNavigation = () => {
         <Icon className="h-4 w-4 flex-shrink-0" />
         <span className="ml-2">{item.name}</span>
       </button>);
+
+  };
+
+  // More Menu Dropdown Component
+  const MoreMenuDropdown = () => {
+    if (accessibleSecondaryItems.length === 0) return null;
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className="flex items-center space-x-2 px-3 py-2 rounded-md transition-all duration-200 whitespace-nowrap text-sm font-medium hover:scale-105 min-w-fit max-w-fit flex-shrink-0 text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:shadow-sm">
+
+            <MoreHorizontal className="h-4 w-4 flex-shrink-0" />
+            <span className="ml-2">More Menu</span>
+            <ChevronDown className="h-3 w-3 flex-shrink-0" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="center" className="w-56">
+          <DropdownMenuLabel>More Options</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {accessibleSecondaryItems.map((item) =>
+          <NavigationLink key={item.href} item={item} dropdown />
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>);
 
   };
 
@@ -255,11 +301,14 @@ const TopNavigation = () => {
 
             {/* Center Section - Navigation Items (Desktop) */}
             <nav className="hidden lg:flex items-center flex-1 justify-center min-w-0 mx-4">
-              <div className="flex items-center space-x-1 overflow-x-auto scrollbar-hide max-w-full">
-                {/* Show accessible navigation items directly */}
-                {accessibleItems.map((item) =>
+              <div className="flex items-center space-x-2 overflow-x-auto scrollbar-hide max-w-full">
+                {/* Primary Navigation Items */}
+                {accessiblePrimaryItems.map((item) =>
                 <NavigationLink key={item.href} item={item} />
                 )}
+                
+                {/* More Menu Dropdown */}
+                <MoreMenuDropdown />
               </div>
             </nav>
 
@@ -310,7 +359,6 @@ const TopNavigation = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-
               {/* Mobile Menu Button */}
               <Button
                 variant="ghost"
@@ -329,7 +377,7 @@ const TopNavigation = () => {
         <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-2">
             <div className="text-xs text-yellow-800">
               <strong>Debug:</strong> Auth: {isAuthenticated ? 'Yes' : 'No'} | 
-              Items: {accessibleItems.length}/{navigationItems.length} | 
+              Primary: {accessiblePrimaryItems.length} | Secondary: {accessibleSecondaryItems.length} | 
               Role: {isAdmin() ? 'Admin' : isManager() ? 'Manager' : 'Employee'} | 
               User: {user?.Name || 'None'}
             </div>
@@ -347,8 +395,7 @@ const TopNavigation = () => {
 
           {/* Menu Panel */}
           <div className={`fixed top-0 right-0 w-80 max-w-[90vw] h-full bg-white shadow-xl transform transition-transform duration-300 ease-in-out overflow-hidden ${
-        mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`
-        }>
+        mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
             <div className="flex flex-col h-full max-h-full">
               
               {/* Header */}
@@ -373,7 +420,18 @@ const TopNavigation = () => {
               {/* Navigation Items */}
               <div className="flex-1 py-4 overflow-y-auto min-h-0">
                 <div className="space-y-2 px-2">
-                  {navigationItems.map((item) =>
+                  {/* Primary Navigation Items */}
+                  {accessiblePrimaryItems.map((item) =>
+                <NavigationLink key={item.href} item={item} mobile />
+                )}
+                  
+                  {/* Divider */}
+                  {accessibleSecondaryItems.length > 0 &&
+                <div className="border-t border-gray-200 my-4 mx-2"></div>
+                }
+                  
+                  {/* Secondary Navigation Items */}
+                  {accessibleSecondaryItems.map((item) =>
                 <NavigationLink key={item.href} item={item} mobile />
                 )}
                 </div>
@@ -407,7 +465,6 @@ const TopNavigation = () => {
           </div>
         </div>
       }
-
     </>);
 
 };

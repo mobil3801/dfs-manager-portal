@@ -48,9 +48,9 @@ const IDDocumentUpload: React.FC<IDDocumentUploadProps> = ({
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (disabled) return;
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileSelection(e.dataTransfer.files[0]);
     }
@@ -96,7 +96,7 @@ const IDDocumentUpload: React.FC<IDDocumentUploadProps> = ({
     e.preventDefault();
     e.stopPropagation();
     onRemove();
-    
+
     // Clear the input
     if (inputRef.current) {
       inputRef.current.value = '';
@@ -105,7 +105,7 @@ const IDDocumentUpload: React.FC<IDDocumentUploadProps> = ({
 
   const getFileIcon = (fileType?: string) => {
     if (!fileType) return FileText;
-    
+
     if (fileType.startsWith('image/')) {
       return Image;
     } else if (fileType === 'application/pdf') {
@@ -134,18 +134,18 @@ const IDDocumentUpload: React.FC<IDDocumentUploadProps> = ({
           {required && <span className="text-red-500">*</span>}
         </Label>
         
-        {hasContent && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleRemoveClick}
-            className="text-red-600 hover:text-red-700 h-6 px-2"
-            disabled={disabled}
-          >
+        {hasContent &&
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handleRemoveClick}
+          className="text-red-600 hover:text-red-700 h-6 px-2"
+          disabled={disabled}>
+
             <X className="w-3 h-3" />
           </Button>
-        )}
+        }
       </div>
 
       {/* Upload Area */}
@@ -160,19 +160,19 @@ const IDDocumentUpload: React.FC<IDDocumentUploadProps> = ({
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
-        onClick={!disabled && !hasContent ? handleBrowseClick : undefined}
-      >
+        onClick={!disabled && !hasContent ? handleBrowseClick : undefined}>
+
         <input
           ref={inputRef}
           type="file"
           accept=".pdf,.jpg,.jpeg,.png,image/*"
           onChange={handleInputChange}
           className="hidden"
-          disabled={disabled}
-        />
+          disabled={disabled} />
 
-        {!hasContent ? (
-          <div className="space-y-2">
+
+        {!hasContent ?
+        <div className="space-y-2">
             <Upload className="w-8 h-8 text-gray-400 mx-auto" />
             <div>
               <p className="text-sm text-gray-600">
@@ -185,9 +185,9 @@ const IDDocumentUpload: React.FC<IDDocumentUploadProps> = ({
                 PDF, JPG, PNG up to 10MB
               </p>
             </div>
-          </div>
-        ) : (
-          <div className="space-y-2">
+          </div> :
+
+        <div className="space-y-2">
             <div className="flex items-center justify-center text-green-600">
               <FileText className="w-6 h-6" />
             </div>
@@ -198,12 +198,12 @@ const IDDocumentUpload: React.FC<IDDocumentUploadProps> = ({
               {selectedFile ? `${selectedFile.name} (${formatFileSize(selectedFile.size)})` : 'Existing document'}
             </p>
           </div>
-        )}
+        }
       </div>
 
       {/* File Preview */}
-      {selectedFile && (
-        <div className="mt-4">
+      {selectedFile &&
+      <div className="mt-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-700">New Document Preview</span>
             <Badge variant="secondary" className="text-xs">
@@ -211,22 +211,22 @@ const IDDocumentUpload: React.FC<IDDocumentUploadProps> = ({
             </Badge>
           </div>
           <DocumentPreview
-            file={selectedFile}
-            fileName={selectedFile.name}
-            documentName={label}
-            size="lg"
-            aspectRatio="landscape"
-            showRemoveButton={false}
-            showDownload={false}
-            showFullscreen={true}
-            className="border border-blue-200 bg-blue-50"
-          />
+          file={selectedFile}
+          fileName={selectedFile.name}
+          documentName={label}
+          size="lg"
+          aspectRatio="landscape"
+          showRemoveButton={false}
+          showDownload={false}
+          showFullscreen={true}
+          className="border border-blue-200 bg-blue-50" />
+
         </div>
-      )}
+      }
 
       {/* Existing File Preview */}
-      {existingFileId && !selectedFile && (
-        <div className="mt-4">
+      {existingFileId && !selectedFile &&
+      <div className="mt-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-700">Current Document</span>
             <Badge variant="outline" className="text-xs">
@@ -234,18 +234,18 @@ const IDDocumentUpload: React.FC<IDDocumentUploadProps> = ({
             </Badge>
           </div>
           <DocumentPreview
-            fileId={existingFileId}
-            fileName={`Current ${label}`}
-            documentName={label}
-            size="lg"
-            aspectRatio="landscape"
-            showRemoveButton={false}
-            showDownload={true}
-            showFullscreen={true}
-            className="border border-gray-200"
-          />
+          fileId={existingFileId}
+          fileName={`Current ${label}`}
+          documentName={label}
+          size="lg"
+          aspectRatio="landscape"
+          showRemoveButton={false}
+          showDownload={true}
+          showFullscreen={true}
+          className="border border-gray-200" />
+
         </div>
-      )}
+      }
 
       {/* Instructions */}
       <div className="text-xs text-gray-500 space-y-1">
@@ -253,8 +253,8 @@ const IDDocumentUpload: React.FC<IDDocumentUploadProps> = ({
         <p>• Images will show instant preview</p>
         <p>• Click the × button to remove and upload a new document</p>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default IDDocumentUpload;
