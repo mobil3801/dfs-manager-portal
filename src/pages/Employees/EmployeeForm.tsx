@@ -92,6 +92,13 @@ const EmployeeForm: React.FC = () => {
   // Track files to be deleted from database
   const [filesToDelete, setFilesToDelete] = useState<number[]>([]);
 
+  // Debug log for file deletion tracking
+  useEffect(() => {
+    if (filesToDelete.length > 0) {
+      console.log('Files marked for deletion:', filesToDelete);
+    }
+  }, [filesToDelete]);
+
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -225,8 +232,15 @@ const EmployeeForm: React.FC = () => {
           profile_image_id: employee.profile_image_id || null
         });
 
-        // Initialize ID documents state for editing
-        const newIdDocuments = [...idDocuments];
+        // Initialize ID documents state for editing - only show existing documents
+        const newIdDocuments = [
+        { file: null, name: '', preview: null },
+        { file: null, name: '', preview: null },
+        { file: null, name: '', preview: null },
+        { file: null, name: '', preview: null }];
+
+
+        // Only populate if the document actually exists
         if (employee.id_document_file_id) {
           newIdDocuments[0] = { file: null, name: 'Existing Document 1', preview: null };
         }
@@ -240,6 +254,9 @@ const EmployeeForm: React.FC = () => {
           newIdDocuments[3] = { file: null, name: 'Existing Document 4', preview: null };
         }
         setIdDocuments(newIdDocuments);
+
+        // Clear any pending deletions when loading fresh data
+        setFilesToDelete([]);
       }
     } catch (error) {
       console.error('Error loading employee:', error);
@@ -278,14 +295,31 @@ const EmployeeForm: React.FC = () => {
   // Function to permanently delete files from database storage
   const deleteFilesFromDatabase = async (fileIds: number[]) => {
     try {
-      // Delete files from file_uploads table
+      // Delete files from file_uploads table using the correct field name
       for (const fileId of fileIds) {
-        const { error } = await window.ezsite.apis.tableDelete('26928', {
-          store_file_id: fileId
+        // First, get the file record to find the correct ID
+        const { data: fileData, error: fetchError } = await window.ezsite.apis.tablePage('26928', {
+          PageNo: 1,
+          PageSize: 1,
+          Filters: [{ name: 'store_file_id', op: 'Equal', value: fileId }]
         });
-        if (error) {
-          console.error(`Error deleting file ${fileId}:`, error);
-          // Continue with other files even if one fails
+
+        if (fetchError) {
+          console.error(`Error fetching file record ${fileId}:`, fetchError);
+          continue;
+        }
+
+        if (fileData && fileData.List && fileData.List.length > 0) {
+          // Delete using the correct ID field
+          const { error } = await window.ezsite.apis.tableDelete('26928', {
+            ID: fileData.List[0].id
+          });
+          if (error) {
+            console.error(`Error deleting file ${fileId}:`, error);
+            // Continue with other files even if one fails
+          } else {
+            console.log(`Successfully deleted file ${fileId} from database`);
+          }
         }
       }
     } catch (error) {
@@ -329,7 +363,13 @@ const EmployeeForm: React.FC = () => {
       const existingFileId = getExistingDocumentFileId(index);
       if (existingFileId) {
         // Add to files to delete list for permanent removal
-        setFilesToDelete((prev) => [...prev, existingFileId]);
+        setFilesToDelete((prev) => {
+          const newFilesToDelete = [...prev];
+          if (!newFilesToDelete.includes(existingFileId)) {
+            newFilesToDelete.push(existingFileId);
+          }
+          return newFilesToDelete;
+        });
       }
 
       // Remove the document at the specified index
@@ -340,7 +380,7 @@ const EmployeeForm: React.FC = () => {
 
       setIdDocuments(newIdDocuments);
 
-      // Update form data to reorder existing file IDs
+      // Update form data to reorder existing file IDs and remove the deleted one
       const updatedFormData = { ...formData };
       const currentFileIds = [
       formData.id_document_file_id,
@@ -364,8 +404,8 @@ const EmployeeForm: React.FC = () => {
       setFormData(updatedFormData);
 
       toast({
-        title: "Document Removed",
-        description: `ID Document ${index + 1} has been removed. Documents have been automatically reordered.`
+        title: "Document Marked for Removal",
+        description: `ID Document ${index + 1} will be permanently deleted when you save. Documents have been automatically reordered.`
       });
     } catch (error) {
       console.error('Error removing document:', error);
@@ -380,14 +420,20 @@ const EmployeeForm: React.FC = () => {
   const handleRemoveProfileImage = () => {
     // Track existing profile image for deletion
     if (formData.profile_image_id) {
-      setFilesToDelete((prev) => [...prev, formData.profile_image_id!]);
+      setFilesToDelete((prev) => {
+        const newFilesToDelete = [...prev];
+        if (!newFilesToDelete.includes(formData.profile_image_id!)) {
+          newFilesToDelete.push(formData.profile_image_id!);
+        }
+        return newFilesToDelete;
+      });
     }
 
     setSelectedProfileImage(null);
     setFormData((prev) => ({ ...prev, profile_image_id: null }));
     toast({
-      title: "Profile Picture Removed",
-      description: "The profile picture will be removed when you save the employee."
+      title: "Profile Picture Marked for Removal",
+      description: "The profile picture will be permanently deleted when you save the employee."
     });
   };
 
@@ -409,8 +455,15 @@ const EmployeeForm: React.FC = () => {
 
       // Permanently delete files that were marked for deletion
       if (filesToDelete.length > 0) {
+        console.log('Deleting files:', filesToDelete);
         await deleteFilesFromDatabase(filesToDelete);
         setFilesToDelete([]); // Clear the list after deletion
+
+        // Show deletion confirmation
+        toast({
+          title: "Files Deleted",
+          description: `${filesToDelete.length} file(s) have been permanently deleted from storage.`
+        });
       }
 
       let profileImageId = formData.profile_image_id;
