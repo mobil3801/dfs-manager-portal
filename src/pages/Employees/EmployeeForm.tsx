@@ -128,6 +128,34 @@ const EmployeeForm: React.FC = () => {
     }
   }, [id]);
 
+  // Cleanup preview URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      // Clean up all preview URLs
+      idDocuments.forEach(doc => {
+        if (doc.preview) {
+          URL.revokeObjectURL(doc.preview);
+        }
+      });
+      
+      // Clean up profile image preview
+      if (selectedProfileImage) {
+        URL.revokeObjectURL(URL.createObjectURL(selectedProfileImage));
+      }
+    };
+  }, []);
+
+  // Clean up preview URLs when idDocuments change
+  useEffect(() => {
+    return () => {
+      idDocuments.forEach(doc => {
+        if (doc.preview) {
+          URL.revokeObjectURL(doc.preview);
+        }
+      });
+    };
+  }, [idDocuments]);
+
   const generateEmployeeId = async () => {
     try {
       // Get all existing employee IDs that start with 'DFS' to find the next number
@@ -271,7 +299,7 @@ const EmployeeForm: React.FC = () => {
     }
   };
 
-  const handleFileUpload = async (file: File) => {
+  const handleFileUpload = async (file: File, fileCategory: string = 'document') => {
     setIsUploading(true);
     try {
       const { data: fileId, error } = await window.ezsite.apis.upload({
@@ -279,6 +307,29 @@ const EmployeeForm: React.FC = () => {
         file: file
       });
       if (error) throw error;
+
+      // Create file_uploads record for tracking
+      const fileUploadData = {
+        file_name: file.name,
+        file_size: file.size,
+        file_type: file.type,
+        store_file_id: fileId,
+        uploaded_by: 1, // TODO: Get from auth context
+        upload_date: new Date().toISOString(),
+        associated_table: 'employees',
+        associated_record_id: id ? parseInt(id) : null,
+        file_category: fileCategory,
+        is_active: true,
+        description: `Employee ${fileCategory} upload`,
+        file_url: '' // Will be populated by system
+      };
+
+      const { error: uploadRecordError } = await window.ezsite.apis.tableCreate('26928', fileUploadData);
+      if (uploadRecordError) {
+        console.error('Error creating file upload record:', uploadRecordError);
+        // Don't fail the upload if the record creation fails
+      }
+
       return fileId;
     } catch (error) {
       console.error('Error uploading file:', error);
@@ -311,15 +362,26 @@ const EmployeeForm: React.FC = () => {
         }
 
         if (fileData && fileData.List && fileData.List.length > 0) {
-          // Delete using the correct ID field
-          const { error } = await window.ezsite.apis.tableDelete('26928', {
-            ID: fileData.List[0].id
+          // Mark file as inactive instead of deleting (for audit trail)
+          const { error: deactivateError } = await window.ezsite.apis.tableUpdate('26928', {
+            ID: fileData.List[0].id,
+            is_active: false,
+            description: `${fileData.List[0].description} - Deleted on ${new Date().toISOString()}`
           });
-          if (error) {
-            console.error(`Error deleting file ${fileId}:`, error);
-            // Continue with other files even if one fails
+          
+          if (deactivateError) {
+            console.error(`Error deactivating file ${fileId}:`, deactivateError);
+            // Try to delete if update fails
+            const { error: deleteError } = await window.ezsite.apis.tableDelete('26928', {
+              ID: fileData.List[0].id
+            });
+            if (deleteError) {
+              console.error(`Error deleting file ${fileId}:`, deleteError);
+            } else {
+              console.log(`Successfully deleted file ${fileId} from database`);
+            }
           } else {
-            console.log(`Successfully deleted file ${fileId} from database`);
+            console.log(`Successfully deactivated file ${fileId} in database`);
           }
         }
       }
@@ -328,8 +390,79 @@ const EmployeeForm: React.FC = () => {
     }
   };
 
+  // Function to update file associations with employee record
+  const updateFileAssociations = async (employeeId: number, documentFileIds: (number | null)[], profileImageId: number | null) => {
+    try {
+      // Update ID document files
+      for (let i = 0; i < documentFileIds.length; i++) {
+        const fileId = documentFileIds[i];
+        if (fileId) {
+          const { data: fileData, error: fetchError } = await window.ezsite.apis.tablePage('26928', {
+            PageNo: 1,
+            PageSize: 1,
+            Filters: [{ name: 'store_file_id', op: 'Equal', value: fileId }]
+          });
+
+          if (!fetchError && fileData && fileData.List && fileData.List.length > 0) {
+            await window.ezsite.apis.tableUpdate('26928', {
+              ID: fileData.List[0].id,
+              associated_record_id: employeeId,
+              description: `Employee ID Document ${i + 1}`
+            });
+          }
+        }
+      }
+
+      // Update profile image file
+      if (profileImageId) {
+        const { data: fileData, error: fetchError } = await window.ezsite.apis.tablePage('26928', {
+          PageNo: 1,
+          PageSize: 1,
+          Filters: [{ name: 'store_file_id', op: 'Equal', value: profileImageId }]
+        });
+
+        if (!fetchError && fileData && fileData.List && fileData.List.length > 0) {
+          await window.ezsite.apis.tableUpdate('26928', {
+            ID: fileData.List[0].id,
+            associated_record_id: employeeId,
+            description: 'Employee Profile Image'
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error updating file associations:', error);
+    }
+  };
+
   const handleIDDocumentSelect = (file: File, index: number) => {
     const newIdDocuments = [...idDocuments];
+
+    // Validate file type
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please upload PDF, JPG, or PNG files only.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate file size (10MB max)
+    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    if (file.size > maxSize) {
+      toast({
+        title: "File Too Large",
+        description: "Please upload files smaller than 10MB.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Clean up previous preview URL if exists
+    if (newIdDocuments[index].preview) {
+      URL.revokeObjectURL(newIdDocuments[index].preview!);
+    }
 
     // Create preview URL for image files
     let preview = null;
@@ -373,40 +506,34 @@ const EmployeeForm: React.FC = () => {
         });
       }
 
-      // Remove the document at the specified index
-      newIdDocuments.splice(index, 1);
-
-      // Add a new empty document at the end to maintain array length
-      newIdDocuments.push({ file: null, name: '', preview: null });
+      // Clear the document at the specified index instead of removing it
+      newIdDocuments[index] = { file: null, name: '', preview: null };
 
       setIdDocuments(newIdDocuments);
 
-      // Update form data to reorder existing file IDs and remove the deleted one
+      // Update form data to clear the file ID at the specified index
       const updatedFormData = { ...formData };
-      const currentFileIds = [
-      formData.id_document_file_id,
-      formData.id_document_2_file_id,
-      formData.id_document_3_file_id,
-      formData.id_document_4_file_id];
-
-
-      // Remove the file ID at the specified index
-      currentFileIds.splice(index, 1);
-
-      // Add null at the end to maintain array length
-      currentFileIds.push(null);
-
-      // Reassign file IDs to form data
-      updatedFormData.id_document_file_id = currentFileIds[0];
-      updatedFormData.id_document_2_file_id = currentFileIds[1];
-      updatedFormData.id_document_3_file_id = currentFileIds[2];
-      updatedFormData.id_document_4_file_id = currentFileIds[3];
+      
+      switch (index) {
+        case 0:
+          updatedFormData.id_document_file_id = null;
+          break;
+        case 1:
+          updatedFormData.id_document_2_file_id = null;
+          break;
+        case 2:
+          updatedFormData.id_document_3_file_id = null;
+          break;
+        case 3:
+          updatedFormData.id_document_4_file_id = null;
+          break;
+      }
 
       setFormData(updatedFormData);
 
       toast({
-        title: "Document Marked for Removal",
-        description: `ID Document ${index + 1} will be permanently deleted when you save. Documents have been automatically reordered.`
+        title: "Document Removed",
+        description: `ID Document ${index + 1} has been removed and will be deleted when you save.`
       });
     } catch (error) {
       console.error('Error removing document:', error);
@@ -430,11 +557,51 @@ const EmployeeForm: React.FC = () => {
       });
     }
 
+    // Clean up preview URL if exists
+    if (selectedProfileImage) {
+      URL.revokeObjectURL(URL.createObjectURL(selectedProfileImage));
+    }
+
     setSelectedProfileImage(null);
     setFormData((prev) => ({ ...prev, profile_image_id: null }));
     toast({
       title: "Profile Picture Marked for Removal",
       description: "The profile picture will be permanently deleted when you save the employee."
+    });
+  };
+
+  const handleProfileImageSelect = (file: File) => {
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please upload JPG, PNG, or GIF files only.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate file size (5MB max)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+      toast({
+        title: "File Too Large",
+        description: "Please upload files smaller than 5MB.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Clean up previous preview if exists
+    if (selectedProfileImage) {
+      URL.revokeObjectURL(URL.createObjectURL(selectedProfileImage));
+    }
+
+    setSelectedProfileImage(file);
+    toast({
+      title: "Profile Picture Selected",
+      description: "Profile picture has been selected for upload."
     });
   };
 
@@ -477,7 +644,7 @@ const EmployeeForm: React.FC = () => {
 
       // Upload profile image if selected
       if (selectedProfileImage) {
-        profileImageId = await handleFileUpload(selectedProfileImage);
+        profileImageId = await handleFileUpload(selectedProfileImage, 'profile_image');
         if (profileImageId === null) {
           setLoading(false);
           return;
@@ -487,7 +654,7 @@ const EmployeeForm: React.FC = () => {
       // Upload ID documents if selected
       for (let i = 0; i < idDocuments.length; i++) {
         if (idDocuments[i].file) {
-          const uploadedFileId = await handleFileUpload(idDocuments[i].file!);
+          const uploadedFileId = await handleFileUpload(idDocuments[i].file!, `id_document_${i + 1}`);
           if (uploadedFileId === null) {
             setLoading(false);
             return;
@@ -517,6 +684,9 @@ const EmployeeForm: React.FC = () => {
         });
         if (error) throw error;
 
+        // Update file_uploads records with the correct associated_record_id
+        await updateFileAssociations(parseInt(id), idDocumentFileIds, profileImageId);
+
         toast({
           title: "Success",
           description: "Employee updated successfully"
@@ -524,6 +694,20 @@ const EmployeeForm: React.FC = () => {
       } else {
         const { error } = await window.ezsite.apis.tableCreate('11727', dataToSubmit);
         if (error) throw error;
+
+        // Get the created employee ID to update file associations
+        const { data: createdEmployee } = await window.ezsite.apis.tablePage('11727', {
+          PageNo: 1,
+          PageSize: 1,
+          OrderByField: 'ID',
+          IsAsc: false,
+          Filters: [{ name: 'employee_id', op: 'Equal', value: dataToSubmit.employee_id }]
+        });
+
+        if (createdEmployee && createdEmployee.List && createdEmployee.List.length > 0) {
+          const employeeId = createdEmployee.List[0].id;
+          await updateFileAssociations(employeeId, idDocumentFileIds, profileImageId);
+        }
 
         toast({
           title: "Success",
@@ -599,7 +783,7 @@ const EmployeeForm: React.FC = () => {
               <div className="flex items-center space-x-6">
                 <div className="flex flex-col items-center space-y-3">
                   <ProfilePictureUpload
-                    onFileSelect={setSelectedProfileImage}
+                    onFileSelect={handleProfileImageSelect}
                     firstName={formData.first_name}
                     lastName={formData.last_name}
                     imageId={formData.profile_image_id}
@@ -624,7 +808,7 @@ const EmployeeForm: React.FC = () => {
                 <div className="flex-1 space-y-3">
                   <Label>Upload Profile Picture</Label>
                   <EnhancedFileUpload
-                    onFileSelect={setSelectedProfileImage}
+                    onFileSelect={handleProfileImageSelect}
                     accept="image/*"
                     label="Upload Profile Picture"
                     currentFile={selectedProfileImage?.name}
@@ -964,41 +1148,40 @@ const EmployeeForm: React.FC = () => {
                           disabled={loading || isUploading} />
 
                           {/* Instant Preview with DocumentPreview Component */}
-                          {idDocuments[index].file &&
-                        <DocumentPreview
-                          file={idDocuments[index].file}
-                          fileName={idDocuments[index].name}
-                          documentName={`ID Document ${index + 1}`}
-                          size="xl"
-                          aspectRatio="landscape"
-                          showRemoveButton={false}
-                          showDownload={false}
-                          showFullscreen={true}
-                          className="mt-4" />
-
-                        }
+                          {idDocuments[index].file && (
+                            <DocumentPreview
+                              file={idDocuments[index].file}
+                              fileName={idDocuments[index].name}
+                              documentName={`ID Document ${index + 1}`}
+                              size="xl"
+                              aspectRatio="landscape"
+                              showRemoveButton={false}
+                              showDownload={false}
+                              showFullscreen={true}
+                              className="mt-4" />
+                          )}
 
                         </div>
 
                         {/* Show existing document in edit mode with DocumentPreview Component */}
-                        {isEditing && !idDocuments[index].file && getExistingDocumentFileId(index) &&
-                      <div className="mt-4">
+                        {isEditing && !idDocuments[index].file && getExistingDocumentFileId(index) && (
+                          <div className="mt-4">
                             <DocumentPreview
-                          fileId={getExistingDocumentFileId(index)}
-                          fileName={`Current Document ${index + 1}`}
-                          documentName={`ID Document ${index + 1}`}
-                          size="xl"
-                          aspectRatio="landscape"
-                          showRemoveButton={false}
-                          showDownload={true}
-                          showFullscreen={true}
-                          className="border-blue-200 bg-blue-50" />
+                              fileId={getExistingDocumentFileId(index)}
+                              fileName={`Current Document ${index + 1}`}
+                              documentName={`ID Document ${index + 1}`}
+                              size="xl"
+                              aspectRatio="landscape"
+                              showRemoveButton={false}
+                              showDownload={true}
+                              showFullscreen={true}
+                              className="border-blue-200 bg-blue-50" />
 
                             <p className="text-xs text-blue-600 bg-blue-100 p-2 rounded mt-2">
                               Upload a new file to replace the current document. The new file will be saved when you click "Save Employee".
                             </p>
                           </div>
-                      }
+                        )}
 
                       </div>
                     )}

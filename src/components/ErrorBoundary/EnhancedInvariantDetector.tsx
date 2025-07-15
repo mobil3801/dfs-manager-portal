@@ -377,6 +377,8 @@ const EnhancedInvariantDetector: React.FC = () => {
 
 
 
+
+
           // Silent catch for individual element processing
         }});keyMap.forEach((data, key) => {if (data.count > 1) {violations.push({ type: 'duplicate-key', severity: 'high', message: `Duplicate React key detected: "${key}" used ${data.count} times. This can cause invariant violations.`, fixSuggestion: 'Use unique keys for each element in lists. Consider using item.id + index or UUID.', component: data.element.tagName?.toLowerCase() });}});} catch (error) {console.warn('Error detecting duplicate keys:', error);}return violations;}, []); // Enhanced React Fiber state detection
   const detectFiberInconsistencies = useCallback(() => {const violations: Omit<InvariantViolation, 'id' | 'timestamp'>[] = [];try {const reactRoots = document.querySelectorAll('[data-reactroot], #root, [id*="react"]');reactRoots.forEach((root) => {try {const fiber = (root as any)._reactInternalFiber || (root as any).__reactInternalInstance || (root as any)._reactRootContainer;if (fiber) {// Check for common fiber inconsistencies
@@ -543,8 +545,7 @@ const EnhancedInvariantDetector: React.FC = () => {
               No React invariant violations detected. Your application appears stable.
             </AlertDescription>
           </Alert> : <div className="space-y-2 max-h-96 overflow-y-auto">
-            {violations.slice(-30).reverse().map((violation) =>
-        <Alert key={violation.id} className={getSeverityColor(violation.severity)}>
+            {violations.slice(-30).reverse().map((violation) => <Alert key={violation.id} className={getSeverityColor(violation.severity)}>
                 <div className="flex items-start gap-2">
                   {getSeverityIcon(violation.severity)}
                   <div className="flex-1">
@@ -558,27 +559,26 @@ const EnhancedInvariantDetector: React.FC = () => {
                       <span className="text-xs text-gray-500">
                         {new Date(violation.timestamp).toLocaleTimeString()}
                       </span>
-                      {violation.autoFixed &&
-                <Badge variant="outline" className="text-xs bg-green-100 text-green-800">
+                      {violation.autoFixed && <Badge variant="outline" className="text-xs bg-green-100 text-green-800">
                           Auto-Fixed
                         </Badge>
-                }
+                  }
                     </div>
                     <AlertDescription className="text-sm mb-2">
                       {violation.message}
                     </AlertDescription>
                     {violation.fixSuggestion &&
-              <div className="text-xs text-gray-700 bg-gray-100 p-2 rounded mb-2">
+                <div className="text-xs text-gray-700 bg-gray-100 p-2 rounded mb-2">
                         💡 Fix Suggestion: {violation.fixSuggestion}
                       </div>
-              }
+                }
                     {violation.component &&
-              <div className="text-xs text-gray-600 mb-1">
+                <div className="text-xs text-gray-600 mb-1">
                         Component: {violation.component}
                       </div>
-              }
+                }
                     {violation.stackTrace &&
-              <details className="text-xs">
+                <details className="text-xs">
                         <summary className="cursor-pointer text-gray-600 hover:text-gray-800">
                           Show Stack Trace
                         </summary>
@@ -586,7 +586,7 @@ const EnhancedInvariantDetector: React.FC = () => {
                           {violation.stackTrace}
                         </pre>
                       </details>
-              }
+                }
                   </div>
                 </div>
               </Alert>
