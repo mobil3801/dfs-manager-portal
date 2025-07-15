@@ -963,7 +963,6 @@ const EmployeeForm: React.FC = () => {
                           maxSize={10}
                           disabled={loading || isUploading} />
 
-
                           {/* Instant Preview with DocumentPreview Component */}
                           {idDocuments[index].file &&
                             <DocumentPreview
@@ -977,7 +976,7 @@ const EmployeeForm: React.FC = () => {
                               showFullscreen={true}
                               className="mt-4"
                             />
-                          }</find>
+                          }
 
                         </div>
 
@@ -999,7 +998,7 @@ const EmployeeForm: React.FC = () => {
                               Upload a new file to replace the current document. The new file will be saved when you click "Save Employee".
                             </p>
                           </div>
-                        }</find>
+                        }
 
                       </div>
                     )}
