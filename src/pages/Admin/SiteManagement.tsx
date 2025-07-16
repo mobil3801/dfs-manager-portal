@@ -16,6 +16,7 @@ import StationEditDialog from '@/components/StationEditDialog';
 import StationFormDialog from '@/components/StationFormDialog';
 import AccessDenied from '@/components/AccessDenied';
 import useAdminAccess from '@/hooks/use-admin-access';
+import { stationService } from '@/services/stationService';
 import {
   Settings,
   Database,
@@ -116,10 +117,10 @@ const SiteManagement: React.FC = () => {
     operating_hours: ''
   });
 
-  // Load stations from database
+  // Load stations from centralized service
   const loadStations = async () => {
     try {
-      console.log('Loading stations from database...');
+      console.log('Loading stations from centralized service...');
       const { data, error } = await window.ezsite.apis.tablePage(12599, {
         PageNo: 1,
         PageSize: 100,
@@ -156,6 +157,8 @@ const SiteManagement: React.FC = () => {
   };
 
   const handleStationSaved = () => {
+    // Clear the centralized station cache when stations are updated
+    stationService.clearCache();
     loadStations();
   };
 
@@ -268,6 +271,8 @@ const SiteManagement: React.FC = () => {
 
       setIsBatchEditDialogOpen(false);
       batchSelection.clearSelection();
+      // Clear the centralized station cache when stations are updated
+      stationService.clearCache();
       loadStations();
     } catch (error) {
       console.error('Error in batch edit:', error);
@@ -298,6 +303,8 @@ const SiteManagement: React.FC = () => {
 
       setIsBatchDeleteDialogOpen(false);
       batchSelection.clearSelection();
+      // Clear the centralized station cache when stations are deleted
+      stationService.clearCache();
       loadStations();
     } catch (error) {
       console.error('Error in batch delete:', error);
@@ -531,6 +538,8 @@ const SiteManagement: React.FC = () => {
                                   description: "Station deleted successfully"
                                 });
 
+                                // Clear the centralized station cache when stations are deleted
+                                stationService.clearCache();
                                 loadStations();
                               } catch (error) {
                                 console.error('Error deleting station:', error);

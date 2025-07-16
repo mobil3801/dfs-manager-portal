@@ -100,7 +100,7 @@ const StationFormDialog: React.FC<StationFormDialogProps> = ({
       if (mode === 'add') {
         const { error } = await window.ezsite.apis.tableCreate(12599, dataToSave);
         if (error) throw error;
-        
+
         toast({
           title: "Success",
           description: "Station added successfully"
@@ -108,7 +108,7 @@ const StationFormDialog: React.FC<StationFormDialogProps> = ({
       } else {
         const { error } = await window.ezsite.apis.tableUpdate(12599, dataToSave);
         if (error) throw error;
-        
+
         toast({
           title: "Success",
           description: "Station updated successfully"
@@ -153,8 +153,8 @@ const StationFormDialog: React.FC<StationFormDialogProps> = ({
               value={formData.station_name}
               onChange={(e) => setFormData({ ...formData, station_name: e.target.value })}
               placeholder="e.g., MOBIL, AMOCO ROSEDALE"
-              required
-            />
+              required />
+
           </div>
 
           <div>
@@ -165,8 +165,8 @@ const StationFormDialog: React.FC<StationFormDialogProps> = ({
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               placeholder="Full station address"
               required
-              rows={2}
-            />
+              rows={2} />
+
           </div>
 
           <div>
@@ -177,8 +177,8 @@ const StationFormDialog: React.FC<StationFormDialogProps> = ({
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               placeholder="(555) 123-4567"
-              required
-            />
+              required />
+
           </div>
 
           <div>
@@ -188,8 +188,8 @@ const StationFormDialog: React.FC<StationFormDialogProps> = ({
               value={formData.operating_hours}
               onChange={(e) => setFormData({ ...formData, operating_hours: e.target.value })}
               placeholder="e.g., 24/7 or 6:00 AM - 12:00 AM"
-              required
-            />
+              required />
+
           </div>
 
           <div>
@@ -199,8 +199,8 @@ const StationFormDialog: React.FC<StationFormDialogProps> = ({
               value={formData.manager_name}
               onChange={(e) => setFormData({ ...formData, manager_name: e.target.value })}
               placeholder="Station manager name"
-              required
-            />
+              required />
+
           </div>
 
           <div>
@@ -222,24 +222,24 @@ const StationFormDialog: React.FC<StationFormDialogProps> = ({
               type="button"
               variant="outline"
               onClick={handleClose}
-              disabled={loading}
-            >
+              disabled={loading}>
+
               <X className="w-4 h-4 mr-2" />
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={loading}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
+              className="bg-blue-600 hover:bg-blue-700">
+
               <Save className="w-4 h-4 mr-2" />
-              {loading ? 'Saving...' : (mode === 'add' ? 'Add Station' : 'Update Station')}
+              {loading ? 'Saving...' : mode === 'add' ? 'Add Station' : 'Update Station'}
             </Button>
           </div>
         </form>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default StationFormDialog;

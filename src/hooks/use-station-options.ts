@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useStationOptions as useStationOptionsFromService, useStationFilter as useStationFilterFromService } from '@/hooks/use-station-service';
 
 export interface StationOption {
   value: string;
@@ -9,63 +10,34 @@ export interface StationOption {
 
 /**
  * Hook to get station options based on user permissions
+ * Now uses the centralized station service for consistency
  * Automatically includes 'ALL_STATIONS' option for users with appropriate permissions
  */
 export const useStationOptions = (includeAll: boolean = true) => {
   const { userProfile } = useAuth();
+  const { stationOptions, loading, error, getStationColor, canSelectAll, getUserAccessibleStations, refetch } = useStationOptionsFromService(includeAll);
 
-  const stationOptions: StationOption[] = useMemo(() => {
-    const baseStations: StationOption[] = [
-    {
-      value: 'MOBIL',
-      label: 'MOBIL',
-      color: 'bg-blue-500'
-    },
-    {
-      value: 'AMOCO ROSEDALE',
-      label: 'AMOCO ROSEDALE',
-      color: 'bg-green-500'
-    },
-    {
-      value: 'AMOCO BROOKLYN',
-      label: 'AMOCO BROOKLYN',
-      color: 'bg-purple-500'
-    }];
+  // Legacy support - convert to previous format
+  const legacyStationOptions: StationOption[] = useMemo(() => {
+    return stationOptions.map(option => ({
+      value: option.value,
+      label: option.label,
+      color: option.color
+    }));
+  }, [stationOptions]);
 
-
-    // Check if user should see ALL option based on their role and permissions
-    const canViewAll = userProfile?.role === 'Administrator' ||
-    userProfile?.role === 'Management' ||
-    userProfile?.role === 'Manager' ||
-    userProfile?.permissions?.includes('view_all_stations');
-
-    if (includeAll && canViewAll) {
-      return [
-      {
-        value: 'ALL_STATIONS',
-        label: 'All Station',
-        color: 'bg-indigo-600'
-      },
-      ...baseStations];
-
+  const getAllStations = useCallback(async (): Promise<string[]> => {
+    try {
+      return await getUserAccessibleStations();
+    } catch (error) {
+      console.error('Error getting accessible stations:', error);
+      return [];
     }
+  }, [getUserAccessibleStations]);
 
-    return baseStations;
-  }, [userProfile?.role, userProfile?.permissions, includeAll]);
-
-  const getStationColor = (station: string): string => {
-    const option = stationOptions.find((opt) => opt.value === station);
-    return option?.color || 'bg-gray-500';
-  };
-
-  const canSelectAll = useMemo(() => {
-    return userProfile?.role === 'Administrator' ||
-    userProfile?.role === 'Management' ||
-    userProfile?.role === 'Manager' ||
-    userProfile?.permissions?.includes('view_all_stations');
-  }, [userProfile?.role, userProfile?.permissions]);
-
-  const getUserAccessibleStations = useMemo(() => {
+  const getUserAccessibleStationsSync = useMemo(() => {
+    // This is a temporary sync version for backward compatibility
+    // Components should gradually migrate to the async version
     if (canSelectAll) {
       return ['MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN'];
     }
@@ -86,58 +58,24 @@ export const useStationOptions = (includeAll: boolean = true) => {
   }, [userProfile?.role, userProfile?.permissions, userProfile?.stationAccess, canSelectAll]);
 
   return {
-    stationOptions,
+    stationOptions: legacyStationOptions,
     getStationColor,
     canSelectAll,
     allStations: ['MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN'],
-    getUserAccessibleStations
+    getUserAccessibleStations: getUserAccessibleStationsSync,
+    getUserAccessibleStationsAsync: getAllStations,
+    loading,
+    error,
+    refetch
   };
 };
 
 /**
  * Hook for filtering logic when 'ALL_STATIONS' is selected
+ * Now uses the centralized station service
  */
 export const useStationFilter = (selectedStation: string) => {
-  const { getUserAccessibleStations, canSelectAll } = useStationOptions();
-
-  const getStationFilters = useMemo(() => {
-    if (selectedStation === 'ALL_STATIONS' || selectedStation === 'ALL') {
-      // When All Station is selected, show data from all stations user has access to
-      const accessibleStations = getUserAccessibleStations;
-
-      if (accessibleStations.length === 0) {
-        return [{ name: 'station', op: 'Equal', value: '__NO_ACCESS__' }]; // No access
-      }
-
-      if (accessibleStations.length === 1) {
-        return [{ name: 'station', op: 'Equal', value: accessibleStations[0] }];
-      }
-
-      // For multiple stations, we'll return null to indicate no filtering
-      // The calling component should handle this by either:
-      // 1. Making multiple queries
-      // 2. Using an IN operator if supported
-      // 3. Aggregating results client-side
-      return null; // No station filter - show all accessible stations
-    }
-
-    return [{ name: 'station', op: 'Equal', value: selectedStation }];
-  }, [selectedStation, getUserAccessibleStations]);
-
-  const shouldFilterByStation = selectedStation && selectedStation !== 'ALL_STATIONS' && selectedStation !== 'ALL';
-
-  const getAccessibleStationsFilter = useMemo(() => {
-    const accessibleStations = getUserAccessibleStations;
-    return accessibleStations.map((station) => ({ name: 'station', op: 'Equal', value: station }));
-  }, [getUserAccessibleStations]);
-
-  return {
-    stationFilters: getStationFilters,
-    shouldFilterByStation,
-    isAllSelected: selectedStation === 'ALL_STATIONS' || selectedStation === 'ALL',
-    accessibleStations: getUserAccessibleStations,
-    accessibleStationsFilter: getAccessibleStationsFilter
-  };
+  return useStationFilterFromService(selectedStation);
 };
 
 export default useStationOptions;
