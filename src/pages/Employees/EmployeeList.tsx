@@ -458,6 +458,8 @@ const EmployeeList: React.FC = () => {
 
 
 
+
+
                   // This will be handled by the InstantDocumentPreview component
                 }}>
                   <Eye className="w-3 h-3" />
@@ -473,10 +475,8 @@ const EmployeeList: React.FC = () => {
           <p>• Use the download button to save documents locally</p>
         </div>
 
-      </div>);};
-  // Define view modal fields with profile picture, employment status, and ID documents
-  const getViewModalFields = (employee: Employee) => [
-  {
+      </div>);}; // Define view modal fields with profile picture, employment status, and ID documents
+  const getViewModalFields = (employee: Employee) => [{
     key: 'profile_picture',
     label: 'Profile Picture',
     value: employee.profile_image_id,

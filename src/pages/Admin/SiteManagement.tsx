@@ -13,6 +13,7 @@ import BatchActionBar from '@/components/BatchActionBar';
 import BatchDeleteDialog from '@/components/BatchDeleteDialog';
 import BatchEditDialog from '@/components/BatchEditDialog';
 import StationEditDialog from '@/components/StationEditDialog';
+import StationFormDialog from '@/components/StationFormDialog';
 import AccessDenied from '@/components/AccessDenied';
 import useAdminAccess from '@/hooks/use-admin-access';
 import {
@@ -34,7 +35,9 @@ import {
   MapPin,
   Phone,
   Calendar,
-  Edit } from
+  Edit,
+  Plus,
+  Trash2 } from
 'lucide-react';
 
 interface SiteSettings {
@@ -93,6 +96,8 @@ const SiteManagement: React.FC = () => {
   const [loadingStations, setLoadingStations] = useState(true);
   const [editingStation, setEditingStation] = useState<Station | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [stationFormDialogOpen, setStationFormDialogOpen] = useState(false);
+  const [dialogMode, setDialogMode] = useState<'add' | 'edit'>('add');
   const [isBatchEditDialogOpen, setIsBatchEditDialogOpen] = useState(false);
   const [isBatchDeleteDialogOpen, setIsBatchDeleteDialogOpen] = useState(false);
   const [batchActionLoading, setBatchActionLoading] = useState(false);
@@ -146,7 +151,8 @@ const SiteManagement: React.FC = () => {
   const handleEditStation = (station: Station) => {
     console.log('Editing station:', station);
     setEditingStation(station);
-    setEditDialogOpen(true);
+    setDialogMode('edit');
+    setStationFormDialogOpen(true);
   };
 
   const handleStationSaved = () => {
@@ -411,6 +417,18 @@ const SiteManagement: React.FC = () => {
               <span>Station Information</span>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                onClick={() => {
+                  setEditingStation(null);
+                  setDialogMode('add');
+                  setStationFormDialogOpen(true);
+                }}
+                className="bg-blue-600 hover:bg-blue-700"
+                size="sm">
+
+                <Plus className="w-4 h-4 mr-2" />
+                Add Station
+              </Button>
               {stations.length === 0 &&
               <Button
                 onClick={() => window.open('/dashboard?tab=setup', '_blank')}
@@ -497,6 +515,37 @@ const SiteManagement: React.FC = () => {
                         className="h-8 w-8 p-0">
 
                             <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          if (window.confirm(`Are you sure you want to delete "${station.station_name}"?`)) {
+                            (async () => {
+                              try {
+                                const { error } = await window.ezsite.apis.tableDelete(12599, { id: station.id });
+                                if (error) throw error;
+
+                                toast({
+                                  title: "Success",
+                                  description: "Station deleted successfully"
+                                });
+
+                                loadStations();
+                              } catch (error) {
+                                console.error('Error deleting station:', error);
+                                toast({
+                                  title: "Error",
+                                  description: "Failed to delete station",
+                                  variant: "destructive"
+                                });
+                              }
+                            })();
+                          }
+                        }}
+                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50">
+
+                            <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       </div>
@@ -786,6 +835,15 @@ const SiteManagement: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Station Form Dialog */}
+      <StationFormDialog
+        open={stationFormDialogOpen}
+        onOpenChange={setStationFormDialogOpen}
+        station={editingStation}
+        onSave={handleStationSaved}
+        mode={dialogMode} />
+
 
       {/* Station Edit Dialog */}
       <StationEditDialog

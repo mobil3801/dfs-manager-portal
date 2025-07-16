@@ -980,11 +980,11 @@ const EmployeeForm: React.FC = () => {
                     value={formData.phone}
                     onChange={(e) => handlePhoneChange(e.target.value)}
                     placeholder="Enter phone number (e.g., 1234567890)" />
-                  {formData.phone && (
-                    <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+                  {formData.phone &&
+                  <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
                       <span className="font-medium">Display format:</span> {displayPhoneNumber(formData.phone)}
                     </div>
-                  )}
+                  }
                 </div>
 
 
