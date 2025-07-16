@@ -56,13 +56,13 @@ export const useStationOptions = (includeAll: boolean = true) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const options = await stationService.getStationOptions(
         includeAll,
         userProfile?.role,
         userProfile?.permissions
       );
-      
+
       setStationOptions(options);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load station options';
@@ -85,11 +85,11 @@ export const useStationOptions = (includeAll: boolean = true) => {
   const canSelectAll = useCallback((): boolean => {
     const userRole = userProfile?.role;
     const userPermissions = userProfile?.permissions;
-    
+
     return userRole === 'Administrator' ||
-           userRole === 'Management' ||
-           userRole === 'Manager' ||
-           userPermissions?.includes('view_all_stations') || false;
+    userRole === 'Management' ||
+    userRole === 'Manager' ||
+    userPermissions?.includes('view_all_stations') || false;
   }, [userProfile?.role, userProfile?.permissions]);
 
   const getUserAccessibleStations = useCallback(async (): Promise<string[]> => {
@@ -165,10 +165,10 @@ export const useStationFilter = (selectedStation: string) => {
   const shouldFilterByStation = selectedStation && selectedStation !== 'ALL_STATIONS' && selectedStation !== 'ALL';
 
   const getAccessibleStationsFilter = useCallback(() => {
-    return accessibleStations.map((station) => ({ 
-      name: 'station', 
-      op: 'Equal', 
-      value: station 
+    return accessibleStations.map((station) => ({
+      name: 'station',
+      op: 'Equal',
+      value: station
     }));
   }, [accessibleStations]);
 
@@ -193,7 +193,7 @@ export const useStationManager = () => {
     try {
       setLoading(true);
       const result = await stationService.addStation(stationData);
-      
+
       if (result.success) {
         toast({
           title: 'Success',
@@ -225,7 +225,7 @@ export const useStationManager = () => {
     try {
       setLoading(true);
       const result = await stationService.updateStation(stationData);
-      
+
       if (result.success) {
         toast({
           title: 'Success',
@@ -257,7 +257,7 @@ export const useStationManager = () => {
     try {
       setLoading(true);
       const result = await stationService.deleteStation(stationId);
-      
+
       if (result.success) {
         toast({
           title: 'Success',

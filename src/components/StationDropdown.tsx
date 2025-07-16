@@ -56,13 +56,13 @@ const StationDropdown: React.FC<StationDropdownProps> = ({
         <div className="flex items-center space-x-2">
           <Eye className="w-4 h-4 text-indigo-600" />
           <span>All Stations</span>
-          {showBadge && (
-            <Badge className="text-white bg-indigo-600">
+          {showBadge &&
+          <Badge className="text-white bg-indigo-600">
               All ({accessibleStationsCount})
             </Badge>
-          )}
-        </div>
-      );
+          }
+        </div>);
+
     }
 
     if (currentValue === 'ALL_STATIONS') {
@@ -70,13 +70,13 @@ const StationDropdown: React.FC<StationDropdownProps> = ({
         <div className="flex items-center space-x-2">
           <Eye className="w-4 h-4 text-indigo-600" />
           <span>All Stations</span>
-          {showBadge && (
-            <Badge className="text-white bg-indigo-600">
+          {showBadge &&
+          <Badge className="text-white bg-indigo-600">
               All ({accessibleStationsCount})
             </Badge>
-          )}
-        </div>
-      );
+          }
+        </div>);
+
     }
 
     const station = stationOptions.find((opt) => opt.value === currentValue);
@@ -87,8 +87,8 @@ const StationDropdown: React.FC<StationDropdownProps> = ({
           <Badge className={`text-white ${getStationColor(currentValue)}`}>
             {station.label}
           </Badge>
-        </div>
-      );
+        </div>);
+
     }
 
     return station?.label || currentValue;
@@ -97,44 +97,44 @@ const StationDropdown: React.FC<StationDropdownProps> = ({
   if (loading) {
     return (
       <div className={`space-y-2 ${className}`}>
-        {label && (
-          <Label htmlFor={id}>
+        {label &&
+        <Label htmlFor={id}>
             {label}
             {required && ' *'}
           </Label>
-        )}
+        }
         <div className="flex items-center space-x-2 p-2 border rounded-md">
           <Loader2 className="w-4 h-4 animate-spin" />
           <span className="text-sm text-gray-500">Loading stations...</span>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
     <div className={`space-y-2 ${className}`}>
-      {label && (
-        <Label htmlFor={id}>
+      {label &&
+      <Label htmlFor={id}>
           {label}
           {required && ' *'}
         </Label>
-      )}
+      }
       <Select
         value={value}
         onValueChange={onValueChange}
-        disabled={disabled}
-      >
+        disabled={disabled}>
+
         <SelectTrigger id={id}>
           <SelectValue placeholder={placeholder}>
             {value ? getDisplayValue(value) : placeholder}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
-          {stationOptions.map((station) => (
-            <SelectItem key={station.value} value={station.value}>
+          {stationOptions.map((station) =>
+          <SelectItem key={station.value} value={station.value}>
               <div className="flex items-center space-x-2 w-full">
-                {station.value === 'ALL_STATIONS' ? (
-                  <>
+                {station.value === 'ALL_STATIONS' ?
+              <>
                     <Eye className="w-4 h-4 text-indigo-600" />
                     <div className="flex items-center justify-between w-full">
                       <span className="font-medium text-indigo-700">{station.label}</span>
@@ -145,33 +145,33 @@ const StationDropdown: React.FC<StationDropdownProps> = ({
                         <span className="text-xs text-gray-500">(View All)</span>
                       </div>
                     </div>
-                  </>
-                ) : (
-                  <>
+                  </> :
+
+              <>
                     <Building2 className="w-4 h-4" />
-                    {showBadge && (
-                      <div className={`w-3 h-3 rounded-full ${station.color}`} />
-                    )}
+                    {showBadge &&
+                <div className={`w-3 h-3 rounded-full ${station.color}`} />
+                }
                     <span>{station.label}</span>
                   </>
-                )}
+              }
               </div>
             </SelectItem>
-          ))}
+          )}
           
           {/* Show accessible stations info when All Station option is available */}
-          {canSelectAll && includeAll && (
-            <div className="px-2 py-1 text-xs text-gray-500 border-t border-gray-100">
+          {canSelectAll && includeAll &&
+          <div className="px-2 py-1 text-xs text-gray-500 border-t border-gray-100">
               <div className="flex items-center space-x-1">
                 <Eye className="w-3 h-3" />
                 <span>You have access to {accessibleStationsCount} station{accessibleStationsCount !== 1 ? 's' : ''}</span>
               </div>
             </div>
-          )}
+          }
         </SelectContent>
       </Select>
-    </div>
-  );
+    </div>);
+
 };
 
 export default StationDropdown;

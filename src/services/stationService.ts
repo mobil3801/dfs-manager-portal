@@ -27,22 +27,22 @@ class StationService {
 
   // Fallback hardcoded stations for when database is unavailable
   private readonly FALLBACK_STATIONS: StationOption[] = [
-    {
-      value: 'MOBIL',
-      label: 'MOBIL',
-      color: 'bg-blue-500'
-    },
-    {
-      value: 'AMOCO ROSEDALE',
-      label: 'AMOCO ROSEDALE',
-      color: 'bg-green-500'
-    },
-    {
-      value: 'AMOCO BROOKLYN',
-      label: 'AMOCO BROOKLYN',
-      color: 'bg-purple-500'
-    }
-  ];
+  {
+    value: 'MOBIL',
+    label: 'MOBIL',
+    color: 'bg-blue-500'
+  },
+  {
+    value: 'AMOCO ROSEDALE',
+    label: 'AMOCO ROSEDALE',
+    color: 'bg-green-500'
+  },
+  {
+    value: 'AMOCO BROOKLYN',
+    label: 'AMOCO BROOKLYN',
+    color: 'bg-purple-500'
+  }];
+
 
   /**
    * Get all stations from database or cache
@@ -68,8 +68,8 @@ class StationService {
         OrderByField: 'station_name',
         IsAsc: true,
         Filters: [
-          { name: 'status', op: 'Equal', value: 'Active' }
-        ]
+        { name: 'status', op: 'Equal', value: 'Active' }]
+
       });
 
       if (error) {
@@ -80,7 +80,7 @@ class StationService {
 
       this.stationsCache = data?.List || [];
       this.cacheTimestamp = Date.now();
-      
+
       return this.stationsCache;
     } catch (error) {
       console.error('Error fetching stations:', error);
@@ -95,8 +95,8 @@ class StationService {
    */
   async getStationOptions(includeAll: boolean = false, userRole?: string, userPermissions?: string[]): Promise<StationOption[]> {
     const stations = await this.getStations();
-    
-    const options: StationOption[] = stations.map(station => ({
+
+    const options: StationOption[] = stations.map((station) => ({
       value: station.station_name,
       label: station.station_name,
       color: this.getStationColor(station.station_name),
@@ -120,7 +120,7 @@ class StationService {
    */
   async getStationNames(): Promise<string[]> {
     const stations = await this.getStations();
-    return stations.map(station => station.station_name);
+    return stations.map((station) => station.station_name);
   }
 
   /**
@@ -128,14 +128,14 @@ class StationService {
    */
   async getStationByName(name: string): Promise<Station | null> {
     const stations = await this.getStations();
-    return stations.find(station => station.station_name === name) || null;
+    return stations.find((station) => station.station_name === name) || null;
   }
 
   /**
    * Get station color based on name
    */
   getStationColor(stationName: string): string {
-    const colorMap: { [key: string]: string } = {
+    const colorMap: {[key: string]: string;} = {
       'MOBIL': 'bg-blue-500',
       'AMOCO ROSEDALE': 'bg-green-500',
       'AMOCO BROOKLYN': 'bg-purple-500'
@@ -148,11 +148,11 @@ class StationService {
    */
   private canUserViewAll(userRole?: string, userPermissions?: string[]): boolean {
     if (!userRole) return false;
-    
+
     return userRole === 'Administrator' ||
-           userRole === 'Management' ||
-           userRole === 'Manager' ||
-           userPermissions?.includes('view_all_stations') || false;
+    userRole === 'Management' ||
+    userRole === 'Manager' ||
+    userPermissions?.includes('view_all_stations') || false;
   }
 
   /**
@@ -176,8 +176,8 @@ class StationService {
    * Check if cache is valid
    */
   private isCacheValid(): boolean {
-    return this.stationsCache.length > 0 && 
-           (Date.now() - this.cacheTimestamp) < this.CACHE_DURATION;
+    return this.stationsCache.length > 0 &&
+    Date.now() - this.cacheTimestamp < this.CACHE_DURATION;
   }
 
   /**
@@ -185,7 +185,7 @@ class StationService {
    */
   private async waitForLoading(): Promise<void> {
     while (this.isLoading) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
   }
 
@@ -200,17 +200,17 @@ class StationService {
   /**
    * Add new station (invalidates cache)
    */
-  async addStation(stationData: Omit<Station, 'id'>): Promise<{ success: boolean; error?: string }> {
+  async addStation(stationData: Omit<Station, 'id'>): Promise<{success: boolean;error?: string;}> {
     try {
       const { error } = await window.ezsite.apis.tableCreate(12599, stationData);
-      
+
       if (error) {
         return { success: false, error };
       }
 
       // Clear cache to force refresh
       this.clearCache();
-      
+
       return { success: true };
     } catch (error) {
       return { success: false, error: String(error) };
@@ -220,17 +220,17 @@ class StationService {
   /**
    * Update station (invalidates cache)
    */
-  async updateStation(stationData: Station): Promise<{ success: boolean; error?: string }> {
+  async updateStation(stationData: Station): Promise<{success: boolean;error?: string;}> {
     try {
       const { error } = await window.ezsite.apis.tableUpdate(12599, stationData);
-      
+
       if (error) {
         return { success: false, error };
       }
 
       // Clear cache to force refresh
       this.clearCache();
-      
+
       return { success: true };
     } catch (error) {
       return { success: false, error: String(error) };
@@ -240,17 +240,17 @@ class StationService {
   /**
    * Delete station (invalidates cache)
    */
-  async deleteStation(stationId: number): Promise<{ success: boolean; error?: string }> {
+  async deleteStation(stationId: number): Promise<{success: boolean;error?: string;}> {
     try {
       const { error } = await window.ezsite.apis.tableDelete(12599, { id: stationId });
-      
+
       if (error) {
         return { success: false, error };
       }
 
       // Clear cache to force refresh
       this.clearCache();
-      
+
       return { success: true };
     } catch (error) {
       return { success: false, error: String(error) };
@@ -262,7 +262,7 @@ class StationService {
    */
   async getUserAccessibleStations(userRole?: string, userPermissions?: string[], userStationAccess?: string[]): Promise<string[]> {
     const stations = await this.getStations();
-    const allStationNames = stations.map(station => station.station_name);
+    const allStationNames = stations.map((station) => station.station_name);
 
     // Admin/Management can access all stations
     if (this.canUserViewAll(userRole, userPermissions)) {
@@ -271,12 +271,12 @@ class StationService {
 
     // Filter based on specific permissions
     const accessibleStations: string[] = [];
-    
+
     for (const stationName of allStationNames) {
       const permissionKey = `view_${stationName.toLowerCase().replace(/\s+/g, '_')}`;
-      
-      if (userPermissions?.includes(permissionKey) || 
-          userStationAccess?.includes(stationName)) {
+
+      if (userPermissions?.includes(permissionKey) ||
+      userStationAccess?.includes(stationName)) {
         accessibleStations.push(stationName);
       }
     }

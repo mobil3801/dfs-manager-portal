@@ -22,7 +22,7 @@ const EnhancedStationSelector: React.FC<EnhancedStationSelectorProps> = ({
 
   // Filter out ALL option if user doesn't have permission and includeAll is true
   const visibleStations = stationOptions.filter((station) =>
-    station.value !== 'ALL' || canSelectAll
+  station.value !== 'ALL' || canSelectAll
   );
 
   const getStationIcon = (stationValue: string) => {
@@ -72,7 +72,7 @@ const EnhancedStationSelector: React.FC<EnhancedStationSelectorProps> = ({
     }
 
     // Use the station's color from the central service
-    const colorMap: { [key: string]: string } = {
+    const colorMap: {[key: string]: string;} = {
       'MOBIL': 'bg-blue-50 border-blue-200 hover:bg-blue-100',
       'AMOCO ROSEDALE': 'bg-green-50 border-green-200 hover:bg-green-100',
       'AMOCO BROOKLYN': 'bg-purple-50 border-purple-200 hover:bg-purple-100'
@@ -97,8 +97,8 @@ const EnhancedStationSelector: React.FC<EnhancedStationSelectorProps> = ({
             <span className="ml-2 text-gray-600">Loading stations...</span>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   if (error) {
@@ -117,8 +117,8 @@ const EnhancedStationSelector: React.FC<EnhancedStationSelectorProps> = ({
             <div className="text-sm text-gray-500">{error}</div>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -134,22 +134,22 @@ const EnhancedStationSelector: React.FC<EnhancedStationSelectorProps> = ({
       </CardHeader>
       <CardContent>
         <div className={`grid grid-cols-1 ${visibleStations.length <= 2 ? 'md:grid-cols-2' : visibleStations.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2 lg:grid-cols-4'} gap-4`}>
-          {visibleStations.map((station) => (
-            <Button
-              key={station.value}
-              variant="outline"
-              className={`h-auto p-6 flex flex-col items-center space-y-3 ${getButtonColorClass(station)} transition-all duration-200`}
-              onClick={() => onStationSelect(station.value)}
-            >
+          {visibleStations.map((station) =>
+          <Button
+            key={station.value}
+            variant="outline"
+            className={`h-auto p-6 flex flex-col items-center space-y-3 ${getButtonColorClass(station)} transition-all duration-200`}
+            onClick={() => onStationSelect(station.value)}>
+
               {getStationIcon(station.value)}
               <div className="text-center">
                 <div className="font-semibold text-lg flex items-center space-x-2">
                   <span>{station.label}</span>
-                  {(station.value === 'ALL' || station.value === 'ALL_STATIONS') && (
-                    <Badge variant="secondary" className="text-xs">
+                  {(station.value === 'ALL' || station.value === 'ALL_STATIONS') &&
+                <Badge variant="secondary" className="text-xs">
                       All
                     </Badge>
-                  )}
+                }
                 </div>
                 <div className="text-sm text-muted-foreground">
                   {getStationLocation(station.value)}
@@ -159,19 +159,19 @@ const EnhancedStationSelector: React.FC<EnhancedStationSelectorProps> = ({
                 </div>
               </div>
             </Button>
-          ))}
+          )}
         </div>
         
-        {includeAll && !canSelectAll && (
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        {includeAll && !canSelectAll &&
+        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <div className="text-sm text-blue-800">
               <strong>Note:</strong> The "ALL" option is available for Administrators and Management only.
             </div>
           </div>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default EnhancedStationSelector;

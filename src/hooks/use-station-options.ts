@@ -19,7 +19,7 @@ export const useStationOptions = (includeAll: boolean = true) => {
 
   // Legacy support - convert to previous format
   const legacyStationOptions: StationOption[] = useMemo(() => {
-    return stationOptions.map(option => ({
+    return stationOptions.map((option) => ({
       value: option.value,
       label: option.label,
       color: option.color
