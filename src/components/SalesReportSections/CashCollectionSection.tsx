@@ -41,12 +41,13 @@ const CashCollectionSection: React.FC<CashCollectionSectionProps> = ({
               id="cashOnHand"
               value={values.cashCollectionOnHand}
               onChange={(value) => onChange('cashCollectionOnHand', value || 0)}
-              min={0}
+              allowNegative={true}
               step={0.01}
+              precision={2}
               required />
 
             <div className="text-xs text-gray-600">
-              Physical cash counted at end of shift
+              Physical cash counted at end of shift (can be negative if short)
             </div>
           </div>
           
@@ -139,22 +140,17 @@ const CashCollectionSection: React.FC<CashCollectionSectionProps> = ({
         </div>
 
         {/* Formula Information */}
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+          <div className="flex items-center gap-2 mb-2">
+            <Info className="w-4 h-4 text-amber-600" />
+            <span className="text-sm font-medium text-amber-800">Important Notes</span>
+          </div>
+          <div className="text-xs text-amber-700 space-y-1">
+            <div>• Cash Collection on Hand can be negative if you're short on cash</div>
+            <div>• Decimal values are supported (e.g., 1234.56)</div>
+            <div>• Short/Over calculation: Cash on Hand - (Expected Cash from Sales - Cash Expenses)</div>
+          </div>
+        </div>
       </CardContent>
     </Card>);
 

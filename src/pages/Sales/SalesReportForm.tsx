@@ -159,26 +159,33 @@ export default function SalesReportForm() {
         const report = data.List[0];
         setCurrentReport(report);
         setSelectedStation(report.station);
+        
+        // Helper function to safely parse numeric values
+        const parseNumeric = (value: any) => {
+          const num = parseFloat(value);
+          return isNaN(num) ? 0 : num;
+        };
+
         setFormData({
           report_date: report.report_date.split('T')[0],
           station: report.station,
           shift: report.shift || 'DAY',
           employee_name: report.employee_name,
           employee_id: report.employee_id || '',
-          cashCollectionOnHand: report.cash_collection_on_hand,
-          creditCardAmount: report.credit_card_amount,
-          debitCardAmount: report.debit_card_amount,
-          mobileAmount: report.mobile_amount,
-          cashAmount: report.cash_amount,
-          grocerySales: report.grocery_sales,
-          ebtSales: report.ebt_sales,
+          cashCollectionOnHand: parseNumeric(report.cash_collection_on_hand),
+          creditCardAmount: parseNumeric(report.credit_card_amount),
+          debitCardAmount: parseNumeric(report.debit_card_amount),
+          mobileAmount: parseNumeric(report.mobile_amount),
+          cashAmount: parseNumeric(report.cash_amount),
+          grocerySales: parseNumeric(report.grocery_sales),
+          ebtSales: parseNumeric(report.ebt_sales),
           groceryCashSales: 0,
           groceryCardSales: 0,
-          lotteryNetSales: report.lottery_net_sales,
-          scratchOffSales: report.scratch_off_sales,
-          regularGallons: report.regular_gallons,
-          superGallons: report.super_gallons,
-          dieselGallons: report.diesel_gallons,
+          lotteryNetSales: parseNumeric(report.lottery_net_sales),
+          scratchOffSales: parseNumeric(report.scratch_off_sales),
+          regularGallons: parseNumeric(report.regular_gallons),
+          superGallons: parseNumeric(report.super_gallons),
+          dieselGallons: parseNumeric(report.diesel_gallons),
           dayReportFileId: report.day_report_file_id,
           veederRootFileId: report.veeder_root_file_id,
           lottoReportFileId: report.lotto_report_file_id,
@@ -346,33 +353,39 @@ export default function SalesReportForm() {
       return;
     }
 
+    // Ensure all numeric values are properly parsed and rounded to 2 decimal places
+    const parseAndRound = (value: number) => {
+      const num = parseFloat(String(value)) || 0;
+      return Math.round(num * 100) / 100;
+    };
+
     const submitData = {
       report_date: formData.report_date,
       station: formData.station,
       shift: formData.shift,
       employee_name: formData.employee_name,
       employee_id: formData.employee_id,
-      cash_collection_on_hand: formData.cashCollectionOnHand,
-      total_short_over: totalShortOver,
-      credit_card_amount: formData.creditCardAmount,
-      debit_card_amount: formData.debitCardAmount,
-      mobile_amount: formData.mobileAmount,
-      cash_amount: formData.cashAmount,
-      grocery_sales: formData.grocerySales,
-      ebt_sales: formData.ebtSales,
-      lottery_net_sales: formData.lotteryNetSales,
-      scratch_off_sales: formData.scratchOffSales,
-      lottery_total_cash: totalLotteryCash,
-      regular_gallons: formData.regularGallons,
-      super_gallons: formData.superGallons,
-      diesel_gallons: formData.dieselGallons,
-      total_gallons: totalGallons,
-      expenses_data: JSON.stringify({ total_expenses: totalExpenses, cash_expenses: cashExpenses }),
+      cash_collection_on_hand: parseAndRound(formData.cashCollectionOnHand),
+      total_short_over: parseAndRound(totalShortOver),
+      credit_card_amount: parseAndRound(formData.creditCardAmount),
+      debit_card_amount: parseAndRound(formData.debitCardAmount),
+      mobile_amount: parseAndRound(formData.mobileAmount),
+      cash_amount: parseAndRound(formData.cashAmount),
+      grocery_sales: parseAndRound(formData.grocerySales),
+      ebt_sales: parseAndRound(formData.ebtSales),
+      lottery_net_sales: parseAndRound(formData.lotteryNetSales),
+      scratch_off_sales: parseAndRound(formData.scratchOffSales),
+      lottery_total_cash: parseAndRound(totalLotteryCash),
+      regular_gallons: parseAndRound(formData.regularGallons),
+      super_gallons: parseAndRound(formData.superGallons),
+      diesel_gallons: parseAndRound(formData.dieselGallons),
+      total_gallons: parseAndRound(totalGallons),
+      expenses_data: JSON.stringify({ total_expenses: parseAndRound(totalExpenses), cash_expenses: parseAndRound(cashExpenses) }),
       day_report_file_id: formData.dayReportFileId,
       veeder_root_file_id: formData.veederRootFileId,
       lotto_report_file_id: formData.lottoReportFileId,
       scratch_off_report_file_id: formData.scratchOffReportFileId,
-      total_sales: totalSales,
+      total_sales: parseAndRound(totalSales),
       notes: formData.notes,
       created_by: user?.ID || 0
     };
@@ -440,7 +453,15 @@ export default function SalesReportForm() {
   };
 
   const updateFormData = (field: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    // Ensure numeric values are properly handled
+    let processedValue = value;
+    if (typeof value === 'string' && !isNaN(parseFloat(value))) {
+      processedValue = parseFloat(value);
+    } else if (typeof value === 'number') {
+      processedValue = value;
+    }
+    
+    setFormData((prev) => ({ ...prev, [field]: processedValue }));
   };
 
   const handleDocumentUpload = (field: string, fileId: number) => {
@@ -522,8 +543,23 @@ export default function SalesReportForm() {
         }
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Important Information Alert */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <CheckCircle2 className="w-4 h-4 text-blue-600" />
+              <span className="text-sm font-medium text-blue-800">Enhanced Input Support</span>
+            </div>
+            <div className="text-xs text-blue-700 space-y-1">
+              <div>• <strong>Decimal Values:</strong> All input fields support decimal values (e.g., 1234.56)</div>
+              <div>• <strong>Negative Values:</strong> Negative values are allowed for adjustments, refunds, and corrections</div>
+              <div>• <strong>Auto-Rounding:</strong> Values are automatically rounded to 2 decimal places</div>
+              <div>• <strong>Auto-Calculation:</strong> Totals and short/over amounts are calculated automatically</div>
+            </div>
+          </div>
+
           {/* Basic Information */}
           <Card>
+
             <CardHeader>
               <CardTitle className="text-lg">Basic Information</CardTitle>
             </CardHeader>

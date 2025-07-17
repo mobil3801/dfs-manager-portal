@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { NumberInput } from '@/components/ui/number-input';
-import { Fuel, ShoppingCart } from 'lucide-react';
+import { Fuel, ShoppingCart, Info } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface GasGrocerySalesSectionProps {
@@ -54,8 +54,9 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 id="creditCard"
                 value={values.creditCardAmount}
                 onChange={(value) => onChange('creditCardAmount', value || 0)}
-                min={0}
+                allowNegative={true}
                 step={0.01}
+                precision={2}
                 required />
 
             </div>
@@ -65,8 +66,9 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 id="debitCard"
                 value={values.debitCardAmount}
                 onChange={(value) => onChange('debitCardAmount', value || 0)}
-                min={0}
+                allowNegative={true}
                 step={0.01}
+                precision={2}
                 required />
 
             </div>
@@ -76,8 +78,9 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 id="mobile"
                 value={values.mobileAmount}
                 onChange={(value) => onChange('mobileAmount', value || 0)}
-                min={0}
+                allowNegative={true}
                 step={0.01}
+                precision={2}
                 required />
 
             </div>
@@ -87,8 +90,9 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 id="cash"
                 value={values.cashAmount}
                 onChange={(value) => onChange('cashAmount', value || 0)}
-                min={0}
+                allowNegative={true}
                 step={0.01}
+                precision={2}
                 required />
 
             </div>
@@ -98,8 +102,9 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 id="grocery"
                 value={values.grocerySales}
                 onChange={(value) => onChange('grocerySales', value || 0)}
-                min={0}
+                allowNegative={true}
                 step={0.01}
+                precision={2}
                 required />
 
             </div>
@@ -133,8 +138,9 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 id="groceryCash"
                 value={values.groceryCashSales || 0}
                 onChange={(value) => onChange('groceryCashSales', value || 0)}
-                min={0}
+                allowNegative={true}
                 step={0.01}
+                precision={2}
                 required />
 
             </div>
@@ -144,8 +150,9 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 id="groceryCard"
                 value={values.groceryCardSales || 0}
                 onChange={(value) => onChange('groceryCardSales', value || 0)}
-                min={0}
+                allowNegative={true}
                 step={0.01}
+                precision={2}
                 required />
 
             </div>
@@ -156,8 +163,9 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 id="ebt"
                 value={values.ebtSales || 0}
                 onChange={(value) => onChange('ebtSales', value || 0)}
-                min={0}
+                allowNegative={true}
                 step={0.01}
+                precision={2}
                 required />
 
               </div>
@@ -175,6 +183,20 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
           </div>
         </CardContent>
       </Card>
+
+      {/* Important Notes */}
+      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+        <div className="flex items-center gap-2 mb-2">
+          <Info className="w-4 h-4 text-amber-600" />
+          <span className="text-sm font-medium text-amber-800">Important Notes</span>
+        </div>
+        <div className="text-xs text-amber-700 space-y-1">
+          <div>• All fields support decimal values (e.g., 1234.56)</div>
+          <div>• Negative values are allowed for adjustments/refunds</div>
+          <div>• Values are automatically rounded to 2 decimal places</div>
+          <div>• Total sales is calculated automatically as you type</div>
+        </div>
+      </div>
     </div>);
 
 };

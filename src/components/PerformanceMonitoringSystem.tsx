@@ -487,6 +487,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -841,8 +843,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
         <TabsContent value="suggestions" className="space-y-4">
           <div className="space-y-4">
-            {suggestions.map((suggestion, index) =>
-          <Card key={index}>
+            {suggestions.map((suggestion, index) => <Card key={index}>
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between">
                     <div className="space-y-2">
@@ -860,12 +861,11 @@ const PerformanceMonitoringSystem: React.FC = () => {
                         {suggestion.description}
                       </p>
                     </div>
-                    {suggestion.action &&
-                <Button onClick={suggestion.action} size="sm">
+                    {suggestion.action && <Button onClick={suggestion.action} size="sm">
                         <Zap className="mr-2 h-4 w-4" />
                         Apply Fix
                       </Button>
-                }
+                  }
                   </div>
                 </CardContent>
               </Card>

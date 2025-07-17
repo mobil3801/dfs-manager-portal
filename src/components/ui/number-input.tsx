@@ -7,10 +7,12 @@ export interface NumberInputProps
   value?: number | string
   onChange?: (value: number) => void
   onValueChange?: (value: string) => void
+  allowNegative?: boolean
+  precision?: number
 }
 
 const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
-  ({ className, type = "number", value: propValue, onChange, onValueChange, ...props }, ref) => {
+  ({ className, type = "number", value: propValue, onChange, onValueChange, allowNegative = false, precision = 2, ...props }, ref) => {
     const smartZero = useSmartZero(propValue);
 
     // Update internal value when prop changes
@@ -22,18 +24,89 @@ const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value;
-      smartZero.handleChange(newValue);
       
-      // Call onChange with numeric value
-      if (onChange) {
-        const numericValue = parseFloat(newValue) || 0;
-        onChange(numericValue);
+      // Allow empty string for intermediate states
+      if (newValue === '') {
+        smartZero.handleChange(newValue);
+        if (onChange) {
+          onChange(0);
+        }
+        if (onValueChange) {
+          onValueChange(newValue);
+        }
+        return;
       }
       
-      // Call onValueChange with string value for more control
-      if (onValueChange) {
-        onValueChange(newValue);
+      // Allow negative sign at the beginning if allowNegative is true
+      if (allowNegative && newValue === '-') {
+        smartZero.handleChange(newValue);
+        if (onValueChange) {
+          onValueChange(newValue);
+        }
+        return;
       }
+      
+      // Parse and validate the numeric value
+      const numericValue = parseFloat(newValue);
+      
+      // Check if it's a valid number
+      if (!isNaN(numericValue)) {
+        // Check negative value restrictions
+        if (!allowNegative && numericValue < 0) {
+          return; // Don't update if negative values are not allowed
+        }
+        
+        // Apply precision limit
+        const precisionLimitedValue = precision !== undefined ? 
+          Math.round(numericValue * Math.pow(10, precision)) / Math.pow(10, precision) : 
+          numericValue;
+        
+        smartZero.handleChange(newValue);
+        
+        // Call onChange with numeric value
+        if (onChange) {
+          onChange(precisionLimitedValue);
+        }
+        
+        // Call onValueChange with string value for more control
+        if (onValueChange) {
+          onValueChange(newValue);
+        }
+      } else {
+        // For intermediate states like "-0." or "1." allow the string but don't call onChange
+        const intermediatePattern = allowNegative ? /^-?\d*\.?\d*$/ : /^\d*\.?\d*$/;
+        if (intermediatePattern.test(newValue)) {
+          smartZero.handleChange(newValue);
+          if (onValueChange) {
+            onValueChange(newValue);
+          }
+        }
+      }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      // Allow backspace, delete, tab, escape, enter, and arrow keys
+      if ([8, 9, 27, 13, 46, 37, 39, 38, 40].includes(e.keyCode)) {
+        return;
+      }
+      
+      // Allow negative sign at the beginning if allowNegative is true
+      if (allowNegative && e.key === '-' && e.currentTarget.selectionStart === 0) {
+        return;
+      }
+      
+      // Allow decimal point
+      if (e.key === '.' && !e.currentTarget.value.includes('.')) {
+        return;
+      }
+      
+      // Allow digits
+      if (e.key >= '0' && e.key <= '9') {
+        return;
+      }
+      
+      // Prevent all other keys
+      e.preventDefault();
     };
 
     return (
@@ -46,6 +119,7 @@ const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
         ref={ref}
         value={smartZero.displayValue}
         onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
         onFocus={smartZero.handleFocus}
         onBlur={smartZero.handleBlur}
         {...props}
