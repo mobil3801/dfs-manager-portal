@@ -178,8 +178,15 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
               <div className="text-2xl font-bold text-green-800">${totalGrocerySales.toFixed(2)}</div>
             </div>
             <div className="text-sm text-gray-600 mt-1">
-              Cash Sales + Credit/Debit Card{isMobil ? ' + EBT' : ''} = ${totalGrocerySales.toFixed(2)}
+              Cash Sales (${(values.groceryCashSales || 0).toFixed(2)}) + Credit/Debit Card (${(values.groceryCardSales || 0).toFixed(2)}){isMobil ? ` + EBT (${(values.ebtSales || 0).toFixed(2)})` : ''} = ${totalGrocerySales.toFixed(2)}
             </div>
+            {/* Sync notification */}
+            {totalGrocerySales !== values.grocerySales &&
+            <div className="text-xs text-amber-600 mt-1 bg-amber-50 p-2 rounded border border-amber-200">
+                <Info className="w-3 h-3 inline mr-1" />
+                Grocery sales total will be updated automatically when you save.
+              </div>
+            }
           </div>
         </CardContent>
       </Card>

@@ -150,7 +150,7 @@ export default function SalesReportForm() {
 
   const loadExistingReport = async () => {
     if (!id) return;
-    
+
     setIsLoading(true);
     try {
       const { data, error } = await window.ezsite.apis.tablePage(12356, {
@@ -166,7 +166,7 @@ export default function SalesReportForm() {
       if (data?.List && data.List.length > 0) {
         const report = data.List[0];
         setCurrentReport(report);
-        
+
         // Set station first, which will trigger employee loading
         setSelectedStation(report.station);
 
@@ -185,9 +185,16 @@ export default function SalesReportForm() {
 
         // Parse expenses data if it exists
         let expensesData = { total_expenses: 0, cash_expenses: 0 };
+        let groceryBreakdown = { groceryCashSales: 0, groceryCardSales: 0 };
+        
         if (report.expenses_data) {
           try {
             expensesData = JSON.parse(report.expenses_data);
+            
+            // Parse grocery breakdown data from expenses_data
+            if (expensesData.grocery_breakdown) {
+              groceryBreakdown = expensesData.grocery_breakdown;
+            }
           } catch (e) {
             console.warn('Failed to parse expenses data:', e);
           }
@@ -207,8 +214,8 @@ export default function SalesReportForm() {
           cashAmount: parseNumeric(report.cash_amount),
           grocerySales: parseNumeric(report.grocery_sales),
           ebtSales: parseNumeric(report.ebt_sales),
-          groceryCashSales: 0, // These might not be stored separately
-          groceryCardSales: 0,
+          groceryCashSales: parseNumeric(groceryBreakdown.groceryCashSales),
+          groceryCardSales: parseNumeric(groceryBreakdown.groceryCardSales),
           lotteryNetSales: parseNumeric(report.lottery_net_sales),
           scratchOffSales: parseNumeric(report.scratch_off_sales),
           regularGallons: parseNumeric(report.regular_gallons),
@@ -438,9 +445,13 @@ export default function SalesReportForm() {
         super_gallons: parseAndRound(formData.superGallons),
         diesel_gallons: parseAndRound(formData.dieselGallons),
         total_gallons: parseAndRound(totalGallons),
-        expenses_data: JSON.stringify({ 
-          total_expenses: parseAndRound(totalExpenses), 
-          cash_expenses: parseAndRound(cashExpenses) 
+        expenses_data: JSON.stringify({
+          total_expenses: parseAndRound(totalExpenses),
+          cash_expenses: parseAndRound(cashExpenses),
+          grocery_breakdown: {
+            groceryCashSales: parseAndRound(formData.groceryCashSales),
+            groceryCardSales: parseAndRound(formData.groceryCardSales)
+          }
         }),
         day_report_file_id: formData.dayReportFileId || null,
         veeder_root_file_id: formData.veederRootFileId || null,
@@ -454,9 +465,9 @@ export default function SalesReportForm() {
       let result;
       if (isEditing) {
         // Include ID for update
-        result = await window.ezsite.apis.tableUpdate(12356, { 
-          ...submitData, 
-          id: parseInt(id!) 
+        result = await window.ezsite.apis.tableUpdate(12356, {
+          ...submitData,
+          id: parseInt(id!)
         });
       } else {
         result = await window.ezsite.apis.tableCreate(12356, submitData);
@@ -528,7 +539,20 @@ export default function SalesReportForm() {
       processedValue = value;
     }
 
-    setFormData((prev) => ({ ...prev, [field]: processedValue }));
+    setFormData((prev) => {
+      const newData = { ...prev, [field]: processedValue };
+      
+      // If updating grocery breakdown fields, also update the total grocery sales
+      if (field === 'groceryCashSales' || field === 'groceryCardSales' || field === 'ebtSales') {
+        const groceryCashSales = field === 'groceryCashSales' ? processedValue : (prev.groceryCashSales || 0);
+        const groceryCardSales = field === 'groceryCardSales' ? processedValue : (prev.groceryCardSales || 0);
+        const ebtSales = field === 'ebtSales' ? processedValue : (prev.ebtSales || 0);
+        
+        newData.grocerySales = groceryCashSales + groceryCardSales + ebtSales;
+      }
+      
+      return newData;
+    });
   };
 
   const handleDocumentUpload = (field: string, fileId: number) => {
@@ -554,8 +578,8 @@ export default function SalesReportForm() {
             </div>
           </div>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   // If no station selected, show station selector
