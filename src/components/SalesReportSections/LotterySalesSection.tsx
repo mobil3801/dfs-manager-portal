@@ -23,7 +23,7 @@ const LotterySalesSection: React.FC<LotterySalesSectionProps> = ({
   const totalSalesCash = values.lotteryNetSales + values.scratchOffSales;
 
   return (
-    <div className="space-y-4">
+    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
       <Card className="bg-yellow-50 border-yellow-200">
         <CardHeader>
           <CardTitle className="text-yellow-800 flex items-center space-x-2">
@@ -72,18 +72,18 @@ const LotterySalesSection: React.FC<LotterySalesSectionProps> = ({
       </Card>
 
       {/* Important Notes */}
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-        <div className="flex items-center gap-2 mb-2">
-          <Info className="w-4 h-4 text-amber-600" />
-          <span className="text-sm font-medium text-amber-800">Important Notes</span>
-        </div>
-        <div className="text-xs text-amber-700 space-y-1">
-          <div>• All fields support decimal values (e.g., 1234.56)</div>
-          <div>• Negative values are allowed for returns/adjustments</div>
-          <div>• Values are automatically rounded to 2 decimal places</div>
-          <div>• Total cash is calculated automatically as you type</div>
-        </div>
-      </div>
+      
+
+
+
+
+
+
+
+
+
+
+
     </div>);
 
 };
