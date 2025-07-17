@@ -566,14 +566,6 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
               <Receipt className="h-5 w-5 text-blue-600" />
               Enhanced Sales Report - {report.station}
             </DialogTitle>
-            <Button
-              onClick={handlePrint}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
-              <Printer className="h-4 w-4" />
-              Print Full Report
-            </Button>
           </div>
         </DialogHeader>
 

@@ -491,6 +491,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -871,8 +872,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
                 </CardContent>
               </Card>)}
             
-            {suggestions.length === 0 &&
-          <Card>
+            {suggestions.length === 0 && <Card>
                 <CardContent className="flex items-center justify-center h-32">
                   <div className="text-center">
                     <CheckCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
