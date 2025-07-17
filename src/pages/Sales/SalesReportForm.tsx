@@ -54,6 +54,7 @@ export default function SalesReportForm() {
     timeRemainingHours: number;
   } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [currentReport, setCurrentReport] = useState<any>(null);
 
   const [formData, setFormData] = useState({
@@ -94,9 +95,11 @@ export default function SalesReportForm() {
     if (selectedStation) {
       setFormData((prev) => ({ ...prev, station: selectedStation }));
       loadEmployees(selectedStation);
-      checkForExistingDraft();
+      if (!isEditing) {
+        checkForExistingDraft();
+      }
     }
-  }, [selectedStation]);
+  }, [selectedStation, isEditing]);
 
   useEffect(() => {
     if (isEditing && id) {
@@ -104,12 +107,12 @@ export default function SalesReportForm() {
     }
   }, [isEditing, id]);
 
-  // Check for existing draft when form data changes
+  // Check for existing draft when form data changes (only for new reports)
   useEffect(() => {
-    if (selectedStation && formData.report_date) {
+    if (selectedStation && formData.report_date && !isEditing) {
       checkForExistingDraft();
     }
-  }, [selectedStation, formData.report_date]);
+  }, [selectedStation, formData.report_date, isEditing]);
 
   // Auto-calculations with proper synchronization
   const totalSales = useMemo(() => {
@@ -146,31 +149,56 @@ export default function SalesReportForm() {
   };
 
   const loadExistingReport = async () => {
+    if (!id) return;
+    
+    setIsLoading(true);
     try {
       const { data, error } = await window.ezsite.apis.tablePage(12356, {
         PageNo: 1,
         PageSize: 1,
-        Filters: [{ name: 'id', op: 'Equal', value: parseInt(id!) }]
+        Filters: [{ name: 'id', op: 'Equal', value: parseInt(id) }]
       });
 
-      if (error) throw new Error(error);
+      if (error) {
+        throw new Error(error);
+      }
 
       if (data?.List && data.List.length > 0) {
         const report = data.List[0];
         setCurrentReport(report);
+        
+        // Set station first, which will trigger employee loading
         setSelectedStation(report.station);
 
         // Helper function to safely parse numeric values
         const parseNumeric = (value: any) => {
+          if (value === null || value === undefined || value === '') return 0;
           const num = parseFloat(value);
           return isNaN(num) ? 0 : num;
         };
 
+        // Helper function to safely parse date strings
+        const parseDate = (dateString: any) => {
+          if (!dateString) return new Date().toISOString().split('T')[0];
+          return new Date(dateString).toISOString().split('T')[0];
+        };
+
+        // Parse expenses data if it exists
+        let expensesData = { total_expenses: 0, cash_expenses: 0 };
+        if (report.expenses_data) {
+          try {
+            expensesData = JSON.parse(report.expenses_data);
+          } catch (e) {
+            console.warn('Failed to parse expenses data:', e);
+          }
+        }
+
+        // Update form data with all fields from the report
         setFormData({
-          report_date: report.report_date.split('T')[0],
-          station: report.station,
+          report_date: parseDate(report.report_date),
+          station: report.station || '',
           shift: report.shift || 'DAY',
-          employee_name: report.employee_name,
+          employee_name: report.employee_name || '',
           employee_id: report.employee_id || '',
           cashCollectionOnHand: parseNumeric(report.cash_collection_on_hand),
           creditCardAmount: parseNumeric(report.credit_card_amount),
@@ -179,27 +207,45 @@ export default function SalesReportForm() {
           cashAmount: parseNumeric(report.cash_amount),
           grocerySales: parseNumeric(report.grocery_sales),
           ebtSales: parseNumeric(report.ebt_sales),
-          groceryCashSales: 0,
+          groceryCashSales: 0, // These might not be stored separately
           groceryCardSales: 0,
           lotteryNetSales: parseNumeric(report.lottery_net_sales),
           scratchOffSales: parseNumeric(report.scratch_off_sales),
           regularGallons: parseNumeric(report.regular_gallons),
           superGallons: parseNumeric(report.super_gallons),
           dieselGallons: parseNumeric(report.diesel_gallons),
-          dayReportFileId: report.day_report_file_id,
-          veederRootFileId: report.veeder_root_file_id,
-          lottoReportFileId: report.lotto_report_file_id,
-          scratchOffReportFileId: report.scratch_off_report_file_id,
-          notes: report.notes
+          dayReportFileId: report.day_report_file_id || undefined,
+          veederRootFileId: report.veeder_root_file_id || undefined,
+          lottoReportFileId: report.lotto_report_file_id || undefined,
+          scratchOffReportFileId: report.scratch_off_report_file_id || undefined,
+          notes: report.notes || ''
         });
+
+        // Set expenses data
+        setTotalExpenses(parseNumeric(expensesData.total_expenses));
+        setCashExpenses(parseNumeric(expensesData.cash_expenses));
+
+        toast({
+          title: 'Report Loaded',
+          description: 'Existing report data has been loaded successfully.'
+        });
+      } else {
+        toast({
+          title: 'Report Not Found',
+          description: 'The requested report could not be found.',
+          variant: 'destructive'
+        });
+        navigate('/sales-reports');
       }
     } catch (error) {
       console.error('Error loading report:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to load existing report',
+        title: 'Error Loading Report',
+        description: error instanceof Error ? error.message : 'Failed to load existing report',
         variant: 'destructive'
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -339,61 +385,79 @@ export default function SalesReportForm() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Validate required documents
-    const requiredDocs = ['dayReportFileId', 'veederRootFileId', 'lottoReportFileId', 'scratchOffReportFileId'];
-    const missingDocs = requiredDocs.filter((doc) => !formData[doc as keyof typeof formData]);
-
-    if (missingDocs.length > 0) {
-      toast({
-        title: 'Missing Documents',
-        description: 'Please upload all required documents before submitting.',
-        variant: 'destructive'
-      });
-      setIsSubmitting(false);
-      return;
-    }
-
-    // Ensure all numeric values are properly parsed and rounded to 2 decimal places
-    const parseAndRound = (value: number) => {
-      const num = parseFloat(String(value)) || 0;
-      return Math.round(num * 100) / 100;
-    };
-
-    const submitData = {
-      report_date: formData.report_date,
-      station: formData.station,
-      shift: formData.shift,
-      employee_name: formData.employee_name,
-      employee_id: formData.employee_id,
-      cash_collection_on_hand: parseAndRound(formData.cashCollectionOnHand),
-      total_short_over: parseAndRound(totalShortOver),
-      credit_card_amount: parseAndRound(formData.creditCardAmount),
-      debit_card_amount: parseAndRound(formData.debitCardAmount),
-      mobile_amount: parseAndRound(formData.mobileAmount),
-      cash_amount: parseAndRound(formData.cashAmount),
-      grocery_sales: parseAndRound(formData.grocerySales),
-      ebt_sales: parseAndRound(formData.ebtSales),
-      lottery_net_sales: parseAndRound(formData.lotteryNetSales),
-      scratch_off_sales: parseAndRound(formData.scratchOffSales),
-      lottery_total_cash: parseAndRound(totalLotteryCash),
-      regular_gallons: parseAndRound(formData.regularGallons),
-      super_gallons: parseAndRound(formData.superGallons),
-      diesel_gallons: parseAndRound(formData.dieselGallons),
-      total_gallons: parseAndRound(totalGallons),
-      expenses_data: JSON.stringify({ total_expenses: parseAndRound(totalExpenses), cash_expenses: parseAndRound(cashExpenses) }),
-      day_report_file_id: formData.dayReportFileId,
-      veeder_root_file_id: formData.veederRootFileId,
-      lotto_report_file_id: formData.lottoReportFileId,
-      scratch_off_report_file_id: formData.scratchOffReportFileId,
-      total_sales: parseAndRound(totalSales),
-      notes: formData.notes,
-      created_by: user?.ID || 0
-    };
-
     try {
+      // Validate required fields
+      if (!formData.station || !formData.report_date || !formData.employee_name) {
+        toast({
+          title: 'Missing Required Fields',
+          description: 'Please fill in all required fields: Station, Report Date, and Employee Name.',
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      // Validate required documents (only for new reports)
+      if (!isEditing) {
+        const requiredDocs = ['dayReportFileId', 'veederRootFileId', 'lottoReportFileId', 'scratchOffReportFileId'];
+        const missingDocs = requiredDocs.filter((doc) => !formData[doc as keyof typeof formData]);
+
+        if (missingDocs.length > 0) {
+          toast({
+            title: 'Missing Documents',
+            description: 'Please upload all required documents before submitting.',
+            variant: 'destructive'
+          });
+          return;
+        }
+      }
+
+      // Ensure all numeric values are properly parsed and rounded to 2 decimal places
+      const parseAndRound = (value: number | string) => {
+        const num = parseFloat(String(value)) || 0;
+        return Math.round(num * 100) / 100;
+      };
+
+      const submitData = {
+        report_date: formData.report_date,
+        station: formData.station,
+        shift: formData.shift,
+        employee_name: formData.employee_name,
+        employee_id: formData.employee_id,
+        cash_collection_on_hand: parseAndRound(formData.cashCollectionOnHand),
+        total_short_over: parseAndRound(totalShortOver),
+        credit_card_amount: parseAndRound(formData.creditCardAmount),
+        debit_card_amount: parseAndRound(formData.debitCardAmount),
+        mobile_amount: parseAndRound(formData.mobileAmount),
+        cash_amount: parseAndRound(formData.cashAmount),
+        grocery_sales: parseAndRound(formData.grocerySales),
+        ebt_sales: parseAndRound(formData.ebtSales),
+        lottery_net_sales: parseAndRound(formData.lotteryNetSales),
+        scratch_off_sales: parseAndRound(formData.scratchOffSales),
+        lottery_total_cash: parseAndRound(totalLotteryCash),
+        regular_gallons: parseAndRound(formData.regularGallons),
+        super_gallons: parseAndRound(formData.superGallons),
+        diesel_gallons: parseAndRound(formData.dieselGallons),
+        total_gallons: parseAndRound(totalGallons),
+        expenses_data: JSON.stringify({ 
+          total_expenses: parseAndRound(totalExpenses), 
+          cash_expenses: parseAndRound(cashExpenses) 
+        }),
+        day_report_file_id: formData.dayReportFileId || null,
+        veeder_root_file_id: formData.veederRootFileId || null,
+        lotto_report_file_id: formData.lottoReportFileId || null,
+        scratch_off_report_file_id: formData.scratchOffReportFileId || null,
+        total_sales: parseAndRound(totalSales),
+        notes: formData.notes || '',
+        created_by: user?.ID || 0
+      };
+
       let result;
       if (isEditing) {
-        result = await window.ezsite.apis.tableUpdate(12356, { ...submitData, ID: parseInt(id!) });
+        // Include ID for update
+        result = await window.ezsite.apis.tableUpdate(12356, { 
+          ...submitData, 
+          id: parseInt(id!) 
+        });
       } else {
         result = await window.ezsite.apis.tableCreate(12356, submitData);
       }
@@ -408,19 +472,22 @@ export default function SalesReportForm() {
       });
 
       // Delete any existing draft after successful submission
-      if (selectedStation && formData.report_date) {
+      if (selectedStation && formData.report_date && !isEditing) {
         DraftSavingService.deleteDraft(selectedStation, formData.report_date);
       }
 
       // Set current report for printing
       setCurrentReport({
         ...submitData,
-        ID: parseInt(id!) || result.data?.ID || 0,
+        id: parseInt(id!) || result.data?.id || 0,
         created_by: user?.ID || 0
       });
 
-      // Reset form after successful submission (as requested)
-      if (!isEditing) {
+      // For edit mode, reload the updated data
+      if (isEditing) {
+        loadExistingReport();
+      } else {
+        // Reset form after successful submission for new reports
         resetForm();
         toast({
           title: 'Form Reset',
@@ -475,6 +542,22 @@ export default function SalesReportForm() {
 
   const validEmployees = employees.filter((employee) => employee.employee_id && employee.employee_id.trim() !== '');
 
+  // Show loading state during data loading
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+              <p className="text-gray-600">Loading report data...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // If no station selected, show station selector
   if (!selectedStation) {
     return (
@@ -488,7 +571,9 @@ export default function SalesReportForm() {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Reports
             </Button>
-            <h1 className="text-3xl font-bold text-gray-900">Create Daily Sales Report</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {isEditing ? 'Edit' : 'Create'} Daily Sales Report
+            </h1>
             <p className="text-gray-600 mt-2">Step 1: Select your station to begin</p>
           </div>
           <StationSelector onStationSelect={setSelectedStation} />
@@ -503,10 +588,10 @@ export default function SalesReportForm() {
         <div className="mb-6">
           <Button
             variant="outline"
-            onClick={() => setSelectedStation('')}
+            onClick={() => navigate('/sales-reports')}
             className="mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Change Station
+            Back to Reports
           </Button>
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
@@ -543,23 +628,8 @@ export default function SalesReportForm() {
         }
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Important Information Alert */}
-          
-
-
-
-
-
-
-
-
-
-
-
-
           {/* Basic Information */}
           <Card>
-
             <CardHeader>
               <CardTitle className="text-lg">Basic Information</CardTitle>
             </CardHeader>
@@ -808,7 +878,7 @@ export default function SalesReportForm() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/dashboard')}>
+                onClick={() => navigate('/sales-reports')}>
                 Cancel
               </Button>
               

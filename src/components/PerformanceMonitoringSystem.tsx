@@ -500,6 +500,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -894,8 +895,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
       </Tabs>
     </div>;}; /**
 * Calculate overall performance score
-*/const calculateOverallScore = (metrics: PerformanceMetrics): number => {let score = 100;
-  // Memory penalty
+*/const calculateOverallScore = (metrics: PerformanceMetrics): number => {let score = 100; // Memory penalty
   if (metrics.memory.percentage > 80) score -= 20;else
   if (metrics.memory.percentage > 60) score -= 10;
 
