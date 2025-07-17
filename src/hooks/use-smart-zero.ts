@@ -51,13 +51,13 @@ export const useSmartZero = (initialValue: number | string = 0) => {
 
   const resetValue = useCallback((newValue: number | string = 0) => {
     let stringValue: string;
-    
+
     if (typeof newValue === 'number') {
       stringValue = newValue === 0 ? '0' : String(newValue);
     } else {
       stringValue = String(newValue || 0);
     }
-    
+
     setValue(stringValue);
     setHasUserInput(newValue !== 0 && newValue !== '0');
   }, []);

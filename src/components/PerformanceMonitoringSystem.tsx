@@ -489,6 +489,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -864,12 +866,10 @@ const PerformanceMonitoringSystem: React.FC = () => {
                     {suggestion.action && <Button onClick={suggestion.action} size="sm">
                         <Zap className="mr-2 h-4 w-4" />
                         Apply Fix
-                      </Button>
-                  }
+                      </Button>}
                   </div>
                 </CardContent>
-              </Card>
-          )}
+              </Card>)}
             
             {suggestions.length === 0 &&
           <Card>

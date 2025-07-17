@@ -159,7 +159,7 @@ export default function SalesReportForm() {
         const report = data.List[0];
         setCurrentReport(report);
         setSelectedStation(report.station);
-        
+
         // Helper function to safely parse numeric values
         const parseNumeric = (value: any) => {
           const num = parseFloat(value);
@@ -460,7 +460,7 @@ export default function SalesReportForm() {
     } else if (typeof value === 'number') {
       processedValue = value;
     }
-    
+
     setFormData((prev) => ({ ...prev, [field]: processedValue }));
   };
 
