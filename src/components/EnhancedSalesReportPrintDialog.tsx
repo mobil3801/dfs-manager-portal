@@ -34,6 +34,7 @@ interface EnhancedSalesReport {
   total_sales: number;
   notes: string;
   created_by: number;
+  shift?: string;
 }
 
 interface Expense {
@@ -94,19 +95,41 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
     }
   };
 
-  // Parse expenses data
-  const expenses: Expense[] = report.expenses_data ? JSON.parse(report.expenses_data) : [];
-  const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-  const cashExpenses = expenses.filter((e) => e.paymentType === 'Cash').reduce((sum, expense) => sum + expense.amount, 0);
-  const cardExpenses = expenses.filter((e) => e.paymentType === 'Credit Card').reduce((sum, expense) => sum + expense.amount, 0);
-  const chequeExpenses = expenses.filter((e) => e.paymentType === 'Cheque').reduce((sum, expense) => sum + expense.amount, 0);
+  // Parse expenses data - handle both old and new formats
+  let expenses: Expense[] = [];
+  let totalExpenses = 0;
+  let cashExpenses = 0;
+  let cardExpenses = 0;
+  let chequeExpenses = 0;
+
+  if (report.expenses_data) {
+    try {
+      const parsedExpenses = JSON.parse(report.expenses_data);
+      // Check if it's the new format with totals
+      if (parsedExpenses.total_expenses !== undefined) {
+        totalExpenses = parsedExpenses.total_expenses || 0;
+        cashExpenses = parsedExpenses.cash_expenses || 0;
+        cardExpenses = totalExpenses - cashExpenses; // Approximate for display
+        expenses = parsedExpenses.expenses || [];
+      } else if (Array.isArray(parsedExpenses)) {
+        // Old format - array of expenses
+        expenses = parsedExpenses;
+        totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+        cashExpenses = expenses.filter((e) => e.paymentType === 'Cash').reduce((sum, expense) => sum + expense.amount, 0);
+        cardExpenses = expenses.filter((e) => e.paymentType === 'Credit Card').reduce((sum, expense) => sum + expense.amount, 0);
+        chequeExpenses = expenses.filter((e) => e.paymentType === 'Cheque').reduce((sum, expense) => sum + expense.amount, 0);
+      }
+    } catch (error) {
+      console.error('Error parsing expenses data:', error);
+    }
+  }
 
   // Calculate payment method totals
   const totalPaymentMethods = report.credit_card_amount + report.debit_card_amount + report.mobile_amount + report.cash_amount;
   const totalFuelSales = report.regular_gallons + report.super_gallons + report.diesel_gallons;
 
   // Verification checks
-  const isPaymentBalanced = Math.abs(totalPaymentMethods - report.total_sales) <= 0.01;
+  const isPaymentBalanced = Math.abs(totalPaymentMethods + report.grocery_sales - report.total_sales) <= 0.01;
   const isCashBalanced = Math.abs(report.total_short_over) <= 1.00; // Allow $1 tolerance
 
   const handlePrint = () => {
@@ -450,33 +473,13 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
             </div>
           </div>
 
-          ${expenses.length > 0 ? `
+          ${totalExpenses > 0 ? `
           <div class="section">
             <div class="section-header">
               <span class="section-icon">📋</span>
-              <span class="section-title">Expenses (${expenses.length} items)</span>
+              <span class="section-title">Expenses Summary</span>
             </div>
-            <table class="expenses-table">
-              <thead>
-                <tr>
-                  <th>Vendor</th>
-                  <th>Amount</th>
-                  <th>Payment Method</th>
-                  <th>Notes</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${expenses.map((expense) => `
-                <tr>
-                  <td>${expense.vendorName}</td>
-                  <td>${formatCurrency(expense.amount)}</td>
-                  <td>${expense.paymentType}${expense.chequeNo ? ` (#${expense.chequeNo})` : ''}</td>
-                  <td>${expense.notes || '-'}</td>
-                </tr>
-                `).join('')}
-              </tbody>
-            </table>
-            <div class="data-grid" style="margin-top: 15px;">
+            <div class="data-grid">
               <div class="data-card">
                 <div class="data-label">Total Expenses</div>
                 <div class="data-value currency">${formatCurrency(totalExpenses)}</div>
@@ -505,7 +508,7 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
             <div class="verification-item">
               <span>Payment Methods Balance:</span>
               <span class="${isPaymentBalanced ? 'check-passed' : 'check-failed'}">
-                ${isPaymentBalanced ? '✓ Balanced' : '⚠️ Discrepancy: ' + formatCurrency(Math.abs(totalPaymentMethods - report.total_sales))}
+                ${isPaymentBalanced ? '✓ Balanced' : '⚠️ Discrepancy: ' + formatCurrency(Math.abs(totalPaymentMethods + report.grocery_sales - report.total_sales))}
               </span>
             </div>
             <div class="verification-item">
@@ -585,6 +588,7 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
                   <div className="flex items-center gap-2 mt-2">
                     <Badge className={getStationBadgeColor(report.station)}>{report.station}</Badge>
                     <span className="text-sm text-gray-600">Employee: {report.employee_name}</span>
+                    {report.shift && <Badge variant="outline">{report.shift}</Badge>}
                   </div>
                 </div>
                 <div className="text-right">
@@ -638,7 +642,7 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
                 <div className="flex justify-between">
                   <span>Payment Balance:</span>
                   <span className={isPaymentBalanced ? 'text-green-600 font-medium' : 'text-red-600 font-medium'}>
-                    {isPaymentBalanced ? '✓ Balanced' : `⚠️ ${formatCurrency(Math.abs(totalPaymentMethods - report.total_sales))} difference`}
+                    {isPaymentBalanced ? '✓ Balanced' : `⚠️ ${formatCurrency(Math.abs(totalPaymentMethods + report.grocery_sales - report.total_sales))} difference`}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -706,10 +710,10 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
           </div>
 
           {/* Expenses Preview */}
-          {expenses.length > 0 &&
+          {totalExpenses > 0 &&
           <Card>
               <CardHeader>
-                <CardTitle className="text-sm">Expenses ({expenses.length} items) - Total: {formatCurrency(totalExpenses)}</CardTitle>
+                <CardTitle className="text-sm">Expenses Summary - Total: {formatCurrency(totalExpenses)}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-sm text-gray-600">

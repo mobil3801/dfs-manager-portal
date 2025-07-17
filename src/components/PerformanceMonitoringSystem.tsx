@@ -484,6 +484,9 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -597,8 +600,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
                 </div>
               </AlertDescription>
             </Alert>)}
-        </motion.div>
-    }
+        </motion.div>}
 
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
@@ -650,9 +652,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
                   <span className={getStatusColor(metrics.timing.apiResponseTime, { good: 500, warning: 1000 })}>
                     {formatTime(metrics.timing.apiResponseTime)}
                   </span>
-                  <Progress
-                  value={Math.min(metrics.timing.apiResponseTime / 3000 * 100, 100)}
-                  className="h-2" />
+                  <Progress value={Math.min(metrics.timing.apiResponseTime / 3000 * 100, 100)} className="h-2" />
 
                   <p className="text-xs text-muted-foreground">
                     Avg response time

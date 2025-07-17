@@ -19,7 +19,8 @@ import {
   AlertTriangle,
   CheckCircle2,
   Folder,
-  RefreshCw } from
+  RefreshCw,
+  Printer } from
 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import StationSelector from '@/components/StationSelector';
@@ -31,6 +32,7 @@ import DocumentsUploadSection from '@/components/SalesReportSections/DocumentsUp
 import CashCollectionSection from '@/components/SalesReportSections/CashCollectionSection';
 import DraftManagementDialog from '@/components/DraftManagementDialog';
 import DraftSavingService from '@/utils/draftSaving';
+import EnhancedSalesReportPrintDialog from '@/components/EnhancedSalesReportPrintDialog';
 
 export default function SalesReportForm() {
   const navigate = useNavigate();
@@ -45,12 +47,14 @@ export default function SalesReportForm() {
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [cashExpenses, setCashExpenses] = useState(0);
   const [showDraftDialog, setShowDraftDialog] = useState(false);
+  const [showPrintDialog, setShowPrintDialog] = useState(false);
   const [draftInfo, setDraftInfo] = useState<{
     savedAt: Date;
     expiresAt: Date;
     timeRemainingHours: number;
   } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentReport, setCurrentReport] = useState<any>(null);
 
   const [formData, setFormData] = useState({
     report_date: new Date().toISOString().split('T')[0],
@@ -107,6 +111,33 @@ export default function SalesReportForm() {
     }
   }, [selectedStation, formData.report_date]);
 
+  // Auto-calculations with proper synchronization
+  const totalSales = useMemo(() => {
+    return formData.creditCardAmount + formData.debitCardAmount + formData.mobileAmount + formData.cashAmount + formData.grocerySales;
+  }, [formData.creditCardAmount, formData.debitCardAmount, formData.mobileAmount, formData.cashAmount, formData.grocerySales]);
+
+  const totalGallons = useMemo(() => {
+    return formData.regularGallons + formData.superGallons + formData.dieselGallons;
+  }, [formData.regularGallons, formData.superGallons, formData.dieselGallons]);
+
+  const totalLotteryCash = useMemo(() => {
+    return formData.lotteryNetSales + formData.scratchOffSales;
+  }, [formData.lotteryNetSales, formData.scratchOffSales]);
+
+  const totalGrocerySales = useMemo(() => {
+    return formData.groceryCashSales + formData.groceryCardSales + formData.ebtSales;
+  }, [formData.groceryCashSales, formData.groceryCardSales, formData.ebtSales]);
+
+  // Expected cash from sales calculation
+  const expectedCashFromSales = useMemo(() => {
+    return formData.cashAmount + formData.groceryCashSales + totalLotteryCash;
+  }, [formData.cashAmount, formData.groceryCashSales, totalLotteryCash]);
+
+  // Final Short/Over calculation: Cash Collection - (Expected Cash - Cash Expenses)
+  const totalShortOver = useMemo(() => {
+    return formData.cashCollectionOnHand - (expectedCashFromSales - cashExpenses);
+  }, [formData.cashCollectionOnHand, expectedCashFromSales, cashExpenses]);
+
   const checkForExistingDraft = () => {
     if (selectedStation && formData.report_date && !isEditing) {
       const info = DraftSavingService.getDraftInfo(selectedStation, formData.report_date);
@@ -126,6 +157,7 @@ export default function SalesReportForm() {
 
       if (data?.List && data.List.length > 0) {
         const report = data.List[0];
+        setCurrentReport(report);
         setSelectedStation(report.station);
         setFormData({
           report_date: report.report_date.split('T')[0],
@@ -191,25 +223,6 @@ export default function SalesReportForm() {
       setIsLoadingEmployees(false);
     }
   };
-
-  // Calculations based on user requirements
-  const totalSales = formData.creditCardAmount + formData.debitCardAmount + formData.mobileAmount + formData.cashAmount + formData.grocerySales;
-  const totalGallons = formData.regularGallons + formData.superGallons + formData.dieselGallons;
-  const totalLotteryCash = formData.lotteryNetSales + formData.scratchOffSales;
-  const totalGrocerySales = formData.groceryCashSales + formData.groceryCardSales + formData.ebtSales;
-
-  // UPDATED CALCULATION as per user requirements:
-  // "Total (+/-) Short/Over" calculation based on:
-  // Sum: Gas & Grocery Sales → Cash Amount + Grocery Sales Breakdown → Cash Sales + NY Lottery Sales → Total Sales Cash
-  // Subtract: expenses marked with payment type "Cash"
-  const expectedCashFromSales = useMemo(() => {
-    return formData.cashAmount + formData.groceryCashSales + totalLotteryCash;
-  }, [formData.cashAmount, formData.groceryCashSales, totalLotteryCash]);
-
-  // Final Short/Over calculation: Cash Collection - (Expected Cash - Cash Expenses)
-  const totalShortOver = useMemo(() => {
-    return formData.cashCollectionOnHand - (expectedCashFromSales - cashExpenses);
-  }, [formData.cashCollectionOnHand, expectedCashFromSales, cashExpenses]);
 
   const handleSaveAsDraft = () => {
     try {
@@ -386,6 +399,13 @@ export default function SalesReportForm() {
         DraftSavingService.deleteDraft(selectedStation, formData.report_date);
       }
 
+      // Set current report for printing
+      setCurrentReport({
+        ...submitData,
+        ID: parseInt(id!) || result.data?.ID || 0,
+        created_by: user?.ID || 0
+      });
+
       // Reset form after successful submission (as requested)
       if (!isEditing) {
         resetForm();
@@ -393,8 +413,6 @@ export default function SalesReportForm() {
           title: 'Form Reset',
           description: 'Form has been reset for new entry'
         });
-      } else {
-        navigate('/dashboard');
       }
 
     } catch (error) {
@@ -407,6 +425,18 @@ export default function SalesReportForm() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handlePrint = () => {
+    if (!currentReport) {
+      toast({
+        title: 'No Report to Print',
+        description: 'Please save the report first before printing',
+        variant: 'destructive'
+      });
+      return;
+    }
+    setShowPrintDialog(true);
   };
 
   const updateFormData = (field: string, value: any) => {
@@ -756,6 +786,17 @@ export default function SalesReportForm() {
                   Manage Drafts
                 </Button>
               }
+              
+              {/* Print Button */}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handlePrint}
+                disabled={!currentReport}
+                className="gap-2">
+                <Printer className="w-4 h-4" />
+                Print Report
+              </Button>
             </div>
 
             <div className="flex items-center space-x-4">
@@ -792,6 +833,12 @@ export default function SalesReportForm() {
           onLoadDraft={handleLoadDraft}
           currentStation={selectedStation}
           currentReportDate={formData.report_date} />
+
+        {/* Print Dialog */}
+        <EnhancedSalesReportPrintDialog
+          open={showPrintDialog}
+          onOpenChange={setShowPrintDialog}
+          report={currentReport} />
 
       </div>
     </div>);
