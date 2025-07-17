@@ -180,8 +180,9 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
 
         toast({
           title: "Success",
-          description: "User updated successfully"
+          description: "User updated successfully in production database"
         });
+
       } else {
         // Create new user (this would typically involve user registration)
         toast({

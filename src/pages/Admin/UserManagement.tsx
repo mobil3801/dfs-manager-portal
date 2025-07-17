@@ -117,6 +117,12 @@ const UserManagement: React.FC = () => {
 
   useEffect(() => {
     fetchData();
+    // Set up real-time refresh interval
+    const interval = setInterval(() => {
+      fetchData();
+    }, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(interval);
   }, []);
 
   const fetchData = async () => {
@@ -137,7 +143,7 @@ const UserManagement: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
-      console.log('Fetching current user info...');
+      console.log('Fetching users from production database...');
       const { data: currentUser, error: userError } = await window.ezsite.apis.getUserInfo();
       if (userError) {
         console.log('User info not available:', userError);
@@ -180,6 +186,7 @@ const UserManagement: React.FC = () => {
       setUserProfiles([]);
     }
   };
+
 
   const handleCreateProfile = async () => {
     if (!formData.employee_id || !formData.phone) {

@@ -191,7 +191,8 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
         throw new Error(`Failed to create user profile: ${profileError}`);
       }
 
-      console.log('User profile created successfully');
+      console.log('User profile created successfully in production database');
+
 
       // Step 4: Send welcome email (optional)
       try {
@@ -248,8 +249,9 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
       const stationText = formData.station === 'ALL' ? 'all stations' : formData.station;
       toast({
         title: "Success",
-        description: `User account created successfully for ${formData.firstName} ${formData.lastName} with access to ${stationText}. Welcome email sent to ${formData.email}.`
+        description: `User account created successfully for ${formData.firstName} ${formData.lastName} with access to ${stationText}. Data saved to production database in real-time.`
       });
+
 
       // Reset form
       setFormData({

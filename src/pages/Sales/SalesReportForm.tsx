@@ -186,11 +186,11 @@ export default function SalesReportForm() {
         // Parse expenses data if it exists
         let expensesData = { total_expenses: 0, cash_expenses: 0 };
         let groceryBreakdown = { groceryCashSales: 0, groceryCardSales: 0 };
-        
+
         if (report.expenses_data) {
           try {
             expensesData = JSON.parse(report.expenses_data);
-            
+
             // Parse grocery breakdown data from expenses_data
             if (expensesData.grocery_breakdown) {
               groceryBreakdown = expensesData.grocery_breakdown;
@@ -541,16 +541,16 @@ export default function SalesReportForm() {
 
     setFormData((prev) => {
       const newData = { ...prev, [field]: processedValue };
-      
+
       // If updating grocery breakdown fields, also update the total grocery sales
       if (field === 'groceryCashSales' || field === 'groceryCardSales' || field === 'ebtSales') {
-        const groceryCashSales = field === 'groceryCashSales' ? processedValue : (prev.groceryCashSales || 0);
-        const groceryCardSales = field === 'groceryCardSales' ? processedValue : (prev.groceryCardSales || 0);
-        const ebtSales = field === 'ebtSales' ? processedValue : (prev.ebtSales || 0);
-        
+        const groceryCashSales = field === 'groceryCashSales' ? processedValue : prev.groceryCashSales || 0;
+        const groceryCardSales = field === 'groceryCardSales' ? processedValue : prev.groceryCardSales || 0;
+        const ebtSales = field === 'ebtSales' ? processedValue : prev.ebtSales || 0;
+
         newData.grocerySales = groceryCashSales + groceryCardSales + ebtSales;
       }
-      
+
       return newData;
     });
   };

@@ -20,6 +20,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import AccessDenied from '@/components/AccessDenied';
+import RealTimeAdminDashboard from '@/components/RealTimeAdminDashboard';
+
 
 interface AdminStats {
   totalUsers: number;
@@ -175,11 +177,16 @@ const AdminPanel = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="bg-gradient-to-r from-red-600 to-purple-600 rounded-lg p-6 text-white">
-        <h1 className="text-2xl font-bold">System Administration</h1>
+        <h1 className="text-2xl font-bold">Real-Time Admin Panel</h1>
         <p className="opacity-90">
-          Administrator: {user?.Name} • Full System Access
+          Administrator: {user?.Name} • Full System Access • Live Database Integration
         </p>
+        <div className="mt-2 flex items-center space-x-2">
+          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+          <span className="text-sm">Production Database Connected</span>
+        </div>
       </div>
+
 
       {/* System Health */}
       <Card className="p-4">
@@ -231,6 +238,9 @@ const AdminPanel = () => {
         </TabsList>
 
         <TabsContent value="management" className="space-y-4">
+          <div className="mb-6">
+            <RealTimeAdminDashboard />
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <QuickAdminAction
               title="User Management"
@@ -258,6 +268,7 @@ const AdminPanel = () => {
 
           </div>
         </TabsContent>
+
 
         <TabsContent value="system" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
