@@ -29,8 +29,8 @@ import {
   Phone,
   Calendar,
   Globe,
-  Loader2
-} from 'lucide-react';
+  Loader2 } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import CreateUserDialog from '@/components/CreateUserDialog';
@@ -106,7 +106,7 @@ const RealTimeAdminDashboard = () => {
   // Real-time data fetching
   useEffect(() => {
     fetchAllData();
-    
+
     // Set up real-time refresh (every 10 seconds)
     const interval = setInterval(() => {
       fetchAllData();
@@ -117,7 +117,7 @@ const RealTimeAdminDashboard = () => {
 
   const fetchAllData = async () => {
     if (!loading) setRefreshing(true);
-    
+
     try {
       // Fetch user profiles
       const { data: profilesData, error: profilesError } = await window.ezsite.apis.tablePage(11725, {
@@ -136,11 +136,11 @@ const RealTimeAdminDashboard = () => {
       setUserProfiles(profiles);
 
       // Calculate statistics
-      const activeUsers = profiles.filter(p => p.is_active).length;
-      const inactiveUsers = profiles.filter(p => !p.is_active).length;
-      const administrators = profiles.filter(p => p.role === 'Administrator').length;
-      const managers = profiles.filter(p => p.role === 'Management').length;
-      const employees = profiles.filter(p => p.role === 'Employee').length;
+      const activeUsers = profiles.filter((p) => p.is_active).length;
+      const inactiveUsers = profiles.filter((p) => !p.is_active).length;
+      const administrators = profiles.filter((p) => p.role === 'Administrator').length;
+      const managers = profiles.filter((p) => p.role === 'Management').length;
+      const employees = profiles.filter((p) => p.role === 'Employee').length;
 
       setStats({
         totalUsers: profiles.length,
@@ -247,34 +247,34 @@ const RealTimeAdminDashboard = () => {
     }
   };
 
-  const filteredProfiles = userProfiles.filter(profile => {
-    const matchesSearch = 
-      profile.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      profile.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      profile.role.toLowerCase().includes(searchTerm.toLowerCase());
-    
+  const filteredProfiles = userProfiles.filter((profile) => {
+    const matchesSearch =
+    profile.employee_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    profile.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    profile.role.toLowerCase().includes(searchTerm.toLowerCase());
+
     const matchesRole = filterRole === 'All' || profile.role === filterRole;
     const matchesStation = filterStation === 'All' || profile.station === filterStation;
-    
+
     return matchesSearch && matchesRole && matchesStation;
   });
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case 'Administrator': return 'bg-red-100 text-red-800';
-      case 'Management': return 'bg-blue-100 text-blue-800';
-      case 'Employee': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'Administrator':return 'bg-red-100 text-red-800';
+      case 'Management':return 'bg-blue-100 text-blue-800';
+      case 'Employee':return 'bg-green-100 text-green-800';
+      default:return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStationBadgeColor = (station: string) => {
     switch (station) {
-      case 'ALL': return 'bg-purple-100 text-purple-800';
-      case 'MOBIL': return 'bg-blue-100 text-blue-800';
-      case 'AMOCO ROSEDALE': return 'bg-orange-100 text-orange-800';
-      case 'AMOCO BROOKLYN': return 'bg-teal-100 text-teal-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'ALL':return 'bg-purple-100 text-purple-800';
+      case 'MOBIL':return 'bg-blue-100 text-blue-800';
+      case 'AMOCO ROSEDALE':return 'bg-orange-100 text-orange-800';
+      case 'AMOCO BROOKLYN':return 'bg-teal-100 text-teal-800';
+      default:return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -286,8 +286,8 @@ const RealTimeAdminDashboard = () => {
           <p className="text-lg font-semibold">Loading Real-Time Admin Dashboard...</p>
           <p className="text-sm text-gray-600">Connecting to production database</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -353,16 +353,16 @@ const RealTimeAdminDashboard = () => {
                 size="sm"
                 onClick={handleManualRefresh}
                 disabled={refreshing}
-                className="flex-1"
-              >
+                className="flex-1">
+
                 <RefreshCw className={`w-4 h-4 mr-1 ${refreshing ? 'animate-spin' : ''}`} />
                 {refreshing ? 'Refreshing...' : 'Refresh'}
               </Button>
               <Button
                 size="sm"
                 onClick={() => setIsCreateUserDialogOpen(true)}
-                className="flex-1"
-              >
+                className="flex-1">
+
                 <UserPlus className="w-4 h-4 mr-1" />
                 Add User
               </Button>
@@ -463,8 +463,8 @@ const RealTimeAdminDashboard = () => {
               <Input
                 placeholder="Search users..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+                onChange={(e) => setSearchTerm(e.target.value)} />
+
             </div>
             <div>
               <Label>Role</Label>
@@ -474,9 +474,9 @@ const RealTimeAdminDashboard = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="All">All Roles</SelectItem>
-                  {roles.map(role => (
-                    <SelectItem key={role} value={role}>{role}</SelectItem>
-                  ))}
+                  {roles.map((role) =>
+                  <SelectItem key={role} value={role}>{role}</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -488,9 +488,9 @@ const RealTimeAdminDashboard = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="All">All Stations</SelectItem>
-                  {stations.map(station => (
-                    <SelectItem key={station} value={station}>{station}</SelectItem>
-                  ))}
+                  {stations.map((station) =>
+                  <SelectItem key={station} value={station}>{station}</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -501,8 +501,8 @@ const RealTimeAdminDashboard = () => {
                   setSearchTerm('');
                   setFilterRole('All');
                   setFilterStation('All');
-                }}
-              >
+                }}>
+
                 Clear Filters
               </Button>
             </div>
@@ -523,8 +523,8 @@ const RealTimeAdminDashboard = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredProfiles.map((profile) => (
-                  <TableRow key={profile.id}>
+                {filteredProfiles.map((profile) =>
+                <TableRow key={profile.id}>
                     <TableCell className="font-medium">{profile.employee_id}</TableCell>
                     <TableCell>
                       <Badge className={getRoleBadgeColor(profile.role)}>
@@ -533,11 +533,11 @@ const RealTimeAdminDashboard = () => {
                     </TableCell>
                     <TableCell>
                       <Badge className={getStationBadgeColor(profile.station)}>
-                        {profile.station === 'ALL' ? (
-                          <><Globe className="w-3 h-3 mr-1" />ALL</>
-                        ) : (
-                          <><Building2 className="w-3 h-3 mr-1" />{profile.station}</>
-                        )}
+                        {profile.station === 'ALL' ?
+                      <><Globe className="w-3 h-3 mr-1" />ALL</> :
+
+                      <><Building2 className="w-3 h-3 mr-1" />{profile.station}</>
+                      }
                       </Badge>
                     </TableCell>
                     <TableCell>{profile.phone}</TableCell>
@@ -552,34 +552,34 @@ const RealTimeAdminDashboard = () => {
                     <TableCell>
                       <div className="flex space-x-2">
                         <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEditUser(profile)}
-                        >
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditUser(profile)}>
+
                           <Edit className="w-4 h-4" />
                         </Button>
                         <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDeleteUser(profile)}
-                          className="text-red-600 hover:text-red-700"
-                        >
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDeleteUser(profile)}
+                        className="text-red-600 hover:text-red-700">
+
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </div>
 
-          {filteredProfiles.length === 0 && (
-            <div className="text-center py-8">
+          {filteredProfiles.length === 0 &&
+          <div className="text-center py-8">
               <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500">No users found matching your criteria</p>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
@@ -593,8 +593,8 @@ const RealTimeAdminDashboard = () => {
             title: "Success",
             description: "User created successfully in production database"
           });
-        }}
-      />
+        }} />
+
 
       {/* Edit User Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
@@ -606,27 +606,27 @@ const RealTimeAdminDashboard = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Role</Label>
-                <Select value={editFormData.role} onValueChange={(value) => setEditFormData({...editFormData, role: value})}>
+                <Select value={editFormData.role} onValueChange={(value) => setEditFormData({ ...editFormData, role: value })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {roles.map(role => (
-                      <SelectItem key={role} value={role}>{role}</SelectItem>
-                    ))}
+                    {roles.map((role) =>
+                    <SelectItem key={role} value={role}>{role}</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label>Station</Label>
-                <Select value={editFormData.station} onValueChange={(value) => setEditFormData({...editFormData, station: value})}>
+                <Select value={editFormData.station} onValueChange={(value) => setEditFormData({ ...editFormData, station: value })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {stations.map(station => (
-                      <SelectItem key={station} value={station}>{station}</SelectItem>
-                    ))}
+                    {stations.map((station) =>
+                    <SelectItem key={station} value={station}>{station}</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -636,15 +636,15 @@ const RealTimeAdminDashboard = () => {
                 <Label>Employee ID</Label>
                 <Input
                   value={editFormData.employee_id}
-                  onChange={(e) => setEditFormData({...editFormData, employee_id: e.target.value})}
-                />
+                  onChange={(e) => setEditFormData({ ...editFormData, employee_id: e.target.value })} />
+
               </div>
               <div>
                 <Label>Phone</Label>
                 <Input
                   value={editFormData.phone}
-                  onChange={(e) => setEditFormData({...editFormData, phone: e.target.value})}
-                />
+                  onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })} />
+
               </div>
             </div>
             <div>
@@ -652,16 +652,16 @@ const RealTimeAdminDashboard = () => {
               <Input
                 type="date"
                 value={editFormData.hire_date}
-                onChange={(e) => setEditFormData({...editFormData, hire_date: e.target.value})}
-              />
+                onChange={(e) => setEditFormData({ ...editFormData, hire_date: e.target.value })} />
+
             </div>
             <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
                 id="is_active"
                 checked={editFormData.is_active}
-                onChange={(e) => setEditFormData({...editFormData, is_active: e.target.checked})}
-              />
+                onChange={(e) => setEditFormData({ ...editFormData, is_active: e.target.checked })} />
+
               <Label htmlFor="is_active">Active User</Label>
             </div>
             <Button onClick={handleUpdateUser} className="w-full">
@@ -670,8 +670,8 @@ const RealTimeAdminDashboard = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 };
 
 export default RealTimeAdminDashboard;
