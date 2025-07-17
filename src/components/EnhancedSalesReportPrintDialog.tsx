@@ -140,104 +140,106 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
           <title>Enhanced Sales Report - ${report.station} - ${formatDate(report.report_date)}</title>
           <style>
             @page {
-              size: A4;
-              margin: 0.5in;
+              size: letter;
+              margin: 0.4in 0.5in;
             }
             body {
               font-family: 'Arial', sans-serif;
               margin: 0;
               padding: 0;
               color: #333;
-              line-height: 1.4;
+              line-height: 1.2;
+              font-size: 11px;
             }
             .header {
               text-align: center;
-              margin-bottom: 30px;
-              border-bottom: 3px solid #2563eb;
-              padding-bottom: 20px;
+              margin-bottom: 12px;
+              border-bottom: 2px solid #2563eb;
+              padding-bottom: 8px;
             }
             .company-logo {
-              font-size: 28px;
+              font-size: 18px;
               font-weight: bold;
               color: #1e40af;
-              margin-bottom: 5px;
+              margin-bottom: 2px;
             }
             .report-title {
-              font-size: 20px;
+              font-size: 14px;
               color: #374151;
-              margin-bottom: 10px;
+              margin-bottom: 4px;
             }
             .report-meta {
               display: grid;
               grid-template-columns: repeat(3, 1fr);
-              gap: 20px;
+              gap: 8px;
               background: #f8fafc;
-              padding: 15px;
-              border-radius: 8px;
-              margin-bottom: 25px;
+              padding: 6px;
+              border-radius: 4px;
+              margin-bottom: 12px;
             }
             .meta-item {
               text-align: center;
             }
             .meta-label {
-              font-size: 12px;
+              font-size: 9px;
               color: #6b7280;
               text-transform: uppercase;
               font-weight: 600;
             }
             .meta-value {
-              font-size: 14px;
+              font-size: 11px;
               font-weight: bold;
-              margin-top: 5px;
+              margin-top: 2px;
             }
             .station-badge {
               display: inline-block;
-              padding: 4px 12px;
-              border-radius: 20px;
+              padding: 2px 8px;
+              border-radius: 12px;
               color: white;
-              font-size: 12px;
+              font-size: 9px;
               font-weight: 600;
             }
             .section {
-              margin-bottom: 25px;
+              margin-bottom: 12px;
               break-inside: avoid;
             }
             .section-header {
               display: flex;
               align-items: center;
-              margin-bottom: 15px;
-              padding-bottom: 10px;
-              border-bottom: 2px solid #e5e7eb;
+              margin-bottom: 6px;
+              padding-bottom: 4px;
+              border-bottom: 1px solid #e5e7eb;
             }
             .section-icon {
-              margin-right: 10px;
+              margin-right: 4px;
               color: #2563eb;
+              font-size: 12px;
             }
             .section-title {
-              font-size: 18px;
+              font-size: 12px;
               font-weight: bold;
               color: #1f2937;
             }
             .data-grid {
               display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-              gap: 15px;
+              grid-template-columns: repeat(4, 1fr);
+              gap: 8px;
             }
             .data-card {
               border: 1px solid #e5e7eb;
-              border-radius: 8px;
-              padding: 15px;
+              border-radius: 4px;
+              padding: 6px;
               background: #ffffff;
             }
             .data-label {
-              font-size: 12px;
+              font-size: 8px;
               color: #6b7280;
               text-transform: uppercase;
               font-weight: 600;
-              margin-bottom: 5px;
+              margin-bottom: 2px;
             }
             .data-value {
-              font-size: 16px;
+              font-size: 11px;
               font-weight: bold;
               color: #1f2937;
             }
@@ -250,48 +252,48 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
             .summary-card {
               background: linear-gradient(135deg, #3b82f6, #1d4ed8);
               color: white;
-              padding: 20px;
-              border-radius: 10px;
-              margin: 20px 0;
+              padding: 8px;
+              border-radius: 6px;
+              margin: 8px 0;
             }
             .summary-grid {
               display: grid;
               grid-template-columns: repeat(3, 1fr);
-              gap: 20px;
+              gap: 8px;
               text-align: center;
             }
             .summary-amount {
-              font-size: 24px;
+              font-size: 14px;
               font-weight: bold;
-              margin-bottom: 5px;
+              margin-bottom: 2px;
             }
             .summary-label {
-              font-size: 12px;
+              font-size: 9px;
               opacity: 0.9;
             }
             .expenses-table {
               width: 100%;
               border-collapse: collapse;
-              margin-top: 10px;
+              margin-top: 4px;
             }
             .expenses-table th,
             .expenses-table td {
-              padding: 10px;
+              padding: 4px;
               text-align: left;
               border-bottom: 1px solid #e5e7eb;
+              font-size: 9px;
             }
             .expenses-table th {
               background: #f3f4f6;
               font-weight: 600;
-              font-size: 12px;
               text-transform: uppercase;
             }
             .verification-section {
               background: #f0fdf4;
-              border: 2px solid #10b981;
-              border-radius: 8px;
-              padding: 20px;
-              margin: 20px 0;
+              border: 1px solid #10b981;
+              border-radius: 4px;
+              padding: 8px;
+              margin: 8px 0;
             }
             .verification-failed {
               background: #fef2f2;
@@ -301,7 +303,8 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
               display: flex;
               justify-content: space-between;
               align-items: center;
-              margin-bottom: 10px;
+              margin-bottom: 4px;
+              font-size: 9px;
             }
             .check-passed {
               color: #059669;
@@ -312,22 +315,60 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
               font-weight: bold;
             }
             .footer {
-              margin-top: 40px;
+              margin-top: 12px;
               text-align: center;
-              font-size: 11px;
+              font-size: 8px;
               color: #6b7280;
               border-top: 1px solid #e5e7eb;
-              padding-top: 20px;
+              padding-top: 8px;
             }
             .notes-section {
               background: #fffbeb;
-              border-left: 4px solid #f59e0b;
-              padding: 15px;
-              margin: 20px 0;
+              border-left: 2px solid #f59e0b;
+              padding: 8px;
+              margin: 8px 0;
+            }
+            .two-column {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 12px;
+            }
+            .compact-grid {
+              display: grid;
+              grid-template-columns: repeat(6, 1fr);
+              gap: 4px;
             }
             @media print {
-              body { font-size: 11pt; }
-              .section { page-break-inside: avoid; }
+              body { 
+                font-size: 10px !important;
+                line-height: 1.1 !important;
+              }
+              .section { 
+                page-break-inside: avoid;
+                margin-bottom: 8px !important;
+              }
+              .header {
+                margin-bottom: 8px !important;
+              }
+              .summary-card {
+                margin: 6px 0 !important;
+                padding: 6px !important;
+              }
+              .data-card {
+                padding: 4px !important;
+              }
+              .verification-section {
+                margin: 6px 0 !important;
+                padding: 6px !important;
+              }
+              .notes-section {
+                margin: 6px 0 !important;
+                padding: 6px !important;
+              }
+              .footer {
+                margin-top: 8px !important;
+                padding-top: 6px !important;
+              }
             }
           </style>
         </head>
@@ -371,104 +412,76 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
             </div>
           </div>
 
-          <div class="section">
-            <div class="section-header">
-              <span class="section-icon">💰</span>
-              <span class="section-title">Cash Collection & Balance</span>
+          <div class="two-column">
+            <div class="section">
+              <div class="section-header">
+                <span class="section-icon">💰</span>
+                <span class="section-title">Cash Collection & Balance</span>
+              </div>
+              <div class="compact-grid">
+                <div class="data-card">
+                  <div class="data-label">Cash on Hand</div>
+                  <div class="data-value currency">${formatCurrency(report.cash_collection_on_hand)}</div>
+                </div>
+                <div class="data-card">
+                  <div class="data-label">Short/Over</div>
+                  <div class="data-value ${report.total_short_over >= 0 ? 'check-passed' : 'check-failed'}">${formatCurrency(report.total_short_over)}</div>
+                </div>
+                <div class="data-card">
+                  <div class="data-label">Cash Sales</div>
+                  <div class="data-value currency">${formatCurrency(report.cash_amount)}</div>
+                </div>
+                <div class="data-card">
+                  <div class="data-label">Cash Expenses</div>
+                  <div class="data-value currency">${formatCurrency(cashExpenses)}</div>
+                </div>
+                <div class="data-card">
+                  <div class="data-label">Credit Card</div>
+                  <div class="data-value currency">${formatCurrency(report.credit_card_amount)}</div>
+                </div>
+                <div class="data-card">
+                  <div class="data-label">Debit Card</div>
+                  <div class="data-value currency">${formatCurrency(report.debit_card_amount)}</div>
+                </div>
+              </div>
             </div>
-            <div class="data-grid">
-              <div class="data-card">
-                <div class="data-label">Cash on Hand</div>
-                <div class="data-value currency">${formatCurrency(report.cash_collection_on_hand)}</div>
-              </div>
-              <div class="data-card">
-                <div class="data-label">Short/Over</div>
-                <div class="data-value ${report.total_short_over >= 0 ? 'check-passed' : 'check-failed'}">${formatCurrency(report.total_short_over)}</div>
-              </div>
-              <div class="data-card">
-                <div class="data-label">Cash Sales</div>
-                <div class="data-value currency">${formatCurrency(report.cash_amount)}</div>
-              </div>
-              <div class="data-card">
-                <div class="data-label">Cash Expenses</div>
-                <div class="data-value currency">${formatCurrency(cashExpenses)}</div>
-              </div>
-            </div>
-          </div>
 
-          <div class="section">
-            <div class="section-header">
-              <span class="section-icon">💳</span>
-              <span class="section-title">Payment Methods</span>
-            </div>
-            <div class="data-grid">
-              <div class="data-card">
-                <div class="data-label">Credit Card</div>
-                <div class="data-value currency">${formatCurrency(report.credit_card_amount)}</div>
+            <div class="section">
+              <div class="section-header">
+                <span class="section-icon">⛽</span>
+                <span class="section-title">Fuel & Store Sales</span>
               </div>
-              <div class="data-card">
-                <div class="data-label">Debit Card</div>
-                <div class="data-value currency">${formatCurrency(report.debit_card_amount)}</div>
-              </div>
-              <div class="data-card">
-                <div class="data-label">Mobile Payments</div>
-                <div class="data-value currency">${formatCurrency(report.mobile_amount)}</div>
-              </div>
-              <div class="data-card">
-                <div class="data-label">Cash Payments</div>
-                <div class="data-value currency">${formatCurrency(report.cash_amount)}</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="section">
-            <div class="section-header">
-              <span class="section-icon">⛽</span>
-              <span class="section-title">Fuel Sales</span>
-            </div>
-            <div class="data-grid">
-              <div class="data-card">
-                <div class="data-label">Regular Gallons</div>
-                <div class="data-value gallons">${formatNumber(report.regular_gallons)} gal</div>
-              </div>
-              <div class="data-card">
-                <div class="data-label">Super Gallons</div>
-                <div class="data-value gallons">${formatNumber(report.super_gallons)} gal</div>
-              </div>
-              <div class="data-card">
-                <div class="data-label">Diesel Gallons</div>
-                <div class="data-value gallons">${formatNumber(report.diesel_gallons)} gal</div>
-              </div>
-              <div class="data-card">
-                <div class="data-label">Total Gallons</div>
-                <div class="data-value gallons">${formatNumber(report.total_gallons)} gal</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="section">
-            <div class="section-header">
-              <span class="section-icon">🛒</span>
-              <span class="section-title">Store Sales</span>
-            </div>
-            <div class="data-grid">
-              <div class="data-card">
-                <div class="data-label">Grocery Sales</div>
-                <div class="data-value currency">${formatCurrency(report.grocery_sales)}</div>
-              </div>
-              ${report.station === 'MOBIL' ? `
-              <div class="data-card">
-                <div class="data-label">EBT Sales</div>
-                <div class="data-value currency">${formatCurrency(report.ebt_sales)}</div>
-              </div>
-              ` : ''}
-              <div class="data-card">
-                <div class="data-label">Lottery Net Sales</div>
-                <div class="data-value currency">${formatCurrency(report.lottery_net_sales)}</div>
-              </div>
-              <div class="data-card">
-                <div class="data-label">Scratch-off Sales</div>
-                <div class="data-value currency">${formatCurrency(report.scratch_off_sales)}</div>
+              <div class="compact-grid">
+                <div class="data-card">
+                  <div class="data-label">Regular Gallons</div>
+                  <div class="data-value gallons">${formatNumber(report.regular_gallons)} gal</div>
+                </div>
+                <div class="data-card">
+                  <div class="data-label">Super Gallons</div>
+                  <div class="data-value gallons">${formatNumber(report.super_gallons)} gal</div>
+                </div>
+                <div class="data-card">
+                  <div class="data-label">Diesel Gallons</div>
+                  <div class="data-value gallons">${formatNumber(report.diesel_gallons)} gal</div>
+                </div>
+                <div class="data-card">
+                  <div class="data-label">Grocery Sales</div>
+                  <div class="data-value currency">${formatCurrency(report.grocery_sales)}</div>
+                </div>
+                ${report.station === 'MOBIL' ? `
+                <div class="data-card">
+                  <div class="data-label">EBT Sales</div>
+                  <div class="data-value currency">${formatCurrency(report.ebt_sales)}</div>
+                </div>
+                ` : ''}
+                <div class="data-card">
+                  <div class="data-label">Lottery Net</div>
+                  <div class="data-value currency">${formatCurrency(report.lottery_net_sales)}</div>
+                </div>
+                <div class="data-card">
+                  <div class="data-label">Scratch-off</div>
+                  <div class="data-value currency">${formatCurrency(report.scratch_off_sales)}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -477,24 +490,24 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
           <div class="section">
             <div class="section-header">
               <span class="section-icon">📋</span>
-              <span class="section-title">Expenses Summary</span>
+              <span class="section-title">Expenses: ${formatCurrency(totalExpenses)}</span>
             </div>
             <div class="data-grid">
               <div class="data-card">
-                <div class="data-label">Total Expenses</div>
-                <div class="data-value currency">${formatCurrency(totalExpenses)}</div>
-              </div>
-              <div class="data-card">
-                <div class="data-label">Cash Expenses</div>
+                <div class="data-label">Cash</div>
                 <div class="data-value currency">${formatCurrency(cashExpenses)}</div>
               </div>
               <div class="data-card">
-                <div class="data-label">Card Expenses</div>
+                <div class="data-label">Card</div>
                 <div class="data-value currency">${formatCurrency(cardExpenses)}</div>
               </div>
               <div class="data-card">
-                <div class="data-label">Cheque Expenses</div>
+                <div class="data-label">Cheque</div>
                 <div class="data-value currency">${formatCurrency(chequeExpenses)}</div>
+              </div>
+              <div class="data-card">
+                <div class="data-label">Mobile Pay</div>
+                <div class="data-value currency">${formatCurrency(report.mobile_amount)}</div>
               </div>
             </div>
           </div>
@@ -503,23 +516,23 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
           <div class="verification-section ${isPaymentBalanced && isCashBalanced ? '' : 'verification-failed'}">
             <div class="section-header">
               <span class="section-icon">✓</span>
-              <span class="section-title">Report Verification</span>
+              <span class="section-title">Verification: ${isPaymentBalanced && isCashBalanced ? 'Passed' : 'Failed'}</span>
             </div>
             <div class="verification-item">
-              <span>Payment Methods Balance:</span>
+              <span>Payment Balance:</span>
               <span class="${isPaymentBalanced ? 'check-passed' : 'check-failed'}">
-                ${isPaymentBalanced ? '✓ Balanced' : '⚠️ Discrepancy: ' + formatCurrency(Math.abs(totalPaymentMethods + report.grocery_sales - report.total_sales))}
+                ${isPaymentBalanced ? '✓' : '⚠️ ' + formatCurrency(Math.abs(totalPaymentMethods + report.grocery_sales - report.total_sales))}
               </span>
             </div>
             <div class="verification-item">
-              <span>Cash Balance (Short/Over):</span>
+              <span>Cash Balance:</span>
               <span class="${isCashBalanced ? 'check-passed' : 'check-failed'}">
-                ${isCashBalanced ? '✓ Within tolerance' : '⚠️ Outside tolerance'}
+                ${isCashBalanced ? '✓' : '⚠️'}
               </span>
             </div>
             <div class="verification-item">
-              <span>Documents Uploaded:</span>
-              <span class="check-passed">✓ All Required</span>
+              <span>Documents:</span>
+              <span class="check-passed">✓</span>
             </div>
           </div>
 
@@ -527,18 +540,15 @@ const EnhancedSalesReportPrintDialog: React.FC<EnhancedSalesReportPrintDialogPro
           <div class="notes-section">
             <div class="section-header">
               <span class="section-icon">📝</span>
-              <span class="section-title">Additional Notes</span>
+              <span class="section-title">Notes</span>
             </div>
-            <p style="margin: 0; white-space: pre-wrap;">${report.notes}</p>
+            <p style="margin: 0; white-space: pre-wrap; font-size: 9px; line-height: 1.2;">${report.notes}</p>
           </div>
           ` : ''}
 
           <div class="footer">
-            <div>Report ID: #${report.ID} | Generated on ${new Date().toLocaleString()}</div>
-            <div>Created by User #${report.created_by} | DFS Manager Portal v2.0</div>
-            <div style="margin-top: 10px; font-style: italic;">
-              This is an official business document. Please retain for your records.
-            </div>
+            <div>Report ID: #${report.ID} | Generated: ${new Date().toLocaleString()} | User: #${report.created_by}</div>
+            <div style="font-style: italic;">DFS Manager Portal v2.0 - Official Business Document</div>
           </div>
         </body>
       </html>
