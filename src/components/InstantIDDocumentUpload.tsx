@@ -44,7 +44,7 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
       setIsImage(selectedFile.type.startsWith('image/'));
       setImageError(false);
       setImageLoading(true);
-      
+
       return () => {
         URL.revokeObjectURL(url);
       };
@@ -113,10 +113,10 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
     }
 
     onFileSelect(file);
-    
+
     toast({
       title: "File Selected",
-      description: `${file.name} has been selected and will be uploaded when you save.`,
+      description: `${file.name} has been selected and will be uploaded when you save.`
     });
   };
 
@@ -133,6 +133,17 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
   const handleRemoveClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    // Show confirmation for existing files
+    if (existingFileId && !selectedFile) {
+      const confirmDelete = window.confirm(
+        `Are you sure you want to remove this ${label}? This action cannot be undone and the file will be permanently deleted when you save the employee.`
+      );
+      if (!confirmDelete) {
+        return;
+      }
+    }
+
     onRemove();
 
     // Clear the input
@@ -141,8 +152,9 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
     }
 
     toast({
-      title: "File Removed",
-      description: `${label} has been removed.`,
+      title: "File Marked for Removal",
+      description: `${label} has been marked for removal and will be permanently deleted when you save.`,
+      variant: "destructive"
     });
   };
 
@@ -183,47 +195,48 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
       <div className="flex items-center justify-between">
         <Label className="flex items-center space-x-2">
           <FileText className="w-4 h-4" />
-          <span>{label}</span>
+          <span className="text-sm sm:text-base">{label}</span>
           {required && <span className="text-red-500">*</span>}
         </Label>
         
-        {hasContent && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleRemoveClick}
-            className="text-red-600 hover:text-red-700 h-6 px-2"
-            disabled={disabled}
-          >
+        {hasContent &&
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handleRemoveClick}
+          className="text-red-600 hover:text-red-700 hover:bg-red-50 h-6 px-2 border-red-200 transition-colors touch-manipulation"
+          disabled={disabled}
+          title={`Remove ${label} - will be permanently deleted when you save`}>
+
             <X className="w-3 h-3" />
           </Button>
-        )}
+        }
       </div>
 
       {/* Upload Area or Preview */}
       {!hasContent ? (
-        /* Upload Area */
-        <div
-          className={cn(
-            'relative border-2 border-dashed rounded-lg p-6 text-center transition-colors',
-            dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300',
-            disabled ? 'bg-gray-50 cursor-not-allowed' : 'hover:border-gray-400 cursor-pointer'
-          )}
-          onDragEnter={handleDrag}
-          onDragLeave={handleDrag}
-          onDragOver={handleDrag}
-          onDrop={handleDrop}
-          onClick={!disabled ? handleBrowseClick : undefined}
-        >
+      /* Upload Area */
+      <div
+        className={cn(
+          'relative border-2 border-dashed rounded-lg p-6 text-center transition-colors',
+          dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300',
+          disabled ? 'bg-gray-50 cursor-not-allowed' : 'hover:border-gray-400 cursor-pointer'
+        )}
+        onDragEnter={handleDrag}
+        onDragLeave={handleDrag}
+        onDragOver={handleDrag}
+        onDrop={handleDrop}
+        onClick={!disabled ? handleBrowseClick : undefined}>
+
           <input
-            ref={inputRef}
-            type="file"
-            accept=".pdf,.jpg,.jpeg,.png,image/*"
-            onChange={handleInputChange}
-            className="hidden"
-            disabled={disabled}
-          />
+          ref={inputRef}
+          type="file"
+          accept=".pdf,.jpg,.jpeg,.png,image/*"
+          onChange={handleInputChange}
+          className="hidden"
+          disabled={disabled} />
+
 
           <div className="space-y-2">
             <Upload className="w-8 h-8 text-gray-400 mx-auto" />
@@ -239,37 +252,37 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
               </p>
             </div>
           </div>
-        </div>
-      ) : (
-        /* Instant Preview Box */
-        <Card className="overflow-hidden border-2 border-blue-200 bg-blue-50">
+        </div>) : (
+
+      /* Instant Preview Box */
+      <Card className="overflow-hidden border-2 border-blue-200 bg-blue-50">
           <CardContent className="p-0">
             {/* Preview Area */}
             <div className="relative w-full h-48 bg-gradient-to-br from-blue-50 to-indigo-100">
               {/* Loading state */}
-              {imageLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-blue-100/80">
+              {imageLoading &&
+            <div className="absolute inset-0 flex items-center justify-center bg-blue-100/80">
                   <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
                 </div>
-              )}
+            }
 
               {/* Image preview */}
-              {previewUrl && isImage && !imageError && (
-                <img
-                  src={previewUrl}
-                  alt={selectedFile?.name || 'ID Document'}
-                  className={cn(
-                    'w-full h-full object-contain bg-white rounded-t-lg',
-                    imageLoading && 'opacity-0'
-                  )}
-                  onLoad={handleImageLoad}
-                  onError={handleImageError}
-                />
+              {previewUrl && isImage && !imageError &&
+            <img
+              src={previewUrl}
+              alt={selectedFile?.name || 'ID Document'}
+              className={cn(
+                'w-full h-full object-contain bg-white rounded-t-lg',
+                imageLoading && 'opacity-0'
               )}
+              onLoad={handleImageLoad}
+              onError={handleImageError} />
+
+            }
 
               {/* Non-image or error fallback */}
-              {(!isImage || imageError) && !imageLoading && (
-                <div className="w-full h-full flex items-center justify-center">
+              {(!isImage || imageError) && !imageLoading &&
+            <div className="w-full h-full flex items-center justify-center">
                   <div className="text-center">
                     <FileText className="w-16 h-16 text-blue-500 mx-auto mb-3" />
                     <p className="text-sm font-medium text-blue-800">
@@ -280,14 +293,14 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
                     </p>
                   </div>
                 </div>
-              )}
+            }
 
               {/* Status Badge */}
               <div className="absolute top-3 left-3">
-                <Badge 
-                  variant="secondary" 
-                  className="text-xs bg-white/90 text-blue-700 border-blue-300 shadow-sm"
-                >
+                <Badge
+                variant="secondary"
+                className="text-xs bg-white/90 text-blue-700 border-blue-300 shadow-sm">
+
                   {selectedFile ? 'Ready for Upload' : 'Uploaded'}
                 </Badge>
               </div>
@@ -295,51 +308,51 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
               {/* Download Button - Only visible button in preview */}
               <div className="absolute top-3 right-3">
                 <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={handleDownload}
-                  className="bg-white/90 hover:bg-white text-blue-600 shadow-sm"
-                  disabled={!previewUrl}
-                >
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={handleDownload}
+                className="bg-white/90 hover:bg-white text-blue-600 shadow-sm touch-manipulation min-h-[32px]"
+                disabled={!previewUrl}>
+
                   <Download className="w-4 h-4 mr-1" />
-                  Download
+                  <span className="hidden sm:inline">Download</span>
                 </Button>
               </div>
             </div>
 
             {/* File Information */}
             <div className="p-4 bg-white border-t border-blue-200">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-medium text-gray-900 truncate">
+              <div className="flex items-center justify-between mb-2 gap-2">
+                <p className="text-sm font-medium text-gray-900 truncate flex-1 min-w-0">
                   {selectedFile ? selectedFile.name : `Current ${label}`}
                 </p>
                 <Badge
-                  variant="secondary"
-                  className={cn(
-                    'text-xs',
-                    selectedFile 
-                      ? 'bg-orange-100 text-orange-700 border-orange-300' 
-                      : 'bg-green-100 text-green-700 border-green-300'
-                  )}
-                >
+                variant="secondary"
+                className={cn(
+                  'text-xs flex-shrink-0',
+                  selectedFile ?
+                  'bg-orange-100 text-orange-700 border-orange-300' :
+                  'bg-green-100 text-green-700 border-green-300'
+                )}>
+
                   {selectedFile ? 'Pending Upload' : 'Saved'}
                 </Badge>
               </div>
 
               <div className="flex items-center justify-between text-xs text-gray-500">
                 <span className="flex items-center space-x-1">
-                  {isImage && !imageError ? (
-                    <ImageIcon className="w-3 h-3" />
-                  ) : (
-                    <FileText className="w-3 h-3" />
-                  )}
+                  {isImage && !imageError ?
+                <ImageIcon className="w-3 h-3" /> :
+
+                <FileText className="w-3 h-3" />
+                }
                   <span>{isImage && !imageError ? 'Image file' : 'Document file'}</span>
                 </span>
 
-                {selectedFile && (
-                  <span>{formatFileSize(selectedFile.size)}</span>
-                )}
+                {selectedFile &&
+              <span>{formatFileSize(selectedFile.size)}</span>
+              }
 
                 <span className="flex items-center space-x-1">
                   <span>✓ {selectedFile ? 'Ready to save' : 'Saved'}</span>
@@ -349,30 +362,32 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
               {/* Upload a different file button */}
               <div className="mt-3 pt-3 border-t border-gray-200">
                 <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleBrowseClick}
-                  className="w-full text-xs"
-                  disabled={disabled}
-                >
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleBrowseClick}
+                className="w-full text-xs touch-manipulation min-h-[32px]"
+                disabled={disabled}>
+
                   <Upload className="w-3 h-3 mr-1" />
-                  Upload Different File
+                  <span className="hidden sm:inline">Upload Different File</span>
+                  <span className="sm:hidden">Change File</span>
                 </Button>
               </div>
             </div>
           </CardContent>
-        </Card>
-      )}
+        </Card>)
+      }
 
       {/* Instructions */}
       <div className="text-xs text-gray-500 space-y-1">
         <p>• Supported formats: PDF, JPG, PNG (Maximum 10MB per file)</p>
         <p>• Images will show instant preview with download option</p>
         <p>• Files will be saved to storage when you save the employee</p>
+        <p className="text-red-600">• Click the × button to mark files for deletion</p>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default InstantIDDocumentUpload;

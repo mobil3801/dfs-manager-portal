@@ -513,6 +513,8 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
+
+
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay
@@ -911,9 +913,7 @@ const PerformanceMonitoringSystem: React.FC = () => {
   if (metrics.memory.percentage > 80) score -= 20;else if (metrics.memory.percentage > 60) score -= 10; // Timing penalty
   if (metrics.timing.apiResponseTime > 2000) score -= 15;else if (metrics.timing.apiResponseTime > 1000) score -= 8; // Network penalty
   if (metrics.network.errorRate > 5) score -= 15;else if (metrics.network.errorRate > 2) score -= 8; // Web Vitals penalty
-  if (metrics.vitals.lcp > 4000) score -= 10;else if (metrics.vitals.lcp > 2500) score -= 5;if (metrics.vitals.cls > 0.25) score -= 10;else
-  if (metrics.vitals.cls > 0.1) score -= 5;
-
+  if (metrics.vitals.lcp > 4000) score -= 10;else if (metrics.vitals.lcp > 2500) score -= 5;if (metrics.vitals.cls > 0.25) score -= 10;else if (metrics.vitals.cls > 0.1) score -= 5;
   return Math.max(0, Math.round(score));
 };
 

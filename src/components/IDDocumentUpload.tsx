@@ -95,12 +95,29 @@ const IDDocumentUpload: React.FC<IDDocumentUploadProps> = ({
   const handleRemoveClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    // Show confirmation for existing files
+    if (existingFileId && !selectedFile) {
+      const confirmDelete = window.confirm(
+        `Are you sure you want to remove this ${label}? This action cannot be undone and the file will be permanently deleted when you save the employee.`
+      );
+      if (!confirmDelete) {
+        return;
+      }
+    }
+
     onRemove();
 
     // Clear the input
     if (inputRef.current) {
       inputRef.current.value = '';
     }
+
+    toast({
+      title: "File Marked for Removal",
+      description: `${label} has been marked for removal and will be permanently deleted when you save.`,
+      variant: "destructive"
+    });
   };
 
   const getFileIcon = (fileType?: string) => {
@@ -140,8 +157,9 @@ const IDDocumentUpload: React.FC<IDDocumentUploadProps> = ({
           variant="outline"
           size="sm"
           onClick={handleRemoveClick}
-          className="text-red-600 hover:text-red-700 h-6 px-2"
-          disabled={disabled}>
+          className="text-red-600 hover:text-red-700 hover:bg-red-50 h-6 px-2 border-red-200 transition-colors"
+          disabled={disabled}
+          title={`Remove ${label} - will be permanently deleted when you save`}>
 
             <X className="w-3 h-3" />
           </Button>

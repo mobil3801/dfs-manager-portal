@@ -540,8 +540,9 @@ const EmployeeForm: React.FC = () => {
       setFormData(updatedFormData);
 
       toast({
-        title: "Document Removed",
-        description: `ID Document ${index + 1} has been removed and will be deleted when you save.`
+        title: "Document Marked for Deletion",
+        description: `ID Document ${index + 1} has been marked for deletion and will be permanently removed from database storage when you save.`,
+        variant: "destructive"
       });
     } catch (error) {
       console.error('Error removing document:', error);
@@ -624,6 +625,16 @@ const EmployeeForm: React.FC = () => {
         variant: "destructive"
       });
       return;
+    }
+
+    // Show confirmation if files are marked for deletion
+    if (filesToDelete.length > 0) {
+      const confirmDelete = window.confirm(
+        `Warning: ${filesToDelete.length} file${filesToDelete.length > 1 ? 's' : ''} will be permanently deleted from database storage. This action cannot be undone. Are you sure you want to proceed?`
+      );
+      if (!confirmDelete) {
+        return;
+      }
     }
 
     try {
@@ -1177,6 +1188,19 @@ const EmployeeForm: React.FC = () => {
                   <p className="text-xs text-gray-500">
                     Tip: Additional upload boxes will appear automatically as you upload files
                   </p>
+                  
+                  {/* Show deletion summary if files are marked for deletion */}
+                  {filesToDelete.length > 0 && (
+                    <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <h5 className="text-sm font-medium text-red-800 mb-2">Files Pending Deletion</h5>
+                      <p className="text-xs text-red-700">
+                        {filesToDelete.length} file{filesToDelete.length > 1 ? 's' : ''} will be permanently deleted from database storage when you save.
+                      </p>
+                      <p className="text-xs text-red-600 mt-1">
+                        This action cannot be undone. Make sure you have backups if needed.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1188,12 +1212,20 @@ const EmployeeForm: React.FC = () => {
                 onClick={() => navigate('/employees')}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading || isUploading}>
+              <Button 
+                type="submit" 
+                disabled={loading || isUploading}
+                className={filesToDelete.length > 0 ? "bg-red-600 hover:bg-red-700" : ""}>
                 {loading || isUploading ?
                 'Saving...' :
                 <>
                     <Save className="w-4 h-4 mr-2" />
                     {isEditing ? 'Update Employee' : 'Create Employee'}
+                    {filesToDelete.length > 0 && (
+                      <span className="ml-2 text-xs bg-red-800 text-white px-2 py-1 rounded">
+                        Will delete {filesToDelete.length} file{filesToDelete.length > 1 ? 's' : ''}
+                      </span>
+                    )}
                   </>
                 }
               </Button>
