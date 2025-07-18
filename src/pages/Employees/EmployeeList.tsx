@@ -464,6 +464,8 @@ const EmployeeList: React.FC = () => {
                 onClick={() => {
 
 
+
+
                   // This will be handled by the InstantDocumentPreview component
                 }}>
                   <Eye className="w-3 h-3" />
@@ -476,9 +478,7 @@ const EmployeeList: React.FC = () => {
         <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
           <p>• All ID documents are always visible like profile pictures</p>
           <p>• Click on any document to view in full screen</p>
-          {isAdminUser ?
-          <p>• <strong>Admin:</strong> Download buttons are visible for document management</p> :
-
+          {isAdminUser ? <p>• <strong>Admin:</strong> Download buttons are visible for document management</p> :
           <p>• Download access is restricted to administrators only</p>
           }
         </div>

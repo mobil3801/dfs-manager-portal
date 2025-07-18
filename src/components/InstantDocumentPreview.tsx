@@ -83,7 +83,7 @@ const InstantDocumentPreview: React.FC<InstantDocumentPreviewProps> = ({
         }
       };
 
-      getFileUrl(fileId).then(url => {
+      getFileUrl(fileId).then((url) => {
         if (url) {
           setPreviewUrl(url);
           setIsImage(true); // Assume existing files are images for preview
