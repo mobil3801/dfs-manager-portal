@@ -34,6 +34,8 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
   const [isImage, setIsImage] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [fileExists, setFileExists] = useState(false);
+  const [checkingFile, setCheckingFile] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Create preview URL for new files
@@ -56,15 +58,54 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
     }
   }, [selectedFile]);
 
-  // Handle existing file preview
+  // Check if file exists in database
   useEffect(() => {
-    if (existingFileId && !selectedFile) {
-      const url = `${window.location.origin}/api/files/${existingFileId}`;
-      setPreviewUrl(url);
-      setIsImage(true); // Assume existing files are images
-      setImageError(false);
-      setImageLoading(true);
-    }
+    const checkFileExistence = async () => {
+      if (existingFileId && !selectedFile) {
+        setCheckingFile(true);
+        try {
+          // Check if file exists in file_uploads table
+          const response = await window.ezsite.apis.tablePage(26928, {
+            "PageNo": 1,
+            "PageSize": 1,
+            "Filters": [
+            {
+              "name": "store_file_id",
+              "op": "Equal",
+              "value": existingFileId
+            }]
+
+          });
+
+          if (response.error) {
+            console.error('Error checking file existence:', response.error);
+            setFileExists(false);
+          } else {
+            const hasFile = response.data?.List?.length > 0;
+            setFileExists(hasFile);
+
+            if (hasFile) {
+              // File exists, set up preview
+              const url = `${window.location.origin}/api/files/${existingFileId}`;
+              setPreviewUrl(url);
+              setIsImage(true); // Assume existing files are images
+              setImageError(false);
+              setImageLoading(true);
+            }
+          }
+        } catch (error) {
+          console.error('Error checking file existence:', error);
+          setFileExists(false);
+        } finally {
+          setCheckingFile(false);
+        }
+      } else {
+        setFileExists(false);
+        setCheckingFile(false);
+      }
+    };
+
+    checkFileExistence();
   }, [existingFileId, selectedFile]);
 
   const handleDrag = (e: React.DragEvent) => {
@@ -133,7 +174,7 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
   const handleRemoveClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // Show confirmation for existing files
     if (existingFileId && !selectedFile) {
       const confirmDelete = window.confirm(
@@ -187,7 +228,8 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const hasContent = selectedFile || existingFileId;
+  // Only show content if there's a selected file OR if file exists in database
+  const hasContent = selectedFile || existingFileId && fileExists;
 
   return (
     <div className={cn('space-y-4', className)}>
@@ -214,8 +256,16 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
         }
       </div>
 
+      {/* Loading state while checking file existence */}
+      {checkingFile &&
+      <div className="flex items-center justify-center py-8">
+          <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+          <span className="ml-2 text-sm text-gray-600">Checking file...</span>
+        </div>
+      }
+
       {/* Upload Area or Preview */}
-      {!hasContent ? (
+      {!hasContent && !checkingFile ? (
       /* Upload Area */
       <div
         className={cn(
@@ -252,9 +302,9 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
               </p>
             </div>
           </div>
-        </div>) : (
+        </div>) : hasContent && !checkingFile ? (
 
-      /* Instant Preview Box */
+      /* Instant Preview Box - Only shown when file exists */
       <Card className="overflow-hidden border-2 border-blue-200 bg-blue-50">
           <CardContent className="p-0">
             {/* Preview Area */}
@@ -376,7 +426,7 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
               </div>
             </div>
           </CardContent>
-        </Card>)
+        </Card>) : null
       }
 
       {/* Instructions */}

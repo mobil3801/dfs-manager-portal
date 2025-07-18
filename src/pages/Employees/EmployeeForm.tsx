@@ -1190,8 +1190,8 @@ const EmployeeForm: React.FC = () => {
                   </p>
                   
                   {/* Show deletion summary if files are marked for deletion */}
-                  {filesToDelete.length > 0 && (
-                    <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  {filesToDelete.length > 0 &&
+                  <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
                       <h5 className="text-sm font-medium text-red-800 mb-2">Files Pending Deletion</h5>
                       <p className="text-xs text-red-700">
                         {filesToDelete.length} file{filesToDelete.length > 1 ? 's' : ''} will be permanently deleted from database storage when you save.
@@ -1200,7 +1200,7 @@ const EmployeeForm: React.FC = () => {
                         This action cannot be undone. Make sure you have backups if needed.
                       </p>
                     </div>
-                  )}
+                  }
                 </div>
               </div>
             </div>
@@ -1212,8 +1212,8 @@ const EmployeeForm: React.FC = () => {
                 onClick={() => navigate('/employees')}>
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={loading || isUploading}
                 className={filesToDelete.length > 0 ? "bg-red-600 hover:bg-red-700" : ""}>
                 {loading || isUploading ?
@@ -1221,11 +1221,11 @@ const EmployeeForm: React.FC = () => {
                 <>
                     <Save className="w-4 h-4 mr-2" />
                     {isEditing ? 'Update Employee' : 'Create Employee'}
-                    {filesToDelete.length > 0 && (
-                      <span className="ml-2 text-xs bg-red-800 text-white px-2 py-1 rounded">
+                    {filesToDelete.length > 0 &&
+                  <span className="ml-2 text-xs bg-red-800 text-white px-2 py-1 rounded">
                         Will delete {filesToDelete.length} file{filesToDelete.length > 1 ? 's' : ''}
                       </span>
-                    )}
+                  }
                   </>
                 }
               </Button>

@@ -95,7 +95,7 @@ const IDDocumentUpload: React.FC<IDDocumentUploadProps> = ({
   const handleRemoveClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // Show confirmation for existing files
     if (existingFileId && !selectedFile) {
       const confirmDelete = window.confirm(
