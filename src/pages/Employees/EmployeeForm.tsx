@@ -15,7 +15,7 @@ import EnhancedFileUpload from '@/components/EnhancedFileUpload';
 import StationDropdown from '@/components/StationDropdown';
 import ProfilePictureUpload from '@/components/ProfilePictureUpload';
 import DocumentPreview from '@/components/DocumentPreview';
-import IDDocumentUpload from '@/components/IDDocumentUpload';
+import InstantIDDocumentUpload from '@/components/InstantIDDocumentUpload';
 import { displayPhoneNumber, formatPhoneNumber } from '@/utils/phoneFormatter';
 
 
@@ -1160,13 +1160,12 @@ const EmployeeForm: React.FC = () => {
                   <div className="space-y-6">
                     {Array.from({ length: getVisibleIDDocumentBoxes() }, (_, index) =>
                     <div key={index} className="p-6 border border-gray-200 rounded-lg bg-gray-50">
-                        <IDDocumentUpload
+                        <InstantIDDocumentUpload
                         label={`ID Document ${index + 1}`}
                         onFileSelect={(file) => handleIDDocumentSelect(file, index)}
                         onRemove={() => handleRemoveIDDocument(index)}
                         existingFileId={idDocuments[index].existingFileId}
                         selectedFile={idDocuments[index].file}
-                        preview={idDocuments[index].preview}
                         disabled={loading || isUploading}
                         required={index === 0}
                         className="w-full" />

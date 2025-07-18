@@ -1,0 +1,378 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { toast } from '@/hooks/use-toast';
+import { Upload, X, FileText, Download, Image as ImageIcon, Eye, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+interface InstantIDDocumentUploadProps {
+  label: string;
+  onFileSelect: (file: File) => void;
+  onRemove: () => void;
+  existingFileId?: number | null;
+  selectedFile?: File | null;
+  disabled?: boolean;
+  required?: boolean;
+  className?: string;
+}
+
+const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
+  label,
+  onFileSelect,
+  onRemove,
+  existingFileId,
+  selectedFile,
+  disabled = false,
+  required = false,
+  className = ''
+}) => {
+  const [dragActive, setDragActive] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isImage, setIsImage] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Create preview URL for new files
+  useEffect(() => {
+    if (selectedFile) {
+      const url = URL.createObjectURL(selectedFile);
+      setPreviewUrl(url);
+      setIsImage(selectedFile.type.startsWith('image/'));
+      setImageError(false);
+      setImageLoading(true);
+      
+      return () => {
+        URL.revokeObjectURL(url);
+      };
+    } else {
+      setPreviewUrl(null);
+      setIsImage(false);
+      setImageError(false);
+      setImageLoading(false);
+    }
+  }, [selectedFile]);
+
+  // Handle existing file preview
+  useEffect(() => {
+    if (existingFileId && !selectedFile) {
+      const url = `${window.location.origin}/api/files/${existingFileId}`;
+      setPreviewUrl(url);
+      setIsImage(true); // Assume existing files are images
+      setImageError(false);
+      setImageLoading(true);
+    }
+  }, [existingFileId, selectedFile]);
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (disabled) return;
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileSelection(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleFileSelection = (file: File) => {
+    // Validate file type
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please upload PDF, JPG, or PNG files only.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate file size (10MB max)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      toast({
+        title: "File Too Large",
+        description: "Please upload files smaller than 10MB.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    onFileSelect(file);
+    
+    toast({
+      title: "File Selected",
+      description: `${file.name} has been selected and will be uploaded when you save.`,
+    });
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      handleFileSelection(e.target.files[0]);
+    }
+  };
+
+  const handleBrowseClick = () => {
+    inputRef.current?.click();
+  };
+
+  const handleRemoveClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onRemove();
+
+    // Clear the input
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
+
+    toast({
+      title: "File Removed",
+      description: `${label} has been removed.`,
+    });
+  };
+
+  const handleImageLoad = () => {
+    setImageLoading(false);
+    setImageError(false);
+  };
+
+  const handleImageError = () => {
+    setImageLoading(false);
+    setImageError(true);
+  };
+
+  const handleDownload = () => {
+    if (previewUrl) {
+      const link = document.createElement('a');
+      link.href = previewUrl;
+      link.download = selectedFile?.name || 'document';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const hasContent = selectedFile || existingFileId;
+
+  return (
+    <div className={cn('space-y-4', className)}>
+      {/* Label and Remove Button */}
+      <div className="flex items-center justify-between">
+        <Label className="flex items-center space-x-2">
+          <FileText className="w-4 h-4" />
+          <span>{label}</span>
+          {required && <span className="text-red-500">*</span>}
+        </Label>
+        
+        {hasContent && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleRemoveClick}
+            className="text-red-600 hover:text-red-700 h-6 px-2"
+            disabled={disabled}
+          >
+            <X className="w-3 h-3" />
+          </Button>
+        )}
+      </div>
+
+      {/* Upload Area or Preview */}
+      {!hasContent ? (
+        /* Upload Area */
+        <div
+          className={cn(
+            'relative border-2 border-dashed rounded-lg p-6 text-center transition-colors',
+            dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300',
+            disabled ? 'bg-gray-50 cursor-not-allowed' : 'hover:border-gray-400 cursor-pointer'
+          )}
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+          onClick={!disabled ? handleBrowseClick : undefined}
+        >
+          <input
+            ref={inputRef}
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png,image/*"
+            onChange={handleInputChange}
+            className="hidden"
+            disabled={disabled}
+          />
+
+          <div className="space-y-2">
+            <Upload className="w-8 h-8 text-gray-400 mx-auto" />
+            <div>
+              <p className="text-sm text-gray-600">
+                <span className="font-medium text-blue-600 hover:text-blue-500">
+                  Click to browse
+                </span>
+                {' or drag and drop'}
+              </p>
+              <p className="text-xs text-gray-500">
+                PDF, JPG, PNG up to 10MB
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Instant Preview Box */
+        <Card className="overflow-hidden border-2 border-blue-200 bg-blue-50">
+          <CardContent className="p-0">
+            {/* Preview Area */}
+            <div className="relative w-full h-48 bg-gradient-to-br from-blue-50 to-indigo-100">
+              {/* Loading state */}
+              {imageLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-blue-100/80">
+                  <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                </div>
+              )}
+
+              {/* Image preview */}
+              {previewUrl && isImage && !imageError && (
+                <img
+                  src={previewUrl}
+                  alt={selectedFile?.name || 'ID Document'}
+                  className={cn(
+                    'w-full h-full object-contain bg-white rounded-t-lg',
+                    imageLoading && 'opacity-0'
+                  )}
+                  onLoad={handleImageLoad}
+                  onError={handleImageError}
+                />
+              )}
+
+              {/* Non-image or error fallback */}
+              {(!isImage || imageError) && !imageLoading && (
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="text-center">
+                    <FileText className="w-16 h-16 text-blue-500 mx-auto mb-3" />
+                    <p className="text-sm font-medium text-blue-800">
+                      {imageError ? 'Preview not available' : 'Document selected'}
+                    </p>
+                    <p className="text-xs text-blue-600">
+                      {selectedFile ? selectedFile.name : 'ID Document'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Status Badge */}
+              <div className="absolute top-3 left-3">
+                <Badge 
+                  variant="secondary" 
+                  className="text-xs bg-white/90 text-blue-700 border-blue-300 shadow-sm"
+                >
+                  {selectedFile ? 'Ready for Upload' : 'Uploaded'}
+                </Badge>
+              </div>
+
+              {/* Download Button - Only visible button in preview */}
+              <div className="absolute top-3 right-3">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleDownload}
+                  className="bg-white/90 hover:bg-white text-blue-600 shadow-sm"
+                  disabled={!previewUrl}
+                >
+                  <Download className="w-4 h-4 mr-1" />
+                  Download
+                </Button>
+              </div>
+            </div>
+
+            {/* File Information */}
+            <div className="p-4 bg-white border-t border-blue-200">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  {selectedFile ? selectedFile.name : `Current ${label}`}
+                </p>
+                <Badge
+                  variant="secondary"
+                  className={cn(
+                    'text-xs',
+                    selectedFile 
+                      ? 'bg-orange-100 text-orange-700 border-orange-300' 
+                      : 'bg-green-100 text-green-700 border-green-300'
+                  )}
+                >
+                  {selectedFile ? 'Pending Upload' : 'Saved'}
+                </Badge>
+              </div>
+
+              <div className="flex items-center justify-between text-xs text-gray-500">
+                <span className="flex items-center space-x-1">
+                  {isImage && !imageError ? (
+                    <ImageIcon className="w-3 h-3" />
+                  ) : (
+                    <FileText className="w-3 h-3" />
+                  )}
+                  <span>{isImage && !imageError ? 'Image file' : 'Document file'}</span>
+                </span>
+
+                {selectedFile && (
+                  <span>{formatFileSize(selectedFile.size)}</span>
+                )}
+
+                <span className="flex items-center space-x-1">
+                  <span>✓ {selectedFile ? 'Ready to save' : 'Saved'}</span>
+                </span>
+              </div>
+
+              {/* Upload a different file button */}
+              <div className="mt-3 pt-3 border-t border-gray-200">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleBrowseClick}
+                  className="w-full text-xs"
+                  disabled={disabled}
+                >
+                  <Upload className="w-3 h-3 mr-1" />
+                  Upload Different File
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Instructions */}
+      <div className="text-xs text-gray-500 space-y-1">
+        <p>• Supported formats: PDF, JPG, PNG (Maximum 10MB per file)</p>
+        <p>• Images will show instant preview with download option</p>
+        <p>• Files will be saved to storage when you save the employee</p>
+      </div>
+    </div>
+  );
+};
+
+export default InstantIDDocumentUpload;
