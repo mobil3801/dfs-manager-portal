@@ -1170,18 +1170,16 @@ const EmployeeForm: React.FC = () => {
                   
                   <div className="space-y-6">
                     {Array.from({ length: getVisibleIDDocumentBoxes() }, (_, index) =>
-                    <div key={index} className="p-6 border border-gray-200 rounded-lg bg-gray-50">
-                        <InstantIDDocumentUpload
-                        label={`ID Document ${index + 1}`}
-                        onFileSelect={(file) => handleIDDocumentSelect(file, index)}
-                        onRemove={() => handleRemoveIDDocument(index)}
-                        existingFileId={idDocuments[index].existingFileId}
-                        selectedFile={idDocuments[index].file}
-                        disabled={loading || isUploading}
-                        required={index === 0}
-                        className="w-full" />
-
-                      </div>
+                    <InstantIDDocumentUpload
+                      key={index}
+                      label={`ID Document ${index + 1}`}
+                      onFileSelect={(file) => handleIDDocumentSelect(file, index)}
+                      onRemove={() => handleRemoveIDDocument(index)}
+                      existingFileId={idDocuments[index].existingFileId}
+                      selectedFile={idDocuments[index].file}
+                      disabled={loading || isUploading}
+                      required={index === 0}
+                      className="w-full" />
                     )}
                   </div>
 
