@@ -20,7 +20,6 @@ import DocumentPreview from '@/components/DocumentPreview';
 import InstantDocumentPreview from '@/components/InstantDocumentPreview';
 import { displayPhoneNumber } from '@/utils/phoneFormatter';
 
-
 interface Employee {
   ID: number;
   employee_id: string;
@@ -83,10 +82,14 @@ const EmployeeList: React.FC = () => {
       // Define status priority: Ongoing = 1, Left = 2, Terminated = 3
       const getStatusPriority = (status: string) => {
         switch (status) {
-          case 'Ongoing':return 1;
-          case 'Left':return 2;
-          case 'Terminated':return 3;
-          default:return 1; // Default to Ongoing priority for any unspecified status
+          case 'Ongoing':
+            return 1;
+          case 'Left':
+            return 2;
+          case 'Terminated':
+            return 3;
+          default:
+            return 1; // Default to Ongoing priority for any unspecified status
         }
       };
 
@@ -264,19 +267,19 @@ const EmployeeList: React.FC = () => {
     if (!selectedEmployee) return;
 
     const csvContent = [
-    'Field,Value',
-    `Employee ID,${selectedEmployee.employee_id}`,
-    `Name,${selectedEmployee.first_name} ${selectedEmployee.last_name}`,
-    `Email,${selectedEmployee.email}`,
-    `Phone,${selectedEmployee.phone}`,
-    `Position,${selectedEmployee.position}`,
-    `Station,${selectedEmployee.station}`,
-    `Shift,${selectedEmployee.shift}`,
-    `Hire Date,${selectedEmployee.hire_date}`,
-    `Salary,${selectedEmployee.salary}`,
-    `Employment Status,${selectedEmployee.employment_status}`,
-    `Status,${selectedEmployee.is_active ? 'Active' : 'Inactive'}`].
-    join('\n');
+      'Field,Value',
+      `Employee ID,${selectedEmployee.employee_id}`,
+      `Name,${selectedEmployee.first_name} ${selectedEmployee.last_name}`,
+      `Email,${selectedEmployee.email}`,
+      `Phone,${selectedEmployee.phone}`,
+      `Position,${selectedEmployee.position}`,
+      `Station,${selectedEmployee.station}`,
+      `Shift,${selectedEmployee.shift}`,
+      `Hire Date,${selectedEmployee.hire_date}`,
+      `Salary,${selectedEmployee.salary}`,
+      `Employment Status,${selectedEmployee.employment_status}`,
+      `Status,${selectedEmployee.is_active ? 'Active' : 'Inactive'}`
+    ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -349,20 +352,20 @@ const EmployeeList: React.FC = () => {
     return new Date(dateString).toLocaleDateString();
   };
 
-  const ShiftBadge = ({ shift }: {shift: string;}) => {
+  const ShiftBadge = ({ shift }: { shift: string }) => {
     switch (shift) {
       case 'Day':
         return (
           <Badge className="bg-white text-black border border-gray-300 hover:bg-gray-50">
             {shift}
-          </Badge>);
-
+          </Badge>
+        );
       case 'Night':
         return (
           <Badge className="bg-black text-white hover:bg-gray-800">
             {shift}
-          </Badge>);
-
+          </Badge>
+        );
       case 'Day & Night':
         return (
           <div className="relative inline-flex rounded-md overflow-hidden border border-gray-300">
@@ -372,51 +375,25 @@ const EmployeeList: React.FC = () => {
             <div className="bg-black text-white px-2 py-1 text-xs font-medium">
               Night
             </div>
-          </div>);
-
+          </div>
+        );
       default:
         return (
           <Badge className="bg-gray-100 text-gray-700">
             {shift || 'N/A'}
-          </Badge>);
-
+          </Badge>
+        );
     }
   };
 
   // Enhanced ID Documents Display Component with Instant Image Previews
-  const IDDocumentsDisplay = ({ employee }: {employee: Employee;}) => {
-    // Handle download for admin users
-    const handleDownload = async (fileId: number | null, fileName: string) => {
-      if (!fileId) return;
-      
-      try {
-        const downloadUrl = `${window.location.origin}/api/files/${fileId}`;
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = fileName || 'document';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        toast({
-          title: "Success",
-          description: "Document downloaded successfully"
-        });
-      } catch (error) {
-        console.error('Error downloading document:', error);
-        toast({
-          title: "Error",
-          description: "Failed to download document",
-          variant: "destructive"
-        });
-      }
-    };
+  const IDDocumentsDisplay = ({ employee }: { employee: Employee }) => {
     const documents = [
-    { fileId: employee.id_document_file_id, label: 'ID Document 1' },
-    { fileId: employee.id_document_2_file_id, label: 'ID Document 2' },
-    { fileId: employee.id_document_3_file_id, label: 'ID Document 3' },
-    { fileId: employee.id_document_4_file_id, label: 'ID Document 4' }].
-    filter((doc) => doc.fileId);
+      { fileId: employee.id_document_file_id, label: 'ID Document 1' },
+      { fileId: employee.id_document_2_file_id, label: 'ID Document 2' },
+      { fileId: employee.id_document_3_file_id, label: 'ID Document 3' },
+      { fileId: employee.id_document_4_file_id, label: 'ID Document 4' }
+    ].filter((doc) => doc.fileId);
 
     if (documents.length === 0) {
       return (
@@ -424,8 +401,8 @@ const EmployeeList: React.FC = () => {
           <FileText className="w-12 h-12 mx-auto mb-3 text-gray-400" />
           <p className="text-sm font-medium">No ID documents uploaded</p>
           <p className="text-xs text-gray-400 mt-1">ID documents will appear here once uploaded</p>
-        </div>);
-
+        </div>
+      );
     }
 
     return (
@@ -448,30 +425,30 @@ const EmployeeList: React.FC = () => {
         </div>
         
         {/* Document Type Information */}
-        {employee.id_document_type &&
-        <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+        {employee.id_document_type && (
+          <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
             <p className="text-sm text-blue-800">
               <strong>Document Type:</strong> {employee.id_document_type}
             </p>
           </div>
-        }
+        )}
         
         {/* Enhanced Document Display Grid - Always Visible Like Profile Pictures */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {documents.map((doc, index) =>
-          <div key={index} className="relative">
+          {documents.map((doc, index) => (
+            <div key={index} className="relative">
               <InstantDocumentPreview
-              fileId={doc.fileId}
-              fileName={doc.label}
-              documentName={doc.label}
-              size="lg"
-              aspectRatio="landscape"
-              showRemoveButton={false}
-              showDownload={true}
-              showFullscreen={true}
-              showInstantPreview={true}
-              className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow rounded-lg overflow-hidden" />
-
+                fileId={doc.fileId}
+                fileName={doc.label}
+                documentName={doc.label}
+                size="lg"
+                aspectRatio="landscape"
+                showRemoveButton={false}
+                showDownload={isAdminUser}
+                showFullscreen={true}
+                showInstantPreview={true}
+                className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow rounded-lg overflow-hidden"
+              />
               
               {/* Document Label */}
               <div className="absolute top-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
@@ -481,67 +458,18 @@ const EmployeeList: React.FC = () => {
               {/* View Full Size Button */}
               <div className="absolute top-2 right-2">
                 <Button
-                variant="secondary"
-                size="sm"
-                className="h-6 px-2 bg-white bg-opacity-90 hover:bg-opacity-100"
-                onClick={() => {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                  // This will be handled by the InstantDocumentPreview component
-                }}>
+                  variant="secondary"
+                  size="sm"
+                  className="h-6 px-2 bg-white bg-opacity-90 hover:bg-opacity-100"
+                  onClick={() => {
+                    // This will be handled by the InstantDocumentPreview component
+                  }}
+                >
                   <Eye className="w-3 h-3" />
                 </Button>
               </div>
-            </div>)}
+            </div>
+          ))}
         </div>
 
         {/* Information Panel */}
@@ -554,90 +482,139 @@ const EmployeeList: React.FC = () => {
             <p>• Download access is restricted to administrators only</p>
           )}
         </div>
+      </div>
+    );
+  };
 
-      </div>);}; // Define view modal fields with profile picture, employment status, and ID documents
-  const getViewModalFields = (employee: Employee) => [{ key: 'profile_picture', label: 'Profile Picture', value: employee.profile_image_id, type: 'custom' as const, customComponent: <div className="flex justify-center">
-        <ProfilePicture imageId={employee.profile_image_id} firstName={employee.first_name} lastName={employee.last_name} size="xl" className="border-2 border-gray-200" />
-      </div> }, { key: 'employee_id', label: 'Employee ID', value: employee.employee_id, type: 'text' as const, icon: User }, { key: 'name', label: 'Full Name', value: `${employee.first_name} ${employee.last_name}`, type: 'text' as const, icon: User }, { key: 'email', label: 'Email', value: employee.email, type: 'email' as const }, { key: 'phone', label: 'Phone', value: displayPhoneNumber(employee.phone), type: 'phone' as const }, { key: 'position', label: 'Position', value: employee.position,
-    type: 'text' as const
-  },
-  {
-    key: 'station',
-    label: 'Station',
-    value: employee.station,
-    type: 'badge' as const,
-    badgeColor: getStationBadgeColor(employee.station)
-  },
-  {
-    key: 'shift',
-    label: 'Shift',
-    value: employee.shift,
-    type: 'custom' as const,
-    customComponent: <ShiftBadge shift={employee.shift} />
-  },
-  {
-    key: 'employment_status',
-    label: 'Employment Status',
-    value: employee.employment_status,
-    type: 'badge' as const,
-    badgeColor: getEmploymentStatusColor(employee.employment_status)
-  },
-  {
-    key: 'hire_date',
-    label: 'Hire Date',
-    value: employee.hire_date,
-    type: 'date' as const
-  },
-  {
-    key: 'date_of_birth',
-    label: 'Date of Birth',
-    value: employee.date_of_birth,
-    type: 'date' as const
-  },
-  {
-    key: 'current_address',
-    label: 'Current Address',
-    value: employee.current_address,
-    type: 'text' as const
-  },
-  {
-    key: 'mailing_address',
-    label: 'Mailing Address',
-    value: employee.mailing_address,
-    type: 'text' as const
-  },
-  {
-    key: 'reference_name',
-    label: 'Reference Name',
-    value: employee.reference_name,
-    type: 'text' as const
-  },
-  {
-    key: 'id_documents',
-    label: 'ID Documents',
-    value: 'id_documents',
-    type: 'custom' as const,
-    customComponent: <IDDocumentsDisplay employee={employee} />
-  },
-  {
-    key: 'salary',
-    label: 'Salary',
-    value: employee.salary,
-    type: 'currency' as const
-  },
-  {
-    key: 'is_active',
-    label: 'Active Status',
-    value: employee.is_active,
-    type: 'custom' as const,
-    customComponent:
-    <Badge
-      className={`text-white ${employee.is_active ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}`}>
-
-        {employee.is_active ? "Active" : "Inactive"}
-      </Badge>
-
-  }];
+  // Define view modal fields with profile picture, employment status, and ID documents
+  const getViewModalFields = (employee: Employee) => [
+    {
+      key: 'profile_picture',
+      label: 'Profile Picture',
+      value: employee.profile_image_id,
+      type: 'custom' as const,
+      customComponent: (
+        <div className="flex justify-center">
+          <ProfilePicture
+            imageId={employee.profile_image_id}
+            firstName={employee.first_name}
+            lastName={employee.last_name}
+            size="xl"
+            className="border-2 border-gray-200"
+          />
+        </div>
+      )
+    },
+    {
+      key: 'employee_id',
+      label: 'Employee ID',
+      value: employee.employee_id,
+      type: 'text' as const,
+      icon: User
+    },
+    {
+      key: 'name',
+      label: 'Full Name',
+      value: `${employee.first_name} ${employee.last_name}`,
+      type: 'text' as const,
+      icon: User
+    },
+    {
+      key: 'email',
+      label: 'Email',
+      value: employee.email,
+      type: 'email' as const
+    },
+    {
+      key: 'phone',
+      label: 'Phone',
+      value: displayPhoneNumber(employee.phone),
+      type: 'phone' as const
+    },
+    {
+      key: 'position',
+      label: 'Position',
+      value: employee.position,
+      type: 'text' as const
+    },
+    {
+      key: 'station',
+      label: 'Station',
+      value: employee.station,
+      type: 'badge' as const,
+      badgeColor: getStationBadgeColor(employee.station)
+    },
+    {
+      key: 'shift',
+      label: 'Shift',
+      value: employee.shift,
+      type: 'custom' as const,
+      customComponent: <ShiftBadge shift={employee.shift} />
+    },
+    {
+      key: 'employment_status',
+      label: 'Employment Status',
+      value: employee.employment_status,
+      type: 'badge' as const,
+      badgeColor: getEmploymentStatusColor(employee.employment_status)
+    },
+    {
+      key: 'hire_date',
+      label: 'Hire Date',
+      value: employee.hire_date,
+      type: 'date' as const
+    },
+    {
+      key: 'date_of_birth',
+      label: 'Date of Birth',
+      value: employee.date_of_birth,
+      type: 'date' as const
+    },
+    {
+      key: 'current_address',
+      label: 'Current Address',
+      value: employee.current_address,
+      type: 'text' as const
+    },
+    {
+      key: 'mailing_address',
+      label: 'Mailing Address',
+      value: employee.mailing_address,
+      type: 'text' as const
+    },
+    {
+      key: 'reference_name',
+      label: 'Reference Name',
+      value: employee.reference_name,
+      type: 'text' as const
+    },
+    {
+      key: 'id_documents',
+      label: 'ID Documents',
+      value: 'id_documents',
+      type: 'custom' as const,
+      customComponent: <IDDocumentsDisplay employee={employee} />
+    },
+    {
+      key: 'salary',
+      label: 'Salary',
+      value: employee.salary,
+      type: 'currency' as const
+    },
+    {
+      key: 'is_active',
+      label: 'Active Status',
+      value: employee.is_active,
+      type: 'custom' as const,
+      customComponent: (
+        <Badge
+          className={`text-white ${employee.is_active ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}`}
+        >
+          {employee.is_active ? "Active" : "Inactive"}
+        </Badge>
+      )
+    }
+  ];
 
   // Mobile view for smaller screens
   if (isMobile) {
@@ -656,11 +633,11 @@ const EmployeeList: React.FC = () => {
                 </CardDescription>
               </div>
               
-              {canCreateEmployee &&
-              <Button size="sm" onClick={handleCreateEmployee}>
+              {canCreateEmployee && (
+                <Button size="sm" onClick={handleCreateEmployee}>
                   <Plus className="w-4 h-4" />
                 </Button>
-              }
+              )}
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -684,47 +661,51 @@ const EmployeeList: React.FC = () => {
                   placeholder="Search employees..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10" />
+                  className="pl-10"
+                />
               </div>
             </div>
 
             {/* Employee Cards */}
-            {loading ?
-            <div className="space-y-3">
-                {[...Array(5)].map((_, i) =>
-              <div key={i} className="h-20 bg-gray-100 rounded animate-pulse"></div>
-              )}
-              </div> :
-            employees.length === 0 ?
-            <div className="text-center py-8">
+            {loading ? (
+              <div className="space-y-3">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="h-20 bg-gray-100 rounded animate-pulse"></div>
+                ))}
+              </div>
+            ) : employees.length === 0 ? (
+              <div className="text-center py-8">
                 <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-500">No employees found</p>
-                {canCreateEmployee &&
-              <Button variant="outline" className="mt-4" onClick={handleCreateEmployee}>
+                {canCreateEmployee && (
+                  <Button variant="outline" className="mt-4" onClick={handleCreateEmployee}>
                     Add Your First Employee
                   </Button>
-              }
-              </div> :
-
-            <div className="space-y-3">
-                {employees.map((employee, index) =>
-              <motion.div
-                key={employee.ID}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {employees.map((employee, index) => (
+                  <motion.div
+                    key={employee.ID}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
                     <Card
-                  className={`cursor-pointer transition-colors ${
-                  selectedEmployeeId === employee.ID ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'}`
-                  }
-                  onClick={() => setSelectedEmployeeId(employee.ID)}>
+                      className={`cursor-pointer transition-colors ${
+                        selectedEmployeeId === employee.ID ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'
+                      }`}
+                      onClick={() => setSelectedEmployeeId(employee.ID)}
+                    >
                       <CardContent className="p-4">
                         <div className="flex items-center space-x-3">
                           <ProfilePicture
-                        imageId={employee.profile_image_id}
-                        firstName={employee.first_name}
-                        lastName={employee.last_name}
-                        size="md" />
+                            imageId={employee.profile_image_id}
+                            firstName={employee.first_name}
+                            lastName={employee.last_name}
+                            size="md"
+                          />
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
@@ -732,7 +713,8 @@ const EmployeeList: React.FC = () => {
                                 {employee.first_name} {employee.last_name}
                               </h3>
                               <Badge
-                            className={`text-white text-xs ${getEmploymentStatusColor(employee.employment_status || 'Ongoing')}`}>
+                                className={`text-white text-xs ${getEmploymentStatusColor(employee.employment_status || 'Ongoing')}`}
+                              >
                                 {employee.employment_status || 'Ongoing'}
                               </Badge>
                             </div>
@@ -743,7 +725,8 @@ const EmployeeList: React.FC = () => {
                             <div className="flex items-center justify-between mt-2">
                               <div className="flex items-center space-x-2">
                                 <Badge
-                              className={`text-white text-xs ${getStationBadgeColor(employee.station)}`}>
+                                  className={`text-white text-xs ${getStationBadgeColor(employee.station)}`}
+                                >
                                   {employee.station}
                                 </Badge>
                                 <ShiftBadge shift={employee.shift} />
@@ -751,39 +734,42 @@ const EmployeeList: React.FC = () => {
                               
                               <div className="flex space-x-1">
                                 <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleView(employee);
-                              }}
-                              className="p-1 h-6 w-6">
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleView(employee);
+                                  }}
+                                  className="p-1 h-6 w-6"
+                                >
                                   <Eye className="w-3 h-3" />
                                 </Button>
-                                {canEditEmployee &&
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEdit(employee.ID);
-                              }}
-                              className="p-1 h-6 w-6">
+                                {canEditEmployee && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleEdit(employee.ID);
+                                    }}
+                                    className="p-1 h-6 w-6"
+                                  >
                                     <Edit className="w-3 h-3" />
                                   </Button>
-                            }
-                                {canDeleteEmployee &&
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDelete(employee.ID);
-                              }}
-                              className="p-1 h-6 w-6 text-red-600 hover:text-red-700">
+                                )}
+                                {canDeleteEmployee && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDelete(employee.ID);
+                                    }}
+                                    className="p-1 h-6 w-6 text-red-600 hover:text-red-700"
+                                  >
                                     <Trash2 className="w-3 h-3" />
                                   </Button>
-                            }
+                                )}
                               </div>
                             </div>
                           </div>
@@ -791,36 +777,38 @@ const EmployeeList: React.FC = () => {
                       </CardContent>
                     </Card>
                   </motion.div>
-              )}
+                ))}
               </div>
-            }
+            )}
           </CardContent>
         </Card>
 
         {/* View Modal */}
-        {selectedEmployee &&
-        <ViewModal
-          isOpen={viewModalOpen}
-          onClose={() => {
-            setViewModalOpen(false);
-            setSelectedEmployee(null);
-            setSelectedEmployeeId(null);
-          }}
-          title={`${selectedEmployee.first_name} ${selectedEmployee.last_name}`}
-          subtitle={`Employee ID: ${selectedEmployee.employee_id} • ${selectedEmployee.position}`}
-          data={selectedEmployee}
-          fields={getViewModalFields(selectedEmployee)}
-          onEdit={() => {
-            setViewModalOpen(false);
-            handleEdit(selectedEmployee.ID);
-          }}
-          onDelete={() => handleDelete(selectedEmployee.ID)}
-          onExport={handleExport}
-          canEdit={canEditEmployee}
-          canDelete={canDeleteEmployee}
-          canExport={true} />
-        }
-      </div>);
+        {selectedEmployee && (
+          <ViewModal
+            isOpen={viewModalOpen}
+            onClose={() => {
+              setViewModalOpen(false);
+              setSelectedEmployee(null);
+              setSelectedEmployeeId(null);
+            }}
+            title={`${selectedEmployee.first_name} ${selectedEmployee.last_name}`}
+            subtitle={`Employee ID: ${selectedEmployee.employee_id} • ${selectedEmployee.position}`}
+            data={selectedEmployee}
+            fields={getViewModalFields(selectedEmployee)}
+            onEdit={() => {
+              setViewModalOpen(false);
+              handleEdit(selectedEmployee.ID);
+            }}
+            onDelete={() => handleDelete(selectedEmployee.ID)}
+            onExport={handleExport}
+            canEdit={canEditEmployee}
+            canDelete={canDeleteEmployee}
+            canExport={true}
+          />
+        )}
+      </div>
+    );
   }
 
   return (
@@ -839,18 +827,21 @@ const EmployeeList: React.FC = () => {
             </div>
             
             {/* Only show Add Employee button if create permission is enabled */}
-            {canCreateEmployee ?
-            <Button
-              onClick={handleCreateEmployee}
-              className="flex items-center space-x-2">
+            {canCreateEmployee ? (
+              <Button
+                onClick={handleCreateEmployee}
+                className="flex items-center space-x-2"
+              >
                 <Plus className="w-4 h-4" />
                 <span>Add Employee</span>
-              </Button> :
-            isModuleAccessEnabled &&
-            <Badge variant="secondary" className="text-xs">
-                Create access disabled by admin
-              </Badge>
-            }
+              </Button>
+            ) : (
+              isModuleAccessEnabled && (
+                <Badge variant="secondary" className="text-xs">
+                  Create access disabled by admin
+                </Badge>
+              )
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -875,32 +866,34 @@ const EmployeeList: React.FC = () => {
                 placeholder="Search employees..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10" />
+                className="pl-10"
+              />
             </div>
           </div>
 
           {/* Employees Table */}
-          {loading ?
-          <div className="space-y-4">
-              {[...Array(5)].map((_, i) =>
-            <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
-            )}
-            </div> :
-          employees.length === 0 ?
-          <div className="text-center py-8">
+          {loading ? (
+            <div className="space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
+              ))}
+            </div>
+          ) : employees.length === 0 ? (
+            <div className="text-center py-8">
               <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No employees found</p>
-              {canCreateEmployee &&
-            <Button
-              variant="outline"
-              className="mt-4"
-              onClick={handleCreateEmployee}>
+              {canCreateEmployee && (
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                  onClick={handleCreateEmployee}
+                >
                   Add Your First Employee
                 </Button>
-            }
-            </div> :
-
-          <div className="border rounded-lg overflow-hidden">
+              )}
+            </div>
+          ) : (
+            <div className="border rounded-lg overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -918,22 +911,24 @@ const EmployeeList: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {employees.map((employee, index) =>
-                <motion.tr
-                  key={employee.ID}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className={`border-b hover:bg-gray-50 transition-colors cursor-pointer ${
-                  selectedEmployeeId === employee.ID ? 'bg-blue-50 border-blue-200' : ''}`
-                  }
-                  onClick={() => setSelectedEmployeeId(employee.ID)}>
+                  {employees.map((employee, index) => (
+                    <motion.tr
+                      key={employee.ID}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className={`border-b hover:bg-gray-50 transition-colors cursor-pointer ${
+                        selectedEmployeeId === employee.ID ? 'bg-blue-50 border-blue-200' : ''
+                      }`}
+                      onClick={() => setSelectedEmployeeId(employee.ID)}
+                    >
                       <TableCell>
                         <ProfilePicture
-                      imageId={employee.profile_image_id}
-                      firstName={employee.first_name}
-                      lastName={employee.last_name}
-                      size="sm" />
+                          imageId={employee.profile_image_id}
+                          firstName={employee.first_name}
+                          lastName={employee.last_name}
+                          size="sm"
+                        />
                       </TableCell>
                       <TableCell className="font-medium">{employee.employee_id}</TableCell>
                       <TableCell>
@@ -944,18 +939,18 @@ const EmployeeList: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1">
-                          {employee.email &&
-                      <div className="flex items-center space-x-1 text-sm">
+                          {employee.email && (
+                            <div className="flex items-center space-x-1 text-sm">
                               <Mail className="w-3 h-3" />
                               <span>{employee.email}</span>
                             </div>
-                      }
-                          {employee.phone &&
-                      <div className="flex items-center space-x-1 text-sm">
+                          )}
+                          {employee.phone && (
+                            <div className="flex items-center space-x-1 text-sm">
                               <Phone className="w-3 h-3" />
                               <span>{displayPhoneNumber(employee.phone)}</span>
                             </div>
-                      }
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>{employee.position}</TableCell>
@@ -975,63 +970,65 @@ const EmployeeList: React.FC = () => {
                       <TableCell>{formatDate(employee.hire_date)}</TableCell>
                       <TableCell>
                         <Badge
-                      className={`text-white ${employee.is_active ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}`}>
-
-
+                          className={`text-white ${employee.is_active ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}`}
+                        >
                           {employee.is_active ? "Active" : "Inactive"}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleView(employee);
-                        }}
-                        className="text-blue-600 hover:text-blue-700">
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleView(employee);
+                            }}
+                            className="text-blue-600 hover:text-blue-700"
+                          >
                             <Eye className="w-4 h-4" />
                           </Button>
                           
                           {/* Only show Edit button if edit permission is enabled */}
-                          {canEditEmployee &&
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit(employee.ID);
-                        }}>
+                          {canEditEmployee && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEdit(employee.ID);
+                              }}
+                            >
                               <Edit className="w-4 h-4" />
                             </Button>
-                      }
+                          )}
                           
                           {/* Only show Delete button if delete permission is enabled */}
-                          {canDeleteEmployee &&
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(employee.ID);
-                        }}
-                        className="text-red-600 hover:text-red-700">
+                          {canDeleteEmployee && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(employee.ID);
+                              }}
+                              className="text-red-600 hover:text-red-700"
+                            >
                               <Trash2 className="w-4 h-4" />
                             </Button>
-                      }
+                          )}
                         </div>
                       </TableCell>
                     </motion.tr>
-                )}
+                  ))}
                 </TableBody>
               </Table>
             </div>
-          }
+          )}
 
           {/* Show permission status when actions are disabled */}
-          {(!isAdminUser || !canEditEmployee || !canDeleteEmployee) &&
-          <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          {(!isAdminUser || !canEditEmployee || !canDeleteEmployee) && (
+            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
               <p className="text-sm text-amber-700">
                 <strong>Access Restrictions:</strong>
                 {!isAdminUser && " Edit & Delete access restricted to administrators only."}
@@ -1039,37 +1036,36 @@ const EmployeeList: React.FC = () => {
                 {isAdminUser && !canDeleteEmployee && " Delete access disabled by module settings."}
               </p>
             </div>
-          }
-
-          {/* Summary Information */}
+          )}
         </CardContent>
       </Card>
       
       {/* View Modal */}
-      {selectedEmployee &&
-      <ViewModal
-        isOpen={viewModalOpen}
-        onClose={() => {
-          setViewModalOpen(false);
-          setSelectedEmployee(null);
-          setSelectedEmployeeId(null);
-        }}
-        title={`${selectedEmployee.first_name} ${selectedEmployee.last_name}`}
-        subtitle={`Employee ID: ${selectedEmployee.employee_id} • ${selectedEmployee.position}`}
-        data={selectedEmployee}
-        fields={getViewModalFields(selectedEmployee)}
-        onEdit={() => {
-          setViewModalOpen(false);
-          handleEdit(selectedEmployee.ID);
-        }}
-        onDelete={() => handleDelete(selectedEmployee.ID)}
-        onExport={handleExport}
-        canEdit={canEditEmployee}
-        canDelete={canDeleteEmployee}
-        canExport={true} />
-      }
-    </div>);
-
+      {selectedEmployee && (
+        <ViewModal
+          isOpen={viewModalOpen}
+          onClose={() => {
+            setViewModalOpen(false);
+            setSelectedEmployee(null);
+            setSelectedEmployeeId(null);
+          }}
+          title={`${selectedEmployee.first_name} ${selectedEmployee.last_name}`}
+          subtitle={`Employee ID: ${selectedEmployee.employee_id} • ${selectedEmployee.position}`}
+          data={selectedEmployee}
+          fields={getViewModalFields(selectedEmployee)}
+          onEdit={() => {
+            setViewModalOpen(false);
+            handleEdit(selectedEmployee.ID);
+          }}
+          onDelete={() => handleDelete(selectedEmployee.ID)}
+          onExport={handleExport}
+          canEdit={canEditEmployee}
+          canDelete={canDeleteEmployee}
+          canExport={true}
+        />
+      )}
+    </div>
+  );
 };
 
 export default EmployeeList;
