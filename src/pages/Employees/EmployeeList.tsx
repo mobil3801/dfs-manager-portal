@@ -385,6 +385,32 @@ const EmployeeList: React.FC = () => {
 
   // Enhanced ID Documents Display Component with Instant Image Previews
   const IDDocumentsDisplay = ({ employee }: {employee: Employee;}) => {
+    // Handle download for admin users
+    const handleDownload = async (fileId: number | null, fileName: string) => {
+      if (!fileId) return;
+      
+      try {
+        const downloadUrl = `${window.location.origin}/api/files/${fileId}`;
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = fileName || 'document';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast({
+          title: "Success",
+          description: "Document downloaded successfully"
+        });
+      } catch (error) {
+        console.error('Error downloading document:', error);
+        toast({
+          title: "Error",
+          description: "Failed to download document",
+          variant: "destructive"
+        });
+      }
+    };
     const documents = [
     { fileId: employee.id_document_file_id, label: 'ID Document 1' },
     { fileId: employee.id_document_2_file_id, label: 'ID Document 2' },
@@ -409,9 +435,16 @@ const EmployeeList: React.FC = () => {
             <FileText className="w-4 h-4 text-gray-600" />
             <span className="font-medium text-gray-800">ID Documents ({documents.length})</span>
           </div>
-          <Badge variant="outline" className="text-xs">
-            Click to view full size
-          </Badge>
+          <div className="flex items-center space-x-2">
+            <Badge variant="outline" className="text-xs">
+              Always visible
+            </Badge>
+            {isAdminUser && (
+              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+                Admin: Download enabled
+              </Badge>
+            )}
+          </div>
         </div>
         
         {/* Document Type Information */}
@@ -423,7 +456,7 @@ const EmployeeList: React.FC = () => {
           </div>
         }
         
-        {/* Enhanced Document Previews Grid with Instant Preview - Always Visible */}
+        {/* Enhanced Document Display Grid - Always Visible Like Profile Pictures */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {documents.map((doc, index) =>
           <div key={index} className="relative">
@@ -501,6 +534,8 @@ const EmployeeList: React.FC = () => {
 
 
 
+
+
                   // This will be handled by the InstantDocumentPreview component
                 }}>
                   <Eye className="w-3 h-3" />
@@ -509,19 +544,21 @@ const EmployeeList: React.FC = () => {
             </div>)}
         </div>
 
-        {/* Additional Information */}
+        {/* Information Panel */}
         <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
-          <p>• All ID documents are instantly visible without additional clicks</p>
+          <p>• All ID documents are always visible like profile pictures</p>
           <p>• Click on any document to view in full screen</p>
-          <p>• Use the download button to save documents locally</p>
+          {isAdminUser ? (
+            <p>• <strong>Admin:</strong> Download buttons are visible for document management</p>
+          ) : (
+            <p>• Download access is restricted to administrators only</p>
+          )}
         </div>
 
       </div>);}; // Define view modal fields with profile picture, employment status, and ID documents
   const getViewModalFields = (employee: Employee) => [{ key: 'profile_picture', label: 'Profile Picture', value: employee.profile_image_id, type: 'custom' as const, customComponent: <div className="flex justify-center">
         <ProfilePicture imageId={employee.profile_image_id} firstName={employee.first_name} lastName={employee.last_name} size="xl" className="border-2 border-gray-200" />
-      </div> }, { key: 'employee_id', label: 'Employee ID', value: employee.employee_id, type: 'text' as const, icon: User }, { key: 'name', label: 'Full Name', value: `${employee.first_name} ${employee.last_name}`, type: 'text' as const, icon: User }, { key: 'email', label: 'Email', value: employee.email, type: 'email' as const }, { key: 'phone', label: 'Phone', value: displayPhoneNumber(employee.phone), type: 'phone' as const }, { key: 'position',
-    label: 'Position',
-    value: employee.position,
+      </div> }, { key: 'employee_id', label: 'Employee ID', value: employee.employee_id, type: 'text' as const, icon: User }, { key: 'name', label: 'Full Name', value: `${employee.first_name} ${employee.last_name}`, type: 'text' as const, icon: User }, { key: 'email', label: 'Email', value: employee.email, type: 'email' as const }, { key: 'phone', label: 'Phone', value: displayPhoneNumber(employee.phone), type: 'phone' as const }, { key: 'position', label: 'Position', value: employee.position,
     type: 'text' as const
   },
   {
