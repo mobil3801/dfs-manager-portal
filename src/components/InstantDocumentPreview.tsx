@@ -66,11 +66,34 @@ const InstantDocumentPreview: React.FC<InstantDocumentPreviewProps> = ({
         URL.revokeObjectURL(url);
       };
     } else if (fileId) {
-      const url = `${window.location.origin}/api/files/${fileId}`;
-      setPreviewUrl(url);
-      setIsImage(true); // Assume existing files are images for preview
-      setImageError(false);
-      setIsLoading(true);
+      // Use EasySite's file API to get the file URL
+      const getFileUrl = async (fileId: number) => {
+        try {
+          const response = await fetch(`https://api.ezsite.ai/file/${fileId}`);
+          if (response.ok) {
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            return url;
+          } else {
+            throw new Error(`Failed to fetch file: ${response.status}`);
+          }
+        } catch (error) {
+          console.error('Error fetching file:', error);
+          return null;
+        }
+      };
+
+      getFileUrl(fileId).then(url => {
+        if (url) {
+          setPreviewUrl(url);
+          setIsImage(true); // Assume existing files are images for preview
+          setImageError(false);
+          setIsLoading(true);
+        } else {
+          setImageError(true);
+          setIsLoading(false);
+        }
+      });
     } else {
       setPreviewUrl(null);
       setIsImage(false);
