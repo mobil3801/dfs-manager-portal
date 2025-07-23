@@ -64,7 +64,7 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
       if (existingFileId && !selectedFile) {
         setCheckingFile(true);
         try {
-          // Check if file exists in file_uploads table
+          // Check if file exists and is active in file_uploads table
           const response = await window.ezsite.apis.tablePage(26928, {
             "PageNo": 1,
             "PageSize": 1,
@@ -73,8 +73,12 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
               "name": "store_file_id",
               "op": "Equal",
               "value": existingFileId
+            },
+            {
+              "name": "is_active",
+              "op": "Equal", 
+              "value": true
             }]
-
           });
 
           if (response.error) {
@@ -85,12 +89,15 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
             setFileExists(hasFile);
 
             if (hasFile) {
-              // File exists, set up preview
+              // File exists and is active, set up preview
               const url = `${window.location.origin}/api/files/${existingFileId}`;
               setPreviewUrl(url);
               setIsImage(true); // Assume existing files are images
               setImageError(false);
               setImageLoading(true);
+              console.log(`File ${existingFileId} exists and is active, setting up preview`);
+            } else {
+              console.log(`File ${existingFileId} does not exist or is inactive`);
             }
           }
         } catch (error) {

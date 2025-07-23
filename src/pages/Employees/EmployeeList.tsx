@@ -468,6 +468,9 @@ const EmployeeList: React.FC = () => {
 
 
 
+
+
+
                   // This will be handled by the InstantDocumentPreview component
                 }}>
                   <Eye className="w-3 h-3" />
@@ -482,10 +485,7 @@ const EmployeeList: React.FC = () => {
           <p>• Click on any document to view in full screen</p>
           {isAdminUser ? <p>• <strong>Admin:</strong> Download buttons are visible for document management</p> : <p>• Download access is restricted to administrators only</p>}
         </div>
-      </div>);
-
-  };
-
+      </div>);};
   // Define view modal fields with profile picture, employment status, and ID documents
   const getViewModalFields = (employee: Employee) => [
   {
