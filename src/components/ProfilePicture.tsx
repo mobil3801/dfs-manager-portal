@@ -19,6 +19,7 @@ import {
 'lucide-react';
 import { cn } from '@/lib/utils';
 import { compressImage, formatFileSize, type CompressionResult } from '@/utils/imageCompression';
+import { imageErrorService } from '@/services/imageErrorService';
 
 interface ProfilePictureProps {
   imageId?: number | null;
@@ -160,17 +161,9 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
   // Get image URL if imageId exists
   const getImageUrl = () => {
     if (!imageId) return undefined;
-    const timestamp = Date.now();
-
-    // Handle different types of imageId values
-    if (typeof imageId === 'string' && imageId.startsWith('http')) {
-      // If imageId is already a complete URL, use it directly
-      return imageId;
-    }
-
-    // Otherwise, construct the API URL
-    const baseUrl = window.location.origin;
-    return `${baseUrl}/api/files/${imageId}?t=${timestamp}`;
+    
+    // Use the image error service to get a safe URL
+    return imageErrorService.getSafeImageUrl(imageId);
   };
 
   // Determine which image to show (preview takes priority)

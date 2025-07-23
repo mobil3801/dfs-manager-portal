@@ -118,7 +118,20 @@ const FileDisplay: React.FC<FileDisplayProps> = ({
 
   const handleDownload = (file: FileDisplayItem) => {
     if (file.file_url) {
-      window.open(file.file_url, '_blank');
+      try {
+        // Create a temporary link element for download
+        const link = document.createElement('a');
+        link.href = file.file_url;
+        link.download = file.file_name;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error('Download error:', error);
+        // Fallback to opening in new tab
+        window.open(file.file_url, '_blank');
+      }
     }
   };
 
@@ -170,28 +183,49 @@ const FileDisplay: React.FC<FileDisplayProps> = ({
   const renderFilePreview = (file: FileDisplayItem) => {
     if (file.file_type.startsWith('image/')) {
       return (
-        <img
-          src={file.file_url}
-          alt={file.file_name}
-          className="max-w-full max-h-96 object-contain rounded-lg" />);
-
-
+        <div className="flex justify-center">
+          <img
+            src={file.file_url}
+            alt={file.file_name}
+            className="max-w-full max-h-96 object-contain rounded-lg"
+            onError={(e) => {
+              console.error('Image preview error:', e);
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+              // Show fallback
+              const fallback = document.createElement('div');
+              fallback.className = 'flex flex-col items-center justify-center p-8 bg-red-50 rounded-lg text-red-600';
+              fallback.innerHTML = `
+                <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 18.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+                <p class="text-sm">Image preview failed</p>
+                <p class="text-xs opacity-75">File may be corrupted or inaccessible</p>
+              `;
+              target.parentNode?.replaceChild(fallback, target);
+            }}
+          />
+        </div>
+      );
     } else if (file.file_type === 'application/pdf') {
       return (
         <iframe
           src={file.file_url}
           className="w-full h-96 rounded-lg border"
-          title={file.file_name} />);
-
-
+          title={file.file_name}
+          onError={(e) => {
+            console.error('PDF preview error:', e);
+          }}
+        />
+      );
     } else {
       return (
         <div className="flex flex-col items-center justify-center p-8 bg-gray-50 rounded-lg">
           {getFileIcon(file.file_type)}
           <p className="mt-2 text-sm text-gray-600">Preview not available</p>
           <p className="text-xs text-gray-500">Click download to view this file</p>
-        </div>);
-
+        </div>
+      );
     }
   };
 

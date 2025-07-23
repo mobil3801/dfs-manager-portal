@@ -3,6 +3,10 @@ import App from './App.tsx';
 import './index.css';
 import { initializeMemoryLeakDetection } from './utils/memoryLeakIntegration';
 import { setupInvalidCharacterErrorMonitor } from './utils/errorPreventionHelper';
+import { globalErrorHandler } from './utils/globalErrorHandler';
+
+// Initialize global error handling
+globalErrorHandler.init();
 
 // Performance API Polyfill for environments that don't support it
 if (typeof window !== 'undefined' && !window.performance) {

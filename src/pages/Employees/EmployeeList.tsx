@@ -460,6 +460,8 @@ const EmployeeList: React.FC = () => {
                 size="sm"
                 className="h-6 px-2 bg-white bg-opacity-90 hover:bg-opacity-100"
                 onClick={() => {
+
+
                   // This will be handled by the InstantDocumentPreview component
                 }}>
                   <Eye className="w-3 h-3" />
@@ -475,9 +477,7 @@ const EmployeeList: React.FC = () => {
           {isAdminUser ? <p>• <strong>Admin:</strong> Download buttons are visible for document management</p> : <p>• Download access is restricted to administrators only</p>}
         </div>
       </div>);}; // Define view modal fields with profile picture, employment status, and ID documents
-  const getViewModalFields = (employee: Employee) => [{
-    key: 'profile_picture',
-    label: 'Profile Picture',
+  const getViewModalFields = (employee: Employee) => [{ key: 'profile_picture', label: 'Profile Picture',
     value: employee.profile_image_id,
     type: 'custom' as const,
     customComponent:

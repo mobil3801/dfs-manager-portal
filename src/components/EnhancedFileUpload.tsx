@@ -122,7 +122,7 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
         file_category: fileCategory,
         is_active: true,
         description: "",
-        file_url: `${window.location.origin}/file/${storeFileId}`
+        file_url: `${window.location.origin}/api/files/${storeFileId}`
       };
 
       const { data: insertResult, error: insertError } = await window.ezsite.apis.tableCreate(26928, fileData);

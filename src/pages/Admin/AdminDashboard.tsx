@@ -23,6 +23,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import AccessDenied from '@/components/AccessDenied';
 import AdminDiagnostics from '@/components/AdminDiagnostics';
 import AdminFeatureTester from '@/components/AdminFeatureTester';
+import ImageErrorMonitor from '@/components/ImageErrorMonitor';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -729,7 +730,12 @@ const AdminDashboard: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="diagnostics" className="space-y-6">
-          <AdminDiagnostics />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ImageErrorMonitor className="h-fit" />
+            <div className="space-y-6">
+              <AdminDiagnostics />
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="testing" className="space-y-6">

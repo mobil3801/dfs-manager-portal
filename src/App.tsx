@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { ModuleAccessProvider } from '@/contexts/ModuleAccessContext';
 import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
 import AuthDebugger from '@/components/AuthDebugger';
+import ImageErrorNotification from '@/components/ImageErrorNotification';
 
 // Layout
 import DashboardLayout from '@/components/Layout/DashboardLayout';
@@ -409,6 +410,7 @@ function App() {
         </GlobalErrorBoundary>
       </TooltipProvider>
       <Toaster />
+      <ImageErrorNotification />
     </QueryClientProvider>);
 
 }
