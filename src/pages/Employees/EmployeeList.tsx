@@ -32,7 +32,6 @@ interface Employee {
   shift: string;
   hire_date: string;
   salary: number;
-  is_active: boolean;
   employment_status: string;
   created_by: number;
   profile_image_id?: number | null;
@@ -277,8 +276,7 @@ const EmployeeList: React.FC = () => {
     `Shift,${selectedEmployee.shift}`,
     `Hire Date,${selectedEmployee.hire_date}`,
     `Salary,${selectedEmployee.salary}`,
-    `Employment Status,${selectedEmployee.employment_status}`,
-    `Status,${selectedEmployee.is_active ? 'Active' : 'Inactive'}`].
+    `Employment Status,${selectedEmployee.employment_status}`].
     join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -462,15 +460,6 @@ const EmployeeList: React.FC = () => {
                 size="sm"
                 className="h-6 px-2 bg-white bg-opacity-90 hover:bg-opacity-100"
                 onClick={() => {
-
-
-
-
-
-
-
-
-
                   // This will be handled by the InstantDocumentPreview component
                 }}>
                   <Eye className="w-3 h-3" />
@@ -485,10 +474,8 @@ const EmployeeList: React.FC = () => {
           <p>• Click on any document to view in full screen</p>
           {isAdminUser ? <p>• <strong>Admin:</strong> Download buttons are visible for document management</p> : <p>• Download access is restricted to administrators only</p>}
         </div>
-      </div>);};
-  // Define view modal fields with profile picture, employment status, and ID documents
-  const getViewModalFields = (employee: Employee) => [
-  {
+      </div>);}; // Define view modal fields with profile picture, employment status, and ID documents
+  const getViewModalFields = (employee: Employee) => [{
     key: 'profile_picture',
     label: 'Profile Picture',
     value: employee.profile_image_id,
@@ -600,19 +587,6 @@ const EmployeeList: React.FC = () => {
     label: 'Salary',
     value: employee.salary,
     type: 'currency' as const
-  },
-  {
-    key: 'is_active',
-    label: 'Active Status',
-    value: employee.is_active,
-    type: 'custom' as const,
-    customComponent:
-    <Badge
-      className={`text-white ${employee.is_active ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}`}>
-
-          {employee.is_active ? "Active" : "Inactive"}
-        </Badge>
-
   }];
 
 
@@ -906,7 +880,6 @@ const EmployeeList: React.FC = () => {
                     <TableHead>Shift</TableHead>
                     <TableHead>Employment Status</TableHead>
                     <TableHead>Hire Date</TableHead>
-                    <TableHead>Status</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -968,13 +941,6 @@ const EmployeeList: React.FC = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>{formatDate(employee.hire_date)}</TableCell>
-                      <TableCell>
-                        <Badge
-                      className={`text-white ${employee.is_active ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}`}>
-
-                          {employee.is_active ? "Active" : "Inactive"}
-                        </Badge>
-                      </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Button

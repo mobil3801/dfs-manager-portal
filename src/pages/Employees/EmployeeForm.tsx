@@ -6,7 +6,6 @@ import { NumberInput } from '@/components/ui/number-input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import { Users, Save, ArrowLeft, X, FileText, Upload } from 'lucide-react';
@@ -32,7 +31,6 @@ interface EmployeeFormData {
   shift: string;
   hire_date: string;
   salary: number;
-  is_active: boolean;
   employment_status: string;
   terminated_date: string;
   left_date: string;
@@ -67,7 +65,6 @@ const EmployeeForm: React.FC = () => {
     shift: '',
     hire_date: '',
     salary: 0,
-    is_active: true,
     employment_status: 'Ongoing',
     terminated_date: '',
     left_date: '',
@@ -236,7 +233,6 @@ const EmployeeForm: React.FC = () => {
           shift: employee.shift || '',
           hire_date: employee.hire_date ? employee.hire_date.split('T')[0] : '',
           salary: employee.salary || 0,
-          is_active: employee.is_active !== false,
           employment_status: employee.employment_status || 'Ongoing',
           terminated_date: employee.terminated_date ? employee.terminated_date.split('T')[0] : '',
           left_date: employee.left_date ? employee.left_date.split('T')[0] : '',
@@ -274,13 +270,13 @@ const EmployeeForm: React.FC = () => {
         });
 
         setIdDocuments(newIdDocuments);
-        
+
         // Clear selected profile image from previous editing session
         setSelectedProfileImage(null);
 
         // Clear any pending deletions when loading fresh data
         setFilesToDelete([]);
-        
+
         console.log('Employee data loaded successfully, state reset completed');
         logFileState('After loading employee data');
       }
@@ -393,7 +389,7 @@ const EmployeeForm: React.FC = () => {
               const { error: deleteError } = await window.ezsite.apis.tableDelete('26928', {
                 ID: fileRecord.id
               });
-              
+
               if (deleteError) {
                 console.error(`Error completely deleting file ${fileId}:`, deleteError);
                 errors.push(`Failed to delete file ${fileId}: ${deleteError}`);
@@ -404,7 +400,7 @@ const EmployeeForm: React.FC = () => {
             } else {
               console.log(`Successfully deactivated file ${fileId} in database`);
               successCount++;
-              
+
               // Optionally also try to completely delete the record for cleaner database
               try {
                 const { error: completeDeleteError } = await window.ezsite.apis.tableDelete('26928', {
@@ -429,21 +425,21 @@ const EmployeeForm: React.FC = () => {
       }
 
       console.log(`File deletion complete: ${successCount}/${fileIds.length} files processed successfully`);
-      
+
       if (errors.length > 0) {
         console.error('File deletion errors:', errors);
       }
 
-      return { 
-        success: successCount > 0, 
+      return {
+        success: successCount > 0,
         errors,
         successCount,
         totalFiles: fileIds.length
       };
     } catch (error) {
       console.error('Critical error during file deletion:', error);
-      return { 
-        success: false, 
+      return {
+        success: false,
         errors: [`Critical error: ${error}`],
         successCount: 0,
         totalFiles: fileIds.length
@@ -654,7 +650,7 @@ const EmployeeForm: React.FC = () => {
 
     setSelectedProfileImage(null);
     setFormData((prev) => ({ ...prev, profile_image_id: null }));
-    
+
     console.log('Profile image removal processed:', {
       removedFileId: formData.profile_image_id,
       filesToDeleteCount: filesToDelete.length + (formData.profile_image_id ? 1 : 0)
@@ -798,7 +794,7 @@ const EmployeeForm: React.FC = () => {
         if (filesToDelete.length > 0) {
           console.log('Deleting marked files:', filesToDelete);
           const deletionResult = await deleteFilesFromDatabase(filesToDelete);
-          
+
           if (!deletionResult.success) {
             console.error('File deletion failed:', deletionResult.errors);
             // Show error but continue with update
@@ -820,7 +816,7 @@ const EmployeeForm: React.FC = () => {
               description: `${deletionResult.successCount} file(s) permanently deleted from database storage.`
             });
           }
-          
+
           // Always clear the list after attempting deletion
           setFilesToDelete([]);
         }
@@ -839,7 +835,7 @@ const EmployeeForm: React.FC = () => {
         await updateFileAssociations(parseInt(id), idDocumentFileIds, profileImageId);
 
         console.log('Employee update completed successfully');
-        
+
         toast({
           title: "Success",
           description: "Employee updated successfully. All file changes have been applied."
@@ -1261,19 +1257,6 @@ const EmployeeForm: React.FC = () => {
                     value={formData.salary}
                     onChange={(value) => handleInputChange('salary', value)} />
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="is_active">Active Status</Label>
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="is_active"
-                      checked={formData.is_active}
-                      onCheckedChange={(checked) => handleInputChange('is_active', checked)} />
-                    <span className="text-sm text-gray-600">
-                      {formData.is_active ? 'Active' : 'Inactive'}
-                    </span>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -1370,12 +1353,12 @@ const EmployeeForm: React.FC = () => {
       </Card>
 
       {/* File Debugger for Administrators */}
-      {isAdmin() && isEditing && id && (
-        <EmployeeFileDebugger
-          employeeId={parseInt(id)}
-          className="mt-6"
-        />
-      )}
+      {isAdmin() && isEditing && id &&
+      <EmployeeFileDebugger
+        employeeId={parseInt(id)}
+        className="mt-6" />
+
+      }
     </div>);
 
 };

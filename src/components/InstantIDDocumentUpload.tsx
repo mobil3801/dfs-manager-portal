@@ -76,7 +76,7 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
             },
             {
               "name": "is_active",
-              "op": "Equal", 
+              "op": "Equal",
               "value": true
             }]
           });

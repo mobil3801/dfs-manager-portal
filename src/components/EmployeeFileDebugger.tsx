@@ -85,9 +85,9 @@ const EmployeeFileDebugger: React.FC<EmployeeFileDebuggerProps> = ({
         PageNo: 1,
         PageSize: 100,
         Filters: [
-          { name: 'associated_table', op: 'Equal', value: 'employees' },
-          { name: 'associated_record_id', op: 'Equal', value: employeeId }
-        ]
+        { name: 'associated_table', op: 'Equal', value: 'employees' },
+        { name: 'associated_record_id', op: 'Equal', value: employeeId }]
+
       });
 
       if (fileError) {
@@ -121,15 +121,15 @@ const EmployeeFileDebugger: React.FC<EmployeeFileDebuggerProps> = ({
     if (!emp) return;
 
     const referencedFileIds = [
-      emp.id_document_file_id,
-      emp.id_document_2_file_id, 
-      emp.id_document_3_file_id,
-      emp.id_document_4_file_id,
-      emp.profile_image_id
-    ].filter(id => id != null);
+    emp.id_document_file_id,
+    emp.id_document_2_file_id,
+    emp.id_document_3_file_id,
+    emp.id_document_4_file_id,
+    emp.profile_image_id].
+    filter((id) => id != null);
 
-    const orphaned = files.filter(file => 
-      !referencedFileIds.includes(file.store_file_id) && file.is_active
+    const orphaned = files.filter((file) =>
+    !referencedFileIds.includes(file.store_file_id) && file.is_active
     );
 
     setOrphanedFiles(orphaned);
@@ -200,8 +200,8 @@ const EmployeeFileDebugger: React.FC<EmployeeFileDebuggerProps> = ({
             Select an employee to debug their file associations
           </CardDescription>
         </CardHeader>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -215,9 +215,9 @@ const EmployeeFileDebugger: React.FC<EmployeeFileDebuggerProps> = ({
                 <span>Employee File Debugger</span>
               </CardTitle>
               <CardDescription>
-                {employee ? 
-                  `Debugging files for ${employee.first_name} ${employee.last_name} (${employee.employee_id})` :
-                  'Loading employee data...'
+                {employee ?
+                `Debugging files for ${employee.first_name} ${employee.last_name} (${employee.employee_id})` :
+                'Loading employee data...'
                 }
               </CardDescription>
             </div>
@@ -229,8 +229,8 @@ const EmployeeFileDebugger: React.FC<EmployeeFileDebuggerProps> = ({
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Employee File References */}
-          {employee && (
-            <div>
+          {employee &&
+          <div>
               <h3 className="text-lg font-semibold mb-4">Employee Record File References</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -273,22 +273,22 @@ const EmployeeFileDebugger: React.FC<EmployeeFileDebuggerProps> = ({
                 </div>
               </div>
             </div>
-          )}
+          }
 
           {/* File Records Table */}
           <div>
             <h3 className="text-lg font-semibold mb-4">
               File Upload Records ({fileRecords.length})
             </h3>
-            {fileRecords.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+            {fileRecords.length === 0 ?
+            <div className="text-center py-8 text-gray-500">
                 <FileText className="w-12 h-12 mx-auto mb-3 text-gray-400" />
                 <p>No file records found for this employee</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {fileRecords.map((file) => (
-                  <Card key={file.id} className="p-4">
+              </div> :
+
+            <div className="space-y-2">
+                {fileRecords.map((file) =>
+              <Card key={file.id} className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2 mb-2">
@@ -310,14 +310,14 @@ const EmployeeFileDebugger: React.FC<EmployeeFileDebuggerProps> = ({
                       </div>
                     </div>
                   </Card>
-                ))}
+              )}
               </div>
-            )}
+            }
           </div>
 
           {/* Orphaned Files */}
-          {orphanedFiles.length > 0 && (
-            <div>
+          {orphanedFiles.length > 0 &&
+          <div>
               <h3 className="text-lg font-semibold mb-4 flex items-center space-x-2">
                 <AlertTriangle className="w-5 h-5 text-orange-500" />
                 <span>Orphaned Files ({orphanedFiles.length})</span>
@@ -327,8 +327,8 @@ const EmployeeFileDebugger: React.FC<EmployeeFileDebuggerProps> = ({
                 They may be left over from deleted files.
               </p>
               <div className="space-y-2">
-                {orphanedFiles.map((file) => (
-                  <Card key={file.id} className="p-4 border-orange-200 bg-orange-50">
+                {orphanedFiles.map((file) =>
+              <Card key={file.id} className="p-4 border-orange-200 bg-orange-50">
                     <div className="flex items-center justify-between">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2 mb-2">
@@ -345,20 +345,20 @@ const EmployeeFileDebugger: React.FC<EmployeeFileDebuggerProps> = ({
                         </div>
                       </div>
                       <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => cleanupOrphanedFile(file)}
-                        className="text-red-600 hover:text-red-700"
-                      >
+                    variant="outline"
+                    size="sm"
+                    onClick={() => cleanupOrphanedFile(file)}
+                    className="text-red-600 hover:text-red-700">
+
                         <Trash2 className="w-4 h-4 mr-1" />
                         Cleanup
                       </Button>
                     </div>
                   </Card>
-                ))}
+              )}
               </div>
             </div>
-          )}
+          }
 
           {/* Summary */}
           <div className="border-t pt-4">
@@ -366,11 +366,11 @@ const EmployeeFileDebugger: React.FC<EmployeeFileDebuggerProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div className="flex items-center space-x-2">
                 <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>Active Files: {fileRecords.filter(f => f.is_active).length}</span>
+                <span>Active Files: {fileRecords.filter((f) => f.is_active).length}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <XCircle className="w-4 h-4 text-red-500" />
-                <span>Inactive Files: {fileRecords.filter(f => !f.is_active).length}</span>
+                <span>Inactive Files: {fileRecords.filter((f) => !f.is_active).length}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <AlertTriangle className="w-4 h-4 text-orange-500" />
@@ -380,8 +380,8 @@ const EmployeeFileDebugger: React.FC<EmployeeFileDebuggerProps> = ({
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default EmployeeFileDebugger;
