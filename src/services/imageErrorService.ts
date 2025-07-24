@@ -35,7 +35,7 @@ class ImageErrorService {
    */
   async loadImage(options: ImageLoadOptions): Promise<ImageLoadResult> {
     const { url, maxRetries = 3, retryDelay = 1000, timeout = 10000 } = options;
-    
+
     // Check cache first
     if (this.cache.has(url)) {
       return this.cache.get(url)!;
@@ -60,13 +60,13 @@ class ImageErrorService {
   }
 
   private async attemptImageLoad(
-    url: string, 
-    maxRetries: number, 
-    retryDelay: number, 
-    timeout: number
-  ): Promise<ImageLoadResult> {
+  url: string,
+  maxRetries: number,
+  retryDelay: number,
+  timeout: number)
+  : Promise<ImageLoadResult> {
     let lastError: string = '';
-    
+
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
         const result = await this.loadSingleImage(url, timeout);
@@ -122,7 +122,7 @@ class ImageErrorService {
   }
 
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**
@@ -132,7 +132,7 @@ class ImageErrorService {
     if (!imageId) return null;
 
     const origin = baseUrl || window.location.origin;
-    
+
     // Handle different imageId formats
     if (typeof imageId === 'string') {
       // If it's already a complete URL, check if it's problematic
@@ -147,7 +147,7 @@ class ImageErrorService {
         }
         return imageId;
       }
-      
+
       // If it's a file ID string, treat it as a number
       const numericId = parseInt(imageId, 10);
       if (!isNaN(numericId)) {
@@ -190,7 +190,7 @@ class ImageErrorService {
    * Preload images
    */
   async preloadImages(urls: string[]): Promise<ImageLoadResult[]> {
-    const promises = urls.map(url => this.loadImage({ url }));
+    const promises = urls.map((url) => this.loadImage({ url }));
     return Promise.all(promises);
   }
 }

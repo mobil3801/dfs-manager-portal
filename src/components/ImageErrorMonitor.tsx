@@ -4,15 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  AlertCircle, 
-  RefreshCw, 
-  Image, 
-  CheckCircle, 
+import {
+  AlertCircle,
+  RefreshCw,
+  Image,
+  CheckCircle,
   XCircle,
   Eye,
-  EyeOff
-} from 'lucide-react';
+  EyeOff } from
+'lucide-react';
 import { globalErrorHandler, type ErrorReport } from '@/utils/globalErrorHandler';
 import { imageErrorService } from '@/services/imageErrorService';
 import { useToast } from '@/hooks/use-toast';
@@ -72,11 +72,11 @@ const ImageErrorMonitor: React.FC<ImageErrorMonitorProps> = ({
 
   const handleRetryImage = async (url: string) => {
     try {
-      const result = await imageErrorService.loadImage({ 
-        url, 
-        maxRetries: 1 
+      const result = await imageErrorService.loadImage({
+        url,
+        maxRetries: 1
       });
-      
+
       if (result.success) {
         toast({
           title: 'Retry successful',
@@ -133,8 +133,8 @@ const ImageErrorMonitor: React.FC<ImageErrorMonitorProps> = ({
             <span>No image loading errors detected</span>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -149,8 +149,8 @@ const ImageErrorMonitor: React.FC<ImageErrorMonitorProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setIsExpanded(!isExpanded)}
-          >
+            onClick={() => setIsExpanded(!isExpanded)}>
+
             {isExpanded ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </Button>
         </CardTitle>
@@ -166,37 +166,37 @@ const ImageErrorMonitor: React.FC<ImageErrorMonitorProps> = ({
         </Alert>
 
         <div className="flex gap-2 mb-4">
-          <Button 
-            size="sm" 
-            variant="outline" 
-            onClick={updateErrors}
-          >
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={updateErrors}>
+
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
-          <Button 
-            size="sm" 
-            variant="outline" 
+          <Button
+            size="sm"
+            variant="outline"
             onClick={handleClearErrors}
-            disabled={isClearing}
-          >
-            {isClearing ? (
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <XCircle className="h-4 w-4 mr-2" />
-            )}
+            disabled={isClearing}>
+
+            {isClearing ?
+            <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> :
+
+            <XCircle className="h-4 w-4 mr-2" />
+            }
             Clear All
           </Button>
         </div>
 
-        {isExpanded && (
-          <div className="space-y-3">
+        {isExpanded &&
+        <div className="space-y-3">
             <h4 className="text-sm font-medium">Recent Errors:</h4>
-            {errors.map((error, index) => (
-              <div 
-                key={`${error.url}-${error.timestamp}-${index}`}
-                className="p-3 border rounded-lg bg-red-50"
-              >
+            {errors.map((error, index) =>
+          <div
+            key={`${error.url}-${error.timestamp}-${index}`}
+            className="p-3 border rounded-lg bg-red-50">
+
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     {getSeverityIcon(error.status || 0)}
@@ -208,10 +208,10 @@ const ImageErrorMonitor: React.FC<ImageErrorMonitorProps> = ({
                         {error.url}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
-                        <Badge 
-                          variant="secondary" 
-                          className={`text-xs ${getStatusColor(error.status || 0)}`}
-                        >
+                        <Badge
+                      variant="secondary"
+                      className={`text-xs ${getStatusColor(error.status || 0)}`}>
+
                           Status: {error.status || 'Network Error'}
                         </Badge>
                         <span className="text-xs text-gray-500">
@@ -221,30 +221,30 @@ const ImageErrorMonitor: React.FC<ImageErrorMonitorProps> = ({
                     </div>
                   </div>
                   
-                  {error.url && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleRetryImage(error.url!)}
-                      className="text-xs px-2 py-1"
-                    >
+                  {error.url &&
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleRetryImage(error.url!)}
+                className="text-xs px-2 py-1">
+
                       Retry
                     </Button>
-                  )}
+              }
                 </div>
                 
-                {error.message && (
-                  <p className="text-xs text-red-600 mt-2 bg-red-100 p-2 rounded">
+                {error.message &&
+            <p className="text-xs text-red-600 mt-2 bg-red-100 p-2 rounded">
                     {error.message}
                   </p>
-                )}
+            }
               </div>
-            ))}
+          )}
           </div>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default ImageErrorMonitor;

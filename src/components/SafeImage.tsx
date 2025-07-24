@@ -43,9 +43,9 @@ const SafeImage: React.FC<SafeImageProps> = ({
 
   useEffect(() => {
     if (!src) {
-      setImageState({ 
-        status: 'error', 
-        error: 'No image source provided' 
+      setImageState({
+        status: 'error',
+        error: 'No image source provided'
       });
       return;
     }
@@ -56,11 +56,11 @@ const SafeImage: React.FC<SafeImageProps> = ({
       try {
         // Get safe URL from the service
         const safeUrl = imageErrorService.getSafeImageUrl(src);
-        
+
         if (!safeUrl) {
-          setImageState({ 
-            status: 'error', 
-            error: 'Invalid image source' 
+          setImageState({
+            status: 'error',
+            error: 'Invalid image source'
           });
           return;
         }
@@ -74,33 +74,33 @@ const SafeImage: React.FC<SafeImageProps> = ({
         });
 
         if (result.success && result.url) {
-          setImageState({ 
-            status: 'success', 
+          setImageState({
+            status: 'success',
             url: result.url,
-            retryCount: result.retryCount 
+            retryCount: result.retryCount
           });
-          
+
           if (onLoadSuccess) {
             onLoadSuccess(result.url);
           }
         } else {
-          setImageState({ 
-            status: 'error', 
+          setImageState({
+            status: 'error',
             error: result.error || 'Failed to load image',
-            retryCount: result.retryCount 
+            retryCount: result.retryCount
           });
-          
+
           if (onLoadError) {
             onLoadError(result.error || 'Failed to load image', result.retryCount || 0);
           }
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        setImageState({ 
-          status: 'error', 
-          error: errorMessage 
+        setImageState({
+          status: 'error',
+          error: errorMessage
         });
-        
+
         if (onLoadError) {
           onLoadError(errorMessage, 0);
         }
@@ -113,19 +113,19 @@ const SafeImage: React.FC<SafeImageProps> = ({
   // Loading state
   if (imageState.status === 'loading') {
     if (!showLoader) return null;
-    
+
     return (
-      <div 
+      <div
         className={cn(
           'flex items-center justify-center bg-gray-100 text-gray-400',
           className,
           loadingClassName
         )}
-        {...props}
-      >
+        {...props}>
+
         <Loader2 className="w-6 h-6 animate-spin" />
-      </div>
-    );
+      </div>);
+
   }
 
   // Error state
@@ -141,35 +141,35 @@ const SafeImage: React.FC<SafeImageProps> = ({
           showLoader={showLoader}
           showErrorIcon={showErrorIcon}
           onLoadSuccess={onLoadSuccess}
-          onLoadError={onLoadError}
-        />
-      );
+          onLoadError={onLoadError} />);
+
+
     }
 
     // Show error state
     if (!showErrorIcon) return null;
-    
+
     return (
-      <div 
+      <div
         className={cn(
           'flex flex-col items-center justify-center bg-red-50 text-red-400 p-4',
           className,
           errorClassName
         )}
         title={`Image load error: ${imageState.error}`}
-        {...props}
-      >
+        {...props}>
+
         <AlertCircle className="w-6 h-6 mb-1" />
         <span className="text-xs text-center">
           Failed to load
-          {imageState.retryCount !== undefined && imageState.retryCount > 0 && (
-            <span className="block text-xs opacity-75">
+          {imageState.retryCount !== undefined && imageState.retryCount > 0 &&
+          <span className="block text-xs opacity-75">
               (Retried {imageState.retryCount} times)
             </span>
-          )}
+          }
         </span>
-      </div>
-    );
+      </div>);
+
   }
 
   // Success state
@@ -182,13 +182,13 @@ const SafeImage: React.FC<SafeImageProps> = ({
       onError={(e) => {
         // Handle runtime errors (e.g., network issues after initial load)
         console.error('Runtime image error:', e);
-        setImageState({ 
-          status: 'error', 
-          error: 'Runtime image error' 
+        setImageState({
+          status: 'error',
+          error: 'Runtime image error'
         });
-      }}
-    />
-  );
+      }} />);
+
+
 };
 
 export default SafeImage;

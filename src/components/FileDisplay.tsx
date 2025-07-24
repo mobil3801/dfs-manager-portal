@@ -203,10 +203,10 @@ const FileDisplay: React.FC<FileDisplayProps> = ({
                 <p class="text-xs opacity-75">File may be corrupted or inaccessible</p>
               `;
               target.parentNode?.replaceChild(fallback, target);
-            }}
-          />
-        </div>
-      );
+            }} />
+
+        </div>);
+
     } else if (file.file_type === 'application/pdf') {
       return (
         <iframe
@@ -215,17 +215,17 @@ const FileDisplay: React.FC<FileDisplayProps> = ({
           title={file.file_name}
           onError={(e) => {
             console.error('PDF preview error:', e);
-          }}
-        />
-      );
+          }} />);
+
+
     } else {
       return (
         <div className="flex flex-col items-center justify-center p-8 bg-gray-50 rounded-lg">
           {getFileIcon(file.file_type)}
           <p className="mt-2 text-sm text-gray-600">Preview not available</p>
           <p className="text-xs text-gray-500">Click download to view this file</p>
-        </div>
-      );
+        </div>);
+
     }
   };
 

@@ -35,7 +35,7 @@ const ImageLoadingFallback: React.FC<ImageLoadingFallbackProps> = ({
     const handleImageFallback = (event: CustomEvent) => {
       const { originalUrl, fallbackUrl } = event.detail;
       const currentUrl = imageErrorService.getSafeImageUrl(src);
-      
+
       if (currentUrl === originalUrl) {
         console.log('Received fallback suggestion:', fallbackUrl);
         setImageUrl(fallbackUrl);
@@ -74,7 +74,7 @@ const ImageLoadingFallback: React.FC<ImageLoadingFallbackProps> = ({
 
       if (result.success && result.url) {
         setImageUrl(result.url);
-        setRetryCount(prev => prev + 1);
+        setRetryCount((prev) => prev + 1);
         if (onRetrySuccess) {
           onRetrySuccess(result.url);
         }
@@ -106,9 +106,9 @@ const ImageLoadingFallback: React.FC<ImageLoadingFallbackProps> = ({
         onError={() => {
           setImageUrl(null);
           setError('Image failed to load after retry');
-        }}
-      />
-    );
+        }} />);
+
+
   }
 
   // Render fallback UI
@@ -122,48 +122,48 @@ const ImageLoadingFallback: React.FC<ImageLoadingFallbackProps> = ({
       
       <div className="space-y-2">
         <p className="text-sm font-medium">{fallbackText}</p>
-        {error && (
-          <p className="text-xs text-red-500">{error}</p>
-        )}
-        {retryCount > 0 && (
-          <p className="text-xs text-gray-400">
+        {error &&
+        <p className="text-xs text-red-500">{error}</p>
+        }
+        {retryCount > 0 &&
+        <p className="text-xs text-gray-400">
             Attempted {retryCount} time{retryCount > 1 ? 's' : ''}
           </p>
-        )}
+        }
       </div>
 
-      {showRetry && (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRetry}
-          disabled={isRetrying}
-          className="mt-2"
-        >
-          {isRetrying ? (
-            <>
+      {showRetry &&
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleRetry}
+        disabled={isRetrying}
+        className="mt-2">
+
+          {isRetrying ?
+        <>
               <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
               Retrying...
-            </>
-          ) : (
-            <>
+            </> :
+
+        <>
               <RefreshCw className="w-4 h-4 mr-2" />
               Try Again
             </>
-          )}
+        }
         </Button>
-      )}
+      }
 
-      {!showRetry && (
-        <Alert className="mt-2">
+      {!showRetry &&
+      <Alert className="mt-2">
           <ImageIcon className="h-4 w-4" />
           <AlertDescription className="text-xs">
             Image cannot be displayed. Please contact support if this issue persists.
           </AlertDescription>
         </Alert>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default ImageLoadingFallback;

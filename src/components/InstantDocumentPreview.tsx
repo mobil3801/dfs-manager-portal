@@ -67,33 +67,11 @@ const InstantDocumentPreview: React.FC<InstantDocumentPreviewProps> = ({
       };
     } else if (fileId) {
       // Use EasySite's file API to get the file URL
-      const getFileUrl = async (fileId: number) => {
-        try {
-          const response = await fetch(`https://api.ezsite.ai/file/${fileId}`);
-          if (response.ok) {
-            const blob = await response.blob();
-            const url = URL.createObjectURL(blob);
-            return url;
-          } else {
-            throw new Error(`Failed to fetch file: ${response.status}`);
-          }
-        } catch (error) {
-          console.error('Error fetching file:', error);
-          return null;
-        }
-      };
-
-      getFileUrl(fileId).then((url) => {
-        if (url) {
-          setPreviewUrl(url);
-          setIsImage(true); // Assume existing files are images for preview
-          setImageError(false);
-          setIsLoading(true);
-        } else {
-          setImageError(true);
-          setIsLoading(false);
-        }
-      });
+      const fileUrl = `${window.location.origin}/api/files/${fileId}`;
+      setPreviewUrl(fileUrl);
+      setIsImage(true); // Assume existing files are images for preview
+      setImageError(false);
+      setIsLoading(true);
     } else {
       setPreviewUrl(null);
       setIsImage(false);
@@ -153,14 +131,18 @@ const InstantDocumentPreview: React.FC<InstantDocumentPreviewProps> = ({
   const handleFullScreenView = () => {
     if (previewUrl) {
       window.open(previewUrl, '_blank');
+    } else if (fileId) {
+      const fileUrl = `${window.location.origin}/api/files/${fileId}`;
+      window.open(fileUrl, '_blank');
     }
   };
 
   // Handle download
   const handleDownload = () => {
-    if (previewUrl) {
+    const urlToDownload = previewUrl || (fileId ? `${window.location.origin}/api/files/${fileId}` : null);
+    if (urlToDownload) {
       const link = document.createElement('a');
-      link.href = previewUrl;
+      link.href = urlToDownload;
       link.download = fileName || 'document';
       document.body.appendChild(link);
       link.click();
@@ -215,7 +197,8 @@ const InstantDocumentPreview: React.FC<InstantDocumentPreviewProps> = ({
             )}
             onLoad={handleImageLoad}
             onError={handleImageError}
-            onClick={showFullscreen ? handleFullScreenView : undefined} />
+            onClick={showFullscreen ? handleFullScreenView : undefined}
+            loading="lazy" />
 
           }
 

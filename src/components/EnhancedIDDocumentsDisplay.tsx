@@ -124,7 +124,6 @@ const EnhancedIDDocumentsDisplay: React.FC<EnhancedIDDocumentsDisplayProps> = ({
                 alt={doc.label}
                 className="w-full h-full object-contain hover:object-cover transition-all duration-300 cursor-pointer"
                 onClick={() => {
-                  // Open in new tab for full view
                   window.open(`${window.location.origin}/api/files/${doc.fileId}`, '_blank');
                 }}
                 onError={(e) => {

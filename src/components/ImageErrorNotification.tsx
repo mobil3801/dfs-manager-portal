@@ -27,14 +27,14 @@ const ImageErrorNotification: React.FC<ImageErrorNotificationProps> = ({
   useEffect(() => {
     const checkForErrors = () => {
       const imageErrors = globalErrorHandler.getImageErrors();
-      const recentErrors = imageErrors.filter(error => 
-        Date.now() - error.timestamp < 60000 // Errors from last minute
+      const recentErrors = imageErrors.filter((error) =>
+      Date.now() - error.timestamp < 60000 // Errors from last minute
       );
-      
+
       if (recentErrors.length > 0 && !isVisible) {
         setErrors(recentErrors);
         setIsVisible(true);
-        
+
         // Auto-hide after delay
         if (autoHide) {
           setTimeout(() => {
@@ -49,29 +49,29 @@ const ImageErrorNotification: React.FC<ImageErrorNotificationProps> = ({
 
     // Check periodically
     const interval = setInterval(checkForErrors, 5000);
-    
+
     return () => clearInterval(interval);
   }, [autoHide, hideDelay, isVisible]);
 
   const handleRetryAll = async () => {
     setIsRetrying(true);
-    
+
     try {
-      const uniqueUrls = [...new Set(errors.map(error => error.url).filter(Boolean))];
+      const uniqueUrls = [...new Set(errors.map((error) => error.url).filter(Boolean))];
       const results = await Promise.allSettled(
-        uniqueUrls.map(url => imageErrorService.loadImage({ url: url!, maxRetries: 1 }))
+        uniqueUrls.map((url) => imageErrorService.loadImage({ url: url!, maxRetries: 1 }))
       );
-      
-      const successful = results.filter(result => 
-        result.status === 'fulfilled' && result.value.success
+
+      const successful = results.filter((result) =>
+      result.status === 'fulfilled' && result.value.success
       ).length;
-      
+
       if (successful > 0) {
         toast({
           title: 'Images recovered',
-          description: `Successfully loaded ${successful} out of ${uniqueUrls.length} images`,
+          description: `Successfully loaded ${successful} out of ${uniqueUrls.length} images`
         });
-        
+
         // Hide notification after successful retry
         setIsVisible(false);
       } else {
@@ -125,26 +125,26 @@ const ImageErrorNotification: React.FC<ImageErrorNotificationProps> = ({
                   variant="outline"
                   onClick={handleRetryAll}
                   disabled={isRetrying}
-                  className="text-xs h-7"
-                >
-                  {isRetrying ? (
-                    <>
+                  className="text-xs h-7">
+
+                  {isRetrying ?
+                  <>
                       <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
                       Retrying...
-                    </>
-                  ) : (
-                    <>
+                    </> :
+
+                  <>
                       <RefreshCw className="w-3 h-3 mr-1" />
                       Retry All
                     </>
-                  )}
+                  }
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={handleDismiss}
-                  className="text-xs h-7 text-orange-600 hover:text-orange-700"
-                >
+                  className="text-xs h-7 text-orange-600 hover:text-orange-700">
+
                   <X className="w-3 h-3 mr-1" />
                   Dismiss
                 </Button>
@@ -153,8 +153,8 @@ const ImageErrorNotification: React.FC<ImageErrorNotificationProps> = ({
           </div>
         </AlertDescription>
       </Alert>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ImageErrorNotification;

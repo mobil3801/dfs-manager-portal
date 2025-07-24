@@ -49,14 +49,14 @@ class GlobalErrorHandler {
 
   private interceptFetch() {
     const originalFetch = window.fetch;
-    
+
     window.fetch = async (...args) => {
       try {
         const response = await originalFetch(...args);
-        
+
         // Check if this is an image request that failed
         const url = typeof args[0] === 'string' ? args[0] : args[0].url;
-        
+
         if (response.status === 0 || !response.ok) {
           // Check if URL looks like an image or file request
           if (this.isImageOrFileRequest(url)) {
@@ -69,11 +69,11 @@ class GlobalErrorHandler {
             });
           }
         }
-        
+
         return response;
       } catch (error) {
         const url = typeof args[0] === 'string' ? args[0] : args[0].url;
-        
+
         if (this.isImageOrFileRequest(url)) {
           this.handleError({
             type: 'fetch',
@@ -83,7 +83,7 @@ class GlobalErrorHandler {
             message: error instanceof Error ? error.message : 'Network error'
           });
         }
-        
+
         throw error;
       }
     };
@@ -94,16 +94,16 @@ class GlobalErrorHandler {
       url.includes('/api/files/') ||
       url.includes('/file/') ||
       url.includes('api.ezsite.ai/file/') ||
-      url.match(/\.(jpg|jpeg|png|gif|webp|svg|pdf|doc|docx)$/i) !== null
-    );
+      url.match(/\.(jpg|jpeg|png|gif|webp|svg|pdf|doc|docx)$/i) !== null);
+
   }
 
   private handleError(error: ErrorReport) {
     console.warn('Global error caught:', error);
-    
+
     // Add to error log
     this.errors.unshift(error);
-    
+
     // Keep only the most recent errors
     if (this.errors.length > this.maxErrors) {
       this.errors = this.errors.slice(0, this.maxErrors);
@@ -119,13 +119,13 @@ class GlobalErrorHandler {
     // Check if this is the specific S3/API proxy error from the user report
     if (error.url && error.url.includes('api.ezsite.ai/file/')) {
       console.warn('Detected problematic API proxy image URL:', error.url);
-      
+
       // Try to extract the actual file URL
       const match = error.url.match(/api\.ezsite\.ai\/file\/(https?:\/\/.+)/);
       if (match) {
         const actualUrl = match[1];
         console.log('Extracted actual URL:', actualUrl);
-        
+
         // You could emit an event here to notify components to try the direct URL
         this.emitImageFallback(error.url, actualUrl);
       }
@@ -144,8 +144,8 @@ class GlobalErrorHandler {
   }
 
   getImageErrors(): ErrorReport[] {
-    return this.errors.filter(error => 
-      error.type === 'fetch' && this.isImageOrFileRequest(error.url || '')
+    return this.errors.filter((error) =>
+    error.type === 'fetch' && this.isImageOrFileRequest(error.url || '')
     );
   }
 

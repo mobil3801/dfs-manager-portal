@@ -161,7 +161,7 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
   // Get image URL if imageId exists
   const getImageUrl = () => {
     if (!imageId) return undefined;
-    
+
     // Use the image error service to get a safe URL
     return imageErrorService.getSafeImageUrl(imageId);
   };
