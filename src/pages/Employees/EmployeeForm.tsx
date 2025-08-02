@@ -19,6 +19,7 @@ import EnhancedInstantIDDocumentUpload from '@/components/EnhancedInstantIDDocum
 import FixedIDDocumentViewer from '@/components/FixedIDDocumentViewer';
 import ImprovedIDDocumentViewer from '@/components/ImprovedIDDocumentViewer';
 import RobustIDDocumentsDisplay from '@/components/RobustIDDocumentsDisplay';
+import LiveIDDocumentsDisplay from '@/components/LiveIDDocumentsDisplay';
 import EmployeeFileDebugger from '@/components/EmployeeFileDebugger';
 import { displayPhoneNumber, formatPhoneNumber } from '@/utils/phoneFormatter';
 import { useAuth } from '@/contexts/AuthContext';
@@ -1298,7 +1299,7 @@ const EmployeeForm: React.FC = () => {
                       <p className="text-sm text-gray-600 mb-4">
                         View and manage existing ID documents with enhanced live preview and proper ID display.
                       </p>
-                      <RobustIDDocumentsDisplay
+                      <LiveIDDocumentsDisplay
                       employee={{
                         ID: parseInt(id),
                         employee_id: formData.employee_id,
@@ -1332,7 +1333,9 @@ const EmployeeForm: React.FC = () => {
                         }
                       }}
                       allowDelete={true}
-                      showPreview={true} />
+                      showPreview={true}
+                      className="border-2 border-blue-200 rounded-lg"
+                      />
 
                     </div>
                   }

@@ -15,8 +15,8 @@ import {
   ExternalLink,
   CheckCircle,
   WifiOff,
-  Wifi
-} from 'lucide-react';
+  Wifi } from
+'lucide-react';
 
 interface RobustIDDocumentViewerProps {
   fileId: number | null;
@@ -74,16 +74,16 @@ const RobustIDDocumentViewer: React.FC<RobustIDDocumentViewerProps> = ({
   const testConnection = useCallback(async (): Promise<boolean> => {
     try {
       // Simple test to check if APIs are accessible
-      const testResponse = await Promise.race([
-        window.ezsite.apis.tablePage('26928', {
-          PageNo: 1,
-          PageSize: 1,
-          Filters: []
-        }),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Connection timeout')), 3000)
-        )
-      ]) as {error?: string};
+      const testResponse = (await Promise.race([
+      window.ezsite.apis.tablePage('26928', {
+        PageNo: 1,
+        PageSize: 1,
+        Filters: []
+      }),
+      new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Connection timeout')), 3000)
+      )]
+      )) as {error?: string;};
 
       const isConnected = !testResponse.error;
       setConnectionStatus(isConnected ? 'connected' : 'error');
@@ -124,12 +124,12 @@ const RobustIDDocumentViewer: React.FC<RobustIDDocumentViewerProps> = ({
       // Strategy 1: Direct API call with timeout
       let response;
       try {
-        response = await Promise.race([
-          window.ezsite.apis.getUploadUrl(fileId),
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('API request timeout')), 10000)
-          )
-        ]) as {data: string; error: string};
+        response = (await Promise.race([
+        window.ezsite.apis.getUploadUrl(fileId),
+        new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('API request timeout')), 10000)
+        )]
+        )) as {data: string;error: string;};
       } catch (timeoutError) {
         console.warn(`[RobustIDDocumentViewer] Strategy 1 failed (timeout):`, timeoutError);
         throw new Error('Request timeout - please check your connection');
@@ -139,11 +139,11 @@ const RobustIDDocumentViewer: React.FC<RobustIDDocumentViewerProps> = ({
 
       if (error) {
         console.error(`[RobustIDDocumentViewer] API error for file ${fileId}:`, error);
-        
+
         // Strategy 2: Try alternative approach via file_uploads table
         if (attemptNumber === 0) {
           console.log(`[RobustIDDocumentViewer] Trying alternative strategy for file ${fileId}`);
-          
+
           try {
             const fileResponse = await window.ezsite.apis.tablePage('26928', {
               PageNo: 1,
@@ -166,7 +166,7 @@ const RobustIDDocumentViewer: React.FC<RobustIDDocumentViewerProps> = ({
             console.warn(`[RobustIDDocumentViewer] Alternative strategy failed:`, altError);
           }
         }
-        
+
         throw new Error(`API Error: ${error}`);
       }
 
@@ -319,12 +319,12 @@ const RobustIDDocumentViewer: React.FC<RobustIDDocumentViewerProps> = ({
     setIsLoading(true);
     const isConnected = await testConnection();
     setIsLoading(false);
-    
+
     toast({
       title: isConnected ? 'Connection OK' : 'Connection Failed',
-      description: isConnected 
-        ? 'API connection is working properly' 
-        : 'Unable to connect to the API. Please check your network.',
+      description: isConnected ?
+      'API connection is working properly' :
+      'Unable to connect to the API. Please check your network.',
       variant: isConnected ? 'default' : 'destructive'
     });
 
@@ -346,11 +346,11 @@ const RobustIDDocumentViewer: React.FC<RobustIDDocumentViewerProps> = ({
 
   const getSizeClasses = () => {
     switch (size) {
-      case 'sm': return 'h-24';
-      case 'md': return 'h-32';
-      case 'lg': return 'h-48';
-      case 'xl': return 'h-80';
-      default: return 'h-48';
+      case 'sm':return 'h-24';
+      case 'md':return 'h-32';
+      case 'lg':return 'h-48';
+      case 'xl':return 'h-80';
+      default:return 'h-48';
     }
   };
 
@@ -373,24 +373,24 @@ const RobustIDDocumentViewer: React.FC<RobustIDDocumentViewerProps> = ({
             </div>
             <div className="flex items-center space-x-1">
               {/* Connection Status */}
-              {connectionStatus === 'connected' && (
-                <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+              {connectionStatus === 'connected' &&
+              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
                   <Wifi className="w-3 h-3 mr-1" />
                   Online
                 </Badge>
-              )}
-              {connectionStatus === 'error' && (
-                <Badge variant="destructive" className="text-xs">
+              }
+              {connectionStatus === 'error' &&
+              <Badge variant="destructive" className="text-xs">
                   <WifiOff className="w-3 h-3 mr-1" />
                   Offline
                 </Badge>
-              )}
-              {urlValidated && !hasError && (
-                <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+              }
+              {urlValidated && !hasError &&
+              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
                   <CheckCircle className="w-3 h-3 mr-1" />
                   Live
                 </Badge>
-              )}
+              }
               <Badge variant="outline" className="text-xs">
                 {getDisplayId()}
               </Badge>
@@ -401,92 +401,92 @@ const RobustIDDocumentViewer: React.FC<RobustIDDocumentViewerProps> = ({
         {/* Preview Area */}
         <div className={`relative w-full bg-gray-50 border-b ${getSizeClasses()}`}>
           {/* Loading State */}
-          {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+          {isLoading &&
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
               <div className="text-center">
                 <Loader2 className="w-8 h-8 animate-spin text-blue-500 mx-auto mb-2" />
                 <span className="text-sm text-gray-600">Loading document...</span>
-                {retryCount > 0 && (
-                  <p className="text-xs text-gray-500 mt-1">Retry attempt {retryCount}</p>
-                )}
+                {retryCount > 0 &&
+              <p className="text-xs text-gray-500 mt-1">Retry attempt {retryCount}</p>
+              }
               </div>
             </div>
-          )}
+          }
 
           {/* Error State */}
-          {hasError && !isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100 p-4">
+          {hasError && !isLoading &&
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100 p-4">
               <div className="text-center max-w-full">
                 <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-2" />
                 <p className="text-sm text-red-600 mb-2">Unable to load document</p>
                 <p className="text-xs text-red-500 mb-1">{getDisplayId()}</p>
-                {errorMessage && (
-                  <p className="text-xs text-red-500 mb-3 max-w-xs mx-auto break-words">
+                {errorMessage &&
+              <p className="text-xs text-red-500 mb-3 max-w-xs mx-auto break-words">
                     {errorMessage}
                   </p>
-                )}
+              }
                 <div className="flex flex-col space-y-2">
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleManualRetry}
-                    className="bg-white hover:bg-red-50 border-red-200">
+                  variant="outline"
+                  size="sm"
+                  onClick={handleManualRetry}
+                  className="bg-white hover:bg-red-50 border-red-200">
                     <RefreshCw className="w-4 h-4 mr-1" />
                     Retry Load
                   </Button>
-                  {connectionStatus === 'error' && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleTestConnection}
-                      className="bg-white hover:bg-blue-50 border-blue-200">
+                  {connectionStatus === 'error' &&
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleTestConnection}
+                  className="bg-white hover:bg-blue-50 border-blue-200">
                       <Wifi className="w-4 h-4 mr-1" />
                       Test Connection
                     </Button>
-                  )}
-                  {documentUrl && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleViewFullScreen}
-                      className="bg-white hover:bg-blue-50 border-blue-200">
+                }
+                  {documentUrl &&
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleViewFullScreen}
+                  className="bg-white hover:bg-blue-50 border-blue-200">
                       <ExternalLink className="w-4 h-4 mr-1" />
                       Try Open
                     </Button>
-                  )}
+                }
                 </div>
               </div>
             </div>
-          )}
+          }
 
           {/* Successful Document Display */}
-          {documentUrl && !isLoading && !hasError && (
-            <>
-              {isImageFile && imageLoaded ? (
-                <img
-                  src={documentUrl}
-                  alt={getCleanDocumentName()}
-                  className="w-full h-full object-contain hover:scale-105 transition-transform duration-300 cursor-pointer bg-white"
-                  onClick={handleViewFullScreen}
-                  onError={() => {
-                    console.error(`[RobustIDDocumentViewer] Runtime image error for: ${documentUrl}`);
-                    setHasError(true);
-                    setErrorMessage('Image failed to display');
-                  }}
-                />
-              ) : (
-                <div
-                  className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 cursor-pointer hover:bg-blue-100 transition-colors"
-                  onClick={handleViewFullScreen}>
+          {documentUrl && !isLoading && !hasError &&
+          <>
+              {isImageFile && imageLoaded ?
+            <img
+              src={documentUrl}
+              alt={getCleanDocumentName()}
+              className="w-full h-full object-contain hover:scale-105 transition-transform duration-300 cursor-pointer bg-white"
+              onClick={handleViewFullScreen}
+              onError={() => {
+                console.error(`[RobustIDDocumentViewer] Runtime image error for: ${documentUrl}`);
+                setHasError(true);
+                setErrorMessage('Image failed to display');
+              }} /> :
+
+
+            <div
+              className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 cursor-pointer hover:bg-blue-100 transition-colors"
+              onClick={handleViewFullScreen}>
                   <div className="text-center p-4">
                     <FileText className="w-16 h-16 text-blue-500 mx-auto mb-3" />
                     <p className="text-sm font-medium text-blue-800">Document File</p>
                     <p className="text-xs text-blue-600 mt-1">Click to view full size</p>
                   </div>
                 </div>
-              )}
+            }
             </>
-          )}
+          }
 
           {/* Action Buttons */}
           <div className="absolute top-2 right-2 flex space-x-1">
@@ -499,26 +499,26 @@ const RobustIDDocumentViewer: React.FC<RobustIDDocumentViewerProps> = ({
               <Eye className="w-3 h-3" />
             </Button>
             
-            {isAdminUser && (
-              <Button
-                variant="secondary"
-                size="sm"
-                className="h-6 w-6 p-0 bg-green-500 bg-opacity-90 hover:bg-opacity-100 text-white shadow-sm"
-                onClick={handleDownload}
-                disabled={!documentUrl || isLoading}>
+            {isAdminUser &&
+            <Button
+              variant="secondary"
+              size="sm"
+              className="h-6 w-6 p-0 bg-green-500 bg-opacity-90 hover:bg-opacity-100 text-white shadow-sm"
+              onClick={handleDownload}
+              disabled={!documentUrl || isLoading}>
                 <Download className="w-3 h-3" />
               </Button>
-            )}
+            }
 
-            {showDeleteButton && (
-              <Button
-                variant="secondary"
-                size="sm"
-                className="h-6 w-6 p-0 bg-red-500 bg-opacity-90 hover:bg-opacity-100 text-white shadow-sm"
-                onClick={handleDelete}>
+            {showDeleteButton &&
+            <Button
+              variant="secondary"
+              size="sm"
+              className="h-6 w-6 p-0 bg-red-500 bg-opacity-90 hover:bg-opacity-100 text-white shadow-sm"
+              onClick={handleDelete}>
                 <X className="w-3 h-3" />
               </Button>
-            )}
+            }
           </div>
         </div>
 
@@ -537,33 +537,33 @@ const RobustIDDocumentViewer: React.FC<RobustIDDocumentViewerProps> = ({
               <Badge variant="outline" className="text-xs">
                 {isImageFile ? 'Image' : 'Document'}
               </Badge>
-              {hasError && (
-                <Badge variant="destructive" className="text-xs">
+              {hasError &&
+              <Badge variant="destructive" className="text-xs">
                   Error
                 </Badge>
-              )}
-              {urlValidated && !hasError && (
-                <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+              }
+              {urlValidated && !hasError &&
+              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
                   ✓ Live
                 </Badge>
-              )}
-              {isAdminUser && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 px-2 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
-                  onClick={handleDownload}
-                  disabled={!documentUrl || isLoading}>
+              }
+              {isAdminUser &&
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
+                onClick={handleDownload}
+                disabled={!documentUrl || isLoading}>
                   <Download className="w-3 h-3 mr-1" />
                   Export
                 </Button>
-              )}
+              }
             </div>
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default RobustIDDocumentViewer;

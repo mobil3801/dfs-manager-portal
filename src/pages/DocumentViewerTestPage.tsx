@@ -9,7 +9,7 @@ import { FileText, RefreshCw, CheckCircle, AlertTriangle } from 'lucide-react';
 
 // Mock employee data for testing
 const mockEmployee = {
-  ID: 1, 
+  ID: 1,
   employee_id: 'EMP001',
   first_name: 'John',
   last_name: 'Doe',
@@ -29,7 +29,7 @@ const mockEmployee = {
   mailing_address: '123 Main St',
   reference_name: 'Jane Smith',
   id_document_type: 'Driving License',
-  id_document_file_id: 123,  // Test file ID
+  id_document_file_id: 123, // Test file ID
   id_document_2_file_id: 124, // Test file ID
   id_document_3_file_id: null,
   id_document_4_file_id: null
@@ -52,79 +52,79 @@ const DocumentViewerTestPage: React.FC = () => {
   const runTests = async () => {
     setIsRunningTests(true);
     setTestResults([]);
-    
+
     const tests = [
-      {
-        name: 'API Connection Test',
-        test: async () => {
-          const response = await window.ezsite.apis.tablePage('11727', {
-            PageNo: 1,
-            PageSize: 1,
-            Filters: []
-          });
-          if (response.error) throw new Error(response.error);
-          return 'API connection successful';
-        }
-      },
-      {
-        name: 'File Storage Test',
-        test: async () => {
-          const response = await window.ezsite.apis.tablePage('26928', {
-            PageNo: 1,
-            PageSize: 1,
-            Filters: []
-          });
-          if (response.error) throw new Error(response.error);
-          return 'File storage connection successful';
-        }
-      },
-      {
-        name: 'File URL Test (Sample)',
-        test: async () => {
-          // Get a real file ID from the database if available
-          const filesResponse = await window.ezsite.apis.tablePage('26928', {
-            PageNo: 1,
-            PageSize: 1,
-            Filters: []
-          });
-          
-          if (filesResponse.error) throw new Error(filesResponse.error);
-          
-          if (!filesResponse.data?.List?.length) {
-            return 'No test files available in storage';
-          }
-          
-          const testFileId = filesResponse.data.List[0].store_file_id;
-          if (!testFileId) {
-            return 'No valid file ID found for testing';
-          }
-          
-          const urlResponse = await window.ezsite.apis.getUploadUrl(testFileId);
-          if (urlResponse.error) throw new Error(urlResponse.error);
-          if (!urlResponse.data) throw new Error('No URL returned');
-          
-          return `File URL retrieval successful for ID ${testFileId}`;
-        }
+    {
+      name: 'API Connection Test',
+      test: async () => {
+        const response = await window.ezsite.apis.tablePage('11727', {
+          PageNo: 1,
+          PageSize: 1,
+          Filters: []
+        });
+        if (response.error) throw new Error(response.error);
+        return 'API connection successful';
       }
-    ];
+    },
+    {
+      name: 'File Storage Test',
+      test: async () => {
+        const response = await window.ezsite.apis.tablePage('26928', {
+          PageNo: 1,
+          PageSize: 1,
+          Filters: []
+        });
+        if (response.error) throw new Error(response.error);
+        return 'File storage connection successful';
+      }
+    },
+    {
+      name: 'File URL Test (Sample)',
+      test: async () => {
+        // Get a real file ID from the database if available
+        const filesResponse = await window.ezsite.apis.tablePage('26928', {
+          PageNo: 1,
+          PageSize: 1,
+          Filters: []
+        });
+
+        if (filesResponse.error) throw new Error(filesResponse.error);
+
+        if (!filesResponse.data?.List?.length) {
+          return 'No test files available in storage';
+        }
+
+        const testFileId = filesResponse.data.List[0].store_file_id;
+        if (!testFileId) {
+          return 'No valid file ID found for testing';
+        }
+
+        const urlResponse = await window.ezsite.apis.getUploadUrl(testFileId);
+        if (urlResponse.error) throw new Error(urlResponse.error);
+        if (!urlResponse.data) throw new Error('No URL returned');
+
+        return `File URL retrieval successful for ID ${testFileId}`;
+      }
+    }];
+
 
     for (const testCase of tests) {
       try {
         const result = await testCase.test();
-        setTestResults(prev => [...prev, {
+        setTestResults((prev) => [...prev, {
           test: testCase.name,
           status: 'success',
           message: result
         }]);
       } catch (error) {
-        setTestResults(prev => [...prev, {
+        setTestResults((prev) => [...prev, {
           test: testCase.name,
-          status: 'error', 
+          status: 'error',
           message: error instanceof Error ? error.message : 'Unknown error'
         }]);
       }
     }
-    
+
     setIsRunningTests(false);
   };
 
@@ -154,8 +154,8 @@ const DocumentViewerTestPage: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {testResults.map((result, index) => (
-              <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+            {testResults.map((result, index) =>
+            <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                 <div className="flex-shrink-0">
                   {result.status === 'success' && <CheckCircle className="w-5 h-5 text-green-500" />}
                   {result.status === 'error' && <AlertTriangle className="w-5 h-5 text-red-500" />}
@@ -164,27 +164,27 @@ const DocumentViewerTestPage: React.FC = () => {
                 <div className="flex-grow">
                   <p className="text-sm font-medium text-gray-900">{result.test}</p>
                   <p className={`text-xs ${
-                    result.status === 'success' ? 'text-green-600' : 
-                    result.status === 'error' ? 'text-red-600' : 'text-blue-600'
-                  }`}>
+                result.status === 'success' ? 'text-green-600' :
+                result.status === 'error' ? 'text-red-600' : 'text-blue-600'}`
+                }>
                     {result.message}
                   </p>
                 </div>
                 <Badge variant={
-                  result.status === 'success' ? 'default' : 
-                  result.status === 'error' ? 'destructive' : 'secondary'
-                }>
+              result.status === 'success' ? 'default' :
+              result.status === 'error' ? 'destructive' : 'secondary'
+              }>
                   {result.status}
                 </Badge>
               </div>
-            ))}
+            )}
             
-            {testResults.length === 0 && !isRunningTests && (
-              <div className="text-center py-8 text-gray-500">
+            {testResults.length === 0 && !isRunningTests &&
+            <div className="text-center py-8 text-gray-500">
                 <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                 <p>Click "Run Tests" to begin system diagnostics</p>
               </div>
-            )}
+            }
           </div>
         </CardContent>
       </Card>
@@ -205,16 +205,16 @@ const DocumentViewerTestPage: React.FC = () => {
               documentType="Test License"
               isAdminUser={true}
               size="md"
-              className="border border-gray-200 rounded-lg"
-            />
+              className="border border-gray-200 rounded-lg" />
+
             <RobustIDDocumentViewer
               fileId={124}
               label="Test Document 2"
               documentType="Test ID"
               isAdminUser={true}
               size="md"
-              className="border border-gray-200 rounded-lg"
-            />
+              className="border border-gray-200 rounded-lg" />
+
           </div>
         </CardContent>
       </Card>
@@ -233,8 +233,8 @@ const DocumentViewerTestPage: React.FC = () => {
             isAdminUser={true}
             onRefresh={handleRefresh}
             allowDelete={true}
-            showPreview={true}
-          />
+            showPreview={true} />
+
         </CardContent>
       </Card>
 
@@ -258,8 +258,8 @@ const DocumentViewerTestPage: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default DocumentViewerTestPage;

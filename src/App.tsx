@@ -60,6 +60,7 @@ const EnhancedIDDocumentTestPage = lazy(() => import('./pages/EnhancedIDDocument
 const DocumentViewerTestPage = lazy(() => import('./pages/DocumentViewerTestPage'));
 
 const DocumentLoadingDebugPage = lazy(() => import('@/pages/DocumentLoadingDebugPage'));
+const IDFileDebugPage = lazy(() => import('@/pages/IDFileDebugPage'));
 
 import './App.css';
 
@@ -328,6 +329,11 @@ const AppRouter = () => {
             } />
             <Route path="enhanced-id-document-test" element={<EnhancedIDDocumentTestPage />} />
             <Route path="document-viewer-test" element={<DocumentViewerTestPage />} />
+            <Route path="id-file-debug" element={
+              <Suspense fallback={<PageLoader />}>
+                <IDFileDebugPage />
+              </Suspense>
+            } />
             
             {/* Admin Routes */}
             <Route path="admin" element={

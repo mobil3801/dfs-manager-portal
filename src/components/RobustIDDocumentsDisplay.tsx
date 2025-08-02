@@ -82,117 +82,117 @@ const RobustIDDocumentsDisplay: React.FC<RobustIDDocumentsDisplayProps> = ({
     console.log('[RobustIDDocumentsDisplay] Checking system status...');
 
     // Test API connectivity
-    setSystemStatus(prev => ({ ...prev, api: 'checking' }));
+    setSystemStatus((prev) => ({ ...prev, api: 'checking' }));
     try {
-      const apiResponse = await Promise.race([
-        window.ezsite.apis.tablePage('11727', {
-          PageNo: 1,
-          PageSize: 1,
-          Filters: [{ name: 'ID', op: 'Equal', value: employee.ID }]
-        }),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('API timeout')), 5000)
-        )
-      ]) as {error?: string};
+      const apiResponse = (await Promise.race([
+      window.ezsite.apis.tablePage('11727', {
+        PageNo: 1,
+        PageSize: 1,
+        Filters: [{ name: 'ID', op: 'Equal', value: employee.ID }]
+      }),
+      new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('API timeout')), 5000)
+      )]
+      )) as {error?: string;};
 
-      setSystemStatus(prev => ({ 
-        ...prev, 
-        api: apiResponse.error ? 'error' : 'connected' 
+      setSystemStatus((prev) => ({
+        ...prev,
+        api: apiResponse.error ? 'error' : 'connected'
       }));
     } catch (error) {
       console.error('[RobustIDDocumentsDisplay] API test failed:', error);
-      setSystemStatus(prev => ({ ...prev, api: 'error' }));
+      setSystemStatus((prev) => ({ ...prev, api: 'error' }));
     }
 
     // Test database connectivity
-    setSystemStatus(prev => ({ ...prev, database: 'checking' }));
+    setSystemStatus((prev) => ({ ...prev, database: 'checking' }));
     try {
-      const dbResponse = await Promise.race([
-        window.ezsite.apis.tablePage('26928', {
-          PageNo: 1,
-          PageSize: 1,
-          Filters: []
-        }),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Database timeout')), 5000)
-        )
-      ]) as {error?: string};
+      const dbResponse = (await Promise.race([
+      window.ezsite.apis.tablePage('26928', {
+        PageNo: 1,
+        PageSize: 1,
+        Filters: []
+      }),
+      new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Database timeout')), 5000)
+      )]
+      )) as {error?: string;};
 
-      setSystemStatus(prev => ({ 
-        ...prev, 
-        database: dbResponse.error ? 'error' : 'connected' 
+      setSystemStatus((prev) => ({
+        ...prev,
+        database: dbResponse.error ? 'error' : 'connected'
       }));
     } catch (error) {
       console.error('[RobustIDDocumentsDisplay] Database test failed:', error);
-      setSystemStatus(prev => ({ ...prev, database: 'error' }));
+      setSystemStatus((prev) => ({ ...prev, database: 'error' }));
     }
 
     // Test storage connectivity (if we have file IDs)
-    setSystemStatus(prev => ({ ...prev, storage: 'checking' }));
+    setSystemStatus((prev) => ({ ...prev, storage: 'checking' }));
     const hasFiles = [
-      employee.id_document_file_id,
-      employee.id_document_2_file_id,
-      employee.id_document_3_file_id,
-      employee.id_document_4_file_id
-    ].some(id => id);
+    employee.id_document_file_id,
+    employee.id_document_2_file_id,
+    employee.id_document_3_file_id,
+    employee.id_document_4_file_id].
+    some((id) => id);
 
     if (hasFiles) {
       try {
-        const testFileId = employee.id_document_file_id || 
-                          employee.id_document_2_file_id || 
-                          employee.id_document_3_file_id || 
-                          employee.id_document_4_file_id;
+        const testFileId = employee.id_document_file_id ||
+        employee.id_document_2_file_id ||
+        employee.id_document_3_file_id ||
+        employee.id_document_4_file_id;
 
         if (testFileId) {
-          const storageResponse = await Promise.race([
-            window.ezsite.apis.getUploadUrl(testFileId),
-            new Promise((_, reject) =>
-              setTimeout(() => reject(new Error('Storage timeout')), 8000)
-            )
-          ]) as {error?: string};
+          const storageResponse = (await Promise.race([
+          window.ezsite.apis.getUploadUrl(testFileId),
+          new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Storage timeout')), 8000)
+          )]
+          )) as {error?: string;};
 
-          setSystemStatus(prev => ({ 
-            ...prev, 
-            storage: storageResponse.error ? 'error' : 'connected' 
+          setSystemStatus((prev) => ({
+            ...prev,
+            storage: storageResponse.error ? 'error' : 'connected'
           }));
         } else {
-          setSystemStatus(prev => ({ ...prev, storage: 'connected' }));
+          setSystemStatus((prev) => ({ ...prev, storage: 'connected' }));
         }
       } catch (error) {
         console.error('[RobustIDDocumentsDisplay] Storage test failed:', error);
-        setSystemStatus(prev => ({ ...prev, storage: 'error' }));
+        setSystemStatus((prev) => ({ ...prev, storage: 'error' }));
       }
     } else {
-      setSystemStatus(prev => ({ ...prev, storage: 'connected' }));
+      setSystemStatus((prev) => ({ ...prev, storage: 'connected' }));
     }
   }, [employee]);
 
   const documents = [
-    {
-      fileId: localEmployee.id_document_file_id,
-      label: `${localEmployee.id_document_type || 'ID Document'} 1`,
-      key: 'id_document_file_id',
-      documentNumber: 1
-    },
-    {
-      fileId: localEmployee.id_document_2_file_id,
-      label: `${localEmployee.id_document_type || 'ID Document'} 2`,
-      key: 'id_document_2_file_id',
-      documentNumber: 2
-    },
-    {
-      fileId: localEmployee.id_document_3_file_id,
-      label: `${localEmployee.id_document_type || 'ID Document'} 3`,
-      key: 'id_document_3_file_id',
-      documentNumber: 3
-    },
-    {
-      fileId: localEmployee.id_document_4_file_id,
-      label: `${localEmployee.id_document_type || 'ID Document'} 4`,
-      key: 'id_document_4_file_id',
-      documentNumber: 4
-    }
-  ].filter((doc) => doc.fileId);
+  {
+    fileId: localEmployee.id_document_file_id,
+    label: `${localEmployee.id_document_type || 'ID Document'} 1`,
+    key: 'id_document_file_id',
+    documentNumber: 1
+  },
+  {
+    fileId: localEmployee.id_document_2_file_id,
+    label: `${localEmployee.id_document_type || 'ID Document'} 2`,
+    key: 'id_document_2_file_id',
+    documentNumber: 2
+  },
+  {
+    fileId: localEmployee.id_document_3_file_id,
+    label: `${localEmployee.id_document_type || 'ID Document'} 3`,
+    key: 'id_document_3_file_id',
+    documentNumber: 3
+  },
+  {
+    fileId: localEmployee.id_document_4_file_id,
+    label: `${localEmployee.id_document_type || 'ID Document'} 4`,
+    key: 'id_document_4_file_id',
+    documentNumber: 4
+  }].
+  filter((doc) => doc.fileId);
 
   const handleRefresh = async () => {
     if (!onRefresh) return;
@@ -290,35 +290,35 @@ const RobustIDDocumentsDisplay: React.FC<RobustIDDocumentsDisplayProps> = ({
   };
 
   const handleRetrySuccess = () => {
-    setSuccessfulRetries(prev => prev + 1);
+    setSuccessfulRetries((prev) => prev + 1);
     toast({
       title: 'Document Loaded',
-      description: 'Document loaded successfully after retry',
+      description: 'Document loaded successfully after retry'
     });
   };
 
   const getSystemStatusColor = (status: 'checking' | 'connected' | 'error') => {
     switch (status) {
-      case 'connected': return 'text-green-600';
-      case 'error': return 'text-red-600';
-      case 'checking': return 'text-yellow-600';
-      default: return 'text-gray-600';
+      case 'connected':return 'text-green-600';
+      case 'error':return 'text-red-600';
+      case 'checking':return 'text-yellow-600';
+      default:return 'text-gray-600';
     }
   };
 
   const getSystemStatusIcon = (status: 'checking' | 'connected' | 'error') => {
     switch (status) {
-      case 'connected': return <CheckCircle className="w-4 h-4" />;
-      case 'error': return <AlertTriangle className="w-4 h-4" />;
-      case 'checking': return <RefreshCw className="w-4 h-4 animate-spin" />;
-      default: return <AlertTriangle className="w-4 h-4" />;
+      case 'connected':return <CheckCircle className="w-4 h-4" />;
+      case 'error':return <AlertTriangle className="w-4 h-4" />;
+      case 'checking':return <RefreshCw className="w-4 h-4 animate-spin" />;
+      default:return <AlertTriangle className="w-4 h-4" />;
     }
   };
 
-  const overallStatus = systemStatus.api === 'connected' && 
-                       systemStatus.database === 'connected' && 
-                       systemStatus.storage === 'connected' 
-                       ? 'connected' : 'error';
+  const overallStatus = systemStatus.api === 'connected' &&
+  systemStatus.database === 'connected' &&
+  systemStatus.storage === 'connected' ?
+  'connected' : 'error';
 
   if (documents.length === 0) {
     return (
@@ -352,8 +352,8 @@ const RobustIDDocumentsDisplay: React.FC<RobustIDDocumentsDisplayProps> = ({
             </Button>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -391,31 +391,31 @@ const RobustIDDocumentsDisplay: React.FC<RobustIDDocumentsDisplayProps> = ({
               <Badge
                 variant={overallStatus === 'connected' ? 'default' : 'destructive'}
                 className="text-xs">
-                {overallStatus === 'connected' ? (
-                  <>
+                {overallStatus === 'connected' ?
+                <>
                     <Wifi className="w-3 h-3 mr-1" />
                     All Systems Online
-                  </>
-                ) : (
-                  <>
+                  </> :
+
+                <>
                     <WifiOff className="w-3 h-3 mr-1" />
                     System Issues
                   </>
-                )}
+                }
               </Badge>
               
-              {isAdminUser && (
-                <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+              {isAdminUser &&
+              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
                   <CheckCircle className="w-3 h-3 mr-1" />
                   Admin Access
                 </Badge>
-              )}
+              }
             </div>
           </div>
           
           {/* Document Type Information */}
-          {localEmployee.id_document_type && (
-            <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+          {localEmployee.id_document_type &&
+          <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300">
@@ -425,14 +425,14 @@ const RobustIDDocumentsDisplay: React.FC<RobustIDDocumentsDisplayProps> = ({
                     Last updated: {lastRefresh.toLocaleTimeString()}
                   </span>
                 </div>
-                {successfulRetries > 0 && (
-                  <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+                {successfulRetries > 0 &&
+              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
                     {successfulRetries} successful retries
                   </Badge>
-                )}
+              }
               </div>
             </div>
-          )}
+          }
           
           {/* System Status Details */}
           <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
@@ -464,8 +464,8 @@ const RobustIDDocumentsDisplay: React.FC<RobustIDDocumentsDisplayProps> = ({
           </div>
           
           {/* System Issues Warning */}
-          {overallStatus === 'error' && (
-            <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+          {overallStatus === 'error' &&
+          <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
               <div className="flex items-center space-x-2 text-yellow-700 mb-2">
                 <AlertTriangle className="w-4 h-4" />
                 <span className="text-sm font-medium">System Issues Detected</span>
@@ -475,37 +475,37 @@ const RobustIDDocumentsDisplay: React.FC<RobustIDDocumentsDisplayProps> = ({
                 The robust viewer will automatically retry failed requests.
               </p>
               <Button
-                variant="outline"
-                size="sm"
-                onClick={checkSystemStatus}
-                className="bg-white">
+              variant="outline"
+              size="sm"
+              onClick={checkSystemStatus}
+              className="bg-white">
                 <RefreshCw className="w-4 h-4 mr-1" />
                 Test All Systems
               </Button>
             </div>
-          )}
+          }
         </CardHeader>
       </Card>
 
       {/* Documents Grid with Robust Viewers */}
-      {showPreview && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {documents.map((doc, index) => (
-            <RobustIDDocumentViewer
-              key={`${doc.fileId}-${index}-${lastRefresh.getTime()}`}
-              fileId={doc.fileId}
-              label={doc.label}
-              documentType={localEmployee.id_document_type || 'Driving License'}
-              isAdminUser={isAdminUser}
-              size="lg"
-              className="border-2 border-gray-200 hover:border-blue-300 transition-colors rounded-lg overflow-hidden"
-              showDeleteButton={allowDelete && isAdminUser}
-              onDelete={() => doc.fileId && handleDeleteDocument(doc.key, doc.fileId)}
-              onRetrySuccess={handleRetrySuccess}
-            />
-          ))}
+      {showPreview &&
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {documents.map((doc, index) =>
+        <RobustIDDocumentViewer
+          key={`${doc.fileId}-${index}-${lastRefresh.getTime()}`}
+          fileId={doc.fileId}
+          label={doc.label}
+          documentType={localEmployee.id_document_type || 'Driving License'}
+          isAdminUser={isAdminUser}
+          size="lg"
+          className="border-2 border-gray-200 hover:border-blue-300 transition-colors rounded-lg overflow-hidden"
+          showDeleteButton={allowDelete && isAdminUser}
+          onDelete={() => doc.fileId && handleDeleteDocument(doc.key, doc.fileId)}
+          onRetrySuccess={handleRetrySuccess} />
+
+        )}
         </div>
-      )}
+      }
 
       {/* Enhanced Information Panel */}
       <Card>
@@ -531,28 +531,28 @@ const RobustIDDocumentsDisplay: React.FC<RobustIDDocumentsDisplayProps> = ({
               <CheckCircle className="w-4 h-4 text-green-500" />
               <span>Click on any document to view in full screen</span>
             </div>
-            {isAdminUser ? (
-              <div className="flex items-center space-x-2">
+            {isAdminUser ?
+            <div className="flex items-center space-x-2">
                 <CheckCircle className="w-4 h-4 text-green-500" />
                 <span><strong>Admin:</strong> Download and delete functionality available</span>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-2">
+              </div> :
+
+            <div className="flex items-center space-x-2">
                 <AlertTriangle className="w-4 h-4 text-orange-500" />
                 <span>Download and delete access restricted to administrators</span>
               </div>
-            )}
-            {successfulRetries > 0 && (
-              <div className="flex items-center space-x-2">
+            }
+            {successfulRetries > 0 &&
+            <div className="flex items-center space-x-2">
                 <CheckCircle className="w-4 h-4 text-blue-500" />
                 <span><strong>Recovery Success:</strong> {successfulRetries} documents recovered through retry mechanism</span>
               </div>
-            )}
+            }
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default RobustIDDocumentsDisplay;
