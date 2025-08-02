@@ -37,11 +37,11 @@ const EnhancedIDDocumentTestPage: React.FC = () => {
     id_document_file_id: 1001,
     id_document_2_file_id: 1002,
     id_document_3_file_id: null,
-    id_document_4_file_id: null,
+    id_document_4_file_id: null
   };
 
   const handleRefresh = () => {
-    setRefreshKey(prev => prev + 1);
+    setRefreshKey((prev) => prev + 1);
     toast({
       title: "Refreshed",
       description: "Document display has been refreshed"
@@ -49,7 +49,7 @@ const EnhancedIDDocumentTestPage: React.FC = () => {
   };
 
   const toggleAdminAccess = () => {
-    setIsAdminUser(prev => !prev);
+    setIsAdminUser((prev) => !prev);
     toast({
       title: "Access Changed",
       description: `Switched to ${!isAdminUser ? 'Admin' : 'Regular'} user view`
@@ -155,8 +155,8 @@ const EnhancedIDDocumentTestPage: React.FC = () => {
         isAdminUser={isAdminUser}
         onRefresh={handleRefresh}
         allowDelete={true}
-        showPreview={true}
-      />
+        showPreview={true} />
+
 
       {/* Implementation Notes */}
       <Card>
@@ -197,8 +197,8 @@ const EnhancedIDDocumentTestPage: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default EnhancedIDDocumentTestPage;

@@ -56,6 +56,8 @@ const AuditMonitoring = lazy(() => import('@/pages/Admin/AuditMonitoring'));
 const ProfilePictureDemo = lazy(() => import('@/components/ProfilePictureDemo'));
 const OverflowTestPage = lazy(() => import('@/pages/OverflowTestPage'));
 const OverflowTestingPage = lazy(() => import('@/pages/OverflowTestingPage'));
+const EnhancedIDDocumentTestPage = lazy(() => import('./pages/EnhancedIDDocumentTestPage'));
+const DocumentViewerTestPage = lazy(() => import('./pages/DocumentViewerTestPage'));
 
 const DocumentLoadingDebugPage = lazy(() => import('@/pages/DocumentLoadingDebugPage'));
 
@@ -324,6 +326,8 @@ const AppRouter = () => {
                 <OverflowTestingPage />
               </Suspense>
             } />
+            <Route path="enhanced-id-document-test" element={<EnhancedIDDocumentTestPage />} />
+            <Route path="document-viewer-test" element={<DocumentViewerTestPage />} />
             
             {/* Admin Routes */}
             <Route path="admin" element={

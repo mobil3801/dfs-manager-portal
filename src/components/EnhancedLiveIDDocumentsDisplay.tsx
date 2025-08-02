@@ -62,28 +62,28 @@ const EnhancedLiveIDDocumentsDisplay: React.FC<EnhancedLiveIDDocumentsDisplayPro
   // Check connection status on mount and periodically
   useEffect(() => {
     checkConnectionStatus();
-    
+
     // Set up periodic connection checks
     const interval = setInterval(checkConnectionStatus, 30000); // Check every 30 seconds
-    
+
     return () => clearInterval(interval);
   }, []);
 
   const checkConnectionStatus = async () => {
     try {
       setConnectionStatus('checking');
-      
+
       // Test connection with a simple API call
-      const { error } = await Promise.race([
-        window.ezsite.apis.tablePage('11727', {
-          PageNo: 1,
-          PageSize: 1,
-          Filters: [{ name: 'ID', op: 'Equal', value: employee.ID }]
-        }),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Connection timeout')), 5000)
-        )
-      ]) as { error: string };
+      const { error } = (await Promise.race([
+      window.ezsite.apis.tablePage('11727', {
+        PageNo: 1,
+        PageSize: 1,
+        Filters: [{ name: 'ID', op: 'Equal', value: employee.ID }]
+      }),
+      new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Connection timeout')), 5000)
+      )]
+      )) as {error: string;};
 
       if (error) {
         console.error('[EnhancedLiveIDDocumentsDisplay] Connection test failed:', error);
@@ -98,31 +98,31 @@ const EnhancedLiveIDDocumentsDisplay: React.FC<EnhancedLiveIDDocumentsDisplayPro
   };
 
   const documents = [
-    { 
-      fileId: localEmployee.id_document_file_id, 
-      label: `${localEmployee.id_document_type || 'ID Document'} 1`,
-      key: 'id_document_file_id',
-      documentNumber: 1
-    },
-    { 
-      fileId: localEmployee.id_document_2_file_id, 
-      label: `${localEmployee.id_document_type || 'ID Document'} 2`,
-      key: 'id_document_2_file_id',
-      documentNumber: 2
-    },
-    { 
-      fileId: localEmployee.id_document_3_file_id, 
-      label: `${localEmployee.id_document_type || 'ID Document'} 3`,
-      key: 'id_document_3_file_id',
-      documentNumber: 3
-    },
-    { 
-      fileId: localEmployee.id_document_4_file_id, 
-      label: `${localEmployee.id_document_type || 'ID Document'} 4`,
-      key: 'id_document_4_file_id',
-      documentNumber: 4
-    }
-  ].filter((doc) => doc.fileId);
+  {
+    fileId: localEmployee.id_document_file_id,
+    label: `${localEmployee.id_document_type || 'ID Document'} 1`,
+    key: 'id_document_file_id',
+    documentNumber: 1
+  },
+  {
+    fileId: localEmployee.id_document_2_file_id,
+    label: `${localEmployee.id_document_type || 'ID Document'} 2`,
+    key: 'id_document_2_file_id',
+    documentNumber: 2
+  },
+  {
+    fileId: localEmployee.id_document_3_file_id,
+    label: `${localEmployee.id_document_type || 'ID Document'} 3`,
+    key: 'id_document_3_file_id',
+    documentNumber: 3
+  },
+  {
+    fileId: localEmployee.id_document_4_file_id,
+    label: `${localEmployee.id_document_type || 'ID Document'} 4`,
+    key: 'id_document_4_file_id',
+    documentNumber: 4
+  }].
+  filter((doc) => doc.fileId);
 
   const handleRefresh = async () => {
     if (!onRefresh) return;
@@ -229,8 +229,8 @@ const EnhancedLiveIDDocumentsDisplay: React.FC<EnhancedLiveIDDocumentsDisplayPro
             No ID documents have been uploaded for this employee yet.
           </p>
           
-          {connectionStatus === 'error' && (
-            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          {connectionStatus === 'error' &&
+          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
               <div className="flex items-center justify-center space-x-2 text-yellow-700 mb-2">
                 <WifiOff className="w-4 h-4" />
                 <span className="text-sm font-medium">Connection Issues</span>
@@ -239,18 +239,18 @@ const EnhancedLiveIDDocumentsDisplay: React.FC<EnhancedLiveIDDocumentsDisplayPro
                 There may be connectivity issues. Documents might not load properly.
               </p>
               <Button
-                variant="outline"
-                size="sm"
-                onClick={checkConnectionStatus}
-                className="bg-white">
+              variant="outline"
+              size="sm"
+              onClick={checkConnectionStatus}
+              className="bg-white">
                 <RefreshCw className="w-4 h-4 mr-1" />
                 Test Connection
               </Button>
             </div>
-          )}
+          }
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -288,38 +288,38 @@ const EnhancedLiveIDDocumentsDisplay: React.FC<EnhancedLiveIDDocumentsDisplayPro
               <Badge
                 variant={connectionStatus === 'connected' ? 'default' : connectionStatus === 'error' ? 'destructive' : 'secondary'}
                 className="text-xs">
-                {connectionStatus === 'checking' && (
-                  <>
+                {connectionStatus === 'checking' &&
+                <>
                     <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
                     Checking...
                   </>
-                )}
-                {connectionStatus === 'connected' && (
-                  <>
+                }
+                {connectionStatus === 'connected' &&
+                <>
                     <Wifi className="w-3 h-3 mr-1" />
                     Live Preview
                   </>
-                )}
-                {connectionStatus === 'error' && (
-                  <>
+                }
+                {connectionStatus === 'error' &&
+                <>
                     <WifiOff className="w-3 h-3 mr-1" />
                     Connection Error
                   </>
-                )}
+                }
               </Badge>
               
-              {isAdminUser && (
-                <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+              {isAdminUser &&
+              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
                   <CheckCircle className="w-3 h-3 mr-1" />
                   Admin Access
                 </Badge>
-              )}
+              }
             </div>
           </div>
           
           {/* Document Type Information */}
-          {localEmployee.id_document_type && (
-            <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+          {localEmployee.id_document_type &&
+          <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
               <div className="flex items-center space-x-2">
                 <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300">
                   Document Type: {localEmployee.id_document_type}
@@ -329,11 +329,11 @@ const EnhancedLiveIDDocumentsDisplay: React.FC<EnhancedLiveIDDocumentsDisplayPro
                 </span>
               </div>
             </div>
-          )}
+          }
           
           {/* Connection Warning */}
-          {connectionStatus === 'error' && (
-            <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+          {connectionStatus === 'error' &&
+          <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
               <div className="flex items-center space-x-2 text-yellow-700 mb-2">
                 <AlertTriangle className="w-4 h-4" />
                 <span className="text-sm font-medium">Connection Issues Detected</span>
@@ -342,36 +342,36 @@ const EnhancedLiveIDDocumentsDisplay: React.FC<EnhancedLiveIDDocumentsDisplayPro
                 There may be connectivity issues affecting document loading. Documents may take longer to load or show errors.
               </p>
               <Button
-                variant="outline"
-                size="sm"
-                onClick={checkConnectionStatus}
-                className="bg-white">
+              variant="outline"
+              size="sm"
+              onClick={checkConnectionStatus}
+              className="bg-white">
                 <RefreshCw className="w-4 h-4 mr-1" />
                 Test Connection
               </Button>
             </div>
-          )}
+          }
         </CardHeader>
       </Card>
 
       {/* Documents Grid */}
-      {showPreview && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {documents.map((doc, index) => (
-            <EnhancedLiveIDDocumentViewer
-              key={`${doc.fileId}-${index}-${lastRefresh.getTime()}`}
-              fileId={doc.fileId}
-              label={doc.label}
-              documentType={localEmployee.id_document_type || 'Driving License'}
-              isAdminUser={isAdminUser}
-              size="lg"
-              className="border-2 border-gray-200 hover:border-blue-300 transition-colors rounded-lg overflow-hidden"
-              showDeleteButton={allowDelete && isAdminUser}
-              onDelete={() => doc.fileId && handleDeleteDocument(doc.key, doc.fileId)}
-            />
-          ))}
+      {showPreview &&
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {documents.map((doc, index) =>
+        <EnhancedLiveIDDocumentViewer
+          key={`${doc.fileId}-${index}-${lastRefresh.getTime()}`}
+          fileId={doc.fileId}
+          label={doc.label}
+          documentType={localEmployee.id_document_type || 'Driving License'}
+          isAdminUser={isAdminUser}
+          size="lg"
+          className="border-2 border-gray-200 hover:border-blue-300 transition-colors rounded-lg overflow-hidden"
+          showDeleteButton={allowDelete && isAdminUser}
+          onDelete={() => doc.fileId && handleDeleteDocument(doc.key, doc.fileId)} />
+
+        )}
         </div>
-      )}
+      }
 
       {/* Information Panel */}
       <Card>
@@ -393,22 +393,22 @@ const EnhancedLiveIDDocumentsDisplay: React.FC<EnhancedLiveIDDocumentsDisplayPro
               <CheckCircle className="w-4 h-4 text-green-500" />
               <span>Click on any document to view in full screen</span>
             </div>
-            {isAdminUser ? (
-              <div className="flex items-center space-x-2">
+            {isAdminUser ?
+            <div className="flex items-center space-x-2">
                 <CheckCircle className="w-4 h-4 text-green-500" />
                 <span><strong>Admin:</strong> Download and delete functionality available</span>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-2">
+              </div> :
+
+            <div className="flex items-center space-x-2">
                 <AlertTriangle className="w-4 h-4 text-orange-500" />
                 <span>Download and delete access restricted to administrators</span>
               </div>
-            )}
+            }
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default EnhancedLiveIDDocumentsDisplay;
