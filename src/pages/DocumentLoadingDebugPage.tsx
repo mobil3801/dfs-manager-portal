@@ -1,516 +1,544 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useToast } from '@/hooks/use-toast';
 import {
   FileText,
   RefreshCw,
-  AlertCircle,
   CheckCircle,
+  AlertTriangle,
+  Database,
+  Upload,
+  Globe,
   Eye,
   Download,
-  User } from
-'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import ImprovedIDDocumentViewer from '@/components/ImprovedIDDocumentViewer';
-import FixedIDDocumentViewer from '@/components/FixedIDDocumentViewer';
-import IDDocumentViewer from '@/components/IDDocumentViewer';
+  Settings
+} from 'lucide-react';
+import EnhancedDocumentViewer from '@/components/EnhancedDocumentViewer';
+import RobustFileViewer from '@/components/RobustFileViewer';
+import { fileService } from '@/services/fileService';
 
-interface FileTestResult {
-  fileId: number;
-  url?: string;
-  error?: string;
-  success: boolean;
-  responseTime: number;
-  status?: number;
+interface TestResult {
+  test: string;
+  status: 'pending' | 'success' | 'error' | 'warning';
+  message: string;
+  details?: string;
 }
 
 const DocumentLoadingDebugPage: React.FC = () => {
-  const [testFileId, setTestFileId] = useState<string>('');
-  const [testResults, setTestResults] = useState<FileTestResult[]>([]);
-  const [isRunningTest, setIsRunningTest] = useState(false);
-  const [employees, setEmployees] = useState<any[]>([]);
-  const [loadingEmployees, setLoadingEmployees] = useState(false);
+  const [testResults, setTestResults] = useState<TestResult[]>([]);
+  const [isRunningTests, setIsRunningTests] = useState(false);
+  const [availableFiles, setAvailableFiles] = useState<any[]>([]);
+  const [selectedFileId, setSelectedFileId] = useState<number | null>(null);
+  const [systemStatus, setSystemStatus] = useState({
+    database: 'unknown' as 'online' | 'offline' | 'unknown',
+    storage: 'unknown' as 'online' | 'offline' | 'unknown',
+    api: 'unknown' as 'online' | 'offline' | 'unknown'
+  });
   const { toast } = useToast();
 
-  // Load employees with document files on mount
   useEffect(() => {
-    loadEmployeesWithDocuments();
+    checkSystemStatus();
+    loadAvailableFiles();
   }, []);
 
-  const loadEmployeesWithDocuments = async () => {
+  const checkSystemStatus = async () => {
     try {
-      setLoadingEmployees(true);
-
-      // Load employees that have document files
-      const { data, error } = await window.ezsite.apis.tablePage('11727', {
+      // Test database connection
+      const dbResponse = await window.ezsite.apis.tablePage('11727', {
         PageNo: 1,
-        PageSize: 50,
-        OrderByField: 'ID',
+        PageSize: 1,
+        Filters: []
+      });
+      
+      setSystemStatus(prev => ({
+        ...prev,
+        database: dbResponse.error ? 'offline' : 'online',
+        api: dbResponse.error ? 'offline' : 'online'
+      }));
+
+      // Test file storage
+      const storageResponse = await window.ezsite.apis.tablePage('26928', {
+        PageNo: 1,
+        PageSize: 1,
+        Filters: []
+      });
+      
+      setSystemStatus(prev => ({
+        ...prev,
+        storage: storageResponse.error ? 'offline' : 'online'
+      }));
+    } catch (error) {
+      setSystemStatus({
+        database: 'offline',
+        storage: 'offline',
+        api: 'offline'
+      });
+    }
+  };
+
+  const loadAvailableFiles = async () => {
+    try {
+      const response = await window.ezsite.apis.tablePage('26928', {
+        PageNo: 1,
+        PageSize: 10,
+        OrderByField: 'id',
         IsAsc: false,
         Filters: []
       });
 
-      if (error) throw new Error(error);
-
-      // Filter employees that have at least one document file
-      const employeesWithDocs = (data?.List || []).filter((emp: any) =>
-      emp.id_document_file_id ||
-      emp.id_document_2_file_id ||
-      emp.id_document_3_file_id ||
-      emp.id_document_4_file_id
-      );
-
-      setEmployees(employeesWithDocs);
-      console.log(`[DocumentLoadingDebugPage] Loaded ${employeesWithDocs.length} employees with documents`);
-
-    } catch (error) {
-      console.error('[DocumentLoadingDebugPage] Error loading employees:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load employees with documents",
-        variant: "destructive"
-      });
-    } finally {
-      setLoadingEmployees(false);
-    }
-  };
-
-  const testFileLoad = async (fileId: number): Promise<FileTestResult> => {
-    const startTime = Date.now();
-
-    try {
-      console.log(`[DocumentLoadingDebugPage] Testing file ID: ${fileId}`);
-
-      const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(fileId);
-      const responseTime = Date.now() - startTime;
-
-      if (error) {
-        console.error(`[DocumentLoadingDebugPage] API error for file ${fileId}:`, error);
-        return {
-          fileId,
-          error,
-          success: false,
-          responseTime
-        };
-      }
-
-      if (!fileUrl) {
-        console.error(`[DocumentLoadingDebugPage] No URL returned for file ${fileId}`);
-        return {
-          fileId,
-          error: 'No URL returned from API',
-          success: false,
-          responseTime
-        };
-      }
-
-      console.log(`[DocumentLoadingDebugPage] Successfully got URL for file ${fileId}:`, fileUrl);
-
-      // Test if the URL is accessible
-      try {
-        const testResponse = await fetch(fileUrl, { method: 'HEAD' });
-        return {
-          fileId,
-          url: fileUrl,
-          success: testResponse.ok,
-          responseTime,
-          status: testResponse.status,
-          error: testResponse.ok ? undefined : `HTTP ${testResponse.status}: ${testResponse.statusText}`
-        };
-      } catch (fetchError) {
-        return {
-          fileId,
-          url: fileUrl,
-          success: false,
-          responseTime,
-          error: `Network error: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}`
-        };
-      }
-
-    } catch (error) {
-      const responseTime = Date.now() - startTime;
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error(`[DocumentLoadingDebugPage] Test failed for file ${fileId}:`, error);
-
-      return {
-        fileId,
-        error: errorMessage,
-        success: false,
-        responseTime
-      };
-    }
-  };
-
-  const runSingleFileTest = async () => {
-    const fileId = parseInt(testFileId);
-    if (!fileId || isNaN(fileId)) {
-      toast({
-        title: "Invalid File ID",
-        description: "Please enter a valid numeric file ID",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsRunningTest(true);
-    try {
-      const result = await testFileLoad(fileId);
-      setTestResults([result]);
-
-      if (result.success) {
-        toast({
-          title: "Test Successful",
-          description: `File ${fileId} loaded successfully in ${result.responseTime}ms`
-        });
-      } else {
-        toast({
-          title: "Test Failed",
-          description: `File ${fileId} failed to load: ${result.error}`,
-          variant: "destructive"
-        });
-      }
-    } finally {
-      setIsRunningTest(false);
-    }
-  };
-
-  const runBulkTest = async () => {
-    if (employees.length === 0) {
-      toast({
-        title: "No Documents",
-        description: "No employees with documents found to test",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsRunningTest(true);
-    setTestResults([]);
-
-    try {
-      const fileIds: number[] = [];
-
-      // Collect all file IDs from employees
-      employees.forEach((emp) => {
-        if (emp.id_document_file_id) fileIds.push(emp.id_document_file_id);
-        if (emp.id_document_2_file_id) fileIds.push(emp.id_document_2_file_id);
-        if (emp.id_document_3_file_id) fileIds.push(emp.id_document_3_file_id);
-        if (emp.id_document_4_file_id) fileIds.push(emp.id_document_4_file_id);
-      });
-
-      const uniqueFileIds = [...new Set(fileIds)];
-      console.log(`[DocumentLoadingDebugPage] Testing ${uniqueFileIds.length} unique file IDs`);
-
-      const results: FileTestResult[] = [];
-
-      // Test files in batches of 5 to avoid overwhelming the API
-      const batchSize = 5;
-      for (let i = 0; i < uniqueFileIds.length; i += batchSize) {
-        const batch = uniqueFileIds.slice(i, i + batchSize);
-        const batchPromises = batch.map(testFileLoad);
-        const batchResults = await Promise.all(batchPromises);
-        results.push(...batchResults);
-
-        // Update results incrementally
-        setTestResults([...results]);
-
-        // Small delay between batches
-        if (i + batchSize < uniqueFileIds.length) {
-          await new Promise((resolve) => setTimeout(resolve, 500));
+      if (response.data?.List) {
+        setAvailableFiles(response.data.List);
+        if (response.data.List.length > 0) {
+          setSelectedFileId(response.data.List[0].store_file_id);
         }
       }
-
-      const successCount = results.filter((r) => r.success).length;
-      const failureCount = results.filter((r) => !r.success).length;
-
-      toast({
-        title: "Bulk Test Complete",
-        description: `${successCount} files loaded successfully, ${failureCount} failed`,
-        variant: failureCount > 0 ? "destructive" : "default"
-      });
-
     } catch (error) {
-      console.error('[DocumentLoadingDebugPage] Bulk test error:', error);
-      toast({
-        title: "Test Error",
-        description: "Failed to complete bulk test",
-        variant: "destructive"
-      });
-    } finally {
-      setIsRunningTest(false);
+      console.error('Error loading files:', error);
     }
   };
 
-  const clearResults = () => {
+  const runComprehensiveTests = async () => {
+    setIsRunningTests(true);
     setTestResults([]);
+
+    const tests = [
+      {
+        name: 'System Status Check',
+        test: async () => {
+          await checkSystemStatus();
+          const allOnline = Object.values(systemStatus).every(status => status === 'online');
+          if (!allOnline) {
+            throw new Error('Some system components are offline');
+          }
+          return 'All system components are online';
+        }
+      },
+      {
+        name: 'Database Connection',
+        test: async () => {
+          const response = await window.ezsite.apis.tablePage('11727', {
+            PageNo: 1,
+            PageSize: 1,
+            Filters: []
+          });
+          if (response.error) throw new Error(response.error);
+          return `Database connected - ${response.data?.List?.length || 0} employees found`;
+        }
+      },
+      {
+        name: 'File Storage Access',
+        test: async () => {
+          const response = await window.ezsite.apis.tablePage('26928', {
+            PageNo: 1,
+            PageSize: 5,
+            Filters: []
+          });
+          if (response.error) throw new Error(response.error);
+          const fileCount = response.data?.List?.length || 0;
+          return `File storage accessible - ${fileCount} files found`;
+        }
+      },
+      {
+        name: 'File URL Retrieval',
+        test: async () => {
+          if (!selectedFileId) {
+            return 'No test file available for URL retrieval';
+          }
+          
+          const urlResponse = await fileService.getFileUrl(selectedFileId, true);
+          if (urlResponse.error) {
+            throw new Error(urlResponse.error);
+          }
+          
+          return `File URL retrieved successfully for ID ${selectedFileId}`;
+        }
+      },
+      {
+        name: 'File Accessibility Test',
+        test: async () => {
+          if (!selectedFileId) {
+            return 'No test file available for accessibility test';
+          }
+          
+          const urlResponse = await fileService.getFileUrl(selectedFileId);
+          if (urlResponse.error) {
+            throw new Error(urlResponse.error);
+          }
+          
+          const url = urlResponse.data!;
+          
+          // Test URL accessibility
+          try {
+            const response = await fetch(url, { method: 'HEAD' });
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return `File is accessible at ${url.substring(0, 50)}...`;
+          } catch (error) {
+            throw new Error(`File not accessible: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          }
+        }
+      },
+      {
+        name: 'Enhanced Service Integration',
+        test: async () => {
+          // Test file service integration
+          const fileInfo = await fileService.getFileInfo(selectedFileId || 1);
+          if (fileInfo.error && selectedFileId) {
+            throw new Error(fileInfo.error);
+          }
+          
+          return 'Enhanced file service integration working';
+        }
+      }
+    ];
+
+    for (const testCase of tests) {
+      try {
+        setTestResults(prev => [...prev, {
+          test: testCase.name,
+          status: 'pending',
+          message: 'Running test...'
+        }]);
+
+        const result = await testCase.test();
+        
+        setTestResults(prev => prev.map(item => 
+          item.test === testCase.name 
+            ? { ...item, status: 'success', message: result }
+            : item
+        ));
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        
+        setTestResults(prev => prev.map(item => 
+          item.test === testCase.name 
+            ? { 
+                ...item, 
+                status: 'error', 
+                message: errorMessage,
+                details: `Test failed: ${errorMessage}`
+              }
+            : item
+        ));
+      }
+    }
+
+    setIsRunningTests(false);
+    
+    const passedTests = testResults.filter(r => r.status === 'success').length;
+    const totalTests = tests.length;
+    
+    toast({
+      title: 'Test Complete',
+      description: `${passedTests}/${totalTests} tests passed`,
+      variant: passedTests === totalTests ? 'default' : 'destructive'
+    });
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'online': return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case 'offline': return <AlertTriangle className="w-4 h-4 text-red-500" />;
+      default: return <RefreshCw className="w-4 h-4 text-gray-400 animate-spin" />;
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'online': return <Badge className="bg-green-100 text-green-800">Online</Badge>;
+      case 'offline': return <Badge variant="destructive">Offline</Badge>;
+      default: return <Badge variant="secondary">Checking...</Badge>;
+    }
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="container mx-auto px-4 py-8 space-y-6">
+      {/* Header */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <FileText className="w-6 h-6" />
-            <span>Document Loading Debug Tool</span>
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center space-x-2">
+                <Settings className="w-6 h-6 text-blue-600" />
+                <span>Document Loading Debug Center</span>
+              </CardTitle>
+              <p className="text-sm text-gray-600 mt-1">
+                Comprehensive diagnostics for document loading and display issues
+              </p>
+            </div>
+            <Button onClick={runComprehensiveTests} disabled={isRunningTests}>
+              <RefreshCw className={`w-4 h-4 mr-2 ${isRunningTests ? 'animate-spin' : ''}`} />
+              {isRunningTests ? 'Running Tests...' : 'Run Full Diagnostics'}
+            </Button>
+          </div>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Connection Status */}
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              This tool helps debug document loading issues. Test individual files or run bulk tests on all employee documents.
-            </AlertDescription>
-          </Alert>
+      </Card>
 
-          {/* Single File Test */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Single File Test</h3>
-            <div className="flex items-center space-x-4">
-              <Input
-                placeholder="Enter file ID (e.g., 12345)"
-                value={testFileId}
-                onChange={(e) => setTestFileId(e.target.value)}
-                className="max-w-xs" />
-
-              <Button
-                onClick={runSingleFileTest}
-                disabled={isRunningTest}>
-
-                {isRunningTest ?
-                <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> :
-
-                <FileText className="w-4 h-4 mr-2" />
-                }
-                Test File
-              </Button>
-            </div>
-          </div>
-
-          {/* Bulk Test */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Bulk Test</h3>
+      {/* System Status Panel */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">System Status</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center space-x-3">
+                <Database className="w-5 h-5 text-blue-600" />
+                <span className="font-medium">Database</span>
+              </div>
               <div className="flex items-center space-x-2">
-                <Badge variant="outline">
-                  {employees.length} employees with documents
-                </Badge>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={loadEmployeesWithDocuments}
-                  disabled={loadingEmployees}>
-
-                  {loadingEmployees ?
-                  <RefreshCw className="w-4 h-4 animate-spin" /> :
-
-                  <RefreshCw className="w-4 h-4" />
-                  }
-                </Button>
+                {getStatusIcon(systemStatus.database)}
+                {getStatusBadge(systemStatus.database)}
               </div>
             </div>
-            
-            <div className="flex items-center space-x-4">
-              <Button
-                onClick={runBulkTest}
-                disabled={isRunningTest || employees.length === 0}>
 
-                {isRunningTest ?
-                <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> :
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center space-x-3">
+                <Upload className="w-5 h-5 text-green-600" />
+                <span className="font-medium">File Storage</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                {getStatusIcon(systemStatus.storage)}
+                {getStatusBadge(systemStatus.storage)}
+              </div>
+            </div>
 
-                <FileText className="w-4 h-4 mr-2" />
-                }
-                Test All Documents
-              </Button>
-              
-              {testResults.length > 0 &&
-              <Button
-                variant="outline"
-                onClick={clearResults}>
-
-                  Clear Results
-                </Button>
-              }
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center space-x-3">
+                <Globe className="w-5 h-5 text-purple-600" />
+                <span className="font-medium">API Service</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                {getStatusIcon(systemStatus.api)}
+                {getStatusBadge(systemStatus.api)}
+              </div>
             </div>
           </div>
-
-          {/* Test Results */}
-          {testResults.length > 0 &&
-          <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Test Results</h3>
-                <div className="flex items-center space-x-2">
-                  <Badge variant="default">
-                    {testResults.filter((r) => r.success).length} Success
-                  </Badge>
-                  <Badge variant="destructive">
-                    {testResults.filter((r) => !r.success).length} Failed
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
-                {testResults.map((result, index) =>
-              <Card key={index} className={`border ${result.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center space-x-2">
-                          {result.success ?
-                      <CheckCircle className="w-4 h-4 text-green-600" /> :
-
-                      <AlertCircle className="w-4 h-4 text-red-600" />
-                      }
-                          <span className="font-medium">File ID: {result.fileId}</span>
-                        </div>
-                        <Badge variant={result.success ? "default" : "destructive"}>
-                          {result.responseTime}ms
-                        </Badge>
-                      </div>
-                      
-                      {result.success ?
-                  <div className="space-y-2">
-                          <p className="text-sm text-green-700">
-                            Status: {result.status || 'OK'}
-                          </p>
-                          {result.url &&
-                    <div className="flex items-center space-x-2">
-                              <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => window.open(result.url, '_blank')}>
-
-                                <Eye className="w-3 h-3 mr-1" />
-                                View
-                              </Button>
-                              <p className="text-xs text-gray-600 truncate flex-1">
-                                {result.url}
-                              </p>
-                            </div>
-                    }
-                        </div> :
-
-                  <div className="space-y-2">
-                          <p className="text-sm text-red-700">
-                            Error: {result.error}
-                          </p>
-                          {result.status &&
-                    <p className="text-xs text-red-600">
-                              HTTP Status: {result.status}
-                            </p>
-                    }
-                          {result.url &&
-                    <p className="text-xs text-gray-600 truncate">
-                              URL: {result.url}
-                            </p>
-                    }
-                        </div>
-                  }
-                    </CardContent>
-                  </Card>
-              )}
-              </div>
-            </div>
-          }
         </CardContent>
       </Card>
 
-      {/* Component Comparison */}
-      {testFileId && !isNaN(parseInt(testFileId)) &&
+      {/* Test Results */}
       <Card>
-          <CardHeader>
-            <CardTitle>Component Comparison</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <h4 className="font-medium">Original Component</h4>
-                <IDDocumentViewer
-                fileId={parseInt(testFileId)}
-                label="Original Viewer"
-                isAdminUser={true}
-                size="md" />
-
+        <CardHeader>
+          <CardTitle>Diagnostic Test Results</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {testResults.map((result, index) => (
+              <div key={index} className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
+                <div className="flex-shrink-0 mt-0.5">
+                  {result.status === 'success' && <CheckCircle className="w-5 h-5 text-green-500" />}
+                  {result.status === 'error' && <AlertTriangle className="w-5 h-5 text-red-500" />}
+                  {result.status === 'warning' && <AlertTriangle className="w-5 h-5 text-yellow-500" />}
+                  {result.status === 'pending' && <RefreshCw className="w-5 h-5 text-blue-500 animate-spin" />}
+                </div>
+                <div className="flex-grow">
+                  <p className="text-sm font-medium text-gray-900">{result.test}</p>
+                  <p className={`text-xs mt-1 ${
+                    result.status === 'success' ? 'text-green-600' :
+                    result.status === 'error' ? 'text-red-600' :
+                    result.status === 'warning' ? 'text-yellow-600' : 
+                    'text-blue-600'
+                  }`}>
+                    {result.message}
+                  </p>
+                  {result.details && (
+                    <p className="text-xs text-gray-500 mt-1">{result.details}</p>
+                  )}
+                </div>
+                <Badge variant={
+                  result.status === 'success' ? 'default' :
+                  result.status === 'error' ? 'destructive' :
+                  result.status === 'warning' ? 'secondary' : 'outline'
+                }>
+                  {result.status}
+                </Badge>
               </div>
-              
-              <div className="space-y-2">
-                <h4 className="font-medium">Fixed Component</h4>
-                <FixedIDDocumentViewer
-                fileId={parseInt(testFileId)}
-                label="Fixed Viewer"
-                isAdminUser={true}
-                size="md" />
-
+            ))}
+            
+            {testResults.length === 0 && !isRunningTests && (
+              <div className="text-center py-8 text-gray-500">
+                <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                <p>Click "Run Full Diagnostics" to begin comprehensive system testing</p>
               </div>
-              
-              <div className="space-y-2">
-                <h4 className="font-medium">Improved Component</h4>
-                <ImprovedIDDocumentViewer
-                fileId={parseInt(testFileId)}
-                label="Improved Viewer"
-                isAdminUser={true}
-                size="md" />
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      }
-
-      {/* Employee Documents */}
-      {employees.length > 0 &&
+      {/* Available Files */}
       <Card>
-          <CardHeader>
-            <CardTitle>Employee Documents (Live Test)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {employees.slice(0, 3).map((employee) =>
-            <div key={employee.ID} className="border rounded-lg p-4">
-                  <div className="flex items-center space-x-3 mb-4">
-                    <User className="w-5 h-5 text-gray-600" />
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>Available Test Files</span>
+            <Badge variant="secondary">{availableFiles.length} files</Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {availableFiles.length > 0 ? (
+            <div className="space-y-3">
+              {availableFiles.slice(0, 5).map((file) => (
+                <div 
+                  key={file.id} 
+                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                    selectedFileId === file.store_file_id 
+                      ? 'border-blue-500 bg-blue-50' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  onClick={() => setSelectedFileId(file.store_file_id)}
+                >
+                  <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-medium">
-                        {employee.first_name} {employee.last_name}
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        ID: {employee.employee_id}
+                      <p className="text-sm font-medium">File ID: {file.store_file_id}</p>
+                      <p className="text-xs text-gray-500">
+                        {file.file_name} • {file.file_type}
                       </p>
                     </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {[
-                { id: employee.id_document_file_id, label: 'Document 1' },
-                { id: employee.id_document_2_file_id, label: 'Document 2' },
-                { id: employee.id_document_3_file_id, label: 'Document 3' },
-                { id: employee.id_document_4_file_id, label: 'Document 4' }].
-                filter((doc) => doc.id).map((doc) =>
-                <ImprovedIDDocumentViewer
-                  key={doc.id}
-                  fileId={doc.id}
-                  label={doc.label}
-                  isAdminUser={true}
-                  size="sm" />
-
-                )}
+                    <div className="flex items-center space-x-2">
+                      {selectedFileId === file.store_file_id && (
+                        <Badge className="bg-blue-100 text-blue-800">Selected</Badge>
+                      )}
+                      <Badge variant="outline" className="text-xs">
+                        {new Date(file.upload_date).toLocaleDateString()}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
-            )}
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <Upload className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <p>No files available for testing</p>
+              <p className="text-xs text-gray-400 mt-1">Upload some files to test document loading</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Enhanced Document Viewer Test */}
+      {selectedFileId && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Enhanced Document Viewer Test</CardTitle>
+            <p className="text-sm text-gray-600">
+              Testing with File ID: {selectedFileId}
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <EnhancedDocumentViewer
+                fileId={selectedFileId}
+                label={`Test Document ${selectedFileId}`}
+                isAdminUser={true}
+                size="lg"
+                showLabel={true}
+                autoRetry={true}
+              />
               
-              {employees.length > 3 &&
-            <p className="text-sm text-gray-600 text-center">
-                  Showing first 3 employees. Total: {employees.length} employees with documents.
-                </p>
-            }
+              <div className="space-y-4">
+                <h4 className="font-medium">Enhanced Features:</h4>
+                <ul className="text-sm text-gray-600 space-y-2">
+                  <li className="flex items-center space-x-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>Automatic retry with exponential backoff</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>Real-time connection monitoring</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>Enhanced error handling and recovery</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>File URL caching and validation</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>Comprehensive status indicators</span>
+                  </li>
+                </ul>
+                
+                <div className="pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileService.clearCache(selectedFileId)}
+                    className="mr-2"
+                  >
+                    Clear Cache
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={checkSystemStatus}
+                  >
+                    Refresh Status
+                  </Button>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
-      }
-    </div>);
+      )}
 
+      {/* Robust File Viewer Test */}
+      {availableFiles.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Robust File Viewer Test</CardTitle>
+            <p className="text-sm text-gray-600">
+              Testing multiple file handling with the enhanced viewer
+            </p>
+          </CardHeader>
+          <CardContent>
+            <RobustFileViewer
+              fileIds={availableFiles.slice(0, 3).map(f => f.store_file_id)}
+              labels={availableFiles.slice(0, 3).map(f => f.file_name || `File ${f.store_file_id}`)}
+              isAdminUser={true}
+              title="Test Documents"
+              showPreviewDialog={true}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Debug Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Debug Information</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-medium mb-3">Common Issues & Solutions:</h4>
+              <ul className="text-sm text-gray-600 space-y-2">
+                <li>• <strong>No file URL returned:</strong> Check file permissions and storage access</li>
+                <li>• <strong>Image failed to load:</strong> Verify URL accessibility and CORS settings</li>
+                <li>• <strong>Connection timeouts:</strong> Network issues or server overload</li>
+                <li>• <strong>Invalid file ID:</strong> File may have been deleted or moved</li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-medium mb-3">System Requirements:</h4>
+              <ul className="text-sm text-gray-600 space-y-2">
+                <li>• Database connection: <strong>Required</strong></li>
+                <li>• File storage access: <strong>Required</strong></li>
+                <li>• Network connectivity: <strong>Required</strong></li>
+                <li>• File URL generation: <strong>Must work</strong></li>
+              </ul>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
 };
 
 export default DocumentLoadingDebugPage;

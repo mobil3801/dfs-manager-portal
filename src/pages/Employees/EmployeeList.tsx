@@ -396,11 +396,11 @@ const EmployeeList: React.FC = () => {
         onRefresh={loadEmployees}
         allowDelete={isAdminUser && canDeleteEmployee}
         showPreview={true}
-        className="max-w-4xl mx-auto"
-      />
-    );
+        className="max-w-4xl mx-auto" />);
+
+
   };
- // Define view modal fields with profile picture, employment status, and ID documents
+  // Define view modal fields with profile picture, employment status, and ID documents
   const getViewModalFields = (employee: Employee) => [{ key: 'profile_picture', label: 'Profile Picture', value: employee.profile_image_id, type: 'custom' as const, customComponent: <div className="flex justify-center">
           <ProfilePicture
         imageId={employee.profile_image_id}

@@ -42,20 +42,20 @@ const IDFileDebugPage: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {problemFileIds.map(fileId => (
-                <div key={fileId}>
+              {problemFileIds.map((fileId) =>
+              <div key={fileId}>
                   <h4 className="text-lg font-medium mb-3">File ID: {fileId}</h4>
                   <LiveIDDocumentViewer
-                    fileId={fileId}
-                    label={`Test Document ${fileId}`}
-                    documentType="Driving License"
-                    isAdminUser={true}
-                    size="lg"
-                    className="border-2 border-gray-200"
-                    showDeleteButton={false}
-                  />
+                  fileId={fileId}
+                  label={`Test Document ${fileId}`}
+                  documentType="Driving License"
+                  isAdminUser={true}
+                  size="lg"
+                  className="border-2 border-gray-200"
+                  showDeleteButton={false} />
+
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>
@@ -116,8 +116,8 @@ const IDFileDebugPage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default IDFileDebugPage;

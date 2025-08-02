@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import RobustIDDocumentViewer from '@/components/RobustIDDocumentViewer';
-import RobustIDDocumentsDisplay from '@/components/RobustIDDocumentsDisplay';
+import EnhancedDocumentViewer from '@/components/EnhancedDocumentViewer';
+import RobustFileViewer from '@/components/RobustFileViewer';
 import { useToast } from '@/hooks/use-toast';
 import { FileText, RefreshCw, CheckCircle, AlertTriangle } from 'lucide-react';
 
@@ -199,18 +199,16 @@ const DocumentViewerTestPage: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <RobustIDDocumentViewer
+            <EnhancedDocumentViewer
               fileId={123}
               label="Test Document 1"
-              documentType="Test License"
               isAdminUser={true}
               size="md"
               className="border border-gray-200 rounded-lg" />
 
-            <RobustIDDocumentViewer
+            <EnhancedDocumentViewer
               fileId={124}
               label="Test Document 2"
-              documentType="Test ID"
               isAdminUser={true}
               size="md"
               className="border border-gray-200 rounded-lg" />
@@ -228,12 +226,12 @@ const DocumentViewerTestPage: React.FC = () => {
           </p>
         </CardHeader>
         <CardContent>
-          <RobustIDDocumentsDisplay
-            employee={mockEmployee}
+          <RobustFileViewer
+            fileIds={[mockEmployee.id_document_file_id, mockEmployee.id_document_2_file_id]}
+            labels={['Driving License', 'Secondary ID']}
             isAdminUser={true}
-            onRefresh={handleRefresh}
-            allowDelete={true}
-            showPreview={true} />
+            title="Employee Documents"
+            showPreviewDialog={true} />
 
         </CardContent>
       </Card>

@@ -1334,8 +1334,8 @@ const EmployeeForm: React.FC = () => {
                       }}
                       allowDelete={true}
                       showPreview={true}
-                      className="border-2 border-blue-200 rounded-lg"
-                      />
+                      className="border-2 border-blue-200 rounded-lg" />
+
 
                     </div>
                   }

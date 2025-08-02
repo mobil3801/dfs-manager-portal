@@ -60,6 +60,7 @@ const EnhancedIDDocumentTestPage = lazy(() => import('./pages/EnhancedIDDocument
 const DocumentViewerTestPage = lazy(() => import('./pages/DocumentViewerTestPage'));
 
 const DocumentLoadingDebugPage = lazy(() => import('@/pages/DocumentLoadingDebugPage'));
+const DocumentSolutionPage = lazy(() => import('@/pages/DocumentSolutionPage'));
 const IDFileDebugPage = lazy(() => import('@/pages/IDFileDebugPage'));
 const IDDocumentSolutionPage = lazy(() => import('@/pages/IDDocumentSolutionPage'));
 
@@ -330,13 +331,23 @@ const AppRouter = () => {
             } />
             <Route path="enhanced-id-document-test" element={<EnhancedIDDocumentTestPage />} />
             <Route path="document-viewer-test" element={<DocumentViewerTestPage />} />
+            <Route path="document-loading-debug" element={
+            <Suspense fallback={<PageLoader />}>
+                <DocumentLoadingDebugPage />
+              </Suspense>
+            } />
+            <Route path="document-solution" element={
+            <Suspense fallback={<PageLoader />}>
+                <DocumentSolutionPage />
+              </Suspense>
+            } />
             <Route path="id-file-debug" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <IDFileDebugPage />
               </Suspense>
             } />
             <Route path="id-document-solution" element={
-              <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<PageLoader />}>
                 <IDDocumentSolutionPage />
               </Suspense>
             } />

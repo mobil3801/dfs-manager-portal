@@ -10,8 +10,8 @@ import {
   CheckCircle,
   Eye,
   ExternalLink,
-  Database
-} from 'lucide-react';
+  Database } from
+'lucide-react';
 
 interface IDFileDebuggerProps {
   fileIds?: number[];
@@ -34,8 +34,8 @@ const IDFileDebugger: React.FC<IDFileDebuggerProps> = ({
 
   const debugFile = async (fileId: number) => {
     console.log(`[IDFileDebugger] Starting debug for file ${fileId}`);
-    
-    setDebugResults(prev => ({
+
+    setDebugResults((prev) => ({
       ...prev,
       [fileId]: { status: 'testing', timestamp: new Date() }
     }));
@@ -73,12 +73,12 @@ const IDFileDebugger: React.FC<IDFileDebuggerProps> = ({
       // Step 3: Test URL accessibility
       console.log(`[IDFileDebugger] Testing URL accessibility for file ${fileId}`);
       const response = await fetch(fileUrl, { method: 'HEAD' });
-      
+
       if (!response.ok) {
         throw new Error(`URL not accessible: ${response.status} ${response.statusText}`);
       }
 
-      setDebugResults(prev => ({
+      setDebugResults((prev) => ({
         ...prev,
         [fileId]: {
           status: 'success',
@@ -93,8 +93,8 @@ const IDFileDebugger: React.FC<IDFileDebuggerProps> = ({
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
       console.error(`[IDFileDebugger] Debug failed for file ${fileId}:`, error);
-      
-      setDebugResults(prev => ({
+
+      setDebugResults((prev) => ({
         ...prev,
         [fileId]: {
           status: 'error',
@@ -108,15 +108,15 @@ const IDFileDebugger: React.FC<IDFileDebuggerProps> = ({
   const debugAllFiles = async () => {
     setIsDebugging(true);
     console.log(`[IDFileDebugger] Starting debug for files:`, fileIds);
-    
+
     try {
       // Debug files sequentially to avoid overwhelming the API
       for (const fileId of fileIds) {
         await debugFile(fileId);
         // Small delay between requests
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 500));
       }
-      
+
       toast({
         title: 'Debug Complete',
         description: `Completed debugging ${fileIds.length} file(s)`
@@ -179,8 +179,8 @@ const IDFileDebugger: React.FC<IDFileDebuggerProps> = ({
             onClick={debugAllFiles}
             disabled={isDebugging}
             variant="outline"
-            size="sm"
-          >
+            size="sm">
+
             <RefreshCw className={`w-4 h-4 mr-2 ${isDebugging ? 'animate-spin' : ''}`} />
             {isDebugging ? 'Debugging...' : 'Debug Again'}
           </Button>
@@ -190,7 +190,7 @@ const IDFileDebugger: React.FC<IDFileDebuggerProps> = ({
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
-        {fileIds.map(fileId => {
+        {fileIds.map((fileId) => {
           const result = debugResults[fileId];
           return (
             <div key={fileId} className={`p-4 border rounded-lg ${result ? getStatusColor(result.status) : 'bg-gray-50 border-gray-200'}`}>
@@ -202,31 +202,31 @@ const IDFileDebugger: React.FC<IDFileDebuggerProps> = ({
                     {result?.timestamp?.toLocaleTimeString() || 'Not tested'}
                   </Badge>
                 </div>
-                {result?.url && (
-                  <div className="flex space-x-2">
+                {result?.url &&
+                <div className="flex space-x-2">
                     <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleOpenUrl(fileId)}
-                      className="h-7 px-2"
-                    >
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleOpenUrl(fileId)}
+                    className="h-7 px-2">
+
                       <ExternalLink className="w-3 h-3 mr-1" />
                       Open
                     </Button>
                   </div>
-                )}
+                }
               </div>
 
-              {result?.status === 'success' && result.url && (
-                <div className="space-y-2">
+              {result?.status === 'success' && result.url &&
+              <div className="space-y-2">
                   <div className="text-sm">
                     <strong>✓ URL Retrieved:</strong>
                     <div className="bg-white p-2 rounded border text-xs font-mono break-all mt-1">
                       {result.url}
                     </div>
                   </div>
-                  {result.fileRecord && (
-                    <div className="text-sm">
+                  {result.fileRecord &&
+                <div className="text-sm">
                       <strong>✓ File Record Found:</strong>
                       <div className="bg-white p-2 rounded border text-xs mt-1">
                         <div>Original Name: {result.fileRecord.file_name || 'N/A'}</div>
@@ -235,33 +235,33 @@ const IDFileDebugger: React.FC<IDFileDebuggerProps> = ({
                         <div>Upload Date: {result.fileRecord.upload_date ? new Date(result.fileRecord.upload_date).toLocaleDateString() : 'N/A'}</div>
                       </div>
                     </div>
-                  )}
+                }
                 </div>
-              )}
+              }
 
-              {result?.status === 'error' && (
-                <div className="text-sm">
+              {result?.status === 'error' &&
+              <div className="text-sm">
                   <strong>✗ Error:</strong>
                   <div className="bg-white p-2 rounded border text-xs mt-1">
                     {result.error}
                   </div>
                 </div>
-              )}
+              }
 
-              {result?.status === 'testing' && (
-                <div className="text-sm text-blue-600">
+              {result?.status === 'testing' &&
+              <div className="text-sm text-blue-600">
                   <Database className="w-4 h-4 inline mr-1" />
                   Testing file accessibility...
                 </div>
-              )}
+              }
 
-              {!result && (
-                <div className="text-sm text-gray-500">
+              {!result &&
+              <div className="text-sm text-gray-500">
                   Waiting to be tested...
                 </div>
-              )}
-            </div>
-          );
+              }
+            </div>);
+
         })}
 
         <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -276,8 +276,8 @@ const IDFileDebugger: React.FC<IDFileDebuggerProps> = ({
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default IDFileDebugger;

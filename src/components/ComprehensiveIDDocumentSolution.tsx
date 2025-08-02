@@ -11,8 +11,8 @@ import {
   Database,
   Users,
   Settings,
-  AlertTriangle
-} from 'lucide-react';
+  AlertTriangle } from
+'lucide-react';
 import LiveIDDocumentViewer from '@/components/LiveIDDocumentViewer';
 import LiveIDDocumentsDisplay from '@/components/LiveIDDocumentsDisplay';
 
@@ -80,11 +80,11 @@ const ComprehensiveIDDocumentSolution: React.FC = () => {
       console.log(`[ComprehensiveIDDocumentSolution] Loaded ${allEmployees.length} total employees`);
 
       // Filter employees that have ID documents
-      const employeesWithIDDocuments = allEmployees.filter((emp: Employee) => 
-        emp.id_document_file_id || 
-        emp.id_document_2_file_id || 
-        emp.id_document_3_file_id || 
-        emp.id_document_4_file_id
+      const employeesWithIDDocuments = allEmployees.filter((emp: Employee) =>
+      emp.id_document_file_id ||
+      emp.id_document_2_file_id ||
+      emp.id_document_3_file_id ||
+      emp.id_document_4_file_id
       );
 
       console.log(`[ComprehensiveIDDocumentSolution] Found ${employeesWithIDDocuments.length} employees with ID documents`);
@@ -98,11 +98,11 @@ const ComprehensiveIDDocumentSolution: React.FC = () => {
 
       for (const emp of employeesWithIDDocuments) {
         const fileIds = [
-          emp.id_document_file_id,
-          emp.id_document_2_file_id,
-          emp.id_document_3_file_id,
-          emp.id_document_4_file_id
-        ].filter(id => id);
+        emp.id_document_file_id,
+        emp.id_document_2_file_id,
+        emp.id_document_3_file_id,
+        emp.id_document_4_file_id].
+        filter((id) => id);
 
         allFileIds.push(...fileIds);
       }
@@ -112,12 +112,12 @@ const ComprehensiveIDDocumentSolution: React.FC = () => {
       // Test each file ID
       for (const fileId of allFileIds) {
         try {
-          const { data: fileUrl, error: urlError } = await Promise.race([
-            window.ezsite.apis.getUploadUrl(fileId),
-            new Promise((_, reject) => 
-              setTimeout(() => reject(new Error('Timeout')), 5000)
-            )
-          ]) as { data: string; error: string };
+          const { data: fileUrl, error: urlError } = (await Promise.race([
+          window.ezsite.apis.getUploadUrl(fileId),
+          new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout')), 5000)
+          )]
+          )) as {data: string;error: string;};
 
           if (!urlError && fileUrl && fileUrl.trim() !== '') {
             workingFiles.push(fileId);
@@ -132,7 +132,7 @@ const ComprehensiveIDDocumentSolution: React.FC = () => {
         }
 
         // Small delay to avoid overwhelming the API
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise((resolve) => setTimeout(resolve, 200));
       }
 
       setSystemStatus({
@@ -177,8 +177,8 @@ const ComprehensiveIDDocumentSolution: React.FC = () => {
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Analyzing ID Document System</h2>
           <p className="text-gray-600">Loading employees and testing file accessibility...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -234,8 +234,8 @@ const ComprehensiveIDDocumentSolution: React.FC = () => {
               <Button
                 onClick={loadEmployeesWithIDDocuments}
                 variant="outline"
-                size="sm"
-              >
+                size="sm">
+
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Refresh Analysis
               </Button>
@@ -259,8 +259,8 @@ const ComprehensiveIDDocumentSolution: React.FC = () => {
                 <Badge className="bg-blue-100 text-blue-800">Connected</Badge>
               </div>
 
-              {systemStatus.problemFiles.length > 0 && (
-                <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+              {systemStatus.problemFiles.length > 0 &&
+              <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                   <div className="flex items-center space-x-2">
                     <AlertTriangle className="w-5 h-5 text-yellow-600" />
                     <span className="font-medium text-yellow-800">
@@ -269,14 +269,14 @@ const ComprehensiveIDDocumentSolution: React.FC = () => {
                   </div>
                   <Badge className="bg-yellow-100 text-yellow-800">Partial</Badge>
                 </div>
-              )}
+              }
             </div>
           </CardContent>
         </Card>
 
         {/* Employee ID Documents */}
-        {employees.length > 0 ? (
-          <div className="space-y-6">
+        {employees.length > 0 ?
+        <div className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Live ID Document Preview</CardTitle>
@@ -286,8 +286,8 @@ const ComprehensiveIDDocumentSolution: React.FC = () => {
               </CardHeader>
             </Card>
 
-            {employees.slice(0, 3).map((employee) => (
-              <Card key={employee.ID} className="overflow-hidden">
+            {employees.slice(0, 3).map((employee) =>
+          <Card key={employee.ID} className="overflow-hidden">
                 <CardHeader className="bg-gray-50 border-b">
                   <div className="flex items-center justify-between">
                     <div>
@@ -300,12 +300,12 @@ const ComprehensiveIDDocumentSolution: React.FC = () => {
                     </div>
                     <div className="flex space-x-2">
                       <Badge variant="outline">{employee.id_document_type || 'ID Document'}</Badge>
-                      <Badge 
-                        className={`text-white ${
-                          employee.employment_status === 'Ongoing' ? 'bg-green-500' : 
-                          employee.employment_status === 'Left' ? 'bg-orange-500' : 'bg-red-500'
-                        }`}
-                      >
+                      <Badge
+                    className={`text-white ${
+                    employee.employment_status === 'Ongoing' ? 'bg-green-500' :
+                    employee.employment_status === 'Left' ? 'bg-orange-500' : 'bg-red-500'}`
+                    }>
+
                         {employee.employment_status}
                       </Badge>
                     </div>
@@ -313,19 +313,19 @@ const ComprehensiveIDDocumentSolution: React.FC = () => {
                 </CardHeader>
                 <CardContent className="p-6">
                   <LiveIDDocumentsDisplay
-                    employee={employee}
-                    isAdminUser={true}
-                    onRefresh={loadEmployeesWithIDDocuments}
-                    allowDelete={false}
-                    showPreview={true}
-                    className="border-0"
-                  />
+                employee={employee}
+                isAdminUser={true}
+                onRefresh={loadEmployeesWithIDDocuments}
+                allowDelete={false}
+                showPreview={true}
+                className="border-0" />
+
                 </CardContent>
               </Card>
-            ))}
+          )}
 
-            {employees.length > 3 && (
-              <Card>
+            {employees.length > 3 &&
+          <Card>
                 <CardContent className="text-center py-8">
                   <p className="text-gray-600 mb-4">
                     Showing first 3 employees with ID documents. 
@@ -336,10 +336,10 @@ const ComprehensiveIDDocumentSolution: React.FC = () => {
                   </Badge>
                 </CardContent>
               </Card>
-            )}
-          </div>
-        ) : (
-          <Card>
+          }
+          </div> :
+
+        <Card>
             <CardContent className="text-center py-12">
               <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-xl font-medium text-gray-900 mb-2">No ID Documents Found</h3>
@@ -353,7 +353,7 @@ const ComprehensiveIDDocumentSolution: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-        )}
+        }
 
         {/* Technical Information */}
         <Card>
@@ -416,8 +416,8 @@ const ComprehensiveIDDocumentSolution: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ComprehensiveIDDocumentSolution;

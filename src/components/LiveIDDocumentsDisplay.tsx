@@ -13,8 +13,8 @@ import {
   Server,
   Database,
   Clock,
-  Trash2
-} from 'lucide-react';
+  Trash2 } from
+'lucide-react';
 import LiveIDDocumentViewer from '@/components/LiveIDDocumentViewer';
 
 interface Employee {
@@ -95,109 +95,109 @@ const LiveIDDocumentsDisplay: React.FC<LiveIDDocumentsDisplayProps> = ({
     console.log('[LiveIDDocumentsDisplay] Checking system status...');
 
     // Test API connectivity
-    setSystemStatus(prev => ({ ...prev, api: 'checking' }));
+    setSystemStatus((prev) => ({ ...prev, api: 'checking' }));
     try {
-      const apiResponse = await Promise.race([
-        window.ezsite.apis.tablePage('11727', {
-          PageNo: 1,
-          PageSize: 1,
-          Filters: [{ name: 'ID', op: 'Equal', value: employee.ID }]
-        }),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('API timeout')), 6000)
-        )
-      ]) as { error?: string };
+      const apiResponse = (await Promise.race([
+      window.ezsite.apis.tablePage('11727', {
+        PageNo: 1,
+        PageSize: 1,
+        Filters: [{ name: 'ID', op: 'Equal', value: employee.ID }]
+      }),
+      new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('API timeout')), 6000)
+      )]
+      )) as {error?: string;};
 
-      setSystemStatus(prev => ({
+      setSystemStatus((prev) => ({
         ...prev,
         api: apiResponse.error ? 'error' : 'connected'
       }));
     } catch (error) {
       console.error('[LiveIDDocumentsDisplay] API test failed:', error);
-      setSystemStatus(prev => ({ ...prev, api: 'error' }));
+      setSystemStatus((prev) => ({ ...prev, api: 'error' }));
     }
 
     // Test database connectivity
-    setSystemStatus(prev => ({ ...prev, database: 'checking' }));
+    setSystemStatus((prev) => ({ ...prev, database: 'checking' }));
     try {
-      const dbResponse = await Promise.race([
-        window.ezsite.apis.tablePage('26928', {
-          PageNo: 1,
-          PageSize: 1,
-          Filters: []
-        }),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Database timeout')), 6000)
-        )
-      ]) as { error?: string };
+      const dbResponse = (await Promise.race([
+      window.ezsite.apis.tablePage('26928', {
+        PageNo: 1,
+        PageSize: 1,
+        Filters: []
+      }),
+      new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Database timeout')), 6000)
+      )]
+      )) as {error?: string;};
 
-      setSystemStatus(prev => ({
+      setSystemStatus((prev) => ({
         ...prev,
         database: dbResponse.error ? 'error' : 'connected'
       }));
     } catch (error) {
       console.error('[LiveIDDocumentsDisplay] Database test failed:', error);
-      setSystemStatus(prev => ({ ...prev, database: 'error' }));
+      setSystemStatus((prev) => ({ ...prev, database: 'error' }));
     }
 
     // Test storage connectivity
-    setSystemStatus(prev => ({ ...prev, storage: 'checking' }));
+    setSystemStatus((prev) => ({ ...prev, storage: 'checking' }));
     const fileIds = [
-      employee.id_document_file_id,
-      employee.id_document_2_file_id,
-      employee.id_document_3_file_id,
-      employee.id_document_4_file_id
-    ].filter(id => id);
+    employee.id_document_file_id,
+    employee.id_document_2_file_id,
+    employee.id_document_3_file_id,
+    employee.id_document_4_file_id].
+    filter((id) => id);
 
     if (fileIds.length > 0) {
       try {
         const testFileId = fileIds[0];
-        const storageResponse = await Promise.race([
-          window.ezsite.apis.getUploadUrl(testFileId!),
-          new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Storage timeout')), 8000)
-          )
-        ]) as { error?: string };
+        const storageResponse = (await Promise.race([
+        window.ezsite.apis.getUploadUrl(testFileId!),
+        new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Storage timeout')), 8000)
+        )]
+        )) as {error?: string;};
 
-        setSystemStatus(prev => ({
+        setSystemStatus((prev) => ({
           ...prev,
           storage: storageResponse.error ? 'error' : 'connected'
         }));
       } catch (error) {
         console.error('[LiveIDDocumentsDisplay] Storage test failed:', error);
-        setSystemStatus(prev => ({ ...prev, storage: 'error' }));
+        setSystemStatus((prev) => ({ ...prev, storage: 'error' }));
       }
     } else {
-      setSystemStatus(prev => ({ ...prev, storage: 'connected' }));
+      setSystemStatus((prev) => ({ ...prev, storage: 'connected' }));
     }
   }, [employee]);
 
   const documents = [
-    {
-      fileId: localEmployee.id_document_file_id,
-      label: `${localEmployee.id_document_type || 'ID Document'} 1`,
-      key: 'id_document_file_id',
-      documentNumber: 1
-    },
-    {
-      fileId: localEmployee.id_document_2_file_id,
-      label: `${localEmployee.id_document_type || 'ID Document'} 2`,
-      key: 'id_document_2_file_id',
-      documentNumber: 2
-    },
-    {
-      fileId: localEmployee.id_document_3_file_id,
-      label: `${localEmployee.id_document_type || 'ID Document'} 3`,
-      key: 'id_document_3_file_id',
-      documentNumber: 3
-    },
-    {
-      fileId: localEmployee.id_document_4_file_id,
-      label: `${localEmployee.id_document_type || 'ID Document'} 4`,
-      key: 'id_document_4_file_id',
-      documentNumber: 4
-    }
-  ].filter(doc => doc.fileId);
+  {
+    fileId: localEmployee.id_document_file_id,
+    label: `${localEmployee.id_document_type || 'ID Document'} 1`,
+    key: 'id_document_file_id',
+    documentNumber: 1
+  },
+  {
+    fileId: localEmployee.id_document_2_file_id,
+    label: `${localEmployee.id_document_type || 'ID Document'} 2`,
+    key: 'id_document_2_file_id',
+    documentNumber: 2
+  },
+  {
+    fileId: localEmployee.id_document_3_file_id,
+    label: `${localEmployee.id_document_type || 'ID Document'} 3`,
+    key: 'id_document_3_file_id',
+    documentNumber: 3
+  },
+  {
+    fileId: localEmployee.id_document_4_file_id,
+    label: `${localEmployee.id_document_type || 'ID Document'} 4`,
+    key: 'id_document_4_file_id',
+    documentNumber: 4
+  }].
+  filter((doc) => doc.fileId);
 
   const handleRefresh = async () => {
     if (!onRefresh) return;
@@ -234,7 +234,7 @@ const LiveIDDocumentsDisplay: React.FC<LiveIDDocumentsDisplayProps> = ({
     }
 
     setIsDeleting(fileId);
-    
+
     try {
       console.log(`[LiveIDDocumentsDisplay] Deleting document: ${documentKey}, fileId: ${fileId}`);
 
@@ -248,7 +248,7 @@ const LiveIDDocumentsDisplay: React.FC<LiveIDDocumentsDisplayProps> = ({
       if (error) throw new Error(error);
 
       // Update local state immediately
-      setLocalEmployee(prev => ({
+      setLocalEmployee((prev) => ({
         ...prev,
         [documentKey]: null
       }));
@@ -297,7 +297,7 @@ const LiveIDDocumentsDisplay: React.FC<LiveIDDocumentsDisplayProps> = ({
   };
 
   const handleRetrySuccess = () => {
-    setSuccessfulRetries(prev => prev + 1);
+    setSuccessfulRetries((prev) => prev + 1);
     toast({
       title: 'Document Loaded',
       description: 'Document loaded successfully after retry'
@@ -306,26 +306,26 @@ const LiveIDDocumentsDisplay: React.FC<LiveIDDocumentsDisplayProps> = ({
 
   const getSystemStatusColor = (status: 'checking' | 'connected' | 'error') => {
     switch (status) {
-      case 'connected': return 'text-green-600';
-      case 'error': return 'text-red-600';
-      case 'checking': return 'text-yellow-600';
-      default: return 'text-gray-600';
+      case 'connected':return 'text-green-600';
+      case 'error':return 'text-red-600';
+      case 'checking':return 'text-yellow-600';
+      default:return 'text-gray-600';
     }
   };
 
   const getSystemStatusIcon = (status: 'checking' | 'connected' | 'error') => {
     switch (status) {
-      case 'connected': return <CheckCircle className="w-4 h-4" />;
-      case 'error': return <AlertTriangle className="w-4 h-4" />;
-      case 'checking': return <Clock className="w-4 h-4 animate-pulse" />;
-      default: return <AlertTriangle className="w-4 h-4" />;
+      case 'connected':return <CheckCircle className="w-4 h-4" />;
+      case 'error':return <AlertTriangle className="w-4 h-4" />;
+      case 'checking':return <Clock className="w-4 h-4 animate-pulse" />;
+      default:return <AlertTriangle className="w-4 h-4" />;
     }
   };
 
-  const overallStatus = systemStatus.api === 'connected' && 
-                        systemStatus.database === 'connected' && 
-                        systemStatus.storage === 'connected' ? 
-                        'connected' : 'error';
+  const overallStatus = systemStatus.api === 'connected' &&
+  systemStatus.database === 'connected' &&
+  systemStatus.storage === 'connected' ?
+  'connected' : 'error';
 
   if (documents.length === 0) {
     return (
@@ -357,15 +357,15 @@ const LiveIDDocumentsDisplay: React.FC<LiveIDDocumentsDisplayProps> = ({
               variant="outline"
               size="sm"
               onClick={checkSystemStatus}
-              className="bg-white"
-            >
+              className="bg-white">
+
               <RefreshCw className="w-4 h-4 mr-1" />
               Check System Status
             </Button>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -394,8 +394,8 @@ const LiveIDDocumentsDisplay: React.FC<LiveIDDocumentsDisplayProps> = ({
                 size="sm"
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="h-9"
-              >
+                className="h-9">
+
                 <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
                 Refresh All
               </Button>
@@ -403,33 +403,33 @@ const LiveIDDocumentsDisplay: React.FC<LiveIDDocumentsDisplayProps> = ({
               {/* System Status Indicator */}
               <Badge
                 variant={overallStatus === 'connected' ? 'default' : 'destructive'}
-                className="text-sm px-3 py-1"
-              >
-                {overallStatus === 'connected' ? (
-                  <>
+                className="text-sm px-3 py-1">
+
+                {overallStatus === 'connected' ?
+                <>
                     <Wifi className="w-4 h-4 mr-2" />
                     All Systems Online
-                  </>
-                ) : (
-                  <>
+                  </> :
+
+                <>
                     <WifiOff className="w-4 h-4 mr-2" />
                     System Issues
                   </>
-                )}
+                }
               </Badge>
               
-              {isAdminUser && (
-                <Badge variant="secondary" className="text-sm bg-green-100 text-green-700 px-3 py-1">
+              {isAdminUser &&
+              <Badge variant="secondary" className="text-sm bg-green-100 text-green-700 px-3 py-1">
                   <CheckCircle className="w-4 h-4 mr-2" />
                   Admin Access
                 </Badge>
-              )}
+              }
             </div>
           </div>
           
           {/* Document Type Information */}
-          {localEmployee.id_document_type && (
-            <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          {localEmployee.id_document_type &&
+          <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300 px-3 py-1">
@@ -439,14 +439,14 @@ const LiveIDDocumentsDisplay: React.FC<LiveIDDocumentsDisplayProps> = ({
                     Last updated: {lastRefresh.toLocaleTimeString()}
                   </span>
                 </div>
-                {successfulRetries > 0 && (
-                  <Badge variant="secondary" className="text-sm bg-green-100 text-green-700">
+                {successfulRetries > 0 &&
+              <Badge variant="secondary" className="text-sm bg-green-100 text-green-700">
                     {successfulRetries} successful recoveries
                   </Badge>
-                )}
+              }
               </div>
             </div>
-          )}
+          }
           
           {/* System Status Details */}
           <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
@@ -456,8 +456,8 @@ const LiveIDDocumentsDisplay: React.FC<LiveIDDocumentsDisplayProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={checkSystemStatus}
-                className="h-7 px-3 text-xs"
-              >
+                className="h-7 px-3 text-xs">
+
                 <RefreshCw className="w-3 h-3 mr-1" />
                 Recheck
               </Button>
@@ -479,8 +479,8 @@ const LiveIDDocumentsDisplay: React.FC<LiveIDDocumentsDisplayProps> = ({
           </div>
           
           {/* System Issues Warning */}
-          {overallStatus === 'error' && (
-            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          {overallStatus === 'error' &&
+          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
               <div className="flex items-center space-x-2 text-yellow-700 mb-2">
                 <AlertTriangle className="w-5 h-5" />
                 <span className="font-medium">System Issues Detected</span>
@@ -490,49 +490,49 @@ const LiveIDDocumentsDisplay: React.FC<LiveIDDocumentsDisplayProps> = ({
                 The live viewer will automatically retry failed requests.
               </p>
               <Button
-                variant="outline"
-                size="sm"
-                onClick={checkSystemStatus}
-                className="bg-white border-yellow-300 hover:bg-yellow-50"
-              >
+              variant="outline"
+              size="sm"
+              onClick={checkSystemStatus}
+              className="bg-white border-yellow-300 hover:bg-yellow-50">
+
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Test All Systems
               </Button>
             </div>
-          )}
+          }
         </CardHeader>
       </Card>
 
       {/* Live Documents Grid */}
-      {showPreview && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {documents.map((doc, index) => (
-            <div key={`${doc.fileId}-${index}-${lastRefresh.getTime()}`} className="relative">
+      {showPreview &&
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {documents.map((doc, index) =>
+        <div key={`${doc.fileId}-${index}-${lastRefresh.getTime()}`} className="relative">
               <LiveIDDocumentViewer
-                fileId={doc.fileId}
-                label={doc.label}
-                documentType={localEmployee.id_document_type || 'ID Document'}
-                isAdminUser={isAdminUser}
-                size="lg"
-                className="border-2 border-gray-200 hover:border-blue-300 transition-colors"
-                showDeleteButton={allowDelete && isAdminUser}
-                onDelete={() => doc.fileId && handleDeleteDocument(doc.key, doc.fileId)}
-                onRetrySuccess={handleRetrySuccess}
-              />
+            fileId={doc.fileId}
+            label={doc.label}
+            documentType={localEmployee.id_document_type || 'ID Document'}
+            isAdminUser={isAdminUser}
+            size="lg"
+            className="border-2 border-gray-200 hover:border-blue-300 transition-colors"
+            showDeleteButton={allowDelete && isAdminUser}
+            onDelete={() => doc.fileId && handleDeleteDocument(doc.key, doc.fileId)}
+            onRetrySuccess={handleRetrySuccess} />
+
               
               {/* Delete Overlay */}
-              {isDeleting === doc.fileId && (
-                <div className="absolute inset-0 bg-red-500 bg-opacity-75 flex items-center justify-center rounded-lg">
+              {isDeleting === doc.fileId &&
+          <div className="absolute inset-0 bg-red-500 bg-opacity-75 flex items-center justify-center rounded-lg">
                   <div className="text-center text-white">
                     <Trash2 className="w-8 h-8 mx-auto mb-2 animate-pulse" />
                     <p className="text-sm font-medium">Deleting...</p>
                   </div>
                 </div>
-              )}
+          }
             </div>
-          ))}
+        )}
         </div>
-      )}
+      }
 
       {/* Information Panel */}
       <Card>
@@ -558,28 +558,28 @@ const LiveIDDocumentsDisplay: React.FC<LiveIDDocumentsDisplayProps> = ({
               <CheckCircle className="w-5 h-5 text-green-500" />
               <span>Click on any document to view in full screen with proper ID display</span>
             </div>
-            {isAdminUser ? (
-              <div className="flex items-center space-x-2">
+            {isAdminUser ?
+            <div className="flex items-center space-x-2">
                 <CheckCircle className="w-5 h-5 text-green-500" />
                 <span><strong>Admin:</strong> Full download, delete, and management functionality available</span>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-2">
+              </div> :
+
+            <div className="flex items-center space-x-2">
                 <AlertTriangle className="w-5 h-5 text-orange-500" />
                 <span>Download and delete access restricted to administrators</span>
               </div>
-            )}
-            {successfulRetries > 0 && (
-              <div className="flex items-center space-x-2">
+            }
+            {successfulRetries > 0 &&
+            <div className="flex items-center space-x-2">
                 <CheckCircle className="w-5 h-5 text-blue-500" />
                 <span><strong>Recovery Success:</strong> {successfulRetries} documents recovered through automatic retry</span>
               </div>
-            )}
+            }
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default LiveIDDocumentsDisplay;
