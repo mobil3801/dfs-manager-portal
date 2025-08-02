@@ -15,6 +15,8 @@ import StationDropdown from '@/components/StationDropdown';
 import ProfilePictureUpload from '@/components/ProfilePictureUpload';
 import DocumentPreview from '@/components/DocumentPreview';
 import InstantIDDocumentUpload from '@/components/InstantIDDocumentUpload';
+import EnhancedInstantIDDocumentUpload from '@/components/EnhancedInstantIDDocumentUpload';
+import FixedIDDocumentViewer from '@/components/FixedIDDocumentViewer';
 import EmployeeFileDebugger from '@/components/EmployeeFileDebugger';
 import { displayPhoneNumber, formatPhoneNumber } from '@/utils/phoneFormatter';
 import { useAuth } from '@/contexts/AuthContext';
@@ -1257,7 +1259,7 @@ const EmployeeForm: React.FC = () => {
                   
                   <div className="space-y-6">
                     {Array.from({ length: getVisibleIDDocumentBoxes() }, (_, index) =>
-                    <InstantIDDocumentUpload
+                    <EnhancedInstantIDDocumentUpload
                       key={index}
                       label={`ID Document ${index + 1}`}
                       onFileSelect={(file) => handleIDDocumentSelect(file, index)}

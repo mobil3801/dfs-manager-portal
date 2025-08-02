@@ -48,7 +48,7 @@ const IDDocumentViewer: React.FC<IDDocumentViewerProps> = ({
         if (error) throw error;
 
         setDocumentUrl(fileUrl);
-        
+
         // Test if it's an image by trying to load it
         const img = new Image();
         img.onload = () => {
