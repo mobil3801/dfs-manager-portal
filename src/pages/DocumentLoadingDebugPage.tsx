@@ -13,8 +13,8 @@ import {
   Globe,
   Eye,
   Download,
-  Settings
-} from 'lucide-react';
+  Settings } from
+'lucide-react';
 import EnhancedDocumentViewer from '@/components/EnhancedDocumentViewer';
 import RobustFileViewer from '@/components/RobustFileViewer';
 import { fileService } from '@/services/fileService';
@@ -51,8 +51,8 @@ const DocumentLoadingDebugPage: React.FC = () => {
         PageSize: 1,
         Filters: []
       });
-      
-      setSystemStatus(prev => ({
+
+      setSystemStatus((prev) => ({
         ...prev,
         database: dbResponse.error ? 'offline' : 'online',
         api: dbResponse.error ? 'offline' : 'online'
@@ -64,8 +64,8 @@ const DocumentLoadingDebugPage: React.FC = () => {
         PageSize: 1,
         Filters: []
       });
-      
-      setSystemStatus(prev => ({
+
+      setSystemStatus((prev) => ({
         ...prev,
         storage: storageResponse.error ? 'offline' : 'online'
       }));
@@ -104,133 +104,133 @@ const DocumentLoadingDebugPage: React.FC = () => {
     setTestResults([]);
 
     const tests = [
-      {
-        name: 'System Status Check',
-        test: async () => {
-          await checkSystemStatus();
-          const allOnline = Object.values(systemStatus).every(status => status === 'online');
-          if (!allOnline) {
-            throw new Error('Some system components are offline');
-          }
-          return 'All system components are online';
+    {
+      name: 'System Status Check',
+      test: async () => {
+        await checkSystemStatus();
+        const allOnline = Object.values(systemStatus).every((status) => status === 'online');
+        if (!allOnline) {
+          throw new Error('Some system components are offline');
         }
-      },
-      {
-        name: 'Database Connection',
-        test: async () => {
-          const response = await window.ezsite.apis.tablePage('11727', {
-            PageNo: 1,
-            PageSize: 1,
-            Filters: []
-          });
-          if (response.error) throw new Error(response.error);
-          return `Database connected - ${response.data?.List?.length || 0} employees found`;
+        return 'All system components are online';
+      }
+    },
+    {
+      name: 'Database Connection',
+      test: async () => {
+        const response = await window.ezsite.apis.tablePage('11727', {
+          PageNo: 1,
+          PageSize: 1,
+          Filters: []
+        });
+        if (response.error) throw new Error(response.error);
+        return `Database connected - ${response.data?.List?.length || 0} employees found`;
+      }
+    },
+    {
+      name: 'File Storage Access',
+      test: async () => {
+        const response = await window.ezsite.apis.tablePage('26928', {
+          PageNo: 1,
+          PageSize: 5,
+          Filters: []
+        });
+        if (response.error) throw new Error(response.error);
+        const fileCount = response.data?.List?.length || 0;
+        return `File storage accessible - ${fileCount} files found`;
+      }
+    },
+    {
+      name: 'File URL Retrieval',
+      test: async () => {
+        if (!selectedFileId) {
+          return 'No test file available for URL retrieval';
         }
-      },
-      {
-        name: 'File Storage Access',
-        test: async () => {
-          const response = await window.ezsite.apis.tablePage('26928', {
-            PageNo: 1,
-            PageSize: 5,
-            Filters: []
-          });
-          if (response.error) throw new Error(response.error);
-          const fileCount = response.data?.List?.length || 0;
-          return `File storage accessible - ${fileCount} files found`;
+
+        const urlResponse = await fileService.getFileUrl(selectedFileId, true);
+        if (urlResponse.error) {
+          throw new Error(urlResponse.error);
         }
-      },
-      {
-        name: 'File URL Retrieval',
-        test: async () => {
-          if (!selectedFileId) {
-            return 'No test file available for URL retrieval';
-          }
-          
-          const urlResponse = await fileService.getFileUrl(selectedFileId, true);
-          if (urlResponse.error) {
-            throw new Error(urlResponse.error);
-          }
-          
-          return `File URL retrieved successfully for ID ${selectedFileId}`;
+
+        return `File URL retrieved successfully for ID ${selectedFileId}`;
+      }
+    },
+    {
+      name: 'File Accessibility Test',
+      test: async () => {
+        if (!selectedFileId) {
+          return 'No test file available for accessibility test';
         }
-      },
-      {
-        name: 'File Accessibility Test',
-        test: async () => {
-          if (!selectedFileId) {
-            return 'No test file available for accessibility test';
-          }
-          
-          const urlResponse = await fileService.getFileUrl(selectedFileId);
-          if (urlResponse.error) {
-            throw new Error(urlResponse.error);
-          }
-          
-          const url = urlResponse.data!;
-          
-          // Test URL accessibility
-          try {
-            const response = await fetch(url, { method: 'HEAD' });
-            if (!response.ok) {
-              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            return `File is accessible at ${url.substring(0, 50)}...`;
-          } catch (error) {
-            throw new Error(`File not accessible: ${error instanceof Error ? error.message : 'Unknown error'}`);
-          }
+
+        const urlResponse = await fileService.getFileUrl(selectedFileId);
+        if (urlResponse.error) {
+          throw new Error(urlResponse.error);
         }
-      },
-      {
-        name: 'Enhanced Service Integration',
-        test: async () => {
-          // Test file service integration
-          const fileInfo = await fileService.getFileInfo(selectedFileId || 1);
-          if (fileInfo.error && selectedFileId) {
-            throw new Error(fileInfo.error);
+
+        const url = urlResponse.data!;
+
+        // Test URL accessibility
+        try {
+          const response = await fetch(url, { method: 'HEAD' });
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
           }
-          
-          return 'Enhanced file service integration working';
+          return `File is accessible at ${url.substring(0, 50)}...`;
+        } catch (error) {
+          throw new Error(`File not accessible: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
       }
-    ];
+    },
+    {
+      name: 'Enhanced Service Integration',
+      test: async () => {
+        // Test file service integration
+        const fileInfo = await fileService.getFileInfo(selectedFileId || 1);
+        if (fileInfo.error && selectedFileId) {
+          throw new Error(fileInfo.error);
+        }
+
+        return 'Enhanced file service integration working';
+      }
+    }];
+
 
     for (const testCase of tests) {
       try {
-        setTestResults(prev => [...prev, {
+        setTestResults((prev) => [...prev, {
           test: testCase.name,
           status: 'pending',
           message: 'Running test...'
         }]);
 
         const result = await testCase.test();
-        
-        setTestResults(prev => prev.map(item => 
-          item.test === testCase.name 
-            ? { ...item, status: 'success', message: result }
-            : item
+
+        setTestResults((prev) => prev.map((item) =>
+        item.test === testCase.name ?
+        { ...item, status: 'success', message: result } :
+        item
         ));
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        
-        setTestResults(prev => prev.map(item => 
-          item.test === testCase.name 
-            ? { 
-                ...item, 
-                status: 'error', 
-                message: errorMessage,
-                details: `Test failed: ${errorMessage}`
-              }
-            : item
+
+        setTestResults((prev) => prev.map((item) =>
+        item.test === testCase.name ?
+        {
+          ...item,
+          status: 'error',
+          message: errorMessage,
+          details: `Test failed: ${errorMessage}`
+        } :
+        item
         ));
       }
     }
 
     setIsRunningTests(false);
-    
-    const passedTests = testResults.filter(r => r.status === 'success').length;
+
+    const passedTests = testResults.filter((r) => r.status === 'success').length;
     const totalTests = tests.length;
-    
+
     toast({
       title: 'Test Complete',
       description: `${passedTests}/${totalTests} tests passed`,
@@ -240,17 +240,17 @@ const DocumentLoadingDebugPage: React.FC = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'online': return <CheckCircle className="w-4 h-4 text-green-500" />;
-      case 'offline': return <AlertTriangle className="w-4 h-4 text-red-500" />;
-      default: return <RefreshCw className="w-4 h-4 text-gray-400 animate-spin" />;
+      case 'online':return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case 'offline':return <AlertTriangle className="w-4 h-4 text-red-500" />;
+      default:return <RefreshCw className="w-4 h-4 text-gray-400 animate-spin" />;
     }
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'online': return <Badge className="bg-green-100 text-green-800">Online</Badge>;
-      case 'offline': return <Badge variant="destructive">Offline</Badge>;
-      default: return <Badge variant="secondary">Checking...</Badge>;
+      case 'online':return <Badge className="bg-green-100 text-green-800">Online</Badge>;
+      case 'offline':return <Badge variant="destructive">Offline</Badge>;
+      default:return <Badge variant="secondary">Checking...</Badge>;
     }
   };
 
@@ -327,8 +327,8 @@ const DocumentLoadingDebugPage: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {testResults.map((result, index) => (
-              <div key={index} className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
+            {testResults.map((result, index) =>
+            <div key={index} className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
                 <div className="flex-shrink-0 mt-0.5">
                   {result.status === 'success' && <CheckCircle className="w-5 h-5 text-green-500" />}
                   {result.status === 'error' && <AlertTriangle className="w-5 h-5 text-red-500" />}
@@ -338,33 +338,33 @@ const DocumentLoadingDebugPage: React.FC = () => {
                 <div className="flex-grow">
                   <p className="text-sm font-medium text-gray-900">{result.test}</p>
                   <p className={`text-xs mt-1 ${
-                    result.status === 'success' ? 'text-green-600' :
-                    result.status === 'error' ? 'text-red-600' :
-                    result.status === 'warning' ? 'text-yellow-600' : 
-                    'text-blue-600'
-                  }`}>
+                result.status === 'success' ? 'text-green-600' :
+                result.status === 'error' ? 'text-red-600' :
+                result.status === 'warning' ? 'text-yellow-600' :
+                'text-blue-600'}`
+                }>
                     {result.message}
                   </p>
-                  {result.details && (
-                    <p className="text-xs text-gray-500 mt-1">{result.details}</p>
-                  )}
+                  {result.details &&
+                <p className="text-xs text-gray-500 mt-1">{result.details}</p>
+                }
                 </div>
                 <Badge variant={
-                  result.status === 'success' ? 'default' :
-                  result.status === 'error' ? 'destructive' :
-                  result.status === 'warning' ? 'secondary' : 'outline'
-                }>
+              result.status === 'success' ? 'default' :
+              result.status === 'error' ? 'destructive' :
+              result.status === 'warning' ? 'secondary' : 'outline'
+              }>
                   {result.status}
                 </Badge>
               </div>
-            ))}
+            )}
             
-            {testResults.length === 0 && !isRunningTests && (
-              <div className="text-center py-8 text-gray-500">
+            {testResults.length === 0 && !isRunningTests &&
+            <div className="text-center py-8 text-gray-500">
                 <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                 <p>Click "Run Full Diagnostics" to begin comprehensive system testing</p>
               </div>
-            )}
+            }
           </div>
         </CardContent>
       </Card>
@@ -378,18 +378,18 @@ const DocumentLoadingDebugPage: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {availableFiles.length > 0 ? (
-            <div className="space-y-3">
-              {availableFiles.slice(0, 5).map((file) => (
-                <div 
-                  key={file.id} 
-                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                    selectedFileId === file.store_file_id 
-                      ? 'border-blue-500 bg-blue-50' 
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                  onClick={() => setSelectedFileId(file.store_file_id)}
-                >
+          {availableFiles.length > 0 ?
+          <div className="space-y-3">
+              {availableFiles.slice(0, 5).map((file) =>
+            <div
+              key={file.id}
+              className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+              selectedFileId === file.store_file_id ?
+              'border-blue-500 bg-blue-50' :
+              'border-gray-200 hover:border-gray-300'}`
+              }
+              onClick={() => setSelectedFileId(file.store_file_id)}>
+
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium">File ID: {file.store_file_id}</p>
@@ -398,30 +398,30 @@ const DocumentLoadingDebugPage: React.FC = () => {
                       </p>
                     </div>
                     <div className="flex items-center space-x-2">
-                      {selectedFileId === file.store_file_id && (
-                        <Badge className="bg-blue-100 text-blue-800">Selected</Badge>
-                      )}
+                      {selectedFileId === file.store_file_id &&
+                  <Badge className="bg-blue-100 text-blue-800">Selected</Badge>
+                  }
                       <Badge variant="outline" className="text-xs">
                         {new Date(file.upload_date).toLocaleDateString()}
                       </Badge>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-gray-500">
+            )}
+            </div> :
+
+          <div className="text-center py-8 text-gray-500">
               <Upload className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <p>No files available for testing</p>
               <p className="text-xs text-gray-400 mt-1">Upload some files to test document loading</p>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
       {/* Enhanced Document Viewer Test */}
-      {selectedFileId && (
-        <Card>
+      {selectedFileId &&
+      <Card>
           <CardHeader>
             <CardTitle>Enhanced Document Viewer Test</CardTitle>
             <p className="text-sm text-gray-600">
@@ -431,13 +431,13 @@ const DocumentLoadingDebugPage: React.FC = () => {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <EnhancedDocumentViewer
-                fileId={selectedFileId}
-                label={`Test Document ${selectedFileId}`}
-                isAdminUser={true}
-                size="lg"
-                showLabel={true}
-                autoRetry={true}
-              />
+              fileId={selectedFileId}
+              label={`Test Document ${selectedFileId}`}
+              isAdminUser={true}
+              size="lg"
+              showLabel={true}
+              autoRetry={true} />
+
               
               <div className="space-y-4">
                 <h4 className="font-medium">Enhanced Features:</h4>
@@ -466,18 +466,18 @@ const DocumentLoadingDebugPage: React.FC = () => {
                 
                 <div className="pt-4 border-t">
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => fileService.clearCache(selectedFileId)}
-                    className="mr-2"
-                  >
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileService.clearCache(selectedFileId)}
+                  className="mr-2">
+
                     Clear Cache
                   </Button>
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={checkSystemStatus}
-                  >
+                  variant="outline"
+                  size="sm"
+                  onClick={checkSystemStatus}>
+
                     Refresh Status
                   </Button>
                 </div>
@@ -485,11 +485,11 @@ const DocumentLoadingDebugPage: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-      )}
+      }
 
       {/* Robust File Viewer Test */}
-      {availableFiles.length > 0 && (
-        <Card>
+      {availableFiles.length > 0 &&
+      <Card>
           <CardHeader>
             <CardTitle>Robust File Viewer Test</CardTitle>
             <p className="text-sm text-gray-600">
@@ -498,15 +498,15 @@ const DocumentLoadingDebugPage: React.FC = () => {
           </CardHeader>
           <CardContent>
             <RobustFileViewer
-              fileIds={availableFiles.slice(0, 3).map(f => f.store_file_id)}
-              labels={availableFiles.slice(0, 3).map(f => f.file_name || `File ${f.store_file_id}`)}
-              isAdminUser={true}
-              title="Test Documents"
-              showPreviewDialog={true}
-            />
+            fileIds={availableFiles.slice(0, 3).map((f) => f.store_file_id)}
+            labels={availableFiles.slice(0, 3).map((f) => f.file_name || `File ${f.store_file_id}`)}
+            isAdminUser={true}
+            title="Test Documents"
+            showPreviewDialog={true} />
+
           </CardContent>
         </Card>
-      )}
+      }
 
       {/* Debug Information */}
       <Card>
@@ -537,8 +537,8 @@ const DocumentLoadingDebugPage: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default DocumentLoadingDebugPage;

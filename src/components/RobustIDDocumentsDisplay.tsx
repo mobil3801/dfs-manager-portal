@@ -229,61 +229,47 @@ const RobustIDDocumentsDisplay: React.FC<RobustIDDocumentsDisplayProps> = ({
     }
 
     try {
-      console.log(`[RobustIDDocumentsDisplay] Deleting document: ${documentKey}, fileId: ${fileId}`);
+      console.log(`[RobustIDDocumentsDisplay] Starting complete deletion: ${documentKey}, fileId: ${fileId}`);
 
-      // Update the employee record to remove the file reference
-      const updateData = {
-        ID: localEmployee.ID,
-        [documentKey]: null
-      };
+      // Import the complete file deletion service
+      const { completeFileDeleteService } = await import('@/services/completeFileDeleteService');
+      
+      // Use the comprehensive deletion service
+      const deletionResult = await completeFileDeleteService.completeEmployeeFileDeletion(
+        localEmployee.ID,
+        [fileId]
+      );
 
-      const { error } = await window.ezsite.apis.tableUpdate('11727', updateData);
-      if (error) throw new Error(error);
+      if (deletionResult.success) {
+        // Update local state immediately
+        setLocalEmployee((prev) => ({
+          ...prev,
+          [documentKey]: null
+        }));
 
-      // Update local state immediately
-      setLocalEmployee((prev) => ({
-        ...prev,
-        [documentKey]: null
-      }));
-
-      // Clean up file storage
-      try {
-        const { data: fileData, error: fetchError } = await window.ezsite.apis.tablePage('26928', {
-          PageNo: 1,
-          PageSize: 1,
-          Filters: [{ name: 'store_file_id', op: 'Equal', value: fileId }]
+        toast({
+          title: 'Document Completely Deleted',
+          description: `The document has been permanently removed from all systems. Deleted ${deletionResult.totalDeleted}/${deletionResult.totalAttempted} file(s).`,
+          variant: 'destructive'
         });
 
-        if (!fetchError && fileData && fileData.List && fileData.List.length > 0) {
-          const { error: deleteError } = await window.ezsite.apis.tableDelete('26928', {
-            ID: fileData.List[0].id
-          });
-          if (deleteError) {
-            console.error('[RobustIDDocumentsDisplay] Error deleting file from storage:', deleteError);
-          } else {
-            console.log(`[RobustIDDocumentsDisplay] Successfully deleted file ${fileId} from storage`);
-          }
+        console.log(`[RobustIDDocumentsDisplay] Complete deletion successful:`, deletionResult);
+
+        // Refresh parent component if callback provided
+        if (onRefresh) {
+          setTimeout(() => {
+            onRefresh();
+          }, 1000); // Small delay to ensure backend is updated
         }
-      } catch (fileError) {
-        console.error('[RobustIDDocumentsDisplay] Error cleaning up file storage:', fileError);
-      }
-
-      toast({
-        title: 'Document Deleted',
-        description: 'The document has been permanently deleted',
-        variant: 'destructive'
-      });
-
-      // Refresh parent component if callback provided
-      if (onRefresh) {
-        onRefresh();
+      } else {
+        throw new Error(`Complete deletion failed: ${deletionResult.errors.join(', ')}`);
       }
 
     } catch (error) {
-      console.error('[RobustIDDocumentsDisplay] Error deleting document:', error);
+      console.error('[RobustIDDocumentsDisplay] Error during complete document deletion:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to delete document. Please try again.',
+        title: 'Deletion Failed',
+        description: 'Failed to completely delete document. Please try again or contact support.',
         variant: 'destructive'
       });
     }

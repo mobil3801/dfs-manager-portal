@@ -13,8 +13,8 @@ import {
   Image as ImageIcon,
   ExternalLink,
   CheckCircle,
-  WifiOff
-} from 'lucide-react';
+  WifiOff } from
+'lucide-react';
 import { fileService, FileServiceResponse } from '@/services/fileService';
 
 interface EnhancedDocumentViewerProps {
@@ -62,8 +62,8 @@ const EnhancedDocumentViewer: React.FC<EnhancedDocumentViewerProps> = ({
 
   // Monitor online status
   useEffect(() => {
-    const handleOnline = () => setState(prev => ({ ...prev, isOnline: true }));
-    const handleOffline = () => setState(prev => ({ ...prev, isOnline: false }));
+    const handleOnline = () => setState((prev) => ({ ...prev, isOnline: true }));
+    const handleOffline = () => setState((prev) => ({ ...prev, isOnline: false }));
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
@@ -99,7 +99,7 @@ const EnhancedDocumentViewer: React.FC<EnhancedDocumentViewerProps> = ({
   const loadDocumentUrl = async (forceRetry = false) => {
     if (!fileId) return;
 
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       isLoading: true,
       hasError: false,
@@ -109,16 +109,16 @@ const EnhancedDocumentViewer: React.FC<EnhancedDocumentViewerProps> = ({
 
     try {
       console.log(`Loading document URL for file ${fileId}${forceRetry ? ' (retry)' : ''}`);
-      
+
       const response: FileServiceResponse<string> = await fileService.getFileUrl(fileId, forceRetry);
-      
+
       if (response.error) {
         throw new Error(response.error);
       }
 
       const documentUrl = response.data!;
-      
-      setState(prev => ({
+
+      setState((prev) => ({
         ...prev,
         url: documentUrl,
         retryCount: response.retryCount || 0
@@ -130,8 +130,8 @@ const EnhancedDocumentViewer: React.FC<EnhancedDocumentViewerProps> = ({
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       console.error(`Error loading document URL for file ${fileId}:`, errorMessage);
-      
-      setState(prev => ({
+
+      setState((prev) => ({
         ...prev,
         hasError: true,
         errorMessage,
@@ -156,9 +156,9 @@ const EnhancedDocumentViewer: React.FC<EnhancedDocumentViewerProps> = ({
   const testImageLoad = (url: string): Promise<void> => {
     return new Promise((resolve) => {
       const img = new Image();
-      
+
       img.onload = () => {
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           isImageFile: true,
           imageLoaded: true,
@@ -166,9 +166,9 @@ const EnhancedDocumentViewer: React.FC<EnhancedDocumentViewerProps> = ({
         }));
         resolve();
       };
-      
+
       img.onerror = () => {
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           isImageFile: false,
           imageLoaded: false,
@@ -176,16 +176,16 @@ const EnhancedDocumentViewer: React.FC<EnhancedDocumentViewerProps> = ({
         }));
         resolve();
       };
-      
+
       // Set timeout for slow loading images
       setTimeout(() => {
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           isLoading: false
         }));
         resolve();
       }, 10000); // 10 second timeout
-      
+
       img.src = url;
     });
   };
@@ -232,11 +232,11 @@ const EnhancedDocumentViewer: React.FC<EnhancedDocumentViewerProps> = ({
 
   const getSizeClasses = () => {
     switch (size) {
-      case 'sm': return 'h-24';
-      case 'md': return 'h-32';
-      case 'lg': return 'h-48';
-      case 'xl': return 'h-80';
-      default: return 'h-48';
+      case 'sm':return 'h-24';
+      case 'md':return 'h-32';
+      case 'lg':return 'h-48';
+      case 'xl':return 'h-80';
+      default:return 'h-48';
     }
   };
 
@@ -269,21 +269,21 @@ const EnhancedDocumentViewer: React.FC<EnhancedDocumentViewerProps> = ({
         <div className={`relative w-full bg-gray-50 border-b aspect-[3/2] ${getSizeClasses()}`}>
           
           {/* Loading State */}
-          {state.isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+          {state.isLoading &&
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
               <div className="text-center">
                 <Loader2 className="w-8 h-8 animate-spin text-blue-500 mx-auto mb-2" />
                 <span className="text-sm text-gray-600">Loading document...</span>
-                {state.retryCount > 0 && (
-                  <p className="text-xs text-gray-500 mt-1">Retry attempt {state.retryCount}</p>
-                )}
+                {state.retryCount > 0 &&
+              <p className="text-xs text-gray-500 mt-1">Retry attempt {state.retryCount}</p>
+              }
               </div>
             </div>
-          )}
+          }
 
           {/* Error State */}
-          {state.hasError && !state.isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100">
+          {state.hasError && !state.isLoading &&
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100">
               <div className="text-center p-4 max-w-xs">
                 <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-3" />
                 <p className="text-sm font-medium text-red-800 mb-2">Unable to load document</p>
@@ -293,66 +293,66 @@ const EnhancedDocumentViewer: React.FC<EnhancedDocumentViewerProps> = ({
                 
                 <div className="flex flex-col gap-2">
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleRetry}
-                    className="text-xs"
-                  >
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRetry}
+                  className="text-xs">
+
                     <RefreshCw className="w-3 h-3 mr-1" />
                     Retry Load
                   </Button>
                   
-                  {state.url && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleViewFullScreen}
-                      className="text-xs"
-                    >
+                  {state.url &&
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleViewFullScreen}
+                  className="text-xs">
+
                       <ExternalLink className="w-3 h-3 mr-1" />
                       Try Open
                     </Button>
-                  )}
+                }
                 </div>
               </div>
             </div>
-          )}
+          }
 
           {/* Success State - Image */}
-          {state.url && !state.isLoading && !state.hasError && state.isImageFile && state.imageLoaded && (
-            <img
-              src={state.url}
-              alt={label}
-              className="w-full h-full object-contain hover:scale-105 transition-transform duration-300 cursor-pointer bg-white"
-              onClick={handleViewFullScreen}
-              onError={() => setState(prev => ({ 
-                ...prev, 
-                hasError: true, 
-                errorMessage: 'Image failed to display properly' 
-              }))}
-            />
-          )}
+          {state.url && !state.isLoading && !state.hasError && state.isImageFile && state.imageLoaded &&
+          <img
+            src={state.url}
+            alt={label}
+            className="w-full h-full object-contain hover:scale-105 transition-transform duration-300 cursor-pointer bg-white"
+            onClick={handleViewFullScreen}
+            onError={() => setState((prev) => ({
+              ...prev,
+              hasError: true,
+              errorMessage: 'Image failed to display properly'
+            }))} />
+
+          }
 
           {/* Success State - Non-Image */}
-          {state.url && !state.isLoading && !state.hasError && (!state.isImageFile || !state.imageLoaded) && (
-            <div 
-              className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 cursor-pointer hover:bg-blue-100 transition-colors"
-              onClick={handleViewFullScreen}
-            >
+          {state.url && !state.isLoading && !state.hasError && (!state.isImageFile || !state.imageLoaded) &&
+          <div
+            className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 cursor-pointer hover:bg-blue-100 transition-colors"
+            onClick={handleViewFullScreen}>
+
               <div className="text-center p-4">
                 <FileText className="w-16 h-16 text-blue-500 mx-auto mb-3" />
                 <p className="text-sm font-medium text-blue-800">Document File</p>
                 <p className="text-xs text-blue-600 mt-1">Click to view full size</p>
               </div>
             </div>
-          )}
+          }
 
           {/* Document Label */}
-          {showLabel && (
-            <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+          {showLabel &&
+          <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
               {label}
             </div>
-          )}
+          }
 
           {/* Status Indicator */}
           <div className="absolute top-2 left-2 flex items-center gap-1 bg-white bg-opacity-90 px-2 py-1 rounded text-xs">
@@ -367,33 +367,33 @@ const EnhancedDocumentViewer: React.FC<EnhancedDocumentViewerProps> = ({
               size="sm"
               className="h-6 w-6 p-0 bg-white bg-opacity-90 hover:bg-opacity-100 shadow-sm"
               onClick={handleViewFullScreen}
-              disabled={!state.url}
-            >
+              disabled={!state.url}>
+
               <Eye className="w-3 h-3" />
             </Button>
             
-            {isAdminUser && (
-              <Button
-                variant="secondary"
-                size="sm"
-                className="h-6 w-6 p-0 bg-green-500 bg-opacity-90 hover:bg-opacity-100 text-white shadow-sm"
-                onClick={handleDownload}
-                disabled={!fileId}
-              >
+            {isAdminUser &&
+            <Button
+              variant="secondary"
+              size="sm"
+              className="h-6 w-6 p-0 bg-green-500 bg-opacity-90 hover:bg-opacity-100 text-white shadow-sm"
+              onClick={handleDownload}
+              disabled={!fileId}>
+
                 <Download className="w-3 h-3" />
               </Button>
-            )}
+            }
 
-            {state.hasError && (
-              <Button
-                variant="secondary"
-                size="sm"
-                className="h-6 w-6 p-0 bg-orange-500 bg-opacity-90 hover:bg-opacity-100 text-white shadow-sm"
-                onClick={handleRetry}
-              >
+            {state.hasError &&
+            <Button
+              variant="secondary"
+              size="sm"
+              className="h-6 w-6 p-0 bg-orange-500 bg-opacity-90 hover:bg-opacity-100 text-white shadow-sm"
+              onClick={handleRetry}>
+
                 <RefreshCw className="w-3 h-3" />
               </Button>
-            )}
+            }
           </div>
         </div>
 
@@ -409,50 +409,50 @@ const EnhancedDocumentViewer: React.FC<EnhancedDocumentViewerProps> = ({
               </Badge>
               
               {/* Connection Status */}
-              {!state.isOnline && (
-                <Badge variant="destructive" className="text-xs">
+              {!state.isOnline &&
+              <Badge variant="destructive" className="text-xs">
                   Offline
                 </Badge>
-              )}
+              }
               
-              {state.retryCount > 0 && (
-                <Badge variant="secondary" className="text-xs">
+              {state.retryCount > 0 &&
+              <Badge variant="secondary" className="text-xs">
                   Retry {state.retryCount}
                 </Badge>
-              )}
+              }
               
-              {isAdminUser && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 px-2 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
-                  onClick={handleDownload}
-                  disabled={!fileId}
-                >
+              {isAdminUser &&
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
+                onClick={handleDownload}
+                disabled={!fileId}>
+
                   <Download className="w-3 h-3 mr-1" />
                   Download
                 </Button>
-              )}
+              }
             </div>
           </div>
           
           {/* Additional Info */}
-          {state.errorMessage && (
-            <div className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded">
+          {state.errorMessage &&
+          <div className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded">
               <strong>Error:</strong> {state.errorMessage}
             </div>
-          )}
+          }
           
-          {state.url && !state.hasError && (
-            <div className="mt-2 text-xs text-green-600 bg-green-50 p-2 rounded">
+          {state.url && !state.hasError &&
+          <div className="mt-2 text-xs text-green-600 bg-green-50 p-2 rounded">
               <strong>Status:</strong> Document loaded successfully
               {state.retryCount > 0 && ` (after ${state.retryCount} retry attempts)`}
             </div>
-          )}
+          }
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default EnhancedDocumentViewer;

@@ -8,7 +8,7 @@ export interface FileServiceResponse<T = any> {
 class FileService {
   private readonly MAX_RETRIES = 3;
   private readonly RETRY_DELAY = 1000;
-  private urlCache = new Map<number, { url: string; timestamp: number }>();
+  private urlCache = new Map<number, {url: string;timestamp: number;}>();
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
   // Get file URL with caching and retry logic
@@ -31,9 +31,9 @@ class FileService {
     while (retryCount < this.MAX_RETRIES) {
       try {
         console.log(`Attempting to get URL for file ${fileId} (attempt ${retryCount + 1}/${this.MAX_RETRIES})`);
-        
+
         const response = await window.ezsite.apis.getUploadUrl(fileId);
-        
+
         if (response.error) {
           throw new Error(response.error);
         }
@@ -57,14 +57,14 @@ class FileService {
         // Cache the successful result
         this.cacheUrl(fileId, url);
         console.log(`Successfully retrieved and cached URL for file ${fileId}`);
-        
+
         return { data: url, error: null, retryCount };
       } catch (error) {
         lastError = error instanceof Error ? error.message : 'Unknown error occurred';
         console.error(`Attempt ${retryCount + 1} failed for file ${fileId}:`, lastError);
-        
+
         retryCount++;
-        
+
         if (retryCount < this.MAX_RETRIES) {
           console.log(`Retrying in ${this.RETRY_DELAY}ms...`);
           await this.delay(this.RETRY_DELAY);
@@ -72,10 +72,10 @@ class FileService {
       }
     }
 
-    return { 
-      data: null, 
+    return {
+      data: null,
       error: lastError || 'Failed to get file URL after multiple attempts',
-      retryCount 
+      retryCount
     };
   }
 
@@ -94,22 +94,22 @@ class FileService {
             clearTimeout(timeout);
             resolve(true);
           };
-          
+
           img.onerror = () => {
             clearTimeout(timeout);
             resolve(false);
           };
-          
+
           img.src = url;
         });
       }
 
       // For other files, test with a HEAD request
-      const response = await fetch(url, { 
+      const response = await fetch(url, {
         method: 'HEAD',
         signal: AbortSignal.timeout(5000) // 5 second timeout
       });
-      
+
       return response.ok;
     } catch (error) {
       console.warn('URL accessibility test failed:', error);
@@ -121,7 +121,7 @@ class FileService {
   private isLikelyImageUrl(url: string): boolean {
     const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.svg'];
     const lowercaseUrl = url.toLowerCase();
-    return imageExtensions.some(ext => lowercaseUrl.includes(ext));
+    return imageExtensions.some((ext) => lowercaseUrl.includes(ext));
   }
 
   // Validate URL format
@@ -167,16 +167,16 @@ class FileService {
 
   // Delay utility
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   // Preload multiple file URLs
   async preloadFileUrls(fileIds: number[]): Promise<Map<number, string>> {
     const results = new Map<number, string>();
-    const promises = fileIds.map(id => this.getFileUrl(id));
-    
+    const promises = fileIds.map((id) => this.getFileUrl(id));
+
     const responses = await Promise.allSettled(promises);
-    
+
     responses.forEach((response, index) => {
       if (response.status === 'fulfilled' && response.value.data) {
         results.set(fileIds[index], response.value.data);
@@ -193,12 +193,12 @@ class FileService {
         PageNo: 1,
         PageSize: 1,
         Filters: [
-          { name: 'store_file_id', op: 'Equal', value: fileId }
-        ]
+        { name: 'store_file_id', op: 'Equal', value: fileId }]
+
       });
 
       if (error) throw new Error(error);
-      
+
       const fileInfo = data?.List?.[0];
       if (!fileInfo) {
         throw new Error('File not found in database');
@@ -226,7 +226,7 @@ class FileService {
       link.href = url;
       link.download = fileName || `file_${fileId}`;
       link.target = '_blank';
-      
+
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

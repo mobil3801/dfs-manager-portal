@@ -14,8 +14,8 @@ import {
   ExternalLink,
   CheckCircle,
   WifiOff,
-  Clock
-} from 'lucide-react';
+  Clock } from
+'lucide-react';
 
 interface FixedDocumentViewerProps {
   fileId: number | null;
@@ -83,7 +83,7 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
   const loadDocumentUrl = async (isRetry = false) => {
     if (!fileId || fileId <= 0) return;
 
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       isLoading: true,
       hasError: false,
@@ -95,10 +95,10 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
 
     try {
       console.log(`[FixedDocumentViewer] Loading URL for file ${fileId}${isRetry ? ` (retry ${state.retryCount + 1})` : ''}`);
-      
+
       // Step 1: Get the file URL from the API
       const urlResponse = await window.ezsite.apis.getUploadUrl(fileId);
-      
+
       if (urlResponse.error) {
         throw new Error(`API Error: ${urlResponse.error}`);
       }
@@ -111,7 +111,7 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
       console.log(`[FixedDocumentViewer] Got URL for file ${fileId}: ${documentUrl.substring(0, 50)}...`);
 
       // Step 2: Update state with URL
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         url: documentUrl
       }));
@@ -122,8 +122,8 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       console.error(`[FixedDocumentViewer] Error loading file ${fileId}:`, errorMessage);
-      
-      setState(prev => ({
+
+      setState((prev) => ({
         ...prev,
         hasError: true,
         errorMessage,
@@ -145,12 +145,12 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
     return new Promise((resolve) => {
       const img = new Image();
       let resolved = false;
-      
+
       const handleLoad = () => {
         if (!resolved) {
           resolved = true;
           console.log(`[FixedDocumentViewer] Image loaded successfully for file ${fileId}`);
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
             isImageFile: true,
             imageLoaded: true,
@@ -159,12 +159,12 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
           resolve();
         }
       };
-      
+
       const handleError = (e: any) => {
         if (!resolved) {
           resolved = true;
           console.log(`[FixedDocumentViewer] Image load failed for file ${fileId}:`, e);
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
             isImageFile: false,
             imageLoaded: false,
@@ -173,13 +173,13 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
           resolve();
         }
       };
-      
+
       // Set timeout for image loading
       setTimeout(() => {
         if (!resolved) {
           resolved = true;
           console.log(`[FixedDocumentViewer] Image load timeout for file ${fileId}`);
-          setState(prev => ({
+          setState((prev) => ({
             ...prev,
             isImageFile: false,
             imageLoaded: false,
@@ -188,7 +188,7 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
           resolve();
         }
       }, 8000); // 8 second timeout
-      
+
       img.onload = handleLoad;
       img.onerror = handleError;
       img.src = url;
@@ -247,11 +247,11 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
 
   const getSizeClasses = () => {
     switch (size) {
-      case 'sm': return 'h-24';
-      case 'md': return 'h-32';
-      case 'lg': return 'h-48';
-      case 'xl': return 'h-80';
-      default: return 'h-48';
+      case 'sm':return 'h-24';
+      case 'md':return 'h-32';
+      case 'lg':return 'h-48';
+      case 'xl':return 'h-80';
+      default:return 'h-48';
     }
   };
 
@@ -277,8 +277,8 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
           <h3 className="text-lg font-medium text-gray-900 mb-2">No Document</h3>
           <p className="text-sm text-gray-500">No file ID provided</p>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -288,21 +288,21 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
         <div className={`relative w-full bg-gray-50 border-b aspect-[3/2] ${getSizeClasses()}`}>
           
           {/* Loading State */}
-          {state.isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+          {state.isLoading &&
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
               <div className="text-center">
                 <Loader2 className="w-8 h-8 animate-spin text-blue-500 mx-auto mb-2" />
                 <span className="text-sm text-gray-600">Loading document...</span>
-                {state.retryCount > 0 && (
-                  <p className="text-xs text-gray-500 mt-1">Retry attempt {state.retryCount}</p>
-                )}
+                {state.retryCount > 0 &&
+              <p className="text-xs text-gray-500 mt-1">Retry attempt {state.retryCount}</p>
+              }
               </div>
             </div>
-          )}
+          }
 
           {/* Error State */}
-          {state.hasError && !state.isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100">
+          {state.hasError && !state.isLoading &&
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100">
               <div className="text-center p-4 max-w-xs">
                 <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-3" />
                 <p className="text-sm font-medium text-red-800 mb-2">Unable to load</p>
@@ -313,47 +313,47 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
                   {state.errorMessage || 'Unknown error occurred'}
                 </p>
                 
-                {showRetryButton && (
-                  <div className="flex flex-col gap-2">
+                {showRetryButton &&
+              <div className="flex flex-col gap-2">
                     <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleRetry}
-                      className="text-xs"
-                    >
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRetry}
+                  className="text-xs">
+
                       <RefreshCw className="w-3 h-3 mr-1" />
                       Retry Load
                     </Button>
                   </div>
-                )}
+              }
               </div>
             </div>
-          )}
+          }
 
           {/* Success State - Image */}
-          {state.url && !state.isLoading && !state.hasError && state.isImageFile && state.imageLoaded && (
-            <img
-              src={state.url}
-              alt={label}
-              className="w-full h-full object-contain hover:scale-105 transition-transform duration-300 cursor-pointer bg-white"
-              onClick={handleViewFullScreen}
-              onError={(e) => {
-                console.error(`[FixedDocumentViewer] Image display error for file ${fileId}:`, e);
-                setState(prev => ({ 
-                  ...prev, 
-                  hasError: true, 
-                  errorMessage: 'Image failed to display properly' 
-                }));
-              }}
-            />
-          )}
+          {state.url && !state.isLoading && !state.hasError && state.isImageFile && state.imageLoaded &&
+          <img
+            src={state.url}
+            alt={label}
+            className="w-full h-full object-contain hover:scale-105 transition-transform duration-300 cursor-pointer bg-white"
+            onClick={handleViewFullScreen}
+            onError={(e) => {
+              console.error(`[FixedDocumentViewer] Image display error for file ${fileId}:`, e);
+              setState((prev) => ({
+                ...prev,
+                hasError: true,
+                errorMessage: 'Image failed to display properly'
+              }));
+            }} />
+
+          }
 
           {/* Success State - Non-Image */}
-          {state.url && !state.isLoading && !state.hasError && (!state.isImageFile || !state.imageLoaded) && (
-            <div 
-              className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 cursor-pointer hover:bg-blue-100 transition-colors"
-              onClick={handleViewFullScreen}
-            >
+          {state.url && !state.isLoading && !state.hasError && (!state.isImageFile || !state.imageLoaded) &&
+          <div
+            className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 cursor-pointer hover:bg-blue-100 transition-colors"
+            onClick={handleViewFullScreen}>
+
               <div className="text-center p-4">
                 <FileText className="w-16 h-16 text-blue-500 mx-auto mb-3" />
                 <p className="text-sm font-medium text-blue-800">Document File</p>
@@ -361,7 +361,7 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
                 <p className="text-xs text-blue-500 mt-1">ID: {fileId}</p>
               </div>
             </div>
-          )}
+          }
 
           {/* Document Label */}
           <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
@@ -375,32 +375,32 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
               size="sm"
               className="h-6 w-6 p-0 bg-white bg-opacity-90 hover:bg-opacity-100 shadow-sm"
               onClick={handleViewFullScreen}
-              disabled={!state.url}
-            >
+              disabled={!state.url}>
+
               <Eye className="w-3 h-3" />
             </Button>
             
-            {isAdminUser && state.url && (
-              <Button
-                variant="secondary"
-                size="sm"
-                className="h-6 w-6 p-0 bg-green-500 bg-opacity-90 hover:bg-opacity-100 text-white shadow-sm"
-                onClick={handleDownload}
-              >
+            {isAdminUser && state.url &&
+            <Button
+              variant="secondary"
+              size="sm"
+              className="h-6 w-6 p-0 bg-green-500 bg-opacity-90 hover:bg-opacity-100 text-white shadow-sm"
+              onClick={handleDownload}>
+
                 <Download className="w-3 h-3" />
               </Button>
-            )}
+            }
 
-            {state.hasError && showRetryButton && (
-              <Button
-                variant="secondary"
-                size="sm"
-                className="h-6 w-6 p-0 bg-orange-500 bg-opacity-90 hover:bg-opacity-100 text-white shadow-sm"
-                onClick={handleRetry}
-              >
+            {state.hasError && showRetryButton &&
+            <Button
+              variant="secondary"
+              size="sm"
+              className="h-6 w-6 p-0 bg-orange-500 bg-opacity-90 hover:bg-opacity-100 text-white shadow-sm"
+              onClick={handleRetry}>
+
                 <RefreshCw className="w-3 h-3" />
               </Button>
-            )}
+            }
           </div>
         </div>
 
@@ -428,52 +428,52 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
                 <span className="text-xs">{getStatusText()}</span>
               </div>
               
-              {state.retryCount > 0 && (
-                <Badge variant="secondary" className="text-xs">
+              {state.retryCount > 0 &&
+              <Badge variant="secondary" className="text-xs">
                   Retry {state.retryCount}
                 </Badge>
-              )}
+              }
               
-              {isAdminUser && state.url && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 px-2 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
-                  onClick={handleDownload}
-                >
+              {isAdminUser && state.url &&
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
+                onClick={handleDownload}>
+
                   <Download className="w-3 h-3 mr-1" />
                   Download
                 </Button>
-              )}
+              }
             </div>
           </div>
           
           {/* Status Details */}
-          {state.lastAttempt && (
-            <div className="mt-2 text-xs text-gray-500">
+          {state.lastAttempt &&
+          <div className="mt-2 text-xs text-gray-500">
               <div className="flex items-center space-x-1">
                 <Clock className="w-3 h-3" />
                 <span>Last attempt: {state.lastAttempt.toLocaleTimeString()}</span>
               </div>
             </div>
-          )}
+          }
           
-          {state.errorMessage && (
-            <div className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded">
+          {state.errorMessage &&
+          <div className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded">
               <strong>Error:</strong> {state.errorMessage}
             </div>
-          )}
+          }
           
-          {state.url && !state.hasError && (
-            <div className="mt-2 text-xs text-green-600 bg-green-50 p-2 rounded">
+          {state.url && !state.hasError &&
+          <div className="mt-2 text-xs text-green-600 bg-green-50 p-2 rounded">
               <strong>Status:</strong> Document loaded successfully
               {state.retryCount > 0 && ` after ${state.retryCount} retry attempts`}
             </div>
-          )}
+          }
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default FixedDocumentViewer;
