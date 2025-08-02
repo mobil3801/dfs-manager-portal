@@ -19,7 +19,7 @@ import ProfilePicture from '@/components/ProfilePicture';
 import DocumentPreview from '@/components/DocumentPreview';
 import IDDocumentViewer from '@/components/IDDocumentViewer';
 import FixedIDDocumentsDisplay from '@/components/FixedIDDocumentsDisplay';
-import ImprovedIDDocumentsDisplay from '@/components/ImprovedIDDocumentsDisplay';
+import EnhancedLiveIDDocumentsDisplay from '@/components/EnhancedLiveIDDocumentsDisplay';
 import { displayPhoneNumber } from '@/utils/phoneFormatter';
 
 interface Employee {
@@ -389,11 +389,13 @@ const EmployeeList: React.FC = () => {
   // Enhanced ID Documents Display Component with Improved Error Handling
   const IDDocumentsDisplay = ({ employee }: {employee: Employee;}) => {
     return (
-      <ImprovedIDDocumentsDisplay
+      <EnhancedLiveIDDocumentsDisplay
         employee={employee}
         isAdminUser={isAdminUser}
         onRefresh={loadEmployees}
-        allowDelete={isAdminUser && canDeleteEmployee} />);
+        allowDelete={isAdminUser && canDeleteEmployee}
+        showPreview={true}
+      />);
 
 
   }; // Define view modal fields with profile picture, employment status, and ID documents

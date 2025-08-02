@@ -11,8 +11,8 @@ import {
   AlertCircle,
   Image as ImageIcon,
   X,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw } from
+'lucide-react';
 
 interface ImprovedIDDocumentViewerProps {
   fileId: number | null;
@@ -61,7 +61,7 @@ const ImprovedIDDocumentViewer: React.FC<ImprovedIDDocumentViewerProps> = ({
 
       try {
         console.log(`[ImprovedIDDocumentViewer] Loading document URL for file ID: ${fileId}`);
-        
+
         // Get the file URL from the API
         const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(fileId);
 
@@ -92,7 +92,7 @@ const ImprovedIDDocumentViewer: React.FC<ImprovedIDDocumentViewerProps> = ({
         if (retryCount < 1 && (errorMsg.includes('network') || errorMsg.includes('timeout'))) {
           setTimeout(() => {
             console.log(`[ImprovedIDDocumentViewer] Auto-retrying for file ${fileId}`);
-            setRetryCount(prev => prev + 1);
+            setRetryCount((prev) => prev + 1);
           }, 2000);
         }
       }
@@ -104,7 +104,7 @@ const ImprovedIDDocumentViewer: React.FC<ImprovedIDDocumentViewerProps> = ({
   const testImageLoad = (url: string): Promise<void> => {
     return new Promise((resolve) => {
       const img = new Image();
-      
+
       // Set a timeout for image loading
       const timeout = setTimeout(() => {
         console.log(`[ImprovedIDDocumentViewer] Image load timeout for: ${url}`);
@@ -152,14 +152,14 @@ const ImprovedIDDocumentViewer: React.FC<ImprovedIDDocumentViewerProps> = ({
       const response = await fetch(documentUrl);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      
+
       const link = document.createElement('a');
       link.href = url;
       link.download = `${label.replace(/\s+/g, '_')}_document`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       // Clean up the blob URL
       window.URL.revokeObjectURL(url);
 
@@ -197,11 +197,11 @@ const ImprovedIDDocumentViewer: React.FC<ImprovedIDDocumentViewerProps> = ({
 
   const getSizeClasses = () => {
     switch (size) {
-      case 'sm': return 'h-24';
-      case 'md': return 'h-32';
-      case 'lg': return 'h-48';
-      case 'xl': return 'h-80';
-      default: return 'h-48';
+      case 'sm':return 'h-24';
+      case 'md':return 'h-32';
+      case 'lg':return 'h-48';
+      case 'xl':return 'h-80';
+      default:return 'h-48';
     }
   };
 
@@ -216,85 +216,85 @@ const ImprovedIDDocumentViewer: React.FC<ImprovedIDDocumentViewerProps> = ({
         {/* Preview Area with Enhanced Error Handling */}
         <div className={`relative w-full bg-gray-50 border-b aspect-[3/2] ${getSizeClasses()}`}>
           {/* Loading State */}
-          {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+          {isLoading &&
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
               <div className="text-center">
                 <Loader2 className="w-8 h-8 animate-spin text-gray-400 mx-auto mb-2" />
                 <span className="text-sm text-gray-600">Loading document...</span>
-                {retryCount > 0 && (
-                  <p className="text-xs text-gray-500 mt-1">Retry attempt {retryCount}</p>
-                )}
+                {retryCount > 0 &&
+              <p className="text-xs text-gray-500 mt-1">Retry attempt {retryCount}</p>
+              }
               </div>
             </div>
-          )}
+          }
 
           {/* Error State with Enhanced Retry Option */}
-          {hasError && !isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100 p-4">
+          {hasError && !isLoading &&
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100 p-4">
               <div className="text-center max-w-full">
                 <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-2" />
                 <p className="text-sm text-red-600 mb-2">Unable to load document</p>
                 <p className="text-xs text-red-500 mb-1">ID: {fileId}</p>
-                {errorMessage && (
-                  <p className="text-xs text-red-500 mb-3 max-w-xs mx-auto break-words">
+                {errorMessage &&
+              <p className="text-xs text-red-500 mb-3 max-w-xs mx-auto break-words">
                     {errorMessage}
                   </p>
-                )}
+              }
                 <div className="flex flex-col space-y-2">
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleRetry}
-                    className="bg-white hover:bg-red-50 border-red-200"
-                  >
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRetry}
+                  className="bg-white hover:bg-red-50 border-red-200">
+
                     <RefreshCw className="w-4 h-4 mr-1" />
                     Retry Load
                   </Button>
-                  {documentUrl && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleViewFullScreen}
-                      className="bg-white hover:bg-blue-50 border-blue-200"
-                    >
+                  {documentUrl &&
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleViewFullScreen}
+                  className="bg-white hover:bg-blue-50 border-blue-200">
+
                       <Eye className="w-4 h-4 mr-1" />
                       Try Open
                     </Button>
-                  )}
+                }
                 </div>
               </div>
             </div>
-          )}
+          }
 
           {/* Successful Document Display */}
-          {documentUrl && !isLoading && !hasError && (
-            <>
-              {isImageFile && imageLoaded ? (
-                <img
-                  src={documentUrl}
-                  alt={label}
-                  className="w-full h-full object-contain hover:scale-105 transition-transform duration-300 cursor-pointer bg-white"
-                  onClick={handleViewFullScreen}
-                  onError={() => {
-                    console.error(`[ImprovedIDDocumentViewer] Runtime image error for: ${documentUrl}`);
-                    setHasError(true);
-                    setErrorMessage('Image failed to display');
-                  }}
-                />
-              ) : (
-                <div
-                  className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 cursor-pointer hover:bg-blue-100 transition-colors"
-                  onClick={handleViewFullScreen}
-                >
+          {documentUrl && !isLoading && !hasError &&
+          <>
+              {isImageFile && imageLoaded ?
+            <img
+              src={documentUrl}
+              alt={label}
+              className="w-full h-full object-contain hover:scale-105 transition-transform duration-300 cursor-pointer bg-white"
+              onClick={handleViewFullScreen}
+              onError={() => {
+                console.error(`[ImprovedIDDocumentViewer] Runtime image error for: ${documentUrl}`);
+                setHasError(true);
+                setErrorMessage('Image failed to display');
+              }} /> :
+
+
+            <div
+              className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 cursor-pointer hover:bg-blue-100 transition-colors"
+              onClick={handleViewFullScreen}>
+
                   <div className="text-center p-4">
                     <FileText className="w-16 h-16 text-blue-500 mx-auto mb-3" />
                     <p className="text-sm font-medium text-blue-800">Document File</p>
                     <p className="text-xs text-blue-600 mt-1">Click to view full size</p>
                   </div>
                 </div>
-              )}
+            }
             </>
-          )}
+          }
 
           {/* Document Label */}
           <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
@@ -308,33 +308,33 @@ const ImprovedIDDocumentViewer: React.FC<ImprovedIDDocumentViewerProps> = ({
               size="sm"
               className="h-6 w-6 p-0 bg-white bg-opacity-90 hover:bg-opacity-100 shadow-sm"
               onClick={handleViewFullScreen}
-              disabled={!documentUrl}
-            >
+              disabled={!documentUrl}>
+
               <Eye className="w-3 h-3" />
             </Button>
             
-            {isAdminUser && (
-              <Button
-                variant="secondary"
-                size="sm"
-                className="h-6 w-6 p-0 bg-green-500 bg-opacity-90 hover:bg-opacity-100 text-white shadow-sm"
-                onClick={handleDownload}
-                disabled={!documentUrl}
-              >
+            {isAdminUser &&
+            <Button
+              variant="secondary"
+              size="sm"
+              className="h-6 w-6 p-0 bg-green-500 bg-opacity-90 hover:bg-opacity-100 text-white shadow-sm"
+              onClick={handleDownload}
+              disabled={!documentUrl}>
+
                 <Download className="w-3 h-3" />
               </Button>
-            )}
+            }
 
-            {showDeleteButton && (
-              <Button
-                variant="secondary"
-                size="sm"
-                className="h-6 w-6 p-0 bg-red-500 bg-opacity-90 hover:bg-opacity-100 text-white shadow-sm"
-                onClick={handleDelete}
-              >
+            {showDeleteButton &&
+            <Button
+              variant="secondary"
+              size="sm"
+              className="h-6 w-6 p-0 bg-red-500 bg-opacity-90 hover:bg-opacity-100 text-white shadow-sm"
+              onClick={handleDelete}>
+
                 <X className="w-3 h-3" />
               </Button>
-            )}
+            }
           </div>
         </div>
 
@@ -348,29 +348,29 @@ const ImprovedIDDocumentViewer: React.FC<ImprovedIDDocumentViewerProps> = ({
               <Badge variant="outline" className="text-xs">
                 {isImageFile ? 'Image' : 'Document'}
               </Badge>
-              {hasError && (
-                <Badge variant="destructive" className="text-xs">
+              {hasError &&
+              <Badge variant="destructive" className="text-xs">
                   Error
                 </Badge>
-              )}
-              {isAdminUser && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 px-2 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
-                  onClick={handleDownload}
-                  disabled={!documentUrl}
-                >
+              }
+              {isAdminUser &&
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
+                onClick={handleDownload}
+                disabled={!documentUrl}>
+
                   <Download className="w-3 h-3 mr-1" />
                   Download
                 </Button>
-              )}
+              }
             </div>
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default ImprovedIDDocumentViewer;

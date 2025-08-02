@@ -4,15 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  FileText, 
-  RefreshCw, 
-  AlertCircle, 
+import {
+  FileText,
+  RefreshCw,
+  AlertCircle,
   CheckCircle,
   Eye,
   Download,
-  User
-} from 'lucide-react';
+  User } from
+'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import ImprovedIDDocumentViewer from '@/components/ImprovedIDDocumentViewer';
 import FixedIDDocumentViewer from '@/components/FixedIDDocumentViewer';
@@ -43,7 +43,7 @@ const DocumentLoadingDebugPage: React.FC = () => {
   const loadEmployeesWithDocuments = async () => {
     try {
       setLoadingEmployees(true);
-      
+
       // Load employees that have document files
       const { data, error } = await window.ezsite.apis.tablePage('11727', {
         PageNo: 1,
@@ -56,16 +56,16 @@ const DocumentLoadingDebugPage: React.FC = () => {
       if (error) throw new Error(error);
 
       // Filter employees that have at least one document file
-      const employeesWithDocs = (data?.List || []).filter((emp: any) => 
-        emp.id_document_file_id || 
-        emp.id_document_2_file_id || 
-        emp.id_document_3_file_id || 
-        emp.id_document_4_file_id
+      const employeesWithDocs = (data?.List || []).filter((emp: any) =>
+      emp.id_document_file_id ||
+      emp.id_document_2_file_id ||
+      emp.id_document_3_file_id ||
+      emp.id_document_4_file_id
       );
 
       setEmployees(employeesWithDocs);
       console.log(`[DocumentLoadingDebugPage] Loaded ${employeesWithDocs.length} employees with documents`);
-      
+
     } catch (error) {
       console.error('[DocumentLoadingDebugPage] Error loading employees:', error);
       toast({
@@ -80,10 +80,10 @@ const DocumentLoadingDebugPage: React.FC = () => {
 
   const testFileLoad = async (fileId: number): Promise<FileTestResult> => {
     const startTime = Date.now();
-    
+
     try {
       console.log(`[DocumentLoadingDebugPage] Testing file ID: ${fileId}`);
-      
+
       const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(fileId);
       const responseTime = Date.now() - startTime;
 
@@ -134,7 +134,7 @@ const DocumentLoadingDebugPage: React.FC = () => {
       const responseTime = Date.now() - startTime;
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       console.error(`[DocumentLoadingDebugPage] Test failed for file ${fileId}:`, error);
-      
+
       return {
         fileId,
         error: errorMessage,
@@ -159,7 +159,7 @@ const DocumentLoadingDebugPage: React.FC = () => {
     try {
       const result = await testFileLoad(fileId);
       setTestResults([result]);
-      
+
       if (result.success) {
         toast({
           title: "Test Successful",
@@ -189,15 +189,15 @@ const DocumentLoadingDebugPage: React.FC = () => {
 
     setIsRunningTest(true);
     setTestResults([]);
-    
+
     try {
       const fileIds: number[] = [];
-      
+
       // Collect all file IDs from employees
-      employees.forEach(emp => {
+      employees.forEach((emp) => {
         if (emp.id_document_file_id) fileIds.push(emp.id_document_file_id);
         if (emp.id_document_2_file_id) fileIds.push(emp.id_document_2_file_id);
-        if (emp.id_document_3_file_id) fileIds.push(emp.id_document_3_file_id); 
+        if (emp.id_document_3_file_id) fileIds.push(emp.id_document_3_file_id);
         if (emp.id_document_4_file_id) fileIds.push(emp.id_document_4_file_id);
       });
 
@@ -205,7 +205,7 @@ const DocumentLoadingDebugPage: React.FC = () => {
       console.log(`[DocumentLoadingDebugPage] Testing ${uniqueFileIds.length} unique file IDs`);
 
       const results: FileTestResult[] = [];
-      
+
       // Test files in batches of 5 to avoid overwhelming the API
       const batchSize = 5;
       for (let i = 0; i < uniqueFileIds.length; i += batchSize) {
@@ -213,18 +213,18 @@ const DocumentLoadingDebugPage: React.FC = () => {
         const batchPromises = batch.map(testFileLoad);
         const batchResults = await Promise.all(batchPromises);
         results.push(...batchResults);
-        
+
         // Update results incrementally
         setTestResults([...results]);
-        
+
         // Small delay between batches
         if (i + batchSize < uniqueFileIds.length) {
-          await new Promise(resolve => setTimeout(resolve, 500));
+          await new Promise((resolve) => setTimeout(resolve, 500));
         }
       }
 
-      const successCount = results.filter(r => r.success).length;
-      const failureCount = results.filter(r => !r.success).length;
+      const successCount = results.filter((r) => r.success).length;
+      const failureCount = results.filter((r) => !r.success).length;
 
       toast({
         title: "Bulk Test Complete",
@@ -274,17 +274,17 @@ const DocumentLoadingDebugPage: React.FC = () => {
                 placeholder="Enter file ID (e.g., 12345)"
                 value={testFileId}
                 onChange={(e) => setTestFileId(e.target.value)}
-                className="max-w-xs"
-              />
-              <Button 
+                className="max-w-xs" />
+
+              <Button
                 onClick={runSingleFileTest}
-                disabled={isRunningTest}
-              >
-                {isRunningTest ? (
-                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <FileText className="w-4 h-4 mr-2" />
-                )}
+                disabled={isRunningTest}>
+
+                {isRunningTest ?
+                <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> :
+
+                <FileText className="w-4 h-4 mr-2" />
+                }
                 Test File
               </Button>
             </div>
@@ -302,67 +302,67 @@ const DocumentLoadingDebugPage: React.FC = () => {
                   variant="outline"
                   size="sm"
                   onClick={loadEmployeesWithDocuments}
-                  disabled={loadingEmployees}
-                >
-                  {loadingEmployees ? (
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <RefreshCw className="w-4 h-4" />
-                  )}
+                  disabled={loadingEmployees}>
+
+                  {loadingEmployees ?
+                  <RefreshCw className="w-4 h-4 animate-spin" /> :
+
+                  <RefreshCw className="w-4 h-4" />
+                  }
                 </Button>
               </div>
             </div>
             
             <div className="flex items-center space-x-4">
-              <Button 
+              <Button
                 onClick={runBulkTest}
-                disabled={isRunningTest || employees.length === 0}
-              >
-                {isRunningTest ? (
-                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <FileText className="w-4 h-4 mr-2" />
-                )}
+                disabled={isRunningTest || employees.length === 0}>
+
+                {isRunningTest ?
+                <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> :
+
+                <FileText className="w-4 h-4 mr-2" />
+                }
                 Test All Documents
               </Button>
               
-              {testResults.length > 0 && (
-                <Button 
-                  variant="outline"
-                  onClick={clearResults}
-                >
+              {testResults.length > 0 &&
+              <Button
+                variant="outline"
+                onClick={clearResults}>
+
                   Clear Results
                 </Button>
-              )}
+              }
             </div>
           </div>
 
           {/* Test Results */}
-          {testResults.length > 0 && (
-            <div className="space-y-4">
+          {testResults.length > 0 &&
+          <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Test Results</h3>
                 <div className="flex items-center space-x-2">
                   <Badge variant="default">
-                    {testResults.filter(r => r.success).length} Success
+                    {testResults.filter((r) => r.success).length} Success
                   </Badge>
                   <Badge variant="destructive">
-                    {testResults.filter(r => !r.success).length} Failed
+                    {testResults.filter((r) => !r.success).length} Failed
                   </Badge>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
-                {testResults.map((result, index) => (
-                  <Card key={index} className={`border ${result.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                {testResults.map((result, index) =>
+              <Card key={index} className={`border ${result.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center space-x-2">
-                          {result.success ? (
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                          ) : (
-                            <AlertCircle className="w-4 h-4 text-red-600" />
-                          )}
+                          {result.success ?
+                      <CheckCircle className="w-4 h-4 text-green-600" /> :
+
+                      <AlertCircle className="w-4 h-4 text-red-600" />
+                      }
                           <span className="font-medium">File ID: {result.fileId}</span>
                         </div>
                         <Badge variant={result.success ? "default" : "destructive"}>
@@ -370,18 +370,18 @@ const DocumentLoadingDebugPage: React.FC = () => {
                         </Badge>
                       </div>
                       
-                      {result.success ? (
-                        <div className="space-y-2">
+                      {result.success ?
+                  <div className="space-y-2">
                           <p className="text-sm text-green-700">
                             Status: {result.status || 'OK'}
                           </p>
-                          {result.url && (
-                            <div className="flex items-center space-x-2">
+                          {result.url &&
+                    <div className="flex items-center space-x-2">
                               <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => window.open(result.url, '_blank')}
-                              >
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(result.url, '_blank')}>
+
                                 <Eye className="w-3 h-3 mr-1" />
                                 View
                               </Button>
@@ -389,37 +389,37 @@ const DocumentLoadingDebugPage: React.FC = () => {
                                 {result.url}
                               </p>
                             </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
+                    }
+                        </div> :
+
+                  <div className="space-y-2">
                           <p className="text-sm text-red-700">
                             Error: {result.error}
                           </p>
-                          {result.status && (
-                            <p className="text-xs text-red-600">
+                          {result.status &&
+                    <p className="text-xs text-red-600">
                               HTTP Status: {result.status}
                             </p>
-                          )}
-                          {result.url && (
-                            <p className="text-xs text-gray-600 truncate">
+                    }
+                          {result.url &&
+                    <p className="text-xs text-gray-600 truncate">
                               URL: {result.url}
                             </p>
-                          )}
+                    }
                         </div>
-                      )}
+                  }
                     </CardContent>
                   </Card>
-                ))}
+              )}
               </div>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
       {/* Component Comparison */}
-      {testFileId && !isNaN(parseInt(testFileId)) && (
-        <Card>
+      {testFileId && !isNaN(parseInt(testFileId)) &&
+      <Card>
           <CardHeader>
             <CardTitle>Component Comparison</CardTitle>
           </CardHeader>
@@ -428,47 +428,47 @@ const DocumentLoadingDebugPage: React.FC = () => {
               <div className="space-y-2">
                 <h4 className="font-medium">Original Component</h4>
                 <IDDocumentViewer
-                  fileId={parseInt(testFileId)}
-                  label="Original Viewer"
-                  isAdminUser={true}
-                  size="md"
-                />
+                fileId={parseInt(testFileId)}
+                label="Original Viewer"
+                isAdminUser={true}
+                size="md" />
+
               </div>
               
               <div className="space-y-2">
                 <h4 className="font-medium">Fixed Component</h4>
                 <FixedIDDocumentViewer
-                  fileId={parseInt(testFileId)}
-                  label="Fixed Viewer"
-                  isAdminUser={true}
-                  size="md"
-                />
+                fileId={parseInt(testFileId)}
+                label="Fixed Viewer"
+                isAdminUser={true}
+                size="md" />
+
               </div>
               
               <div className="space-y-2">
                 <h4 className="font-medium">Improved Component</h4>
                 <ImprovedIDDocumentViewer
-                  fileId={parseInt(testFileId)}
-                  label="Improved Viewer"
-                  isAdminUser={true}
-                  size="md"
-                />
+                fileId={parseInt(testFileId)}
+                label="Improved Viewer"
+                isAdminUser={true}
+                size="md" />
+
               </div>
             </div>
           </CardContent>
         </Card>
-      )}
+      }
 
       {/* Employee Documents */}
-      {employees.length > 0 && (
-        <Card>
+      {employees.length > 0 &&
+      <Card>
           <CardHeader>
             <CardTitle>Employee Documents (Live Test)</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {employees.slice(0, 3).map((employee) => (
-                <div key={employee.ID} className="border rounded-lg p-4">
+              {employees.slice(0, 3).map((employee) =>
+            <div key={employee.ID} className="border rounded-lg p-4">
                   <div className="flex items-center space-x-3 mb-4">
                     <User className="w-5 h-5 text-gray-600" />
                     <div>
@@ -483,34 +483,34 @@ const DocumentLoadingDebugPage: React.FC = () => {
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {[
-                      { id: employee.id_document_file_id, label: 'Document 1' },
-                      { id: employee.id_document_2_file_id, label: 'Document 2' },
-                      { id: employee.id_document_3_file_id, label: 'Document 3' },
-                      { id: employee.id_document_4_file_id, label: 'Document 4' }
-                    ].filter(doc => doc.id).map((doc) => (
-                      <ImprovedIDDocumentViewer
-                        key={doc.id}
-                        fileId={doc.id}
-                        label={doc.label}
-                        isAdminUser={true}
-                        size="sm"
-                      />
-                    ))}
+                { id: employee.id_document_file_id, label: 'Document 1' },
+                { id: employee.id_document_2_file_id, label: 'Document 2' },
+                { id: employee.id_document_3_file_id, label: 'Document 3' },
+                { id: employee.id_document_4_file_id, label: 'Document 4' }].
+                filter((doc) => doc.id).map((doc) =>
+                <ImprovedIDDocumentViewer
+                  key={doc.id}
+                  fileId={doc.id}
+                  label={doc.label}
+                  isAdminUser={true}
+                  size="sm" />
+
+                )}
                   </div>
                 </div>
-              ))}
+            )}
               
-              {employees.length > 3 && (
-                <p className="text-sm text-gray-600 text-center">
+              {employees.length > 3 &&
+            <p className="text-sm text-gray-600 text-center">
                   Showing first 3 employees. Total: {employees.length} employees with documents.
                 </p>
-              )}
+            }
             </div>
           </CardContent>
         </Card>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default DocumentLoadingDebugPage;

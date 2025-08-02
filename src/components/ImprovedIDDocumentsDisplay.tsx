@@ -69,7 +69,7 @@ const ImprovedIDDocumentsDisplay: React.FC<ImprovedIDDocumentsDisplayProps> = ({
         PageSize: 1,
         Filters: [{ name: 'ID', op: 'Equal', value: employee.ID }]
       });
-      
+
       if (error) {
         console.error('[ImprovedIDDocumentsDisplay] Connection test failed:', error);
         setConnectionStatus('error');
@@ -83,11 +83,11 @@ const ImprovedIDDocumentsDisplay: React.FC<ImprovedIDDocumentsDisplayProps> = ({
   };
 
   const documents = [
-    { fileId: localEmployee.id_document_file_id, label: `${localEmployee.id_document_type || 'ID Document'} 1`, key: 'id_document_file_id' },
-    { fileId: localEmployee.id_document_2_file_id, label: `${localEmployee.id_document_type || 'ID Document'} 2`, key: 'id_document_2_file_id' },
-    { fileId: localEmployee.id_document_3_file_id, label: `${localEmployee.id_document_type || 'ID Document'} 3`, key: 'id_document_3_file_id' },
-    { fileId: localEmployee.id_document_4_file_id, label: `${localEmployee.id_document_type || 'ID Document'} 4`, key: 'id_document_4_file_id' }
-  ].filter((doc) => doc.fileId);
+  { fileId: localEmployee.id_document_file_id, label: `${localEmployee.id_document_type || 'ID Document'} 1`, key: 'id_document_file_id' },
+  { fileId: localEmployee.id_document_2_file_id, label: `${localEmployee.id_document_type || 'ID Document'} 2`, key: 'id_document_2_file_id' },
+  { fileId: localEmployee.id_document_3_file_id, label: `${localEmployee.id_document_type || 'ID Document'} 3`, key: 'id_document_3_file_id' },
+  { fileId: localEmployee.id_document_4_file_id, label: `${localEmployee.id_document_type || 'ID Document'} 4`, key: 'id_document_4_file_id' }].
+  filter((doc) => doc.fileId);
 
   const handleRefresh = async () => {
     if (!onRefresh) return;
@@ -190,25 +190,25 @@ const ImprovedIDDocumentsDisplay: React.FC<ImprovedIDDocumentsDisplayProps> = ({
         <p className="text-sm font-medium">No ID documents uploaded</p>
         <p className="text-xs text-gray-400 mt-1">ID documents will appear here once uploaded</p>
         
-        {connectionStatus === 'error' && (
-          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+        {connectionStatus === 'error' &&
+        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
             <div className="flex items-center justify-center space-x-2 text-yellow-700">
               <AlertTriangle className="w-4 h-4" />
               <span className="text-sm">Connection issues detected</span>
             </div>
             <Button
-              variant="outline"
-              size="sm"
-              className="mt-2"
-              onClick={checkConnectionStatus}
-            >
+            variant="outline"
+            size="sm"
+            className="mt-2"
+            onClick={checkConnectionStatus}>
+
               <RefreshCw className="w-4 h-4 mr-1" />
               Test Connection
             </Button>
           </div>
-        )}
-      </div>
-    );
+        }
+      </div>);
+
   }
 
   return (
@@ -225,16 +225,16 @@ const ImprovedIDDocumentsDisplay: React.FC<ImprovedIDDocumentsDisplayProps> = ({
             size="sm"
             onClick={handleRefresh}
             disabled={refreshing}
-            className="h-6 px-2"
-          >
+            className="h-6 px-2">
+
             <RefreshCw className={`w-3 h-3 ${refreshing ? 'animate-spin' : ''}`} />
           </Button>
           
           {/* Connection Status Badge */}
-          <Badge 
-            variant={connectionStatus === 'connected' ? 'default' : connectionStatus === 'error' ? 'destructive' : 'secondary'} 
-            className="text-xs"
-          >
+          <Badge
+            variant={connectionStatus === 'connected' ? 'default' : connectionStatus === 'error' ? 'destructive' : 'secondary'}
+            className="text-xs">
+
             {connectionStatus === 'checking' && 'Checking...'}
             {connectionStatus === 'connected' && 'Connected'}
             {connectionStatus === 'error' && 'Connection Error'}
@@ -244,26 +244,26 @@ const ImprovedIDDocumentsDisplay: React.FC<ImprovedIDDocumentsDisplayProps> = ({
             Enhanced Viewer
           </Badge>
           
-          {isAdminUser && (
-            <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+          {isAdminUser &&
+          <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
               Admin: Full Access
             </Badge>
-          )}
+          }
         </div>
       </div>
       
       {/* Document Type Information */}
-      {localEmployee.id_document_type && (
-        <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+      {localEmployee.id_document_type &&
+      <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
           <p className="text-sm text-blue-800">
             <strong>Document Type:</strong> {localEmployee.id_document_type}
           </p>
         </div>
-      )}
+      }
 
       {/* Connection Error Warning */}
-      {connectionStatus === 'error' && (
-        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+      {connectionStatus === 'error' &&
+      <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
           <div className="flex items-center space-x-2 text-yellow-700 mb-2">
             <AlertTriangle className="w-4 h-4" />
             <span className="text-sm font-medium">Connection Issues Detected</span>
@@ -272,31 +272,31 @@ const ImprovedIDDocumentsDisplay: React.FC<ImprovedIDDocumentsDisplayProps> = ({
             There may be connectivity issues affecting document loading. Documents may take longer to load or show errors.
           </p>
           <Button
-            variant="outline"
-            size="sm"
-            onClick={checkConnectionStatus}
-            className="bg-white"
-          >
+          variant="outline"
+          size="sm"
+          onClick={checkConnectionStatus}
+          className="bg-white">
+
             <RefreshCw className="w-4 h-4 mr-1" />
             Test Connection
           </Button>
         </div>
-      )}
+      }
       
       {/* Enhanced Document Display Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {documents.map((doc, index) => (
-          <ImprovedIDDocumentViewer
-            key={`${doc.fileId}-${index}`}
-            fileId={doc.fileId}
-            label={doc.label}
-            isAdminUser={isAdminUser}
-            size="lg"
-            className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow rounded-lg overflow-hidden"
-            showDeleteButton={allowDelete && isAdminUser}
-            onDelete={() => doc.fileId && handleDeleteDocument(doc.key, doc.fileId)}
-          />
-        ))}
+        {documents.map((doc, index) =>
+        <ImprovedIDDocumentViewer
+          key={`${doc.fileId}-${index}`}
+          fileId={doc.fileId}
+          label={doc.label}
+          isAdminUser={isAdminUser}
+          size="lg"
+          className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow rounded-lg overflow-hidden"
+          showDeleteButton={allowDelete && isAdminUser}
+          onDelete={() => doc.fileId && handleDeleteDocument(doc.key, doc.fileId)} />
+
+        )}
       </div>
 
       {/* Information Panel */}
@@ -305,17 +305,17 @@ const ImprovedIDDocumentsDisplay: React.FC<ImprovedIDDocumentsDisplayProps> = ({
         <p>• Automatic connection testing and status monitoring</p>
         <p>• Click on any document to view in full screen with zoom capabilities</p>
         <p>• Documents are loaded with multiple fallback options and timeout handling</p>
-        {isAdminUser ? (
-          <p>• <strong>Admin:</strong> Download and delete buttons are available for document management</p>
-        ) : (
-          <p>• Download and delete access is restricted to administrators only</p>
-        )}
+        {isAdminUser ?
+        <p>• <strong>Admin:</strong> Download and delete buttons are available for document management</p> :
+
+        <p>• Download and delete access is restricted to administrators only</p>
+        }
         <p className="text-green-600 mt-1">
           • <strong>Improved:</strong> Better handling of S3 URLs and network issues
         </p>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ImprovedIDDocumentsDisplay;
