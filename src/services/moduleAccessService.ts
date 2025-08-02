@@ -19,10 +19,10 @@ class ModuleAccessService {
 
   async getUserModuleAccess(userId: string): Promise<ModuleAccessRecord[]> {
     try {
-      const { data, error } = await supabase
-        .from(this.tableName)
-        .select('*')
-        .eq('user_id', userId);
+      const { data, error } = await supabase.
+      from(this.tableName).
+      select('*').
+      eq('user_id', userId);
 
       if (error) throw error;
       return data || [];
@@ -35,17 +35,17 @@ class ModuleAccessService {
   async createDefaultModuleAccess(userId: string, role: string = 'Employee'): Promise<boolean> {
     try {
       const defaultModules = [
-        'products',
-        'employees', 
-        'sales',
-        'vendors',
-        'orders',
-        'licenses',
-        'salary',
-        'delivery'
-      ];
+      'products',
+      'employees',
+      'sales',
+      'vendors',
+      'orders',
+      'licenses',
+      'salary',
+      'delivery'];
 
-      const moduleAccessRecords = defaultModules.map(moduleName => {
+
+      const moduleAccessRecords = defaultModules.map((moduleName) => {
         let permissions = { view: false, create: false, edit: false, delete: false };
 
         // Set permissions based on role
@@ -77,9 +77,9 @@ class ModuleAccessService {
         };
       });
 
-      const { error } = await supabase
-        .from(this.tableName)
-        .insert(moduleAccessRecords);
+      const { error } = await supabase.
+      from(this.tableName).
+      insert(moduleAccessRecords);
 
       if (error) throw error;
 
@@ -92,25 +92,25 @@ class ModuleAccessService {
   }
 
   async updateModuleAccess(
-    userId: string, 
-    moduleName: string, 
-    permissions: Partial<{
-      can_view: boolean;
-      can_create: boolean;
-      can_edit: boolean;
-      can_delete: boolean;
-      station_restrictions: string[];
-    }>
-  ): Promise<boolean> {
+  userId: string,
+  moduleName: string,
+  permissions: Partial<{
+    can_view: boolean;
+    can_create: boolean;
+    can_edit: boolean;
+    can_delete: boolean;
+    station_restrictions: string[];
+  }>)
+  : Promise<boolean> {
     try {
-      const { error } = await supabase
-        .from(this.tableName)
-        .upsert({
-          user_id: userId,
-          module_name: moduleName,
-          ...permissions,
-          updated_at: new Date().toISOString()
-        });
+      const { error } = await supabase.
+      from(this.tableName).
+      upsert({
+        user_id: userId,
+        module_name: moduleName,
+        ...permissions,
+        updated_at: new Date().toISOString()
+      });
 
       if (error) throw error;
 
@@ -132,17 +132,17 @@ class ModuleAccessService {
   }
 
   async hasPermission(
-    userId: string, 
-    moduleName: string, 
-    action: 'view' | 'create' | 'edit' | 'delete'
-  ): Promise<boolean> {
+  userId: string,
+  moduleName: string,
+  action: 'view' | 'create' | 'edit' | 'delete')
+  : Promise<boolean> {
     try {
-      const { data, error } = await supabase
-        .from(this.tableName)
-        .select(`can_${action}`)
-        .eq('user_id', userId)
-        .eq('module_name', moduleName)
-        .single();
+      const { data, error } = await supabase.
+      from(this.tableName).
+      select(`can_${action}`).
+      eq('user_id', userId).
+      eq('module_name', moduleName).
+      single();
 
       if (error || !data) return false;
       return data[`can_${action}`] || false;
@@ -153,25 +153,25 @@ class ModuleAccessService {
   }
 
   async bulkUpdateUserPermissions(
-    userId: string, 
-    modulePermissions: Array<{
-      module_name: string;
-      can_view: boolean;
-      can_create: boolean;
-      can_edit: boolean;
-      can_delete: boolean;
-    }>
-  ): Promise<boolean> {
+  userId: string,
+  modulePermissions: Array<{
+    module_name: string;
+    can_view: boolean;
+    can_create: boolean;
+    can_edit: boolean;
+    can_delete: boolean;
+  }>)
+  : Promise<boolean> {
     try {
-      const records = modulePermissions.map(permission => ({
+      const records = modulePermissions.map((permission) => ({
         user_id: userId,
         ...permission,
         updated_at: new Date().toISOString()
       }));
 
-      const { error } = await supabase
-        .from(this.tableName)
-        .upsert(records);
+      const { error } = await supabase.
+      from(this.tableName).
+      upsert(records);
 
       if (error) throw error;
 
@@ -194,10 +194,10 @@ class ModuleAccessService {
 
   async deleteUserModuleAccess(userId: string): Promise<boolean> {
     try {
-      const { error } = await supabase
-        .from(this.tableName)
-        .delete()
-        .eq('user_id', userId);
+      const { error } = await supabase.
+      from(this.tableName).
+      delete().
+      eq('user_id', userId);
 
       if (error) throw error;
       return true;
@@ -208,14 +208,14 @@ class ModuleAccessService {
   }
 
   // Helper function to get permissions for a user with caching
-  private permissionCache = new Map<string, { permissions: ModuleAccessRecord[], timestamp: number }>();
+  private permissionCache = new Map<string, {permissions: ModuleAccessRecord[];timestamp: number;}>();
   private cacheExpiry = 5 * 60 * 1000; // 5 minutes
 
   async getCachedUserPermissions(userId: string): Promise<ModuleAccessRecord[]> {
     const cacheKey = userId;
     const cached = this.permissionCache.get(cacheKey);
-    
-    if (cached && (Date.now() - cached.timestamp) < this.cacheExpiry) {
+
+    if (cached && Date.now() - cached.timestamp < this.cacheExpiry) {
       return cached.permissions;
     }
 

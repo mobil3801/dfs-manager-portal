@@ -4,27 +4,27 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
-import { 
-  productService, 
-  salesReportService, 
-  employeeService, 
+import {
+  productService,
+  salesReportService,
+  employeeService,
   licenseService,
-  stationService
-} from '@/services/databaseService';
-import { 
-  Package, 
-  Users, 
-  DollarSign, 
-  AlertTriangle, 
-  TrendingUp, 
+  stationService } from
+'@/services/databaseService';
+import {
+  Package,
+  Users,
+  DollarSign,
+  AlertTriangle,
+  TrendingUp,
   Calendar,
   FileText,
   Building2,
   Loader2,
   BarChart3,
   ShoppingCart,
-  Clock
-} from 'lucide-react';
+  Clock } from
+'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 
 interface DashboardStats {
@@ -51,7 +51,7 @@ const SupabaseDashboard: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
-  
+
   const { userProfile, user, isAdmin, isManager } = useSupabaseAuth();
 
   useEffect(() => {
@@ -64,29 +64,29 @@ const SupabaseDashboard: React.FC = () => {
     setIsLoading(true);
     try {
       const stationId = userProfile.station_id;
-      
+
       // Load parallel data
       const [
-        productsResult,
-        lowStockResult,
-        employeesResult,
-        salesAnalyticsResult,
-        licensesResult,
-        recentSalesResult,
-        stationsResult
-      ] = await Promise.allSettled([
-        productService.getAll({ station_id: stationId }),
-        productService.getLowStockProducts(stationId),
-        employeeService.getAll({ station_id: stationId }),
-        salesReportService.getSalesAnalytics(stationId, 'month'),
-        licenseService.getExpiringLicenses(30, stationId),
-        salesReportService.getSalesReportsByDateRange(
-          new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          new Date().toISOString().split('T')[0],
-          stationId
-        ),
-        isAdmin() || isManager() ? stationService.getStationsWithStats() : Promise.resolve({ data: null })
-      ]);
+      productsResult,
+      lowStockResult,
+      employeesResult,
+      salesAnalyticsResult,
+      licensesResult,
+      recentSalesResult,
+      stationsResult] =
+      await Promise.allSettled([
+      productService.getAll({ station_id: stationId }),
+      productService.getLowStockProducts(stationId),
+      employeeService.getAll({ station_id: stationId }),
+      salesReportService.getSalesAnalytics(stationId, 'month'),
+      licenseService.getExpiringLicenses(30, stationId),
+      salesReportService.getSalesReportsByDateRange(
+        new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        new Date().toISOString().split('T')[0],
+        stationId
+      ),
+      isAdmin() || isManager() ? stationService.getStationsWithStats() : Promise.resolve({ data: null })]
+      );
 
       // Process results
       const products = productsResult.status === 'fulfilled' ? productsResult.value.data || [] : [];
@@ -99,12 +99,12 @@ const SupabaseDashboard: React.FC = () => {
 
       // Calculate sales totals
       const today = new Date().toISOString().split('T')[0];
-      const todaysSales = salesData
-        .filter((sale: any) => sale.report_date === today)
-        .reduce((sum: number, sale: any) => sum + (sale.total_sales || 0), 0);
-      
-      const monthSales = salesData
-        .reduce((sum: number, sale: any) => sum + (sale.total_sales || 0), 0);
+      const todaysSales = salesData.
+      filter((sale: any) => sale.report_date === today).
+      reduce((sum: number, sale: any) => sum + (sale.total_sales || 0), 0);
+
+      const monthSales = salesData.
+      reduce((sum: number, sale: any) => sum + (sale.total_sales || 0), 0);
 
       setStats({
         totalProducts: products.length,
@@ -137,8 +137,8 @@ const SupabaseDashboard: React.FC = () => {
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Loading dashboard data...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -177,9 +177,9 @@ const SupabaseDashboard: React.FC = () => {
               <CardContent>
                 <div className="text-2xl font-bold">{stats.totalProducts}</div>
                 <p className="text-xs text-muted-foreground">
-                  {stats.lowStockProducts > 0 && (
-                    <span className="text-red-600">{stats.lowStockProducts} low stock</span>
-                  )}
+                  {stats.lowStockProducts > 0 &&
+                  <span className="text-red-600">{stats.lowStockProducts} low stock</span>
+                  }
                 </p>
               </CardContent>
             </Card>
@@ -233,9 +233,9 @@ const SupabaseDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {stats.recentSalesReports.length > 0 ? (
-                    stats.recentSalesReports.map((report: any) => (
-                      <div key={report.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  {stats.recentSalesReports.length > 0 ?
+                  stats.recentSalesReports.map((report: any) =>
+                  <div key={report.id} className="flex items-center justify-between p-3 border rounded-lg">
                         <div>
                           <p className="font-medium">{report.report_date}</p>
                           <p className="text-sm text-gray-600">{report.shift || 'Full Day'}</p>
@@ -247,10 +247,10 @@ const SupabaseDashboard: React.FC = () => {
                           </Badge>
                         </div>
                       </div>
-                    ))
-                  ) : (
-                    <p className="text-gray-500 text-center py-4">No recent sales reports</p>
-                  )}
+                  ) :
+
+                  <p className="text-gray-500 text-center py-4">No recent sales reports</p>
+                  }
                 </div>
               </CardContent>
             </Card>
@@ -264,8 +264,8 @@ const SupabaseDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {stats.lowStockProducts > 0 && (
-                    <div className="p-3 border border-red-200 bg-red-50 rounded-lg">
+                  {stats.lowStockProducts > 0 &&
+                  <div className="p-3 border border-red-200 bg-red-50 rounded-lg">
                       <div className="flex items-center gap-2">
                         <Package className="h-4 w-4 text-red-500" />
                         <span className="font-medium text-red-800">Low Stock Alert</span>
@@ -274,10 +274,10 @@ const SupabaseDashboard: React.FC = () => {
                         {stats.lowStockProducts} products are running low on stock
                       </p>
                     </div>
-                  )}
+                  }
                   
-                  {stats.expiringLicenses > 0 && (
-                    <div className="p-3 border border-yellow-200 bg-yellow-50 rounded-lg">
+                  {stats.expiringLicenses > 0 &&
+                  <div className="p-3 border border-yellow-200 bg-yellow-50 rounded-lg">
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-yellow-500" />
                         <span className="font-medium text-yellow-800">License Expiring</span>
@@ -286,10 +286,10 @@ const SupabaseDashboard: React.FC = () => {
                         {stats.expiringLicenses} licenses expire within 30 days
                       </p>
                     </div>
-                  )}
+                  }
                   
-                  {stats.lowStockProducts === 0 && stats.expiringLicenses === 0 && (
-                    <div className="p-3 border border-green-200 bg-green-50 rounded-lg">
+                  {stats.lowStockProducts === 0 && stats.expiringLicenses === 0 &&
+                  <div className="p-3 border border-green-200 bg-green-50 rounded-lg">
                       <div className="flex items-center gap-2">
                         <TrendingUp className="h-4 w-4 text-green-500" />
                         <span className="font-medium text-green-800">All Systems Good</span>
@@ -298,15 +298,15 @@ const SupabaseDashboard: React.FC = () => {
                         No alerts or issues detected
                       </p>
                     </div>
-                  )}
+                  }
                 </div>
               </CardContent>
             </Card>
           </div>
 
           {/* Station Overview (for admins/managers) */}
-          {(isAdmin() || isManager()) && stats.stationStats.length > 0 && (
-            <Card>
+          {(isAdmin() || isManager()) && stats.stationStats.length > 0 &&
+          <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Building2 className="h-5 w-5" />
@@ -318,8 +318,8 @@ const SupabaseDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {stats.stationStats.map((station: any) => (
-                    <div key={station.id} className="p-4 border rounded-lg">
+                  {stats.stationStats.map((station: any) =>
+                <div key={station.id} className="p-4 border rounded-lg">
                       <h4 className="font-medium">{station.name}</h4>
                       <p className="text-sm text-gray-600 mb-2">{station.address}</p>
                       <div className="grid grid-cols-2 gap-2 text-sm">
@@ -333,11 +333,11 @@ const SupabaseDashboard: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                  ))}
+                )}
                 </div>
               </CardContent>
             </Card>
-          )}
+          }
         </TabsContent>
 
         <TabsContent value="sales" className="space-y-6">
@@ -425,8 +425,8 @@ const SupabaseDashboard: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SupabaseDashboard;

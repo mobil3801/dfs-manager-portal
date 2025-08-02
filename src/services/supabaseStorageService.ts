@@ -26,20 +26,20 @@ class SupabaseStorageService {
    * Upload a file to Supabase Storage
    */
   async uploadFile(
-    file: File, 
-    folder: string = 'general',
-    options?: {
-      upsert?: boolean;
-      customFileName?: string;
-    }
-  ): Promise<UploadResult> {
+  file: File,
+  folder: string = 'general',
+  options?: {
+    upsert?: boolean;
+    customFileName?: string;
+  })
+  : Promise<UploadResult> {
     try {
       const fileName = options?.customFileName || this.generateFileName(file);
       const filePath = `${folder}/${fileName}`;
 
       const { data, error } = await storage.upload(
-        this.bucketName, 
-        filePath, 
+        this.bucketName,
+        filePath,
         file
       );
 
@@ -68,7 +68,7 @@ class SupabaseStorageService {
     } catch (error: any) {
       console.error('Upload error:', error);
       const errorMessage = error?.message || 'Failed to upload file';
-      
+
       toast({
         title: 'Upload Failed',
         description: errorMessage,
@@ -83,9 +83,9 @@ class SupabaseStorageService {
    * Upload multiple files
    */
   async uploadMultipleFiles(
-    files: File[],
-    folder: string = 'general'
-  ): Promise<UploadResult[]> {
+  files: File[],
+  folder: string = 'general')
+  : Promise<UploadResult[]> {
     const results: UploadResult[] = [];
 
     for (const file of files) {
@@ -93,8 +93,8 @@ class SupabaseStorageService {
       results.push(result);
     }
 
-    const successCount = results.filter(r => r.success).length;
-    const failCount = results.filter(r => !r.success).length;
+    const successCount = results.filter((r) => r.success).length;
+    const failCount = results.filter((r) => !r.success).length;
 
     if (successCount > 0) {
       toast({
@@ -214,13 +214,13 @@ class SupabaseStorageService {
    * Upload employee documents
    */
   async uploadEmployeeDocument(
-    employeeId: string,
-    file: File,
-    documentType: string
-  ): Promise<UploadResult> {
+  employeeId: string,
+  file: File,
+  documentType: string)
+  : Promise<UploadResult> {
     const folder = `employees/${employeeId}`;
     const customFileName = `${documentType}_${Date.now()}.${file.name.split('.').pop()}`;
-    
+
     return this.uploadFile(file, folder, { customFileName });
   }
 
@@ -228,13 +228,13 @@ class SupabaseStorageService {
    * Upload sales report documents/receipts
    */
   async uploadSalesDocument(
-    reportId: string,
-    file: File,
-    documentType: string = 'receipt'
-  ): Promise<UploadResult> {
+  reportId: string,
+  file: File,
+  documentType: string = 'receipt')
+  : Promise<UploadResult> {
     const folder = `sales-reports/${reportId}`;
     const customFileName = `${documentType}_${Date.now()}.${file.name.split('.').pop()}`;
-    
+
     return this.uploadFile(file, folder, { customFileName });
   }
 
@@ -242,13 +242,13 @@ class SupabaseStorageService {
    * Upload delivery documents/invoices
    */
   async uploadDeliveryDocument(
-    deliveryId: string,
-    file: File,
-    documentType: string = 'invoice'
-  ): Promise<UploadResult> {
+  deliveryId: string,
+  file: File,
+  documentType: string = 'invoice')
+  : Promise<UploadResult> {
     const folder = `deliveries/${deliveryId}`;
     const customFileName = `${documentType}_${Date.now()}.${file.name.split('.').pop()}`;
-    
+
     return this.uploadFile(file, folder, { customFileName });
   }
 
@@ -256,13 +256,13 @@ class SupabaseStorageService {
    * Upload license documents
    */
   async uploadLicenseDocument(
-    licenseId: string,
-    file: File,
-    documentType: string = 'license'
-  ): Promise<UploadResult> {
+  licenseId: string,
+  file: File,
+  documentType: string = 'license')
+  : Promise<UploadResult> {
     const folder = `licenses/${licenseId}`;
     const customFileName = `${documentType}_${Date.now()}.${file.name.split('.').pop()}`;
-    
+
     return this.uploadFile(file, folder, { customFileName });
   }
 
@@ -270,12 +270,12 @@ class SupabaseStorageService {
    * Upload profile pictures
    */
   async uploadProfilePicture(
-    userId: string,
-    file: File
-  ): Promise<UploadResult> {
+  userId: string,
+  file: File)
+  : Promise<UploadResult> {
     const folder = `profiles`;
     const customFileName = `${userId}_profile.${file.name.split('.').pop()}`;
-    
+
     return this.uploadFile(file, folder, { customFileName, upsert: true });
   }
 
@@ -293,12 +293,12 @@ class SupabaseStorageService {
    * Validate file size and type
    */
   validateFile(
-    file: File,
-    options: {
-      maxSize?: number; // in bytes
-      allowedTypes?: string[];
-    } = {}
-  ): { valid: boolean; error?: string } {
+  file: File,
+  options: {
+    maxSize?: number; // in bytes
+    allowedTypes?: string[];
+  } = {})
+  : {valid: boolean;error?: string;} {
     const { maxSize = 10 * 1024 * 1024, allowedTypes = [] } = options; // Default 10MB
 
     if (file.size > maxSize) {
@@ -326,14 +326,14 @@ class SupabaseStorageService {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d')!;
       const img = new Image();
-      
+
       img.onload = () => {
         const { width, height } = img;
         const maxDimension = 1920;
-        
+
         let newWidth = width;
         let newHeight = height;
-        
+
         if (width > maxDimension || height > maxDimension) {
           const aspectRatio = width / height;
           if (width > height) {
@@ -344,12 +344,12 @@ class SupabaseStorageService {
             newWidth = maxDimension * aspectRatio;
           }
         }
-        
+
         canvas.width = newWidth;
         canvas.height = newHeight;
-        
+
         ctx.drawImage(img, 0, 0, newWidth, newHeight);
-        
+
         canvas.toBlob((blob) => {
           if (blob) {
             const compressedFile = new File([blob], file.name, {
@@ -362,7 +362,7 @@ class SupabaseStorageService {
           }
         }, file.type, quality);
       };
-      
+
       img.src = URL.createObjectURL(file);
     });
   }

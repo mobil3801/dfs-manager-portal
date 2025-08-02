@@ -171,9 +171,9 @@ export const ModuleAccessProvider: React.FC<{children: React.ReactNode;}> = ({ c
 
       // Update local state immediately for real-time feedback
       setModuleAccess((prev) =>
-        prev.map((module) =>
-          module.id === id ? { ...module, ...updates, updated_at: new Date().toISOString() } : module
-        )
+      prev.map((module) =>
+      module.id === id ? { ...module, ...updates, updated_at: new Date().toISOString() } : module
+      )
       );
 
       toast.success('Module access updated successfully');

@@ -57,7 +57,7 @@ const GUEST_PROFILE: UserProfile = {
   detailed_permissions: {}
 };
 
-export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -75,7 +75,7 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
   const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
     try {
       const { data, error } = await userProfileService.getUserProfileByUserId(userId);
-      
+
       if (error) {
         if (error.message.includes('No rows')) {
           // Create default profile for new user
@@ -88,21 +88,21 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
             is_active: true,
             detailed_permissions: {}
           };
-          
+
           const { data: newProfile, error: createError } = await userProfileService.createUserProfile(userId, defaultProfile);
-          
+
           if (createError) {
             console.error('Failed to create user profile:', createError);
             return GUEST_PROFILE;
           }
-          
+
           return newProfile;
         }
-        
+
         console.error('Failed to fetch user profile:', error);
         return GUEST_PROFILE;
       }
-      
+
       return data;
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -112,7 +112,7 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
 
   const refreshUserData = async (): Promise<void> => {
     if (!user) return;
-    
+
     setIsLoading(true);
     try {
       const profile = await fetchUserProfile(user.id);
@@ -130,9 +130,9 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
     try {
       setIsLoading(true);
       setAuthError(null);
-      
+
       const { data, error } = await auth.signIn(email, password);
-      
+
       if (error) {
         setAuthError(error.message);
         await auditLogService.logActivity('unknown', 'login_failed', 'users', undefined, undefined, { email, error: error.message });
@@ -143,24 +143,24 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
         });
         return false;
       }
-      
+
       if (data.user) {
         setUser(data.user);
         setSession(data.session);
-        
+
         const profile = await fetchUserProfile(data.user.id);
         setUserProfile(profile);
-        
+
         await auditLogService.logActivity(data.user.id, 'login_success', 'users', data.user.id);
-        
+
         toast({
           title: 'Login Successful',
           description: 'Welcome back!'
         });
-        
+
         return true;
       }
-      
+
       return false;
     } catch (error: any) {
       const errorMessage = error?.message || 'An unexpected error occurred';
@@ -181,18 +181,18 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
       if (user) {
         await auditLogService.logActivity(user.id, 'logout', 'users', user.id);
       }
-      
+
       const { error } = await auth.signOut();
-      
+
       if (error) {
         console.error('Logout error:', error);
       }
-      
+
       setUser(null);
       setUserProfile(GUEST_PROFILE);
       setSession(null);
       setAuthError(null);
-      
+
       toast({
         title: 'Logged Out',
         description: 'You have been successfully logged out'
@@ -211,9 +211,9 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
     try {
       setIsLoading(true);
       setAuthError(null);
-      
+
       const { data, error } = await auth.signUp(email, password, { full_name: fullName });
-      
+
       if (error) {
         setAuthError(error.message);
         await auditLogService.logActivity('unknown', 'registration_failed', 'users', undefined, undefined, { email, error: error.message });
@@ -224,18 +224,18 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
         });
         return false;
       }
-      
+
       if (data.user) {
         await auditLogService.logActivity(data.user.id, 'registration_success', 'users', data.user.id);
-        
+
         toast({
           title: 'Registration Successful',
           description: 'Please check your email to verify your account'
         });
-        
+
         return true;
       }
-      
+
       return false;
     } catch (error: any) {
       const errorMessage = error?.message || 'An unexpected error occurred';
@@ -255,9 +255,9 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
     try {
       setIsLoading(true);
       setAuthError(null);
-      
+
       const { error } = await auth.resetPassword(email);
-      
+
       if (error) {
         setAuthError(error.message);
         toast({
@@ -267,12 +267,12 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
         });
         return false;
       }
-      
+
       toast({
         title: 'Reset Email Sent',
         description: 'Please check your email for reset instructions'
       });
-      
+
       return true;
     } catch (error: any) {
       const errorMessage = error?.message || 'An unexpected error occurred';
@@ -292,9 +292,9 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
     try {
       setIsLoading(true);
       setAuthError(null);
-      
+
       const { error } = await auth.updatePassword(password);
-      
+
       if (error) {
         setAuthError(error.message);
         toast({
@@ -304,16 +304,16 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
         });
         return false;
       }
-      
+
       if (user) {
         await auditLogService.logActivity(user.id, 'password_update', 'users', user.id);
       }
-      
+
       toast({
         title: 'Password Updated',
         description: 'Your password has been successfully updated'
       });
-      
+
       return true;
     } catch (error: any) {
       const errorMessage = error?.message || 'An unexpected error occurred';
@@ -374,10 +374,10 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
   };
 
   const isManager = (): boolean => {
-    return userProfile?.role === 'Management' || 
-           userProfile?.role === 'Manager' ||
-           userProfile?.role === 'Administrator' || 
-           userProfile?.role === 'Admin';
+    return userProfile?.role === 'Management' ||
+    userProfile?.role === 'Manager' ||
+    userProfile?.role === 'Administrator' ||
+    userProfile?.role === 'Admin';
   };
 
   // Initialize authentication state
@@ -388,17 +388,17 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
       try {
         // Get initial session
         const { data: { session }, error } = await supabase.auth.getSession();
-        
+
         if (error) {
           console.error('Error getting session:', error);
           setAuthError(error.message);
         }
-        
+
         if (mounted) {
           if (session?.user) {
             setUser(session.user);
             setSession(session);
-            
+
             const profile = await fetchUserProfile(session.user.id);
             setUserProfile(profile);
           } else {
@@ -429,7 +429,7 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
       if (!mounted) return;
 
       console.log('Auth state changed:', event, session?.user?.id);
-      
+
       if (event === 'SIGNED_IN' && session?.user) {
         setUser(session.user);
         setSession(session);
@@ -444,7 +444,7 @@ export const SupabaseAuthProvider: React.FC<{ children: ReactNode }> = ({ childr
       } else if (event === 'TOKEN_REFRESHED' && session?.user) {
         setSession(session);
       }
-      
+
       setIsLoading(false);
     });
 

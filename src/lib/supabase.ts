@@ -72,49 +72,49 @@ export const db = {
   },
 
   insert: async (table: string, data: any) => {
-    const { data: result, error } = await supabase
-      .from(table)
-      .insert(data)
-      .select();
+    const { data: result, error } = await supabase.
+    from(table).
+    insert(data).
+    select();
     return { data: result, error };
   },
 
   update: async (table: string, id: string, data: any) => {
-    const { data: result, error } = await supabase
-      .from(table)
-      .update(data)
-      .eq('id', id)
-      .select();
+    const { data: result, error } = await supabase.
+    from(table).
+    update(data).
+    eq('id', id).
+    select();
     return { data: result, error };
   },
 
   delete: async (table: string, id: string) => {
-    const { error } = await supabase
-      .from(table)
-      .delete()
-      .eq('id', id);
+    const { error } = await supabase.
+    from(table).
+    delete().
+    eq('id', id);
     return { error };
   },
 
   // Specific queries
   getUserProfile: async (userId: string) => {
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .select(`
+    const { data, error } = await supabase.
+    from('user_profiles').
+    select(`
         *,
         stations(name, address, phone)
-      `)
-      .eq('user_id', userId)
-      .single();
+      `).
+    eq('user_id', userId).
+    single();
     return { data, error };
   },
 
   getStations: async () => {
-    const { data, error } = await supabase
-      .from('stations')
-      .select('*')
-      .eq('is_active', true)
-      .order('name');
+    const { data, error } = await supabase.
+    from('stations').
+    select('*').
+    eq('is_active', true).
+    order('name');
     return { data, error };
   }
 };
@@ -122,30 +122,30 @@ export const db = {
 // Storage helper functions
 export const storage = {
   upload: async (bucket: string, path: string, file: File) => {
-    const { data, error } = await supabase.storage
-      .from(bucket)
-      .upload(path, file);
+    const { data, error } = await supabase.storage.
+    from(bucket).
+    upload(path, file);
     return { data, error };
   },
 
   download: async (bucket: string, path: string) => {
-    const { data, error } = await supabase.storage
-      .from(bucket)
-      .download(path);
+    const { data, error } = await supabase.storage.
+    from(bucket).
+    download(path);
     return { data, error };
   },
 
   getPublicUrl: (bucket: string, path: string) => {
-    const { data } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(path);
+    const { data } = supabase.storage.
+    from(bucket).
+    getPublicUrl(path);
     return data;
   },
 
   delete: async (bucket: string, paths: string[]) => {
-    const { data, error } = await supabase.storage
-      .from(bucket)
-      .remove(paths);
+    const { data, error } = await supabase.storage.
+    from(bucket).
+    remove(paths);
     return { data, error };
   }
 };
@@ -153,19 +153,19 @@ export const storage = {
 // Real-time subscriptions
 export const realtime = {
   subscribe: (table: string, callback: (payload: any) => void) => {
-    const channel = supabase
-      .channel(`${table}_changes`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: table
-        },
-        callback
-      )
-      .subscribe();
-    
+    const channel = supabase.
+    channel(`${table}_changes`).
+    on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: table
+      },
+      callback
+    ).
+    subscribe();
+
     return channel;
   },
 
