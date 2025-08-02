@@ -1290,6 +1290,52 @@ const EmployeeForm: React.FC = () => {
                       </p>
                     </div>
                   }
+
+                  {/* Enhanced Live Preview for Existing Documents */}
+                  {isEditing && id && (
+                    <div className="mt-6">
+                      <h4 className="text-md font-medium text-gray-800 mb-3">Current ID Documents - Live Preview</h4>
+                      <p className="text-sm text-gray-600 mb-4">
+                        View and manage existing ID documents with enhanced live preview and proper ID display.
+                      </p>
+                      <EnhancedLiveIDDocumentsDisplay
+                        employee={{
+                          ID: parseInt(id),
+                          employee_id: formData.employee_id,
+                          first_name: formData.first_name,
+                          last_name: formData.last_name,
+                          email: formData.email,
+                          phone: formData.phone,
+                          position: formData.position,
+                          station: formData.station,
+                          shift: formData.shift,
+                          hire_date: formData.hire_date,
+                          salary: formData.salary,
+                          is_active: true,
+                          employment_status: formData.employment_status,
+                          created_by: 1,
+                          profile_image_id: formData.profile_image_id,
+                          date_of_birth: formData.date_of_birth,
+                          current_address: formData.current_address,
+                          mailing_address: formData.mailing_address,
+                          reference_name: formData.reference_name,
+                          id_document_type: formData.id_document_type,
+                          id_document_file_id: formData.id_document_file_id,
+                          id_document_2_file_id: formData.id_document_2_file_id,
+                          id_document_3_file_id: formData.id_document_3_file_id,
+                          id_document_4_file_id: formData.id_document_4_file_id,
+                        }}
+                        isAdminUser={isAdmin()}
+                        onRefresh={() => {
+                          if (id && id !== 'new') {
+                            loadEmployee(parseInt(id));
+                          }
+                        }}
+                        allowDelete={true}
+                        showPreview={true}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
