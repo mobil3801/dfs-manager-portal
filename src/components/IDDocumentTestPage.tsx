@@ -47,14 +47,14 @@ const IDDocumentTestPage: React.FC = () => {
                 fileId={123}
                 label="Test Document 1"
                 isAdminUser={true}
-                size="lg"
-              />
+                size="lg" />
+
               <FixedIDDocumentViewer
                 fileId={999}
                 label="Non-existent Document"
                 isAdminUser={true}
-                size="lg"
-              />
+                size="lg" />
+
             </div>
           </div>
 
@@ -64,8 +64,8 @@ const IDDocumentTestPage: React.FC = () => {
             <FixedIDDocumentsDisplay
               employee={mockEmployee}
               isAdminUser={true}
-              allowDelete={true}
-            />
+              allowDelete={true} />
+
           </div>
 
           {/* Test EnhancedInstantIDDocumentUpload */}
@@ -76,14 +76,14 @@ const IDDocumentTestPage: React.FC = () => {
                 label="Test Upload 1"
                 onFileSelect={setSelectedFile}
                 onRemove={() => setSelectedFile(null)}
-                selectedFile={selectedFile}
-              />
+                selectedFile={selectedFile} />
+
               <EnhancedInstantIDDocumentUpload
                 label="Test Upload 2"
                 onFileSelect={setSelectedFile}
                 onRemove={() => setSelectedFile(null)}
-                existingFileId={123}
-              />
+                existingFileId={123} />
+
             </div>
           </div>
 
@@ -104,8 +104,8 @@ const IDDocumentTestPage: React.FC = () => {
 
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default IDDocumentTestPage;

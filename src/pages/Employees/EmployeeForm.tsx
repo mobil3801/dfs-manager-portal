@@ -17,6 +17,7 @@ import DocumentPreview from '@/components/DocumentPreview';
 import InstantIDDocumentUpload from '@/components/InstantIDDocumentUpload';
 import EnhancedInstantIDDocumentUpload from '@/components/EnhancedInstantIDDocumentUpload';
 import FixedIDDocumentViewer from '@/components/FixedIDDocumentViewer';
+import ImprovedIDDocumentViewer from '@/components/ImprovedIDDocumentViewer';
 import EmployeeFileDebugger from '@/components/EmployeeFileDebugger';
 import { displayPhoneNumber, formatPhoneNumber } from '@/utils/phoneFormatter';
 import { useAuth } from '@/contexts/AuthContext';

@@ -19,6 +19,7 @@ import ProfilePicture from '@/components/ProfilePicture';
 import DocumentPreview from '@/components/DocumentPreview';
 import IDDocumentViewer from '@/components/IDDocumentViewer';
 import FixedIDDocumentsDisplay from '@/components/FixedIDDocumentsDisplay';
+import ImprovedIDDocumentsDisplay from '@/components/ImprovedIDDocumentsDisplay';
 import { displayPhoneNumber } from '@/utils/phoneFormatter';
 
 interface Employee {
@@ -385,16 +386,16 @@ const EmployeeList: React.FC = () => {
     }
   };
 
-  // Enhanced ID Documents Display Component with Fixed Issues
+  // Enhanced ID Documents Display Component with Improved Error Handling
   const IDDocumentsDisplay = ({ employee }: {employee: Employee;}) => {
     return (
-      <FixedIDDocumentsDisplay 
-        employee={employee} 
+      <ImprovedIDDocumentsDisplay
+        employee={employee}
         isAdminUser={isAdminUser}
         onRefresh={loadEmployees}
-        allowDelete={isAdminUser && canDeleteEmployee}
-      />
-    );
+        allowDelete={isAdminUser && canDeleteEmployee} />);
+
+
   }; // Define view modal fields with profile picture, employment status, and ID documents
   const getViewModalFields = (employee: Employee) => [{ key: 'profile_picture', label: 'Profile Picture', value: employee.profile_image_id, type: 'custom' as const, customComponent: <div className="flex justify-center">
           <ProfilePicture

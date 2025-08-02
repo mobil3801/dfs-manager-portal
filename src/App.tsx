@@ -56,6 +56,7 @@ const AuditMonitoring = lazy(() => import('@/pages/Admin/AuditMonitoring'));
 const ProfilePictureDemo = lazy(() => import('@/components/ProfilePictureDemo'));
 const OverflowTestPage = lazy(() => import('@/pages/OverflowTestPage'));
 const OverflowTestingPage = lazy(() => import('@/pages/OverflowTestingPage'));
+const DocumentLoadingDebugPage = lazy(() => import('@/pages/DocumentLoadingDebugPage'));
 
 import './App.css';
 

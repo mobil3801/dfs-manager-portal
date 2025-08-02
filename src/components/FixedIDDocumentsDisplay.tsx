@@ -39,11 +39,11 @@ interface FixedIDDocumentsDisplayProps {
   allowDelete?: boolean;
 }
 
-const FixedIDDocumentsDisplay: React.FC<FixedIDDocumentsDisplayProps> = ({ 
-  employee, 
-  isAdminUser, 
+const FixedIDDocumentsDisplay: React.FC<FixedIDDocumentsDisplayProps> = ({
+  employee,
+  isAdminUser,
   onRefresh,
-  allowDelete = false 
+  allowDelete = false
 }) => {
   const [localEmployee, setLocalEmployee] = useState<Employee>(employee);
   const [refreshing, setRefreshing] = useState(false);
@@ -55,15 +55,15 @@ const FixedIDDocumentsDisplay: React.FC<FixedIDDocumentsDisplayProps> = ({
   }, [employee]);
 
   const documents = [
-    { fileId: localEmployee.id_document_file_id, label: 'ID Document 1', key: 'id_document_file_id' },
-    { fileId: localEmployee.id_document_2_file_id, label: 'ID Document 2', key: 'id_document_2_file_id' },
-    { fileId: localEmployee.id_document_3_file_id, label: 'ID Document 3', key: 'id_document_3_file_id' },
-    { fileId: localEmployee.id_document_4_file_id, label: 'ID Document 4', key: 'id_document_4_file_id' }
-  ].filter((doc) => doc.fileId);
+  { fileId: localEmployee.id_document_file_id, label: 'ID Document 1', key: 'id_document_file_id' },
+  { fileId: localEmployee.id_document_2_file_id, label: 'ID Document 2', key: 'id_document_2_file_id' },
+  { fileId: localEmployee.id_document_3_file_id, label: 'ID Document 3', key: 'id_document_3_file_id' },
+  { fileId: localEmployee.id_document_4_file_id, label: 'ID Document 4', key: 'id_document_4_file_id' }].
+  filter((doc) => doc.fileId);
 
   const handleRefresh = async () => {
     if (!onRefresh) return;
-    
+
     setRefreshing(true);
     try {
       await onRefresh();
@@ -99,7 +99,7 @@ const FixedIDDocumentsDisplay: React.FC<FixedIDDocumentsDisplayProps> = ({
       if (error) throw new Error(error);
 
       // Update local state immediately
-      setLocalEmployee(prev => ({
+      setLocalEmployee((prev) => ({
         ...prev,
         [documentKey]: null
       }));
@@ -151,8 +151,8 @@ const FixedIDDocumentsDisplay: React.FC<FixedIDDocumentsDisplayProps> = ({
         <FileText className="w-12 h-12 mx-auto mb-3 text-gray-400" />
         <p className="text-sm font-medium">No ID documents uploaded</p>
         <p className="text-xs text-gray-400 mt-1">ID documents will appear here once uploaded</p>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -168,34 +168,34 @@ const FixedIDDocumentsDisplay: React.FC<FixedIDDocumentsDisplayProps> = ({
             size="sm"
             onClick={handleRefresh}
             disabled={refreshing}
-            className="h-6 px-2"
-          >
+            className="h-6 px-2">
+
             <RefreshCw className={`w-3 h-3 ${refreshing ? 'animate-spin' : ''}`} />
           </Button>
           <Badge variant="outline" className="text-xs">
             Live Preview
           </Badge>
-          {isAdminUser && (
-            <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+          {isAdminUser &&
+          <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
               Admin: Full Access
             </Badge>
-          )}
+          }
         </div>
       </div>
       
       {/* Document Type Information */}
-      {localEmployee.id_document_type && (
-        <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+      {localEmployee.id_document_type &&
+      <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
           <p className="text-sm text-blue-800">
             <strong>Document Type:</strong> {localEmployee.id_document_type}
           </p>
         </div>
-      )}
+      }
       
       {/* Enhanced Document Display Grid - Always Visible with Live Preview */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {documents.map((doc, index) => {
-          const docData = documents.find(d => d.fileId === doc.fileId);
+          const docData = documents.find((d) => d.fileId === doc.fileId);
           return (
             <FixedIDDocumentViewer
               key={`${doc.fileId}-${index}`}
@@ -205,9 +205,9 @@ const FixedIDDocumentsDisplay: React.FC<FixedIDDocumentsDisplayProps> = ({
               size="lg"
               className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow rounded-lg overflow-hidden"
               showDeleteButton={allowDelete && isAdminUser}
-              onDelete={() => doc.fileId && handleDeleteDocument(doc.key, doc.fileId)}
-            />
-          );
+              onDelete={() => doc.fileId && handleDeleteDocument(doc.key, doc.fileId)} />);
+
+
         })}
       </div>
 
@@ -216,15 +216,15 @@ const FixedIDDocumentsDisplay: React.FC<FixedIDDocumentsDisplayProps> = ({
         <p>• All ID documents show instant live preview with enhanced error handling</p>
         <p>• Click on any document to view in full screen with zoom capabilities</p>
         <p>• Documents are automatically refreshed and cached for better performance</p>
-        {isAdminUser ? (
-          <p>• <strong>Admin:</strong> Download and delete buttons are available for document management</p>
-        ) : (
-          <p>• Download and delete access is restricted to administrators only</p>
-        )}
+        {isAdminUser ?
+        <p>• <strong>Admin:</strong> Download and delete buttons are available for document management</p> :
+
+        <p>• Download and delete access is restricted to administrators only</p>
+        }
         <p className="text-green-600 mt-1">• <strong>Fixed:</strong> All display and deletion issues have been resolved</p>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default FixedIDDocumentsDisplay;
