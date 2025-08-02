@@ -71,7 +71,7 @@ const InstantDocumentPreview: React.FC<InstantDocumentPreviewProps> = ({
         try {
           const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(fileId);
           if (error) throw error;
-          
+
           setPreviewUrl(fileUrl);
           setIsImage(true); // Assume existing files are images for preview
           setImageError(false);
@@ -82,7 +82,7 @@ const InstantDocumentPreview: React.FC<InstantDocumentPreviewProps> = ({
           setIsLoading(false);
         }
       };
-      
+
       loadFileUrl();
     } else {
       setPreviewUrl(null);
@@ -162,7 +162,7 @@ const InstantDocumentPreview: React.FC<InstantDocumentPreviewProps> = ({
   // Handle download
   const handleDownload = async () => {
     let urlToDownload = previewUrl;
-    
+
     if (!urlToDownload && fileId) {
       try {
         const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(fileId);
@@ -178,7 +178,7 @@ const InstantDocumentPreview: React.FC<InstantDocumentPreviewProps> = ({
         return;
       }
     }
-    
+
     if (urlToDownload) {
       const link = document.createElement('a');
       link.href = urlToDownload;

@@ -58,50 +58,32 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
     }
   }, [selectedFile]);
 
-  // Check if file exists in database
+  // Load existing file URL and check if it exists
   useEffect(() => {
-    const checkFileExistence = async () => {
+    const loadExistingFile = async () => {
       if (existingFileId && !selectedFile) {
         setCheckingFile(true);
         try {
-          // Check if file exists and is active in file_uploads table
-          const response = await window.ezsite.apis.tablePage(26928, {
-            "PageNo": 1,
-            "PageSize": 1,
-            "Filters": [
-            {
-              "name": "store_file_id",
-              "op": "Equal",
-              "value": existingFileId
-            },
-            {
-              "name": "is_active",
-              "op": "Equal",
-              "value": true
-            }]
-          });
-
-          if (response.error) {
-            console.error('Error checking file existence:', response.error);
+          // Get the file URL directly
+          const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(existingFileId);
+          
+          if (error) {
+            console.error('Error getting file URL:', error);
             setFileExists(false);
+          } else if (fileUrl) {
+            // File exists and we have a URL
+            setFileExists(true);
+            setPreviewUrl(fileUrl);
+            setIsImage(true); // Assume existing files are images for preview
+            setImageError(false);
+            setImageLoading(true);
+            console.log(`File ${existingFileId} exists, setting up preview with URL: ${fileUrl}`);
           } else {
-            const hasFile = response.data?.List?.length > 0;
-            setFileExists(hasFile);
-
-            if (hasFile) {
-              // File exists and is active, set up preview
-              const url = `${window.location.origin}/api/files/${existingFileId}`;
-              setPreviewUrl(url);
-              setIsImage(true); // Assume existing files are images
-              setImageError(false);
-              setImageLoading(true);
-              console.log(`File ${existingFileId} exists and is active, setting up preview`);
-            } else {
-              console.log(`File ${existingFileId} does not exist or is inactive`);
-            }
+            console.log(`File ${existingFileId} does not have a valid URL`);
+            setFileExists(false);
           }
         } catch (error) {
-          console.error('Error checking file existence:', error);
+          console.error('Error loading existing file:', error);
           setFileExists(false);
         } finally {
           setCheckingFile(false);
@@ -112,7 +94,7 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
       }
     };
 
-    checkFileExistence();
+    loadExistingFile();
   }, [existingFileId, selectedFile]);
 
   const handleDrag = (e: React.DragEvent) => {
@@ -182,16 +164,7 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
     e.preventDefault();
     e.stopPropagation();
 
-    // Show confirmation for existing files
-    if (existingFileId && !selectedFile) {
-      const confirmDelete = window.confirm(
-        `Are you sure you want to remove this ${label}? This action cannot be undone and the file will be permanently deleted when you save the employee.`
-      );
-      if (!confirmDelete) {
-        return;
-      }
-    }
-
+    // Remove confirmation dialog - admin users don't need to confirm deletion
     onRemove();
 
     // Clear the input
@@ -216,14 +189,49 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
     setImageError(true);
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (previewUrl) {
-      const link = document.createElement('a');
-      link.href = previewUrl;
-      link.download = selectedFile?.name || 'document';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      try {
+        // For existing files, use the API to get a proper download URL
+        if (existingFileId && !selectedFile) {
+          const { data: downloadUrl, error } = await window.ezsite.apis.getUploadUrl(existingFileId);
+          if (error) {
+            throw new Error(error);
+          }
+          
+          const link = document.createElement('a');
+          link.href = downloadUrl;
+          link.download = `${label.replace(/\s+/g, '_')}_document`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          toast({
+            title: "Success",
+            description: "Document downloaded successfully"
+          });
+        } else {
+          // For new files, use blob URL
+          const link = document.createElement('a');
+          link.href = previewUrl;
+          link.download = selectedFile?.name || 'document';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          toast({
+            title: "Success", 
+            description: "File downloaded successfully"
+          });
+        }
+      } catch (error) {
+        console.error('Error downloading document:', error);
+        toast({
+          title: "Error",
+          description: "Failed to download document",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -236,7 +244,7 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
   };
 
   // Always show content - either file exists OR no file (always show the box)
-  const hasContent = selectedFile || existingFileId && fileExists;
+  const hasContent = selectedFile || (existingFileId && fileExists);
 
   return (
     <div className={cn('space-y-4', className)}>
@@ -268,53 +276,55 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
         hasContent ? "border-blue-200 bg-blue-50" : "border-gray-200 bg-gray-50"
       )}>
         <CardContent className="p-0">
-          {/* Preview Area - Always visible */}
+          {/* Preview Area - Always visible with live preview */}
           <div
             className={cn(
               "relative w-full h-48 transition-all duration-200",
               hasContent ? "bg-gradient-to-br from-blue-50 to-indigo-100" : "bg-gradient-to-br from-gray-50 to-gray-100"
             )}>
 
-
             {/* Loading state while checking file existence */}
             {checkingFile &&
             <div className="absolute inset-0 flex items-center justify-center bg-gray-100/80">
                 <Loader2 className="w-8 h-8 animate-spin text-gray-600" />
-                <span className="ml-2 text-sm text-gray-600">Checking file...</span>
+                <span className="ml-2 text-sm text-gray-600">Loading preview...</span>
               </div>
             }
 
-            {/* Loading state */}
+            {/* Loading state for image */}
             {imageLoading && !checkingFile &&
             <div className="absolute inset-0 flex items-center justify-center bg-blue-100/80">
                 <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
               </div>
             }
 
-            {/* Image preview - when file exists */}
+            {/* Live Image preview - when file exists */}
             {previewUrl && isImage && !imageError && !checkingFile &&
             <img
               src={previewUrl}
               alt={selectedFile?.name || 'ID Document'}
               className={cn(
-                'w-full h-full object-contain bg-white rounded-t-lg',
+                'w-full h-full object-contain bg-white rounded-t-lg cursor-pointer hover:scale-105 transition-transform',
                 imageLoading && 'opacity-0'
               )}
               onLoad={handleImageLoad}
-              onError={handleImageError} />
+              onError={handleImageError}
+              onClick={() => window.open(previewUrl, '_blank')} />
             }
 
             {/* Non-image or error fallback - when file exists */}
             {hasContent && (!isImage || imageError) && !imageLoading && !checkingFile &&
-            <div className="w-full h-full flex items-center justify-center">
+            <div className="w-full h-full flex items-center justify-center cursor-pointer hover:bg-blue-100 transition-colors"
+                 onClick={() => previewUrl && window.open(previewUrl, '_blank')}>
                 <div className="text-center">
                   <FileText className="w-16 h-16 text-blue-500 mx-auto mb-3" />
                   <p className="text-sm font-medium text-blue-800">
-                    {imageError ? 'Preview not available' : 'Document selected'}
+                    {imageError ? 'Document Preview' : 'Document selected'}
                   </p>
                   <p className="text-xs text-blue-600">
                     {selectedFile ? selectedFile.name : 'ID Document'}
                   </p>
+                  <p className="text-xs text-blue-500 mt-1">Click to view full size</p>
                 </div>
               </div>
             }
@@ -331,7 +341,6 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
               onDragLeave={handleDrag}
               onDragOver={handleDrag}
               onDrop={handleDrop}>
-
 
                 <div className="text-center p-6">
                   <Upload className="w-16 h-16 text-gray-400 mx-auto mb-3" />
@@ -359,15 +368,24 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
               </div>
             }
 
-            {/* Download Button - Only when file exists */}
+            {/* Download Button - Always visible when file exists */}
             {hasContent && previewUrl && !checkingFile &&
-            <div className="absolute top-3 right-3">
+            <div className="absolute top-3 right-3 flex space-x-1">
+                <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => window.open(previewUrl, '_blank')}
+                className="bg-white/90 hover:bg-white text-blue-600 shadow-sm touch-manipulation min-h-[32px]">
+                  <Eye className="w-4 h-4 mr-1" />
+                  <span className="hidden sm:inline">View</span>
+                </Button>
                 <Button
                 type="button"
                 variant="secondary"
                 size="sm"
                 onClick={handleDownload}
-                className="bg-white/90 hover:bg-white text-blue-600 shadow-sm touch-manipulation min-h-[32px]"
+                className="bg-white/90 hover:bg-white text-green-600 shadow-sm touch-manipulation min-h-[32px]"
                 disabled={!previewUrl}>
                   <Download className="w-4 h-4 mr-1" />
                   <span className="hidden sm:inline">Download</span>
@@ -480,9 +498,9 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
       {/* Instructions */}
       <div className="text-xs text-gray-500 space-y-1">
         <p>• Supported formats: PDF, JPG, PNG (Maximum 10MB per file)</p>
-        <p>• Images will show instant preview with download option</p>
+        <p>• Images show instant live preview with full-screen view option</p>
         <p>• Files will be saved to storage when you save the employee</p>
-        <p className="text-red-600">• Click the × button to mark files for deletion</p>
+        <p className="text-red-600">• Click the × button to mark files for deletion (no confirmation required)</p>
       </div>
     </div>);
 

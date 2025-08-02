@@ -3,14 +3,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  FileText, 
-  Eye, 
-  Download, 
-  Loader2, 
+import {
+  FileText,
+  Eye,
+  Download,
+  Loader2,
   AlertCircle,
-  Image as ImageIcon
-} from 'lucide-react';
+  Image as ImageIcon } from
+'lucide-react';
 
 interface IDDocumentViewerProps {
   fileId: number | null;
@@ -31,31 +31,41 @@ const IDDocumentViewer: React.FC<IDDocumentViewerProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [isImageFile, setIsImageFile] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const { toast } = useToast();
 
   // Load document URL when component mounts
   useEffect(() => {
     const loadDocumentUrl = async () => {
       if (!fileId) return;
-      
+
       setIsLoading(true);
       setHasError(false);
-      
+      setImageLoaded(false);
+
       try {
         const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(fileId);
         if (error) throw error;
-        
+
         setDocumentUrl(fileUrl);
+        
         // Test if it's an image by trying to load it
         const img = new Image();
-        img.onload = () => setIsImageFile(true);
-        img.onerror = () => setIsImageFile(false);
+        img.onload = () => {
+          setIsImageFile(true);
+          setImageLoaded(true);
+          setIsLoading(false);
+        };
+        img.onerror = () => {
+          setIsImageFile(false);
+          setImageLoaded(false);
+          setIsLoading(false);
+        };
         img.src = fileUrl;
-        
+
       } catch (err) {
         console.error(`Error loading document URL for file ${fileId}:`, err);
         setHasError(true);
-      } finally {
         setIsLoading(false);
       }
     };
@@ -96,11 +106,11 @@ const IDDocumentViewer: React.FC<IDDocumentViewerProps> = ({
 
   const getSizeClasses = () => {
     switch (size) {
-      case 'sm': return 'h-24';
-      case 'md': return 'h-32';
-      case 'lg': return 'h-48';
-      case 'xl': return 'h-80';
-      default: return 'h-48';
+      case 'sm':return 'h-24';
+      case 'md':return 'h-32';
+      case 'lg':return 'h-48';
+      case 'xl':return 'h-80';
+      default:return 'h-48';
     }
   };
 
@@ -111,81 +121,78 @@ const IDDocumentViewer: React.FC<IDDocumentViewerProps> = ({
   return (
     <Card className={`overflow-hidden shadow-sm hover:shadow-md transition-shadow ${className}`}>
       <CardContent className="p-0">
-        {/* Preview Area */}
+        {/* Preview Area with Live Preview */}
         <div className={`relative w-full bg-gray-50 border-b aspect-[3/2] ${getSizeClasses()}`}>
-          {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+          {isLoading &&
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
               <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+              <span className="ml-2 text-sm text-gray-600">Loading preview...</span>
             </div>
-          )}
+          }
 
-          {hasError && !isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+          {hasError && !isLoading &&
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
               <div className="text-center p-4">
                 <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-2" />
                 <p className="text-sm text-gray-600">Unable to load document</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-2"
-                  onClick={handleViewFullScreen}
-                >
+                <Button
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                onClick={handleViewFullScreen}>
                   <Eye className="w-4 h-4 mr-1" />
                   Try Open
                 </Button>
               </div>
             </div>
-          )}
+          }
 
-          {documentUrl && !isLoading && !hasError && (
-            <>
-              {isImageFile ? (
-                <img
-                  src={documentUrl}
-                  alt={label}
-                  className="w-full h-full object-contain hover:object-cover transition-all duration-300 cursor-pointer"
-                  onClick={handleViewFullScreen}
-                  onError={() => setHasError(true)}
-                />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 cursor-pointer" 
-                     onClick={handleViewFullScreen}>
+          {documentUrl && !isLoading && !hasError &&
+          <>
+              {isImageFile && imageLoaded ?
+            <img
+              src={documentUrl}
+              alt={label}
+              className="w-full h-full object-contain hover:scale-105 transition-transform duration-300 cursor-pointer bg-white"
+              onClick={handleViewFullScreen}
+              onError={() => setHasError(true)} /> :
+
+            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 cursor-pointer hover:bg-blue-100 transition-colors"
+            onClick={handleViewFullScreen}>
                   <div className="text-center p-4">
                     <FileText className="w-16 h-16 text-blue-500 mx-auto mb-3" />
                     <p className="text-sm font-medium text-blue-800">Document File</p>
-                    <p className="text-xs text-blue-600 mt-1">Click to view</p>
+                    <p className="text-xs text-blue-600 mt-1">Click to view full size</p>
                   </div>
                 </div>
-              )}
+            }
             </>
-          )}
+          }
 
           {/* Document Label */}
           <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
             {label}
           </div>
 
-          {/* Action Buttons */}
-          <div className="absolute top-2 right-2 flex space-x-1 opacity-0 hover:opacity-100 transition-opacity duration-200">
+          {/* Live Action Buttons - Always visible for better UX */}
+          <div className="absolute top-2 right-2 flex space-x-1">
             <Button
               variant="secondary"
               size="sm"
               className="h-6 w-6 p-0 bg-white bg-opacity-90 hover:bg-opacity-100 shadow-sm"
-              onClick={handleViewFullScreen}
-            >
+              onClick={handleViewFullScreen}>
               <Eye className="w-3 h-3" />
             </Button>
             
-            {isAdminUser && (
-              <Button
-                variant="secondary"
-                size="sm"
-                className="h-6 w-6 p-0 bg-green-500 bg-opacity-90 hover:bg-opacity-100 text-white shadow-sm"
-                onClick={handleDownload}
-              >
+            {isAdminUser &&
+            <Button
+              variant="secondary"
+              size="sm"
+              className="h-6 w-6 p-0 bg-green-500 bg-opacity-90 hover:bg-opacity-100 text-white shadow-sm"
+              onClick={handleDownload}>
                 <Download className="w-3 h-3" />
               </Button>
-            )}
+            }
           </div>
         </div>
 
@@ -199,23 +206,22 @@ const IDDocumentViewer: React.FC<IDDocumentViewerProps> = ({
               <Badge variant="outline" className="text-xs">
                 {isImageFile ? 'Image' : 'Document'}
               </Badge>
-              {isAdminUser && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 px-2 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
-                  onClick={handleDownload}
-                >
+              {isAdminUser &&
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
+                onClick={handleDownload}>
                   <Download className="w-3 h-3 mr-1" />
                   Download
                 </Button>
-              )}
+              }
             </div>
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default IDDocumentViewer;

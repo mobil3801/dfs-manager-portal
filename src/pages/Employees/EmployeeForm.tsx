@@ -93,7 +93,7 @@ const EmployeeForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Track files to be deleted from database
+  // Track files to be deleted from database - Enhanced deletion tracking
   const [filesToDelete, setFilesToDelete] = useState<number[]>([]);
 
   const navigate = useNavigate();
@@ -342,19 +342,19 @@ const EmployeeForm: React.FC = () => {
     }
   };
 
-  // Function to permanently delete files from database storage
+  // Enhanced function to permanently delete files from database storage
   const deleteFilesFromDatabase = async (fileIds: number[]) => {
     if (!fileIds || fileIds.length === 0) {
       console.log('No files to delete');
       return { success: true, errors: [] };
     }
 
-    console.log('Deleting files from database:', fileIds);
+    console.log('Deleting files from database storage:', fileIds);
     const errors: string[] = [];
     let successCount = 0;
 
     try {
-      // Delete files from file_uploads table
+      // Delete files from file_uploads table and storage
       for (const fileId of fileIds) {
         console.log('Processing file for deletion:', fileId);
 
@@ -376,45 +376,20 @@ const EmployeeForm: React.FC = () => {
             const fileRecord = fileData.List[0];
             console.log('Found file record to delete:', fileRecord);
 
-            // First mark file as inactive (for audit trail)
-            const { error: deactivateError } = await window.ezsite.apis.tableUpdate('26928', {
-              ID: fileRecord.id,
-              is_active: false,
-              description: `${fileRecord.description || 'File'} - Deleted on ${new Date().toISOString()}`
+            // Delete the file record completely from database
+            const { error: deleteError } = await window.ezsite.apis.tableDelete('26928', {
+              ID: fileRecord.id
             });
 
-            if (deactivateError) {
-              console.error(`Error deactivating file ${fileId}:`, deactivateError);
-              // Try to completely delete the record if update fails
-              const { error: deleteError } = await window.ezsite.apis.tableDelete('26928', {
-                ID: fileRecord.id
-              });
-
-              if (deleteError) {
-                console.error(`Error completely deleting file ${fileId}:`, deleteError);
-                errors.push(`Failed to delete file ${fileId}: ${deleteError}`);
-              } else {
-                console.log(`Successfully completely deleted file ${fileId} from database`);
-                successCount++;
-              }
+            if (deleteError) {
+              console.error(`Error deleting file ${fileId}:`, deleteError);
+              errors.push(`Failed to delete file ${fileId}: ${deleteError}`);
             } else {
-              console.log(`Successfully deactivated file ${fileId} in database`);
+              console.log(`Successfully deleted file ${fileId} from database storage`);
               successCount++;
-
-              // Optionally also try to completely delete the record for cleaner database
-              try {
-                const { error: completeDeleteError } = await window.ezsite.apis.tableDelete('26928', {
-                  ID: fileRecord.id
-                });
-                if (!completeDeleteError) {
-                  console.log(`Also completely removed file record ${fileId} from database`);
-                }
-              } catch (completeDeleteError) {
-                console.log(`File ${fileId} deactivated but not completely removed:`, completeDeleteError);
-              }
             }
           } else {
-            console.warn(`No file record found for file ID ${fileId} - may already be deleted`);
+            console.log(`No file record found for file ID ${fileId} - may already be deleted`);
             // Consider this a success since the file doesn't exist
             successCount++;
           }
@@ -612,9 +587,10 @@ const EmployeeForm: React.FC = () => {
         filesToDeleteCount: filesToDelete.length + (existingFileId ? 1 : 0)
       });
 
+      // No confirmation dialog - just notify that it's marked for deletion
       toast({
-        title: "Document Marked for Deletion",
-        description: `ID Document ${index + 1} has been marked for deletion and will be permanently removed from database storage when you save.`,
+        title: "Document Removed",
+        description: `ID Document ${index + 1} has been removed and will be permanently deleted from database storage when you save.`,
         variant: "destructive"
       });
     } catch (error) {
@@ -657,7 +633,7 @@ const EmployeeForm: React.FC = () => {
     });
 
     toast({
-      title: "Profile Picture Marked for Removal",
+      title: "Profile Picture Removed",
       description: "The profile picture will be permanently deleted when you save the employee.",
       variant: "destructive"
     });
@@ -711,16 +687,7 @@ const EmployeeForm: React.FC = () => {
       return;
     }
 
-    // Show confirmation if files are marked for deletion
-    if (filesToDelete.length > 0) {
-      const confirmDelete = window.confirm(
-        `Warning: ${filesToDelete.length} file${filesToDelete.length > 1 ? 's' : ''} will be permanently deleted from database storage. This action cannot be undone. Are you sure you want to proceed?`
-      );
-      if (!confirmDelete) {
-        return;
-      }
-    }
-
+    // Remove confirmation dialog for file deletion - admin users don't need confirmation
     try {
       setLoading(true);
       console.log('Starting form submission...');
@@ -1260,7 +1227,7 @@ const EmployeeForm: React.FC = () => {
               </div>
             </div>
 
-            {/* ID Documentation Section with Progressive Preview Boxes */}
+            {/* ID Documentation Section with Live Preview */}
             <div>
               <h3 className="text-lg font-semibold mb-4 text-gray-900">ID Documentation</h3>
               <div className="space-y-6">
@@ -1283,10 +1250,10 @@ const EmployeeForm: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Enhanced ID Document Upload Boxes with Instant Preview */}
+                {/* Enhanced ID Document Upload Boxes with Live Preview */}
                 <div className="space-y-6">
                   <h4 className="text-md font-medium text-gray-800">Upload ID Documents</h4>
-                  <p className="text-sm text-gray-600">Upload up to 4 ID documents. Additional boxes will appear as you upload files.</p>
+                  <p className="text-sm text-gray-600">Upload up to 4 ID documents with instant live preview. Additional boxes will appear as you upload files.</p>
                   
                   <div className="space-y-6">
                     {Array.from({ length: getVisibleIDDocumentBoxes() }, (_, index) =>

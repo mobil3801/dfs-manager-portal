@@ -434,14 +434,14 @@ const EmployeeList: React.FC = () => {
         {/* Enhanced Document Display Grid - Always Visible Like Profile Pictures */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {documents.map((doc, index) =>
-            <IDDocumentViewer
-              key={index}
-              fileId={doc.fileId}
-              label={doc.label}
-              isAdminUser={isAdminUser}
-              size="lg"
-              className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow rounded-lg overflow-hidden"
-            />
+          <IDDocumentViewer
+            key={index}
+            fileId={doc.fileId}
+            label={doc.label}
+            isAdminUser={isAdminUser}
+            size="lg"
+            className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow rounded-lg overflow-hidden" />
+
           )}
         </div>
 

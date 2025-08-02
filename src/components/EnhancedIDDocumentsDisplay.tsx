@@ -37,11 +37,11 @@ interface EnhancedIDDocumentsDisplayProps {
 
 const EnhancedIDDocumentsDisplay: React.FC<EnhancedIDDocumentsDisplayProps> = ({ employee, isAdminUser }) => {
   const documents = [
-    { fileId: employee.id_document_file_id, label: 'ID Document 1' },
-    { fileId: employee.id_document_2_file_id, label: 'ID Document 2' },
-    { fileId: employee.id_document_3_file_id, label: 'ID Document 3' },
-    { fileId: employee.id_document_4_file_id, label: 'ID Document 4' }
-  ].filter((doc) => doc.fileId);
+  { fileId: employee.id_document_file_id, label: 'ID Document 1' },
+  { fileId: employee.id_document_2_file_id, label: 'ID Document 2' },
+  { fileId: employee.id_document_3_file_id, label: 'ID Document 3' },
+  { fileId: employee.id_document_4_file_id, label: 'ID Document 4' }].
+  filter((doc) => doc.fileId);
 
   if (documents.length === 0) {
     return (
@@ -62,7 +62,7 @@ const EnhancedIDDocumentsDisplay: React.FC<EnhancedIDDocumentsDisplayProps> = ({
         </div>
         <div className="flex items-center space-x-2">
           <Badge variant="outline" className="text-xs">
-            Always visible
+            Live Preview Enabled
           </Badge>
           {isAdminUser &&
           <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
@@ -81,29 +81,31 @@ const EnhancedIDDocumentsDisplay: React.FC<EnhancedIDDocumentsDisplayProps> = ({
         </div>
       }
       
-      {/* Enhanced Document Display Grid - Always Visible Like Profile Pictures */}
+      {/* Enhanced Document Display Grid - Always Visible with Live Preview */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {documents.map((doc, index) =>
-          <IDDocumentViewer
-            key={index}
-            fileId={doc.fileId}
-            label={doc.label}
-            isAdminUser={isAdminUser}
-            size="lg"
-            className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow rounded-lg overflow-hidden"
-          />
+        <IDDocumentViewer
+          key={index}
+          fileId={doc.fileId}
+          label={doc.label}
+          isAdminUser={isAdminUser}
+          size="lg"
+          className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow rounded-lg overflow-hidden" />
+
         )}
       </div>
 
       {/* Information Panel */}
       <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
-        <p>• All ID documents are always visible like profile pictures</p>
-        <p>• Click on any document to view in full screen</p>
+        <p>• All ID documents show instant live preview like profile pictures</p>
+        <p>• Click on any document to view in full screen with enhanced zoom</p>
+        <p>• View and download buttons are always visible for better user experience</p>
         {isAdminUser ?
-        <p>• <strong>Admin:</strong> Download buttons are visible for document management</p> :
+        <p>• <strong>Admin:</strong> Download buttons are enabled for document management</p> :
 
         <p>• Download access is restricted to administrators only</p>
         }
+        <p className="text-green-600 mt-1">• <strong>No confirmation needed</strong> for file operations - seamless experience</p>
       </div>
     </div>);
 
