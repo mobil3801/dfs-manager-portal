@@ -38,6 +38,7 @@ interface EnhancedIDDocumentsDisplayProps {
 
 const EnhancedIDDocumentsDisplay: React.FC<EnhancedIDDocumentsDisplayProps> = ({ employee, isAdminUser }) => {
   const { toast } = useToast();
+  const [documentUrls, setDocumentUrls] = React.useState<{[key: number]: string}>({});
 
   const documents = [
   { fileId: employee.id_document_file_id, label: 'ID Document 1' },
@@ -46,14 +47,42 @@ const EnhancedIDDocumentsDisplay: React.FC<EnhancedIDDocumentsDisplayProps> = ({
   { fileId: employee.id_document_4_file_id, label: 'ID Document 4' }].
   filter((doc) => doc.fileId);
 
+  // Load document URLs when component mounts
+  React.useEffect(() => {
+    const loadDocumentUrls = async () => {
+      const urls: {[key: number]: string} = {};
+      
+      for (const doc of documents) {
+        if (doc.fileId) {
+          try {
+            const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(doc.fileId);
+            if (!error && fileUrl) {
+              urls[doc.fileId] = fileUrl;
+            }
+          } catch (err) {
+            console.error(`Error loading URL for file ${doc.fileId}:`, err);
+          }
+        }
+      }
+      
+      setDocumentUrls(urls);
+    };
+
+    if (documents.length > 0) {
+      loadDocumentUrls();
+    }
+  }, [employee.id_document_file_id, employee.id_document_2_file_id, employee.id_document_3_file_id, employee.id_document_4_file_id]);
+
   // Handle download for admin users
   const handleDownload = async (fileId: number | null, fileName: string) => {
     if (!fileId) return;
 
     try {
-      const downloadUrl = `${window.location.origin}/api/files/${fileId}`;
+      const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(fileId);
+      if (error) throw error;
+      
       const link = document.createElement('a');
-      link.href = downloadUrl;
+      link.href = fileUrl;
       link.download = fileName || 'document';
       document.body.appendChild(link);
       link.click();
@@ -120,11 +149,13 @@ const EnhancedIDDocumentsDisplay: React.FC<EnhancedIDDocumentsDisplayProps> = ({
               {/* Document Image Display */}
               <div className="aspect-[3/2] bg-gray-50 relative">
                 <img
-                src={`${window.location.origin}/api/files/${doc.fileId}`}
+                src={documentUrls[doc.fileId!] || ''}
                 alt={doc.label}
                 className="w-full h-full object-contain hover:object-cover transition-all duration-300 cursor-pointer"
                 onClick={() => {
-                  window.open(`${window.location.origin}/api/files/${doc.fileId}`, '_blank');
+                  if (documentUrls[doc.fileId!]) {
+                    window.open(documentUrls[doc.fileId!], '_blank');
+                  }
                 }}
                 onError={(e) => {
                   // Fallback for non-image files
@@ -158,7 +189,9 @@ const EnhancedIDDocumentsDisplay: React.FC<EnhancedIDDocumentsDisplayProps> = ({
                 size="sm"
                 className="h-6 w-6 p-0 bg-white bg-opacity-90 hover:bg-opacity-100 shadow-sm"
                 onClick={() => {
-                  window.open(`${window.location.origin}/api/files/${doc.fileId}`, '_blank');
+                  if (documentUrls[doc.fileId!]) {
+                    window.open(documentUrls[doc.fileId!], '_blank');
+                  }
                 }}>
 
                   <Eye className="w-3 h-3" />

@@ -67,11 +67,23 @@ const InstantDocumentPreview: React.FC<InstantDocumentPreviewProps> = ({
       };
     } else if (fileId) {
       // Use EasySite's file API to get the file URL
-      const fileUrl = `${window.location.origin}/api/files/${fileId}`;
-      setPreviewUrl(fileUrl);
-      setIsImage(true); // Assume existing files are images for preview
-      setImageError(false);
-      setIsLoading(true);
+      const loadFileUrl = async () => {
+        try {
+          const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(fileId);
+          if (error) throw error;
+          
+          setPreviewUrl(fileUrl);
+          setIsImage(true); // Assume existing files are images for preview
+          setImageError(false);
+          setIsLoading(false);
+        } catch (err) {
+          console.error('Error loading file URL:', err);
+          setImageError(true);
+          setIsLoading(false);
+        }
+      };
+      
+      loadFileUrl();
     } else {
       setPreviewUrl(null);
       setIsImage(false);
@@ -128,18 +140,45 @@ const InstantDocumentPreview: React.FC<InstantDocumentPreviewProps> = ({
   };
 
   // Handle full screen view
-  const handleFullScreenView = () => {
+  const handleFullScreenView = async () => {
     if (previewUrl) {
       window.open(previewUrl, '_blank');
     } else if (fileId) {
-      const fileUrl = `${window.location.origin}/api/files/${fileId}`;
-      window.open(fileUrl, '_blank');
+      try {
+        const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(fileId);
+        if (error) throw error;
+        window.open(fileUrl, '_blank');
+      } catch (err) {
+        console.error('Error loading file URL for full screen:', err);
+        toast({
+          title: "Error",
+          description: "Failed to load document for full screen view",
+          variant: "destructive"
+        });
+      }
     }
   };
 
   // Handle download
-  const handleDownload = () => {
-    const urlToDownload = previewUrl || (fileId ? `${window.location.origin}/api/files/${fileId}` : null);
+  const handleDownload = async () => {
+    let urlToDownload = previewUrl;
+    
+    if (!urlToDownload && fileId) {
+      try {
+        const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(fileId);
+        if (error) throw error;
+        urlToDownload = fileUrl;
+      } catch (err) {
+        console.error('Error loading file URL for download:', err);
+        toast({
+          title: "Error",
+          description: "Failed to load document for download",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+    
     if (urlToDownload) {
       const link = document.createElement('a');
       link.href = urlToDownload;

@@ -17,7 +17,7 @@ import ResponsiveTable from '@/components/ResponsiveTable';
 import { useIsMobile } from '@/hooks/use-mobile';
 import ProfilePicture from '@/components/ProfilePicture';
 import DocumentPreview from '@/components/DocumentPreview';
-import InstantDocumentPreview from '@/components/InstantDocumentPreview';
+import IDDocumentViewer from '@/components/IDDocumentViewer';
 import { displayPhoneNumber } from '@/utils/phoneFormatter';
 
 interface Employee {
@@ -434,42 +434,15 @@ const EmployeeList: React.FC = () => {
         {/* Enhanced Document Display Grid - Always Visible Like Profile Pictures */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {documents.map((doc, index) =>
-          <div key={index} className="relative">
-              <InstantDocumentPreview
+            <IDDocumentViewer
+              key={index}
               fileId={doc.fileId}
-              fileName={doc.label}
-              documentName={doc.label}
+              label={doc.label}
+              isAdminUser={isAdminUser}
               size="lg"
-              aspectRatio="landscape"
-              showRemoveButton={false}
-              showDownload={isAdminUser}
-              showFullscreen={true}
-              showInstantPreview={true}
-              className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow rounded-lg overflow-hidden" />
-
-              
-              {/* Document Label */}
-              <div className="absolute top-2 left-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
-                {doc.label}
-              </div>
-              
-              {/* View Full Size Button */}
-              <div className="absolute top-2 right-2">
-                <Button
-                variant="secondary"
-                size="sm"
-                className="h-6 px-2 bg-white bg-opacity-90 hover:bg-opacity-100"
-                onClick={() => {
-
-
-
-
-                  // This will be handled by the InstantDocumentPreview component
-                }}>
-                  <Eye className="w-3 h-3" />
-                </Button>
-              </div>
-            </div>)}
+              className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow rounded-lg overflow-hidden"
+            />
+          )}
         </div>
 
         {/* Information Panel */}
@@ -479,9 +452,7 @@ const EmployeeList: React.FC = () => {
           {isAdminUser ? <p>• <strong>Admin:</strong> Download buttons are visible for document management</p> : <p>• Download access is restricted to administrators only</p>}
         </div>
       </div>);}; // Define view modal fields with profile picture, employment status, and ID documents
-  const getViewModalFields = (employee: Employee) => [{ key: 'profile_picture', label: 'Profile Picture', value: employee.profile_image_id, type: 'custom' as const,
-    customComponent:
-    <div className="flex justify-center">
+  const getViewModalFields = (employee: Employee) => [{ key: 'profile_picture', label: 'Profile Picture', value: employee.profile_image_id, type: 'custom' as const, customComponent: <div className="flex justify-center">
           <ProfilePicture
         imageId={employee.profile_image_id}
         firstName={employee.first_name}
