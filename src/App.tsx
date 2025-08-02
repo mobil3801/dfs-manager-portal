@@ -61,6 +61,7 @@ const DocumentViewerTestPage = lazy(() => import('./pages/DocumentViewerTestPage
 
 const DocumentLoadingDebugPage = lazy(() => import('@/pages/DocumentLoadingDebugPage'));
 const IDFileDebugPage = lazy(() => import('@/pages/IDFileDebugPage'));
+const IDDocumentSolutionPage = lazy(() => import('@/pages/IDDocumentSolutionPage'));
 
 import './App.css';
 
@@ -332,6 +333,11 @@ const AppRouter = () => {
             <Route path="id-file-debug" element={
               <Suspense fallback={<PageLoader />}>
                 <IDFileDebugPage />
+              </Suspense>
+            } />
+            <Route path="id-document-solution" element={
+              <Suspense fallback={<PageLoader />}>
+                <IDDocumentSolutionPage />
               </Suspense>
             } />
             
