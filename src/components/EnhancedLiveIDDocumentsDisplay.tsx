@@ -159,47 +159,61 @@ const EnhancedLiveIDDocumentsDisplay: React.FC<EnhancedLiveIDDocumentsDisplayPro
     }
 
     try {
-      console.log(`[EnhancedLiveIDDocumentsDisplay] Starting complete deletion: ${documentKey}, fileId: ${fileId}`);
+      console.log(`[EnhancedLiveIDDocumentsDisplay] Deleting document: ${documentKey}, fileId: ${fileId}`);
 
-      // Import the complete file deletion service
-      const { completeFileDeleteService } = await import('@/services/completeFileDeleteService');
-      
-      // Use the comprehensive deletion service
-      const deletionResult = await completeFileDeleteService.completeEmployeeFileDeletion(
-        localEmployee.ID,
-        [fileId]
-      );
+      // Update the employee record to remove the file reference
+      const updateData = {
+        ID: localEmployee.ID,
+        [documentKey]: null
+      };
 
-      if (deletionResult.success) {
-        // Update local state immediately
-        setLocalEmployee((prev) => ({
-          ...prev,
-          [documentKey]: null
-        }));
+      const { error } = await window.ezsite.apis.tableUpdate('11727', updateData);
+      if (error) throw new Error(error);
 
-        toast({
-          title: "Document Completely Deleted",
-          description: `The document has been permanently removed from all systems. Deleted ${deletionResult.totalDeleted}/${deletionResult.totalAttempted} file(s).`,
-          variant: "destructive"
+      // Update local state immediately
+      setLocalEmployee((prev) => ({
+        ...prev,
+        [documentKey]: null
+      }));
+
+      // Clean up file storage
+      try {
+        const { data: fileData, error: fetchError } = await window.ezsite.apis.tablePage('26928', {
+          PageNo: 1,
+          PageSize: 1,
+          Filters: [{ name: 'store_file_id', op: 'Equal', value: fileId }]
         });
 
-        console.log(`[EnhancedLiveIDDocumentsDisplay] Complete deletion successful:`, deletionResult);
-
-        // Refresh parent component if callback provided
-        if (onRefresh) {
-          setTimeout(() => {
-            onRefresh();
-          }, 1000); // Small delay to ensure backend is updated
+        if (!fetchError && fileData && fileData.List && fileData.List.length > 0) {
+          const { error: deleteError } = await window.ezsite.apis.tableDelete('26928', {
+            ID: fileData.List[0].id
+          });
+          if (deleteError) {
+            console.error('[EnhancedLiveIDDocumentsDisplay] Error deleting file from storage:', deleteError);
+          } else {
+            console.log(`[EnhancedLiveIDDocumentsDisplay] Successfully deleted file ${fileId} from storage`);
+          }
         }
-      } else {
-        throw new Error(`Complete deletion failed: ${deletionResult.errors.join(', ')}`);
+      } catch (fileError) {
+        console.error('[EnhancedLiveIDDocumentsDisplay] Error cleaning up file storage:', fileError);
+      }
+
+      toast({
+        title: "Document Deleted",
+        description: "The document has been permanently deleted",
+        variant: "destructive"
+      });
+
+      // Refresh parent component if callback provided
+      if (onRefresh) {
+        onRefresh();
       }
 
     } catch (error) {
-      console.error('[EnhancedLiveIDDocumentsDisplay] Error during complete document deletion:', error);
+      console.error('[EnhancedLiveIDDocumentsDisplay] Error deleting document:', error);
       toast({
-        title: "Deletion Failed",
-        description: "Failed to completely delete document. Please try again or contact support.",
+        title: "Error",
+        description: "Failed to delete document. Please try again.",
         variant: "destructive"
       });
     }

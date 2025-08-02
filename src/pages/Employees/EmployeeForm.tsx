@@ -19,7 +19,7 @@ import EnhancedInstantIDDocumentUpload from '@/components/EnhancedInstantIDDocum
 import FixedIDDocumentViewer from '@/components/FixedIDDocumentViewer';
 import ImprovedIDDocumentViewer from '@/components/ImprovedIDDocumentViewer';
 import RobustIDDocumentsDisplay from '@/components/RobustIDDocumentsDisplay';
-import CompleteIDDocumentManager from '@/components/CompleteIDDocumentManager';
+import LiveIDDocumentsDisplay from '@/components/LiveIDDocumentsDisplay';
 import EmployeeFileDebugger from '@/components/EmployeeFileDebugger';
 import { displayPhoneNumber, formatPhoneNumber } from '@/utils/phoneFormatter';
 import { useAuth } from '@/contexts/AuthContext';
@@ -347,38 +347,80 @@ const EmployeeForm: React.FC = () => {
     }
   };
 
-  // Enhanced function to permanently delete files from database storage using the complete deletion service
+  // Enhanced function to permanently delete files from database storage
   const deleteFilesFromDatabase = async (fileIds: number[]) => {
     if (!fileIds || fileIds.length === 0) {
       console.log('No files to delete');
-      return { success: true, errors: [], successCount: 0, totalFiles: 0 };
+      return { success: true, errors: [] };
     }
 
-    console.log('Deleting files from database storage using complete deletion service:', fileIds);
+    console.log('Deleting files from database storage:', fileIds);
+    const errors: string[] = [];
+    let successCount = 0;
 
     try {
-      // Import and use the complete file deletion service
-      const { completeFileDeleteService } = await import('@/services/completeFileDeleteService');
-      
-      // Use the comprehensive deletion service
-      const deletionResult = await completeFileDeleteService.deleteFiles(fileIds);
+      // Delete files from file_uploads table and storage
+      for (const fileId of fileIds) {
+        console.log('Processing file for deletion:', fileId);
 
-      console.log('Complete file deletion service result:', deletionResult);
+        try {
+          // First, get the file record to find the correct ID
+          const { data: fileData, error: fetchError } = await window.ezsite.apis.tablePage('26928', {
+            PageNo: 1,
+            PageSize: 1,
+            Filters: [{ name: 'store_file_id', op: 'Equal', value: fileId }]
+          });
+
+          if (fetchError) {
+            console.error(`Error fetching file record ${fileId}:`, fetchError);
+            errors.push(`Failed to fetch file record ${fileId}: ${fetchError}`);
+            continue;
+          }
+
+          if (fileData && fileData.List && fileData.List.length > 0) {
+            const fileRecord = fileData.List[0];
+            console.log('Found file record to delete:', fileRecord);
+
+            // Delete the file record completely from database
+            const { error: deleteError } = await window.ezsite.apis.tableDelete('26928', {
+              ID: fileRecord.id
+            });
+
+            if (deleteError) {
+              console.error(`Error deleting file ${fileId}:`, deleteError);
+              errors.push(`Failed to delete file ${fileId}: ${deleteError}`);
+            } else {
+              console.log(`Successfully deleted file ${fileId} from database storage`);
+              successCount++;
+            }
+          } else {
+            console.log(`No file record found for file ID ${fileId} - may already be deleted`);
+            // Consider this a success since the file doesn't exist
+            successCount++;
+          }
+        } catch (fileError) {
+          console.error(`Error processing file ${fileId} for deletion:`, fileError);
+          errors.push(`Error processing file ${fileId}: ${fileError}`);
+        }
+      }
+
+      console.log(`File deletion complete: ${successCount}/${fileIds.length} files processed successfully`);
+
+      if (errors.length > 0) {
+        console.error('File deletion errors:', errors);
+      }
 
       return {
-        success: deletionResult.success,
-        errors: deletionResult.errors,
-        successCount: deletionResult.totalDeleted,
-        totalFiles: deletionResult.totalAttempted
+        success: successCount > 0,
+        errors,
+        successCount,
+        totalFiles: fileIds.length
       };
-
     } catch (error) {
-      console.error('Critical error during complete file deletion:', error);
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
-      
+      console.error('Critical error during file deletion:', error);
       return {
         success: false,
-        errors: [`Critical deletion error: ${errorMsg}`],
+        errors: [`Critical error: ${error}`],
         successCount: 0,
         totalFiles: fileIds.length
       };
@@ -1250,49 +1292,51 @@ const EmployeeForm: React.FC = () => {
                     </div>
                   }
 
-                  {/* Complete ID Document Manager for Existing Documents */}
+                  {/* Enhanced Live Preview for Existing Documents */}
                   {isEditing && id &&
                   <div className="mt-6">
-                      <h4 className="text-md font-medium text-gray-800 mb-3">Complete Document Management</h4>
+                      <h4 className="text-md font-medium text-gray-800 mb-3">Current ID Documents - Live Preview</h4>
                       <p className="text-sm text-gray-600 mb-4">
-                        Advanced document management with complete deletion capabilities and live preview.
+                        View and manage existing ID documents with enhanced live preview and proper ID display.
                       </p>
-                      <CompleteIDDocumentManager
-                        employee={{
-                          ID: parseInt(id),
-                          employee_id: formData.employee_id,
-                          first_name: formData.first_name,
-                          last_name: formData.last_name,
-                          email: formData.email,
-                          phone: formData.phone,
-                          position: formData.position,
-                          station: formData.station,
-                          shift: formData.shift,
-                          hire_date: formData.hire_date,
-                          salary: formData.salary,
-                          is_active: true,
-                          employment_status: formData.employment_status,
-                          created_by: 1,
-                          profile_image_id: formData.profile_image_id,
-                          date_of_birth: formData.date_of_birth,
-                          current_address: formData.current_address,
-                          mailing_address: formData.mailing_address,
-                          reference_name: formData.reference_name,
-                          id_document_type: formData.id_document_type,
-                          id_document_file_id: formData.id_document_file_id,
-                          id_document_2_file_id: formData.id_document_2_file_id,
-                          id_document_3_file_id: formData.id_document_3_file_id,
-                          id_document_4_file_id: formData.id_document_4_file_id
-                        }}
-                        isAdminUser={isAdmin()}
-                        onRefresh={() => {
-                          if (id && id !== 'new') {
-                            loadEmployee(parseInt(id));
-                          }
-                        }}
-                        showDeletionManager={true}
-                        className="border-2 border-blue-200 rounded-lg"
-                      />
+                      <LiveIDDocumentsDisplay
+                      employee={{
+                        ID: parseInt(id),
+                        employee_id: formData.employee_id,
+                        first_name: formData.first_name,
+                        last_name: formData.last_name,
+                        email: formData.email,
+                        phone: formData.phone,
+                        position: formData.position,
+                        station: formData.station,
+                        shift: formData.shift,
+                        hire_date: formData.hire_date,
+                        salary: formData.salary,
+                        is_active: true,
+                        employment_status: formData.employment_status,
+                        created_by: 1,
+                        profile_image_id: formData.profile_image_id,
+                        date_of_birth: formData.date_of_birth,
+                        current_address: formData.current_address,
+                        mailing_address: formData.mailing_address,
+                        reference_name: formData.reference_name,
+                        id_document_type: formData.id_document_type,
+                        id_document_file_id: formData.id_document_file_id,
+                        id_document_2_file_id: formData.id_document_2_file_id,
+                        id_document_3_file_id: formData.id_document_3_file_id,
+                        id_document_4_file_id: formData.id_document_4_file_id
+                      }}
+                      isAdminUser={isAdmin()}
+                      onRefresh={() => {
+                        if (id && id !== 'new') {
+                          loadEmployee(parseInt(id));
+                        }
+                      }}
+                      allowDelete={true}
+                      showPreview={true}
+                      className="border-2 border-blue-200 rounded-lg" />
+
+
                     </div>
                   }
                 </div>

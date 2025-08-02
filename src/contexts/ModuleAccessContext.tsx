@@ -56,19 +56,28 @@ export const ModuleAccessProvider: React.FC<{children: React.ReactNode;}> = ({ c
     try {
       setLoading(true);
 
-      for (const module of defaultModules) {
-        const { error: createError } = await window.ezsite.apis.tableCreate("25712", {
-          module_name: module.module_name,
-          display_name: module.display_name,
-          create_enabled: module.create_enabled,
-          edit_enabled: module.edit_enabled,
-          delete_enabled: module.delete_enabled,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        });
+      if (!window.ezsite?.apis) {
+        console.warn('Cannot create modules - EZSite APIs not available');
+        return;
+      }
 
-        if (createError) {
-          console.warn(`Failed to create module ${module.module_name}:`, createError);
+      for (const module of defaultModules) {
+        try {
+          const { error: createError } = await window.ezsite.apis.tableCreate("25712", {
+            module_name: module.module_name,
+            display_name: module.display_name,
+            create_enabled: module.create_enabled,
+            edit_enabled: module.edit_enabled,
+            delete_enabled: module.delete_enabled,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+
+          if (createError) {
+            console.warn(`Failed to create module ${module.module_name}:`, createError);
+          }
+        } catch (moduleError) {
+          console.warn(`Error creating module ${module.module_name}:`, moduleError);
         }
       }
 
@@ -90,6 +99,19 @@ export const ModuleAccessProvider: React.FC<{children: React.ReactNode;}> = ({ c
       setLoading(true);
       setError(null);
 
+      // Check if EZSite APIs are available
+      if (!window.ezsite?.apis) {
+        console.warn('EZSite APIs not available, using default module permissions');
+        setIsModuleAccessEnabled(false);
+        setModuleAccess(defaultModules.map((module, index) => ({
+          id: index + 1,
+          ...module,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })));
+        return;
+      }
+
       const response = await window.ezsite.apis.tablePage("25712", {
         PageNo: 1,
         PageSize: 100,
@@ -102,7 +124,7 @@ export const ModuleAccessProvider: React.FC<{children: React.ReactNode;}> = ({ c
         throw new Error(response.error);
       }
 
-      const moduleData = response.data.List || [];
+      const moduleData = response.data?.List || [];
 
       // If no modules exist, create default ones
       if (moduleData.length === 0) {
@@ -115,9 +137,9 @@ export const ModuleAccessProvider: React.FC<{children: React.ReactNode;}> = ({ c
       setIsModuleAccessEnabled(true);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch module access';
-      setError(errorMessage);
+      setError(null); // Don't show error to user for module access failures
       setIsModuleAccessEnabled(false);
-      console.error('Error fetching module access:', err);
+      console.warn('Module access system unavailable, using default permissions:', err);
 
       // Set default permissions when there's an error
       setModuleAccess(defaultModules.map((module, index) => ({
@@ -133,6 +155,10 @@ export const ModuleAccessProvider: React.FC<{children: React.ReactNode;}> = ({ c
 
   const updateModuleAccess = async (id: number, updates: Partial<ModuleAccess>) => {
     try {
+      if (!window.ezsite?.apis) {
+        throw new Error('EZSite APIs not available');
+      }
+
       const response = await window.ezsite.apis.tableUpdate("25712", {
         ID: id,
         ...updates,
@@ -145,9 +171,9 @@ export const ModuleAccessProvider: React.FC<{children: React.ReactNode;}> = ({ c
 
       // Update local state immediately for real-time feedback
       setModuleAccess((prev) =>
-      prev.map((module) =>
-      module.id === id ? { ...module, ...updates, updated_at: new Date().toISOString() } : module
-      )
+        prev.map((module) =>
+          module.id === id ? { ...module, ...updates, updated_at: new Date().toISOString() } : module
+        )
       );
 
       toast.success('Module access updated successfully');

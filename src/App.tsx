@@ -4,6 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { SupabaseAuthProvider, useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { ModuleAccessProvider } from '@/contexts/ModuleAccessContext';
 import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
 import AuthDebugger from '@/components/AuthDebugger';
@@ -15,6 +16,7 @@ import DashboardLayout from '@/components/Layout/DashboardLayout';
 // Core pages (loaded immediately)
 import Dashboard from '@/pages/Dashboard';
 import LoginPage from '@/pages/LoginPage';
+import SupabaseLoginPage from '@/pages/SupabaseLoginPage';
 import OnAuthSuccessPage from '@/pages/OnAuthSuccessPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import NotFound from '@/pages/NotFound';
@@ -63,7 +65,6 @@ const DocumentLoadingDebugPage = lazy(() => import('@/pages/DocumentLoadingDebug
 const DocumentSolutionPage = lazy(() => import('@/pages/DocumentSolutionPage'));
 const IDFileDebugPage = lazy(() => import('@/pages/IDFileDebugPage'));
 const IDDocumentSolutionPage = lazy(() => import('@/pages/IDDocumentSolutionPage'));
-const IDDocumentDeletionTestPage = lazy(() => import('@/components/IDDocumentDeletionTestPage'));
 
 import './App.css';
 
@@ -163,6 +164,7 @@ const AppRouter = () => {
         <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/supabase-login" element={<SupabaseLoginPage />} />
           <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
           <Route path="/resetpassword" element={<ResetPasswordPage />} />
           
@@ -433,9 +435,11 @@ function App() {
       <TooltipProvider>
         <GlobalErrorBoundary>
           <AuthProvider>
-            <ModuleAccessProvider>
-              <AppRouter />
-            </ModuleAccessProvider>
+            <SupabaseAuthProvider>
+              <ModuleAccessProvider>
+                <AppRouter />
+              </ModuleAccessProvider>
+            </SupabaseAuthProvider>
           </AuthProvider>
         </GlobalErrorBoundary>
       </TooltipProvider>
