@@ -1,8 +1,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { FileText, Eye, Download } from 'lucide-react';
+import { FileText } from 'lucide-react';
+import IDDocumentViewer from '@/components/IDDocumentViewer';
 
 interface Employee {
   ID: number;
@@ -37,70 +36,12 @@ interface EnhancedIDDocumentsDisplayProps {
 }
 
 const EnhancedIDDocumentsDisplay: React.FC<EnhancedIDDocumentsDisplayProps> = ({ employee, isAdminUser }) => {
-  const { toast } = useToast();
-  const [documentUrls, setDocumentUrls] = React.useState<{[key: number]: string}>({});
-
   const documents = [
-  { fileId: employee.id_document_file_id, label: 'ID Document 1' },
-  { fileId: employee.id_document_2_file_id, label: 'ID Document 2' },
-  { fileId: employee.id_document_3_file_id, label: 'ID Document 3' },
-  { fileId: employee.id_document_4_file_id, label: 'ID Document 4' }].
-  filter((doc) => doc.fileId);
-
-  // Load document URLs when component mounts
-  React.useEffect(() => {
-    const loadDocumentUrls = async () => {
-      const urls: {[key: number]: string} = {};
-      
-      for (const doc of documents) {
-        if (doc.fileId) {
-          try {
-            const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(doc.fileId);
-            if (!error && fileUrl) {
-              urls[doc.fileId] = fileUrl;
-            }
-          } catch (err) {
-            console.error(`Error loading URL for file ${doc.fileId}:`, err);
-          }
-        }
-      }
-      
-      setDocumentUrls(urls);
-    };
-
-    if (documents.length > 0) {
-      loadDocumentUrls();
-    }
-  }, [employee.id_document_file_id, employee.id_document_2_file_id, employee.id_document_3_file_id, employee.id_document_4_file_id]);
-
-  // Handle download for admin users
-  const handleDownload = async (fileId: number | null, fileName: string) => {
-    if (!fileId) return;
-
-    try {
-      const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(fileId);
-      if (error) throw error;
-      
-      const link = document.createElement('a');
-      link.href = fileUrl;
-      link.download = fileName || 'document';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      toast({
-        title: "Success",
-        description: "Document downloaded successfully"
-      });
-    } catch (error) {
-      console.error('Error downloading document:', error);
-      toast({
-        title: "Error",
-        description: "Failed to download document",
-        variant: "destructive"
-      });
-    }
-  };
+    { fileId: employee.id_document_file_id, label: 'ID Document 1' },
+    { fileId: employee.id_document_2_file_id, label: 'ID Document 2' },
+    { fileId: employee.id_document_3_file_id, label: 'ID Document 3' },
+    { fileId: employee.id_document_4_file_id, label: 'ID Document 4' }
+  ].filter((doc) => doc.fileId);
 
   if (documents.length === 0) {
     return (
@@ -143,99 +84,14 @@ const EnhancedIDDocumentsDisplay: React.FC<EnhancedIDDocumentsDisplayProps> = ({
       {/* Enhanced Document Display Grid - Always Visible Like Profile Pictures */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {documents.map((doc, index) =>
-        <div key={index} className="relative group">
-            {/* Document Display Card - Always Show Like Profile Picture */}
-            <div className="relative border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-all duration-200">
-              {/* Document Image Display */}
-              <div className="aspect-[3/2] bg-gray-50 relative">
-                <img
-                src={documentUrls[doc.fileId!] || ''}
-                alt={doc.label}
-                className="w-full h-full object-contain hover:object-cover transition-all duration-300 cursor-pointer"
-                onClick={() => {
-                  if (documentUrls[doc.fileId!]) {
-                    window.open(documentUrls[doc.fileId!], '_blank');
-                  }
-                }}
-                onError={(e) => {
-                  // Fallback for non-image files
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const fallback = target.nextElementSibling as HTMLElement;
-                  if (fallback) fallback.style.display = 'flex';
-                }} />
-
-                
-                {/* Fallback for non-image files */}
-                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 hidden">
-                  <div className="text-center">
-                    <FileText className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-xs text-gray-500">Document File</p>
-                    <p className="text-xs text-gray-400 mt-1">Click to view</p>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Document Label */}
-              <div className="absolute top-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
-                {doc.label}
-              </div>
-              
-              {/* Action Buttons Overlay */}
-              <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                {/* View Full Size Button */}
-                <Button
-                variant="secondary"
-                size="sm"
-                className="h-6 w-6 p-0 bg-white bg-opacity-90 hover:bg-opacity-100 shadow-sm"
-                onClick={() => {
-                  if (documentUrls[doc.fileId!]) {
-                    window.open(documentUrls[doc.fileId!], '_blank');
-                  }
-                }}>
-
-                  <Eye className="w-3 h-3" />
-                </Button>
-                
-                {/* Download Button - Admin Only */}
-                {isAdminUser &&
-              <Button
-                variant="secondary"
-                size="sm"
-                className="h-6 w-6 p-0 bg-green-500 bg-opacity-90 hover:bg-opacity-100 text-white shadow-sm"
-                onClick={() => handleDownload(doc.fileId, doc.label)}>
-
-                    <Download className="w-3 h-3" />
-                  </Button>
-              }
-              </div>
-              
-              {/* Document Info Bar */}
-              <div className="p-3 bg-white border-t border-gray-100">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {doc.label}
-                  </p>
-                  <div className="flex items-center space-x-2">
-                    <Badge variant="outline" className="text-xs">
-                      Uploaded
-                    </Badge>
-                    {isAdminUser &&
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 px-2 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
-                    onClick={() => handleDownload(doc.fileId, doc.label)}>
-
-                        <Download className="w-3 h-3 mr-1" />
-                        Download
-                      </Button>
-                  }
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <IDDocumentViewer
+            key={index}
+            fileId={doc.fileId}
+            label={doc.label}
+            isAdminUser={isAdminUser}
+            size="lg"
+            className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow rounded-lg overflow-hidden"
+          />
         )}
       </div>
 
