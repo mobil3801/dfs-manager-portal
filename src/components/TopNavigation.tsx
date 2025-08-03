@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -31,7 +31,7 @@ import {
 'lucide-react';
 
 const TopNavigation = () => {
-  const { user, logout, isAdmin, isManager, isAuthenticated, isLoading, isInitialized } = useAuth();
+  const { userProfile, logout, isAdmin, isManager, isAuthenticated, isLoading, isInitialized } = useSupabaseAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -44,11 +44,11 @@ const TopNavigation = () => {
         isAuthenticated,
         isLoading,
         isInitialized,
-        user: user?.Name,
-        userRole: user ? isAdmin() ? 'Admin' : isManager() ? 'Manager' : 'Employee' : 'None'
+        user: userProfile?.user_id,
+        userRole: userProfile ? isAdmin() ? 'Admin' : isManager() ? 'Manager' : 'Employee' : 'None'
       });
     }
-  }, [isAuthenticated, isLoading, isInitialized, user, isAdmin, isManager, debugMode]);
+  }, [isAuthenticated, isLoading, isInitialized, userProfile, isAdmin, isManager, debugMode]);
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -332,14 +332,14 @@ const TopNavigation = () => {
                   <Button variant="ghost" className="flex items-center space-x-2 px-2 py-1.5 h-auto min-w-0 max-w-fit">
                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                       <span className="text-sm font-medium text-blue-700">
-                        {user?.Name?.charAt(0)?.toUpperCase() || 'U'}
+                        {userProfile?.user_id?.charAt(0)?.toUpperCase() || 'U'}
                       </span>
                     </div>
                     <div className="hidden xl:block text-left min-w-0 max-w-32">
                       <p className="text-sm font-medium text-gray-900 leading-none truncate">
-                        {user?.Name || 'User'}
+                        {userProfile?.role || 'User'}
                       </p>
-                      <p className="text-xs text-gray-500 leading-none mt-0.5 truncate">{user?.Email}</p>
+                      <p className="text-xs text-gray-500 leading-none mt-0.5 truncate">{userProfile?.user_id}</p>
                     </div>
                     <ChevronDown className="h-3 w-3 text-gray-500 flex-shrink-0" />
                   </Button>
@@ -379,7 +379,7 @@ const TopNavigation = () => {
               <strong>Debug:</strong> Auth: {isAuthenticated ? 'Yes' : 'No'} | 
               Primary: {accessiblePrimaryItems.length} | Secondary: {accessibleSecondaryItems.length} | 
               Role: {isAdmin() ? 'Admin' : isManager() ? 'Manager' : 'Employee'} | 
-              User: {user?.Name || 'None'}
+              User: {userProfile?.role || 'None'}
             </div>
           </div>
         }
@@ -442,14 +442,14 @@ const TopNavigation = () => {
                 <div className="flex items-center space-x-3 mb-4 min-w-0">
                   <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                     <span className="text-sm font-medium text-blue-700">
-                      {user?.Name?.charAt(0)?.toUpperCase() || 'U'}
+                      {userProfile?.role?.charAt(0)?.toUpperCase() || 'U'}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate">
-                      {user?.Name || 'User'}
+                      {userProfile?.role || 'User'}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">{user?.Email}</p>
+                    <p className="text-xs text-gray-500 truncate">{userProfile?.user_id}</p>
                   </div>
                 </div>
                 <Button
