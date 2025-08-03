@@ -295,6 +295,61 @@ class SimpleSupabaseClient {
   };
 }
 
+class InsertBuilder {
+  private client: SimpleSupabaseClient;
+  private table: string;
+  private values: any;
+  private selectFields = '*';
+
+  constructor(client: SimpleSupabaseClient, table: string, values: any) {
+    this.client = client;
+    this.table = table;
+    this.values = values;
+  }
+
+  select(fields = '*') {
+    this.selectFields = fields;
+    return this;
+  }
+
+  single() {
+    return this;
+  }
+
+  async execute() {
+    try {
+      const response = await fetch(`${this.client.supabaseUrl}/rest/v1/${this.table}`, {
+        method: 'POST',
+        headers: {
+          ...(this.client as any).getHeaders(true),
+          'Prefer': 'return=representation'
+        },
+        body: JSON.stringify(Array.isArray(this.values) ? this.values : [this.values])
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { data: null, error: data };
+      }
+
+      // For single() calls or single item inserts, return the first item
+      if (!Array.isArray(this.values) && Array.isArray(data)) {
+        return { data: data[0] || null, error: null };
+      }
+
+      return { data, error: null };
+    } catch (error: any) {
+      return { data: null, error: { message: error.message } };
+    }
+  }
+
+  // Make InsertBuilder thenable so it can be awaited directly
+  then(onFulfilled?: (value: any) => any, onRejected?: (reason: any) => any) {
+    return this.execute().then(onFulfilled, onRejected);
+  }
+}
+
 class QueryBuilder {
   private client: SimpleSupabaseClient;
   private table: string;
@@ -329,6 +384,12 @@ class QueryBuilder {
     return this;
   }
 
+  or(conditions: string) {
+    // For PostgreSQL OR conditions like 'first_name.ilike.%term%,last_name.ilike.%term%'
+    this.filters.push({ field: 'or', operator: 'custom', value: conditions });
+    return this;
+  }
+
   order(field: string, options: {ascending?: boolean;} = {}) {
     this.orderBy.push({ field, ascending: options.ascending !== false });
     return this;
@@ -355,7 +416,11 @@ class QueryBuilder {
     params.set('select', this.selectFields);
 
     this.filters.forEach((filter) => {
-      params.set(filter.field, `${filter.operator}.${filter.value}`);
+      if (filter.field === 'or' && filter.operator === 'custom') {
+        params.set('or', `(${filter.value})`);
+      } else {
+        params.set(filter.field, `${filter.operator}.${filter.value}`);
+      }
     });
 
     if (this.orderBy.length > 0) {
@@ -406,28 +471,10 @@ class QueryBuilder {
     return this.execute().then(onFulfilled, onRejected);
   }
 
-  // Insert method
-  async insert(values: any) {
-    try {
-      const response = await fetch(`${this.client.supabaseUrl}/rest/v1/${this.table}`, {
-        method: 'POST',
-        headers: {
-          ...(this.client as any).getHeaders(true),
-          'Prefer': 'return=representation'
-        },
-        body: JSON.stringify(Array.isArray(values) ? values : [values])
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return { data: null, error: data };
-      }
-
-      return { data, error: null };
-    } catch (error: any) {
-      return { data: null, error: { message: error.message } };
-    }
+  // Insert method that returns a new QueryBuilder for chaining
+  insert(values: any) {
+    const insertBuilder = new InsertBuilder(this.client, this.table, values);
+    return insertBuilder;
   }
 
   async update(values: any) {

@@ -75,12 +75,12 @@ const EmployeeForm: React.FC = () => {
   const generateEmployeeId = async () => {
     try {
       // Get all existing employee IDs that start with 'DFS' to find the next number
-      const { data, error } = await supabase
-        .from('employees')
-        .select('employee_id')
-        .like('employee_id', 'DFS%')
-        .order('employee_id', { ascending: false })
-        .limit(1);
+      const { data, error } = await supabase.
+      from('employees').
+      select('employee_id').
+      like('employee_id', 'DFS%').
+      order('employee_id', { ascending: false }).
+      limit(1);
 
       if (error) {
         console.error('Error fetching existing employee IDs:', error);
@@ -101,11 +101,11 @@ const EmployeeForm: React.FC = () => {
       const uniqueId = `DFS${nextNumber}`;
 
       // Double-check that this ID doesn't exist
-      const { data: checkData, error: checkError } = await supabase
-        .from('employees')
-        .select('id')
-        .eq('employee_id', uniqueId)
-        .limit(1);
+      const { data: checkData, error: checkError } = await supabase.
+      from('employees').
+      select('id').
+      eq('employee_id', uniqueId).
+      limit(1);
 
       if (checkError) {
         console.error('Error checking employee ID uniqueness:', checkError);
@@ -136,11 +136,11 @@ const EmployeeForm: React.FC = () => {
       setLoading(true);
       console.log('Loading employee for editing:', employeeId);
 
-      const { data, error } = await supabase
-        .from('employees')
-        .select('*')
-        .eq('id', employeeId)
-        .single();
+      const { data, error } = await supabase.
+      from('employees').
+      select('*').
+      eq('id', employeeId).
+      single();
 
       if (error) {
         console.error('Error loading employee:', error);
@@ -201,12 +201,12 @@ const EmployeeForm: React.FC = () => {
       if (isEditing && id && id !== 'new') {
         console.log('Updating employee...');
 
-        const { data, error } = await supabase
-          .from('employees')
-          .update(dataToSubmit)
-          .eq('id', id)
-          .select()
-          .single();
+        const { data, error } = await supabase.
+        from('employees').
+        update(dataToSubmit).
+        eq('id', id).
+        select().
+        single();
 
         if (error) {
           console.error('Update error:', error);
@@ -221,17 +221,17 @@ const EmployeeForm: React.FC = () => {
         });
       } else {
         console.log('Creating employee...');
-        
+
         const createData = {
           ...dataToSubmit,
           created_at: new Date().toISOString()
         };
 
-        const { data, error } = await supabase
-          .from('employees')
-          .insert([createData])
-          .select()
-          .single();
+        const { data, error } = await supabase.
+        from('employees').
+        insert([createData]).
+        select().
+        single();
 
         if (error) {
           console.error('Create error:', error);
@@ -273,8 +273,8 @@ const EmployeeForm: React.FC = () => {
     return (
       <div className="flex items-center justify-center min-h-64">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -315,18 +315,18 @@ const EmployeeForm: React.FC = () => {
                       className={!isEditing ? "bg-gray-50 cursor-not-allowed" : ""}
                       required />
                     {!isEditing &&
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={generateEmployeeId}
-                        className="shrink-0">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={generateEmployeeId}
+                      className="shrink-0">
                         Regenerate
                       </Button>
                     }
                   </div>
                   {!isEditing &&
-                    <p className="text-xs text-green-600 bg-green-50 p-2 rounded mt-2">
+                  <p className="text-xs text-green-600 bg-green-50 p-2 rounded mt-2">
                       Employee ID is automatically generated
                     </p>
                   }
@@ -340,7 +340,7 @@ const EmployeeForm: React.FC = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {departments.map((dept) =>
-                        <SelectItem key={dept} value={dept}>
+                      <SelectItem key={dept} value={dept}>
                           {dept}
                         </SelectItem>
                       )}
@@ -386,7 +386,7 @@ const EmployeeForm: React.FC = () => {
                     onChange={(e) => handlePhoneChange(e.target.value)}
                     placeholder="Enter phone number (e.g., 1234567890)" />
                   {formData.phone &&
-                    <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+                  <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
                       <span className="font-medium">Display format:</span> {displayPhoneNumber(formData.phone)}
                     </div>
                   }
@@ -406,7 +406,7 @@ const EmployeeForm: React.FC = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {positions.map((position) =>
-                        <SelectItem key={position} value={position}>
+                      <SelectItem key={position} value={position}>
                           {position}
                         </SelectItem>
                       )}
@@ -416,8 +416,8 @@ const EmployeeForm: React.FC = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="is_active">Employment Status *</Label>
-                  <Select 
-                    value={formData.is_active ? 'active' : 'inactive'} 
+                  <Select
+                    value={formData.is_active ? 'active' : 'inactive'}
                     onValueChange={(value) => handleInputChange('is_active', value === 'active')}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select employment status" />
@@ -455,13 +455,13 @@ const EmployeeForm: React.FC = () => {
                 </div>
 
                 {!formData.is_active &&
-                  <div className="space-y-2">
+                <div className="space-y-2">
                     <Label htmlFor="termination_date">Termination Date</Label>
                     <Input
-                      id="termination_date"
-                      type="date"
-                      value={formData.termination_date}
-                      onChange={(e) => handleInputChange('termination_date', e.target.value)} />
+                    id="termination_date"
+                    type="date"
+                    value={formData.termination_date}
+                    onChange={(e) => handleInputChange('termination_date', e.target.value)} />
                   </div>
                 }
 
@@ -514,8 +514,8 @@ const EmployeeForm: React.FC = () => {
                 type="submit"
                 disabled={loading || isUploading}>
                 {loading || isUploading ?
-                  'Saving...' :
-                  <>
+                'Saving...' :
+                <>
                     <Save className="w-4 h-4 mr-2" />
                     {isEditing ? 'Update Employee' : 'Create Employee'}
                   </>
@@ -525,8 +525,8 @@ const EmployeeForm: React.FC = () => {
           </form>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default EmployeeForm;
