@@ -41,8 +41,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Edit,
-  Trash2
-} from 'lucide-react';
+  Trash2 } from
+'lucide-react';
 
 interface UserProfile {
   id: string;
@@ -85,7 +85,7 @@ const UserManagement: React.FC = () => {
   useEffect(() => {
     fetchUserProfiles();
     fetchRoles();
-    
+
     // Set up real-time refresh interval
     const interval = setInterval(() => {
       fetchUserProfiles();
@@ -97,9 +97,9 @@ const UserManagement: React.FC = () => {
   const fetchUserProfiles = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select(`
+      const { data, error } = await supabase.
+      from('user_profiles').
+      select(`
           *,
           roles (
             id,
@@ -108,8 +108,8 @@ const UserManagement: React.FC = () => {
             description,
             permissions
           )
-        `)
-        .order('created_at', { ascending: false });
+        `).
+      order('created_at', { ascending: false });
 
       if (error) throw error;
       setUserProfiles(data || []);
@@ -161,16 +161,16 @@ const UserManagement: React.FC = () => {
 
       if (authData.user) {
         // Create user profile
-        const { error: profileError } = await supabase
-          .from('user_profiles')
-          .insert([{
-            id: authData.user.id,
-            email: newUser.email,
-            full_name: newUser.full_name,
-            role_id: parseInt(newUser.role_id),
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }]);
+        const { error: profileError } = await supabase.
+        from('user_profiles').
+        insert([{
+          id: authData.user.id,
+          email: newUser.email,
+          full_name: newUser.full_name,
+          role_id: parseInt(newUser.role_id),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }]);
 
         if (profileError) throw profileError;
 
@@ -208,14 +208,14 @@ const UserManagement: React.FC = () => {
     if (!selectedUser) return;
 
     try {
-      const { error } = await supabase
-        .from('user_profiles')
-        .update({
-          full_name: newUser.full_name,
-          role_id: parseInt(newUser.role_id),
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', selectedUser.id);
+      const { error } = await supabase.
+      from('user_profiles').
+      update({
+        full_name: newUser.full_name,
+        role_id: parseInt(newUser.role_id),
+        updated_at: new Date().toISOString()
+      }).
+      eq('id', selectedUser.id);
 
       if (error) throw error;
 
@@ -242,10 +242,10 @@ const UserManagement: React.FC = () => {
     if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
 
     try {
-      const { error } = await supabase
-        .from('user_profiles')
-        .delete()
-        .eq('id', userId);
+      const { error } = await supabase.
+      from('user_profiles').
+      delete().
+      eq('id', userId);
 
       if (error) throw error;
 
@@ -266,12 +266,12 @@ const UserManagement: React.FC = () => {
   };
 
   const filteredUsers = userProfiles.filter((user) => {
-    const matchesSearch = 
-      user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesRole = selectedRole === 'All' || 
-      (user.roles && user.roles.role_code === selectedRole);
+    const matchesSearch =
+    user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesRole = selectedRole === 'All' ||
+    user.roles && user.roles.role_code === selectedRole;
 
     return matchesSearch && matchesRole;
   });
@@ -294,9 +294,9 @@ const UserManagement: React.FC = () => {
     return (
       <AccessDenied
         feature="User Management"
-        requiredRole="Administrator"
-      />
-    );
+        requiredRole="Administrator" />);
+
+
   }
 
   if (loading) {
@@ -304,8 +304,8 @@ const UserManagement: React.FC = () => {
       <div className="flex items-center justify-center min-h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         <div className="ml-3 text-lg">Loading user management...</div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -319,8 +319,8 @@ const UserManagement: React.FC = () => {
           <Button
             variant="outline"
             onClick={refreshData}
-            disabled={refreshing}
-          >
+            disabled={refreshing}>
+
             <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
@@ -346,8 +346,8 @@ const UserManagement: React.FC = () => {
                     type="email"
                     value={newUser.email}
                     onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                    placeholder="user@example.com"
-                  />
+                    placeholder="user@example.com" />
+
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
@@ -356,8 +356,8 @@ const UserManagement: React.FC = () => {
                     type="password"
                     value={newUser.password}
                     onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                    placeholder="••••••••"
-                  />
+                    placeholder="••••••••" />
+
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="full_name">Full Name</Label>
@@ -365,15 +365,15 @@ const UserManagement: React.FC = () => {
                     id="full_name"
                     value={newUser.full_name}
                     onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })}
-                    placeholder="John Doe"
-                  />
+                    placeholder="John Doe" />
+
                 </div>
                 <RoleSelector
                   label="Role"
                   value={newUser.role_id}
                   onValueChange={(value) => setNewUser({ ...newUser, role_id: value })}
-                  placeholder="Select a role"
-                />
+                  placeholder="Select a role" />
+
                 <Button onClick={createUser} className="w-full">
                   Create User
                 </Button>
@@ -413,7 +413,7 @@ const UserManagement: React.FC = () => {
                   <div>
                     <p className="text-sm text-gray-600">Administrators</p>
                     <p className="text-2xl font-bold">
-                      {userProfiles.filter(u => u.roles?.role_code === 'Administrator').length}
+                      {userProfiles.filter((u) => u.roles?.role_code === 'Administrator').length}
                     </p>
                   </div>
                 </div>
@@ -427,7 +427,7 @@ const UserManagement: React.FC = () => {
                   <div>
                     <p className="text-sm text-gray-600">Managers</p>
                     <p className="text-2xl font-bold">
-                      {userProfiles.filter(u => u.roles?.role_code === 'Manager').length}
+                      {userProfiles.filter((u) => u.roles?.role_code === 'Manager').length}
                     </p>
                   </div>
                 </div>
@@ -441,7 +441,7 @@ const UserManagement: React.FC = () => {
                   <div>
                     <p className="text-sm text-gray-600">Employees</p>
                     <p className="text-2xl font-bold">
-                      {userProfiles.filter(u => u.roles?.role_code === 'Employee').length}
+                      {userProfiles.filter((u) => u.roles?.role_code === 'Employee').length}
                     </p>
                   </div>
                 </div>
@@ -459,8 +459,8 @@ const UserManagement: React.FC = () => {
                     placeholder="Search by name or email..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
+                    className="pl-10" />
+
                 </div>
                 
                 <Select value={selectedRole} onValueChange={setSelectedRole}>
@@ -480,8 +480,8 @@ const UserManagement: React.FC = () => {
                   onClick={() => {
                     setSearchTerm('');
                     setSelectedRole('All');
-                  }}
-                >
+                  }}>
+
                   Clear Filters
                 </Button>
               </div>
@@ -512,8 +512,8 @@ const UserManagement: React.FC = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredUsers.length === 0 ? (
-                      <TableRow>
+                    {filteredUsers.length === 0 ?
+                    <TableRow>
                         <TableCell colSpan={5} className="text-center py-8">
                           <div className="flex flex-col items-center space-y-3">
                             <Database className="w-12 h-12 text-gray-300" />
@@ -527,10 +527,10 @@ const UserManagement: React.FC = () => {
                             </div>
                           </div>
                         </TableCell>
-                      </TableRow>
-                    ) : (
-                      filteredUsers.map((user) => (
-                        <TableRow key={user.id}>
+                      </TableRow> :
+
+                    filteredUsers.map((user) =>
+                    <TableRow key={user.id}>
                           <TableCell>
                             <div className="flex items-center">
                               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
@@ -545,16 +545,16 @@ const UserManagement: React.FC = () => {
                           </TableCell>
                           <TableCell>{user.email}</TableCell>
                           <TableCell>
-                            {user.roles ? (
-                              <Badge className={getRoleBadgeColor(user.roles.role_code)}>
+                            {user.roles ?
+                        <Badge className={getRoleBadgeColor(user.roles.role_code)}>
                                 {user.roles.role_name}
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline" className="text-amber-600 border-amber-200">
+                              </Badge> :
+
+                        <Badge variant="outline" className="text-amber-600 border-amber-200">
                                 <AlertCircle className="h-3 w-3 mr-1" />
                                 No Role
                               </Badge>
-                            )}
+                        }
                           </TableCell>
                           <TableCell className="text-muted-foreground">
                             {new Date(user.created_at).toLocaleDateString()}
@@ -562,25 +562,25 @@ const UserManagement: React.FC = () => {
                           <TableCell>
                             <div className="flex items-center space-x-2">
                               <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleEditUser(user)}
-                              >
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEditUser(user)}>
+
                                 <Edit className="h-4 w-4" />
                               </Button>
                               <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => deleteUser(user.id)}
-                                className="text-red-600 hover:text-red-700"
-                              >
+                            size="sm"
+                            variant="outline"
+                            onClick={() => deleteUser(user.id)}
+                            className="text-red-600 hover:text-red-700">
+
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
                           </TableCell>
                         </TableRow>
-                      ))
-                    )}
+                    )
+                    }
                   </TableBody>
                 </Table>
               </div>
@@ -618,8 +618,8 @@ const UserManagement: React.FC = () => {
                 type="email"
                 value={newUser.email}
                 disabled
-                className="bg-gray-50"
-              />
+                className="bg-gray-50" />
+
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit_full_name">Full Name</Label>
@@ -627,22 +627,22 @@ const UserManagement: React.FC = () => {
                 id="edit_full_name"
                 value={newUser.full_name}
                 onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })}
-                placeholder="John Doe"
-              />
+                placeholder="John Doe" />
+
             </div>
             <RoleSelector
               label="Role"
               value={newUser.role_id}
-              onValueChange={(value) => setNewUser({ ...newUser, role_id: value })}
-            />
+              onValueChange={(value) => setNewUser({ ...newUser, role_id: value })} />
+
             <Button onClick={updateUser} className="w-full">
               Update User
             </Button>
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 };
 
 export default UserManagement;

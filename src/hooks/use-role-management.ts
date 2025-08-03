@@ -27,10 +27,10 @@ export const useRoleManagement = () => {
   const fetchRoles = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('roles')
-        .select('*')
-        .order('role_name');
+      const { data, error } = await supabase.
+      from('roles').
+      select('*').
+      order('role_name');
 
       if (error) throw error;
       setRoles(data || []);
@@ -49,9 +49,9 @@ export const useRoleManagement = () => {
   const fetchUsersWithRoles = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select(`
+      const { data, error } = await supabase.
+      from('user_profiles').
+      select(`
           *,
           roles (
             id,
@@ -60,8 +60,8 @@ export const useRoleManagement = () => {
             description,
             permissions
           )
-        `)
-        .order('created_at', { ascending: false });
+        `).
+      order('created_at', { ascending: false });
 
       if (error) throw error;
       setUsers(data || []);
@@ -79,13 +79,13 @@ export const useRoleManagement = () => {
 
   const updateUserRole = async (userId: string, roleId: number) => {
     try {
-      const { error } = await supabase
-        .from('user_profiles')
-        .update({ 
-          role_id: roleId,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', userId);
+      const { error } = await supabase.
+      from('user_profiles').
+      update({
+        role_id: roleId,
+        updated_at: new Date().toISOString()
+      }).
+      eq('id', userId);
 
       if (error) throw error;
 
@@ -110,9 +110,9 @@ export const useRoleManagement = () => {
 
   const createRole = async (roleData: Omit<Role, 'id'>) => {
     try {
-      const { error } = await supabase
-        .from('roles')
-        .insert([roleData]);
+      const { error } = await supabase.
+      from('roles').
+      insert([roleData]);
 
       if (error) throw error;
 
@@ -135,14 +135,14 @@ export const useRoleManagement = () => {
   };
 
   const getUserRole = (userId: string) => {
-    const user = users.find(u => u.id === userId);
+    const user = users.find((u) => u.id === userId);
     return user?.roles || null;
   };
 
   const hasPermission = (userId: string, permission: string) => {
     const role = getUserRole(userId);
     if (!role) return false;
-    
+
     const permissions = role.permissions || {};
     return permissions[permission] === true || permissions.all_modules === true;
   };

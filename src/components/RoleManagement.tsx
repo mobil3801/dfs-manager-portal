@@ -53,10 +53,10 @@ const RoleManagement: React.FC = () => {
 
   const fetchRoles = async () => {
     try {
-      const { data, error } = await supabase
-        .from('roles')
-        .select('*')
-        .order('role_name');
+      const { data, error } = await supabase.
+      from('roles').
+      select('*').
+      order('role_name');
 
       if (error) throw error;
       setRoles(data || []);
@@ -73,9 +73,9 @@ const RoleManagement: React.FC = () => {
   const fetchUserProfiles = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select(`
+      const { data, error } = await supabase.
+      from('user_profiles').
+      select(`
           *,
           roles (
             id,
@@ -84,8 +84,8 @@ const RoleManagement: React.FC = () => {
             description,
             permissions
           )
-        `)
-        .order('created_at', { ascending: false });
+        `).
+      order('created_at', { ascending: false });
 
       if (error) throw error;
       setUserProfiles(data || []);
@@ -103,13 +103,13 @@ const RoleManagement: React.FC = () => {
 
   const updateUserRole = async (userId: string, roleId: number) => {
     try {
-      const { error } = await supabase
-        .from('user_profiles')
-        .update({ 
-          role_id: roleId,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', userId);
+      const { error } = await supabase.
+      from('user_profiles').
+      update({
+        role_id: roleId,
+        updated_at: new Date().toISOString()
+      }).
+      eq('id', userId);
 
       if (error) throw error;
 
@@ -138,14 +138,14 @@ const RoleManagement: React.FC = () => {
         permissions = {};
       }
 
-      const { error } = await supabase
-        .from('roles')
-        .insert([{
-          role_name: newRole.role_name,
-          role_code: newRole.role_code,
-          description: newRole.description,
-          permissions: permissions
-        }]);
+      const { error } = await supabase.
+      from('roles').
+      insert([{
+        role_name: newRole.role_name,
+        role_code: newRole.role_code,
+        description: newRole.description,
+        permissions: permissions
+      }]);
 
       if (error) throw error;
 
@@ -180,18 +180,18 @@ const RoleManagement: React.FC = () => {
     }
   };
 
-  const filteredUsers = userProfiles.filter(user =>
-    user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.roles?.role_name?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = userProfiles.filter((user) =>
+  user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  user.roles?.role_name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -222,8 +222,8 @@ const RoleManagement: React.FC = () => {
                   id="role_name"
                   value={newRole.role_name}
                   onChange={(e) => setNewRole({ ...newRole, role_name: e.target.value })}
-                  placeholder="Enter role name"
-                />
+                  placeholder="Enter role name" />
+
               </div>
               <div>
                 <Label htmlFor="role_code">Role Code</Label>
@@ -231,8 +231,8 @@ const RoleManagement: React.FC = () => {
                   id="role_code"
                   value={newRole.role_code}
                   onChange={(e) => setNewRole({ ...newRole, role_code: e.target.value })}
-                  placeholder="Enter role code"
-                />
+                  placeholder="Enter role code" />
+
               </div>
               <div>
                 <Label htmlFor="description">Description</Label>
@@ -240,8 +240,8 @@ const RoleManagement: React.FC = () => {
                   id="description"
                   value={newRole.description}
                   onChange={(e) => setNewRole({ ...newRole, description: e.target.value })}
-                  placeholder="Enter role description"
-                />
+                  placeholder="Enter role description" />
+
               </div>
               <div>
                 <Label htmlFor="permissions">Permissions (JSON)</Label>
@@ -249,8 +249,8 @@ const RoleManagement: React.FC = () => {
                   id="permissions"
                   value={newRole.permissions}
                   onChange={(e) => setNewRole({ ...newRole, permissions: e.target.value })}
-                  placeholder='{"example": true}'
-                />
+                  placeholder='{"example": true}' />
+
               </div>
               <Button onClick={createRole} className="w-full">
                 Create Role
@@ -285,8 +285,8 @@ const RoleManagement: React.FC = () => {
                     placeholder="Search users..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="max-w-sm"
-                  />
+                    className="max-w-sm" />
+
                 </div>
 
                 <div className="rounded-md border">
@@ -300,49 +300,49 @@ const RoleManagement: React.FC = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredUsers.map((userProfile) => (
-                        <TableRow key={userProfile.id}>
+                      {filteredUsers.map((userProfile) =>
+                      <TableRow key={userProfile.id}>
                           <TableCell className="font-medium">
                             {userProfile.full_name || 'N/A'}
                           </TableCell>
                           <TableCell>{userProfile.email}</TableCell>
                           <TableCell>
-                            {userProfile.roles ? (
-                              <Badge className={getRoleBadgeColor(userProfile.roles.role_code)}>
+                            {userProfile.roles ?
+                          <Badge className={getRoleBadgeColor(userProfile.roles.role_code)}>
                                 {userProfile.roles.role_name}
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline">No Role</Badge>
-                            )}
+                              </Badge> :
+
+                          <Badge variant="outline">No Role</Badge>
+                          }
                           </TableCell>
                           <TableCell>
                             <Select
-                              value={userProfile.role_id?.toString() || ''}
-                              onValueChange={(value) => updateUserRole(userProfile.id, parseInt(value))}
-                            >
+                            value={userProfile.role_id?.toString() || ''}
+                            onValueChange={(value) => updateUserRole(userProfile.id, parseInt(value))}>
+
                               <SelectTrigger className="w-[180px]">
                                 <SelectValue placeholder="Select role" />
                               </SelectTrigger>
                               <SelectContent>
-                                {roles.map((role) => (
-                                  <SelectItem key={role.id} value={role.id.toString()}>
+                                {roles.map((role) =>
+                              <SelectItem key={role.id} value={role.id.toString()}>
                                     {role.role_name}
                                   </SelectItem>
-                                ))}
+                              )}
                               </SelectContent>
                             </Select>
                           </TableCell>
                         </TableRow>
-                      ))}
+                      )}
                     </TableBody>
                   </Table>
                 </div>
 
-                {filteredUsers.length === 0 && (
-                  <div className="text-center py-6 text-muted-foreground">
+                {filteredUsers.length === 0 &&
+                <div className="text-center py-6 text-muted-foreground">
                     No users found matching your search criteria.
                   </div>
-                )}
+                }
               </div>
             </CardContent>
           </Card>
@@ -350,8 +350,8 @@ const RoleManagement: React.FC = () => {
 
         <TabsContent value="roles" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {roles.map((role) => (
-              <Card key={role.id}>
+            {roles.map((role) =>
+            <Card key={role.id}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{role.role_name}</CardTitle>
@@ -370,12 +370,12 @@ const RoleManagement: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            )}
           </div>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default RoleManagement;

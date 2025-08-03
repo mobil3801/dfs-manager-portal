@@ -41,8 +41,8 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({
       <div className="space-y-2">
         {label && <Label>{label}</Label>}
         <div className="h-10 w-full animate-pulse bg-muted rounded-md" />
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -51,26 +51,26 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({
       <Select
         value={value?.toString() || ''}
         onValueChange={onValueChange}
-        disabled={disabled}
-      >
+        disabled={disabled}>
+
         <SelectTrigger className={className}>
           <SelectValue placeholder={placeholder}>
-            {value && roles.find(role => role.id.toString() === value?.toString()) && (
-              <div className="flex items-center">
-                <Badge 
-                  className={`mr-2 ${getRoleBadgeColor(
-                    roles.find(role => role.id.toString() === value?.toString())?.role_code || ''
-                  )}`}
-                >
-                  {roles.find(role => role.id.toString() === value?.toString())?.role_name}
+            {value && roles.find((role) => role.id.toString() === value?.toString()) &&
+            <div className="flex items-center">
+                <Badge
+                className={`mr-2 ${getRoleBadgeColor(
+                  roles.find((role) => role.id.toString() === value?.toString())?.role_code || ''
+                )}`}>
+
+                  {roles.find((role) => role.id.toString() === value?.toString())?.role_name}
                 </Badge>
               </div>
-            )}
+            }
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
-          {roles.map((role) => (
-            <SelectItem key={role.id} value={role.id.toString()}>
+          {roles.map((role) =>
+          <SelectItem key={role.id} value={role.id.toString()}>
               <div className="flex items-center">
                 <Badge className={`mr-2 ${getRoleBadgeColor(role.role_code)}`}>
                   {role.role_name}
@@ -80,11 +80,11 @@ const RoleSelector: React.FC<RoleSelectorProps> = ({
                 </span>
               </div>
             </SelectItem>
-          ))}
+          )}
         </SelectContent>
       </Select>
-    </div>
-  );
+    </div>);
+
 };
 
 export default RoleSelector;

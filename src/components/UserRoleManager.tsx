@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import RoleSelector from  '@/components/RoleSelector';
+import RoleSelector from '@/components/RoleSelector';
 import { UserPlus, Mail, User, Shield, AlertCircle } from 'lucide-react';
 
 interface UserProfile {
@@ -48,9 +48,9 @@ const UserRoleManager: React.FC = () => {
   const fetchUserProfiles = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select(`
+      const { data, error } = await supabase.
+      from('user_profiles').
+      select(`
           *,
           roles (
             id,
@@ -58,8 +58,8 @@ const UserRoleManager: React.FC = () => {
             role_code,
             description
           )
-        `)
-        .order('created_at', { ascending: false });
+        `).
+      order('created_at', { ascending: false });
 
       if (error) throw error;
       setUserProfiles(data || []);
@@ -101,16 +101,16 @@ const UserRoleManager: React.FC = () => {
 
       if (authData.user) {
         // Create user profile
-        const { error: profileError } = await supabase
-          .from('user_profiles')
-          .insert([{
-            id: authData.user.id,
-            email: newUser.email,
-            full_name: newUser.full_name,
-            role_id: parseInt(newUser.role_id),
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }]);
+        const { error: profileError } = await supabase.
+        from('user_profiles').
+        insert([{
+          id: authData.user.id,
+          email: newUser.email,
+          full_name: newUser.full_name,
+          role_id: parseInt(newUser.role_id),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }]);
 
         if (profileError) throw profileError;
 
@@ -135,13 +135,13 @@ const UserRoleManager: React.FC = () => {
 
   const updateUserRole = async (userId: string, roleId: string) => {
     try {
-      const { error } = await supabase
-        .from('user_profiles')
-        .update({ 
-          role_id: parseInt(roleId),
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', userId);
+      const { error } = await supabase.
+      from('user_profiles').
+      update({
+        role_id: parseInt(roleId),
+        updated_at: new Date().toISOString()
+      }).
+      eq('id', userId);
 
       if (error) throw error;
 
@@ -178,8 +178,8 @@ const UserRoleManager: React.FC = () => {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -212,8 +212,8 @@ const UserRoleManager: React.FC = () => {
                   type="email"
                   value={newUser.email}
                   onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                  placeholder="user@example.com"
-                />
+                  placeholder="user@example.com" />
+
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
@@ -222,8 +222,8 @@ const UserRoleManager: React.FC = () => {
                   type="password"
                   value={newUser.password}
                   onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                  placeholder="••••••••"
-                />
+                  placeholder="••••••••" />
+
               </div>
               <div className="space-y-2">
                 <Label htmlFor="full_name">Full Name</Label>
@@ -231,15 +231,15 @@ const UserRoleManager: React.FC = () => {
                   id="full_name"
                   value={newUser.full_name}
                   onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })}
-                  placeholder="John Doe"
-                />
+                  placeholder="John Doe" />
+
               </div>
               <RoleSelector
                 label="Role"
                 value={newUser.role_id}
                 onValueChange={(value) => setNewUser({ ...newUser, role_id: value })}
-                placeholder="Select a role"
-              />
+                placeholder="Select a role" />
+
               <Button onClick={createUser} className="w-full">
                 Create User
               </Button>
@@ -271,8 +271,8 @@ const UserRoleManager: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {userProfiles.map((userProfile) => (
-                  <TableRow key={userProfile.id}>
+                {userProfiles.map((userProfile) =>
+                <TableRow key={userProfile.id}>
                     <TableCell>
                       <div className="flex items-center">
                         <User className="h-4 w-4 mr-2 text-muted-foreground" />
@@ -288,40 +288,40 @@ const UserRoleManager: React.FC = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      {userProfile.roles ? (
-                        <Badge className={getRoleBadgeColor(userProfile.roles.role_code)}>
+                      {userProfile.roles ?
+                    <Badge className={getRoleBadgeColor(userProfile.roles.role_code)}>
                           {userProfile.roles.role_name}
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-amber-600 border-amber-200">
+                        </Badge> :
+
+                    <Badge variant="outline" className="text-amber-600 border-amber-200">
                           <AlertCircle className="h-3 w-3 mr-1" />
                           No Role
                         </Badge>
-                      )}
+                    }
                     </TableCell>
                     <TableCell>
                       <RoleSelector
-                        value={userProfile.role_id?.toString()}
-                        onValueChange={(value) => updateUserRole(userProfile.id, value)}
-                        placeholder="Select role"
-                        className="w-full"
-                      />
+                      value={userProfile.role_id?.toString()}
+                      onValueChange={(value) => updateUserRole(userProfile.id, value)}
+                      placeholder="Select role"
+                      className="w-full" />
+
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {new Date(userProfile.created_at).toLocaleDateString()}
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </div>
 
-          {userProfiles.length === 0 && (
-            <div className="text-center py-6">
+          {userProfiles.length === 0 &&
+          <div className="text-center py-6">
               <User className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <div className="text-muted-foreground">No users found</div>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
@@ -337,8 +337,8 @@ const UserRoleManager: React.FC = () => {
           • <strong>Employee:</strong> Basic employee access with limited permissions
         </AlertDescription>
       </Alert>
-    </div>
-  );
+    </div>);
+
 };
 
 export default UserRoleManager;

@@ -65,9 +65,9 @@ export const EnhancedAuthProvider: React.FC<{children: React.ReactNode;}> = ({ c
 
   const fetchUserProfile = async (userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select(`
+      const { data, error } = await supabase.
+      from('user_profiles').
+      select(`
           *,
           roles (
             id,
@@ -76,9 +76,9 @@ export const EnhancedAuthProvider: React.FC<{children: React.ReactNode;}> = ({ c
             description,
             permissions
           )
-        `)
-        .eq('id', userId)
-        .single();
+        `).
+      eq('id', userId).
+      single();
 
       if (error) {
         console.error('Error fetching user profile:', error);
@@ -95,9 +95,9 @@ export const EnhancedAuthProvider: React.FC<{children: React.ReactNode;}> = ({ c
   const refreshUserData = async (): Promise<void> => {
     try {
       setIsLoading(true);
-      
+
       const { data: { user: authUser }, error } = await supabase.auth.getUser();
-      
+
       if (error || !authUser) {
         setUser(null);
         setUserProfile(null);
@@ -112,7 +112,7 @@ export const EnhancedAuthProvider: React.FC<{children: React.ReactNode;}> = ({ c
 
       const profile = await fetchUserProfile(authUser.id);
       setUserProfile(profile);
-      
+
     } catch (error) {
       console.error('Error refreshing user data:', error);
       setAuthError('Failed to refresh user data');
@@ -124,10 +124,10 @@ export const EnhancedAuthProvider: React.FC<{children: React.ReactNode;}> = ({ c
   const initializeAuth = async () => {
     try {
       setIsLoading(true);
-      
+
       // Check for existing session
       const { data: { session }, error } = await supabase.auth.getSession();
-      
+
       if (error) {
         console.error('Error getting session:', error);
         setAuthError('Failed to initialize authentication');
@@ -239,7 +239,7 @@ export const EnhancedAuthProvider: React.FC<{children: React.ReactNode;}> = ({ c
       }
 
       const { error } = await supabase.auth.signOut();
-      
+
       if (error) {
         console.error('Logout error:', error);
       }
@@ -286,23 +286,23 @@ export const EnhancedAuthProvider: React.FC<{children: React.ReactNode;}> = ({ c
 
       if (data.user) {
         // Create user profile with default Employee role
-        const { data: roles } = await supabase
-          .from('roles')
-          .select('id')
-          .eq('role_code', 'Employee')
-          .single();
+        const { data: roles } = await supabase.
+        from('roles').
+        select('id').
+        eq('role_code', 'Employee').
+        single();
 
         if (roles) {
-          await supabase
-            .from('user_profiles')
-            .insert([{
-              id: data.user.id,
-              email: email,
-              full_name: name,
-              role_id: roles.id,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            }]);
+          await supabase.
+          from('user_profiles').
+          insert([{
+            id: data.user.id,
+            email: email,
+            full_name: name,
+            role_id: roles.id,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }]);
         }
 
         await auditLogger.logRegistration(email, true);
@@ -342,7 +342,7 @@ export const EnhancedAuthProvider: React.FC<{children: React.ReactNode;}> = ({ c
 
     // Check role permissions
     const permissions = userProfile.roles.permissions || {};
-    
+
     if (permissions.all_modules === true) {
       return true;
     }
