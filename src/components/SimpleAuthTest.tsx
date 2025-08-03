@@ -25,7 +25,7 @@ const SimpleAuthTest: React.FC = () => {
     try {
       // Test basic connection by trying to get session
       const { data, error } = await supabase.auth.getSession();
-      
+
       if (error) {
         setConnectionStatus('error');
         toast({
@@ -157,34 +157,34 @@ const SimpleAuthTest: React.FC = () => {
                 <span>Supabase Connection</span>
               </div>
               <Badge variant={
-                connectionStatus === 'success' ? 'default' : 
-                connectionStatus === 'error' ? 'destructive' : 'secondary'
+              connectionStatus === 'success' ? 'default' :
+              connectionStatus === 'error' ? 'destructive' : 'secondary'
               }>
-                {connectionStatus === 'testing' ? 'Testing...' : 
-                 connectionStatus === 'success' ? 'Connected' : 'Failed'}
+                {connectionStatus === 'testing' ? 'Testing...' :
+                connectionStatus === 'success' ? 'Connected' : 'Failed'}
               </Badge>
             </div>
             
-            <Button 
-              onClick={testConnection} 
+            <Button
+              onClick={testConnection}
               disabled={isLoading}
               variant="outline"
-              className="w-full"
-            >
-              {isLoading ? (
-                <>
+              className="w-full">
+
+              {isLoading ?
+              <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Testing...
-                </>
-              ) : (
-                'Test Connection Again'
-              )}
+                </> :
+
+              'Test Connection Again'
+              }
             </Button>
           </div>
 
           {/* Current Session */}
-          {session && (
-            <div className="space-y-3">
+          {session &&
+          <div className="space-y-3">
               <h3 className="font-medium">Current Session</h3>
               <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                 <div className="flex items-center gap-2 mb-2">
@@ -195,13 +195,13 @@ const SimpleAuthTest: React.FC = () => {
                   <p><strong>User ID:</strong> {session.user?.id}</p>
                   <p><strong>Email:</strong> {session.user?.email}</p>
                   <p><strong>Token Type:</strong> {session.token_type}</p>
-                  {session.expires_at && (
-                    <p><strong>Expires:</strong> {new Date(session.expires_at * 1000).toLocaleString()}</p>
-                  )}
+                  {session.expires_at &&
+                <p><strong>Expires:</strong> {new Date(session.expires_at * 1000).toLocaleString()}</p>
+                }
                 </div>
               </div>
             </div>
-          )}
+          }
 
           {/* Authentication Test */}
           <div className="space-y-4">
@@ -216,8 +216,8 @@ const SimpleAuthTest: React.FC = () => {
                   placeholder="test@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  disabled={isLoading}
-                />
+                  disabled={isLoading} />
+
               </div>
 
               <div>
@@ -228,58 +228,58 @@ const SimpleAuthTest: React.FC = () => {
                   placeholder="Enter password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  disabled={isLoading}
-                />
+                  disabled={isLoading} />
+
               </div>
 
               <div className="flex gap-2">
-                <Button 
-                  onClick={testLogin} 
+                <Button
+                  onClick={testLogin}
                   disabled={isLoading || !email || !password}
-                  className="flex-1"
-                >
+                  className="flex-1">
+
                   <User className="mr-2 h-4 w-4" />
                   Test Sign In
                 </Button>
 
-                {session && (
-                  <Button 
-                    onClick={testSignOut} 
-                    disabled={isLoading}
-                    variant="outline"
-                  >
+                {session &&
+                <Button
+                  onClick={testSignOut}
+                  disabled={isLoading}
+                  variant="outline">
+
                     <Lock className="mr-2 h-4 w-4" />
                     Sign Out
                   </Button>
-                )}
+                }
               </div>
             </div>
 
             {/* Auth Result */}
-            {authResult && (
-              <Alert className={authResult.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}>
-                {authResult.success ? (
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                ) : (
-                  <XCircle className="h-4 w-4 text-red-600" />
-                )}
+            {authResult &&
+            <Alert className={authResult.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}>
+                {authResult.success ?
+              <CheckCircle2 className="h-4 w-4 text-green-600" /> :
+
+              <XCircle className="h-4 w-4 text-red-600" />
+              }
                 <AlertDescription>
-                  {authResult.success ? (
-                    <div>
+                  {authResult.success ?
+                <div>
                       <strong>Authentication Successful!</strong>
                       <div className="mt-1 text-sm">
                         User: {authResult.user?.email}
                       </div>
-                    </div>
-                  ) : (
-                    <div>
+                    </div> :
+
+                <div>
                       <strong>Authentication Failed:</strong>
                       <div className="mt-1 text-sm">{authResult.error}</div>
                     </div>
-                  )}
+                }
                 </AlertDescription>
               </Alert>
-            )}
+            }
           </div>
 
           {/* Help Information */}
@@ -304,8 +304,8 @@ const SimpleAuthTest: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SimpleAuthTest;

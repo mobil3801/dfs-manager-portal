@@ -25,11 +25,11 @@ const AuthStatusCard: React.FC = () => {
         {/* Authentication Status */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {isAuthenticated ? (
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-            ) : (
-              <XCircle className="h-4 w-4 text-red-600" />
-            )}
+            {isAuthenticated ?
+            <CheckCircle2 className="h-4 w-4 text-green-600" /> :
+
+            <XCircle className="h-4 w-4 text-red-600" />
+            }
             <span className="font-medium">Authentication</span>
           </div>
           <Badge variant={isAuthenticated ? 'default' : 'destructive'}>
@@ -38,8 +38,8 @@ const AuthStatusCard: React.FC = () => {
         </div>
 
         {/* User Information */}
-        {user && (
-          <div className="space-y-2">
+        {user &&
+        <div className="space-y-2">
             <div className="flex items-center gap-2">
               <User className="h-4 w-4 text-blue-600" />
               <span className="font-medium">User Details</span>
@@ -51,11 +51,11 @@ const AuthStatusCard: React.FC = () => {
               <p><strong>Last Sign In:</strong> {user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString() : 'Never'}</p>
             </div>
           </div>
-        )}
+        }
 
         {/* User Profile */}
-        {userProfile && (
-          <div className="space-y-2">
+        {userProfile &&
+        <div className="space-y-2">
             <div className="flex items-center gap-2">
               <Settings className="h-4 w-4 text-purple-600" />
               <span className="font-medium">Profile Information</span>
@@ -68,11 +68,11 @@ const AuthStatusCard: React.FC = () => {
               <p><strong>Status:</strong> <Badge variant={userProfile.is_active ? 'default' : 'destructive'}>{userProfile.is_active ? 'Active' : 'Inactive'}</Badge></p>
             </div>
           </div>
-        )}
+        }
 
         {/* Session Information */}
-        {session && (
-          <div className="space-y-2">
+        {session &&
+        <div className="space-y-2">
             <div className="flex items-center gap-2">
               <Database className="h-4 w-4 text-green-600" />
               <span className="font-medium">Session Details</span>
@@ -83,32 +83,32 @@ const AuthStatusCard: React.FC = () => {
               <p><strong>Expires:</strong> {new Date(session.expires_at! * 1000).toLocaleString()}</p>
             </div>
           </div>
-        )}
+        }
 
         {/* Test Buttons */}
         <div className="pt-4 space-y-2">
-          <Button 
-            onClick={() => navigate('/supabase-test')} 
-            variant="outline" 
-            className="w-full"
-          >
+          <Button
+            onClick={() => navigate('/supabase-test')}
+            variant="outline"
+            className="w-full">
+
             <Database className="mr-2 h-4 w-4" />
             Test Supabase Connection
           </Button>
           
-          {!isAuthenticated && (
-            <Button 
-              onClick={() => navigate('/login')} 
-              className="w-full"
-            >
+          {!isAuthenticated &&
+          <Button
+            onClick={() => navigate('/login')}
+            className="w-full">
+
               <Shield className="mr-2 h-4 w-4" />
               Sign In with Supabase
             </Button>
-          )}
+          }
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default AuthStatusCard;

@@ -12,7 +12,7 @@ class SimpleSupabaseClient {
     this.url = url;
     this.key = key;
     this.supabaseUrl = url;
-    
+
     // Try to get existing session from localStorage
     this.loadSession();
   }
@@ -67,7 +67,7 @@ class SimpleSupabaseClient {
 
   // Auth methods
   auth = {
-    signUp: async (credentials: { email: string; password: string; options?: any }) => {
+    signUp: async (credentials: {email: string;password: string;options?: any;}) => {
       try {
         const response = await fetch(`${this.url}/auth/v1/signup`, {
           method: 'POST',
@@ -95,7 +95,7 @@ class SimpleSupabaseClient {
       }
     },
 
-    signInWithPassword: async (credentials: { email: string; password: string }) => {
+    signInWithPassword: async (credentials: {email: string;password: string;}) => {
       try {
         const response = await fetch(`${this.url}/auth/v1/token?grant_type=password`, {
           method: 'POST',
@@ -114,12 +114,12 @@ class SimpleSupabaseClient {
 
         this.saveSession(data);
 
-        return { 
-          data: { 
-            user: data.user, 
-            session: data 
-          }, 
-          error: null 
+        return {
+          data: {
+            user: data.user,
+            session: data
+          },
+          error: null
         };
       } catch (error: any) {
         return { data: { user: null, session: null }, error: { message: error.message } };
@@ -164,14 +164,14 @@ class SimpleSupabaseClient {
         const session = sessionStr ? JSON.parse(sessionStr) : null;
 
         if (session && new Date(session.expires_at * 1000) > new Date()) {
-          return { 
-            data: { 
-              session: { 
-                ...session, 
-                user 
-              } 
-            }, 
-            error: null 
+          return {
+            data: {
+              session: {
+                ...session,
+                user
+              }
+            },
+            error: null
           };
         } else {
           this.clearSession();
@@ -205,7 +205,7 @@ class SimpleSupabaseClient {
       }
     },
 
-    updateUser: async (attributes: { password?: string }) => {
+    updateUser: async (attributes: {password?: string;}) => {
       try {
         const response = await fetch(`${this.url}/auth/v1/user`, {
           method: 'PUT',
@@ -299,8 +299,8 @@ class QueryBuilder {
   private client: SimpleSupabaseClient;
   private table: string;
   private selectFields = '*';
-  private filters: Array<{ field: string; operator: string; value: any }> = [];
-  private orderBy: Array<{ field: string; ascending: boolean }> = [];
+  private filters: Array<{field: string;operator: string;value: any;}> = [];
+  private orderBy: Array<{field: string;ascending: boolean;}> = [];
   private limitCount?: number;
   private offsetCount?: number;
 
@@ -329,7 +329,7 @@ class QueryBuilder {
     return this;
   }
 
-  order(field: string, options: { ascending?: boolean } = {}) {
+  order(field: string, options: {ascending?: boolean;} = {}) {
     this.orderBy.push({ field, ascending: options.ascending !== false });
     return this;
   }
@@ -354,12 +354,12 @@ class QueryBuilder {
     const params = new URLSearchParams();
     params.set('select', this.selectFields);
 
-    this.filters.forEach(filter => {
+    this.filters.forEach((filter) => {
       params.set(filter.field, `${filter.operator}.${filter.value}`);
     });
 
     if (this.orderBy.length > 0) {
-      const orderStr = this.orderBy.map(o => `${o.field}.${o.ascending ? 'asc' : 'desc'}`).join(',');
+      const orderStr = this.orderBy.map((o) => `${o.field}.${o.ascending ? 'asc' : 'desc'}`).join(',');
       params.set('order', orderStr);
     }
 

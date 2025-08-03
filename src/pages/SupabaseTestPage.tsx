@@ -24,8 +24,8 @@ const SupabaseTestPage: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SupabaseTestPage;
