@@ -97,35 +97,35 @@ const TopNavigation = () => {
     name: 'Employee',
     href: '/employees',
     icon: Users,
-    requiredRole: 'manager'
+    requiredRole: null // Made accessible to all users
+  },
+  {
+    name: 'Vendor',
+    href: '/vendors',
+    icon: Building,
+    requiredRole: null // Made accessible to all users
   }];
 
 
   // Secondary navigation items - shown in "More Menu" dropdown
   const secondaryNavItems = [
   {
-    name: 'Vendor',
-    href: '/vendors',
-    icon: Building,
-    requiredRole: 'manager'
-  },
-  {
     name: 'Order',
     href: '/orders',
     icon: ClipboardList,
-    requiredRole: 'manager'
+    requiredRole: null // Made accessible to all users
   },
   {
     name: 'Licenses',
     href: '/licenses',
     icon: Calendar,
-    requiredRole: 'manager'
+    requiredRole: null // Made accessible to all users
   },
   {
     name: 'Salary',
     href: '/salary',
     icon: DollarSign,
-    requiredRole: 'manager'
+    requiredRole: null // Made accessible to all users
   },
   {
     name: 'Settings',
@@ -138,7 +138,7 @@ const TopNavigation = () => {
   // Add admin section if user is admin
   if (isAuthenticated && isAdmin()) {
     secondaryNavItems.push({
-      name: 'Admin',
+      name: 'Admin Panel',
       href: '/admin',
       icon: Shield,
       requiredRole: 'admin'
