@@ -1099,7 +1099,7 @@ const ProductForm = () => {
                         {formData.profit_margin > 20 ? 'Good' : 'Low'}
                       </Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground">Auto-calculated from unit and retail price</p>
+                    <p className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Auto-calculated from unit and retail price</p>
                   </div>
                 </div>
               </div>
@@ -1120,24 +1120,24 @@ const ProductForm = () => {
 
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Stock Information</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <NumberInput
-                        placeholder="Current Stock"
-                        value={formData.quantity_in_stock}
-                        onChange={(value) => handleInputChange('quantity_in_stock', value)}
-                        min={0} />
+                  
 
-                      <NumberInput
-                        placeholder="Min Stock"
-                        value={formData.minimum_stock}
-                        onChange={(value) => handleInputChange('minimum_stock', value)}
-                        min={0} />
 
-                    </div>
-                    <p className="text-xs text-muted-foreground">Current stock / Minimum stock level</p>
-                  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 </div>
 
                 <div className="space-y-2">
