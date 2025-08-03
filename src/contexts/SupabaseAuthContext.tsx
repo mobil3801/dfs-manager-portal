@@ -1,5 +1,18 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, Session } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+// Define types locally since we're using a custom Supabase client
+interface User {
+  id: string;
+  email: string;
+  created_at: string;
+  last_sign_in_at?: string;
+}
+
+interface Session {
+  access_token: string;
+  token_type: string;
+  expires_at?: number;
+  user: User;
+}
 import { supabase, auth } from '@/lib/supabase';
 import { userProfileService, auditLogService } from '@/services/databaseService';
 import { useToast } from '@/hooks/use-toast';
