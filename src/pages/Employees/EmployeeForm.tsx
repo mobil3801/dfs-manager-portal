@@ -465,18 +465,18 @@ const EmployeeForm: React.FC = () => {
                   </div>
                 }
 
-                <div className="space-y-2">
-                  <Label htmlFor="salary">Salary ($)</Label>
-                  <NumberInput
-                    id="salary"
-                    step="0.01"
-                    min="0"
-                    value={formData.salary}
-                    onChange={(value) => handleInputChange('salary', value)} />
-                </div>
+                
+
+
+
+
+
+
+
+
 
                 <div className="space-y-2">
-                  <Label htmlFor="hourly_rate">Hourly Rate ($)</Label>
+                  <Label htmlFor="hourly_rate" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Hourly Salary Rate ($)</Label>
                   <NumberInput
                     id="hourly_rate"
                     step="0.01"
