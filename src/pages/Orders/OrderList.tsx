@@ -515,13 +515,13 @@ const OrderList: React.FC = () => {
           }
 
           {/* Show permission status when actions are disabled */}
-          {!isAdmin() &&
-          <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-              <p className="text-sm text-amber-700">
-                <strong>Access Restrictions:</strong>
-                Only administrators can edit or delete orders.
-              </p>
-            </div>
+          {!isAdmin()
+
+
+
+
+
+
           }
 
           {/* Pagination */}
