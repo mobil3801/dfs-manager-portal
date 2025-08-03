@@ -28,7 +28,7 @@ const EmployeeTestForm: React.FC = () => {
 
       // Generate a unique employee ID
       const employeeId = `TEST${Date.now()}`;
-      
+
       const dataToSubmit = {
         employee_id: employeeId,
         first_name: testData.first_name,
@@ -49,11 +49,11 @@ const EmployeeTestForm: React.FC = () => {
 
       console.log('Submitting data:', dataToSubmit);
 
-      const { data, error } = await supabase
-        .from('employees')
-        .insert([dataToSubmit])
-        .select()
-        .single();
+      const { data, error } = await supabase.
+      from('employees').
+      insert([dataToSubmit]).
+      select().
+      single();
 
       if (error) {
         console.error('Insert error:', error);
@@ -92,7 +92,7 @@ const EmployeeTestForm: React.FC = () => {
   };
 
   const handleInputChange = (field: string, value: string | number) => {
-    setTestData(prev => ({ ...prev, [field]: value }));
+    setTestData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -114,8 +114,8 @@ const EmployeeTestForm: React.FC = () => {
               id="first_name"
               value={testData.first_name}
               onChange={(e) => handleInputChange('first_name', e.target.value)}
-              placeholder="Enter first name"
-            />
+              placeholder="Enter first name" />
+
           </div>
 
           <div className="space-y-2">
@@ -124,8 +124,8 @@ const EmployeeTestForm: React.FC = () => {
               id="last_name"
               value={testData.last_name}
               onChange={(e) => handleInputChange('last_name', e.target.value)}
-              placeholder="Enter last name"
-            />
+              placeholder="Enter last name" />
+
           </div>
 
           <div className="space-y-2">
@@ -135,8 +135,8 @@ const EmployeeTestForm: React.FC = () => {
               type="email"
               value={testData.email}
               onChange={(e) => handleInputChange('email', e.target.value)}
-              placeholder="Enter email"
-            />
+              placeholder="Enter email" />
+
           </div>
 
           <div className="space-y-2">
@@ -145,8 +145,8 @@ const EmployeeTestForm: React.FC = () => {
               id="phone"
               value={testData.phone}
               onChange={(e) => handleInputChange('phone', e.target.value)}
-              placeholder="Enter phone number"
-            />
+              placeholder="Enter phone number" />
+
           </div>
 
           <div className="space-y-2">
@@ -186,8 +186,8 @@ const EmployeeTestForm: React.FC = () => {
               id="hire_date"
               type="date"
               value={testData.hire_date}
-              onChange={(e) => handleInputChange('hire_date', e.target.value)}
-            />
+              onChange={(e) => handleInputChange('hire_date', e.target.value)} />
+
           </div>
 
           <div className="space-y-2">
@@ -199,17 +199,17 @@ const EmployeeTestForm: React.FC = () => {
               min="0"
               value={testData.salary}
               onChange={(e) => handleInputChange('salary', parseFloat(e.target.value) || 0)}
-              placeholder="Enter hourly rate"
-            />
+              placeholder="Enter hourly rate" />
+
           </div>
         </div>
 
         <div className="flex justify-center pt-4 border-t">
-          <Button 
-            onClick={handleTest} 
+          <Button
+            onClick={handleTest}
             disabled={loading}
-            className="flex items-center space-x-2"
-          >
+            className="flex items-center space-x-2">
+
             <Users className="w-4 h-4" />
             <span>{loading ? 'Creating Test Employee...' : 'Create Test Employee'}</span>
           </Button>
@@ -219,8 +219,8 @@ const EmployeeTestForm: React.FC = () => {
           <strong>Note:</strong> This will create a real employee record in the database with a TEST prefix for easy identification.
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default EmployeeTestForm;

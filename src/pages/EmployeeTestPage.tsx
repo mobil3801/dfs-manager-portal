@@ -21,7 +21,7 @@ const EmployeeTestPage: React.FC = () => {
     try {
       setConnectionStatus('checking');
       const { data, error } = await supabase.from('employees').select('count').limit(1);
-      
+
       if (error) {
         console.error('Connection test failed:', error);
         setConnectionStatus('error');
@@ -37,10 +37,10 @@ const EmployeeTestPage: React.FC = () => {
   const loadEmployees = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('employees')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const { data, error } = await supabase.
+      from('employees').
+      select('*').
+      order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error loading employees:', error);
@@ -67,11 +67,11 @@ const EmployeeTestPage: React.FC = () => {
       }
 
       setLoading(true);
-      
-      const { error } = await supabase
-        .from('employees')
-        .delete()
-        .like('employee_id', 'TEST%');
+
+      const { error } = await supabase.
+      from('employees').
+      delete().
+      like('employee_id', 'TEST%');
 
       if (error) {
         console.error('Error deleting test employees:', error);
@@ -131,8 +131,8 @@ const EmployeeTestPage: React.FC = () => {
               variant="outline"
               size="sm"
               onClick={checkConnection}
-              disabled={connectionStatus === 'checking'}
-            >
+              disabled={connectionStatus === 'checking'}>
+
               <RefreshCw className={`w-4 h-4 mr-2 ${connectionStatus === 'checking' ? 'animate-spin' : ''}`} />
               Test Connection
             </Button>
@@ -148,23 +148,23 @@ const EmployeeTestPage: React.FC = () => {
                 variant="outline"
                 size="sm"
                 onClick={loadEmployees}
-                disabled={loading}
-              >
+                disabled={loading}>
+
                 <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
-              {employees.some(emp => emp.employee_id?.startsWith('TEST')) && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={deleteTestEmployees}
-                  disabled={loading}
-                  className="text-red-600 hover:text-red-700"
-                >
+              {employees.some((emp) => emp.employee_id?.startsWith('TEST')) &&
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={deleteTestEmployees}
+                disabled={loading}
+                className="text-red-600 hover:text-red-700">
+
                   <Trash2 className="w-4 h-4 mr-2" />
                   Clear Test Data
                 </Button>
-              )}
+              }
             </div>
           </div>
         </CardContent>
@@ -172,8 +172,8 @@ const EmployeeTestPage: React.FC = () => {
 
       <EmployeeTestForm />
 
-      {employees.length > 0 && (
-        <Card>
+      {employees.length > 0 &&
+      <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Users className="w-5 h-5" />
@@ -185,11 +185,11 @@ const EmployeeTestPage: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {employees.slice(0, 10).map((employee) => (
-                <div
-                  key={employee.id}
-                  className="flex items-center justify-between p-3 border rounded-lg"
-                >
+              {employees.slice(0, 10).map((employee) =>
+            <div
+              key={employee.id}
+              className="flex items-center justify-between p-3 border rounded-lg">
+
                   <div className="flex items-center space-x-3">
                     <div>
                       <h4 className="font-medium">
@@ -207,18 +207,18 @@ const EmployeeTestPage: React.FC = () => {
                     <Badge className={employee.is_active ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}>
                       {employee.is_active ? 'Active' : 'Inactive'}
                     </Badge>
-                    {employee.employee_id?.startsWith('TEST') && (
-                      <Badge variant="outline" className="text-orange-600 border-orange-300">
+                    {employee.employee_id?.startsWith('TEST') &&
+                <Badge variant="outline" className="text-orange-600 border-orange-300">
                         TEST
                       </Badge>
-                    )}
+                }
                   </div>
                 </div>
-              ))}
+            )}
             </div>
           </CardContent>
         </Card>
-      )}
+      }
 
       <Card>
         <CardHeader>
@@ -227,21 +227,21 @@ const EmployeeTestPage: React.FC = () => {
         <CardContent>
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
-              {connectionStatus === 'connected' ? (
-                <CheckCircle className="w-4 h-4 text-green-500" />
-              ) : (
-                <XCircle className="w-4 h-4 text-red-500" />
-              )}
+              {connectionStatus === 'connected' ?
+              <CheckCircle className="w-4 h-4 text-green-500" /> :
+
+              <XCircle className="w-4 h-4 text-red-500" />
+              }
               <span className="text-sm">
                 Database connection {connectionStatus === 'connected' ? 'successful' : 'failed'}
               </span>
             </div>
             <div className="flex items-center space-x-2">
-              {employees.length >= 0 ? (
-                <CheckCircle className="w-4 h-4 text-green-500" />
-              ) : (
-                <XCircle className="w-4 h-4 text-red-500" />
-              )}
+              {employees.length >= 0 ?
+              <CheckCircle className="w-4 h-4 text-green-500" /> :
+
+              <XCircle className="w-4 h-4 text-red-500" />
+              }
               <span className="text-sm">
                 Employee table accessible
               </span>
@@ -249,8 +249,8 @@ const EmployeeTestPage: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default EmployeeTestPage;
