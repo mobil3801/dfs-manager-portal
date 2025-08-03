@@ -1,501 +1,402 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-// Define types locally since we're using a custom Supabase client
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import { useToast } from '@/hooks/use-toast';
+
 interface User {
   id: string;
   email: string;
-  created_at: string;
-  last_sign_in_at?: string;
+  user_metadata: any;
+  app_metadata: any;
 }
-
-interface Session {
-  access_token: string;
-  token_type: string;
-  expires_at?: number;
-  user: User;
-}
-import { supabase, auth } from '@/lib/supabase';
-import { userProfileService, auditLogService } from '@/services/databaseService';
-import { useToast } from '@/hooks/use-toast';
 
 interface UserProfile {
-  id: string;
-  user_id: string;
+  id: number;
+  user_id?: string;
+  email: string;
   role: string;
-  station_id?: string;
-  employee_id?: string;
-  phone?: string;
-  hire_date?: string;
+  role_code: string;
+  station: string;
+  employee_id: string;
+  phone: string;
+  hire_date: string;
   is_active: boolean;
   detailed_permissions: any;
-  profile_image_url?: string;
-  stations?: {
-    name: string;
-    address: string;
-    phone: string;
-  };
+  profile_image_id?: number | null;
+  created_at: string;
+  updated_at: string;
 }
 
-interface AuthContextType {
+interface SupabaseAuthContextType {
   user: User | null;
   userProfile: UserProfile | null;
-  session: Session | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  authError: string | null;
-  isInitialized: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => Promise<void>;
-  register: (email: string, password: string, fullName: string) => Promise<boolean>;
-  resetPassword: (email: string) => Promise<boolean>;
-  updatePassword: (password: string) => Promise<boolean>;
-  refreshUserData: () => Promise<void>;
-  hasPermission: (action: string, resource?: string) => boolean;
+  session: any;
+  loading: boolean;
+  signUp: (email: string, password: string, metadata?: any) => Promise<{ success: boolean; error?: string }>;
+  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
+  updatePassword: (password: string) => Promise<{ success: boolean; error?: string }>;
+  refreshUserProfile: () => Promise<void>;
   isAdmin: () => boolean;
   isManager: () => boolean;
-  clearError: () => void;
+  hasPermission: (action: string, resource?: string) => boolean;
+  assignRole: (email: string, role: string, roleCode: string, permissions?: any) => Promise<{ success: boolean; error?: string }>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const SupabaseAuthContext = createContext<SupabaseAuthContextType | undefined>(undefined);
 
-// Default guest user profile for non-authenticated users
-const GUEST_PROFILE: UserProfile = {
-  id: '0',
-  user_id: '0',
-  role: 'Guest',
-  station_id: undefined,
-  employee_id: '',
-  phone: '',
-  hire_date: '',
-  is_active: false,
-  detailed_permissions: {}
-};
-
-export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => {
+export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [session, setSession] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const isAuthenticated = !!user && !!userProfile && userProfile.role !== 'Guest';
-
-  const clearError = () => {
-    setAuthError(null);
-  };
-
-  const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
+  const fetchUserProfile = async (userId: string, email: string) => {
     try {
-      const { data, error } = await userProfileService.getUserProfileByUserId(userId);
+      // First try to get profile by user_id
+      let { data: profile, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
 
-      if (error) {
-        if (error.message.includes('No rows')) {
-          // Create default profile for new user
-          const defaultProfile = {
-            role: 'Employee',
-            station_id: null,
-            employee_id: '',
-            phone: '',
-            hire_date: new Date().toISOString().split('T')[0],
-            is_active: true,
-            detailed_permissions: {}
-          };
+      // If not found by user_id, try by email
+      if (error && error.code === 'PGRST116') {
+        const { data: profileByEmail, error: emailError } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('email', email)
+          .single();
 
-          const { data: newProfile, error: createError } = await userProfileService.createUserProfile(userId, defaultProfile);
+        if (!emailError && profileByEmail) {
+          // Update the profile with the user_id
+          const { data: updatedProfile } = await supabase
+            .from('user_profiles')
+            .update({ user_id: userId })
+            .eq('email', email)
+            .select()
+            .single();
+
+          profile = updatedProfile;
+        } else {
+          // Create a new profile if none exists
+          const { data: newProfile, error: createError } = await supabase
+            .from('user_profiles')
+            .insert([{
+              user_id: userId,
+              email: email,
+              role: 'Employee',
+              role_code: 'GeneralUser',
+              station: 'MOBIL',
+              employee_id: '',
+              phone: '',
+              hire_date: new Date().toISOString(),
+              is_active: true,
+              detailed_permissions: {}
+            }])
+            .select()
+            .single();
 
           if (createError) {
-            console.error('Failed to create user profile:', createError);
-            return GUEST_PROFILE;
+            console.error('Error creating user profile:', createError);
+            return null;
           }
 
-          return newProfile;
+          profile = newProfile;
         }
-
-        console.error('Failed to fetch user profile:', error);
-        return GUEST_PROFILE;
       }
 
-      return data;
+      return profile;
     } catch (error) {
       console.error('Error fetching user profile:', error);
-      return GUEST_PROFILE;
+      return null;
     }
   };
 
-  const refreshUserData = async (): Promise<void> => {
-    if (!user) return;
-
-    setIsLoading(true);
+  const initializeAuth = async () => {
     try {
-      const profile = await fetchUserProfile(user.id);
-      setUserProfile(profile);
-      setAuthError(null);
-    } catch (error) {
-      console.error('Error refreshing user data:', error);
-      setAuthError('Failed to refresh user data');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const login = async (email: string, password: string): Promise<boolean> => {
-    try {
-      setIsLoading(true);
-      setAuthError(null);
-
-      const { data, error } = await auth.signIn(email, password);
-
-      if (error) {
-        setAuthError(error.message);
-        await auditLogService.logActivity('unknown', 'login_failed', 'users', undefined, undefined, { email, error: error.message });
-        toast({
-          title: 'Login Failed',
-          description: error.message,
-          variant: 'destructive'
-        });
-        return false;
-      }
-
-      if (data.user) {
-        setUser(data.user);
-        setSession(data.session);
-
-        const profile = await fetchUserProfile(data.user.id);
+      // Get initial session
+      const { data: { session: initialSession } } = await supabase.auth.getSession();
+      
+      if (initialSession) {
+        setSession(initialSession);
+        setUser(initialSession.user);
+        
+        const profile = await fetchUserProfile(initialSession.user.id, initialSession.user.email);
         setUserProfile(profile);
-
-        await auditLogService.logActivity(data.user.id, 'login_success', 'users', data.user.id);
-
-        toast({
-          title: 'Login Successful',
-          description: 'Welcome back!'
-        });
-
-        return true;
       }
 
-      return false;
-    } catch (error: any) {
-      const errorMessage = error?.message || 'An unexpected error occurred';
-      setAuthError(errorMessage);
-      toast({
-        title: 'Login Failed',
-        description: errorMessage,
-        variant: 'destructive'
-      });
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const logout = async (): Promise<void> => {
-    try {
-      if (user) {
-        await auditLogService.logActivity(user.id, 'logout', 'users', user.id);
-      }
-
-      const { error } = await auth.signOut();
-
-      if (error) {
-        console.error('Logout error:', error);
-      }
-
-      setUser(null);
-      setUserProfile(GUEST_PROFILE);
-      setSession(null);
-      setAuthError(null);
-
-      toast({
-        title: 'Logged Out',
-        description: 'You have been successfully logged out'
-      });
-    } catch (error: any) {
-      console.error('Logout error:', error);
-      // Still clear local state even if API call fails
-      setUser(null);
-      setUserProfile(GUEST_PROFILE);
-      setSession(null);
-      setAuthError(null);
-    }
-  };
-
-  const register = async (email: string, password: string, fullName: string): Promise<boolean> => {
-    try {
-      setIsLoading(true);
-      setAuthError(null);
-
-      const { data, error } = await auth.signUp(email, password, { full_name: fullName });
-
-      if (error) {
-        setAuthError(error.message);
-        await auditLogService.logActivity('unknown', 'registration_failed', 'users', undefined, undefined, { email, error: error.message });
-        toast({
-          title: 'Registration Failed',
-          description: error.message,
-          variant: 'destructive'
-        });
-        return false;
-      }
-
-      if (data.user) {
-        await auditLogService.logActivity(data.user.id, 'registration_success', 'users', data.user.id);
-
-        toast({
-          title: 'Registration Successful',
-          description: 'Please check your email to verify your account'
-        });
-
-        return true;
-      }
-
-      return false;
-    } catch (error: any) {
-      const errorMessage = error?.message || 'An unexpected error occurred';
-      setAuthError(errorMessage);
-      toast({
-        title: 'Registration Failed',
-        description: errorMessage,
-        variant: 'destructive'
-      });
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const resetPassword = async (email: string): Promise<boolean> => {
-    try {
-      setIsLoading(true);
-      setAuthError(null);
-
-      const { error } = await auth.resetPassword(email);
-
-      if (error) {
-        setAuthError(error.message);
-        toast({
-          title: 'Reset Failed',
-          description: error.message,
-          variant: 'destructive'
-        });
-        return false;
-      }
-
-      toast({
-        title: 'Reset Email Sent',
-        description: 'Please check your email for reset instructions'
-      });
-
-      return true;
-    } catch (error: any) {
-      const errorMessage = error?.message || 'An unexpected error occurred';
-      setAuthError(errorMessage);
-      toast({
-        title: 'Reset Failed',
-        description: errorMessage,
-        variant: 'destructive'
-      });
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const updatePassword = async (password: string): Promise<boolean> => {
-    try {
-      setIsLoading(true);
-      setAuthError(null);
-
-      const { error } = await auth.updatePassword(password);
-
-      if (error) {
-        setAuthError(error.message);
-        toast({
-          title: 'Update Failed',
-          description: error.message,
-          variant: 'destructive'
-        });
-        return false;
-      }
-
-      if (user) {
-        await auditLogService.logActivity(user.id, 'password_update', 'users', user.id);
-      }
-
-      toast({
-        title: 'Password Updated',
-        description: 'Your password has been successfully updated'
-      });
-
-      return true;
-    } catch (error: any) {
-      const errorMessage = error?.message || 'An unexpected error occurred';
-      setAuthError(errorMessage);
-      toast({
-        title: 'Update Failed',
-        description: errorMessage,
-        variant: 'destructive'
-      });
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const hasPermission = (action: string, resource?: string): boolean => {
-    if (!userProfile || userProfile.role === 'Guest') {
-      return false;
-    }
-
-    // Admins have all permissions
-    if (userProfile.role === 'Administrator' || userProfile.role === 'Admin') {
-      return true;
-    }
-
-    // Parse detailed permissions if they exist
-    if (userProfile.detailed_permissions) {
-      try {
-        let permissions = userProfile.detailed_permissions;
-        if (typeof permissions === 'string') {
-          permissions = JSON.parse(permissions);
-        }
-
-        if (resource && permissions[resource] && permissions[resource][action]) {
-          return true;
-        }
-      } catch (error) {
-        console.warn('Error parsing permissions:', error);
-      }
-    }
-
-    // Default permissions for managers
-    if (userProfile.role === 'Management' || userProfile.role === 'Manager') {
-      const managerActions = ['view', 'create', 'edit'];
-      return managerActions.includes(action);
-    }
-
-    // Default permissions for employees
-    if (userProfile.role === 'Employee') {
-      return action === 'view';
-    }
-
-    return false;
-  };
-
-  const isAdmin = (): boolean => {
-    return userProfile?.role === 'Administrator' || userProfile?.role === 'Admin';
-  };
-
-  const isManager = (): boolean => {
-    return userProfile?.role === 'Management' ||
-    userProfile?.role === 'Manager' ||
-    userProfile?.role === 'Administrator' ||
-    userProfile?.role === 'Admin';
-  };
-
-  // Initialize authentication state
-  useEffect(() => {
-    let mounted = true;
-
-    const initializeAuth = async () => {
-      try {
-        // Get initial session
-        const { data: { session }, error } = await supabase.auth.getSession();
-
-        if (error) {
-          console.error('Error getting session:', error);
-          setAuthError(error.message);
-        }
-
-        if (mounted) {
+      // Listen for auth changes
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          console.log('Auth state changed:', event, session);
+          
+          setSession(session);
+          
           if (session?.user) {
             setUser(session.user);
-            setSession(session);
-
-            const profile = await fetchUserProfile(session.user.id);
+            const profile = await fetchUserProfile(session.user.id, session.user.email);
             setUserProfile(profile);
           } else {
             setUser(null);
-            setUserProfile(GUEST_PROFILE);
-            setSession(null);
+            setUserProfile(null);
           }
-          setIsInitialized(true);
-          setIsLoading(false);
         }
-      } catch (error: any) {
-        console.error('Auth initialization error:', error);
-        if (mounted) {
-          setAuthError(error?.message || 'Failed to initialize authentication');
-          setUser(null);
-          setUserProfile(GUEST_PROFILE);
-          setSession(null);
-          setIsInitialized(true);
-          setIsLoading(false);
-        }
-      }
-    };
+      );
 
-    initializeAuth();
+      return subscription;
+    } catch (error) {
+      console.error('Error initializing auth:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mounted) return;
-
-      console.log('Auth state changed:', event, session?.user?.id);
-
-      if (event === 'SIGNED_IN' && session?.user) {
-        setUser(session.user);
-        setSession(session);
-        const profile = await fetchUserProfile(session.user.id);
-        setUserProfile(profile);
-        setAuthError(null);
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-        setUserProfile(GUEST_PROFILE);
-        setSession(null);
-        setAuthError(null);
-      } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-        setSession(session);
-      }
-
-      setIsLoading(false);
+  useEffect(() => {
+    let subscription: any;
+    
+    initializeAuth().then((sub) => {
+      subscription = sub;
     });
 
     return () => {
-      mounted = false;
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
   }, []);
 
-  const value: AuthContextType = {
+  const signUp = async (email: string, password: string, metadata?: any) => {
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/onauthsuccess`,
+          data: metadata
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "Sign Up Failed",
+          description: error.message,
+          variant: "destructive"
+        });
+        return { success: false, error: error.message };
+      }
+
+      toast({
+        title: "Sign Up Successful",
+        description: "Please check your email to verify your account"
+      });
+
+      return { success: true };
+    } catch (error: any) {
+      const errorMessage = error.message || 'Sign up failed';
+      toast({
+        title: "Sign Up Failed",
+        description: errorMessage,
+        variant: "destructive"
+      });
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signIn = async (email: string, password: string) => {
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        toast({
+          title: "Sign In Failed",
+          description: error.message,
+          variant: "destructive"
+        });
+        return { success: false, error: error.message };
+      }
+
+      toast({
+        title: "Sign In Successful",
+        description: "Welcome back!"
+      });
+
+      return { success: true };
+    } catch (error: any) {
+      const errorMessage = error.message || 'Sign in failed';
+      toast({
+        title: "Sign In Failed",
+        description: errorMessage,
+        variant: "destructive"
+      });
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Signed Out",
+        description: "You have been successfully signed out"
+      });
+    } catch (error: any) {
+      console.error('Sign out error:', error);
+      toast({
+        title: "Sign Out Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const resetPassword = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  };
+
+  const updatePassword = async (password: string) => {
+    try {
+      const { error } = await supabase.auth.updateUser({ password });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  };
+
+  const refreshUserProfile = async () => {
+    if (user) {
+      const profile = await fetchUserProfile(user.id, user.email);
+      setUserProfile(profile);
+    }
+  };
+
+  const isAdmin = () => {
+    return userProfile?.role === 'Administrator' || userProfile?.role_code === 'Administrator';
+  };
+
+  const isManager = () => {
+    return userProfile?.role === 'Management' || 
+           userProfile?.role === 'Manager' || 
+           userProfile?.role_code === 'Administrator' ||
+           isAdmin();
+  };
+
+  const hasPermission = (action: string, resource?: string) => {
+    if (!userProfile || !userProfile.is_active) return false;
+    
+    // Admins have all permissions
+    if (isAdmin()) return true;
+    
+    // Check detailed permissions
+    if (userProfile.detailed_permissions && resource) {
+      const resourcePermissions = userProfile.detailed_permissions[resource];
+      if (resourcePermissions && resourcePermissions[action]) {
+        return true;
+      }
+    }
+    
+    // Default role-based permissions
+    if (userProfile.role === 'Management' || userProfile.role === 'Manager') {
+      return ['create', 'read', 'update'].includes(action);
+    }
+    
+    if (userProfile.role === 'Employee') {
+      return action === 'read';
+    }
+    
+    return false;
+  };
+
+  const assignRole = async (email: string, role: string, roleCode: string, permissions?: any) => {
+    try {
+      if (!isAdmin()) {
+        return { success: false, error: 'Only administrators can assign roles' };
+      }
+
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .upsert({
+          email,
+          role,
+          role_code: roleCode,
+          detailed_permissions: permissions || {},
+          is_active: true,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'email'
+        })
+        .select();
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      toast({
+        title: "Role Assigned",
+        description: `Successfully assigned ${role} role to ${email}`
+      });
+
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  };
+
+  const value: SupabaseAuthContextType = {
     user,
     userProfile,
     session,
-    isAuthenticated,
-    isLoading,
-    authError,
-    isInitialized,
-    login,
-    logout,
-    register,
+    loading,
+    signUp,
+    signIn,
+    signOut,
     resetPassword,
     updatePassword,
-    refreshUserData,
-    hasPermission,
+    refreshUserProfile,
     isAdmin,
     isManager,
-    clearError
+    hasPermission,
+    assignRole
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <SupabaseAuthContext.Provider value={value}>
+      {children}
+    </SupabaseAuthContext.Provider>
+  );
 };
 
-export const useSupabaseAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
+export const useSupabaseAuth = (): SupabaseAuthContextType => {
+  const context = useContext(SupabaseAuthContext);
   if (context === undefined) {
     throw new Error('useSupabaseAuth must be used within a SupabaseAuthProvider');
   }
   return context;
 };
-
-export default SupabaseAuthProvider;
