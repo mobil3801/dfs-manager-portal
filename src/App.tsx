@@ -60,6 +60,7 @@ const OverflowTestPage = lazy(() => import('@/pages/OverflowTestPage'));
 const OverflowTestingPage = lazy(() => import('@/pages/OverflowTestingPage'));
 const EnhancedIDDocumentTestPage = lazy(() => import('./pages/EnhancedIDDocumentTestPage'));
 const DocumentViewerTestPage = lazy(() => import('./pages/DocumentViewerTestPage'));
+const SupabaseTestPage = lazy(() => import('@/pages/SupabaseTestPage'));
 
 const DocumentLoadingDebugPage = lazy(() => import('@/pages/DocumentLoadingDebugPage'));
 const DocumentSolutionPage = lazy(() => import('@/pages/DocumentSolutionPage'));
@@ -129,7 +130,7 @@ const AuthError = ({ error, onRetry }: {error: string;onRetry: () => void;}) =>
 
 // Protected Route Component with improved error handling
 const ProtectedRoute: React.FC<{children: React.ReactNode;}> = ({ children }) => {
-  const { isAuthenticated, isLoading, authError, isInitialized, refreshUserData } = useAuth();
+  const { isAuthenticated, isLoading, authError, isInitialized, refreshUserData } = useSupabaseAuth();
 
   // Show loading while initializing
   if (!isInitialized || isLoading) {
@@ -151,7 +152,7 @@ const ProtectedRoute: React.FC<{children: React.ReactNode;}> = ({ children }) =>
 
 // Main App Router Component
 const AppRouter = () => {
-  const { isInitialized } = useAuth();
+  const { isInitialized } = useSupabaseAuth();
 
   // Show loading during initial authentication setup
   if (!isInitialized) {
@@ -163,7 +164,8 @@ const AppRouter = () => {
       <div className="App">
         <Routes>
           {/* Public Routes */}
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/login" element={<SupabaseLoginPage />} />
+          <Route path="/legacy-login" element={<LoginPage />} />
           <Route path="/supabase-login" element={<SupabaseLoginPage />} />
           <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
           <Route path="/resetpassword" element={<ResetPasswordPage />} />
@@ -352,6 +354,11 @@ const AppRouter = () => {
             <Route path="id-document-solution" element={
             <Suspense fallback={<PageLoader />}>
                 <IDDocumentSolutionPage />
+              </Suspense>
+            } />
+            <Route path="supabase-test" element={
+            <Suspense fallback={<PageLoader />}>
+                <SupabaseTestPage />
               </Suspense>
             } />
             

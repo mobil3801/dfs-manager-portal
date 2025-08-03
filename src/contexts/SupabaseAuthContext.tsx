@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, Session } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import { User, Session } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 import { supabase, auth } from '@/lib/supabase';
 import { userProfileService, auditLogService } from '@/services/databaseService';
 import { useToast } from '@/hooks/use-toast';
