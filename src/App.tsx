@@ -23,6 +23,7 @@ import NotFound from '@/pages/NotFound';
 import AdminSetupPage from '@/pages/Admin/AdminSetupPage';
 import AdminDebugPage from '@/pages/AdminDebugPage';
 import AdminEmergencyFixPage from '@/pages/AdminEmergencyFixPage';
+import AdminFixSuccessPage from '@/pages/AdminFixSuccessPage';
 
 // Lazy load feature pages
 const ProductList = lazy(() => import('@/pages/Products/ProductList'));
@@ -177,7 +178,9 @@ const AppRouter = () => {
           <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
           <Route path="/resetpassword" element={<ResetPasswordPage />} />
           <Route path="/admin-setup" element={<AdminSetupPage />} />
+          <Route path="/admin-debug" element={<AdminDebugPage />} />
           <Route path="/admin-emergency-fix" element={<AdminEmergencyFixPage />} />
+        <Route path="/admin-fix-success" element={<AdminFixSuccessPage />} />
           
           {/* Protected Routes */}
           <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
