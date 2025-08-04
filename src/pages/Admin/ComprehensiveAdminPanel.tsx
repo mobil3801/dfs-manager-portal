@@ -23,8 +23,8 @@ import {
   Eye,
   Edit,
   Trash2,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw } from
+'lucide-react';
 import AdminSetupComponent from '@/components/AdminSetupComponent';
 
 interface DatabaseStats {
@@ -59,14 +59,14 @@ const ComprehensiveAdminPanel = () => {
   const fetchStats = async () => {
     try {
       setIsLoading(true);
-      
+
       const tables = ['user_profiles', 'stations', 'products', 'sales_reports', 'employees', 'audit_logs'];
       const statPromises = tables.map(async (table) => {
         try {
-          const { data, error } = await supabase
-            .from(table)
-            .select('*', { count: 'exact', head: true });
-          
+          const { data, error } = await supabase.
+          from(table).
+          select('*', { count: 'exact', head: true });
+
           return { table, count: data?.length || 0 };
         } catch (error) {
           console.warn(`Failed to fetch ${table} count:`, error);
@@ -111,8 +111,8 @@ const ComprehensiveAdminPanel = () => {
             </AlertDescription>
           </Alert>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   if (!isAdmin()) {
@@ -132,38 +132,38 @@ const ComprehensiveAdminPanel = () => {
             </AlertDescription>
           </Alert>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
-  const StatCard = ({ title, value, icon: Icon, description }: {
-    title: string;
-    value: number;
-    icon: any;
-    description?: string;
-  }) => (
-    <Card>
+  const StatCard = ({ title, value, icon: Icon, description
+
+
+
+
+  }: {title: string;value: number;icon: any;description?: string;}) =>
+  <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
         <Icon className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{isLoading ? '...' : value}</div>
-        {description && (
-          <p className="text-xs text-muted-foreground">{description}</p>
-        )}
+        {description &&
+      <p className="text-xs text-muted-foreground">{description}</p>
+      }
       </CardContent>
-    </Card>
-  );
+    </Card>;
 
-  const QuickActionCard = ({ title, description, icon: Icon, action, variant = 'default' }: {
-    title: string;
-    description: string;
-    icon: any;
-    action: () => void;
-    variant?: 'default' | 'destructive' | 'outline';
-  }) => (
-    <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={action}>
+
+  const QuickActionCard = ({ title, description, icon: Icon, action, variant = 'default'
+
+
+
+
+
+  }: {title: string;description: string;icon: any;action: () => void;variant?: 'default' | 'destructive' | 'outline';}) =>
+  <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={action}>
       <CardContent className="p-4">
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-blue-100 rounded-lg">
@@ -175,8 +175,8 @@ const ComprehensiveAdminPanel = () => {
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>;
+
 
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
@@ -209,26 +209,26 @@ const ComprehensiveAdminPanel = () => {
               title="Total Users"
               value={stats.users}
               icon={Users}
-              description="Registered users"
-            />
+              description="Registered users" />
+
             <StatCard
               title="Stations"
               value={stats.stations}
               icon={Building}
-              description="Active stations"
-            />
+              description="Active stations" />
+
             <StatCard
               title="Products"
               value={stats.products}
               icon={FileText}
-              description="Product catalog"
-            />
+              description="Product catalog" />
+
             <StatCard
               title="Sales Reports"
               value={stats.sales_reports}
               icon={Activity}
-              description="Generated reports"
-            />
+              description="Generated reports" />
+
           </div>
 
           <Card>
@@ -244,38 +244,38 @@ const ComprehensiveAdminPanel = () => {
                   title="User Management"
                   description="Add, edit, and manage users"
                   icon={UserPlus}
-                  action={() => setActiveTab('users')}
-                />
+                  action={() => setActiveTab('users')} />
+
                 <QuickActionCard
                   title="Database Monitor"
                   description="Monitor database performance"
                   icon={Database}
-                  action={() => setActiveTab('database')}
-                />
+                  action={() => setActiveTab('database')} />
+
                 <QuickActionCard
                   title="SMS Settings"
                   description="Configure SMS notifications"
                   icon={MessageSquare}
-                  action={() => setActiveTab('sms')}
-                />
+                  action={() => setActiveTab('sms')} />
+
                 <QuickActionCard
                   title="Security Settings"
                   description="Manage security policies"
                   icon={Shield}
-                  action={() => setActiveTab('security')}
-                />
+                  action={() => setActiveTab('security')} />
+
                 <QuickActionCard
                   title="System Setup"
                   description="Initial system configuration"
                   icon={Settings}
-                  action={() => setActiveTab('setup')}
-                />
+                  action={() => setActiveTab('setup')} />
+
                 <QuickActionCard
                   title="Refresh Data"
                   description="Update dashboard statistics"
                   icon={RefreshCw}
-                  action={fetchStats}
-                />
+                  action={fetchStats} />
+
               </div>
             </CardContent>
           </Card>
@@ -321,14 +321,14 @@ const ComprehensiveAdminPanel = () => {
                   title="Employees"
                   value={stats.employees}
                   icon={Users}
-                  description="Employee records"
-                />
+                  description="Employee records" />
+
                 <StatCard
                   title="Audit Logs"
                   value={stats.audit_logs}
                   icon={FileText}
-                  description="System audit trail"
-                />
+                  description="System audit trail" />
+
               </div>
               <div className="mt-4 space-y-2">
                 <Button onClick={fetchStats} className="mr-2">
@@ -384,8 +384,8 @@ const ComprehensiveAdminPanel = () => {
           <AdminSetupComponent />
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ComprehensiveAdminPanel;

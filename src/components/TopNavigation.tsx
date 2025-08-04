@@ -267,9 +267,9 @@ const TopNavigation = () => {
           {accessibleSecondaryItems.map((item) =>
           <NavigationLink key={item.href} item={item} dropdown />
           )}
-          {accessibleAdminSecondaryItems.length > 0 && accessibleSecondaryItems.length > 0 && (
-            <DropdownMenuSeparator />
-          )}
+          {accessibleAdminSecondaryItems.length > 0 && accessibleSecondaryItems.length > 0 &&
+          <DropdownMenuSeparator />
+          }
           {accessibleAdminSecondaryItems.map((item) =>
           <NavigationLink key={item.href} item={item} dropdown />
           )}

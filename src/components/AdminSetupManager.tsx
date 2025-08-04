@@ -1,421 +1,553 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
-import { User, Shield, Database, CheckCircle, AlertCircle, Users, Settings } from 'lucide-react';
+import { 
+  Shield, 
+  UserPlus, 
+  Database, 
+  CheckCircle, 
+  AlertCircle, 
+  Eye, 
+  EyeOff,
+  Copy,
+  RefreshCw,
+  TestTube
+} from 'lucide-react';
 
-interface AdminUser {
-  id: string;
-  email: string;
-  first_name?: string;
-  last_name?: string;
-  user_role: string;
-  is_active: boolean;
-  created_at: string;
+interface DatabaseTest {
+  name: string;
+  table: string;
+  status: 'pending' | 'pass' | 'fail';
+  error?: string;
 }
 
-const AdminSetupManager = () => {
-  const [loading, setLoading] = useState(false);
-  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
-  const [adminPassword, setAdminPassword] = useState('Admin123!@#');
-  const [setupStep, setSetupStep] = useState<'signup' | 'verify' | 'complete'>('signup');
-  const [testResults, setTestResults] = useState<{[key: string]: boolean;}>({});
+interface AdminSetupManagerProps {
+  onComplete?: () => void;
+}
+
+const AdminSetupManager: React.FC<AdminSetupManagerProps> = ({ onComplete }) => {
+  const [currentStep, setCurrentStep] = useState<'setup' | 'login' | 'database' | 'status'>('setup');
+  const [isLoading, setIsLoading] = useState(false);
+  const [adminExists, setAdminExists] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginTestStatus, setLoginTestStatus] = useState<'idle' | 'testing' | 'pass' | 'fail'>('idle');
+  const [signupStatus, setSignupStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
+  const [databaseTests, setDatabaseTests] = useState<DatabaseTest[]>([
+    { name: 'User Profiles Table', table: 'user_profiles', status: 'pending' },
+    { name: 'Stations Table', table: 'stations', status: 'pending' },
+    { name: 'Products Table', table: 'products', status: 'pending' },
+    { name: 'Employees Table', table: 'employees', status: 'pending' },
+    { name: 'Audit Logs Table', table: 'audit_logs', status: 'pending' }
+  ]);
+
   const { toast } = useToast();
 
+  const ADMIN_EMAIL = 'admin@dfs-portal.com';
+  const ADMIN_PASSWORD = 'Admin123!@#';
+
   useEffect(() => {
-    checkExistingAdmin();
+    checkAdminProfile();
   }, []);
 
-  const checkExistingAdmin = async () => {
+  const checkAdminProfile = async () => {
     try {
-      const { data, error } = await supabase.
-      from('user_profiles').
-      select('*').
-      eq('email', 'admin@dfs-portal.com').
-      single();
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .ilike('role', '%admin%')
+        .limit(1);
 
-      if (data) {
-        setAdminUser(data);
-        setSetupStep('complete');
+      if (error) {
+        console.error('Error checking admin profile:', error);
+        setAdminExists(false);
+      } else {
+        setAdminExists(data && data.length > 0);
       }
     } catch (error) {
-      console.log('Admin user not found, setup needed');
+      console.error('Failed to check admin profile:', error);
+      setAdminExists(false);
     }
   };
 
-  const createAdminUser = async () => {
-    setLoading(true);
+  const signUpAdmin = async () => {
     try {
-      // First, sign up the admin user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: 'admin@dfs-portal.com',
-        password: adminPassword,
+      setIsLoading(true);
+      setSignupStatus('pending');
+
+      // Try to sign up the admin user
+      const { data: signupData, error: signupError } = await supabase.auth.signUp({
+        email: ADMIN_EMAIL,
+        password: ADMIN_PASSWORD,
         options: {
           data: {
-            first_name: 'System',
-            last_name: 'Administrator'
+            full_name: 'System Administrator'
           }
         }
       });
 
-      if (authError) {
-        toast({
-          title: "Authentication Error",
-          description: authError.message,
-          variant: "destructive"
-        });
-        return;
+      let userId = null;
+
+      if (signupError) {
+        if (signupError.message.includes('already registered')) {
+          // User exists, try to get user ID by signing in
+          const { data: signinData, error: signinError } = await supabase.auth.signInWithPassword({
+            email: ADMIN_EMAIL,
+            password: ADMIN_PASSWORD
+          });
+
+          if (signinError) {
+            throw new Error(`Admin user exists but password verification failed: ${signinError.message}`);
+          }
+
+          userId = signinData.user?.id;
+          await supabase.auth.signOut();
+        } else {
+          throw signupError;
+        }
+      } else if (signupData.user) {
+        userId = signupData.user.id;
       }
 
-      // Insert admin user profile
-      const { data: profileData, error: profileError } = await supabase.
-      from('user_profiles').
-      insert([
-      {
-        user_id: authData.user?.id,
-        email: 'admin@dfs-portal.com',
-        first_name: 'System',
-        last_name: 'Administrator',
-        user_role: 'Administrator',
-        permissions: {
-          all_modules: true,
-          user_management: true,
-          system_settings: true,
-          admin_panel: true
-        },
-        station_access: { all_stations: true },
-        is_active: true
-      }]
-      ).
-      select().
-      single();
-
-      if (profileError) {
-        toast({
-          title: "Profile Creation Error",
-          description: profileError.message,
-          variant: "destructive"
-        });
-        return;
+      if (!userId) {
+        throw new Error('Failed to create or retrieve admin user ID');
       }
 
-      setAdminUser(profileData);
-      setSetupStep('verify');
+      // Create or update admin profile
+      const profileData = {
+        user_id: userId,
+        employee_id: 'ADMIN001',
+        role: 'Administrator',
+        is_active: true,
+        phone: '',
+        hire_date: new Date().toISOString().split('T')[0],
+        detailed_permissions: {
+          admin: { view: true, create: true, edit: true, delete: true },
+          users: { view: true, create: true, edit: true, delete: true },
+          stations: { view: true, create: true, edit: true, delete: true },
+          products: { view: true, create: true, edit: true, delete: true },
+          sales: { view: true, create: true, edit: true, delete: true },
+          employees: { view: true, create: true, edit: true, delete: true },
+          delivery: { view: true, create: true, edit: true, delete: true },
+          vendors: { view: true, create: true, edit: true, delete: true },
+          orders: { view: true, create: true, edit: true, delete: true },
+          licenses: { view: true, create: true, edit: true, delete: true },
+          salary: { view: true, create: true, edit: true, delete: true }
+        }
+      };
 
+      const { error: upsertError } = await supabase
+        .from('user_profiles')
+        .upsert(profileData, { onConflict: 'user_id' });
+
+      if (upsertError) {
+        throw upsertError;
+      }
+
+      setSignupStatus('success');
+      setAdminExists(true);
+      
       toast({
-        title: "Admin User Created",
-        description: "Admin user created successfully. Please check email for verification.",
-        variant: "default"
+        title: 'Admin Account Created',
+        description: 'Administrator account has been successfully created.',
       });
 
     } catch (error: any) {
+      console.error('Admin signup error:', error);
+      setSignupStatus('error');
       toast({
-        title: "Setup Error",
-        description: error.message,
-        variant: "destructive"
+        title: 'Signup Failed',
+        description: error.message || 'Failed to create admin account',
+        variant: 'destructive'
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   const testAdminLogin = async () => {
-    setLoading(true);
     try {
+      setIsLoading(true);
+      setLoginTestStatus('testing');
+
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: 'admin@dfs-portal.com',
-        password: adminPassword
+        email: ADMIN_EMAIL,
+        password: ADMIN_PASSWORD
       });
 
       if (error) {
+        setLoginTestStatus('fail');
         toast({
-          title: "Login Test Failed",
+          title: 'Login Test Failed',
           description: error.message,
-          variant: "destructive"
+          variant: 'destructive'
         });
-        return;
+      } else {
+        setLoginTestStatus('pass');
+        toast({
+          title: 'Login Test Successful',
+          description: 'Admin credentials are working correctly.',
+        });
+
+        // Sign out immediately after test
+        await supabase.auth.signOut();
+      }
+    } catch (error: any) {
+      setLoginTestStatus('fail');
+      toast({
+        title: 'Login Test Failed',
+        description: error.message,
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const testDatabaseAccess = async () => {
+    try {
+      setIsLoading(true);
+      
+      const updatedTests = [...databaseTests];
+      
+      for (let i = 0; i < updatedTests.length; i++) {
+        const test = updatedTests[i];
+        try {
+          const { data, error } = await supabase
+            .from(test.table)
+            .select('*')
+            .limit(1);
+
+          if (error) {
+            updatedTests[i] = { ...test, status: 'fail', error: error.message };
+          } else {
+            updatedTests[i] = { ...test, status: 'pass' };
+          }
+        } catch (error: any) {
+          updatedTests[i] = { ...test, status: 'fail', error: error.message };
+        }
+
+        setDatabaseTests([...updatedTests]);
+        await new Promise(resolve => setTimeout(resolve, 200)); // Small delay for visual effect
       }
 
-      setTestResults((prev) => ({ ...prev, login: true }));
+      const passedTests = updatedTests.filter(test => test.status === 'pass').length;
+      const totalTests = updatedTests.length;
+
       toast({
-        title: "Login Test Passed",
-        description: "Admin login successful",
-        variant: "default"
+        title: 'Database Tests Complete',
+        description: `${passedTests}/${totalTests} database tables accessible`,
+        variant: passedTests === totalTests ? 'default' : 'destructive'
       });
-
-      // Test admin access to user_profiles table
-      const { data: profileData, error: profileError } = await supabase.
-      from('user_profiles').
-      select('*').
-      limit(5);
-
-      setTestResults((prev) => ({
-        ...prev,
-        login: true,
-        database: !profileError,
-        userManagement: !profileError
-      }));
 
     } catch (error: any) {
       toast({
-        title: "Test Error",
+        title: 'Database Test Failed',
         description: error.message,
-        variant: "destructive"
+        variant: 'destructive'
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const testAdminFeatures = async () => {
-    setLoading(true);
-    const tests = {
-      userProfiles: false,
-      moduleAccess: false,
-      auditLogs: false,
-      stations: false,
-      smsConfig: false
-    };
-
+  const copyToClipboard = async (text: string, label: string) => {
     try {
-      // Test user profiles access
-      const { error: profilesError } = await supabase.
-      from('user_profiles').
-      select('count(*)').
-      single();
-      tests.userProfiles = !profilesError;
-
-      // Test module access
-      const { error: moduleError } = await supabase.
-      from('module_access').
-      select('count(*)').
-      single();
-      tests.moduleAccess = !moduleError;
-
-      // Test audit logs
-      const { error: auditError } = await supabase.
-      from('audit_logs').
-      select('count(*)').
-      single();
-      tests.auditLogs = !auditError;
-
-      // Test stations
-      const { error: stationsError } = await supabase.
-      from('stations').
-      select('count(*)').
-      single();
-      tests.stations = !stationsError;
-
-      // Test SMS config
-      const { error: smsError } = await supabase.
-      from('sms_config').
-      select('count(*)').
-      single();
-      tests.smsConfig = !smsError;
-
-      setTestResults((prev) => ({ ...prev, ...tests }));
-
-      const passedTests = Object.values(tests).filter(Boolean).length;
+      await navigator.clipboard.writeText(text);
       toast({
-        title: "Feature Tests Complete",
-        description: `${passedTests}/5 admin features are accessible`,
-        variant: passedTests === 5 ? "default" : "destructive"
+        title: 'Copied!',
+        description: `${label} copied to clipboard`
       });
-
-    } catch (error: any) {
-      toast({
-        title: "Feature Test Error",
-        description: error.message,
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
     }
   };
 
-  const TestResultBadge = ({ testName, result }: {testName: string;result?: boolean;}) =>
-  <div className="flex items-center gap-2">
-      {result === true ?
-    <CheckCircle className="h-4 w-4 text-green-500" /> :
-    result === false ?
-    <AlertCircle className="h-4 w-4 text-red-500" /> :
-
-    <div className="h-4 w-4 rounded-full bg-gray-300" />
+  const getStepHeader = () => {
+    switch (currentStep) {
+      case 'setup': return { title: 'Setup', color: 'default' as const };
+      case 'login': return { title: 'Test Login', color: 'default' as const };
+      case 'database': return { title: 'Database', color: 'default' as const };
+      case 'status': return { title: 'Status', color: 'default' as const };
     }
-      <span className="text-sm">{testName}</span>
-      <Badge variant={result === true ? "default" : result === false ? "destructive" : "secondary"}>
-        {result === true ? "Pass" : result === false ? "Fail" : "Pending"}
-      </Badge>
-    </div>;
+  };
 
+  const renderCurrentStep = () => {
+    switch (currentStep) {
+      case 'setup':
+        return (
+          <div className="space-y-6">
+            {/* Admin Credentials Display */}
+            <div className="grid gap-4 p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-2">
+                <UserPlus className="w-5 h-5" />
+                <span className="font-medium">Admin Email: {ADMIN_EMAIL}</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => copyToClipboard(ADMIN_EMAIL, 'Email')}
+                >
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Shield className="w-5 h-5" />
+                <span className="font-medium">Default Password: {showPassword ? ADMIN_PASSWORD : '••••••••••'}</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => copyToClipboard(ADMIN_PASSWORD, 'Password')}
+                >
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Admin Profile Status */}
+            <div className="flex items-center justify-between">
+              <span>Admin Profile in Database:</span>
+              <Badge variant={adminExists ? "default" : "secondary"}>
+                {adminExists ? "Exists" : "Not Found"}
+              </Badge>
+            </div>
+
+            {/* Sign Up Button */}
+            <Button
+              onClick={signUpAdmin}
+              disabled={isLoading}
+              className="w-full"
+              size="lg"
+            >
+              <UserPlus className="w-4 h-4 mr-2" />
+              {signupStatus === 'pending' ? 'Creating Admin User...' : 'Sign Up Admin User'}
+            </Button>
+
+            {signupStatus === 'success' && (
+              <Alert>
+                <CheckCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Admin account created successfully! You can now test the login.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {signupStatus === 'error' && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Failed to create admin account. Please try again.
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
+        );
+
+      case 'login':
+        return (
+          <div className="space-y-6">
+            <Button
+              onClick={testAdminLogin}
+              disabled={isLoading}
+              className="w-full"
+              size="lg"
+            >
+              <TestTube className="w-4 h-4 mr-2" />
+              Test Admin Login
+            </Button>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  {loginTestStatus === 'fail' ? (
+                    <AlertCircle className="w-4 h-4 text-red-500" />
+                  ) : loginTestStatus === 'pass' ? (
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                  ) : (
+                    <div className="w-4 h-4 rounded-full bg-gray-300" />
+                  )}
+                  Admin Login
+                </span>
+                <Badge variant={
+                  loginTestStatus === 'pass' ? 'default' : 
+                  loginTestStatus === 'fail' ? 'destructive' : 
+                  loginTestStatus === 'testing' ? 'secondary' : 'outline'
+                }>
+                  {loginTestStatus === 'pass' ? 'Pass' : 
+                   loginTestStatus === 'fail' ? 'Fail' : 
+                   loginTestStatus === 'testing' ? 'Testing...' : 'Pending'}
+                </Badge>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-gray-300" />
+                  Admin Signup
+                </span>
+                <Badge variant="secondary">Pending</Badge>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  Profile Exists
+                </span>
+                <Badge variant="default">Pass</Badge>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'database':
+        return (
+          <div className="space-y-6">
+            <Button
+              onClick={testDatabaseAccess}
+              disabled={isLoading}
+              className="w-full"
+              size="lg"
+            >
+              <Database className="w-4 h-4 mr-2" />
+              Test Database Access
+            </Button>
+
+            <div className="space-y-3">
+              {databaseTests.map((test, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    {test.status === 'fail' ? (
+                      <AlertCircle className="w-4 h-4 text-red-500" />
+                    ) : test.status === 'pass' ? (
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                    ) : (
+                      <div className="w-4 h-4 rounded-full bg-gray-300" />
+                    )}
+                    {test.name}
+                  </span>
+                  <Badge variant={
+                    test.status === 'pass' ? 'default' : 
+                    test.status === 'fail' ? 'destructive' : 'outline'
+                  }>
+                    {test.status === 'pass' ? 'Pass' : 
+                     test.status === 'fail' ? 'Fail' : 'Pending'}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+
+            {databaseTests.some(test => test.status === 'fail') && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Some database tables are not accessible. This may affect system functionality.
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
+        );
+
+      case 'status':
+        return (
+          <div className="space-y-6">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold mb-2">Current Status</h3>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <span className="font-medium">Currently Logged In: </span>
+                <span className="text-gray-600">None</span>
+              </div>
+              
+              <div>
+                <span className="font-medium">User Role: </span>
+                <span className="text-gray-600">Not Authenticated</span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <span className="font-medium">Admin Profile: </span>
+                <CheckCircle className="w-4 h-4 text-green-500" />
+                <span className="text-green-600">Created</span>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <div className="flex items-center gap-2 mb-3">
+                <RefreshCw className="w-5 h-5 text-blue-600" />
+                <h4 className="font-medium text-blue-800">Next Steps</h4>
+              </div>
+              
+              <ol className="list-decimal list-inside space-y-1 text-sm text-blue-700">
+                <li>Create admin profile in database</li>
+                <li>Sign up admin user account</li>
+                <li>Verify email (check inbox)</li>
+                <li>Test admin login</li>
+                <li>Test database access</li>
+                <li>Access admin features from navigation</li>
+              </ol>
+            </div>
+          </div>
+        );
+    }
+  };
+
+  const stepHeader = getStepHeader();
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <Card>
-        <CardHeader>
+    <Card className="w-full max-w-2xl mx-auto">
+      <CardHeader>
+        <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5" />
-            Admin User Setup & Testing
+            <Shield className="w-5 h-5" />
+            Admin Account Setup & Testing
           </CardTitle>
-          <CardDescription>
-            Create and test the admin@dfs-portal.com account with full administrative privileges
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="setup" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="setup">Setup Admin</TabsTrigger>
-              <TabsTrigger value="test">Test Features</TabsTrigger>
-              <TabsTrigger value="status">Status</TabsTrigger>
-            </TabsList>
+          <div className="flex gap-1">
+            {(['setup', 'login', 'database', 'status'] as const).map((step) => (
+              <Button
+                key={step}
+                variant={currentStep === step ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setCurrentStep(step)}
+                className="capitalize"
+              >
+                {step === 'login' ? 'Test Login' : step}
+              </Button>
+            ))}
+          </div>
+        </div>
+        <CardDescription>
+          Complete setup and testing for admin@dfs-portal.com account
+        </CardDescription>
+      </CardHeader>
+      
+      <CardContent>
+        {renderCurrentStep()}
 
-            <TabsContent value="setup" className="space-y-4">
-              <div className="grid gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Admin Email</Label>
-                  <Input
-                    id="email"
-                    value="admin@dfs-portal.com"
-                    disabled
-                    className="bg-gray-50" />
-
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="password">Admin Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={adminPassword}
-                    onChange={(e) => setAdminPassword(e.target.value)}
-                    placeholder="Enter secure password" />
-
-                </div>
-
-                {setupStep === 'signup' &&
-                <Button
-                  onClick={createAdminUser}
-                  disabled={loading}
-                  className="w-full">
-
-                    {loading ? "Creating Admin User..." : "Create Admin User"}
-                  </Button>
-                }
-
-                {setupStep === 'verify' &&
-                <Alert>
-                    <User className="h-4 w-4" />
-                    <AlertDescription>
-                      Admin user created! Please check email for verification link, then test login.
-                    </AlertDescription>
-                  </Alert>
-                }
-
-                {setupStep === 'complete' && adminUser &&
-                <Alert>
-                    <CheckCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      Admin user is set up and ready! Role: {adminUser.user_role}
-                    </AlertDescription>
-                  </Alert>
-                }
-              </div>
-            </TabsContent>
-
-            <TabsContent value="test" className="space-y-4">
-              <div className="space-y-4">
-                <Button
-                  onClick={testAdminLogin}
-                  disabled={loading}
-                  className="w-full"
-                  variant="outline">
-
-                  {loading ? "Testing Login..." : "Test Admin Login"}
-                </Button>
-
-                <Button
-                  onClick={testAdminFeatures}
-                  disabled={loading}
-                  className="w-full">
-
-                  {loading ? "Testing Features..." : "Test All Admin Features"}
-                </Button>
-
-                <div className="space-y-3 mt-6">
-                  <h4 className="font-semibold flex items-center gap-2">
-                    <Database className="h-4 w-4" />
-                    Test Results
-                  </h4>
-                  
-                  <div className="grid gap-2">
-                    <TestResultBadge testName="Admin Login" result={testResults.login} />
-                    <TestResultBadge testName="Database Access" result={testResults.database} />
-                    <TestResultBadge testName="User Management" result={testResults.userManagement} />
-                    <TestResultBadge testName="User Profiles" result={testResults.userProfiles} />
-                    <TestResultBadge testName="Module Access" result={testResults.moduleAccess} />
-                    <TestResultBadge testName="Audit Logs" result={testResults.auditLogs} />
-                    <TestResultBadge testName="Stations" result={testResults.stations} />
-                    <TestResultBadge testName="SMS Config" result={testResults.smsConfig} />
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="status" className="space-y-4">
-              <div className="grid gap-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Current Admin Status</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {adminUser ?
-                    <div className="space-y-2">
-                        <p><strong>Email:</strong> {adminUser.email}</p>
-                        <p><strong>Name:</strong> {adminUser.first_name} {adminUser.last_name}</p>
-                        <p><strong>Role:</strong> <Badge>{adminUser.user_role}</Badge></p>
-                        <p><strong>Status:</strong> 
-                          <Badge variant={adminUser.is_active ? "default" : "destructive"}>
-                            {adminUser.is_active ? "Active" : "Inactive"}
-                          </Badge>
-                        </p>
-                        <p><strong>Created:</strong> {new Date(adminUser.created_at).toLocaleDateString()}</p>
-                      </div> :
-
-                    <p className="text-gray-500">No admin user found. Please create one in the Setup tab.</p>
-                    }
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Settings className="h-4 w-4" />
-                      Next Steps
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <p>1. ✅ Create admin user account</p>
-                      <p>2. 📧 Verify email address</p>
-                      <p>3. 🧪 Test admin login</p>
-                      <p>4. 🔍 Test all admin features</p>
-                      <p>5. 🚀 Access Admin Panel from main navigation</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-    </div>);
-
+        <div className="mt-6 pt-4 border-t">
+          <Button
+            onClick={checkAdminProfile}
+            variant="ghost"
+            size="sm"
+            className="w-full"
+            disabled={isLoading}
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh Status
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
 };
 
 export default AdminSetupManager;

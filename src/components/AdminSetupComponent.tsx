@@ -24,13 +24,13 @@ const AdminSetupComponent = () => {
   const checkAdminUser = async () => {
     try {
       setCheckingAdmin(true);
-      
+
       // Check if admin user exists in user_profiles
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .ilike('role', '%admin%')
-        .limit(1);
+      const { data, error } = await supabase.
+      from('user_profiles').
+      select('*').
+      ilike('role', '%admin%').
+      limit(1);
 
       if (error) {
         console.error('Error checking admin user:', error);
@@ -101,52 +101,52 @@ const AdminSetupComponent = () => {
   const createAdminProfile = async (userId: string) => {
     try {
       // Check if profile already exists
-      const { data: existingProfile } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
+      const { data: existingProfile } = await supabase.
+      from('user_profiles').
+      select('*').
+      eq('user_id', userId).
+      single();
 
       if (existingProfile) {
         // Update existing profile to admin
-        const { error: updateError } = await supabase
-          .from('user_profiles')
-          .update({
-            role: 'Administrator',
-            is_active: true,
-            detailed_permissions: {
-              admin: { view: true, create: true, edit: true, delete: true },
-              users: { view: true, create: true, edit: true, delete: true },
-              stations: { view: true, create: true, edit: true, delete: true },
-              products: { view: true, create: true, edit: true, delete: true },
-              sales: { view: true, create: true, edit: true, delete: true },
-              employees: { view: true, create: true, edit: true, delete: true }
-            }
-          })
-          .eq('user_id', userId);
+        const { error: updateError } = await supabase.
+        from('user_profiles').
+        update({
+          role: 'Administrator',
+          is_active: true,
+          detailed_permissions: {
+            admin: { view: true, create: true, edit: true, delete: true },
+            users: { view: true, create: true, edit: true, delete: true },
+            stations: { view: true, create: true, edit: true, delete: true },
+            products: { view: true, create: true, edit: true, delete: true },
+            sales: { view: true, create: true, edit: true, delete: true },
+            employees: { view: true, create: true, edit: true, delete: true }
+          }
+        }).
+        eq('user_id', userId);
 
         if (updateError) throw updateError;
       } else {
         // Create new admin profile
-        const { error: insertError } = await supabase
-          .from('user_profiles')
-          .insert({
-            user_id: userId,
-            role: 'Administrator',
-            station_id: null,
-            employee_id: 'ADMIN001',
-            phone: '',
-            hire_date: new Date().toISOString().split('T')[0],
-            is_active: true,
-            detailed_permissions: {
-              admin: { view: true, create: true, edit: true, delete: true },
-              users: { view: true, create: true, edit: true, delete: true },
-              stations: { view: true, create: true, edit: true, delete: true },
-              products: { view: true, create: true, edit: true, delete: true },
-              sales: { view: true, create: true, edit: true, delete: true },
-              employees: { view: true, create: true, edit: true, delete: true }
-            }
-          });
+        const { error: insertError } = await supabase.
+        from('user_profiles').
+        insert({
+          user_id: userId,
+          role: 'Administrator',
+          station_id: null,
+          employee_id: 'ADMIN001',
+          phone: '',
+          hire_date: new Date().toISOString().split('T')[0],
+          is_active: true,
+          detailed_permissions: {
+            admin: { view: true, create: true, edit: true, delete: true },
+            users: { view: true, create: true, edit: true, delete: true },
+            stations: { view: true, create: true, edit: true, delete: true },
+            products: { view: true, create: true, edit: true, delete: true },
+            sales: { view: true, create: true, edit: true, delete: true },
+            employees: { view: true, create: true, edit: true, delete: true }
+          }
+        });
 
         if (insertError) throw insertError;
       }
@@ -219,8 +219,8 @@ const AdminSetupComponent = () => {
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -236,21 +236,21 @@ const AdminSetupComponent = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {adminExists ? (
-            <Alert>
+          {adminExists ?
+          <Alert>
               <CheckCircle className="h-4 w-4" />
               <AlertDescription>
                 Admin user already exists and is properly configured.
               </AlertDescription>
-            </Alert>
-          ) : (
-            <Alert>
+            </Alert> :
+
+          <Alert>
               <Database className="h-4 w-4" />
               <AlertDescription>
                 No admin user found. Click the button below to create the system administrator account.
               </AlertDescription>
             </Alert>
-          )}
+          }
 
           <div className="grid gap-4">
             <div className="grid gap-2">
@@ -260,8 +260,8 @@ const AdminSetupComponent = () => {
                 type="email"
                 value={ADMIN_EMAIL}
                 disabled
-                className="bg-gray-50"
-              />
+                className="bg-gray-50" />
+
             </div>
             <div className="grid gap-2">
               <Label htmlFor="admin-password">Admin Password</Label>
@@ -270,8 +270,8 @@ const AdminSetupComponent = () => {
                 type="password"
                 value={ADMIN_PASSWORD}
                 disabled
-                className="bg-gray-50"
-              />
+                className="bg-gray-50" />
+
               <p className="text-xs text-gray-500">
                 Default password. Change after first login.
               </p>
@@ -279,23 +279,23 @@ const AdminSetupComponent = () => {
           </div>
 
           <div className="flex gap-2">
-            {!adminExists && (
-              <Button
-                onClick={createAdminUser}
-                disabled={isLoading}
-                className="flex-1"
-              >
+            {!adminExists &&
+            <Button
+              onClick={createAdminUser}
+              disabled={isLoading}
+              className="flex-1">
+
                 <UserPlus className="w-4 h-4 mr-2" />
                 {isLoading ? 'Creating...' : 'Create Admin User'}
               </Button>
-            )}
+            }
 
             <Button
               onClick={testAdminLogin}
               disabled={isLoading}
               variant="outline"
-              className="flex-1"
-            >
+              className="flex-1">
+
               {isLoading ? 'Testing...' : 'Test Login'}
             </Button>
           </div>
@@ -304,8 +304,8 @@ const AdminSetupComponent = () => {
             onClick={checkAdminUser}
             disabled={isLoading}
             variant="ghost"
-            className="w-full"
-          >
+            className="w-full">
+
             Refresh Status
           </Button>
         </CardContent>
@@ -325,8 +325,8 @@ const AdminSetupComponent = () => {
           </ol>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AdminSetupComponent;

@@ -12,8 +12,8 @@ const AdminDebugPage = () => {
         
         <AdminAccessFix />
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AdminDebugPage;

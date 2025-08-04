@@ -30,7 +30,7 @@ const AdminAccessFix = () => {
 
   const checkAdminStatus = async () => {
     setIsChecking(true);
-    
+
     try {
       let authUserExists = false;
       let userProfileExists = false;
@@ -43,19 +43,19 @@ const AdminAccessFix = () => {
           email: ADMIN_EMAIL,
           password: ADMIN_PASSWORD
         });
-        
+
         if (!loginError && loginData.user) {
           authUserExists = true;
           userId = loginData.user.id;
-          
+
           // Check user profile
           try {
-            const { data: profileData, error: profileError } = await supabase
-              .from('user_profiles')
-              .select('*')
-              .eq('user_id', userId)
-              .single();
-            
+            const { data: profileData, error: profileError } = await supabase.
+            from('user_profiles').
+            select('*').
+            eq('user_id', userId).
+            single();
+
             if (!profileError && profileData) {
               userProfileExists = true;
               hasAdminRole = profileData.role === 'Administrator' || profileData.role === 'Admin';
@@ -63,7 +63,7 @@ const AdminAccessFix = () => {
           } catch (profileError) {
             console.warn('Profile check failed:', profileError);
           }
-          
+
           // Sign out immediately
           await supabase.auth.signOut();
         }
@@ -71,12 +71,12 @@ const AdminAccessFix = () => {
         console.warn('Auth check failed:', error);
         // Try to check profiles table directly
         try {
-          const { data: profileData, error: profileError } = await supabase
-            .from('user_profiles')
-            .select('*')
-            .eq('role', 'Administrator')
-            .limit(1);
-          
+          const { data: profileData, error: profileError } = await supabase.
+          from('user_profiles').
+          select('*').
+          eq('role', 'Administrator').
+          limit(1);
+
           if (!profileError && profileData && profileData.length > 0) {
             userProfileExists = true;
             hasAdminRole = true;
@@ -109,7 +109,7 @@ const AdminAccessFix = () => {
 
   const fixAdminAccess = async () => {
     setIsChecking(true);
-    
+
     try {
       // Step 1: Create/verify auth user
       if (!adminStatus.authUser) {
@@ -159,28 +159,28 @@ const AdminAccessFix = () => {
         }
       };
 
-      const { data: existingProfile } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
+      const { data: existingProfile } = await supabase.
+      from('user_profiles').
+      select('*').
+      eq('user_id', userId).
+      single();
 
       if (existingProfile) {
         // Update existing profile
-        const { error: updateError } = await supabase
-          .from('user_profiles')
-          .update(adminProfileData)
-          .eq('user_id', userId);
+        const { error: updateError } = await supabase.
+        from('user_profiles').
+        update(adminProfileData).
+        eq('user_id', userId);
 
         if (updateError) throw updateError;
       } else {
         // Create new profile
-        const { error: insertError } = await supabase
-          .from('user_profiles')
-          .insert({
-            user_id: userId,
-            ...adminProfileData
-          });
+        const { error: insertError } = await supabase.
+        from('user_profiles').
+        insert({
+          user_id: userId,
+          ...adminProfileData
+        });
 
         if (insertError) throw insertError;
       }
@@ -208,7 +208,7 @@ const AdminAccessFix = () => {
 
   const testAdminLogin = async () => {
     setIsChecking(true);
-    
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: ADMIN_EMAIL,
@@ -242,26 +242,26 @@ const AdminAccessFix = () => {
     }
   };
 
-  const StatusItem = ({ label, status, description }: { label: string; status: boolean; description: string }) => (
-    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+  const StatusItem = ({ label, status, description }: {label: string;status: boolean;description: string;}) =>
+  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
       <div className="flex-1">
         <div className="flex items-center gap-2">
-          {status ? (
-            <CheckCircle className="w-4 h-4 text-green-600" />
-          ) : (
-            <AlertTriangle className="w-4 h-4 text-red-600" />
-          )}
+          {status ?
+        <CheckCircle className="w-4 h-4 text-green-600" /> :
+
+        <AlertTriangle className="w-4 h-4 text-red-600" />
+        }
           <span className="font-medium">{label}</span>
         </div>
         <p className="text-xs text-gray-600 mt-1">{description}</p>
       </div>
       <div className={`px-2 py-1 rounded text-xs font-medium ${
-        status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-      }`}>
+    status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`
+    }>
         {status ? 'OK' : 'ISSUE'}
       </div>
-    </div>
-  );
+    </div>;
+
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
@@ -282,42 +282,42 @@ const AdminAccessFix = () => {
           <StatusItem
             label="Authentication User"
             status={adminStatus.authUser}
-            description="User exists in Supabase Auth system"
-          />
+            description="User exists in Supabase Auth system" />
+
           <StatusItem
             label="User Profile"
             status={adminStatus.userProfile}
-            description="Profile exists in user_profiles table"
-          />
+            description="Profile exists in user_profiles table" />
+
           <StatusItem
             label="Admin Role"
             status={adminStatus.adminRole}
-            description="User has Administrator role assigned"
-          />
+            description="User has Administrator role assigned" />
+
           <StatusItem
             label="Login Access"
             status={adminStatus.canLogin}
-            description="User can successfully authenticate"
-          />
+            description="User can successfully authenticate" />
+
         </div>
 
         {/* Overall Status */}
         <Alert>
-          {adminStatus.canLogin ? (
-            <>
+          {adminStatus.canLogin ?
+          <>
               <CheckCircle className="h-4 w-4" />
               <AlertDescription>
                 Admin access is working correctly. The admin user can log in and access the admin panel.
               </AlertDescription>
-            </>
-          ) : (
-            <>
+            </> :
+
+          <>
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
                 Admin access has issues that need to be resolved. Use the fix button below.
               </AlertDescription>
             </>
-          )}
+          }
         </Alert>
 
         {/* Admin Credentials */}
@@ -337,24 +337,24 @@ const AdminAccessFix = () => {
           <Button
             onClick={fixAdminAccess}
             disabled={isChecking || adminStatus.canLogin}
-            className="flex-1"
-          >
-            {isChecking ? (
-              <>
+            className="flex-1">
+
+            {isChecking ?
+            <>
                 <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
                 Fixing...
-              </>
-            ) : (
-              'Fix Admin Access'
-            )}
+              </> :
+
+            'Fix Admin Access'
+            }
           </Button>
           
           <Button
             onClick={testAdminLogin}
             disabled={isChecking}
             variant="outline"
-            className="flex-1"
-          >
+            className="flex-1">
+
             {isChecking ? 'Testing...' : 'Test Login'}
           </Button>
         </div>
@@ -363,16 +363,16 @@ const AdminAccessFix = () => {
           onClick={checkAdminStatus}
           disabled={isChecking}
           variant="ghost"
-          className="w-full"
-        >
-          {isChecking ? (
-            <>
+          className="w-full">
+
+          {isChecking ?
+          <>
               <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
               Checking...
-            </>
-          ) : (
-            'Refresh Status'
-          )}
+            </> :
+
+          'Refresh Status'
+          }
         </Button>
 
         {/* Instructions */}
@@ -386,8 +386,8 @@ const AdminAccessFix = () => {
           </ol>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default AdminAccessFix;
