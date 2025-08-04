@@ -35,10 +35,10 @@ const TestProductsAccess: React.FC = () => {
 
     try {
       // Test basic connection to Supabase products table
-      const { data, error, count } = await supabase
-        .from('products')
-        .select('*', { count: 'exact' })
-        .limit(5);
+      const { data, error, count } = await supabase.
+      from('products').
+      select('*', { count: 'exact' }).
+      limit(5);
 
       if (error) {
         throw new Error(`Database Error: ${error.message}`);
@@ -46,7 +46,7 @@ const TestProductsAccess: React.FC = () => {
 
       setProducts(data || []);
       setConnectionStatus('connected');
-      
+
       toast({
         title: "Connection Successful",
         description: `Successfully connected to Supabase. Found ${count || 0} products.`,
@@ -57,7 +57,7 @@ const TestProductsAccess: React.FC = () => {
       console.error('Connection test failed:', err);
       setError(err.message);
       setConnectionStatus('error');
-      
+
       toast({
         title: "Connection Failed",
         description: err.message,
@@ -82,11 +82,11 @@ const TestProductsAccess: React.FC = () => {
         is_active: true
       };
 
-      const { data, error } = await supabase
-        .from('products')
-        .insert([testProduct])
-        .select()
-        .single();
+      const { data, error } = await supabase.
+      from('products').
+      insert([testProduct]).
+      select().
+      single();
 
       if (error) throw error;
 
@@ -115,10 +115,10 @@ const TestProductsAccess: React.FC = () => {
     if (!confirm(`Delete product "${productName}"?`)) return;
 
     try {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', productId);
+      const { error } = await supabase.
+      from('products').
+      delete().
+      eq('id', productId);
 
       if (error) throw error;
 
@@ -143,19 +143,19 @@ const TestProductsAccess: React.FC = () => {
 
   const getStatusColor = () => {
     switch (connectionStatus) {
-      case 'connected': return 'text-green-600';
-      case 'error': return 'text-red-600';
-      case 'testing': return 'text-yellow-600';
-      default: return 'text-gray-600';
+      case 'connected':return 'text-green-600';
+      case 'error':return 'text-red-600';
+      case 'testing':return 'text-yellow-600';
+      default:return 'text-gray-600';
     }
   };
 
   const getStatusIcon = () => {
     switch (connectionStatus) {
-      case 'connected': return <CheckCircle className="w-5 h-5" />;
-      case 'error': return <AlertCircle className="w-5 h-5" />;
-      case 'testing': return <Database className="w-5 h-5 animate-pulse" />;
-      default: return <Database className="w-5 h-5" />;
+      case 'connected':return <CheckCircle className="w-5 h-5" />;
+      case 'error':return <AlertCircle className="w-5 h-5" />;
+      case 'testing':return <Database className="w-5 h-5 animate-pulse" />;
+      default:return <Database className="w-5 h-5" />;
     }
   };
 
@@ -179,13 +179,13 @@ const TestProductsAccess: React.FC = () => {
                 <p className="font-medium">
                   Connection Status: <span className={getStatusColor()}>{connectionStatus}</span>
                 </p>
-                {error && (
-                  <p className="text-sm text-red-600 mt-1">{error}</p>
-                )}
+                {error &&
+                <p className="text-sm text-red-600 mt-1">{error}</p>
+                }
               </div>
             </div>
-            <Button 
-              onClick={testConnection} 
+            <Button
+              onClick={testConnection}
               disabled={loading}
               variant={connectionStatus === 'connected' ? 'default' : 'outline'}>
               {loading ? 'Testing...' : 'Test Connection'}
@@ -193,38 +193,38 @@ const TestProductsAccess: React.FC = () => {
           </div>
 
           {/* Actions */}
-          {connectionStatus === 'connected' && (
-            <div className="flex space-x-4">
+          {connectionStatus === 'connected' &&
+          <div className="flex space-x-4">
               <Button onClick={createTestProduct} disabled={loading}>
                 <Plus className="w-4 h-4 mr-2" />
                 Create Test Product
               </Button>
             </div>
-          )}
+          }
 
           {/* Products List */}
-          {products.length > 0 && (
-            <div className="space-y-4">
+          {products.length > 0 &&
+          <div className="space-y-4">
               <h3 className="text-lg font-medium">Products ({products.length})</h3>
               <div className="grid gap-4">
-                {products.map((product) => (
-                  <div key={product.id} className="border rounded-lg p-4 space-y-3">
+                {products.map((product) =>
+              <div key={product.id} className="border rounded-lg p-4 space-y-3">
                     <div className="flex justify-between items-start">
                       <div>
                         <h4 className="font-medium">{product.product_name}</h4>
-                        {product.description && (
-                          <p className="text-sm text-gray-600">{product.description}</p>
-                        )}
+                        {product.description &&
+                    <p className="text-sm text-gray-600">{product.description}</p>
+                    }
                       </div>
                       <div className="flex items-center space-x-2">
                         <Badge variant={product.is_active ? 'default' : 'secondary'}>
                           {product.is_active ? 'Active' : 'Inactive'}
                         </Badge>
                         <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => deleteProduct(product.id, product.product_name)}
-                          className="text-red-600 hover:text-red-700">
+                      size="sm"
+                      variant="outline"
+                      onClick={() => deleteProduct(product.id, product.product_name)}
+                      className="text-red-600 hover:text-red-700">
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -249,10 +249,10 @@ const TestProductsAccess: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                ))}
+              )}
               </div>
             </div>
-          )}
+          }
 
           {/* Instructions */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -267,8 +267,8 @@ const TestProductsAccess: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default TestProductsAccess;

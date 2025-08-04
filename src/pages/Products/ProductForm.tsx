@@ -59,43 +59,43 @@ const ProductForm = () => {
   });
 
   const categories = [
-    'Food & Beverages',
-    'Fuel & Oil',
-    'Automotive',
-    'Tobacco Products',
-    'Lottery & Gaming',
-    'Health & Personal Care',
-    'Electronics & Accessories',
-    'Cleaning Supplies',
-    'Office Supplies',
-    'Snacks & Candy',
-    'Hot Foods & Coffee',
-    'Cold Beverages',
-    'Energy Drinks',
-    'Beer & Wine',
-    'Ice & Frozen',
-    'Phone Cards & Prepaid',
-    'Car Accessories',
-    'Gift Cards',
-    'Pharmacy & Medicine',
-    'General'
-  ];
+  'Food & Beverages',
+  'Fuel & Oil',
+  'Automotive',
+  'Tobacco Products',
+  'Lottery & Gaming',
+  'Health & Personal Care',
+  'Electronics & Accessories',
+  'Cleaning Supplies',
+  'Office Supplies',
+  'Snacks & Candy',
+  'Hot Foods & Coffee',
+  'Cold Beverages',
+  'Energy Drinks',
+  'Beer & Wine',
+  'Ice & Frozen',
+  'Phone Cards & Prepaid',
+  'Car Accessories',
+  'Gift Cards',
+  'Pharmacy & Medicine',
+  'General'];
+
 
   const unitOptions = [
-    'each',
-    'lb',
-    'oz',
-    'gal',
-    'qt',
-    'pt',
-    'fl oz',
-    'box',
-    'case',
-    'pack',
-    'bag',
-    'bottle',
-    'can'
-  ];
+  'each',
+  'lb',
+  'oz',
+  'gal',
+  'qt',
+  'pt',
+  'fl oz',
+  'box',
+  'case',
+  'pack',
+  'bag',
+  'bottle',
+  'can'];
+
 
   useEffect(() => {
     if (isEdit) {
@@ -108,11 +108,11 @@ const ProductForm = () => {
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', id)
-        .single();
+      const { data, error } = await supabase.
+      from('products').
+      select('*').
+      eq('id', id).
+      single();
 
       if (error) throw error;
 
@@ -133,7 +133,7 @@ const ProductForm = () => {
           supplier_id: data.supplier_id || '',
           is_active: data.is_active !== false
         });
-        
+
         // Set product image URL if available
         setProductImageUrl(data.image_url || null);
       }
@@ -150,7 +150,7 @@ const ProductForm = () => {
   };
 
   const handleInputChange = (field: keyof ProductFormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleImageUploaded = (imageUrl: string) => {
@@ -187,30 +187,30 @@ const ProductForm = () => {
       let productId = id;
 
       if (isEdit) {
-        const { data, error } = await supabase
-          .from('products')
-          .update({
-            ...formData,
-            image_url: productImageUrl,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', id)
-          .select()
-          .single();
+        const { data, error } = await supabase.
+        from('products').
+        update({
+          ...formData,
+          image_url: productImageUrl,
+          updated_at: new Date().toISOString()
+        }).
+        eq('id', id).
+        select().
+        single();
 
         if (error) throw error;
         productId = data.id;
       } else {
-        const { data, error } = await supabase
-          .from('products')
-          .insert([{
-            ...formData,
-            image_url: productImageUrl,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }])
-          .select()
-          .single();
+        const { data, error } = await supabase.
+        from('products').
+        insert([{
+          ...formData,
+          image_url: productImageUrl,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }]).
+        select().
+        single();
 
         if (error) throw error;
         productId = data.id;
@@ -307,8 +307,8 @@ const ProductForm = () => {
                     placeholder="Enter product name"
                     value={formData.product_name}
                     onChange={(e) => handleInputChange('product_name', e.target.value)}
-                    required
-                  />
+                    required />
+
                 </div>
 
                 <div className="space-y-2">
@@ -317,8 +317,8 @@ const ProductForm = () => {
                     id="sku"
                     placeholder="Enter SKU"
                     value={formData.sku}
-                    onChange={(e) => handleInputChange('sku', e.target.value)}
-                  />
+                    onChange={(e) => handleInputChange('sku', e.target.value)} />
+
                 </div>
               </div>
 
@@ -332,11 +332,11 @@ const ProductForm = () => {
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat} value={cat}>
+                      {categories.map((cat) =>
+                      <SelectItem key={cat} value={cat}>
                           {cat}
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -347,8 +347,8 @@ const ProductForm = () => {
                     id="barcode"
                     placeholder="Enter barcode"
                     value={formData.barcode}
-                    onChange={(e) => handleInputChange('barcode', e.target.value)}
-                  />
+                    onChange={(e) => handleInputChange('barcode', e.target.value)} />
+
                 </div>
               </div>
 
@@ -360,8 +360,8 @@ const ProductForm = () => {
                   placeholder="Enter product description"
                   rows={3}
                   value={formData.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
-                />
+                  onChange={(e) => handleInputChange('description', e.target.value)} />
+
               </div>
 
               {/* Pricing */}
@@ -374,8 +374,8 @@ const ProductForm = () => {
                     step="0.01"
                     min="0"
                     value={formData.cost}
-                    onChange={(e) => handleInputChange('cost', parseFloat(e.target.value) || 0)}
-                  />
+                    onChange={(e) => handleInputChange('cost', parseFloat(e.target.value) || 0)} />
+
                 </div>
 
                 <div className="space-y-2">
@@ -386,8 +386,8 @@ const ProductForm = () => {
                     step="0.01"
                     min="0"
                     value={formData.price}
-                    onChange={(e) => handleInputChange('price', parseFloat(e.target.value) || 0)}
-                  />
+                    onChange={(e) => handleInputChange('price', parseFloat(e.target.value) || 0)} />
+
                 </div>
 
                 <div className="space-y-2">
@@ -395,8 +395,8 @@ const ProductForm = () => {
                   <Input
                     value={calculateProfitMargin() + '%'}
                     disabled
-                    className="bg-muted"
-                  />
+                    className="bg-muted" />
+
                 </div>
               </div>
 
@@ -409,8 +409,8 @@ const ProductForm = () => {
                     type="number"
                     min="0"
                     value={formData.stock_quantity}
-                    onChange={(e) => handleInputChange('stock_quantity', parseInt(e.target.value) || 0)}
-                  />
+                    onChange={(e) => handleInputChange('stock_quantity', parseInt(e.target.value) || 0)} />
+
                 </div>
 
                 <div className="space-y-2">
@@ -420,8 +420,8 @@ const ProductForm = () => {
                     type="number"
                     min="0"
                     value={formData.min_stock_level}
-                    onChange={(e) => handleInputChange('min_stock_level', parseInt(e.target.value) || 0)}
-                  />
+                    onChange={(e) => handleInputChange('min_stock_level', parseInt(e.target.value) || 0)} />
+
                 </div>
 
                 <div className="space-y-2">
@@ -431,8 +431,8 @@ const ProductForm = () => {
                     type="number"
                     min="0"
                     value={formData.max_stock_level}
-                    onChange={(e) => handleInputChange('max_stock_level', parseInt(e.target.value) || 0)}
-                  />
+                    onChange={(e) => handleInputChange('max_stock_level', parseInt(e.target.value) || 0)} />
+
                 </div>
               </div>
 
@@ -446,8 +446,8 @@ const ProductForm = () => {
                     step="0.01"
                     min="0"
                     value={formData.weight}
-                    onChange={(e) => handleInputChange('weight', parseFloat(e.target.value) || 0)}
-                  />
+                    onChange={(e) => handleInputChange('weight', parseFloat(e.target.value) || 0)} />
+
                 </div>
 
                 <div className="space-y-2">
@@ -459,11 +459,11 @@ const ProductForm = () => {
                       <SelectValue placeholder="Select unit" />
                     </SelectTrigger>
                     <SelectContent>
-                      {unitOptions.map((unit) => (
-                        <SelectItem key={unit} value={unit}>
+                      {unitOptions.map((unit) =>
+                      <SelectItem key={unit} value={unit}>
                           {unit}
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -474,16 +474,16 @@ const ProductForm = () => {
                 productId={id}
                 currentImageUrl={productImageUrl}
                 onImageUploaded={handleImageUploaded}
-                onImageRemoved={handleImageRemoved}
-              />
+                onImageRemoved={handleImageRemoved} />
+
 
               {/* Active Status */}
               <div className="flex items-center space-x-2">
                 <Switch
                   id="is_active"
                   checked={formData.is_active}
-                  onCheckedChange={(checked) => handleInputChange('is_active', checked)}
-                />
+                  onCheckedChange={(checked) => handleInputChange('is_active', checked)} />
+
                 <Label htmlFor="is_active">Product is active</Label>
               </div>
 
@@ -501,8 +501,8 @@ const ProductForm = () => {
           </FormErrorBoundary>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ProductForm;

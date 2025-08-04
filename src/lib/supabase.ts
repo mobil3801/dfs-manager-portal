@@ -1,601 +1,16 @@
-// Supabase configuration and client setup
-const supabaseUrl = 'https://nehhjsiuhthflfwkfequ.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5laGhqc2l1aHRoZmxmd2tmZXF1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzAxMzE3NSwiZXhwIjoyMDY4NTg5MTc1fQ.7naT6l_oNH8VI5MaEKgJ19PoYw1EErv6-ftkEin12wE';
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
-// Simplified Supabase client using direct API calls
-class SimpleSupabaseClient {
-  private url: string;
-  private key: string;
-  private authToken: string | null = null;
+const supabaseUrl = 'https://nehhjsiuhthflfwkfequ.supabase.co'
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5laGhqc2l1aHRoZmxmd2tmZXF1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzAxMzE3NSwiZXhwIjoyMDY4NTg5MTc1fQ.7naT6l_oNH8VI5MaEKgJ19PoYw1EErv6-ftkEin12wE'
 
-  constructor(url: string, key: string) {
-    this.url = url;
-    this.key = key;
-    this.supabaseUrl = url;
-
-    // Try to get existing session from localStorage
-    this.loadSession();
+// Create the Supabase client
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
   }
-
-  supabaseUrl: string;
-
-  private loadSession() {
-    try {
-      const sessionStr = localStorage.getItem('supabase.auth.token');
-      if (sessionStr) {
-        const session = JSON.parse(sessionStr);
-        if (session?.access_token && new Date(session.expires_at * 1000) > new Date()) {
-          this.authToken = session.access_token;
-        }
-      }
-    } catch (error) {
-      console.warn('Failed to load session:', error);
-    }
-  }
-
-  private saveSession(session: any) {
-    try {
-      localStorage.setItem('supabase.auth.token', JSON.stringify(session));
-      this.authToken = session.access_token;
-    } catch (error) {
-      console.warn('Failed to save session:', error);
-    }
-  }
-
-  private clearSession() {
-    try {
-      localStorage.removeItem('supabase.auth.token');
-      this.authToken = null;
-    } catch (error) {
-      console.warn('Failed to clear session:', error);
-    }
-  }
-
-  private getHeaders(includeAuth = true) {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'apikey': this.key,
-      'X-Client-Info': 'dfs-manager-portal'
-    };
-
-    if (includeAuth && this.authToken) {
-      headers['Authorization'] = `Bearer ${this.authToken}`;
-    }
-
-    return headers;
-  }
-
-  // Auth methods
-  auth = {
-    signUp: async (credentials: {email: string;password: string;options?: any;}) => {
-      try {
-        const response = await fetch(`${this.url}/auth/v1/signup`, {
-          method: 'POST',
-          headers: this.getHeaders(false),
-          body: JSON.stringify({
-            email: credentials.email,
-            password: credentials.password,
-            data: credentials.options?.data
-          })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          return { data: null, error: data };
-        }
-
-        if (data.session) {
-          this.saveSession(data.session);
-        }
-
-        return { data: data.user, error: null };
-      } catch (error: any) {
-        return { data: null, error: { message: error.message } };
-      }
-    },
-
-    signInWithPassword: async (credentials: {email: string;password: string;}) => {
-      try {
-        const response = await fetch(`${this.url}/auth/v1/token?grant_type=password`, {
-          method: 'POST',
-          headers: this.getHeaders(false),
-          body: JSON.stringify({
-            email: credentials.email,
-            password: credentials.password
-          })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          return { data: { user: null, session: null }, error: data };
-        }
-
-        this.saveSession(data);
-
-        return {
-          data: {
-            user: data.user,
-            session: data
-          },
-          error: null
-        };
-      } catch (error: any) {
-        return { data: { user: null, session: null }, error: { message: error.message } };
-      }
-    },
-
-    signOut: async () => {
-      try {
-        if (this.authToken) {
-          await fetch(`${this.url}/auth/v1/logout`, {
-            method: 'POST',
-            headers: this.getHeaders(true)
-          });
-        }
-
-        this.clearSession();
-        return { error: null };
-      } catch (error: any) {
-        this.clearSession(); // Clear anyway
-        return { error: { message: error.message } };
-      }
-    },
-
-    getSession: async () => {
-      try {
-        if (!this.authToken) {
-          return { data: { session: null }, error: null };
-        }
-
-        const response = await fetch(`${this.url}/auth/v1/user`, {
-          method: 'GET',
-          headers: this.getHeaders(true)
-        });
-
-        if (!response.ok) {
-          this.clearSession();
-          return { data: { session: null }, error: null };
-        }
-
-        const user = await response.json();
-        const sessionStr = localStorage.getItem('supabase.auth.token');
-        const session = sessionStr ? JSON.parse(sessionStr) : null;
-
-        if (session && new Date(session.expires_at * 1000) > new Date()) {
-          return {
-            data: {
-              session: {
-                ...session,
-                user
-              }
-            },
-            error: null
-          };
-        } else {
-          this.clearSession();
-          return { data: { session: null }, error: null };
-        }
-      } catch (error: any) {
-        return { data: { session: null }, error: { message: error.message } };
-      }
-    },
-
-    resetPasswordForEmail: async (email: string, options?: any) => {
-      try {
-        const response = await fetch(`${this.url}/auth/v1/recover`, {
-          method: 'POST',
-          headers: this.getHeaders(false),
-          body: JSON.stringify({
-            email,
-            ...(options?.redirectTo && { redirect_to: options.redirectTo })
-          })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          return { error: data };
-        }
-
-        return { error: null };
-      } catch (error: any) {
-        return { error: { message: error.message } };
-      }
-    },
-
-    updateUser: async (attributes: {password?: string;}) => {
-      try {
-        const response = await fetch(`${this.url}/auth/v1/user`, {
-          method: 'PUT',
-          headers: this.getHeaders(true),
-          body: JSON.stringify(attributes)
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          return { data: null, error: data };
-        }
-
-        return { data, error: null };
-      } catch (error: any) {
-        return { data: null, error: { message: error.message } };
-      }
-    },
-
-    onAuthStateChange: (callback: (event: string, session: any) => void) => {
-      // Simple implementation - just return unsubscribe function
-      return {
-        data: { subscription: { unsubscribe: () => {} } }
-      };
-    }
-  };
-
-  // Database methods
-  from(table: string) {
-    return new QueryBuilder(this, table);
-  }
-
-  // Storage methods (simplified)
-  storage = {
-    from: (bucket: string) => ({
-      upload: async (path: string, file: File) => {
-        try {
-          const formData = new FormData();
-          formData.append('file', file);
-
-          const response = await fetch(`${this.url}/storage/v1/object/${bucket}/${path}`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${this.authToken}`,
-              'apikey': this.key
-            },
-            body: formData
-          });
-
-          const data = await response.json();
-
-          if (!response.ok) {
-            return { data: null, error: data };
-          }
-
-          return { data, error: null };
-        } catch (error: any) {
-          return { data: null, error: { message: error.message } };
-        }
-      },
-
-      download: async (path: string) => {
-        try {
-          const response = await fetch(`${this.url}/storage/v1/object/${bucket}/${path}`, {
-            headers: this.getHeaders(true)
-          });
-
-          if (!response.ok) {
-            return { data: null, error: await response.json() };
-          }
-
-          const blob = await response.blob();
-          return { data: blob, error: null };
-        } catch (error: any) {
-          return { data: null, error: { message: error.message } };
-        }
-      },
-
-      getPublicUrl: (path: string) => {
-        return {
-          data: {
-            publicUrl: `${this.url}/storage/v1/object/public/${bucket}/${path}`
-          }
-        };
-      }
-    })
-  };
-}
-
-class InsertBuilder {
-  private client: SimpleSupabaseClient;
-  private table: string;
-  private values: any;
-  private selectFields = '*';
-
-  constructor(client: SimpleSupabaseClient, table: string, values: any) {
-    this.client = client;
-    this.table = table;
-    this.values = values;
-  }
-
-  select(fields = '*') {
-    this.selectFields = fields;
-    return this;
-  }
-
-  single() {
-    return this;
-  }
-
-  async execute() {
-    try {
-      const response = await fetch(`${this.client.supabaseUrl}/rest/v1/${this.table}`, {
-        method: 'POST',
-        headers: {
-          ...(this.client as any).getHeaders(true),
-          'Prefer': 'return=representation'
-        },
-        body: JSON.stringify(Array.isArray(this.values) ? this.values : [this.values])
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return { data: null, error: data };
-      }
-
-      // For single() calls or single item inserts, return the first item
-      if (!Array.isArray(this.values) && Array.isArray(data)) {
-        return { data: data[0] || null, error: null };
-      }
-
-      return { data, error: null };
-    } catch (error: any) {
-      return { data: null, error: { message: error.message } };
-    }
-  }
-
-  // Make InsertBuilder thenable so it can be awaited directly
-  then(onFulfilled?: (value: any) => any, onRejected?: (reason: any) => any) {
-    return this.execute().then(onFulfilled, onRejected);
-  }
-}
-
-class UpsertBuilder {
-  private client: SimpleSupabaseClient;
-  private table: string;
-  private values: any;
-  private selectFields = '*';
-  private onConflict?: string;
-
-  constructor(client: SimpleSupabaseClient, table: string, values: any, options?: {onConflict?: string;}) {
-    this.client = client;
-    this.table = table;
-    this.values = values;
-    this.onConflict = options?.onConflict;
-  }
-
-  select(fields = '*') {
-    this.selectFields = fields;
-    return this;
-  }
-
-  single() {
-    return this;
-  }
-
-  async execute() {
-    try {
-      const headers: Record<string, string> = {
-        ...(this.client as any).getHeaders(true),
-        'Prefer': 'return=representation'
-      };
-
-      // Add resolution preference for conflicts
-      if (this.onConflict) {
-        headers['Prefer'] += `,resolution=merge-duplicates`;
-      }
-
-      const response = await fetch(`${this.client.supabaseUrl}/rest/v1/${this.table}`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(Array.isArray(this.values) ? this.values : [this.values])
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return { data: null, error: data };
-      }
-
-      // For single() calls or single item upserts, return the first item
-      if (!Array.isArray(this.values) && Array.isArray(data)) {
-        return { data: data[0] || null, error: null };
-      }
-
-      return { data, error: null };
-    } catch (error: any) {
-      return { data: null, error: { message: error.message } };
-    }
-  }
-
-  // Make UpsertBuilder thenable so it can be awaited directly
-  then(onFulfilled?: (value: any) => any, onRejected?: (reason: any) => any) {
-    return this.execute().then(onFulfilled, onRejected);
-  }
-}
-
-class QueryBuilder {
-  private client: SimpleSupabaseClient;
-  private table: string;
-  private selectFields = '*';
-  private filters: Array<{field: string;operator: string;value: any;}> = [];
-  private orderBy: Array<{field: string;ascending: boolean;}> = [];
-  private limitCount?: number;
-  private offsetCount?: number;
-
-  constructor(client: SimpleSupabaseClient, table: string) {
-    this.client = client;
-    this.table = table;
-  }
-
-  select(fields = '*') {
-    this.selectFields = fields;
-    return this;
-  }
-
-  eq(field: string, value: any) {
-    this.filters.push({ field, operator: 'eq', value });
-    return this;
-  }
-
-  gt(field: string, value: any) {
-    this.filters.push({ field, operator: 'gt', value });
-    return this;
-  }
-
-  like(field: string, value: any) {
-    this.filters.push({ field, operator: 'like', value });
-    return this;
-  }
-
-  or(conditions: string) {
-    // For PostgreSQL OR conditions like 'first_name.ilike.%term%,last_name.ilike.%term%'
-    this.filters.push({ field: 'or', operator: 'custom', value: conditions });
-    return this;
-  }
-
-  order(field: string, options: {ascending?: boolean;} = {}) {
-    this.orderBy.push({ field, ascending: options.ascending !== false });
-    return this;
-  }
-
-  limit(count: number) {
-    this.limitCount = count;
-    return this;
-  }
-
-  range(from: number, to: number) {
-    this.offsetCount = from;
-    this.limitCount = to - from + 1;
-    return this;
-  }
-
-  single() {
-    this.limitCount = 1;
-    return this;
-  }
-
-  private buildQuery() {
-    const params = new URLSearchParams();
-    params.set('select', this.selectFields);
-
-    this.filters.forEach((filter) => {
-      if (filter.field === 'or' && filter.operator === 'custom') {
-        params.set('or', `(${filter.value})`);
-      } else {
-        params.set(filter.field, `${filter.operator}.${filter.value}`);
-      }
-    });
-
-    if (this.orderBy.length > 0) {
-      const orderStr = this.orderBy.map((o) => `${o.field}.${o.ascending ? 'asc' : 'desc'}`).join(',');
-      params.set('order', orderStr);
-    }
-
-    if (this.limitCount) {
-      params.set('limit', this.limitCount.toString());
-    }
-
-    if (this.offsetCount) {
-      params.set('offset', this.offsetCount.toString());
-    }
-
-    return params.toString();
-  }
-
-  async execute() {
-    try {
-      const query = this.buildQuery();
-      const url = `${this.client.supabaseUrl}/rest/v1/${this.table}?${query}`;
-
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: (this.client as any).getHeaders(true)
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return { data: null, error: data };
-      }
-
-      // For single() calls, return the first item
-      if (this.limitCount === 1 && Array.isArray(data)) {
-        return { data: data[0] || null, error: null };
-      }
-
-      return { data, error: null };
-    } catch (error: any) {
-      return { data: null, error: { message: error.message } };
-    }
-  }
-
-  // Make QueryBuilder thenable so it can be awaited directly
-  then(onFulfilled?: (value: any) => any, onRejected?: (reason: any) => any) {
-    return this.execute().then(onFulfilled, onRejected);
-  }
-
-  // Insert method that returns a new QueryBuilder for chaining
-  insert(values: any) {
-    const insertBuilder = new InsertBuilder(this.client, this.table, values);
-    return insertBuilder;
-  }
-
-  async update(values: any) {
-    try {
-      const query = this.buildQuery();
-      const url = `${this.client.supabaseUrl}/rest/v1/${this.table}?${query}`;
-
-      const response = await fetch(url, {
-        method: 'PATCH',
-        headers: {
-          ...(this.client as any).getHeaders(true),
-          'Prefer': 'return=representation'
-        },
-        body: JSON.stringify(values)
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return { data: null, error: data };
-      }
-
-      return { data, error: null };
-    } catch (error: any) {
-      return { data: null, error: { message: error.message } };
-    }
-  }
-
-  async delete() {
-    try {
-      const query = this.buildQuery();
-      const url = `${this.client.supabaseUrl}/rest/v1/${this.table}?${query}`;
-
-      const response = await fetch(url, {
-        method: 'DELETE',
-        headers: (this.client as any).getHeaders(true)
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        return { error };
-      }
-
-      return { error: null };
-    } catch (error: any) {
-      return { error: { message: error.message } };
-    }
-  }
-
-  // Upsert method (insert or update)
-  upsert(values: any, options?: {onConflict?: string;}) {
-    return new UpsertBuilder(this.client, this.table, values, options);
-  }
-}
-
-// Create and export the Supabase client
-export const supabase = new SimpleSupabaseClient(supabaseUrl, supabaseAnonKey);
+})
 
 // Auth helper functions
 export const auth = {
@@ -607,64 +22,80 @@ export const auth = {
         emailRedirectTo: `${window.location.origin}/onauthsuccess`,
         data: metadata
       }
-    });
+    })
   },
 
   signIn: async (email: string, password: string) => {
-    return await supabase.auth.signInWithPassword({ email, password });
+    return await supabase.auth.signInWithPassword({ email, password })
   },
 
   signOut: async () => {
-    return await supabase.auth.signOut();
+    return await supabase.auth.signOut()
   },
 
   resetPassword: async (email: string) => {
     return await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/resetpassword`
-    });
+    })
   },
 
   updatePassword: async (password: string) => {
-    return await supabase.auth.updateUser({ password });
+    return await supabase.auth.updateUser({ password })
+  },
+
+  getSession: async () => {
+    return await supabase.auth.getSession()
+  },
+
+  getUser: async () => {
+    return await supabase.auth.getUser()
+  },
+
+  onAuthStateChange: (callback: (event: string, session: any) => void) => {
+    return supabase.auth.onAuthStateChange(callback)
   }
-};
+}
 
 // Database helper functions
 export const db = {
-  select: async (table: string, query?: any) => {
-    let request = supabase.from(table).select(query || '*');
-    return await request;
+  select: async (table: string, columns = '*') => {
+    return await supabase.from(table).select(columns)
   },
 
   insert: async (table: string, data: any) => {
-    const { data: result, error } = await supabase.from(table).insert(data).select();
-    return { data: result, error };
+    return await supabase.from(table).insert(data).select()
   },
 
   update: async (table: string, id: string, data: any) => {
-    const { data: result, error } = await supabase.from(table).update(data).eq('id', id).select();
-    return { data: result, error };
+    return await supabase.from(table).update(data).eq('id', id).select()
+  },
+
+  upsert: async (table: string, data: any) => {
+    return await supabase.from(table).upsert(data).select()
   },
 
   delete: async (table: string, id: string) => {
-    const { error } = await supabase.from(table).delete().eq('id', id);
-    return { error };
+    return await supabase.from(table).delete().eq('id', id)
   }
-};
+}
 
-// Storage helper functions
+// Storage helper functions - using empty bucket name as per requirements
 export const storage = {
-  upload: async (bucket: string, path: string, file: File) => {
-    return await supabase.storage.from(bucket).upload(path, file);
+  upload: async (path: string, file: File) => {
+    return await supabase.storage.from('').upload(path, file)
   },
 
-  download: async (bucket: string, path: string) => {
-    return await supabase.storage.from(bucket).download(path);
+  download: async (path: string) => {
+    return await supabase.storage.from('').download(path)
   },
 
-  getPublicUrl: (bucket: string, path: string) => {
-    return supabase.storage.from(bucket).getPublicUrl(path);
+  getPublicUrl: (path: string) => {
+    return supabase.storage.from('').getPublicUrl(path)
+  },
+
+  remove: async (paths: string[]) => {
+    return await supabase.storage.from('').remove(paths)
   }
-};
+}
 
-export default supabase;
+export default supabase

@@ -66,19 +66,19 @@ const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
       const filePath = `products/${fileName}`;
 
       // Upload to Supabase storage
-      const { data, error } = await supabase.storage
-        .from('')
-        .upload(filePath, imageFile);
+      const { data, error } = await supabase.storage.
+      from('').
+      upload(filePath, imageFile);
 
       if (error) throw error;
 
       // Get public URL
-      const { data: urlData } = supabase.storage
-        .from('')
-        .getPublicUrl(filePath);
+      const { data: urlData } = supabase.storage.
+      from('').
+      getPublicUrl(filePath);
 
       const imageUrl = urlData.publicUrl;
-      
+
       if (onImageUploaded) {
         onImageUploaded(imageUrl);
       }
@@ -115,21 +115,21 @@ const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
       <Label>Product Image</Label>
       
       {/* Current/Preview Image */}
-      {imagePreview && (
-        <div className="relative inline-block">
+      {imagePreview &&
+      <div className="relative inline-block">
           <img
-            src={imagePreview}
-            alt="Product preview"
-            className="w-32 h-32 object-cover rounded-lg border"
-          />
+          src={imagePreview}
+          alt="Product preview"
+          className="w-32 h-32 object-cover rounded-lg border" />
+
           <button
-            type="button"
-            onClick={removeImage}
-            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600">
+          type="button"
+          onClick={removeImage}
+          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600">
             <X className="w-3 h-3" />
           </button>
         </div>
-      )}
+      }
 
       {/* Upload Controls */}
       <div className="flex items-center space-x-4">
@@ -139,8 +139,8 @@ const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
             accept="image/*"
             onChange={handleImageChange}
             className="hidden"
-            id="product-image-upload"
-          />
+            id="product-image-upload" />
+
           <Label
             htmlFor="product-image-upload"
             className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
@@ -149,33 +149,33 @@ const ProductImageUpload: React.FC<ProductImageUploadProps> = ({
           </Label>
         </div>
 
-        {imageFile && productId && (
-          <Button
-            type="button"
-            onClick={uploadImage}
-            disabled={isUploading}
-            size="sm">
-            {isUploading ? (
-              <>
+        {imageFile && productId &&
+        <Button
+          type="button"
+          onClick={uploadImage}
+          disabled={isUploading}
+          size="sm">
+            {isUploading ?
+          <>
                 <Upload className="w-4 h-4 mr-2 animate-pulse" />
                 Uploading...
-              </>
-            ) : (
-              <>
+              </> :
+
+          <>
                 <Upload className="w-4 h-4 mr-2" />
                 Upload Image
               </>
-            )}
+          }
           </Button>
-        )}
+        }
       </div>
 
       {/* Upload Instructions */}
       <p className="text-sm text-gray-500">
         Maximum file size: 5MB. Supported formats: JPG, PNG, GIF, WebP
       </p>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ProductImageUpload;
