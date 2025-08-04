@@ -182,7 +182,7 @@ const AppRouter = () => {
           <Route path="/admin-emergency-fix" element={<AdminEmergencyFixPage />} />
           <Route path="/admin-fix-success" element={<AdminFixSuccessPage />} />
           <Route path="/critical-error-fix" element={<CriticalErrorFixPage />} />
-          <Route path="/upsert-fix" element={<Suspense fallback={<PageLoader />}><div className="min-h-screen p-6"><div dangerouslySetInnerHTML={{__html: `
+          <Route path="/upsert-fix" element={<Suspense fallback={<PageLoader />}><div className="min-h-screen p-6"><div dangerouslySetInnerHTML={{ __html: `
 <div class="max-w-4xl mx-auto">
 <h1 class="text-3xl font-bold mb-4">Emergency Supabase Fix</h1>
 <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
@@ -191,7 +191,7 @@ const AppRouter = () => {
 <button onclick="window.location.href='/critical-error-fix'" class="bg-red-600 text-white px-6 py-3 rounded-lg text-lg font-semibold hover:bg-red-700">
 🛠️ Fix Critical Errors Now
 </button>
-</div>`}} /></div></Suspense>} />
+</div>` }} /></div></Suspense>} />
           <Route path="/admin-setup" element={<AdminSetupPage />} />
           <Route path="/admin-debug" element={<AdminDebugPage />} />
           <Route path="/admin-emergency-fix" element={<AdminEmergencyFixPage />} />
