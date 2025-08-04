@@ -5,18 +5,18 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
-import { 
-  Shield, 
-  UserPlus, 
-  Database, 
-  CheckCircle, 
-  AlertCircle, 
-  Eye, 
+import {
+  Shield,
+  UserPlus,
+  Database,
+  CheckCircle,
+  AlertCircle,
+  Eye,
   EyeOff,
   Copy,
   RefreshCw,
-  TestTube
-} from 'lucide-react';
+  TestTube } from
+'lucide-react';
 
 interface DatabaseTest {
   name: string;
@@ -37,12 +37,12 @@ const AdminSetupManager: React.FC<AdminSetupManagerProps> = ({ onComplete }) => 
   const [loginTestStatus, setLoginTestStatus] = useState<'idle' | 'testing' | 'pass' | 'fail'>('idle');
   const [signupStatus, setSignupStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
   const [databaseTests, setDatabaseTests] = useState<DatabaseTest[]>([
-    { name: 'User Profiles Table', table: 'user_profiles', status: 'pending' },
-    { name: 'Stations Table', table: 'stations', status: 'pending' },
-    { name: 'Products Table', table: 'products', status: 'pending' },
-    { name: 'Employees Table', table: 'employees', status: 'pending' },
-    { name: 'Audit Logs Table', table: 'audit_logs', status: 'pending' }
-  ]);
+  { name: 'User Profiles Table', table: 'user_profiles', status: 'pending' },
+  { name: 'Stations Table', table: 'stations', status: 'pending' },
+  { name: 'Products Table', table: 'products', status: 'pending' },
+  { name: 'Employees Table', table: 'employees', status: 'pending' },
+  { name: 'Audit Logs Table', table: 'audit_logs', status: 'pending' }]
+  );
 
   const { toast } = useToast();
 
@@ -55,11 +55,11 @@ const AdminSetupManager: React.FC<AdminSetupManagerProps> = ({ onComplete }) => 
 
   const checkAdminProfile = async () => {
     try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .ilike('role', '%admin%')
-        .limit(1);
+      const { data, error } = await supabase.
+      from('user_profiles').
+      select('*').
+      ilike('role', '%admin%').
+      limit(1);
 
       if (error) {
         console.error('Error checking admin profile:', error);
@@ -139,9 +139,9 @@ const AdminSetupManager: React.FC<AdminSetupManagerProps> = ({ onComplete }) => 
         }
       };
 
-      const { error: upsertError } = await supabase
-        .from('user_profiles')
-        .upsert(profileData, { onConflict: 'user_id' });
+      const { error: upsertError } = await supabase.
+      from('user_profiles').
+      upsert(profileData, { onConflict: 'user_id' });
 
       if (upsertError) {
         throw upsertError;
@@ -149,10 +149,10 @@ const AdminSetupManager: React.FC<AdminSetupManagerProps> = ({ onComplete }) => 
 
       setSignupStatus('success');
       setAdminExists(true);
-      
+
       toast({
         title: 'Admin Account Created',
-        description: 'Administrator account has been successfully created.',
+        description: 'Administrator account has been successfully created.'
       });
 
     } catch (error: any) {
@@ -189,7 +189,7 @@ const AdminSetupManager: React.FC<AdminSetupManagerProps> = ({ onComplete }) => 
         setLoginTestStatus('pass');
         toast({
           title: 'Login Test Successful',
-          description: 'Admin credentials are working correctly.',
+          description: 'Admin credentials are working correctly.'
         });
 
         // Sign out immediately after test
@@ -210,16 +210,16 @@ const AdminSetupManager: React.FC<AdminSetupManagerProps> = ({ onComplete }) => 
   const testDatabaseAccess = async () => {
     try {
       setIsLoading(true);
-      
+
       const updatedTests = [...databaseTests];
-      
+
       for (let i = 0; i < updatedTests.length; i++) {
         const test = updatedTests[i];
         try {
-          const { data, error } = await supabase
-            .from(test.table)
-            .select('*')
-            .limit(1);
+          const { data, error } = await supabase.
+          from(test.table).
+          select('*').
+          limit(1);
 
           if (error) {
             updatedTests[i] = { ...test, status: 'fail', error: error.message };
@@ -231,10 +231,10 @@ const AdminSetupManager: React.FC<AdminSetupManagerProps> = ({ onComplete }) => 
         }
 
         setDatabaseTests([...updatedTests]);
-        await new Promise(resolve => setTimeout(resolve, 200)); // Small delay for visual effect
+        await new Promise((resolve) => setTimeout(resolve, 200)); // Small delay for visual effect
       }
 
-      const passedTests = updatedTests.filter(test => test.status === 'pass').length;
+      const passedTests = updatedTests.filter((test) => test.status === 'pass').length;
       const totalTests = updatedTests.length;
 
       toast({
@@ -268,10 +268,10 @@ const AdminSetupManager: React.FC<AdminSetupManagerProps> = ({ onComplete }) => 
 
   const getStepHeader = () => {
     switch (currentStep) {
-      case 'setup': return { title: 'Setup', color: 'default' as const };
-      case 'login': return { title: 'Test Login', color: 'default' as const };
-      case 'database': return { title: 'Database', color: 'default' as const };
-      case 'status': return { title: 'Status', color: 'default' as const };
+      case 'setup':return { title: 'Setup', color: 'default' as const };
+      case 'login':return { title: 'Test Login', color: 'default' as const };
+      case 'database':return { title: 'Database', color: 'default' as const };
+      case 'status':return { title: 'Status', color: 'default' as const };
     }
   };
 
@@ -288,8 +288,8 @@ const AdminSetupManager: React.FC<AdminSetupManagerProps> = ({ onComplete }) => 
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => copyToClipboard(ADMIN_EMAIL, 'Email')}
-                >
+                  onClick={() => copyToClipboard(ADMIN_EMAIL, 'Email')}>
+
                   <Copy className="w-4 h-4" />
                 </Button>
               </div>
@@ -300,15 +300,15 @@ const AdminSetupManager: React.FC<AdminSetupManagerProps> = ({ onComplete }) => 
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
+                  onClick={() => setShowPassword(!showPassword)}>
+
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => copyToClipboard(ADMIN_PASSWORD, 'Password')}
-                >
+                  onClick={() => copyToClipboard(ADMIN_PASSWORD, 'Password')}>
+
                   <Copy className="w-4 h-4" />
                 </Button>
               </div>
@@ -327,31 +327,31 @@ const AdminSetupManager: React.FC<AdminSetupManagerProps> = ({ onComplete }) => 
               onClick={signUpAdmin}
               disabled={isLoading}
               className="w-full"
-              size="lg"
-            >
+              size="lg">
+
               <UserPlus className="w-4 h-4 mr-2" />
               {signupStatus === 'pending' ? 'Creating Admin User...' : 'Sign Up Admin User'}
             </Button>
 
-            {signupStatus === 'success' && (
-              <Alert>
+            {signupStatus === 'success' &&
+            <Alert>
                 <CheckCircle className="h-4 w-4" />
                 <AlertDescription>
                   Admin account created successfully! You can now test the login.
                 </AlertDescription>
               </Alert>
-            )}
+            }
 
-            {signupStatus === 'error' && (
-              <Alert variant="destructive">
+            {signupStatus === 'error' &&
+            <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
                   Failed to create admin account. Please try again.
                 </AlertDescription>
               </Alert>
-            )}
-          </div>
-        );
+            }
+          </div>);
+
 
       case 'login':
         return (
@@ -360,8 +360,8 @@ const AdminSetupManager: React.FC<AdminSetupManagerProps> = ({ onComplete }) => 
               onClick={testAdminLogin}
               disabled={isLoading}
               className="w-full"
-              size="lg"
-            >
+              size="lg">
+
               <TestTube className="w-4 h-4 mr-2" />
               Test Admin Login
             </Button>
@@ -369,23 +369,23 @@ const AdminSetupManager: React.FC<AdminSetupManagerProps> = ({ onComplete }) => 
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  {loginTestStatus === 'fail' ? (
-                    <AlertCircle className="w-4 h-4 text-red-500" />
-                  ) : loginTestStatus === 'pass' ? (
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <div className="w-4 h-4 rounded-full bg-gray-300" />
-                  )}
+                  {loginTestStatus === 'fail' ?
+                  <AlertCircle className="w-4 h-4 text-red-500" /> :
+                  loginTestStatus === 'pass' ?
+                  <CheckCircle className="w-4 h-4 text-green-500" /> :
+
+                  <div className="w-4 h-4 rounded-full bg-gray-300" />
+                  }
                   Admin Login
                 </span>
                 <Badge variant={
-                  loginTestStatus === 'pass' ? 'default' : 
-                  loginTestStatus === 'fail' ? 'destructive' : 
-                  loginTestStatus === 'testing' ? 'secondary' : 'outline'
+                loginTestStatus === 'pass' ? 'default' :
+                loginTestStatus === 'fail' ? 'destructive' :
+                loginTestStatus === 'testing' ? 'secondary' : 'outline'
                 }>
-                  {loginTestStatus === 'pass' ? 'Pass' : 
-                   loginTestStatus === 'fail' ? 'Fail' : 
-                   loginTestStatus === 'testing' ? 'Testing...' : 'Pending'}
+                  {loginTestStatus === 'pass' ? 'Pass' :
+                  loginTestStatus === 'fail' ? 'Fail' :
+                  loginTestStatus === 'testing' ? 'Testing...' : 'Pending'}
                 </Badge>
               </div>
 
@@ -405,8 +405,8 @@ const AdminSetupManager: React.FC<AdminSetupManagerProps> = ({ onComplete }) => 
                 <Badge variant="default">Pass</Badge>
               </div>
             </div>
-          </div>
-        );
+          </div>);
+
 
       case 'database':
         return (
@@ -415,46 +415,46 @@ const AdminSetupManager: React.FC<AdminSetupManagerProps> = ({ onComplete }) => 
               onClick={testDatabaseAccess}
               disabled={isLoading}
               className="w-full"
-              size="lg"
-            >
+              size="lg">
+
               <Database className="w-4 h-4 mr-2" />
               Test Database Access
             </Button>
 
             <div className="space-y-3">
-              {databaseTests.map((test, index) => (
-                <div key={index} className="flex items-center justify-between">
+              {databaseTests.map((test, index) =>
+              <div key={index} className="flex items-center justify-between">
                   <span className="flex items-center gap-2">
-                    {test.status === 'fail' ? (
-                      <AlertCircle className="w-4 h-4 text-red-500" />
-                    ) : test.status === 'pass' ? (
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                    ) : (
-                      <div className="w-4 h-4 rounded-full bg-gray-300" />
-                    )}
+                    {test.status === 'fail' ?
+                  <AlertCircle className="w-4 h-4 text-red-500" /> :
+                  test.status === 'pass' ?
+                  <CheckCircle className="w-4 h-4 text-green-500" /> :
+
+                  <div className="w-4 h-4 rounded-full bg-gray-300" />
+                  }
                     {test.name}
                   </span>
                   <Badge variant={
-                    test.status === 'pass' ? 'default' : 
-                    test.status === 'fail' ? 'destructive' : 'outline'
-                  }>
-                    {test.status === 'pass' ? 'Pass' : 
-                     test.status === 'fail' ? 'Fail' : 'Pending'}
+                test.status === 'pass' ? 'default' :
+                test.status === 'fail' ? 'destructive' : 'outline'
+                }>
+                    {test.status === 'pass' ? 'Pass' :
+                  test.status === 'fail' ? 'Fail' : 'Pending'}
                   </Badge>
                 </div>
-              ))}
+              )}
             </div>
 
-            {databaseTests.some(test => test.status === 'fail') && (
-              <Alert variant="destructive">
+            {databaseTests.some((test) => test.status === 'fail') &&
+            <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
                   Some database tables are not accessible. This may affect system functionality.
                 </AlertDescription>
               </Alert>
-            )}
-          </div>
-        );
+            }
+          </div>);
+
 
       case 'status':
         return (
@@ -496,8 +496,8 @@ const AdminSetupManager: React.FC<AdminSetupManagerProps> = ({ onComplete }) => 
                 <li>Access admin features from navigation</li>
               </ol>
             </div>
-          </div>
-        );
+          </div>);
+
     }
   };
 
@@ -512,17 +512,17 @@ const AdminSetupManager: React.FC<AdminSetupManagerProps> = ({ onComplete }) => 
             Admin Account Setup & Testing
           </CardTitle>
           <div className="flex gap-1">
-            {(['setup', 'login', 'database', 'status'] as const).map((step) => (
-              <Button
-                key={step}
-                variant={currentStep === step ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setCurrentStep(step)}
-                className="capitalize"
-              >
+            {(['setup', 'login', 'database', 'status'] as const).map((step) =>
+            <Button
+              key={step}
+              variant={currentStep === step ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setCurrentStep(step)}
+              className="capitalize">
+
                 {step === 'login' ? 'Test Login' : step}
               </Button>
-            ))}
+            )}
           </div>
         </div>
         <CardDescription>
@@ -539,15 +539,15 @@ const AdminSetupManager: React.FC<AdminSetupManagerProps> = ({ onComplete }) => 
             variant="ghost"
             size="sm"
             className="w-full"
-            disabled={isLoading}
-          >
+            disabled={isLoading}>
+
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh Status
           </Button>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default AdminSetupManager;

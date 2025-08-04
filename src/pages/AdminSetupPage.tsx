@@ -39,8 +39,8 @@ const AdminSetupPage = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AdminSetupPage;
