@@ -14,7 +14,6 @@ interface Session {
   user: User;
 }
 import { supabase } from '@/lib/supabase';
-import { userProfileService, auditLogService } from '@/services/databaseService';
 import { useToast } from '@/hooks/use-toast';
 
 interface UserProfile {
@@ -91,36 +90,50 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
 
   const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
     try {
-      const { data, error } = await userProfileService.getUserProfileByUserId(userId);
+      // Query the user_profiles table directly
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
 
       if (error) {
-        if (error.message.includes('No rows')) {
-          // Create default profile for new user
+        if (error.code === 'PGRST116') {
+          // No profile found, create default profile for new user
+          const user = await supabase.auth.getUser();
           const defaultProfile = {
-            role: 'Employee',
-            station_id: null,
-            employee_id: '',
-            phone: '',
-            hire_date: new Date().toISOString().split('T')[0],
+            user_id: userId,
+            email: user.data.user?.email || '',
+            first_name: '',
+            last_name: '',
+            user_role: 'Employee',
+            permissions: {},
+            station_access: {},
             is_active: true,
-            detailed_permissions: {}
+            phone: '',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           };
 
-          const { data: newProfile, error: createError } = await userProfileService.createUserProfile(userId, defaultProfile);
+          const { data: newProfile, error: createError } = await supabase
+            .from('user_profiles')
+            .insert(defaultProfile)
+            .select()
+            .single();
 
           if (createError) {
             console.error('Failed to create user profile:', createError);
             return GUEST_PROFILE;
           }
 
-          return newProfile;
+          return { ...newProfile, role: newProfile.user_role };
         }
 
         console.error('Failed to fetch user profile:', error);
         return GUEST_PROFILE;
       }
 
-      return data;
+      return { ...data, role: data.user_role };
     } catch (error) {
       console.error('Error fetching user profile:', error);
       return GUEST_PROFILE;
@@ -152,7 +165,6 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
 
       if (error) {
         setAuthError(error.message);
-        await auditLogService.logActivity('unknown', 'login_failed', 'users', undefined, undefined, { email, error: error.message });
         toast({
           title: 'Login Failed',
           description: error.message,
@@ -167,8 +179,6 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
 
         const profile = await fetchUserProfile(data.user.id);
         setUserProfile(profile);
-
-        await auditLogService.logActivity(data.user.id, 'login_success', 'users', data.user.id);
 
         toast({
           title: 'Login Successful',
@@ -195,10 +205,6 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
 
   const logout = async (): Promise<void> => {
     try {
-      if (user) {
-        await auditLogService.logActivity(user.id, 'logout', 'users', user.id);
-      }
-
       const { error } = await supabase.auth.signOut();
 
       if (error) {
@@ -233,7 +239,6 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
 
       if (error) {
         setAuthError(error.message);
-        await auditLogService.logActivity('unknown', 'registration_failed', 'users', undefined, undefined, { email, error: error.message });
         toast({
           title: 'Registration Failed',
           description: error.message,
@@ -243,8 +248,6 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
       }
 
       if (data.user) {
-        await auditLogService.logActivity(data.user.id, 'registration_success', 'users', data.user.id);
-
         toast({
           title: 'Registration Successful',
           description: 'Please check your email to verify your account'
@@ -322,10 +325,6 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
         return false;
       }
 
-      if (user) {
-        await auditLogService.logActivity(user.id, 'password_update', 'users', user.id);
-      }
-
       toast({
         title: 'Password Updated',
         description: 'Your password has been successfully updated'
@@ -347,19 +346,19 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
   };
 
   const hasPermission = (action: string, resource?: string): boolean => {
-    if (!userProfile || userProfile.role === 'Guest') {
+    if (!userProfile || userProfile.user_role === 'Guest') {
       return false;
     }
 
     // Admins have all permissions
-    if (userProfile.role === 'Administrator' || userProfile.role === 'Admin') {
+    if (userProfile.user_role === 'Administrator' || userProfile.user_role === 'Admin') {
       return true;
     }
 
     // Parse detailed permissions if they exist
-    if (userProfile.detailed_permissions) {
+    if (userProfile.permissions) {
       try {
-        let permissions = userProfile.detailed_permissions;
+        let permissions = userProfile.permissions;
         if (typeof permissions === 'string') {
           permissions = JSON.parse(permissions);
         }
@@ -373,13 +372,13 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
     }
 
     // Default permissions for managers
-    if (userProfile.role === 'Management' || userProfile.role === 'Manager') {
+    if (userProfile.user_role === 'Management' || userProfile.user_role === 'Manager') {
       const managerActions = ['view', 'create', 'edit'];
       return managerActions.includes(action);
     }
 
     // Default permissions for employees
-    if (userProfile.role === 'Employee') {
+    if (userProfile.user_role === 'Employee') {
       return action === 'view';
     }
 
@@ -391,10 +390,10 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
   };
 
   const isManager = (): boolean => {
-    return userProfile?.role === 'Management' ||
-    userProfile?.role === 'Manager' ||
-    userProfile?.role === 'Administrator' ||
-    userProfile?.role === 'Admin';
+    return userProfile?.user_role === 'Management' ||
+    userProfile?.user_role === 'Manager' ||
+    userProfile?.user_role === 'Administrator' ||
+    userProfile?.user_role === 'Admin';
   };
 
   // Initialize authentication state

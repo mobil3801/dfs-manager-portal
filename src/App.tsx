@@ -25,6 +25,7 @@ import OnAuthSuccessPage from '@/pages/OnAuthSuccessPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import NotFound from '@/pages/NotFound';
 import AdminSetupPage from '@/pages/Admin/AdminSetupPage';
+import AdminSetup from '@/pages/AdminSetup';
 import AdminDebugPage from '@/pages/AdminDebugPage';
 import AdminEmergencyFixPage from '@/pages/AdminEmergencyFixPage';
 import AdminFixSuccessPage from '@/pages/AdminFixSuccessPage';
