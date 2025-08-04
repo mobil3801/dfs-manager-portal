@@ -87,6 +87,7 @@ import AdminEmergencyFixPage from '@/pages/AdminEmergencyFixPage';
 import AdminFixSuccessPage from '@/pages/AdminFixSuccessPage';
 import CriticalErrorFixPage from '@/pages/CriticalErrorFixPage';
 import TestProductsPage from '@/pages/TestProductsPage';
+import AuthFlowTestPage from '@/pages/AuthFlowTestPage';
 
 // Layout Components
 import DashboardLayout from '@/components/Layout/DashboardLayout';
@@ -122,6 +123,7 @@ function App() {
                 <Route path="/admin-emergency-fix" element={<AdminEmergencyFixPage />} />
                 <Route path="/admin-fix-success" element={<AdminFixSuccessPage />} />
                 <Route path="/critical-error-fix" element={<CriticalErrorFixPage />} />
+                <Route path="/auth-flow-test" element={<AuthFlowTestPage />} />
 
                 {/* Protected Routes */}
                 <Route path="/" element={

@@ -335,14 +335,14 @@ class ClickSendSMSService {
 
 
 
+
+
+
+
     // This is handled by counting records in the history table
     // No need for a separate counter field
-  }private async logSMSHistory(historyData: any): Promise<void> {try {const { error } = await supabase.
-      from('sms_history').
-      insert([{
-        ...historyData,
-        sent_by_user_id: 1 // This should be the current user ID
-      }]);
+  }private async logSMSHistory(historyData: any): Promise<void> {try {const { error } = await supabase.from('sms_history').insert([{ ...historyData, sent_by_user_id: 1 // This should be the current user ID
+        }]);
 
       if (error) throw error;
     } catch (error) {
