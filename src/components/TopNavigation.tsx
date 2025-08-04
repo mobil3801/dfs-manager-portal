@@ -138,6 +138,15 @@ const TopNavigation = () => {
     requiredRole: null
   }];
 
+  // Admin-specific secondary items
+  const adminSecondaryItems = [
+  {
+    name: 'Admin Panel',
+    href: '/admin/panel',
+    icon: Shield,
+    requiredRole: 'admin'
+  }];
+
 
   // Admin navigation items - comprehensive admin menu
   const adminNavItems = [
@@ -187,7 +196,8 @@ const TopNavigation = () => {
   // Get accessible items for debugging
   const accessiblePrimaryItems = primaryNavItems.filter((item) => canAccessRoute(item.requiredRole));
   const accessibleSecondaryItems = secondaryNavItems.filter((item) => canAccessRoute(item.requiredRole));
-  const allNavigationItems = [...primaryNavItems, ...secondaryNavItems];
+  const accessibleAdminSecondaryItems = adminSecondaryItems.filter((item) => canAccessRoute(item.requiredRole));
+  const allNavigationItems = [...primaryNavItems, ...secondaryNavItems, ...adminSecondaryItems];
 
   const NavigationLink = ({ item, mobile = false, dropdown = false }: {item: any;mobile?: boolean;dropdown?: boolean;}) => {
     if (!canAccessRoute(item.requiredRole)) return null;
@@ -236,7 +246,8 @@ const TopNavigation = () => {
 
   // More Menu Dropdown Component
   const MoreMenuDropdown = () => {
-    if (accessibleSecondaryItems.length === 0 && !isAuthenticated) return null;
+    const hasItems = accessibleSecondaryItems.length > 0 || accessibleAdminSecondaryItems.length > 0;
+    if (!hasItems && !isAuthenticated) return null;
 
     return (
       <DropdownMenu>
@@ -254,6 +265,12 @@ const TopNavigation = () => {
           <DropdownMenuLabel>More Options</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {accessibleSecondaryItems.map((item) =>
+          <NavigationLink key={item.href} item={item} dropdown />
+          )}
+          {accessibleAdminSecondaryItems.length > 0 && accessibleSecondaryItems.length > 0 && (
+            <DropdownMenuSeparator />
+          )}
+          {accessibleAdminSecondaryItems.map((item) =>
           <NavigationLink key={item.href} item={item} dropdown />
           )}
         </DropdownMenuContent>

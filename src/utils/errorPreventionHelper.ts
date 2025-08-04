@@ -253,11 +253,11 @@ export const setupInvalidCharacterErrorMonitor = (): void => {
 
 
 
+
+
         // Fallback to original error if monitoring fails
-      }originalError.apply(console, args);};
-    // Monitor DOM mutations that might cause InvalidCharacterError
-    if (typeof MutationObserver !== 'undefined') {
-      const observer = new MutationObserver((mutations) => {
+      }originalError.apply(console, args);}; // Monitor DOM mutations that might cause InvalidCharacterError
+    if (typeof MutationObserver !== 'undefined') {const observer = new MutationObserver((mutations) => {
         try {
           mutations.forEach((mutation) => {
             mutation.addedNodes.forEach((node) => {
@@ -280,10 +280,10 @@ export const setupInvalidCharacterErrorMonitor = (): void => {
 
 
 
+
+
                   // Skip problematic attributes
-                }}});});} catch (mutationError) {
-          console.warn('Error in mutation observer:', mutationError);
-        }
+                }}});});} catch (mutationError) {console.warn('Error in mutation observer:', mutationError);}
       });
 
       try {
