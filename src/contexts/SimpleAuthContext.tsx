@@ -171,8 +171,8 @@ export const SimpleAuthProvider: React.FC<{children: React.ReactNode}> = ({ chil
         setSession(session);
         
         // Set role based on email
-        const role = email.includes('admin') ? 'Administrator' : 'Employee';
-        const roleCode = email.includes('admin') ? 'Administrator' : 'GeneralUser';
+        const role = (email.includes('admin') || email === 'admin@dfs-portal.com') ? 'Administrator' : 'Employee';
+        const roleCode = (email.includes('admin') || email === 'admin@dfs-portal.com') ? 'Administrator' : 'GeneralUser';
         
         setUserProfile({
           email,

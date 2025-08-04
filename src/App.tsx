@@ -7,6 +7,8 @@ import { SimpleAuthProvider, useSimpleAuth } from '@/contexts/SimpleAuthContext'
 import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
 import SimpleLoginPage from '@/pages/SimpleLoginPage';
 import SimpleSignupPage from '@/pages/SimpleSignupPage';
+import AdminPanel from '@/pages/AdminPanel';
+import AdminUserManagement from '@/pages/AdminUserManagement';
 import DashboardLayout from '@/components/Layout/DashboardLayout';
 import Dashboard from '@/pages/Dashboard';
 import NotFound from '@/pages/NotFound';
@@ -82,6 +84,8 @@ const AppRouter = () => {
           <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
+            <Route path="admin" element={<AdminPanel />} />
+            <Route path="admin/users" element={<AdminUserManagement />} />
             
             {/* Other routes can be added here later */}
           </Route>
