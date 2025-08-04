@@ -11,7 +11,7 @@ import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 
 const AdminAccountTester = () => {
   const [loading, setLoading] = useState(false);
-  const [testResults, setTestResults] = useState<{[key: string]: boolean | null}>({});
+  const [testResults, setTestResults] = useState<{[key: string]: boolean | null;}>({});
   const [adminExists, setAdminExists] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const { toast } = useToast();
@@ -24,71 +24,71 @@ const AdminAccountTester = () => {
 
   const checkAdminUser = async () => {
     try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('email', 'admin@dfs-portal.com')
-        .single();
+      const { data, error } = await supabase.
+      from('user_profiles').
+      select('*').
+      eq('email', 'admin@dfs-portal.com').
+      single();
 
       if (data && !error) {
         setAdminExists(true);
-        setTestResults(prev => ({ ...prev, adminProfileExists: true }));
+        setTestResults((prev) => ({ ...prev, adminProfileExists: true }));
       } else {
         setAdminExists(false);
-        setTestResults(prev => ({ ...prev, adminProfileExists: false }));
+        setTestResults((prev) => ({ ...prev, adminProfileExists: false }));
       }
     } catch (error) {
       setAdminExists(false);
-      setTestResults(prev => ({ ...prev, adminProfileExists: false }));
+      setTestResults((prev) => ({ ...prev, adminProfileExists: false }));
     }
   };
 
   const createAdminProfile = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .insert([
-          {
-            email: 'admin@dfs-portal.com',
-            first_name: 'System',
-            last_name: 'Administrator',
-            user_role: 'Administrator',
-            permissions: {
-              admin_panel: true,
-              user_management: true,
-              system_settings: true,
-              all_modules: true
-            },
-            station_access: {
-              all_stations: true
-            },
-            is_active: true
-          }
-        ])
-        .select()
-        .single();
+      const { data, error } = await supabase.
+      from('user_profiles').
+      insert([
+      {
+        email: 'admin@dfs-portal.com',
+        first_name: 'System',
+        last_name: 'Administrator',
+        user_role: 'Administrator',
+        permissions: {
+          admin_panel: true,
+          user_management: true,
+          system_settings: true,
+          all_modules: true
+        },
+        station_access: {
+          all_stations: true
+        },
+        is_active: true
+      }]
+      ).
+      select().
+      single();
 
       if (error) {
         toast({
           title: "Error Creating Admin Profile",
           description: error.message,
-          variant: "destructive",
+          variant: "destructive"
         });
       } else {
         setAdminExists(true);
-        setTestResults(prev => ({ ...prev, adminProfileExists: true }));
+        setTestResults((prev) => ({ ...prev, adminProfileExists: true }));
         toast({
           title: "Admin Profile Created",
           description: "Admin profile created successfully",
-          variant: "default",
+          variant: "default"
         });
       }
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -113,21 +113,21 @@ const AdminAccountTester = () => {
         toast({
           title: "Signup Error",
           description: error.message,
-          variant: "destructive",
+          variant: "destructive"
         });
       } else {
-        setTestResults(prev => ({ ...prev, adminSignup: true }));
+        setTestResults((prev) => ({ ...prev, adminSignup: true }));
         toast({
           title: "Admin Signup Initiated",
           description: "Check email for verification link",
-          variant: "default",
+          variant: "default"
         });
       }
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -143,26 +143,26 @@ const AdminAccountTester = () => {
       });
 
       if (error) {
-        setTestResults(prev => ({ ...prev, adminLogin: false }));
+        setTestResults((prev) => ({ ...prev, adminLogin: false }));
         toast({
           title: "Login Failed",
           description: error.message,
-          variant: "destructive",
+          variant: "destructive"
         });
       } else {
-        setTestResults(prev => ({ ...prev, adminLogin: true }));
+        setTestResults((prev) => ({ ...prev, adminLogin: true }));
         toast({
           title: "Login Successful",
           description: "Admin login test passed",
-          variant: "default",
+          variant: "default"
         });
       }
     } catch (error: any) {
-      setTestResults(prev => ({ ...prev, adminLogin: false }));
+      setTestResults((prev) => ({ ...prev, adminLogin: false }));
       toast({
         title: "Error",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -181,75 +181,75 @@ const AdminAccountTester = () => {
 
     try {
       // Test user_profiles table
-      const { error: profilesError } = await supabase
-        .from('user_profiles')
-        .select('count(*)')
-        .single();
+      const { error: profilesError } = await supabase.
+      from('user_profiles').
+      select('count(*)').
+      single();
       dbTests.userProfiles = !profilesError;
 
       // Test stations table
-      const { error: stationsError } = await supabase
-        .from('stations')
-        .select('count(*)')
-        .single();
+      const { error: stationsError } = await supabase.
+      from('stations').
+      select('count(*)').
+      single();
       dbTests.stations = !stationsError;
 
       // Test products table
-      const { error: productsError } = await supabase
-        .from('products')
-        .select('count(*)')
-        .single();
+      const { error: productsError } = await supabase.
+      from('products').
+      select('count(*)').
+      single();
       dbTests.products = !productsError;
 
       // Test employees table
-      const { error: employeesError } = await supabase
-        .from('employees')
-        .select('count(*)')
-        .single();
+      const { error: employeesError } = await supabase.
+      from('employees').
+      select('count(*)').
+      single();
       dbTests.employees = !employeesError;
 
       // Test audit_logs table
-      const { error: auditError } = await supabase
-        .from('audit_logs')
-        .select('count(*)')
-        .single();
+      const { error: auditError } = await supabase.
+      from('audit_logs').
+      select('count(*)').
+      single();
       dbTests.auditLogs = !auditError;
 
-      setTestResults(prev => ({ ...prev, ...dbTests }));
+      setTestResults((prev) => ({ ...prev, ...dbTests }));
 
       const passedTests = Object.values(dbTests).filter(Boolean).length;
       toast({
         title: "Database Tests Complete",
         description: `${passedTests}/5 database tables accessible`,
-        variant: passedTests >= 3 ? "default" : "destructive",
+        variant: passedTests >= 3 ? "default" : "destructive"
       });
 
     } catch (error: any) {
       toast({
         title: "Database Test Error",
         description: error.message,
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const TestResultBadge = ({ testName, result }: { testName: string; result?: boolean | null }) => (
-    <div className="flex items-center gap-2">
-      {result === true ? (
-        <CheckCircle className="h-4 w-4 text-green-500" />
-      ) : result === false ? (
-        <AlertCircle className="h-4 w-4 text-red-500" />
-      ) : (
-        <div className="h-4 w-4 rounded-full bg-gray-300" />
-      )}
+  const TestResultBadge = ({ testName, result }: {testName: string;result?: boolean | null;}) =>
+  <div className="flex items-center gap-2">
+      {result === true ?
+    <CheckCircle className="h-4 w-4 text-green-500" /> :
+    result === false ?
+    <AlertCircle className="h-4 w-4 text-red-500" /> :
+
+    <div className="h-4 w-4 rounded-full bg-gray-300" />
+    }
       <span className="text-sm">{testName}</span>
       <Badge variant={result === true ? "default" : result === false ? "destructive" : "secondary"}>
         {result === true ? "Pass" : result === false ? "Fail" : "Pending"}
       </Badge>
-    </div>
-  );
+    </div>;
+
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -290,23 +290,23 @@ const AdminAccountTester = () => {
                     </Badge>
                   </div>
 
-                  {!adminExists && (
-                    <Button 
-                      onClick={createAdminProfile} 
-                      disabled={loading}
-                      variant="outline"
-                      className="w-full"
-                    >
+                  {!adminExists &&
+                  <Button
+                    onClick={createAdminProfile}
+                    disabled={loading}
+                    variant="outline"
+                    className="w-full">
+
                       <UserPlus className="h-4 w-4 mr-2" />
                       {loading ? "Creating..." : "Create Admin Profile"}
                     </Button>
-                  )}
+                  }
 
-                  <Button 
-                    onClick={signUpAdmin} 
+                  <Button
+                    onClick={signUpAdmin}
                     disabled={loading}
-                    className="w-full"
-                  >
+                    className="w-full">
+
                     <User className="h-4 w-4 mr-2" />
                     {loading ? "Signing Up..." : "Sign Up Admin User"}
                   </Button>
@@ -316,11 +316,11 @@ const AdminAccountTester = () => {
 
             <TabsContent value="test" className="space-y-4">
               <div className="space-y-4">
-                <Button 
-                  onClick={testAdminLogin} 
+                <Button
+                  onClick={testAdminLogin}
                   disabled={loading}
-                  className="w-full"
-                >
+                  className="w-full">
+
                   {loading ? "Testing..." : "Test Admin Login"}
                 </Button>
 
@@ -334,12 +334,12 @@ const AdminAccountTester = () => {
 
             <TabsContent value="database" className="space-y-4">
               <div className="space-y-4">
-                <Button 
-                  onClick={testDatabaseAccess} 
+                <Button
+                  onClick={testDatabaseAccess}
                   disabled={loading}
                   className="w-full"
-                  variant="outline"
-                >
+                  variant="outline">
+
                   <Database className="h-4 w-4 mr-2" />
                   {loading ? "Testing..." : "Test Database Access"}
                 </Button>
@@ -390,8 +390,8 @@ const AdminAccountTester = () => {
           </Tabs>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AdminAccountTester;

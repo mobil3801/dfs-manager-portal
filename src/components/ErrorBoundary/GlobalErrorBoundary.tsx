@@ -1,5 +1,4 @@
-import React, { Component, ReactNode } from 'react';
-import { ErrorLogger } from '@/services/errorLogger';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 import ErrorFallback from './ErrorFallback';
 
 interface Props {
@@ -10,12 +9,10 @@ interface Props {
 interface State {
   hasError: boolean;
   error: Error | null;
-  errorInfo: React.ErrorInfo | null;
+  errorInfo: ErrorInfo | null;
 }
 
 class GlobalErrorBoundary extends Component<Props, State> {
-  private errorLogger: ErrorLogger;
-
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -23,11 +20,9 @@ class GlobalErrorBoundary extends Component<Props, State> {
       error: null,
       errorInfo: null
     };
-    this.errorLogger = ErrorLogger.getInstance();
   }
 
   static getDerivedStateFromError(error: Error): State {
-    // Update state so the next render will show the fallback UI
     return {
       hasError: true,
       error,
@@ -35,35 +30,25 @@ class GlobalErrorBoundary extends Component<Props, State> {
     };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Log the error with high severity since it's at the global level
-    this.errorLogger.log(
-      error,
-      'critical',
-      'GlobalErrorBoundary',
-      errorInfo,
-      {
-        url: window.location.href,
-        userAgent: navigator.userAgent,
-        timestamp: new Date().toISOString()
-      }
-    );
-
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('Global Error Boundary caught an error:', error, errorInfo);
+    
     this.setState({
       error,
       errorInfo
     });
 
-    // In development, also log to console for easier debugging
-    if (process.env.NODE_ENV === 'development') {
-      console.group('🚨 Global Error Boundary Caught Error');
-      console.error('Error:', error);
-      console.error('Error Info:', errorInfo);
-      console.groupEnd();
+    // Log error for monitoring (if available)
+    if (typeof window !== 'undefined' && (window as any).logError) {
+      try {
+        (window as any).logError(error, 'GlobalErrorBoundary', errorInfo);
+      } catch (logError) {
+        console.warn('Failed to log error:', logError);
+      }
     }
   }
 
-  handleReset = () => {
+  resetError = () => {
     this.setState({
       hasError: false,
       error: null,
@@ -73,47 +58,18 @@ class GlobalErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError && this.state.error) {
-      // Custom fallback component
-      if (this.props.fallback) {
-        const FallbackComponent = this.props.fallback;
-        return (
-          <FallbackComponent
-            error={this.state.error}
-            resetError={this.handleReset}
-            errorInfo={this.state.errorInfo} />);
-
-
-      }
-
-      // Default fallback UI
+      const FallbackComponent = this.props.fallback || ErrorFallback;
+      
       return (
-        <div className="min-h-screen bg-gray-50">
-          <ErrorFallback
-            error={this.state.error}
-            resetError={this.handleReset}
-            severity="critical"
-            component="Application"
-            customMessage="A critical error occurred that prevented the application from loading properly. This has been automatically reported to our team."
-            showNavigation={false}
-            customActions={
-            <div className="space-y-2">
-                <button
-                onClick={() => window.location.reload()}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
-
-                  Reload Application
-                </button>
-                <button
-                onClick={() => window.location.href = '/'}
-                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors ml-2">
-
-                  Go to Home
-                </button>
-              </div>
-            } />
-
-        </div>);
-
+        <FallbackComponent
+          error={this.state.error}
+          resetError={this.resetError}
+          severity="critical"
+          component="GlobalErrorBoundary"
+          showDetails={true}
+          showNavigation={true}
+        />
+      );
     }
 
     return this.props.children;

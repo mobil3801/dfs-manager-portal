@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { useNavigate } from 'react-router-dom';
 
 export interface ErrorFallbackProps {
   error: Error;
@@ -27,7 +26,6 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
   customMessage,
   customActions
 }) => {
-  const navigate = useNavigate();
   const [showDetailedError, setShowDetailedError] = React.useState(false);
 
   const getSeverityConfig = (severity: string) => {
@@ -61,7 +59,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
         title: 'Critical System Error'
       }
     };
-    return configs[severity] || configs.medium;
+    return configs[severity as keyof typeof configs] || configs.medium;
   };
 
   const config = getSeverityConfig(severity);
@@ -85,7 +83,11 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
   };
 
   const handleGoHome = () => {
-    navigate('/dashboard');
+    try {
+      window.location.href = '/dashboard';
+    } catch (error) {
+      window.location.reload();
+    }
   };
 
   const handleRefreshPage = () => {
@@ -93,11 +95,27 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
   };
 
   const formatErrorForDisplay = (error: Error) => {
-    return {
-      name: error.name,
-      message: error.message,
-      stack: error.stack?.split('\n').slice(0, 10).join('\n') // Limit stack trace
-    };
+    try {
+      return {
+        name: error?.name || 'Unknown Error',
+        message: error?.message || 'No error message available',
+        stack: error?.stack?.split('\n').slice(0, 10).join('\n') || 'No stack trace available'
+      };
+    } catch (e) {
+      return {
+        name: 'Error Processing Error',
+        message: 'Unable to display error details',
+        stack: 'Stack trace unavailable'
+      };
+    }
+  };
+
+  const safeResetError = () => {
+    try {
+      resetError();
+    } catch (e) {
+      window.location.reload();
+    }
   };
 
   return (
@@ -116,11 +134,11 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
             <Badge variant={config.badgeVariant} className="text-sm">
               {severity.toUpperCase()}
             </Badge>
-            {component &&
-            <Badge variant="outline" className="text-sm">
+            {component && (
+              <Badge variant="outline" className="text-sm">
                 {component}
               </Badge>
-            }
+            )}
           </div>
         </CardHeader>
         
@@ -132,68 +150,63 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button
-              onClick={resetError}
+              onClick={safeResetError}
               variant="default"
               className="flex items-center gap-2">
-
               <RefreshCw size={16} />
               Try Again
             </Button>
             
-            {showNavigation &&
-            <>
+            {showNavigation && (
+              <>
                 <Button
-                onClick={handleGoHome}
-                variant="outline"
-                className="flex items-center gap-2">
-
+                  onClick={handleGoHome}
+                  variant="outline"
+                  className="flex items-center gap-2">
                   <Home size={16} />
                   Go to Dashboard
                 </Button>
                 
                 <Button
-                onClick={handleRefreshPage}
-                variant="outline"
-                className="flex items-center gap-2">
-
+                  onClick={handleRefreshPage}
+                  variant="outline"
+                  className="flex items-center gap-2">
                   <RefreshCw size={16} />
                   Refresh Page
                 </Button>
               </>
-            }
+            )}
           </div>
 
           {/* Custom Actions */}
-          {customActions &&
-          <div className="flex justify-center">
+          {customActions && (
+            <div className="flex justify-center">
               {customActions}
             </div>
-          }
+          )}
 
           {/* Error Details */}
-          {showDetails &&
-          <Collapsible
-            open={showDetailedError}
-            onOpenChange={setShowDetailedError}
-            className="mt-6">
-
+          {showDetails && (
+            <Collapsible
+              open={showDetailedError}
+              onOpenChange={setShowDetailedError}
+              className="mt-6">
               <CollapsibleTrigger asChild>
                 <Button
-                variant="ghost"
-                size="sm"
-                className="w-full flex items-center justify-center gap-2 text-gray-600 hover:text-gray-800">
-
-                  {showDetailedError ?
-                <>
+                  variant="ghost"
+                  size="sm"
+                  className="w-full flex items-center justify-center gap-2 text-gray-600 hover:text-gray-800">
+                  {showDetailedError ? (
+                    <>
                       <ChevronUp size={16} />
                       Hide Technical Details
-                    </> :
-
-                <>
+                    </>
+                  ) : (
+                    <>
                       <ChevronDown size={16} />
                       Show Technical Details
                     </>
-                }
+                  )}
                 </Button>
               </CollapsibleTrigger>
               
@@ -205,21 +218,21 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
                   <div className="mb-2">
                     <strong>Message:</strong> {formatErrorForDisplay(error).message}
                   </div>
-                  {formatErrorForDisplay(error).stack &&
-                <div>
+                  {formatErrorForDisplay(error).stack && (
+                    <div>
                       <strong>Stack Trace:</strong>
                       <pre className="mt-1 text-xs text-gray-600 whitespace-pre-wrap overflow-x-auto">
                         {formatErrorForDisplay(error).stack}
                       </pre>
                     </div>
-                }
+                  )}
                   <div className="mt-2 text-xs text-gray-500">
                     <strong>Timestamp:</strong> {new Date().toISOString()}
                   </div>
                 </div>
               </CollapsibleContent>
             </Collapsible>
-          }
+          )}
 
           {/* Support Information */}
           <div className="mt-6 p-3 bg-gray-50 rounded-lg text-center text-sm text-gray-600">
@@ -232,8 +245,8 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
           </div>
         </CardContent>
       </Card>
-    </div>);
-
+    </div>
+  );
 };
 
 export default ErrorFallback;

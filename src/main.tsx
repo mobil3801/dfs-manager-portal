@@ -3,10 +3,14 @@ import App from './App.tsx';
 import './index.css';
 import { initializeMemoryLeakDetection } from './utils/memoryLeakIntegration';
 import { setupInvalidCharacterErrorMonitor } from './utils/errorPreventionHelper';
-import { globalErrorHandler } from './utils/globalErrorHandler';
+import { initializeErrorHandling } from './utils/globalErrorHandler';
 
 // Initialize global error handling
-globalErrorHandler.init();
+try {
+  initializeErrorHandling();
+} catch (error) {
+  console.warn('Global error handling initialization failed:', error);
+}
 
 // Performance API Polyfill for environments that don't support it
 if (typeof window !== 'undefined' && !window.performance) {

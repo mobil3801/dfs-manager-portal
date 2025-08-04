@@ -1,158 +1,192 @@
-
 /**
- * Global error handler for catching and handling image loading errors
+ * Global error handling utilities for the application
  */
 
-interface ErrorReport {
-  type: string;
-  url?: string;
-  status?: number;
+// Global error tracking
+let errorCount = 0;
+let lastErrorTime = 0;
+const maxErrorsPerMinute = 5;
+
+interface ErrorLogEntry {
   timestamp: number;
-  message?: string;
+  error: Error;
+  context?: string;
+  url: string;
+  userAgent: string;
 }
 
-class GlobalErrorHandler {
-  private static instance: GlobalErrorHandler;
-  private errors: ErrorReport[] = [];
-  private maxErrors = 100;
+const errorLog: ErrorLogEntry[] = [];
 
-  static getInstance(): GlobalErrorHandler {
-    if (!GlobalErrorHandler.instance) {
-      GlobalErrorHandler.instance = new GlobalErrorHandler();
+/**
+ * Global error handler for unhandled promises and errors
+ */
+export const setupGlobalErrorHandlers = () => {
+  // Handle unhandled promise rejections
+  window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled promise rejection:', event.reason);
+    
+    const error = event.reason instanceof Error ? event.reason : new Error(String(event.reason));
+    logError(error, 'UnhandledPromiseRejection');
+    
+    // Prevent the default browser behavior
+    event.preventDefault();
+  });
+
+  // Handle global JavaScript errors
+  window.addEventListener('error', (event) => {
+    console.error('Global JavaScript error:', event.error);
+    
+    const error = event.error || new Error(event.message);
+    logError(error, 'GlobalJavaScriptError');
+  });
+
+  // Handle resource loading errors (images, scripts, etc.)
+  window.addEventListener('error', (event) => {
+    if (event.target !== window) {
+      console.warn('Resource loading error:', event.target);
+      // Don't log resource errors as critical errors
     }
-    return GlobalErrorHandler.instance;
+  }, true);
+};
+
+/**
+ * Log errors with rate limiting and context
+ */
+export const logError = (error: Error, context = 'Unknown') => {
+  const now = Date.now();
+  
+  // Rate limiting: don't log too many errors
+  if (now - lastErrorTime < 60000) { // Within 1 minute
+    if (errorCount >= maxErrorsPerMinute) {
+      console.warn('Error rate limit reached, suppressing error logging');
+      return;
+    }
+    errorCount++;
+  } else {
+    errorCount = 1;
+    lastErrorTime = now;
   }
 
-  init() {
-    // Handle unhandled promise rejections
-    window.addEventListener('unhandledrejection', (event) => {
-      this.handleError({
-        type: 'unhandledrejection',
-        message: event.reason?.message || String(event.reason),
-        timestamp: Date.now()
-      });
-    });
+  const errorEntry: ErrorLogEntry = {
+    timestamp: now,
+    error,
+    context,
+    url: window.location.href,
+    userAgent: navigator.userAgent
+  };
 
-    // Handle global errors
-    window.addEventListener('error', (event) => {
-      this.handleError({
-        type: 'error',
-        url: event.filename,
-        message: event.message,
-        timestamp: Date.now()
-      });
-    });
+  errorLog.push(errorEntry);
 
-    // Intercept fetch requests to handle image loading errors
-    this.interceptFetch();
+  // Keep only the last 50 errors
+  if (errorLog.length > 50) {
+    errorLog.shift();
   }
 
-  private interceptFetch() {
-    const originalFetch = window.fetch;
+  // Log to console with additional context
+  console.group(`🚨 Error in ${context}`);
+  console.error('Error:', error);
+  console.error('Message:', error.message);
+  console.error('Stack:', error.stack);
+  console.error('Context:', context);
+  console.error('URL:', window.location.href);
+  console.error('Timestamp:', new Date(now).toISOString());
+  console.groupEnd();
 
-    window.fetch = async (...args) => {
-      try {
-        const response = await originalFetch(...args);
+  // Send to external logging service if available
+  if (typeof window !== 'undefined' && (window as any).sendErrorToLoggingService) {
+    try {
+      (window as any).sendErrorToLoggingService(errorEntry);
+    } catch (loggingError) {
+      console.warn('Failed to send error to logging service:', loggingError);
+    }
+  }
+};
 
-        // Check if this is an image request that failed
-        const url = typeof args[0] === 'string' ? args[0] : args[0].url;
+/**
+ * Get error statistics
+ */
+export const getErrorStats = () => {
+  const recentErrors = errorLog.filter(entry => 
+    Date.now() - entry.timestamp < 300000 // Last 5 minutes
+  );
 
-        if (response.status === 0 || !response.ok) {
-          // Check if URL looks like an image or file request
-          if (this.isImageOrFileRequest(url)) {
-            this.handleError({
-              type: 'fetch',
-              url: url,
-              status: response.status,
-              timestamp: Date.now(),
-              message: `Fetch failed for ${url}`
-            });
-          }
-        }
+  return {
+    totalErrors: errorLog.length,
+    recentErrors: recentErrors.length,
+    errorRate: recentErrors.length / 5, // errors per minute
+    lastError: errorLog[errorLog.length - 1]
+  };
+};
 
-        return response;
-      } catch (error) {
-        const url = typeof args[0] === 'string' ? args[0] : args[0].url;
+/**
+ * Clear error log
+ */
+export const clearErrorLog = () => {
+  errorLog.length = 0;
+  errorCount = 0;
+  lastErrorTime = 0;
+};
 
-        if (this.isImageOrFileRequest(url)) {
-          this.handleError({
-            type: 'fetch',
-            url: url,
-            status: 0,
-            timestamp: Date.now(),
-            message: error instanceof Error ? error.message : 'Network error'
-          });
-        }
+/**
+ * Safe function wrapper that catches and logs errors
+ */
+export const safeExecute = <T extends (...args: any[]) => any>(
+  fn: T,
+  context: string,
+  fallback?: any
+): ((...args: Parameters<T>) => ReturnType<T> | typeof fallback) => {
+  return (...args: Parameters<T>) => {
+    try {
+      return fn(...args);
+    } catch (error) {
+      logError(error instanceof Error ? error : new Error(String(error)), context);
+      return fallback;
+    }
+  };
+};
 
-        throw error;
-      }
+/**
+ * Safe async function wrapper
+ */
+export const safeAsyncExecute = <T extends (...args: any[]) => Promise<any>>(
+  fn: T,
+  context: string,
+  fallback?: any
+): ((...args: Parameters<T>) => Promise<Awaited<ReturnType<T>> | typeof fallback>) => {
+  return async (...args: Parameters<T>) => {
+    try {
+      return await fn(...args);
+    } catch (error) {
+      logError(error instanceof Error ? error : new Error(String(error)), context);
+      return fallback;
+    }
+  };
+};
+
+/**
+ * Initialize global error handling
+ */
+export const initializeErrorHandling = () => {
+  setupGlobalErrorHandlers();
+  
+  // Expose error utilities globally for debugging
+  if (typeof window !== 'undefined') {
+    (window as any).errorUtils = {
+      getErrorStats,
+      clearErrorLog,
+      logError
     };
   }
+  
+  console.log('Global error handling initialized');
+};
 
-  private isImageOrFileRequest(url: string): boolean {
-    return (
-      url.includes('/api/files/') ||
-      url.includes('/file/') ||
-      url.includes('api.ezsite.ai/file/') ||
-      url.match(/\.(jpg|jpeg|png|gif|webp|svg|pdf|doc|docx)$/i) !== null);
-
-  }
-
-  private handleError(error: ErrorReport) {
-    console.warn('Global error caught:', error);
-
-    // Add to error log
-    this.errors.unshift(error);
-
-    // Keep only the most recent errors
-    if (this.errors.length > this.maxErrors) {
-      this.errors = this.errors.slice(0, this.maxErrors);
-    }
-
-    // Handle specific error types
-    if (error.type === 'fetch' && error.url) {
-      this.handleImageLoadError(error);
-    }
-  }
-
-  private handleImageLoadError(error: ErrorReport) {
-    // Check if this is the specific S3/API proxy error from the user report
-    if (error.url && error.url.includes('api.ezsite.ai/file/')) {
-      console.warn('Detected problematic API proxy image URL:', error.url);
-
-      // Try to extract the actual file URL
-      const match = error.url.match(/api\.ezsite\.ai\/file\/(https?:\/\/.+)/);
-      if (match) {
-        const actualUrl = match[1];
-        console.log('Extracted actual URL:', actualUrl);
-
-        // You could emit an event here to notify components to try the direct URL
-        this.emitImageFallback(error.url, actualUrl);
-      }
-    }
-  }
-
-  private emitImageFallback(originalUrl: string, fallbackUrl: string) {
-    // Emit a custom event that components can listen to
-    window.dispatchEvent(new CustomEvent('imageFallback', {
-      detail: { originalUrl, fallbackUrl }
-    }));
-  }
-
-  getRecentErrors(limit = 10): ErrorReport[] {
-    return this.errors.slice(0, limit);
-  }
-
-  getImageErrors(): ErrorReport[] {
-    return this.errors.filter((error) =>
-    error.type === 'fetch' && this.isImageOrFileRequest(error.url || '')
-    );
-  }
-
-  clearErrors() {
-    this.errors = [];
-  }
-}
-
-export const globalErrorHandler = GlobalErrorHandler.getInstance();
-export type { ErrorReport };
+export default {
+  setupGlobalErrorHandlers,
+  logError,
+  getErrorStats,
+  clearErrorLog,
+  safeExecute,
+  safeAsyncExecute,
+  initializeErrorHandling
+};

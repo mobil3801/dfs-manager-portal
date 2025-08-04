@@ -8,10 +8,10 @@ import { sanitizeUserInput, sanitizeTextContent, isValidAttributeValue, removeBO
  * Safely creates DOM elements with sanitized attributes
  */
 export const safeCreateElement = (
-tagName: string,
-attributes: Record<string, any> = {},
-textContent?: string)
-: HTMLElement => {
+  tagName: string,
+  attributes: Record<string, any> = {},
+  textContent?: string
+): HTMLElement => {
   try {
     const element = document.createElement(tagName);
 
@@ -32,7 +32,7 @@ textContent?: string)
 
     return element;
   } catch (error) {
-    console.error('Error creating element:', error);
+    console.warn('Error creating element:', error);
     // Return a fallback div element
     const fallback = document.createElement('div');
     fallback.textContent = 'Content unavailable';
@@ -48,7 +48,7 @@ export const safeSetInnerHTML = (element: HTMLElement, content: string): void =>
     const sanitizedContent = sanitizeTextContent(content);
     element.innerHTML = sanitizedContent;
   } catch (error) {
-    console.error('Error setting innerHTML:', error);
+    console.warn('Error setting innerHTML:', error);
     element.textContent = 'Content unavailable';
   }
 };
@@ -69,7 +69,7 @@ export const safeProcessFormData = (formData: FormData): FormData => {
       }
     }
   } catch (error) {
-    console.error('Error processing form data:', error);
+    console.warn('Error processing form data:', error);
   }
 
   return safeFormData;
@@ -83,7 +83,7 @@ export const safeJSONParse = (jsonString: string): any => {
     const cleanedString = removeBOM(jsonString);
     return JSON.parse(cleanedString);
   } catch (error) {
-    console.error('Error parsing JSON:', error);
+    console.warn('Error parsing JSON:', error);
     return null;
   }
 };
@@ -96,7 +96,7 @@ export const safeJSONStringify = (data: any): string => {
     const sanitizedData = sanitizeUserInput(data);
     return JSON.stringify(sanitizedData);
   } catch (error) {
-    console.error('Error stringifying JSON:', error);
+    console.warn('Error stringifying JSON:', error);
     return '{}';
   }
 };
@@ -110,7 +110,7 @@ export const safeLocalStorage = {
       const item = localStorage.getItem(key);
       return item ? removeBOM(item) : null;
     } catch (error) {
-      console.error('Error reading from localStorage:', error);
+      console.warn('Error reading from localStorage:', error);
       return null;
     }
   },
@@ -120,7 +120,7 @@ export const safeLocalStorage = {
       const sanitizedValue = sanitizeTextContent(removeBOM(value));
       localStorage.setItem(key, sanitizedValue);
     } catch (error) {
-      console.error('Error writing to localStorage:', error);
+      console.warn('Error writing to localStorage:', error);
     }
   },
 
@@ -128,7 +128,7 @@ export const safeLocalStorage = {
     try {
       localStorage.removeItem(key);
     } catch (error) {
-      console.error('Error removing from localStorage:', error);
+      console.warn('Error removing from localStorage:', error);
     }
   }
 };
@@ -141,7 +141,7 @@ export const safeURLSearchParams = (search: string): URLSearchParams => {
     const cleanedSearch = removeBOM(search);
     return new URLSearchParams(cleanedSearch);
   } catch (error) {
-    console.error('Error parsing URL search params:', error);
+    console.warn('Error parsing URL search params:', error);
     return new URLSearchParams();
   }
 };
@@ -159,8 +159,8 @@ export const safeFileReader = (file: File): Promise<string> => {
         const cleanContent = removeBOM(sanitizeTextContent(content));
         resolve(cleanContent);
       } catch (error) {
-        console.error('Error reading file:', error);
-        reject(error);
+        console.warn('Error reading file:', error);
+        reject(new Error('Failed to process file content'));
       }
     };
 
@@ -168,7 +168,11 @@ export const safeFileReader = (file: File): Promise<string> => {
       reject(new Error('Failed to read file'));
     };
 
-    reader.readAsText(file);
+    try {
+      reader.readAsText(file);
+    } catch (error) {
+      reject(new Error('Failed to initialize file reader'));
+    }
   });
 };
 
@@ -178,20 +182,26 @@ export const safeFileReader = (file: File): Promise<string> => {
 export const safeClipboard = {
   read: async (): Promise<string> => {
     try {
+      if (!navigator.clipboard) {
+        return '';
+      }
       const text = await navigator.clipboard.readText();
       return removeBOM(sanitizeTextContent(text));
     } catch (error) {
-      console.error('Error reading from clipboard:', error);
+      console.warn('Error reading from clipboard:', error);
       return '';
     }
   },
 
   write: async (text: string): Promise<void> => {
     try {
+      if (!navigator.clipboard) {
+        return;
+      }
       const sanitizedText = sanitizeTextContent(removeBOM(text));
       await navigator.clipboard.writeText(sanitizedText);
     } catch (error) {
-      console.error('Error writing to clipboard:', error);
+      console.warn('Error writing to clipboard:', error);
     }
   }
 };
@@ -200,65 +210,95 @@ export const safeClipboard = {
  * Monitor for InvalidCharacterError and provide debugging information
  */
 export const setupInvalidCharacterErrorMonitor = (): void => {
-  // Override console.error to catch InvalidCharacterError
-  const originalError = console.error;
-  console.error = (...args: any[]) => {
-    const errorMessage = args.join(' ');
-    if (errorMessage.includes('InvalidCharacterError') ||
-    errorMessage.includes('invalid characters')) {
+  try {
+    // Override console.error to catch InvalidCharacterError
+    const originalError = console.error;
+    console.error = (...args: any[]) => {
+      try {
+        const errorMessage = args.join(' ');
+        if (errorMessage.includes('InvalidCharacterError') ||
+            errorMessage.includes('invalid characters')) {
 
-      // Provide additional debugging information
-      console.group('InvalidCharacterError Debug Info');
-      console.error('Original error:', ...args);
-      console.error('Stack trace:', new Error().stack);
-      console.error('Current URL:', window.location.href);
-      console.error('User agent:', navigator.userAgent);
-      console.error('Form elements count:', document.forms.length);
+          // Provide additional debugging information
+          console.group('InvalidCharacterError Debug Info');
+          console.error('Original error:', ...args);
+          console.error('Stack trace:', new Error().stack);
+          console.error('Current URL:', window.location.href);
+          console.error('User agent:', navigator.userAgent);
+          console.error('Form elements count:', document.forms.length);
 
-      // Check for problematic form data
-      Array.from(document.forms).forEach((form, index) => {
-        console.error(`Form ${index} action:`, form.action);
-        const formData = new FormData(form);
-        for (const [key, value] of formData.entries()) {
-          if (typeof value === 'string' && !isValidAttributeValue(value)) {
-            console.error(`Problematic form field found - ${key}:`, value);
+          // Check for problematic form data
+          try {
+            Array.from(document.forms).forEach((form, index) => {
+              console.error(`Form ${index} action:`, form.action);
+              try {
+                const formData = new FormData(form);
+                for (const [key, value] of formData.entries()) {
+                  if (typeof value === 'string' && !isValidAttributeValue(value)) {
+                    console.error(`Problematic form field found - ${key}:`, value);
+                  }
+                }
+              } catch (formError) {
+                console.error(`Error processing form ${index}:`, formError);
+              }
+            });
+          } catch (formsError) {
+            console.error('Error processing forms:', formsError);
           }
+
+          console.groupEnd();
         }
-      });
+      } catch (monitorError) {
+        // Fallback to original error if monitoring fails
+      }
 
-      console.groupEnd();
-    }
+      originalError.apply(console, args);
+    };
 
-    originalError.apply(console, args);
-  };
+    // Monitor DOM mutations that might cause InvalidCharacterError
+    if (typeof MutationObserver !== 'undefined') {
+      const observer = new MutationObserver((mutations) => {
+        try {
+          mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                const element = node as Element;
 
-  // Monitor DOM mutations that might cause InvalidCharacterError
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      mutation.addedNodes.forEach((node) => {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          const element = node as Element;
-
-          // Check for problematic attributes
-          Array.from(element.attributes || []).forEach((attr) => {
-            if (!isValidAttributeValue(attr.value)) {
-              console.warn('Potentially problematic attribute detected:', {
-                element: element.tagName,
-                attribute: attr.name,
-                value: attr.value
-              });
-            }
+                // Check for problematic attributes
+                try {
+                  Array.from(element.attributes || []).forEach((attr) => {
+                    if (!isValidAttributeValue(attr.value)) {
+                      console.warn('Potentially problematic attribute detected:', {
+                        element: element.tagName,
+                        attribute: attr.name,
+                        value: attr.value
+                      });
+                    }
+                  });
+                } catch (attrError) {
+                  // Skip problematic attributes
+                }
+              }
+            });
           });
+        } catch (mutationError) {
+          console.warn('Error in mutation observer:', mutationError);
         }
       });
-    });
-  });
 
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-    attributes: true
-  });
+      try {
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true,
+          attributes: true
+        });
+      } catch (observerError) {
+        console.warn('Error setting up mutation observer:', observerError);
+      }
+    }
+  } catch (setupError) {
+    console.warn('Error setting up InvalidCharacterError monitor:', setupError);
+  }
 };
 
 export default {

@@ -1,12 +1,17 @@
-
 import React, { useState, useEffect } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, X, RefreshCw, CheckCircle } from 'lucide-react';
-import { globalErrorHandler, type ErrorReport } from '@/utils/globalErrorHandler';
+import { AlertCircle, X, RefreshCw } from 'lucide-react';
 import { imageErrorService } from '@/services/imageErrorService';
 import { useToast } from '@/hooks/use-toast';
+
+interface ErrorReport {
+  id: string;
+  url: string;
+  timestamp: number;
+  error: string;
+}
 
 interface ImageErrorNotificationProps {
   className?: string;
@@ -26,21 +31,28 @@ const ImageErrorNotification: React.FC<ImageErrorNotificationProps> = ({
 
   useEffect(() => {
     const checkForErrors = () => {
-      const imageErrors = globalErrorHandler.getImageErrors();
-      const recentErrors = imageErrors.filter((error) =>
-      Date.now() - error.timestamp < 60000 // Errors from last minute
-      );
+      try {
+        // Get image errors from the service if available
+        if (imageErrorService && typeof imageErrorService.getRecentErrors === 'function') {
+          const imageErrors = imageErrorService.getRecentErrors();
+          const recentErrors = imageErrors.filter((error: any) =>
+            Date.now() - error.timestamp < 60000 // Errors from last minute
+          );
 
-      if (recentErrors.length > 0 && !isVisible) {
-        setErrors(recentErrors);
-        setIsVisible(true);
+          if (recentErrors.length > 0 && !isVisible) {
+            setErrors(recentErrors);
+            setIsVisible(true);
 
-        // Auto-hide after delay
-        if (autoHide) {
-          setTimeout(() => {
-            setIsVisible(false);
-          }, hideDelay);
+            // Auto-hide after delay
+            if (autoHide) {
+              setTimeout(() => {
+                setIsVisible(false);
+              }, hideDelay);
+            }
+          }
         }
+      } catch (error) {
+        console.warn('Error checking for image errors:', error);
       }
     };
 
@@ -59,11 +71,15 @@ const ImageErrorNotification: React.FC<ImageErrorNotificationProps> = ({
     try {
       const uniqueUrls = [...new Set(errors.map((error) => error.url).filter(Boolean))];
       const results = await Promise.allSettled(
-        uniqueUrls.map((url) => imageErrorService.loadImage({ url: url!, maxRetries: 1 }))
+        uniqueUrls.map((url) => 
+          imageErrorService.loadImage ? 
+          imageErrorService.loadImage({ url: url!, maxRetries: 1 }) :
+          Promise.resolve({ success: false })
+        )
       );
 
       const successful = results.filter((result) =>
-      result.status === 'fulfilled' && result.value.success
+        result.status === 'fulfilled' && (result.value as any).success
       ).length;
 
       if (successful > 0) {
@@ -94,7 +110,13 @@ const ImageErrorNotification: React.FC<ImageErrorNotificationProps> = ({
 
   const handleDismiss = () => {
     setIsVisible(false);
-    globalErrorHandler.clearErrors();
+    try {
+      if (imageErrorService && typeof imageErrorService.clearErrors === 'function') {
+        imageErrorService.clearErrors();
+      }
+    } catch (error) {
+      console.warn('Error clearing image errors:', error);
+    }
   };
 
   if (!isVisible || errors.length === 0) {
@@ -126,25 +148,23 @@ const ImageErrorNotification: React.FC<ImageErrorNotificationProps> = ({
                   onClick={handleRetryAll}
                   disabled={isRetrying}
                   className="text-xs h-7">
-
-                  {isRetrying ?
-                  <>
+                  {isRetrying ? (
+                    <>
                       <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
                       Retrying...
-                    </> :
-
-                  <>
+                    </>
+                  ) : (
+                    <>
                       <RefreshCw className="w-3 h-3 mr-1" />
                       Retry All
                     </>
-                  }
+                  )}
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={handleDismiss}
                   className="text-xs h-7 text-orange-600 hover:text-orange-700">
-
                   <X className="w-3 h-3 mr-1" />
                   Dismiss
                 </Button>
@@ -153,8 +173,8 @@ const ImageErrorNotification: React.FC<ImageErrorNotificationProps> = ({
           </div>
         </AlertDescription>
       </Alert>
-    </div>);
-
+    </div>
+  );
 };
 
 export default ImageErrorNotification;
