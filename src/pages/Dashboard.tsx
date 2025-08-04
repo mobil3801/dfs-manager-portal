@@ -337,6 +337,9 @@ const Dashboard = () => {
           </div>
         </TabsContent>
       </Tabs>
+      
+      {/* Emergency Fix Access - Show when there are critical errors */}
+      <QuickFixAccess />
     </div>);
 
 };
