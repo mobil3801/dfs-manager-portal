@@ -115,7 +115,10 @@ const SupabaseLoginPage: React.FC = () => {
       if (authMode === 'login') {
         const success = await login(email, password);
         if (success) {
-          navigate('/dashboard');
+          // Add a small delay to ensure auth state is updated
+          setTimeout(() => {
+            navigate('/dashboard');
+          }, 100);
         }
       } else if (authMode === 'register') {
         const success = await register(email, password, fullName);

@@ -1,4 +1,4 @@
-import { supabase, db } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 
 // User Profile Service
 export const userProfileService = {

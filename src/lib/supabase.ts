@@ -1,28 +1,35 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = 'https://nehhjsiuhthflfwkfequ.supabase.co'
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5laGhqc2l1aHRoZmxmd2tmZXF1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzAxMzE3NSwiZXhwIjoyMDY4NTg5MTc1fQ.7naT6l_oNH8VI5MaEKgJ19PoYw1EErv6-ftkEin12wE'
+const supabaseUrl = 'https://nehhjsiuhthflfwkfequ.supabase.co';
+// Using anon key for client-side authentication instead of service role
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5laGhqc2l1aHRoZmxmd2tmZXF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwMTMxNzUsImV4cCI6MjA2ODU4OTE3NX0.o9xNTojFdYhMUHAiKXKn7w7Cv4FV9fLG5Kt-o5D8qSw';
 
-export const supabase = createClient(supabaseUrl, supabaseKey)
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
+});
 
 // Helper function to ensure proper error handling
 export const handleSupabaseError = (error: any) => {
   if (error) {
-    console.error('Supabase Error:', error)
-    throw new Error(error.message || 'Database operation failed')
+    console.error('Supabase Error:', error);
+    throw new Error(error.message || 'Database operation failed');
   }
-}
+};
 
 // Helper function for safe database operations
-export const safeSupabaseOperation = async <T>(
-  operation: () => Promise<{ data: T; error: any }>
-): Promise<T> => {
+export const safeSupabaseOperation = async <T,>(
+operation: () => Promise<{data: T;error: any;}>)
+: Promise<T> => {
   try {
-    const { data, error } = await operation()
-    handleSupabaseError(error)
-    return data
+    const { data, error } = await operation();
+    handleSupabaseError(error);
+    return data;
   } catch (err) {
-    console.error('Database operation failed:', err)
-    throw err
+    console.error('Database operation failed:', err);
+    throw err;
   }
-}
+};

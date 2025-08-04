@@ -21,28 +21,28 @@ const QuickFixAccess: React.FC = () => {
             <p className="font-medium text-red-800">Critical Errors Detected</p>
           </div>
           <div className="space-y-2">
-            <Button 
+            <Button
               onClick={goToFix}
               variant="destructive"
               size="sm"
-              className="w-full"
-            >
+              className="w-full">
+
               <ExternalLink className="h-4 w-4 mr-2" />
               Emergency Fix
             </Button>
-            <Button 
+            <Button
               onClick={goToAdminFix}
               variant="outline"
               size="sm"
-              className="w-full border-red-300 text-red-700 hover:bg-red-50"
-            >
+              className="w-full border-red-300 text-red-700 hover:bg-red-50">
+
               Direct Admin Fix
             </Button>
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default QuickFixAccess;

@@ -9,22 +9,22 @@ const EmergencyFixPage: React.FC = () => {
   const [showFix, setShowFix] = React.useState(false);
 
   const criticalErrors = [
-    {
-      error: "Could not find the 'role' column of 'user_profiles' in the schema cache",
-      impact: "Admin profile creation fails",
-      status: "CRITICAL"
-    },
-    {
-      error: "K.from(\"module_access\").delete().eq is not a function",
-      impact: "Module access setup fails",
-      status: "CRITICAL"
-    },
-    {
-      error: "re.from(\"user_profiles\").upsert is not a function",
-      impact: "User profile updates fail",
-      status: "CRITICAL"
-    }
-  ];
+  {
+    error: "Could not find the 'role' column of 'user_profiles' in the schema cache",
+    impact: "Admin profile creation fails",
+    status: "CRITICAL"
+  },
+  {
+    error: "K.from(\"module_access\").delete().eq is not a function",
+    impact: "Module access setup fails",
+    status: "CRITICAL"
+  },
+  {
+    error: "re.from(\"user_profiles\").upsert is not a function",
+    impact: "User profile updates fail",
+    status: "CRITICAL"
+  }];
+
 
   if (showFix) {
     return <FixedAdminSetup />;
@@ -55,8 +55,8 @@ const EmergencyFixPage: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {criticalErrors.map((error, index) => (
-              <Alert key={index} className="border-red-300 bg-red-100">
+            {criticalErrors.map((error, index) =>
+            <Alert key={index} className="border-red-300 bg-red-100">
                 <AlertTriangle className="h-4 w-4 text-red-600" />
                 <AlertDescription>
                   <div className="space-y-1">
@@ -68,7 +68,7 @@ const EmergencyFixPage: React.FC = () => {
                   </div>
                 </AlertDescription>
               </Alert>
-            ))}
+            )}
           </CardContent>
         </Card>
 
@@ -108,11 +108,11 @@ const EmergencyFixPage: React.FC = () => {
             </div>
 
             <div className="pt-4 border-t">
-              <Button 
+              <Button
                 onClick={() => setShowFix(true)}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-semibold"
-                size="lg"
-              >
+                size="lg">
+
                 <Wrench className="h-5 w-5 mr-2" />
                 Start Emergency Fix Now
                 <ArrowRight className="h-5 w-5 ml-2" />
@@ -130,8 +130,8 @@ const EmergencyFixPage: React.FC = () => {
           </AlertDescription>
         </Alert>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default EmergencyFixPage;

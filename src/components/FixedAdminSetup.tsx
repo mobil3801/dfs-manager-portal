@@ -16,35 +16,35 @@ interface SetupStep {
 
 const FixedAdminSetup: React.FC = () => {
   const [steps, setSteps] = useState<SetupStep[]>([
-    {
-      id: 'profile',
-      title: 'Create Admin Profile',
-      description: 'Setting up administrator user profile',
-      status: 'pending'
-    },
-    {
-      id: 'modules',
-      title: 'Configure Module Access',
-      description: 'Setting up complete system access',
-      status: 'pending'
-    },
-    {
-      id: 'verification',
-      title: 'Verify Setup',
-      description: 'Confirming all configurations are correct',
-      status: 'pending'
-    }
-  ]);
+  {
+    id: 'profile',
+    title: 'Create Admin Profile',
+    description: 'Setting up administrator user profile',
+    status: 'pending'
+  },
+  {
+    id: 'modules',
+    title: 'Configure Module Access',
+    description: 'Setting up complete system access',
+    status: 'pending'
+  },
+  {
+    id: 'verification',
+    title: 'Verify Setup',
+    description: 'Confirming all configurations are correct',
+    status: 'pending'
+  }]
+  );
 
   const updateStep = (id: string, updates: Partial<SetupStep>) => {
-    setSteps(prev => prev.map(step => 
-      step.id === id ? { ...step, ...updates } : step
+    setSteps((prev) => prev.map((step) =>
+    step.id === id ? { ...step, ...updates } : step
     ));
   };
 
   const createAdminProfile = async () => {
     updateStep('profile', { status: 'running' });
-    
+
     try {
       // Get current user
       const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -53,11 +53,11 @@ const FixedAdminSetup: React.FC = () => {
       }
 
       // Check if profile already exists
-      const { data: existingProfile, error: checkError } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
+      const { data: existingProfile, error: checkError } = await supabase.
+      from('user_profiles').
+      select('*').
+      eq('user_id', user.id).
+      single();
 
       if (checkError && checkError.code !== 'PGRST116') {
         throw checkError;
@@ -87,18 +87,18 @@ const FixedAdminSetup: React.FC = () => {
 
       if (existingProfile) {
         // Update existing profile
-        const { error: updateError } = await supabase
-          .from('user_profiles')
-          .update(profileData)
-          .eq('user_id', user.id);
+        const { error: updateError } = await supabase.
+        from('user_profiles').
+        update(profileData).
+        eq('user_id', user.id);
 
         if (updateError) throw updateError;
       } else {
         // Create new profile
         profileData.id = user.id;
-        const { error: insertError } = await supabase
-          .from('user_profiles')
-          .insert([profileData]);
+        const { error: insertError } = await supabase.
+        from('user_profiles').
+        insert([profileData]);
 
         if (insertError) throw insertError;
       }
@@ -107,8 +107,8 @@ const FixedAdminSetup: React.FC = () => {
       toast.success('Admin profile created successfully!');
     } catch (error: any) {
       console.error('Profile creation error:', error);
-      updateStep('profile', { 
-        status: 'error', 
+      updateStep('profile', {
+        status: 'error',
         error: error.message || 'Failed to create admin profile'
       });
       toast.error('Failed to create admin profile');
@@ -117,7 +117,7 @@ const FixedAdminSetup: React.FC = () => {
 
   const setupModuleAccess = async () => {
     updateStep('modules', { status: 'running' });
-    
+
     try {
       // Get current user
       const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -126,10 +126,10 @@ const FixedAdminSetup: React.FC = () => {
       }
 
       // Clear existing module access
-      const { error: deleteError } = await supabase
-        .from('module_access')
-        .delete()
-        .eq('user_id', user.id);
+      const { error: deleteError } = await supabase.
+      from('module_access').
+      delete().
+      eq('user_id', user.id);
 
       if (deleteError) {
         console.warn('Delete warning (may be expected):', deleteError);
@@ -137,12 +137,12 @@ const FixedAdminSetup: React.FC = () => {
 
       // Define all modules with full access
       const modules = [
-        'Dashboard', 'Users', 'Stations', 'Products', 'Sales', 
-        'Deliveries', 'Employees', 'Licenses', 'Reports', 'Settings',
-        'SMS Management', 'Audit Logs', 'Admin Panel'
-      ];
+      'Dashboard', 'Users', 'Stations', 'Products', 'Sales',
+      'Deliveries', 'Employees', 'Licenses', 'Reports', 'Settings',
+      'SMS Management', 'Audit Logs', 'Admin Panel'];
 
-      const moduleAccessData = modules.map(moduleName => ({
+
+      const moduleAccessData = modules.map((moduleName) => ({
         id: crypto.randomUUID(),
         user_id: user.id,
         module_name: moduleName,
@@ -159,9 +159,9 @@ const FixedAdminSetup: React.FC = () => {
       }));
 
       // Insert module access records
-      const { error: insertError } = await supabase
-        .from('module_access')
-        .insert(moduleAccessData);
+      const { error: insertError } = await supabase.
+      from('module_access').
+      insert(moduleAccessData);
 
       if (insertError) throw insertError;
 
@@ -169,8 +169,8 @@ const FixedAdminSetup: React.FC = () => {
       toast.success('Module access configured successfully!');
     } catch (error: any) {
       console.error('Module access error:', error);
-      updateStep('modules', { 
-        status: 'error', 
+      updateStep('modules', {
+        status: 'error',
         error: error.message || 'Failed to configure module access'
       });
       toast.error('Failed to configure module access');
@@ -179,7 +179,7 @@ const FixedAdminSetup: React.FC = () => {
 
   const verifySetup = async () => {
     updateStep('verification', { status: 'running' });
-    
+
     try {
       // Get current user
       const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -188,22 +188,22 @@ const FixedAdminSetup: React.FC = () => {
       }
 
       // Verify profile exists
-      const { data: profile, error: profileError } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
+      const { data: profile, error: profileError } = await supabase.
+      from('user_profiles').
+      select('*').
+      eq('user_id', user.id).
+      single();
 
       if (profileError || !profile) {
         throw new Error('Admin profile not found');
       }
 
       // Verify module access
-      const { data: modules, error: modulesError } = await supabase
-        .from('module_access')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('is_active', true);
+      const { data: modules, error: modulesError } = await supabase.
+      from('module_access').
+      select('*').
+      eq('user_id', user.id).
+      eq('is_active', true);
 
       if (modulesError) throw modulesError;
 
@@ -215,8 +215,8 @@ const FixedAdminSetup: React.FC = () => {
       toast.success('Setup verification completed successfully!');
     } catch (error: any) {
       console.error('Verification error:', error);
-      updateStep('verification', { 
-        status: 'error', 
+      updateStep('verification', {
+        status: 'error',
         error: error.message || 'Setup verification failed'
       });
       toast.error('Setup verification failed');
@@ -259,56 +259,56 @@ const FixedAdminSetup: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {steps.map((step) => (
-            <div key={step.id} className="flex items-center gap-4 p-4 border rounded-lg">
+          {steps.map((step) =>
+          <div key={step.id} className="flex items-center gap-4 p-4 border rounded-lg">
               {getStepIcon(step.status)}
               <div className="flex-1">
                 <h3 className="font-medium">{step.title}</h3>
                 <p className="text-sm text-gray-600">{step.description}</p>
-                {step.error && (
-                  <Alert className="mt-2">
+                {step.error &&
+              <Alert className="mt-2">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription className="text-sm text-red-600">
                       {step.error}
                     </AlertDescription>
                   </Alert>
-                )}
+              }
               </div>
             </div>
-          ))}
+          )}
         </CardContent>
       </Card>
 
       <div className="flex justify-center gap-4">
-        <Button 
+        <Button
           onClick={runCompleteSetup}
           className="px-8 py-2"
-          disabled={steps.some(step => step.status === 'running')}
-        >
-          {steps.some(step => step.status === 'running') ? (
-            <>
+          disabled={steps.some((step) => step.status === 'running')}>
+
+          {steps.some((step) => step.status === 'running') ?
+          <>
               <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
               Setting up...
-            </>
-          ) : (
-            <>
+            </> :
+
+          <>
               <Shield className="h-4 w-4 mr-2" />
               Run Complete Setup
             </>
-          )}
+          }
         </Button>
       </div>
 
-      {steps.every(step => step.status === 'success') && (
-        <Alert>
+      {steps.every((step) => step.status === 'success') &&
+      <Alert>
           <CheckCircle className="h-4 w-4" />
           <AlertDescription className="text-green-600">
             ✅ All setup steps completed successfully! The admin user and module access have been configured properly.
           </AlertDescription>
         </Alert>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default FixedAdminSetup;
