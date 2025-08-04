@@ -266,6 +266,12 @@ const AdminPanel = () => {
               icon={Shield}
               onClick={() => navigate('/admin/user-validation')} />
 
+            <QuickAdminAction
+              title="Role Management"
+              description="Create and manage user roles with permissions"
+              icon={Shield}
+              onClick={() => navigate('/admin/roles')} />
+
           </div>
         </TabsContent>
 
