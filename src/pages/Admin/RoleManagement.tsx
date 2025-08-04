@@ -26,15 +26,15 @@ const RoleManagement = () => {
             Return to Dashboard
           </Button>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
     <div className="max-w-7xl mx-auto p-6">
       <AdminRoleManager />
-    </div>
-  );
+    </div>);
+
 };
 
 export default RoleManagement;

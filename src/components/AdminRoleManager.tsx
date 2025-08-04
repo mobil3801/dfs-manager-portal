@@ -49,19 +49,19 @@ const AdminRoleManager = () => {
   });
 
   const roles = [
-    { value: 'Administrator', label: 'Administrator', code: 'Administrator', badge: 'destructive' },
-    { value: 'Management', label: 'Management', code: 'Administrator', badge: 'default' },
-    { value: 'Manager', label: 'Manager', code: 'Administrator', badge: 'secondary' },
-    { value: 'Employee', label: 'Employee', code: 'GeneralUser', badge: 'outline' }
-  ];
+  { value: 'Administrator', label: 'Administrator', code: 'Administrator', badge: 'destructive' },
+  { value: 'Management', label: 'Management', code: 'Administrator', badge: 'default' },
+  { value: 'Manager', label: 'Manager', code: 'Administrator', badge: 'secondary' },
+  { value: 'Employee', label: 'Employee', code: 'GeneralUser', badge: 'outline' }];
+
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const { data, error } = await supabase.
+      from('user_profiles').
+      select('*').
+      order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching users:', error);
@@ -131,22 +131,22 @@ const AdminRoleManager = () => {
         };
       }
 
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .upsert({
-          email: roleForm.email,
-          role: roleForm.role,
-          role_code: roleForm.roleCode,
-          station: roleForm.station,
-          employee_id: roleForm.employeeId,
-          phone: roleForm.phone,
-          detailed_permissions: permissions,
-          is_active: true,
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'email'
-        })
-        .select();
+      const { data, error } = await supabase.
+      from('user_profiles').
+      upsert({
+        email: roleForm.email,
+        role: roleForm.role,
+        role_code: roleForm.roleCode,
+        station: roleForm.station,
+        employee_id: roleForm.employeeId,
+        phone: roleForm.phone,
+        detailed_permissions: permissions,
+        is_active: true,
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'email'
+      }).
+      select();
 
       if (error) {
         toast({
@@ -184,13 +184,13 @@ const AdminRoleManager = () => {
 
   const handleToggleUserStatus = async (user: UserProfile) => {
     try {
-      const { error } = await supabase
-        .from('user_profiles')
-        .update({ 
-          is_active: !user.is_active,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
+      const { error } = await supabase.
+      from('user_profiles').
+      update({
+        is_active: !user.is_active,
+        updated_at: new Date().toISOString()
+      }).
+      eq('id', user.id);
 
       if (error) {
         toast({
@@ -217,7 +217,7 @@ const AdminRoleManager = () => {
   };
 
   const getRoleBadgeVariant = (role: string) => {
-    const roleInfo = roles.find(r => r.value === role);
+    const roleInfo = roles.find((r) => r.value === role);
     return roleInfo?.badge || 'outline';
   };
 
@@ -228,8 +228,8 @@ const AdminRoleManager = () => {
         <AlertDescription>
           Only administrators can access role management.
         </AlertDescription>
-      </Alert>
-    );
+      </Alert>);
+
   }
 
   return (
@@ -265,32 +265,32 @@ const AdminRoleManager = () => {
                       id="email"
                       type="email"
                       value={roleForm.email}
-                      onChange={(e) => setRoleForm(prev => ({ ...prev, email: e.target.value }))}
-                      placeholder="user@example.com"
-                    />
+                      onChange={(e) => setRoleForm((prev) => ({ ...prev, email: e.target.value }))}
+                      placeholder="user@example.com" />
+
                   </div>
                   <div>
                     <Label htmlFor="role">Role *</Label>
                     <Select
                       value={roleForm.role}
                       onValueChange={(value) => {
-                        const role = roles.find(r => r.value === value);
-                        setRoleForm(prev => ({ 
-                          ...prev, 
+                        const role = roles.find((r) => r.value === value);
+                        setRoleForm((prev) => ({
+                          ...prev,
                           role: value,
                           roleCode: role?.code || 'GeneralUser'
                         }));
-                      }}
-                    >
+                      }}>
+
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {roles.map((role) => (
-                          <SelectItem key={role.value} value={role.value}>
+                        {roles.map((role) =>
+                        <SelectItem key={role.value} value={role.value}>
                             {role.label}
                           </SelectItem>
-                        ))}
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
@@ -301,8 +301,8 @@ const AdminRoleManager = () => {
                     <Label htmlFor="station">Station</Label>
                     <Select
                       value={roleForm.station}
-                      onValueChange={(value) => setRoleForm(prev => ({ ...prev, station: value }))}
-                    >
+                      onValueChange={(value) => setRoleForm((prev) => ({ ...prev, station: value }))}>
+
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -320,9 +320,9 @@ const AdminRoleManager = () => {
                     <Input
                       id="employeeId"
                       value={roleForm.employeeId}
-                      onChange={(e) => setRoleForm(prev => ({ ...prev, employeeId: e.target.value }))}
-                      placeholder="EMP001"
-                    />
+                      onChange={(e) => setRoleForm((prev) => ({ ...prev, employeeId: e.target.value }))}
+                      placeholder="EMP001" />
+
                   </div>
                 </div>
 
@@ -331,9 +331,9 @@ const AdminRoleManager = () => {
                   <Input
                     id="phone"
                     value={roleForm.phone}
-                    onChange={(e) => setRoleForm(prev => ({ ...prev, phone: e.target.value }))}
-                    placeholder="+1-555-0100"
-                  />
+                    onChange={(e) => setRoleForm((prev) => ({ ...prev, phone: e.target.value }))}
+                    placeholder="+1-555-0100" />
+
                 </div>
 
                 <div>
@@ -341,10 +341,10 @@ const AdminRoleManager = () => {
                   <Textarea
                     id="permissions"
                     value={roleForm.permissions}
-                    onChange={(e) => setRoleForm(prev => ({ ...prev, permissions: e.target.value }))}
+                    onChange={(e) => setRoleForm((prev) => ({ ...prev, permissions: e.target.value }))}
                     placeholder='{"users": {"read": true, "create": false}}'
-                    rows={4}
-                  />
+                    rows={4} />
+
                   <p className="text-sm text-gray-500 mt-1">
                     Leave empty for default role permissions
                   </p>
@@ -386,12 +386,12 @@ const AdminRoleManager = () => {
             </Badge>
           </div>
 
-          {loading ? (
-            <div className="flex justify-center py-8">
+          {loading ?
+          <div className="flex justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
+            </div> :
+
+          <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -405,13 +405,13 @@ const AdminRoleManager = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.map((user) => (
-                    <TableRow key={user.id}>
+                  {users.map((user) =>
+                <TableRow key={user.id}>
                       <TableCell className="font-medium">
                         {user.email}
-                        {user.email === userProfile?.email && (
-                          <Badge variant="outline" className="ml-2">You</Badge>
-                        )}
+                        {user.email === userProfile?.email &&
+                    <Badge variant="outline" className="ml-2">You</Badge>
+                    }
                       </TableCell>
                       <TableCell>
                         <Badge variant={getRoleBadgeVariant(user.role) as any}>
@@ -423,10 +423,10 @@ const AdminRoleManager = () => {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Switch
-                            checked={user.is_active}
-                            onCheckedChange={() => handleToggleUserStatus(user)}
-                            disabled={user.email === userProfile?.email}
-                          />
+                        checked={user.is_active}
+                        onCheckedChange={() => handleToggleUserStatus(user)}
+                        disabled={user.email === userProfile?.email} />
+
                           <span className="text-sm">
                             {user.is_active ? 'Active' : 'Inactive'}
                           </span>
@@ -438,31 +438,31 @@ const AdminRoleManager = () => {
                       <TableCell>
                         <div className="flex space-x-2">
                           <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setRoleForm({
-                                email: user.email,
-                                role: user.role,
-                                roleCode: user.role_code,
-                                station: user.station,
-                                employeeId: user.employee_id,
-                                phone: user.phone || '',
-                                permissions: JSON.stringify(user.detailed_permissions || {}, null, 2)
-                              });
-                              setIsAssignRoleOpen(true);
-                            }}
-                          >
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setRoleForm({
+                            email: user.email,
+                            role: user.role,
+                            roleCode: user.role_code,
+                            station: user.station,
+                            employeeId: user.employee_id,
+                            phone: user.phone || '',
+                            permissions: JSON.stringify(user.detailed_permissions || {}, null, 2)
+                          });
+                          setIsAssignRoleOpen(true);
+                        }}>
+
                             <Edit className="h-3 w-3" />
                           </Button>
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                )}
                 </TableBody>
               </Table>
             </div>
-          )}
+          }
         </div>
       </Card>
 
@@ -490,8 +490,8 @@ const AdminRoleManager = () => {
                     }, null, 2)
                   });
                   setIsAssignRoleOpen(true);
-                }}
-              >
+                }}>
+
                 Assign Admin Role
               </Button>
             </div>
@@ -514,8 +514,8 @@ const AdminRoleManager = () => {
                     }, null, 2)
                   });
                   setIsAssignRoleOpen(true);
-                }}
-              >
+                }}>
+
                 Assign Manager Role
               </Button>
             </div>
@@ -541,8 +541,8 @@ const AdminRoleManager = () => {
           </p>
         </AlertDescription>
       </Alert>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AdminRoleManager;

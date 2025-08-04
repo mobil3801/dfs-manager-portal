@@ -31,72 +31,79 @@ interface SupabaseAuthContextType {
   userProfile: UserProfile | null;
   session: any;
   loading: boolean;
-  signUp: (email: string, password: string, metadata?: any) => Promise<{ success: boolean; error?: string }>;
-  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  authError: string | null;
+  isInitialized: boolean;
+  refreshUserData: () => Promise<void>;
+  signUp: (email: string, password: string, metadata?: any) => Promise<{success: boolean;error?: string;}>;
+  signIn: (email: string, password: string) => Promise<{success: boolean;error?: string;}>;
   signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
-  updatePassword: (password: string) => Promise<{ success: boolean; error?: string }>;
+  resetPassword: (email: string) => Promise<{success: boolean;error?: string;}>;
+  updatePassword: (password: string) => Promise<{success: boolean;error?: string;}>;
   refreshUserProfile: () => Promise<void>;
   isAdmin: () => boolean;
   isManager: () => boolean;
   hasPermission: (action: string, resource?: string) => boolean;
-  assignRole: (email: string, role: string, roleCode: string, permissions?: any) => Promise<{ success: boolean; error?: string }>;
+  assignRole: (email: string, role: string, roleCode: string, permissions?: any) => Promise<{success: boolean;error?: string;}>;
 }
 
 const SupabaseAuthContext = createContext<SupabaseAuthContextType | undefined>(undefined);
 
-export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+export const SupabaseAuthProvider: React.FC<{children: React.ReactNode;}> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const { toast } = useToast();
 
   const fetchUserProfile = async (userId: string, email: string) => {
     try {
       // First try to get profile by user_id
-      let { data: profile, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
+      let { data: profile, error } = await supabase.
+      from('user_profiles').
+      select('*').
+      eq('user_id', userId).
+      single();
 
       // If not found by user_id, try by email
       if (error && error.code === 'PGRST116') {
-        const { data: profileByEmail, error: emailError } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('email', email)
-          .single();
+        const { data: profileByEmail, error: emailError } = await supabase.
+        from('user_profiles').
+        select('*').
+        eq('email', email).
+        single();
 
         if (!emailError && profileByEmail) {
           // Update the profile with the user_id
-          const { data: updatedProfile } = await supabase
-            .from('user_profiles')
-            .update({ user_id: userId })
-            .eq('email', email)
-            .select()
-            .single();
+          const { data: updatedProfile } = await supabase.
+          from('user_profiles').
+          update({ user_id: userId }).
+          eq('email', email).
+          select().
+          single();
 
           profile = updatedProfile;
         } else {
           // Create a new profile if none exists
-          const { data: newProfile, error: createError } = await supabase
-            .from('user_profiles')
-            .insert([{
-              user_id: userId,
-              email: email,
-              role: 'Employee',
-              role_code: 'GeneralUser',
-              station: 'MOBIL',
-              employee_id: '',
-              phone: '',
-              hire_date: new Date().toISOString(),
-              is_active: true,
-              detailed_permissions: {}
-            }])
-            .select()
-            .single();
+          const { data: newProfile, error: createError } = await supabase.
+          from('user_profiles').
+          insert([{
+            user_id: userId,
+            email: email,
+            role: 'Employee',
+            role_code: 'GeneralUser',
+            station: 'MOBIL',
+            employee_id: '',
+            phone: '',
+            hire_date: new Date().toISOString(),
+            is_active: true,
+            detailed_permissions: {}
+          }]).
+          select().
+          single();
 
           if (createError) {
             console.error('Error creating user profile:', createError);
@@ -116,13 +123,20 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
 
   const initializeAuth = async () => {
     try {
-      // Get initial session
-      const { data: { session: initialSession } } = await supabase.auth.getSession();
+      setAuthError(null);
       
+      // Get initial session
+      const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
+
+      if (sessionError) {
+        console.warn('Session error:', sessionError);
+        setAuthError(sessionError.message);
+      }
+
       if (initialSession) {
         setSession(initialSession);
         setUser(initialSession.user);
-        
+
         const profile = await fetchUserProfile(initialSession.user.id, initialSession.user.email);
         setUserProfile(profile);
       }
@@ -131,9 +145,9 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
         async (event, session) => {
           console.log('Auth state changed:', event, session);
-          
+
           setSession(session);
-          
+
           if (session?.user) {
             setUser(session.user);
             const profile = await fetchUserProfile(session.user.id, session.user.email);
@@ -146,16 +160,18 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
       );
 
       return subscription;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error initializing auth:', error);
+      setAuthError(error.message || 'Failed to initialize authentication');
     } finally {
       setLoading(false);
+      setIsInitialized(true);
     }
   };
 
   useEffect(() => {
     let subscription: any;
-    
+
     initializeAuth().then((sub) => {
       subscription = sub;
     });
@@ -168,7 +184,7 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
   const signUp = async (email: string, password: string, metadata?: any) => {
     try {
       setLoading(true);
-      
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -209,7 +225,7 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
-      
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -302,18 +318,18 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
   };
 
   const isManager = () => {
-    return userProfile?.role === 'Management' || 
-           userProfile?.role === 'Manager' || 
-           userProfile?.role_code === 'Administrator' ||
-           isAdmin();
+    return userProfile?.role === 'Management' ||
+    userProfile?.role === 'Manager' ||
+    userProfile?.role_code === 'Administrator' ||
+    isAdmin();
   };
 
   const hasPermission = (action: string, resource?: string) => {
     if (!userProfile || !userProfile.is_active) return false;
-    
+
     // Admins have all permissions
     if (isAdmin()) return true;
-    
+
     // Check detailed permissions
     if (userProfile.detailed_permissions && resource) {
       const resourcePermissions = userProfile.detailed_permissions[resource];
@@ -321,16 +337,16 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
         return true;
       }
     }
-    
+
     // Default role-based permissions
     if (userProfile.role === 'Management' || userProfile.role === 'Manager') {
       return ['create', 'read', 'update'].includes(action);
     }
-    
+
     if (userProfile.role === 'Employee') {
       return action === 'read';
     }
-    
+
     return false;
   };
 
@@ -340,19 +356,19 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
         return { success: false, error: 'Only administrators can assign roles' };
       }
 
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .upsert({
-          email,
-          role,
-          role_code: roleCode,
-          detailed_permissions: permissions || {},
-          is_active: true,
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'email'
-        })
-        .select();
+      const { data, error } = await supabase.
+      from('user_profiles').
+      upsert({
+        email,
+        role,
+        role_code: roleCode,
+        detailed_permissions: permissions || {},
+        is_active: true,
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'email'
+      }).
+      select();
 
       if (error) {
         return { success: false, error: error.message };
@@ -369,11 +385,41 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
     }
   };
 
+  const refreshUserData = async () => {
+    try {
+      setAuthError(null);
+      setLoading(true);
+      
+      const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        setAuthError(error.message);
+        return;
+      }
+      
+      if (currentSession?.user) {
+        setUser(currentSession.user);
+        setSession(currentSession);
+        const profile = await fetchUserProfile(currentSession.user.id, currentSession.user.email);
+        setUserProfile(profile);
+      }
+    } catch (error: any) {
+      setAuthError(error.message || 'Failed to refresh user data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const value: SupabaseAuthContextType = {
     user,
     userProfile,
     session,
     loading,
+    isAuthenticated: !!user,
+    isLoading: loading,
+    authError,
+    isInitialized,
+    refreshUserData,
     signUp,
     signIn,
     signOut,
@@ -389,8 +435,8 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
   return (
     <SupabaseAuthContext.Provider value={value}>
       {children}
-    </SupabaseAuthContext.Provider>
-  );
+    </SupabaseAuthContext.Provider>);
+
 };
 
 export const useSupabaseAuth = (): SupabaseAuthContextType => {
