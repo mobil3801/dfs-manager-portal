@@ -47,6 +47,7 @@ const SiteManagement = lazy(() => import('@/pages/Admin/SiteManagement'));
 const SystemLogs = lazy(() => import('@/pages/Admin/SystemLogs'));
 const SecuritySettings = lazy(() => import('@/pages/Admin/SecuritySettings'));
 const SMSManagement = lazy(() => import('@/pages/Admin/SMSManagement'));
+const AlertSettings = lazy(() => import('@/pages/Admin/AlertSettings'));
 const UserValidationTestPage = lazy(() => import('@/pages/Admin/UserValidationTestPage'));
 const AuthDiagnosticPage = lazy(() => import('@/pages/AuthDiagnosticPage'));
 const ModuleAccessPage = lazy(() => import('@/pages/Admin/ModuleAccessPage'));
@@ -393,6 +394,11 @@ const AppRouter = () => {
             <Route path="admin/sms" element={
             <Suspense fallback={<PageLoader />}>
                 <SMSManagement />
+              </Suspense>
+            } />
+            <Route path="admin/alerts" element={
+            <Suspense fallback={<PageLoader />}>
+                <AlertSettings />
               </Suspense>
             } />
             <Route path="admin/user-validation" element={

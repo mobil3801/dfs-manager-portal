@@ -14,7 +14,8 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
-  TestTube } from
+  TestTube,
+  Bell } from
 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -279,23 +280,35 @@ const AdminPanel = () => {
         <TabsContent value="system" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <QuickAdminAction
-              title="Database Monitoring"
-              description="Monitor database performance and connections"
-              icon={Database}
-              onClick={() => navigate('/admin/database')} />
-
+              title="User Management"
+              description="Manage user accounts, roles, and permissions"
+              icon={Users}
+              onClick={() => navigate('/admin/users')} />
+            <QuickAdminAction
+              title="Audit Logs"
+              description="View and manage audit logs"
+              icon={Shield}
+              onClick={() => navigate('/admin/audit')} />
             <QuickAdminAction
               title="SMS Management"
               description="Configure SMS alerts and notifications"
               icon={MessageSquare}
               onClick={() => navigate('/admin/sms')} />
-
+            <QuickAdminAction
+              title="Alert Settings"
+              description="Configure automated alerts and notifications"
+              icon={Bell}
+              onClick={() => navigate('/admin/alerts')} />
+            <QuickAdminAction
+              title="Database Monitoring"
+              description="Monitor database performance and connections"
+              icon={Database}
+              onClick={() => navigate('/admin/database')} />
             <QuickAdminAction
               title="System Logs"
               description="View and manage system logs"
               icon={Activity}
               onClick={() => navigate('/admin/logs')} />
-
           </div>
         </TabsContent>
 

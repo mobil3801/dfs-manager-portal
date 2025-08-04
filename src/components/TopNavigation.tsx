@@ -135,15 +135,18 @@ const TopNavigation = () => {
   }];
 
 
-  // Add admin section if user is admin
-  if (isAuthenticated && isAdmin()) {
-    secondaryNavItems.push({
-      name: 'Admin Panel',
-      href: '/admin',
-      icon: Shield,
-      requiredRole: 'admin'
-    });
-  }
+  // Admin navigation items - comprehensive admin menu
+  const adminNavItems = [
+    { name: 'Admin Dashboard', href: '/admin', icon: Shield },
+    { name: 'User Management', href: '/admin/users', icon: Users },
+    { name: 'Audit Logs', href: '/admin/audit', icon: Database },
+    { name: 'SMS Management', href: '/admin/sms', icon: MessageSquare },
+    { name: 'Alert Settings', href: '/admin/alerts', icon: AlertCircle },
+    { name: 'System Logs', href: '/admin/logs', icon: FileText },
+    { name: 'Database Monitor', href: '/admin/database', icon: Database },
+    { name: 'Security Settings', href: '/admin/security', icon: Shield },
+    { name: 'Site Management', href: '/admin/sites', icon: Building }
+  ];
 
   const handleLogout = async () => {
     try {
@@ -226,7 +229,7 @@ const TopNavigation = () => {
 
   // More Menu Dropdown Component
   const MoreMenuDropdown = () => {
-    if (accessibleSecondaryItems.length === 0) return null;
+    if (accessibleSecondaryItems.length === 0 && !isAuthenticated) return null;
 
     return (
       <DropdownMenu>
@@ -249,6 +252,38 @@ const TopNavigation = () => {
         </DropdownMenuContent>
       </DropdownMenu>);
 
+  };
+
+  // Admin Menu Dropdown Component
+  const AdminMenuDropdown = () => {
+    if (!isAuthenticated || !isAdmin()) return null;
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className="flex items-center space-x-2 px-3 py-2 rounded-md transition-all duration-200 whitespace-nowrap text-sm font-medium hover:scale-105 min-w-fit max-w-fit flex-shrink-0 text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:shadow-sm">
+            <Shield className="h-4 w-4 flex-shrink-0" />
+            <span className="ml-2">Admin</span>
+            <ChevronDown className="h-3 w-3 flex-shrink-0" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="center" className="w-56">
+          <DropdownMenuLabel>Admin Panel</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {adminNavItems.map((item) => (
+            <DropdownMenuItem 
+              key={item.href}
+              onClick={() => navigate(item.href)}
+              className="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-gray-900 w-full">
+              <item.icon className="mr-2 h-4 w-4" />
+              {item.name}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
   };
 
   // Show loading state for navigation
@@ -306,6 +341,9 @@ const TopNavigation = () => {
                 {accessiblePrimaryItems.map((item) =>
                 <NavigationLink key={item.href} item={item} />
                 )}
+                
+                {/* Admin Menu Dropdown - Only for admins */}
+                <AdminMenuDropdown />
                 
                 {/* More Menu Dropdown */}
                 <MoreMenuDropdown />
