@@ -15,17 +15,17 @@ const SupabaseLoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loginMode, setLoginMode] = useState<'signin' | 'signup'>('signin');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const { 
-    isAuthenticated, 
-    isLoading, 
-    authError, 
-    signIn, 
-    signUp, 
+
+  const {
+    isAuthenticated,
+    isLoading,
+    authError,
+    signIn,
+    signUp,
     clearError,
-    isInitialized 
+    isInitialized
   } = useSupabaseAuth();
-  
+
   const navigate = useNavigate();
 
   // Clear error when switching modes
@@ -46,13 +46,13 @@ const SupabaseLoginPage = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading DFS Manager Portal...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
       return;
     }
@@ -62,7 +62,7 @@ const SupabaseLoginPage = () => {
 
     try {
       let success = false;
-      
+
       if (loginMode === 'signin') {
         success = await signIn(email, password);
         if (success) {
@@ -89,11 +89,11 @@ const SupabaseLoginPage = () => {
         {/* Logo and Header */}
         <div className="text-center mb-8">
           <div className="mb-4">
-            <img 
-              src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png" 
-              alt="DFS Manager Portal" 
-              className="w-16 h-16 mx-auto rounded-lg shadow-md"
-            />
+            <img
+              src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
+              alt="DFS Manager Portal"
+              className="w-16 h-16 mx-auto rounded-lg shadow-md" />
+
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">DFS Manager Portal</h1>
           <p className="text-gray-600">Secure access to your dashboard</p>
@@ -114,11 +114,11 @@ const SupabaseLoginPage = () => {
               </TabsList>
 
               {/* Error Alert */}
-              {authError && (
-                <Alert variant="destructive" className="mb-4">
+              {authError &&
+              <Alert variant="destructive" className="mb-4">
                   <AlertDescription>{authError}</AlertDescription>
                 </Alert>
-              )}
+              }
 
               <TabsContent value="signin" className="space-y-4">
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -134,8 +134,8 @@ const SupabaseLoginPage = () => {
                         onChange={(e) => setEmail(e.target.value)}
                         className="pl-10"
                         required
-                        disabled={isSubmitting}
-                      />
+                        disabled={isSubmitting} />
+
                     </div>
                   </div>
 
@@ -151,32 +151,32 @@ const SupabaseLoginPage = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         className="pl-10 pr-10"
                         required
-                        disabled={isSubmitting}
-                      />
+                        disabled={isSubmitting} />
+
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                        disabled={isSubmitting}
-                      >
+                        disabled={isSubmitting}>
+
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                   </div>
 
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-blue-600 hover:bg-blue-700" 
-                    disabled={isSubmitting || !email || !password}
-                  >
-                    {isSubmitting ? (
-                      <>
+                  <Button
+                    type="submit"
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    disabled={isSubmitting || !email || !password}>
+
+                    {isSubmitting ?
+                    <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Signing In...
-                      </>
-                    ) : (
-                      'Sign In'
-                    )}
+                      </> :
+
+                    'Sign In'
+                    }
                   </Button>
                 </form>
               </TabsContent>
@@ -195,8 +195,8 @@ const SupabaseLoginPage = () => {
                         onChange={(e) => setEmail(e.target.value)}
                         className="pl-10"
                         required
-                        disabled={isSubmitting}
-                      />
+                        disabled={isSubmitting} />
+
                     </div>
                   </div>
 
@@ -213,14 +213,14 @@ const SupabaseLoginPage = () => {
                         className="pl-10 pr-10"
                         required
                         minLength={6}
-                        disabled={isSubmitting}
-                      />
+                        disabled={isSubmitting} />
+
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                        disabled={isSubmitting}
-                      >
+                        disabled={isSubmitting}>
+
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
@@ -229,19 +229,19 @@ const SupabaseLoginPage = () => {
                     </p>
                   </div>
 
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-green-600 hover:bg-green-700" 
-                    disabled={isSubmitting || !email || password.length < 6}
-                  >
-                    {isSubmitting ? (
-                      <>
+                  <Button
+                    type="submit"
+                    className="w-full bg-green-600 hover:bg-green-700"
+                    disabled={isSubmitting || !email || password.length < 6}>
+
+                    {isSubmitting ?
+                    <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Creating Account...
-                      </>
-                    ) : (
-                      'Create Account'
-                    )}
+                      </> :
+
+                    'Create Account'
+                    }
                   </Button>
                 </form>
               </TabsContent>
@@ -263,8 +263,8 @@ const SupabaseLoginPage = () => {
                 type="button"
                 onClick={() => navigate('/resetpassword')}
                 className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
-                disabled={isSubmitting}
-              >
+                disabled={isSubmitting}>
+
                 Forgot your password?
               </button>
             </div>
@@ -276,8 +276,8 @@ const SupabaseLoginPage = () => {
           <p>DFS Manager Portal - Secure Gas Station Management</p>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SupabaseLoginPage;

@@ -17,23 +17,23 @@ const AuthenticationFix: React.FC = () => {
 
     // Define public routes that don't require authentication
     const publicRoutes = [
-      '/login',
-      '/supabase-login',
-      '/legacy-login',
-      '/onauthsuccess',
-      '/resetpassword',
-      '/admin-setup',
-      '/admin-debug',
-      '/admin-emergency-fix',
-      '/admin-fix-success',
-      '/critical-error-fix',
-      '/upsert-fix',
-      '/admin-fix',
-      '/emergency-fix'
-    ];
+    '/login',
+    '/supabase-login',
+    '/legacy-login',
+    '/onauthsuccess',
+    '/resetpassword',
+    '/admin-setup',
+    '/admin-debug',
+    '/admin-emergency-fix',
+    '/admin-fix-success',
+    '/critical-error-fix',
+    '/upsert-fix',
+    '/admin-fix',
+    '/emergency-fix'];
 
-    const isPublicRoute = publicRoutes.some(route => 
-      location.pathname === route || location.pathname.startsWith(route)
+
+    const isPublicRoute = publicRoutes.some((route) =>
+    location.pathname === route || location.pathname.startsWith(route)
     );
 
     if (isAuthenticated && isPublicRoute && location.pathname !== '/onauthsuccess') {

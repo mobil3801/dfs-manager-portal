@@ -21,26 +21,26 @@ const queryClient = new QueryClient({
 });
 
 // Loading Spinner Component
-const LoadingSpinner = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+const LoadingSpinner = () =>
+<div className="min-h-screen flex items-center justify-center bg-gray-50">
     <div className="text-center">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
       <p className="text-gray-600">Loading DFS Manager Portal...</p>
     </div>
-  </div>
-);
+  </div>;
+
 
 // Simple Dashboard placeholder
-const SimpleDashboard = () => (
-  <div className="min-h-screen bg-gray-50 p-4">
+const SimpleDashboard = () =>
+<div className="min-h-screen bg-gray-50 p-4">
     <div className="max-w-7xl mx-auto">
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex items-center mb-6">
-          <img 
-            src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png" 
-            alt="DFS Manager Portal" 
-            className="w-12 h-12 rounded-lg shadow-md mr-4"
-          />
+          <img
+          src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
+          alt="DFS Manager Portal"
+          className="w-12 h-12 rounded-lg shadow-md mr-4" />
+
           <div>
             <h1 className="text-2xl font-bold text-gray-900">DFS Manager Portal</h1>
             <p className="text-gray-600">Gas Station Management System</p>
@@ -97,8 +97,8 @@ const SimpleDashboard = () => (
         </div>
       </div>
     </div>
-  </div>
-);
+  </div>;
+
 
 function App() {
   return (
@@ -122,8 +122,8 @@ function App() {
         </Router>
       </TooltipProvider>
       <Toaster />
-    </QueryClientProvider>
-  );
+    </QueryClientProvider>);
+
 }
 
 export default App;

@@ -38,7 +38,7 @@ interface SupabaseAuthContextType {
 
 const SupabaseAuthContext = createContext<SupabaseAuthContextType | undefined>(undefined);
 
-export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+export const SupabaseAuthProvider: React.FC<{children: React.ReactNode;}> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -55,21 +55,21 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
   const fetchUserProfile = async (userId: string) => {
     try {
       console.log('🔄 Fetching user profile for:', userId);
-      
-      const { data: profile, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
+
+      const { data: profile, error } = await supabase.
+      from('user_profiles').
+      select('*').
+      eq('user_id', userId).
+      single();
 
       if (error) {
         if (error.code === 'PGRST116') {
           // No profile found, create a default one
           console.log('📝 Creating default profile for user:', userId);
-          
+
           const { data: userData } = await supabase.auth.getUser();
           const userEmail = userData.user?.email || '';
-          
+
           const defaultProfile = {
             user_id: userId,
             email: userEmail,
@@ -79,11 +79,11 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
             updated_at: new Date().toISOString()
           };
 
-          const { data: newProfile, error: createError } = await supabase
-            .from('user_profiles')
-            .insert([defaultProfile])
-            .select()
-            .single();
+          const { data: newProfile, error: createError } = await supabase.
+          from('user_profiles').
+          insert([defaultProfile]).
+          select().
+          single();
 
           if (createError) {
             console.error('❌ Error creating user profile:', createError);
@@ -116,7 +116,7 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
       setIsLoading(true);
 
       const { data: { session }, error } = await supabase.auth.getSession();
-      
+
       if (error) {
         console.error('❌ Error getting session:', error);
         setAuthError(error.message);
@@ -149,7 +149,7 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('🔄 Auth state changed:', event, session?.user?.id);
-      
+
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         if (session?.user) {
           setUser(session.user);
@@ -172,7 +172,7 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
     try {
       setIsLoading(true);
       setAuthError(null);
-      
+
       console.log('📝 Attempting sign up for:', email);
 
       const { data, error } = await supabase.auth.signUp({
@@ -197,9 +197,9 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
       console.log('✅ Sign up successful');
       toast({
         title: "Registration Successful",
-        description: "Please check your email to verify your account",
+        description: "Please check your email to verify your account"
       });
-      
+
       return true;
     } catch (error) {
       console.error('❌ Sign up error:', error);
@@ -220,7 +220,7 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
     try {
       setIsLoading(true);
       setAuthError(null);
-      
+
       console.log('🔑 Attempting sign in for:', email);
 
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -243,12 +243,12 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
         console.log('✅ Sign in successful');
         setUser(data.user);
         await fetchUserProfile(data.user.id);
-        
+
         toast({
           title: "Login Successful",
-          description: "Welcome back!",
+          description: "Welcome back!"
         });
-        
+
         return true;
       }
 
@@ -271,9 +271,9 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
   const signOut = async (): Promise<void> => {
     try {
       console.log('🚪 Signing out user...');
-      
+
       const { error } = await supabase.auth.signOut();
-      
+
       if (error) {
         console.error('❌ Sign out error:', error);
         setAuthError(error.message);
@@ -283,12 +283,12 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
       setUser(null);
       setUserProfile(null);
       setAuthError(null);
-      
+
       toast({
         title: "Logged Out",
-        description: "You have been successfully logged out",
+        description: "You have been successfully logged out"
       });
-      
+
       console.log('✅ Sign out successful');
     } catch (error) {
       console.error('❌ Sign out error:', error);
@@ -346,10 +346,10 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
   };
 
   const isManager = (): boolean => {
-    return userProfile?.role === 'Management' || 
-           userProfile?.role === 'Manager' ||
-           userProfile?.role === 'Administrator' || 
-           userProfile?.role === 'Admin';
+    return userProfile?.role === 'Management' ||
+    userProfile?.role === 'Manager' ||
+    userProfile?.role === 'Administrator' ||
+    userProfile?.role === 'Admin';
   };
 
   const value: SupabaseAuthContextType = {
@@ -372,8 +372,8 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode}> = ({ ch
   return (
     <SupabaseAuthContext.Provider value={value}>
       {children}
-    </SupabaseAuthContext.Provider>
-  );
+    </SupabaseAuthContext.Provider>);
+
 };
 
 export const useSupabaseAuth = (): SupabaseAuthContextType => {

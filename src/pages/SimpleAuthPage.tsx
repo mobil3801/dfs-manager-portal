@@ -68,10 +68,10 @@ const SimpleAuthPage = () => {
   };
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      alignItems: 'center', 
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
       justifyContent: 'center',
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       padding: '20px'
@@ -85,11 +85,11 @@ const SimpleAuthPage = () => {
         maxWidth: '400px'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <img 
-            src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png" 
-            alt="DFS Manager Portal" 
-            style={{ width: '60px', height: '60px', borderRadius: '8px', marginBottom: '15px' }}
-          />
+          <img
+            src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
+            alt="DFS Manager Portal"
+            style={{ width: '60px', height: '60px', borderRadius: '8px', marginBottom: '15px' }} />
+
           <h1 style={{ color: '#333', marginBottom: '10px' }}>DFS Manager Portal</h1>
           <p style={{ color: '#666', fontSize: '14px' }}>
             {mode === 'signin' ? 'Sign in to your account' : 'Create new account'}
@@ -110,8 +110,8 @@ const SimpleAuthPage = () => {
                 cursor: 'pointer',
                 fontSize: '14px',
                 fontWeight: mode === 'signin' ? 'bold' : 'normal'
-              }}
-            >
+              }}>
+
               Sign In
             </button>
             <button
@@ -126,25 +126,25 @@ const SimpleAuthPage = () => {
                 cursor: 'pointer',
                 fontSize: '14px',
                 fontWeight: mode === 'signup' ? 'bold' : 'normal'
-              }}
-            >
+              }}>
+
               Sign Up
             </button>
           </div>
         </div>
 
-        {error && (
-          <div style={{
-            backgroundColor: mode === 'signup' && error.includes('email') ? '#e7f5e7' : '#ffe7e7',
-            color: mode === 'signup' && error.includes('email') ? '#2d5a2d' : '#d63031',
-            padding: '10px',
-            borderRadius: '6px',
-            marginBottom: '20px',
-            fontSize: '14px'
-          }}>
+        {error &&
+        <div style={{
+          backgroundColor: mode === 'signup' && error.includes('email') ? '#e7f5e7' : '#ffe7e7',
+          color: mode === 'signup' && error.includes('email') ? '#2d5a2d' : '#d63031',
+          padding: '10px',
+          borderRadius: '6px',
+          marginBottom: '20px',
+          fontSize: '14px'
+        }}>
             {error}
           </div>
-        )}
+        }
 
         <form onSubmit={handleAuth}>
           <div style={{ marginBottom: '15px' }}>
@@ -164,8 +164,8 @@ const SimpleAuthPage = () => {
                 fontSize: '14px',
                 boxSizing: 'border-box'
               }}
-              placeholder="Enter your email"
-            />
+              placeholder="Enter your email" />
+
           </div>
 
           <div style={{ marginBottom: '20px' }}>
@@ -186,8 +186,8 @@ const SimpleAuthPage = () => {
                 fontSize: '14px',
                 boxSizing: 'border-box'
               }}
-              placeholder={mode === 'signup' ? 'Create password (min 6 chars)' : 'Enter your password'}
-            />
+              placeholder={mode === 'signup' ? 'Create password (min 6 chars)' : 'Enter your password'} />
+
           </div>
 
           <button
@@ -204,9 +204,9 @@ const SimpleAuthPage = () => {
               fontWeight: 'bold',
               cursor: isLoading ? 'not-allowed' : 'pointer',
               opacity: isLoading ? 0.7 : 1
-            }}
-          >
-            {isLoading ? 'Loading...' : (mode === 'signin' ? 'Sign In' : 'Create Account')}
+            }}>
+
+            {isLoading ? 'Loading...' : mode === 'signin' ? 'Sign In' : 'Create Account'}
           </button>
         </form>
 
@@ -225,8 +225,8 @@ const SimpleAuthPage = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SimpleAuthPage;

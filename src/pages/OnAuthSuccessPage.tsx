@@ -10,37 +10,37 @@ const OnAuthSuccessPage = () => {
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [countdown, setCountdown] = useState(3);
-  
-  const { 
-    isAuthenticated, 
-    isLoading, 
+
+  const {
+    isAuthenticated,
+    isLoading,
     refreshUserProfile,
     user,
-    isInitialized 
+    isInitialized
   } = useSupabaseAuth();
-  
+
   const navigate = useNavigate();
 
   useEffect(() => {
     const handleAuthSuccess = async () => {
       try {
         console.log('🔄 Processing authentication success...');
-        
+
         // Wait for auth to initialize
         if (!isInitialized) {
           return;
         }
 
         // Small delay to ensure auth state is settled
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         if (isAuthenticated && user) {
           console.log('✅ User authenticated successfully:', user.id);
           setStatus('success');
-          
+
           // Refresh user profile to ensure we have latest data
           await refreshUserProfile();
-          
+
           // Start countdown for redirect
           const timer = setInterval(() => {
             setCountdown((prev) => {
@@ -91,11 +91,11 @@ const OnAuthSuccessPage = () => {
         <Card className="shadow-xl border-0">
           <CardHeader className="text-center">
             <div className="mb-4">
-              <img 
-                src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png" 
-                alt="DFS Manager Portal" 
-                className="w-16 h-16 mx-auto rounded-lg shadow-md"
-              />
+              <img
+                src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
+                alt="DFS Manager Portal"
+                className="w-16 h-16 mx-auto rounded-lg shadow-md" />
+
             </div>
             <CardTitle className="text-2xl">
               {status === 'verifying' && 'Verifying Authentication'}
@@ -105,8 +105,8 @@ const OnAuthSuccessPage = () => {
           </CardHeader>
 
           <CardContent className="text-center">
-            {status === 'verifying' && (
-              <div className="space-y-4">
+            {status === 'verifying' &&
+            <div className="space-y-4">
                 <div className="flex justify-center">
                   <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
                 </div>
@@ -117,10 +117,10 @@ const OnAuthSuccessPage = () => {
                   This usually takes just a few seconds
                 </div>
               </div>
-            )}
+            }
 
-            {status === 'success' && (
-              <div className="space-y-4">
+            {status === 'success' &&
+            <div className="space-y-4">
                 <div className="flex justify-center">
                   <CheckCircle className="h-12 w-12 text-green-600" />
                 </div>
@@ -132,17 +132,17 @@ const OnAuthSuccessPage = () => {
                     Redirecting in {countdown} second{countdown !== 1 ? 's' : ''}...
                   </div>
                 </div>
-                <Button 
-                  onClick={handleManualRedirect}
-                  className="w-full bg-blue-600 hover:bg-blue-700"
-                >
+                <Button
+                onClick={handleManualRedirect}
+                className="w-full bg-blue-600 hover:bg-blue-700">
+
                   Go to Dashboard Now
                 </Button>
               </div>
-            )}
+            }
 
-            {status === 'error' && (
-              <div className="space-y-4">
+            {status === 'error' &&
+            <div className="space-y-4">
                 <div className="flex justify-center">
                   <AlertCircle className="h-12 w-12 text-red-600" />
                 </div>
@@ -154,24 +154,24 @@ const OnAuthSuccessPage = () => {
                 </Alert>
 
                 <div className="space-y-2">
-                  <Button 
-                    onClick={handleRetry}
-                    className="w-full bg-blue-600 hover:bg-blue-700"
-                  >
+                  <Button
+                  onClick={handleRetry}
+                  className="w-full bg-blue-600 hover:bg-blue-700">
+
                     <RefreshCw className="mr-2 h-4 w-4" />
                     Try Again
                   </Button>
                   
-                  <Button 
-                    onClick={() => navigate('/login')}
-                    variant="outline"
-                    className="w-full"
-                  >
+                  <Button
+                  onClick={() => navigate('/login')}
+                  variant="outline"
+                  className="w-full">
+
                     Back to Login
                   </Button>
                 </div>
               </div>
-            )}
+            }
 
             {/* Status Info */}
             <div className="mt-6 p-3 bg-gray-50 rounded-lg text-left">
@@ -185,8 +185,8 @@ const OnAuthSuccessPage = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default OnAuthSuccessPage;
