@@ -21,6 +21,7 @@ import OnAuthSuccessPage from '@/pages/OnAuthSuccessPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import NotFound from '@/pages/NotFound';
 import AdminSetupPage from '@/pages/Admin/AdminSetupPage';
+import AdminDebugPage from '@/pages/AdminDebugPage';
 
 // Lazy load feature pages
 const ProductList = lazy(() => import('@/pages/Products/ProductList'));
@@ -174,6 +175,7 @@ const AppRouter = () => {
           <Route path="/supabase-login" element={<SupabaseLoginPage />} />
           <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
           <Route path="/resetpassword" element={<ResetPasswordPage />} />
+          <Route path="/admin-setup" element={<AdminSetupPage />} />
           
           {/* Protected Routes */}
           <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
