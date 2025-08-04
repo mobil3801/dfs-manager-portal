@@ -399,33 +399,34 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
 
     const initializeAuth = async () => {
       try {
-        // Get initial session
-        const { data: { session }, error } = await supabase.auth.getSession();
-
-        if (error) {
-          console.error('Error getting session:', error);
-          setAuthError(error.message);
+        // Set default state first
+        if (mounted) {
+          setUser(null);
+          setUserProfile(GUEST_PROFILE);
+          setSession(null);
+          setIsInitialized(true);
+          setIsLoading(false);
+          setAuthError(null);
         }
 
-        if (mounted) {
-          if (session?.user) {
+        // Try to get initial session, but don't fail if it doesn't work
+        try {
+          const { data: { session }, error } = await supabase.auth.getSession();
+
+          if (mounted && session?.user && !error) {
             setUser(session.user);
             setSession(session);
 
             const profile = await fetchUserProfile(session.user.id);
             setUserProfile(profile);
-          } else {
-            setUser(null);
-            setUserProfile(GUEST_PROFILE);
-            setSession(null);
           }
-          setIsInitialized(true);
-          setIsLoading(false);
+        } catch (sessionError) {
+          console.warn('Session check failed:', sessionError);
+          // Continue with guest state
         }
       } catch (error: any) {
         console.error('Auth initialization error:', error);
         if (mounted) {
-          setAuthError(error?.message || 'Failed to initialize authentication');
           setUser(null);
           setUserProfile(GUEST_PROFILE);
           setSession(null);
@@ -437,33 +438,49 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
 
     initializeAuth();
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mounted) return;
+    // Listen for auth changes with error handling
+    let subscription: any;
+    try {
+      const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
+        if (!mounted) return;
 
-      console.log('Auth state changed:', event, session?.user?.id);
+        console.log('Auth state changed:', event, session?.user?.id);
 
-      if (event === 'SIGNED_IN' && session?.user) {
-        setUser(session.user);
-        setSession(session);
-        const profile = await fetchUserProfile(session.user.id);
-        setUserProfile(profile);
-        setAuthError(null);
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-        setUserProfile(GUEST_PROFILE);
-        setSession(null);
-        setAuthError(null);
-      } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-        setSession(session);
-      }
+        try {
+          if (event === 'SIGNED_IN' && session?.user) {
+            setUser(session.user);
+            setSession(session);
+            const profile = await fetchUserProfile(session.user.id);
+            setUserProfile(profile);
+            setAuthError(null);
+          } else if (event === 'SIGNED_OUT') {
+            setUser(null);
+            setUserProfile(GUEST_PROFILE);
+            setSession(null);
+            setAuthError(null);
+          } else if (event === 'TOKEN_REFRESHED' && session?.user) {
+            setSession(session);
+          }
+        } catch (stateChangeError) {
+          console.warn('Auth state change error:', stateChangeError);
+        }
 
-      setIsLoading(false);
-    });
+        setIsLoading(false);
+      });
+      subscription = data.subscription;
+    } catch (subscriptionError) {
+      console.warn('Auth subscription failed:', subscriptionError);
+    }
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      if (subscription?.unsubscribe) {
+        try {
+          subscription.unsubscribe();
+        } catch (unsubscribeError) {
+          console.warn('Unsubscribe error:', unsubscribeError);
+        }
+      }
     };
   }, []);
 

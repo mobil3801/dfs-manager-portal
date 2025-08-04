@@ -178,9 +178,9 @@ const SupabaseUpsertFix: React.FC = () => {
           updated_at: new Date().toISOString()
         };
 
-        const { error: moduleError } = await supabase.
-        from('module_access').
-        insert(moduleData);
+        const { error: moduleError } = await supabase
+          .from('module_access')
+          .insert(moduleData);
 
         if (!moduleError) {
           moduleSuccessCount++;
