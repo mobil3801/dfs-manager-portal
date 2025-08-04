@@ -35,21 +35,21 @@ interface AuthContextType {
   authError: string | null;
   isInitialized: boolean;
   refreshUserData: () => Promise<void>;
-  signUp: (email: string, password: string, metadata?: any) => Promise<{success: boolean; error?: string}>;
-  signIn: (email: string, password: string) => Promise<{success: boolean; error?: string}>;
+  signUp: (email: string, password: string, metadata?: any) => Promise<{success: boolean;error?: string;}>;
+  signIn: (email: string, password: string) => Promise<{success: boolean;error?: string;}>;
   signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<{success: boolean; error?: string}>;
-  updatePassword: (password: string) => Promise<{success: boolean; error?: string}>;
+  resetPassword: (email: string) => Promise<{success: boolean;error?: string;}>;
+  updatePassword: (password: string) => Promise<{success: boolean;error?: string;}>;
   refreshUserProfile: () => Promise<void>;
   isAdmin: () => boolean;
   isManager: () => boolean;
   hasPermission: (action: string, resource?: string) => boolean;
-  assignRole: (email: string, role: string, roleCode: string, permissions?: any) => Promise<{success: boolean; error?: string}>;
+  assignRole: (email: string, role: string, roleCode: string, permissions?: any) => Promise<{success: boolean;error?: string;}>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const SimpleAuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+export const SimpleAuthProvider: React.FC<{children: React.ReactNode;}> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [session, setSession] = useState<any>(null);
@@ -64,7 +64,7 @@ export const SimpleAuthProvider: React.FC<{children: React.ReactNode}> = ({ chil
       try {
         setLoading(true);
         setAuthError(null);
-        
+
         // Check if user is logged in from localStorage
         const savedSession = localStorage.getItem('dfs_session');
         if (savedSession) {
@@ -169,11 +169,11 @@ export const SimpleAuthProvider: React.FC<{children: React.ReactNode}> = ({ chil
         localStorage.setItem('dfs_session', JSON.stringify(session));
         setUser(user);
         setSession(session);
-        
+
         // Set role based on email
-        const role = (email.includes('admin') || email === 'admin@dfs-portal.com') ? 'Administrator' : 'Employee';
-        const roleCode = (email.includes('admin') || email === 'admin@dfs-portal.com') ? 'Administrator' : 'GeneralUser';
-        
+        const role = email.includes('admin') || email === 'admin@dfs-portal.com' ? 'Administrator' : 'Employee';
+        const roleCode = email.includes('admin') || email === 'admin@dfs-portal.com' ? 'Administrator' : 'GeneralUser';
+
         setUserProfile({
           email,
           role,
@@ -211,7 +211,7 @@ export const SimpleAuthProvider: React.FC<{children: React.ReactNode}> = ({ chil
       setSession(null);
       setUserProfile(null);
       setAuthError(null);
-      
+
       toast({
         title: "Signed Out",
         description: "You have been successfully signed out"
@@ -249,7 +249,7 @@ export const SimpleAuthProvider: React.FC<{children: React.ReactNode}> = ({ chil
     try {
       setLoading(true);
       setAuthError(null);
-      
+
       const savedSession = localStorage.getItem('dfs_session');
       if (savedSession) {
         const parsedSession = JSON.parse(savedSession);
@@ -277,24 +277,24 @@ export const SimpleAuthProvider: React.FC<{children: React.ReactNode}> = ({ chil
   };
 
   const isManager = () => {
-    return userProfile?.role === 'Management' || 
-           userProfile?.role === 'Manager' || 
-           userProfile?.role_code === 'Administrator' || 
-           isAdmin();
+    return userProfile?.role === 'Management' ||
+    userProfile?.role === 'Manager' ||
+    userProfile?.role_code === 'Administrator' ||
+    isAdmin();
   };
 
   const hasPermission = (action: string, resource?: string) => {
     if (!userProfile || !userProfile.is_active) return false;
     if (isAdmin()) return true;
-    
+
     if (userProfile.role === 'Management' || userProfile.role === 'Manager') {
       return ['create', 'read', 'update'].includes(action);
     }
-    
+
     if (userProfile.role === 'Employee') {
       return action === 'read';
     }
-    
+
     return false;
   };
 
@@ -340,8 +340,8 @@ export const SimpleAuthProvider: React.FC<{children: React.ReactNode}> = ({ chil
   return (
     <AuthContext.Provider value={value}>
       {children}
-    </AuthContext.Provider>
-  );
+    </AuthContext.Provider>);
+
 };
 
 export const useSimpleAuth = (): AuthContextType => {

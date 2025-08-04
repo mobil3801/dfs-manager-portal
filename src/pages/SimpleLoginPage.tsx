@@ -15,7 +15,7 @@ const SimpleLoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [localError, setLocalError] = useState('');
-  
+
   const { signIn, isAuthenticated, authError, loading } = useSimpleAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ const SimpleLoginPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
       setLocalError('Please enter both email and password');
       return;
@@ -42,7 +42,7 @@ const SimpleLoginPage = () => {
 
     try {
       const result = await signIn(email, password);
-      
+
       if (result.success) {
         navigate(from, { replace: true });
       } else {
@@ -72,8 +72,8 @@ const SimpleLoginPage = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   const errorMessage = localError || authError;
@@ -84,11 +84,11 @@ const SimpleLoginPage = () => {
         {/* Header */}
         <div className="text-center">
           <div className="mx-auto h-16 w-16 flex items-center justify-center bg-blue-600 rounded-full">
-            <img 
-              src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png" 
+            <img
+              src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
               alt="DFS Manager"
-              className="h-12 w-12 object-contain"
-            />
+              className="h-12 w-12 object-contain" />
+
           </div>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
             DFS Manager Portal
@@ -107,8 +107,8 @@ const SimpleLoginPage = () => {
               variant="outline"
               size="sm"
               onClick={() => demoLogin('admin')}
-              className="flex-1"
-            >
+              className="flex-1">
+
               Admin Demo
             </Button>
             <Button
@@ -116,8 +116,8 @@ const SimpleLoginPage = () => {
               variant="outline"
               size="sm"
               onClick={() => demoLogin('employee')}
-              className="flex-1"
-            >
+              className="flex-1">
+
               Employee Demo
             </Button>
           </div>
@@ -132,11 +132,11 @@ const SimpleLoginPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {errorMessage && (
-              <Alert className="mb-4" variant="destructive">
+            {errorMessage &&
+            <Alert className="mb-4" variant="destructive">
                 <AlertDescription>{errorMessage}</AlertDescription>
               </Alert>
-            )}
+            }
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
@@ -151,8 +151,8 @@ const SimpleLoginPage = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10"
                     required
-                    autoComplete="email"
-                  />
+                    autoComplete="email" />
+
                 </div>
               </div>
 
@@ -168,13 +168,13 @@ const SimpleLoginPage = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10 pr-10"
                     required
-                    autoComplete="current-password"
-                  />
+                    autoComplete="current-password" />
+
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
@@ -183,19 +183,19 @@ const SimpleLoginPage = () => {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
+                disabled={isLoading}>
+
+                {isLoading ?
+                <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     Signing in...
-                  </>
-                ) : (
-                  <>
+                  </> :
+
+                <>
                     <LogIn className="h-4 w-4 mr-2" />
                     Sign In
                   </>
-                )}
+                }
               </Button>
             </form>
 
@@ -222,8 +222,8 @@ const SimpleLoginPage = () => {
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SimpleLoginPage;

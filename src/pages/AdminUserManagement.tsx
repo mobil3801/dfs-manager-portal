@@ -8,17 +8,17 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { 
-  Users, 
-  UserPlus, 
-  Settings, 
-  Shield, 
-  Check, 
-  X, 
+import {
+  Users,
+  UserPlus,
+  Settings,
+  Shield,
+  Check,
+  X,
   AlertTriangle,
   Mail,
-  Edit
-} from 'lucide-react';
+  Edit } from
+'lucide-react';
 import { useSimpleAuth } from '@/contexts/SimpleAuthContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -33,16 +33,16 @@ const AdminUserManagement = () => {
 
   // Mock users data - in real app this would come from database
   const [users, setUsers] = useState([
-    {
-      id: '1',
-      email: userProfile?.email || 'admin@dfs-portal.com',
-      role: 'Administrator',
-      role_code: 'Administrator',
-      is_active: true,
-      created_at: new Date().toISOString(),
-      station: 'All Stations'
-    }
-  ]);
+  {
+    id: '1',
+    email: userProfile?.email || 'admin@dfs-portal.com',
+    role: 'Administrator',
+    role_code: 'Administrator',
+    is_active: true,
+    created_at: new Date().toISOString(),
+    station: 'All Stations'
+  }]
+  );
 
   if (!isAdmin()) {
     return (
@@ -53,8 +53,8 @@ const AdminUserManagement = () => {
             Access Denied. You need administrator privileges to access user management.
           </AlertDescription>
         </Alert>
-      </div>
-    );
+      </div>);
+
   }
 
   const handleCreateUser = async () => {
@@ -72,7 +72,7 @@ const AdminUserManagement = () => {
     try {
       // Assign role using auth context
       const result = await assignRole(newUserEmail, newUserRole, newUserRoleCode);
-      
+
       if (result.success) {
         // Add user to local state (in real app this would sync with database)
         const newUser = {
@@ -169,8 +169,8 @@ const AdminUserManagement = () => {
                     placeholder="user@example.com"
                     value={newUserEmail}
                     onChange={(e) => setNewUserEmail(e.target.value)}
-                    className="pl-10"
-                  />
+                    className="pl-10" />
+
                 </div>
               </div>
 
@@ -235,8 +235,8 @@ const AdminUserManagement = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
+              {users.map((user) =>
+              <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.email}</TableCell>
                   <TableCell>
                     <Badge className={getRoleBadgeColor(user.role)}>
@@ -249,17 +249,17 @@ const AdminUserManagement = () => {
                     </code>
                   </TableCell>
                   <TableCell>
-                    {user.is_active ? (
-                      <Badge className="bg-green-100 text-green-800">
+                    {user.is_active ?
+                  <Badge className="bg-green-100 text-green-800">
                         <Check className="h-3 w-3 mr-1" />
                         Active
-                      </Badge>
-                    ) : (
-                      <Badge className="bg-red-100 text-red-800">
+                      </Badge> :
+
+                  <Badge className="bg-red-100 text-red-800">
                         <X className="h-3 w-3 mr-1" />
                         Inactive
                       </Badge>
-                    )}
+                  }
                   </TableCell>
                   <TableCell>{user.station}</TableCell>
                   <TableCell>
@@ -271,7 +271,7 @@ const AdminUserManagement = () => {
                     </Button>
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -318,8 +318,8 @@ const AdminUserManagement = () => {
           </Alert>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AdminUserManagement;

@@ -124,7 +124,7 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode;}> = ({ c
   const initializeAuth = async () => {
     try {
       setAuthError(null);
-      
+
       // Get initial session
       const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
 
@@ -389,14 +389,14 @@ export const SupabaseAuthProvider: React.FC<{children: React.ReactNode;}> = ({ c
     try {
       setAuthError(null);
       setLoading(true);
-      
+
       const { data: { session: currentSession }, error } = await supabase.auth.getSession();
-      
+
       if (error) {
         setAuthError(error.message);
         return;
       }
-      
+
       if (currentSession?.user) {
         setUser(currentSession.user);
         setSession(currentSession);

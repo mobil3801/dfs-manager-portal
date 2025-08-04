@@ -26,28 +26,28 @@ const queryClient = new QueryClient({
 });
 
 // Loading Spinner Component
-const LoadingSpinner = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+const LoadingSpinner = () =>
+<div className="min-h-screen flex items-center justify-center bg-gray-50">
     <div className="text-center">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
       <p className="text-gray-600">Loading DFS Manager Portal...</p>
       <p className="text-sm text-gray-500 mt-2">Initializing authentication system...</p>
     </div>
-  </div>
-);
+  </div>;
+
 
 // Page Loading Component for lazy-loaded components
-const PageLoader = () => (
-  <div className="min-h-[400px] flex items-center justify-center">
+const PageLoader = () =>
+<div className="min-h-[400px] flex items-center justify-center">
     <div className="text-center">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
       <p className="text-gray-600">Loading page...</p>
     </div>
-  </div>
-);
+  </div>;
+
 
 // Protected Route Component
-const ProtectedRoute: React.FC<{children: React.ReactNode}> = ({ children }) => {
+const ProtectedRoute: React.FC<{children: React.ReactNode;}> = ({ children }) => {
   const { isAuthenticated, isLoading, isInitialized } = useSimpleAuth();
 
   // Show loading while initializing
@@ -86,6 +86,7 @@ const AppRouter = () => {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="admin" element={<AdminPanel />} />
             <Route path="admin/users" element={<AdminUserManagement />} />
+            <Route path="admin/panel" element={<AdminPanel />} />
             
             {/* Other routes can be added here later */}
           </Route>
@@ -94,8 +95,8 @@ const AppRouter = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
-    </Router>
-  );
+    </Router>);
+
 };
 
 function App() {
@@ -109,8 +110,8 @@ function App() {
         </GlobalErrorBoundary>
       </TooltipProvider>
       <Toaster />
-    </QueryClientProvider>
-  );
+    </QueryClientProvider>);
+
 }
 
 export default App;

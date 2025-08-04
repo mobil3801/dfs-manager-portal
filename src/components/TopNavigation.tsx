@@ -137,8 +137,8 @@ const TopNavigation = () => {
 
   // Add admin section if user is admin
   if (isAuthenticated && isAdmin()) {
-    secondaryNavItems.push({
-      name: 'Admin Panel',
+    primaryNavItems.push({
+      name: 'Admin',
       href: '/admin',
       icon: Shield,
       requiredRole: 'admin'

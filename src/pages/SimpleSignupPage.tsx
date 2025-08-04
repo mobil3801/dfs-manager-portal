@@ -16,7 +16,7 @@ const SimpleSignupPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [localError, setLocalError] = useState('');
-  
+
   const { signUp, isAuthenticated, authError, loading } = useSimpleAuth();
   const navigate = useNavigate();
 
@@ -28,7 +28,7 @@ const SimpleSignupPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !password || !confirmPassword) {
       setLocalError('Please fill in all fields');
       return;
@@ -49,7 +49,7 @@ const SimpleSignupPage = () => {
 
     try {
       const result = await signUp(email, password);
-      
+
       if (result.success) {
         navigate('/dashboard', { replace: true });
       } else {
@@ -69,8 +69,8 @@ const SimpleSignupPage = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   const errorMessage = localError || authError;
@@ -81,11 +81,11 @@ const SimpleSignupPage = () => {
         {/* Header */}
         <div className="text-center">
           <div className="mx-auto h-16 w-16 flex items-center justify-center bg-blue-600 rounded-full">
-            <img 
-              src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png" 
+            <img
+              src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
               alt="DFS Manager"
-              className="h-12 w-12 object-contain"
-            />
+              className="h-12 w-12 object-contain" />
+
           </div>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
             Join DFS Manager Portal
@@ -104,11 +104,11 @@ const SimpleSignupPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {errorMessage && (
-              <Alert className="mb-4" variant="destructive">
+            {errorMessage &&
+            <Alert className="mb-4" variant="destructive">
                 <AlertDescription>{errorMessage}</AlertDescription>
               </Alert>
-            )}
+            }
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
@@ -123,8 +123,8 @@ const SimpleSignupPage = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10"
                     required
-                    autoComplete="email"
-                  />
+                    autoComplete="email" />
+
                 </div>
               </div>
 
@@ -140,13 +140,13 @@ const SimpleSignupPage = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10 pr-10"
                     required
-                    autoComplete="new-password"
-                  />
+                    autoComplete="new-password" />
+
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
@@ -164,13 +164,13 @@ const SimpleSignupPage = () => {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="pl-10 pr-10"
                     required
-                    autoComplete="new-password"
-                  />
+                    autoComplete="new-password" />
+
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+
                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
@@ -179,19 +179,19 @@ const SimpleSignupPage = () => {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
+                disabled={isLoading}>
+
+                {isLoading ?
+                <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     Creating account...
-                  </>
-                ) : (
-                  <>
+                  </> :
+
+                <>
                     <UserPlus className="h-4 w-4 mr-2" />
                     Create Account
                   </>
-                )}
+                }
               </Button>
             </form>
 
@@ -213,8 +213,8 @@ const SimpleSignupPage = () => {
           </p>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SimpleSignupPage;
