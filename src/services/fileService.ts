@@ -10,28 +10,28 @@ export interface FileServiceResponse<T = any> {
 class FileService {
   private readonly MAX_RETRIES = 3;
   private readonly RETRY_DELAY = 1000;
-  private urlCache = new Map<string, {url: string; timestamp: number;}>();
+  private urlCache = new Map<string, {url: string;timestamp: number;}>();
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
   // Upload file to Supabase storage
   async uploadFile(file: File, path?: string): Promise<FileServiceResponse<string>> {
     try {
       const fileName = path || `files/${Date.now()}_${file.name}`;
-      
+
       const { data, error } = await storage.upload(fileName, file);
-      
+
       if (error) throw error;
-      
+
       // Get public URL
       const { data: publicUrlData } = storage.getPublicUrl(fileName);
-      
+
       if (!publicUrlData.publicUrl) {
         throw new Error('Failed to get public URL');
       }
 
       // Cache the URL
       this.cacheUrl(fileName, publicUrlData.publicUrl);
-      
+
       return { data: publicUrlData.publicUrl, error: null };
     } catch (error) {
       return {
@@ -57,7 +57,7 @@ class FileService {
 
     try {
       const { data } = storage.getPublicUrl(filePath);
-      
+
       if (!data.publicUrl) {
         throw new Error('Failed to get public URL');
       }
@@ -75,7 +75,7 @@ class FileService {
 
       // Cache the successful result
       this.cacheUrl(filePath, data.publicUrl);
-      
+
       return { data: data.publicUrl, error: null };
     } catch (error) {
       return {
@@ -89,9 +89,9 @@ class FileService {
   async downloadFile(filePath: string, fileName?: string): Promise<FileServiceResponse<Blob>> {
     try {
       const { data, error } = await storage.download(filePath);
-      
+
       if (error) throw error;
-      
+
       if (!data) {
         throw new Error('No file data received');
       }
@@ -107,7 +107,7 @@ class FileService {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        
+
         URL.revokeObjectURL(url);
       }
 
@@ -124,12 +124,12 @@ class FileService {
   async deleteFile(filePath: string): Promise<FileServiceResponse<boolean>> {
     try {
       const { error } = await storage.remove([filePath]);
-      
+
       if (error) throw error;
 
       // Clear from cache
       this.clearCache(filePath);
-      
+
       return { data: true, error: null };
     } catch (error) {
       return {
@@ -249,12 +249,12 @@ class FileService {
   // List files in a directory
   async listFiles(prefix: string = ''): Promise<FileServiceResponse<any[]>> {
     try {
-      const { data, error } = await supabase.storage
-        .from('')
-        .list(prefix, {
-          limit: 100,
-          offset: 0
-        });
+      const { data, error } = await supabase.storage.
+      from('').
+      list(prefix, {
+        limit: 100,
+        offset: 0
+      });
 
       if (error) throw error;
 

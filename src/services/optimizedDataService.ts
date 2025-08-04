@@ -3,6 +3,8 @@
  * Provides intelligent data loading with memory and performance optimization
  */
 
+import { supabase } from '@/lib/supabase';
+
 interface DataCache {
   [key: string]: {
     data: any;
@@ -46,17 +48,17 @@ class OptimizedDataService {
    * Intelligent data fetching with selective loading
    */
   async fetchData(
-  tableId: string,
-  params: any,
-  options: {
-    priority?: 'high' | 'medium' | 'low';
-    cache?: boolean;
-    viewport?: {start: number;end: number;};
-    fields?: string[];
-  } = {})
-  {
+    tableName: string,
+    params: any,
+    options: {
+      priority?: 'high' | 'medium' | 'low';
+      cache?: boolean;
+      viewport?: {start: number; end: number;};
+      fields?: string[];
+    } = {}
+  ) {
     const startTime = performance.now();
-    const cacheKey = this.generateCacheKey(tableId, params, options);
+    const cacheKey = this.generateCacheKey(tableName, params, options);
 
     try {
       // Check cache first
@@ -71,7 +73,7 @@ class OptimizedDataService {
       }
 
       // Create new request
-      const requestPromise = this.executeRequest(tableId, params, options);
+      const requestPromise = this.executeRequest(tableName, params, options);
       this.requestQueue.set(cacheKey, requestPromise);
 
       const result = await requestPromise;
@@ -98,7 +100,7 @@ class OptimizedDataService {
   /**
    * Execute request with connection pooling
    */
-  private async executeRequest(tableId: string, params: any, options: any) {
+  private async executeRequest(tableName: string, params: any, options: any) {
     return new Promise(async (resolve, reject) => {
       const executeWithConnection = async () => {
         this.connectionPool.active++;
@@ -107,14 +109,68 @@ class OptimizedDataService {
           // Optimize query based on viewport and fields
           const optimizedParams = this.optimizeQuery(params, options);
 
-          const { data, error } = await window.ezsite.apis.tablePage(
-            tableId,
-            optimizedParams
+          // Build Supabase query
+          let query = supabase.from(tableName).select(
+            options.fields && options.fields.length > 0 
+              ? options.fields.join(',') 
+              : '*'
           );
 
-          if (error) throw new Error(error);
+          // Apply filters
+          if (optimizedParams.Filters) {
+            optimizedParams.Filters.forEach((filter: any) => {
+              switch (filter.op) {
+                case 'Equal':
+                  query = query.eq(filter.name, filter.value);
+                  break;
+                case 'GreaterThan':
+                  query = query.gt(filter.name, filter.value);
+                  break;
+                case 'GreaterThanOrEqual':
+                  query = query.gte(filter.name, filter.value);
+                  break;
+                case 'LessThan':
+                  query = query.lt(filter.name, filter.value);
+                  break;
+                case 'StringContains':
+                  query = query.ilike(filter.name, `%${filter.value}%`);
+                  break;
+                case 'StringStartsWith':
+                  query = query.ilike(filter.name, `${filter.value}%`);
+                  break;
+                case 'StringEndsWith':
+                  query = query.ilike(filter.name, `%${filter.value}`);
+                  break;
+              }
+            });
+          }
 
-          resolve({ data, fromCache: false });
+          // Apply ordering
+          if (optimizedParams.OrderByField) {
+            query = query.order(optimizedParams.OrderByField, { 
+              ascending: optimizedParams.IsAsc 
+            });
+          }
+
+          // Apply pagination
+          if (optimizedParams.PageSize && optimizedParams.PageNo) {
+            const from = (optimizedParams.PageNo - 1) * optimizedParams.PageSize;
+            const to = from + optimizedParams.PageSize - 1;
+            query = query.range(from, to);
+          }
+
+          const { data, error, count } = await query;
+
+          if (error) throw error;
+
+          resolve({ 
+            data: { 
+              List: data, 
+              TotalCount: count,
+              VirtualCount: count 
+            }, 
+            fromCache: false 
+          });
         } catch (error) {
           reject(error);
         } finally {
@@ -145,11 +201,6 @@ class OptimizedDataService {
       optimized.PageSize = Math.min(end - start, params.PageSize || 10);
     }
 
-    // Optimize field selection
-    if (options.fields && options.fields.length > 0) {
-      optimized.Fields = options.fields;
-    }
-
     // Apply priority-based ordering
     if (options.priority === 'high') {
       optimized.OrderByField = optimized.OrderByField || 'id';
@@ -164,7 +215,7 @@ class OptimizedDataService {
    */
   private processQueue() {
     if (this.connectionPool.queue.length > 0 &&
-    this.connectionPool.active < this.connectionPool.maxConnections) {
+        this.connectionPool.active < this.connectionPool.maxConnections) {
       const nextRequest = this.connectionPool.queue.shift();
       if (nextRequest) {
         nextRequest();
@@ -175,9 +226,9 @@ class OptimizedDataService {
   /**
    * Generate cache key
    */
-  private generateCacheKey(tableId: string, params: any, options: any): string {
+  private generateCacheKey(tableName: string, params: any, options: any): string {
     const keyData = {
-      tableId,
+      tableName,
       params: JSON.stringify(params),
       fields: options.fields?.join(',') || 'all',
       viewport: options.viewport ? `${options.viewport.start}-${options.viewport.end}` : 'full'
@@ -228,15 +279,15 @@ class OptimizedDataService {
 
     if (success) {
       this.performanceMetrics.avgResponseTime =
-      (this.performanceMetrics.avgResponseTime + responseTime) / 2;
+        (this.performanceMetrics.avgResponseTime + responseTime) / 2;
     }
 
     // Calculate cache hit rate
-    const totalCacheRequests = Object.values(this.cache).
-    reduce((sum, item) => sum + item.accessCount, 0);
+    const totalCacheRequests = Object.values(this.cache)
+      .reduce((sum, item) => sum + item.accessCount, 0);
 
     this.performanceMetrics.cacheHitRate =
-    totalCacheRequests / this.performanceMetrics.totalRequests;
+      totalCacheRequests / this.performanceMetrics.totalRequests;
   }
 
   /**

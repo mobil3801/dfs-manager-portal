@@ -80,20 +80,20 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
   const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
     try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select(`
+      const { data, error } = await supabase.
+      from('user_profiles').
+      select(`
           *,
           stations(name, address, phone)
-        `)
-        .eq('user_id', userId)
-        .single();
+        `).
+      eq('user_id', userId).
+      single();
 
       if (error) {
         if (error.code === 'PGRST116') {
           // No profile found, create a default one
           console.log('🔄 No profile found, creating default profile...');
-          
+
           const defaultProfile = {
             user_id: userId,
             role: 'Employee',
@@ -104,14 +104,14 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
             detailed_permissions: {}
           };
 
-          const { data: newProfile, error: createError } = await supabase
-            .from('user_profiles')
-            .insert(defaultProfile)
-            .select(`
+          const { data: newProfile, error: createError } = await supabase.
+          from('user_profiles').
+          insert(defaultProfile).
+          select(`
               *,
               stations(name, address, phone)
-            `)
-            .single();
+            `).
+          single();
 
           if (createError) {
             console.error('Failed to create default profile:', createError);
@@ -130,7 +130,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     }
   };
 
-  const safeFetchUserData = async (showErrors = false): Promise<{success: boolean; userData?: User;}> => {
+  const safeFetchUserData = async (showErrors = false): Promise<{success: boolean;userData?: User;}> => {
     try {
       console.log('🔄 Attempting to fetch user data...');
 
@@ -159,7 +159,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
       // Fetch user profile
       const profile = await fetchUserProfile(supabaseUser.id);
-      
+
       if (profile) {
         console.log('✅ User profile found:', profile);
         setUserProfile(profile);
@@ -209,7 +209,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     try {
       // Check initial session
       const { data: { session }, error } = await auth.getSession();
-      
+
       if (error) {
         console.error('Session error:', error);
       }
@@ -239,7 +239,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     // Listen for auth state changes
     const { data: { subscription } } = auth.onAuthStateChange(async (event, session) => {
       console.log('🔄 Auth state change:', event);
-      
+
       if (event === 'SIGNED_IN' && session?.user) {
         setUser(session.user);
         const profile = await fetchUserProfile(session.user.id);
@@ -316,7 +316,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       }
 
       const { error } = await auth.signOut();
-      
+
       if (error) {
         console.warn('Logout error (non-critical):', error);
       }
@@ -437,7 +437,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
   const isManager = (): boolean => {
     return userProfile?.role === 'Management' || userProfile?.role === 'Manager' ||
-           userProfile?.role === 'Administrator' || userProfile?.role === 'Admin';
+    userProfile?.role === 'Administrator' || userProfile?.role === 'Admin';
   };
 
   const value: AuthContextType = {

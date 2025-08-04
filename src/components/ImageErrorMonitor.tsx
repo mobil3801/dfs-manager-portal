@@ -13,7 +13,7 @@ import {
   Eye,
   EyeOff } from
 'lucide-react';
-import globalErrorHandler from  '@/utils/globalErrorHandler';
+import globalErrorHandler from '@/utils/globalErrorHandler';
 import { imageErrorService } from '@/services/imageErrorService';
 import { useToast } from '@/hooks/use-toast';
 

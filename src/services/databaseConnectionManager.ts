@@ -25,7 +25,7 @@ class DatabaseConnectionManager {
     isConnected: false,
     lastChecked: new Date()
   };
-  
+
   private healthCheckInterval?: NodeJS.Timeout;
   private listeners: Array<(status: ConnectionStatus) => void> = [];
   private readonly CHECK_INTERVAL = 30000; // 30 seconds
@@ -64,13 +64,13 @@ class DatabaseConnectionManager {
    */
   async checkConnection(): Promise<ConnectionStatus> {
     const startTime = Date.now();
-    
+
     try {
       // Test basic Supabase connection with a simple query
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('id')
-        .limit(1);
+      const { data, error } = await supabase.
+      from('user_profiles').
+      select('id').
+      limit(1);
 
       const responseTime = Date.now() - startTime;
 
@@ -92,7 +92,7 @@ class DatabaseConnectionManager {
       return this.connectionStatus;
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      
+
       this.connectionStatus = {
         isConnected: false,
         lastChecked: new Date(),
@@ -103,7 +103,7 @@ class DatabaseConnectionManager {
 
       this.retryCount++;
       console.error(`Database connection failed (attempt ${this.retryCount}):`, error);
-      
+
       this.notifyListeners();
       return this.connectionStatus;
     }
@@ -124,11 +124,11 @@ class DatabaseConnectionManager {
 
     try {
       // Test database connection
-      const { data: dbData, error: dbError } = await supabase
-        .from('user_profiles')
-        .select('id')
-        .limit(1);
-      
+      const { data: dbData, error: dbError } = await supabase.
+      from('user_profiles').
+      select('id').
+      limit(1);
+
       checks.database = !dbError;
       if (dbError) errorDetails += `Database: ${dbError.message}; `;
 
@@ -144,13 +144,13 @@ class DatabaseConnectionManager {
 
       // Test storage service (list files in bucket)
       try {
-        const { data: storageData, error: storageError } = await supabase
-          .storage
-          .from('')
-          .list('', {
-            limit: 1
-          });
-        
+        const { data: storageData, error: storageError } = await supabase.
+        storage.
+        from('').
+        list('', {
+          limit: 1
+        });
+
         checks.storage = !storageError;
         if (storageError) errorDetails += `Storage: ${storageError.message}; `;
       } catch (storageError) {
@@ -163,8 +163,8 @@ class DatabaseConnectionManager {
     }
 
     const responseTime = Date.now() - startTime;
-    const allChecksPass = Object.values(checks).every(check => check);
-    const someChecksPass = Object.values(checks).some(check => check);
+    const allChecksPass = Object.values(checks).every((check) => check);
+    const someChecksPass = Object.values(checks).some((check) => check);
 
     let status: 'healthy' | 'degraded' | 'down';
     if (allChecksPass) {
@@ -187,15 +187,15 @@ class DatabaseConnectionManager {
   /**
    * Test a specific database operation
    */
-  async testDatabaseOperation(): Promise<{success: boolean; error?: string; responseTime: number;}> {
+  async testDatabaseOperation(): Promise<{success: boolean;error?: string;responseTime: number;}> {
     const startTime = Date.now();
-    
+
     try {
       // Test a simple select operation
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('id, role')
-        .limit(5);
+      const { data, error } = await supabase.
+      from('user_profiles').
+      select('id, role').
+      limit(5);
 
       const responseTime = Date.now() - startTime;
 
@@ -273,7 +273,7 @@ class DatabaseConnectionManager {
    * Notify all listeners of status change
    */
   private notifyListeners(): void {
-    this.listeners.forEach(callback => {
+    this.listeners.forEach((callback) => {
       try {
         callback(this.connectionStatus);
       } catch (error) {
@@ -294,7 +294,7 @@ class DatabaseConnectionManager {
     return {
       currentStatus: this.connectionStatus.isConnected ? 'Connected' : 'Disconnected',
       avgResponseTime: this.connectionStatus.responseTime || null,
-      uptime: this.retryCount === 0 ? 100 : Math.max(0, 100 - (this.retryCount * 10)),
+      uptime: this.retryCount === 0 ? 100 : Math.max(0, 100 - this.retryCount * 10),
       lastError: this.connectionStatus.error || null
     };
   }

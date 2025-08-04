@@ -7,9 +7,9 @@ interface ProtectedRouteProps {
   requireAdmin?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
-  requireAdmin = false 
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  requireAdmin = false
 }) => {
   const { isAuthenticated, isLoading, isAdmin } = useAuth();
 
@@ -21,8 +21,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   // Redirect to login if not authenticated
@@ -50,8 +50,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
             </button>
           </div>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return <>{children}</>;

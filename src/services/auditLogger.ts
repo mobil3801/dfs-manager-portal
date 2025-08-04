@@ -39,7 +39,7 @@ class AuditLoggerService {
   }
 
   // Get browser and system information
-  private getBrowserInfo(): {ip_address: string; user_agent: string; session_id: string;} {
+  private getBrowserInfo(): {ip_address: string;user_agent: string;session_id: string;} {
     return {
       ip_address: 'Unknown', // In a real app, this would come from server
       user_agent: navigator.userAgent,
@@ -73,18 +73,18 @@ class AuditLoggerService {
 
   // Log an audit event
   async logEvent(
-    eventType: string,
-    status: 'Success' | 'Failed' | 'Blocked' | 'Suspicious',
-    details: {
-      user_id?: string;
-      username?: string;
-      resource_accessed?: string;
-      action_performed?: string;
-      failure_reason?: string;
-      station?: string;
-      additional_data?: any;
-    } = {}
-  ): Promise<void> {
+  eventType: string,
+  status: 'Success' | 'Failed' | 'Blocked' | 'Suspicious',
+  details: {
+    user_id?: string;
+    username?: string;
+    resource_accessed?: string;
+    action_performed?: string;
+    failure_reason?: string;
+    station?: string;
+    additional_data?: any;
+  } = {})
+  : Promise<void> {
     try {
       const browserInfo = this.getBrowserInfo();
       const timestamp = new Date().toISOString();
@@ -100,9 +100,9 @@ class AuditLoggerService {
         additional_data: JSON.stringify(details.additional_data || {})
       };
 
-      const { error } = await supabase
-        .from('audit_logs')
-        .insert([logEntry]);
+      const { error } = await supabase.
+      from('audit_logs').
+      insert([logEntry]);
 
       if (error) {
         console.error('Failed to create audit log:', error);
@@ -166,12 +166,12 @@ class AuditLoggerService {
   }
 
   async logDataAccess(
-    resource: string,
-    action: string,
-    userId?: string,
-    username?: string,
-    station?: string
-  ): Promise<void> {
+  resource: string,
+  action: string,
+  userId?: string,
+  username?: string,
+  station?: string)
+  : Promise<void> {
     await this.logEvent(
       'Data Access',
       'Success',
@@ -186,13 +186,13 @@ class AuditLoggerService {
   }
 
   async logDataModification(
-    resource: string,
-    action: string,
-    userId?: string,
-    username?: string,
-    station?: string,
-    changes?: any
-  ): Promise<void> {
+  resource: string,
+  action: string,
+  userId?: string,
+  username?: string,
+  station?: string,
+  changes?: any)
+  : Promise<void> {
     await this.logEvent(
       'Data Modification',
       'Success',
@@ -208,10 +208,10 @@ class AuditLoggerService {
   }
 
   async logPermissionChange(
-    targetUserId: string,
-    changedBy: string,
-    changes: any
-  ): Promise<void> {
+  targetUserId: string,
+  changedBy: string,
+  changes: any)
+  : Promise<void> {
     await this.logEvent(
       'Permission Change',
       'Success',
@@ -225,10 +225,10 @@ class AuditLoggerService {
   }
 
   async logAdminAction(
-    action: string,
-    userId: string,
-    details?: any
-  ): Promise<void> {
+  action: string,
+  userId: string,
+  details?: any)
+  : Promise<void> {
     await this.logEvent(
       'Admin Action',
       'Success',
@@ -241,11 +241,11 @@ class AuditLoggerService {
   }
 
   async logSuspiciousActivity(
-    description: string,
-    userId?: string,
-    username?: string,
-    details?: any
-  ): Promise<void> {
+  description: string,
+  userId?: string,
+  username?: string,
+  details?: any)
+  : Promise<void> {
     await this.logEvent(
       'Suspicious Activity',
       'Suspicious',
@@ -261,14 +261,14 @@ class AuditLoggerService {
 
   // Retrieve audit logs with filtering and pagination
   async getLogs(
-    pageNo: number = 1,
-    pageSize: number = 50,
-    filters: AuditLogFilters = {}
-  ): Promise<{data: any; error: string | null;}> {
+  pageNo: number = 1,
+  pageSize: number = 50,
+  filters: AuditLogFilters = {})
+  : Promise<{data: any;error: string | null;}> {
     try {
-      let query = supabase
-        .from('audit_logs')
-        .select('*', { count: 'exact' });
+      let query = supabase.
+      from('audit_logs').
+      select('*', { count: 'exact' });
 
       // Apply filters
       if (filters.event_type) {
@@ -303,9 +303,9 @@ class AuditLoggerService {
       const from = (pageNo - 1) * pageSize;
       const to = from + pageSize - 1;
 
-      const { data, error, count } = await query
-        .order('event_timestamp', { ascending: false })
-        .range(from, to);
+      const { data, error, count } = await query.
+      order('event_timestamp', { ascending: false }).
+      range(from, to);
 
       if (error) throw error;
 
@@ -320,8 +320,8 @@ class AuditLoggerService {
     totalEvents: number;
     failedAttempts: number;
     suspiciousActivity: number;
-    topEventTypes: Array<{type: string; count: number;}>;
-    riskDistribution: Array<{level: string; count: number;}>;
+    topEventTypes: Array<{type: string;count: number;}>;
+    riskDistribution: Array<{level: string;count: number;}>;
   }> {
     try {
       const endDate = new Date();
@@ -358,7 +358,7 @@ class AuditLoggerService {
       const totalEvents = logs.length;
       const failedAttempts = logs.filter((log: any) => log.event_status === 'Failed').length;
       const suspiciousActivity = logs.filter((log: any) =>
-        log.event_status === 'Suspicious' || log.risk_level === 'Critical'
+      log.event_status === 'Suspicious' || log.risk_level === 'Critical'
       ).length;
 
       // Event type distribution
@@ -370,13 +370,13 @@ class AuditLoggerService {
         riskLevelCounts[log.risk_level] = (riskLevelCounts[log.risk_level] || 0) + 1;
       });
 
-      const topEventTypes = Object.entries(eventTypeCounts)
-        .map(([type, count]) => ({ type, count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 5);
+      const topEventTypes = Object.entries(eventTypeCounts).
+      map(([type, count]) => ({ type, count })).
+      sort((a, b) => b.count - a.count).
+      slice(0, 5);
 
-      const riskDistribution = Object.entries(riskLevelCounts)
-        .map(([level, count]) => ({ level, count }));
+      const riskDistribution = Object.entries(riskLevelCounts).
+      map(([level, count]) => ({ level, count }));
 
       return {
         totalEvents,

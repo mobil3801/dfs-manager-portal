@@ -44,11 +44,11 @@ class StationService {
     }
 
     try {
-      const { data, error } = await supabase
-        .from('stations')
-        .select('*')
-        .eq('is_active', true)
-        .order('name', { ascending: true });
+      const { data, error } = await supabase.
+      from('stations').
+      select('*').
+      eq('is_active', true).
+      order('name', { ascending: true });
 
       if (error) throw error;
 
@@ -63,10 +63,10 @@ class StationService {
 
   // Get station options for dropdowns
   async getStationOptions(
-    includeAll: boolean = true,
-    userRole?: string,
-    userPermissions?: string[]
-  ): Promise<StationOption[]> {
+  includeAll: boolean = true,
+  userRole?: string,
+  userPermissions?: string[])
+  : Promise<StationOption[]> {
     try {
       const stations = await this.getStations();
       const options: StationOption[] = [];
@@ -111,15 +111,15 @@ class StationService {
 
   // Get accessible stations for a user
   async getUserAccessibleStations(
-    userRole?: string,
-    userPermissions?: string[],
-    userStationAccess?: string[]
-  ): Promise<string[]> {
+  userRole?: string,
+  userPermissions?: string[],
+  userStationAccess?: string[])
+  : Promise<string[]> {
     try {
       // Admins and managers can access all stations
       if (this.canUserSelectAll(userRole, userPermissions)) {
         const stations = await this.getStations();
-        return stations.map(station => station.name);
+        return stations.map((station) => station.name);
       }
 
       // Return user's specific station access
@@ -138,23 +138,23 @@ class StationService {
   // Check if user can select "All Stations"
   private canUserSelectAll(userRole?: string, userPermissions?: string[]): boolean {
     return userRole === 'Administrator' ||
-           userRole === 'Management' ||
-           userRole === 'Manager' ||
-           userPermissions?.includes('view_all_stations') || false;
+    userRole === 'Management' ||
+    userRole === 'Manager' ||
+    userPermissions?.includes('view_all_stations') || false;
   }
 
   // Add a new station
   async addStation(stationData: Omit<Station, 'id'>): Promise<StationServiceResult> {
     try {
-      const { data, error } = await supabase
-        .from('stations')
-        .insert([{
-          ...stationData,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }])
-        .select()
-        .single();
+      const { data, error } = await supabase.
+      from('stations').
+      insert([{
+        ...stationData,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }]).
+      select().
+      single();
 
       if (error) throw error;
 
@@ -163,9 +163,9 @@ class StationService {
 
       return { success: true, data };
     } catch (error: any) {
-      return { 
-        success: false, 
-        error: error.message || 'Failed to add station' 
+      return {
+        success: false,
+        error: error.message || 'Failed to add station'
       };
     }
   }
@@ -173,15 +173,15 @@ class StationService {
   // Update an existing station
   async updateStation(stationData: Station): Promise<StationServiceResult> {
     try {
-      const { data, error } = await supabase
-        .from('stations')
-        .update({
-          ...stationData,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', stationData.id)
-        .select()
-        .single();
+      const { data, error } = await supabase.
+      from('stations').
+      update({
+        ...stationData,
+        updated_at: new Date().toISOString()
+      }).
+      eq('id', stationData.id).
+      select().
+      single();
 
       if (error) throw error;
 
@@ -190,9 +190,9 @@ class StationService {
 
       return { success: true, data };
     } catch (error: any) {
-      return { 
-        success: false, 
-        error: error.message || 'Failed to update station' 
+      return {
+        success: false,
+        error: error.message || 'Failed to update station'
       };
     }
   }
@@ -200,15 +200,15 @@ class StationService {
   // Delete (deactivate) a station
   async deleteStation(stationId: string): Promise<StationServiceResult> {
     try {
-      const { data, error } = await supabase
-        .from('stations')
-        .update({
-          is_active: false,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', stationId)
-        .select()
-        .single();
+      const { data, error } = await supabase.
+      from('stations').
+      update({
+        is_active: false,
+        updated_at: new Date().toISOString()
+      }).
+      eq('id', stationId).
+      select().
+      single();
 
       if (error) throw error;
 
@@ -217,9 +217,9 @@ class StationService {
 
       return { success: true, data };
     } catch (error: any) {
-      return { 
-        success: false, 
-        error: error.message || 'Failed to delete station' 
+      return {
+        success: false,
+        error: error.message || 'Failed to delete station'
       };
     }
   }
@@ -227,11 +227,11 @@ class StationService {
   // Get station by ID
   async getStationById(stationId: string): Promise<Station | null> {
     try {
-      const { data, error } = await supabase
-        .from('stations')
-        .select('*')
-        .eq('id', stationId)
-        .single();
+      const { data, error } = await supabase.
+      from('stations').
+      select('*').
+      eq('id', stationId).
+      single();
 
       if (error) throw error;
 
@@ -246,7 +246,7 @@ class StationService {
   async getStationByName(stationName: string): Promise<Station | null> {
     try {
       const stations = await this.getStations();
-      return stations.find(station => station.name === stationName) || null;
+      return stations.find((station) => station.name === stationName) || null;
     } catch (error) {
       console.error('Error fetching station by name:', error);
       return null;
@@ -268,23 +268,23 @@ class StationService {
   async getStationStatistics(): Promise<{
     totalStations: number;
     activeStations: number;
-    stationsByType: Array<{type: string; count: number;}>;
+    stationsByType: Array<{type: string;count: number;}>;
   }> {
     try {
       const stations = await this.getStations();
       const totalStations = stations.length;
-      const activeStations = stations.filter(station => station.is_active).length;
+      const activeStations = stations.filter((station) => station.is_active).length;
 
       // Group by station type (based on name patterns)
       const typeGroups: Record<string, number> = {};
-      stations.forEach(station => {
+      stations.forEach((station) => {
         const type = station.name.split(' ')[0]; // First word as type
         typeGroups[type] = (typeGroups[type] || 0) + 1;
       });
 
-      const stationsByType = Object.entries(typeGroups)
-        .map(([type, count]) => ({ type, count }))
-        .sort((a, b) => b.count - a.count);
+      const stationsByType = Object.entries(typeGroups).
+      map(([type, count]) => ({ type, count })).
+      sort((a, b) => b.count - a.count);
 
       return {
         totalStations,
