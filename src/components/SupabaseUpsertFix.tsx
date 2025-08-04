@@ -21,13 +21,13 @@ const SupabaseUpsertFix: React.FC = () => {
   const { toast } = useToast();
 
   const addResult = (step: string, status: 'success' | 'error' | 'warning', message: string) => {
-    setFixResults(prev => [...prev, { step, status, message }]);
+    setFixResults((prev) => [...prev, { step, status, message }]);
   };
 
   const testSupabaseConnection = async () => {
     setIsTesting(true);
     setTestResults(null);
-    
+
     try {
       // Test basic connection
       const { data: tables, error: tablesError } = await supabase
@@ -88,14 +88,14 @@ const SupabaseUpsertFix: React.FC = () => {
           generalError: error.message
         }
       });
-      
+
       toast({
         title: "Connection Test Failed",
         description: error.message,
         variant: "destructive"
       });
     }
-    
+
     setIsTesting(false);
   };
 
@@ -112,7 +112,7 @@ const SupabaseUpsertFix: React.FC = () => {
 
       // Step 2: Create/update user profile using proper upsert
       addResult('profile', 'success', '👤 Creating/updating admin user profile...');
-      
+
       const profileData = {
         id: adminUserId,
         user_id: adminUserId,
@@ -155,11 +155,11 @@ const SupabaseUpsertFix: React.FC = () => {
         .eq('user_id', adminUserId);
 
       const modules = [
-        'Dashboard', 'Products', 'Sales', 'Employees', 'Deliveries',
-        'Licenses', 'Orders', 'Vendors', 'Salary', 'Admin Panel',
-        'User Management', 'Role Management', 'SMS Management',
-        'System Settings', 'Audit Logs', 'Station Management'
-      ];
+      'Dashboard', 'Products', 'Sales', 'Employees', 'Deliveries',
+      'Licenses', 'Orders', 'Vendors', 'Salary', 'Admin Panel',
+      'User Management', 'Role Management', 'SMS Management',
+      'System Settings', 'Audit Logs', 'Station Management'];
+
 
       let moduleSuccessCount = 0;
       for (const module of modules) {
@@ -178,9 +178,9 @@ const SupabaseUpsertFix: React.FC = () => {
           updated_at: new Date().toISOString()
         };
 
-        const { error: moduleError } = await supabase
-          .from('module_access')
-          .insert(moduleData);
+        const { error: moduleError } = await supabase.
+        from('module_access').
+        insert(moduleData);
 
         if (!moduleError) {
           moduleSuccessCount++;
@@ -240,7 +240,7 @@ const SupabaseUpsertFix: React.FC = () => {
     } catch (error: any) {
       console.error('Fix error:', error);
       addResult('error', 'error', `❌ Critical error: ${error.message}`);
-      
+
       toast({
         title: "Fix Failed",
         description: error.message,
@@ -304,23 +304,23 @@ const SupabaseUpsertFix: React.FC = () => {
               onClick={testSupabaseConnection}
               disabled={isTesting}
               className="w-full"
-              variant="outline"
-            >
-              {isTesting ? (
-                <>
+              variant="outline">
+
+              {isTesting ?
+              <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
                   Testing...
-                </>
-              ) : (
-                <>
+                </> :
+
+              <>
                   <Database className="w-4 h-4 mr-2" />
                   Test Connection
                 </>
-              )}
+              }
             </Button>
 
-            {testResults && (
-              <div className="mt-4 space-y-2">
+            {testResults &&
+            <div className="mt-4 space-y-2">
                 <div className="flex items-center justify-between">
                   <span>Database Connection</span>
                   <Badge variant={testResults.connection ? "default" : "destructive"}>
@@ -340,7 +340,7 @@ const SupabaseUpsertFix: React.FC = () => {
                   </Badge>
                 </div>
               </div>
-            )}
+            }
           </CardContent>
         </Card>
 
@@ -359,19 +359,19 @@ const SupabaseUpsertFix: React.FC = () => {
             <Button
               onClick={fixAdminAccess}
               disabled={isFixing}
-              className="w-full bg-red-600 hover:bg-red-700 text-white"
-            >
-              {isFixing ? (
-                <>
+              className="w-full bg-red-600 hover:bg-red-700 text-white">
+
+              {isFixing ?
+              <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
                   Fixing...
-                </>
-              ) : (
-                <>
+                </> :
+
+              <>
                   <Shield className="w-4 h-4 mr-2" />
                   Fix Admin Access
                 </>
-              )}
+              }
             </Button>
           </CardContent>
         </Card>
@@ -402,18 +402,18 @@ const SupabaseUpsertFix: React.FC = () => {
       </Card>
 
       {/* Fix Results */}
-      {fixResults.length > 0 && (
-        <Card>
+      {fixResults.length > 0 &&
+      <Card>
           <CardHeader>
             <CardTitle>Fix Progress & Results</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2 max-h-96 overflow-y-auto">
-              {fixResults.map((result, index) => (
-                <div
-                  key={index}
-                  className={`p-3 rounded-lg border ${getResultBgColor(result.status)}`}
-                >
+              {fixResults.map((result, index) =>
+            <div
+              key={index}
+              className={`p-3 rounded-lg border ${getResultBgColor(result.status)}`}>
+
                   <div className="flex items-start gap-2">
                     {getResultIcon(result.status)}
                     <div className="flex-1">
@@ -422,33 +422,33 @@ const SupabaseUpsertFix: React.FC = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+            )}
             </div>
           </CardContent>
         </Card>
-      )}
+      }
 
       {/* Error Details */}
-      {testResults?.errors && (
-        <Card>
+      {testResults?.errors &&
+      <Card>
           <CardHeader>
             <CardTitle className="text-red-600">Error Details</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2 font-mono text-sm">
-              {Object.entries(testResults.errors).map(([key, value]) => 
-                value && (
-                  <div key={key} className="p-2 bg-red-50 rounded">
+              {Object.entries(testResults.errors).map(([key, value]) =>
+            value &&
+            <div key={key} className="p-2 bg-red-50 rounded">
                     <strong>{key}:</strong> {value as string}
                   </div>
-                )
-              )}
+
+            )}
             </div>
           </CardContent>
         </Card>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default SupabaseUpsertFix;

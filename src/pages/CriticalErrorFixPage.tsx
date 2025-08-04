@@ -5,8 +5,8 @@ const CriticalErrorFixPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <SupabaseUpsertFix />
-    </div>
-  );
+    </div>);
+
 };
 
 export default CriticalErrorFixPage;

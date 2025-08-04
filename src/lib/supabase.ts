@@ -357,7 +357,7 @@ class UpsertBuilder {
   private selectFields = '*';
   private onConflict?: string;
 
-  constructor(client: SimpleSupabaseClient, table: string, values: any, options?: { onConflict?: string }) {
+  constructor(client: SimpleSupabaseClient, table: string, values: any, options?: {onConflict?: string;}) {
     this.client = client;
     this.table = table;
     this.values = values;
@@ -589,7 +589,7 @@ class QueryBuilder {
   }
 
   // Upsert method (insert or update)
-  upsert(values: any, options?: { onConflict?: string }) {
+  upsert(values: any, options?: {onConflict?: string;}) {
     return new UpsertBuilder(this.client, this.table, values, options);
   }
 }

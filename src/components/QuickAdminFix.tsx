@@ -28,30 +28,30 @@ const QuickAdminFix: React.FC = () => {
       setFixResults([...results]);
 
       // Create admin user profile directly
-      const { error: profileError } = await supabase
-        .from('user_profiles')
-        .upsert({
-          id: adminUserId,
-          user_id: adminUserId,
-          email: 'admin@dfs-portal.com',
-          first_name: 'System',
-          last_name: 'Administrator',
-          role: 'Administrator',
-          permissions: {
-            all_modules: true,
-            system_admin: true,
-            user_management: true,
-            station_management: true,
-            reporting: true,
-            full_access: true
-          },
-          station_access: { all_stations: true },
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'email'
-        });
+      const { error: profileError } = await supabase.
+      from('user_profiles').
+      upsert({
+        id: adminUserId,
+        user_id: adminUserId,
+        email: 'admin@dfs-portal.com',
+        first_name: 'System',
+        last_name: 'Administrator',
+        role: 'Administrator',
+        permissions: {
+          all_modules: true,
+          system_admin: true,
+          user_management: true,
+          station_management: true,
+          reporting: true,
+          full_access: true
+        },
+        station_access: { all_stations: true },
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'email'
+      });
 
       if (profileError) {
         results.push(`❌ Profile Error: ${profileError.message}`);
@@ -65,10 +65,10 @@ const QuickAdminFix: React.FC = () => {
       setFixResults([...results]);
 
       // Delete existing module access and recreate
-      await supabase
-        .from('module_access')
-        .delete()
-        .eq('user_id', adminUserId);
+      await supabase.
+      from('module_access').
+      delete().
+      eq('user_id', adminUserId);
 
       const modules = [
       'Dashboard', 'Products', 'Sales', 'Employees', 'Deliveries',
@@ -78,22 +78,22 @@ const QuickAdminFix: React.FC = () => {
 
 
       for (const module of modules) {
-        const { error: moduleError } = await supabase
-          .from('module_access')
-          .insert({
-            user_id: adminUserId,
-            module_name: module,
-            display_name: module,
-            access_level: 'full',
-            is_active: true,
-            create_enabled: true,
-            edit_enabled: true,
-            delete_enabled: true,
-            granted_by: adminUserId,
-            granted_at: new Date().toISOString(),
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          });
+        const { error: moduleError } = await supabase.
+        from('module_access').
+        insert({
+          user_id: adminUserId,
+          module_name: module,
+          display_name: module,
+          access_level: 'full',
+          is_active: true,
+          create_enabled: true,
+          edit_enabled: true,
+          delete_enabled: true,
+          granted_by: adminUserId,
+          granted_at: new Date().toISOString(),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
 
         if (moduleError) {
           results.push(`⚠️ Module ${module}: ${moduleError.message}`);
