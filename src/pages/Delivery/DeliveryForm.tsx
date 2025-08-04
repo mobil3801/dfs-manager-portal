@@ -9,10 +9,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Truck, Save, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 import StationDropdown from '@/components/StationDropdown';
 
 interface DeliveryRecord {
-  id?: number;
+  id?: string;
   delivery_date: string;
   bol_number: string;
   station: string;
@@ -23,7 +25,7 @@ interface DeliveryRecord {
   plus_delivered: number;
   super_delivered: number;
   delivery_notes: string;
-  created_by: number;
+  created_by: string;
 }
 
 interface AfterDeliveryReport {
@@ -46,6 +48,7 @@ const DeliveryForm: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
+  const { userProfile } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<DeliveryRecord>({
     delivery_date: new Date().toISOString().split('T')[0],
@@ -58,7 +61,7 @@ const DeliveryForm: React.FC = () => {
     plus_delivered: 0,
     super_delivered: 0,
     delivery_notes: '',
-    created_by: 1 // This should be set from auth context
+    created_by: userProfile?.id || ''
   });
 
   const [afterDeliveryData, setAfterDeliveryData] = useState<AfterDeliveryReport>({
@@ -110,22 +113,25 @@ const DeliveryForm: React.FC = () => {
     }
   }, [id]);
 
-  const loadAfterDeliveryReport = async (deliveryId: number) => {
+  const loadAfterDeliveryReport = async (deliveryId: string) => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(12331, {
-        PageNo: 1,
-        PageSize: 1,
-        Filters: [{ name: 'delivery_record_id', op: 'Equal', value: deliveryId }]
-      });
+      // Note: This table might not exist in the current Supabase setup
+      // You would need to create it first if needed
+      const { data, error } = await supabase
+        .from('after_delivery_reports')
+        .select('*')
+        .eq('delivery_record_id', deliveryId)
+        .single();
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
+        throw error;
+      }
 
-      if (data?.List?.length > 0) {
-        const report = data.List[0];
+      if (data) {
         setAfterDeliveryData({
-          regular_tank_final: report.regular_tank_final || 0,
-          plus_tank_final: report.plus_tank_final || 0,
-          super_tank_final: report.super_tank_final || 0
+          regular_tank_final: data.regular_tank_final || 0,
+          plus_tank_final: data.plus_tank_final || 0,
+          super_tank_final: data.super_tank_final || 0
         });
       }
     } catch (error) {
@@ -136,23 +142,22 @@ const DeliveryForm: React.FC = () => {
   const loadDeliveryRecord = async () => {
     try {
       setLoading(true);
-      const { data, error } = await window.ezsite.apis.tablePage(12196, {
-        PageNo: 1,
-        PageSize: 1,
-        Filters: [{ name: 'id', op: 'Equal', value: parseInt(id!) }]
-      });
+      const { data, error } = await supabase
+        .from('deliveries')
+        .select('*')
+        .eq('id', id)
+        .single();
 
       if (error) throw error;
 
-      if (data?.List?.length > 0) {
-        const record = data.List[0];
+      if (data) {
         setFormData({
-          ...record,
-          delivery_date: record.delivery_date ? new Date(record.delivery_date).toISOString().split('T')[0] : ''
+          ...data,
+          delivery_date: data.delivery_date ? new Date(data.delivery_date).toISOString().split('T')[0] : ''
         });
 
         // Load associated after-delivery tank report if exists
-        loadAfterDeliveryReport(parseInt(id!));
+        loadAfterDeliveryReport(id!);
       }
     } catch (error) {
       console.error('Error loading delivery record:', error);
@@ -193,27 +198,40 @@ const DeliveryForm: React.FC = () => {
 
       const submitData = {
         ...formData,
-        delivery_date: new Date(formData.delivery_date).toISOString()
+        delivery_date: new Date(formData.delivery_date).toISOString(),
+        created_by: userProfile?.id || '',
+        updated_at: new Date().toISOString()
       };
 
       let deliveryRecordId;
 
       if (id) {
-        const { error } = await window.ezsite.apis.tableUpdate(12196, {
-          ID: parseInt(id),
-          ...submitData
-        });
+        const { data, error } = await supabase
+          .from('deliveries')
+          .update(submitData)
+          .eq('id', id)
+          .select()
+          .single();
+
         if (error) throw error;
-        deliveryRecordId = parseInt(id);
+        deliveryRecordId = id;
 
         toast({
           title: "Success",
           description: "Delivery record updated successfully"
         });
       } else {
-        const { data, error } = await window.ezsite.apis.tableCreate(12196, submitData);
+        const { data, error } = await supabase
+          .from('deliveries')
+          .insert([{
+            ...submitData,
+            created_at: new Date().toISOString()
+          }])
+          .select()
+          .single();
+
         if (error) throw error;
-        deliveryRecordId = data.ID;
+        deliveryRecordId = data.id;
 
         toast({
           title: "Success",
@@ -231,26 +249,34 @@ const DeliveryForm: React.FC = () => {
           regular_tank_final: afterDeliveryData.regular_tank_final,
           plus_tank_final: afterDeliveryData.plus_tank_final,
           super_tank_final: afterDeliveryData.super_tank_final,
-          created_by: formData.created_by
+          created_by: userProfile?.id || '',
+          updated_at: new Date().toISOString()
         };
 
         // Check if after-delivery report already exists for this delivery
-        const { data: existingReport } = await window.ezsite.apis.tablePage(12331, {
-          PageNo: 1,
-          PageSize: 1,
-          Filters: [{ name: 'delivery_record_id', op: 'Equal', value: deliveryRecordId }]
-        });
+        const { data: existingReport } = await supabase
+          .from('after_delivery_reports')
+          .select('id')
+          .eq('delivery_record_id', deliveryRecordId)
+          .single();
 
-        if (existingReport?.List?.length > 0) {
+        if (existingReport) {
           // Update existing report
-          const { error: afterError } = await window.ezsite.apis.tableUpdate(12331, {
-            ID: existingReport.List[0].ID,
-            ...afterDeliverySubmitData
-          });
+          const { error: afterError } = await supabase
+            .from('after_delivery_reports')
+            .update(afterDeliverySubmitData)
+            .eq('id', existingReport.id);
+
           if (afterError) throw afterError;
         } else {
           // Create new report
-          const { error: afterError } = await window.ezsite.apis.tableCreate(12331, afterDeliverySubmitData);
+          const { error: afterError } = await supabase
+            .from('after_delivery_reports')
+            .insert([{
+              ...afterDeliverySubmitData,
+              created_at: new Date().toISOString()
+            }]);
+
           if (afterError) throw afterError;
         }
       }

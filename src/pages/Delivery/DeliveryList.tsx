@@ -9,11 +9,11 @@ import { useToast } from '@/hooks/use-toast';
 import { Plus, Search, Edit, Trash2, Truck, Filter, Download, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-
+import { supabase } from '@/lib/supabase';
 import EnhancedDeliveryPrintDialog from '@/components/EnhancedDeliveryPrintDialog';
 
 interface DeliveryRecord {
-  id: number;
+  id: string;
   delivery_date: string;
   bol_number: string;
   station: string;
@@ -24,7 +24,9 @@ interface DeliveryRecord {
   plus_delivered: number;
   super_delivered: number;
   delivery_notes: string;
-  created_by: number;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
 }
 
 const DeliveryList: React.FC = () => {
@@ -51,36 +53,32 @@ const DeliveryList: React.FC = () => {
     try {
       setLoading(true);
 
-      const filters = [];
+      let query = supabase
+        .from('deliveries')
+        .select('*', { count: 'exact' });
 
+      // Apply station filter
       if (stationFilter !== 'all') {
-        filters.push({
-          name: 'station',
-          op: 'Equal',
-          value: stationFilter
-        });
+        query = query.eq('station', stationFilter);
       }
 
+      // Apply search filter
       if (searchTerm) {
-        filters.push({
-          name: 'bol_number',
-          op: 'StringContains',
-          value: searchTerm
-        });
+        query = query.or(`bol_number.ilike.%${searchTerm}%,station.ilike.%${searchTerm}%`);
       }
 
-      const { data, error } = await window.ezsite.apis.tablePage(12196, {
-        PageNo: currentPage,
-        PageSize: pageSize,
-        OrderByField: 'delivery_date',
-        IsAsc: false,
-        Filters: filters
-      });
+      // Add pagination
+      const from = (currentPage - 1) * pageSize;
+      const to = from + pageSize - 1;
+
+      const { data, error, count } = await query
+        .order('delivery_date', { ascending: false })
+        .range(from, to);
 
       if (error) throw error;
 
-      setDeliveries(data?.List || []);
-      setTotalCount(data?.VirtualCount || 0);
+      setDeliveries(data || []);
+      setTotalCount(count || 0);
     } catch (error) {
       console.error('Error loading deliveries:', error);
       toast({
@@ -93,7 +91,7 @@ const DeliveryList: React.FC = () => {
     }
   };
 
-  const handleEdit = (id: number) => {
+  const handleEdit = (id: string) => {
     // Check edit permission - only Admin users can edit deliveries
     if (!isAdmin()) {
       toast({
@@ -133,7 +131,7 @@ const DeliveryList: React.FC = () => {
 
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     // Check delete permission - only Admin users can delete deliveries
     if (!isAdmin()) {
       toast({
@@ -161,7 +159,11 @@ const DeliveryList: React.FC = () => {
     }
 
     try {
-      const { error } = await window.ezsite.apis.tableDelete(12196, { ID: id });
+      const { error } = await supabase
+        .from('deliveries')
+        .delete()
+        .eq('id', id);
+
       if (error) throw error;
 
       toast({

@@ -72,10 +72,10 @@ const CriticalErrorFixPage: React.FC = () => {
 
 
 
+
+
         // Auth test failed
-      }setSystemStatus({ supabaseConnection: !connectionError, adminProfileExists: !!adminProfile && !adminError,
-          moduleAccessCount: moduleCount,
-          authenticationWorks: authTest,
+      }setSystemStatus({ supabaseConnection: !connectionError, adminProfileExists: !!adminProfile && !adminError, moduleAccessCount: moduleCount, authenticationWorks: authTest,
           errors: {
             connectionError: connectionError?.message,
             adminError: adminError?.message
