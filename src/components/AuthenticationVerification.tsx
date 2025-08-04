@@ -18,8 +18,8 @@ import {
   Clock,
   Key,
   Globe,
-  Server
-} from 'lucide-react';
+  Server } from
+'lucide-react';
 
 interface VerificationTest {
   name: string;
@@ -40,10 +40,10 @@ const AuthenticationVerification: React.FC = () => {
   }, []);
 
   const updateTest = (name: string, status: VerificationTest['status'], message: string, details?: string) => {
-    setTests(prev => {
-      const index = prev.findIndex(t => t.name === name);
+    setTests((prev) => {
+      const index = prev.findIndex((t) => t.name === name);
       const newTest = { name, status, message, details };
-      
+
       if (index >= 0) {
         const updated = [...prev];
         updated[index] = newTest;
@@ -108,7 +108,7 @@ const AuthenticationVerification: React.FC = () => {
     updateTest('Database Schema', 'pending', 'Verifying database tables...');
     const requiredTables = ['user_profiles', 'products', 'sales_reports', 'employees', 'stations'];
     let tableErrors = [];
-    
+
     for (const table of requiredTables) {
       try {
         const { error } = await supabase.from(table).select('*').limit(1);
@@ -135,12 +135,12 @@ const AuthenticationVerification: React.FC = () => {
           isManager: ['Administrator', 'Admin', 'Management', 'Manager'].includes(userProfile.role),
           isEmployee: userProfile.role === 'Employee'
         };
-        
-        const permissionsList = Object.entries(permissions)
-          .filter(([_, value]) => value)
-          .map(([key, _]) => key)
-          .join(', ');
-          
+
+        const permissionsList = Object.entries(permissions).
+        filter(([_, value]) => value).
+        map(([key, _]) => key).
+        join(', ');
+
         updateTest('User Permissions', 'success', `Permissions: ${permissionsList || 'Guest'}`);
       } catch (error) {
         updateTest('User Permissions', 'error', 'Failed to evaluate permissions', error instanceof Error ? error.message : 'Unknown error');
@@ -197,14 +197,14 @@ const AuthenticationVerification: React.FC = () => {
     return (
       <Badge variant={variants[status]} className="text-xs">
         {status.toUpperCase()}
-      </Badge>
-    );
+      </Badge>);
+
   };
 
-  const overallStatus = tests.length > 0 ? (
-    tests.some(t => t.status === 'error') ? 'error' :
-    tests.some(t => t.status === 'warning') ? 'warning' : 'success'
-  ) : 'pending';
+  const overallStatus = tests.length > 0 ?
+  tests.some((t) => t.status === 'error') ? 'error' :
+  tests.some((t) => t.status === 'warning') ? 'warning' : 'success' :
+  'pending';
 
   return (
     <div className="space-y-6">
@@ -297,18 +297,18 @@ const AuthenticationVerification: React.FC = () => {
           <CardTitle>Verification Results</CardTitle>
         </CardHeader>
         <CardContent>
-          {tests.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+          {tests.length === 0 ?
+          <div className="text-center py-8 text-gray-500">
               <Server className="w-12 h-12 mx-auto mb-4 text-gray-400" />
               <p>Click "Run Tests" to start verification</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {tests.map((test, index) => (
-                <div
-                  key={index}
-                  className="flex items-start space-x-3 p-4 rounded-lg border bg-gray-50/50"
-                >
+            </div> :
+
+          <div className="space-y-3">
+              {tests.map((test, index) =>
+            <div
+              key={index}
+              className="flex items-start space-x-3 p-4 rounded-lg border bg-gray-50/50">
+
                   {getStatusIcon(test.status)}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
@@ -316,22 +316,22 @@ const AuthenticationVerification: React.FC = () => {
                       {getStatusBadge(test.status)}
                     </div>
                     <p className="text-sm text-gray-600">{test.message}</p>
-                    {test.details && (
-                      <p className="text-xs text-gray-500 mt-1 font-mono bg-gray-100 p-1 rounded">
+                    {test.details &&
+                <p className="text-xs text-gray-500 mt-1 font-mono bg-gray-100 p-1 rounded">
                         {test.details}
                       </p>
-                    )}
+                }
                   </div>
                 </div>
-              ))}
+            )}
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
       {/* User Information */}
-      {isAuthenticated && user && (
-        <Card>
+      {isAuthenticated && user &&
+      <Card>
           <CardHeader>
             <CardTitle>Current User Information</CardTitle>
           </CardHeader>
@@ -347,8 +347,8 @@ const AuthenticationVerification: React.FC = () => {
                 </div>
               </div>
               
-              {userProfile && (
-                <div>
+              {userProfile &&
+            <div>
                   <h4 className="font-medium mb-2">Profile Details</h4>
                   <div className="space-y-1 text-sm">
                     <p><strong>Role:</strong> {userProfile.role}</p>
@@ -358,11 +358,11 @@ const AuthenticationVerification: React.FC = () => {
                     <p><strong>Hire Date:</strong> {userProfile.hire_date ? new Date(userProfile.hire_date).toLocaleDateString() : 'N/A'}</p>
                   </div>
                 </div>
-              )}
+            }
             </div>
           </CardContent>
         </Card>
-      )}
+      }
 
       {/* System Status */}
       <Card>
@@ -393,8 +393,8 @@ const AuthenticationVerification: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AuthenticationVerification;

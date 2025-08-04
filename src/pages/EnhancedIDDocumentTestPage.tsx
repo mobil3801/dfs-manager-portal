@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { RefreshCw, FileText, Eye, CheckCircle } from 'lucide-react';
 import EnhancedLiveIDDocumentsDisplay from '@/components/EnhancedLiveIDDocumentsDisplay';
+import SafeIDDocumentViewer from '@/components/ErrorBoundary/SafeIDDocumentViewer';
 
 const EnhancedIDDocumentTestPage: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0);
