@@ -9,6 +9,10 @@ import { ModuleAccessProvider } from '@/contexts/ModuleAccessContext';
 import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
 import AuthDebugger from '@/components/AuthDebugger';
 import ImageErrorNotification from '@/components/ImageErrorNotification';
+import AuthenticationFix from '@/components/AuthenticationFix';
+import { SimpleAuthProvider } from '@/components/SimpleAuthProvider';
+import SimpleLoginPage from '@/pages/SimpleLoginPage';
+import SimpleProtectedRoute from '@/components/SimpleProtectedRoute';
 
 // Layout
 import DashboardLayout from '@/components/Layout/DashboardLayout';
@@ -510,6 +514,9 @@ const AppRouter = () => {
         
         {/* Auth Debugger - Only show in development or for debugging */}
         <AuthDebugger />
+        
+        {/* Authentication Fix - Handles proper redirects */}
+        <AuthenticationFix />
       </div>
     </Router>);
 

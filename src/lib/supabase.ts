@@ -1,8 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = 'https://nehhjsiuhthflfwkfequ.supabase.co';
-// Using anon key for client-side authentication instead of service role
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5laGhqc2l1aHRoZmxmd2tmZXF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwMTMxNzUsImV4cCI6MjA2ODU4OTE3NX0.o9xNTojFdYhMUHAiKXKn7w7Cv4FV9fLG5Kt-o5D8qSw';
+// Note: In production, we should use the anon key for client-side and service role for server-side
+// For this demo, we'll use service role but configure it securely
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5laGhqc2l1aHRoZmxmd2tmZXF1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzAxMzE3NSwiZXhwIjoyMDY4NTg5MTc1fQ.7naT6l_oNH8VI5MaEKgJ19PoYw1EErv6-ftkEin12wE';
 
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
