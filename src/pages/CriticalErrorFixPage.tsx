@@ -1,11 +1,5 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Loader2, Shield, AlertTriangle, CheckCircle2, XCircle, Database, Key, UserCheck, RefreshCw } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabase';
+import React from 'react';
+import CriticalErrorFix from '@/components/CriticalErrorFix';
 
 interface FixResult {
   step: string;
@@ -72,10 +66,10 @@ const CriticalErrorFixPage: React.FC = () => {
 
 
 
+
+
         // Auth test failed
-      }setSystemStatus({ supabaseConnection: !connectionError, adminProfileExists: !!adminProfile && !adminError,
-          moduleAccessCount: moduleCount,
-          authenticationWorks: authTest,
+      }setSystemStatus({ supabaseConnection: !connectionError, adminProfileExists: !!adminProfile && !adminError, moduleAccessCount: moduleCount, authenticationWorks: authTest,
           errors: {
             connectionError: connectionError?.message,
             adminError: adminError?.message
