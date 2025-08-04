@@ -20,8 +20,8 @@ export interface SMSAnalytics {
   totalFailed: number;
   deliveryRate: number;
   averageCost: number;
-  topRecipients: {phone: string; count: number;}[];
-  dailyStats: {date: string; sent: number; delivered: number;}[];
+  topRecipients: {phone: string;count: number;}[];
+  dailyStats: {date: string;sent: number;delivered: number;}[];
 }
 
 export interface BulkSMSJob {
@@ -37,7 +37,7 @@ export interface BulkSMSJob {
 
 class EnhancedClickSendSMSService {
   private jobQueue: Map<string, BulkSMSJob> = new Map();
-  private retryQueue: Array<{message: SMSMessage; attempts: number; maxAttempts: number;}> = [];
+  private retryQueue: Array<{message: SMSMessage;attempts: number;maxAttempts: number;}> = [];
 
   constructor(private baseService = clickSendSmsService) {
     // Initialize the base service with provided credentials
@@ -54,10 +54,10 @@ class EnhancedClickSendSMSService {
   }
 
   async sendAdvancedSMS(
-    phoneNumber: string,
-    message: string,
-    options: AdvancedSMSOptions = {}
-  ): Promise<SMSResponse> {
+  phoneNumber: string,
+  message: string,
+  options: AdvancedSMSOptions = {})
+  : Promise<SMSResponse> {
     try {
       // Process template variables if provided
       let processedMessage = message;
@@ -111,10 +111,10 @@ class EnhancedClickSendSMSService {
   }
 
   private async scheduleMessage(
-    phoneNumber: string,
-    message: string,
-    options: AdvancedSMSOptions
-  ): Promise<SMSResponse> {
+  phoneNumber: string,
+  message: string,
+  options: AdvancedSMSOptions)
+  : Promise<SMSResponse> {
     // In a real implementation, this would integrate with a job scheduler
     // For now, we'll use setTimeout for simple scheduling
     const delay = options.scheduledTime!.getTime() - Date.now();
@@ -174,8 +174,8 @@ class EnhancedClickSendSMSService {
   }
 
   async sendBulkSMSWithProgress(
-    messages: Array<{phoneNumber: string; message: string; options?: AdvancedSMSOptions;}>
-  ): Promise<BulkSMSJob> {
+  messages: Array<{phoneNumber: string;message: string;options?: AdvancedSMSOptions;}>)
+  : Promise<BulkSMSJob> {
     const jobId = `bulk_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     const job: BulkSMSJob = {
@@ -196,9 +196,9 @@ class EnhancedClickSendSMSService {
   }
 
   private async processBulkJob(
-    jobId: string,
-    messages: Array<{phoneNumber: string; message: string; options?: AdvancedSMSOptions;}>
-  ): Promise<void> {
+  jobId: string,
+  messages: Array<{phoneNumber: string;message: string;options?: AdvancedSMSOptions;}>)
+  : Promise<void> {
     const job = this.jobQueue.get(jobId);
     if (!job) return;
 
@@ -230,18 +230,18 @@ class EnhancedClickSendSMSService {
     return this.jobQueue.get(jobId) || null;
   }
 
-  async getSMSAnalytics(dateRange?: {start: Date; end: Date;}): Promise<SMSAnalytics> {
+  async getSMSAnalytics(dateRange?: {start: Date;end: Date;}): Promise<SMSAnalytics> {
     try {
-      let query = supabase
-        .from('sms_history')
-        .select('*')
-        .order('sent_at', { ascending: false });
+      let query = supabase.
+      from('sms_history').
+      select('*').
+      order('sent_at', { ascending: false });
 
       // Apply date range filter if provided
       if (dateRange) {
-        query = query
-          .gte('sent_at', dateRange.start.toISOString())
-          .lte('sent_at', dateRange.end.toISOString());
+        query = query.
+        gte('sent_at', dateRange.start.toISOString()).
+        lte('sent_at', dateRange.end.toISOString());
       }
 
       const { data: messages, error } = await query.limit(1000);
@@ -265,10 +265,10 @@ class EnhancedClickSendSMSService {
         return acc;
       }, {});
 
-      const topRecipients = Object.entries(recipientCounts)
-        .map(([phone, count]) => ({ phone, count: count as number }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
+      const topRecipients = Object.entries(recipientCounts).
+      map(([phone, count]) => ({ phone, count: count as number })).
+      sort((a, b) => b.count - a.count).
+      slice(0, 10);
 
       // Daily stats (last 30 days)
       const dailyStats = this.calculateDailyStats(messageList);
@@ -288,8 +288,8 @@ class EnhancedClickSendSMSService {
     }
   }
 
-  private calculateDailyStats(messages: any[]): {date: string; sent: number; delivered: number;}[] {
-    const dailyMap = new Map<string, {sent: number; delivered: number;}>();
+  private calculateDailyStats(messages: any[]): {date: string;sent: number;delivered: number;}[] {
+    const dailyMap = new Map<string, {sent: number;delivered: number;}>();
 
     messages.forEach((message) => {
       const date = message.sent_at?.split('T')[0];
@@ -306,18 +306,18 @@ class EnhancedClickSendSMSService {
       }
     });
 
-    return Array.from(dailyMap.entries())
-      .map(([date, stats]) => ({ date, ...stats }))
-      .sort((a, b) => a.date.localeCompare(b.date))
-      .slice(-30); // Last 30 days
+    return Array.from(dailyMap.entries()).
+    map(([date, stats]) => ({ date, ...stats })).
+    sort((a, b) => a.date.localeCompare(b.date)).
+    slice(-30); // Last 30 days
   }
 
   private async logAdvancedAnalytics(
-    phoneNumber: string,
-    message: string,
-    response: SMSResponse,
-    options: AdvancedSMSOptions
-  ): Promise<void> {
+  phoneNumber: string,
+  message: string,
+  response: SMSResponse,
+  options: AdvancedSMSOptions)
+  : Promise<void> {
     // This would integrate with your analytics service
     // For now, we'll just log to console
     console.log('SMS Analytics:', {
@@ -331,16 +331,16 @@ class EnhancedClickSendSMSService {
   }
 
   async sendEmergencyAlert(
-    message: string,
-    options: AdvancedSMSOptions = {}
-  ): Promise<SMSResponse[]> {
+  message: string,
+  options: AdvancedSMSOptions = {})
+  : Promise<SMSResponse[]> {
     try {
       // Get emergency contacts from settings
-      const { data, error } = await supabase
-        .from('sms_contacts')
-        .select('*')
-        .eq('is_emergency', true)
-        .eq('is_active', true);
+      const { data, error } = await supabase.
+      from('sms_contacts').
+      select('*').
+      eq('is_emergency', true).
+      eq('is_active', true);
 
       if (error) throw error;
 
@@ -366,7 +366,7 @@ class EnhancedClickSendSMSService {
     }
   }
 
-  async validatePhoneNumbers(phoneNumbers: string[]): Promise<{valid: string[]; invalid: string[];}> {
+  async validatePhoneNumbers(phoneNumbers: string[]): Promise<{valid: string[];invalid: string[];}> {
     const valid: string[] = [];
     const invalid: string[] = [];
 
@@ -411,11 +411,11 @@ class EnhancedClickSendSMSService {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
 
-      const { data: recentMessages } = await supabase
-        .from('sms_history')
-        .select('*')
-        .gte('sent_at', yesterday.toISOString())
-        .limit(100);
+      const { data: recentMessages } = await supabase.
+      from('sms_history').
+      select('*').
+      gte('sent_at', yesterday.toISOString()).
+      limit(100);
 
       const messages = recentMessages || [];
       const failedCount = messages.filter((m: any) => m.status === 'Failed').length;
@@ -451,21 +451,21 @@ class EnhancedClickSendSMSService {
 
   // Template management
   async createMessageTemplate(
-    name: string,
-    content: string,
-    type: string = 'custom'
-  ): Promise<void> {
+  name: string,
+  content: string,
+  type: string = 'custom')
+  : Promise<void> {
     try {
-      const { error } = await supabase
-        .from('sms_templates')
-        .insert([{
-          template_name: name,
-          message_content: content,
-          template_type: type,
-          is_active: true,
-          priority_level: 'normal',
-          created_by: 1
-        }]);
+      const { error } = await supabase.
+      from('sms_templates').
+      insert([{
+        template_name: name,
+        message_content: content,
+        template_type: type,
+        is_active: true,
+        priority_level: 'normal',
+        created_by: 1
+      }]);
 
       if (error) throw error;
     } catch (error) {
@@ -476,11 +476,11 @@ class EnhancedClickSendSMSService {
 
   async getMessageTemplates(): Promise<any[]> {
     try {
-      const { data, error } = await supabase
-        .from('sms_templates')
-        .select('*')
-        .eq('is_active', true)
-        .order('template_name');
+      const { data, error } = await supabase.
+      from('sms_templates').
+      select('*').
+      eq('is_active', true).
+      order('template_name');
 
       if (error) throw error;
       return data || [];

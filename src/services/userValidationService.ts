@@ -20,8 +20,8 @@ class UserValidationService {
   private readonly PROTECTED_ADMIN_EMAIL = 'admin@dfs-portal.com';
   private readonly VALID_ROLES = ['Administrator', 'Management', 'Employee'];
   private readonly CONFLICTING_ROLES = [
-    ['Administrator', 'Employee'], // Admin cannot be employee
-    ['Management', 'Employee'] // Management cannot be employee at same station
+  ['Administrator', 'Employee'], // Admin cannot be employee
+  ['Management', 'Employee'] // Management cannot be employee at same station
   ];
 
   /**
@@ -73,8 +73,8 @@ class UserValidationService {
       if (authError) {
         console.error('Error checking auth users:', authError);
       } else {
-        const existingAuthUser = authUsers.users.find(user => 
-          user.email === email && (!userId || user.id !== userId.toString())
+        const existingAuthUser = authUsers.users.find((user) =>
+        user.email === email && (!userId || user.id !== userId.toString())
         );
 
         if (existingAuthUser) {
@@ -87,10 +87,10 @@ class UserValidationService {
       }
 
       // Check in employees table as well
-      const { data: employees, error: employeesError } = await supabase
-        .from('employees')
-        .select('*')
-        .eq('email', email);
+      const { data: employees, error: employeesError } = await supabase.
+      from('employees').
+      select('*').
+      eq('email', email);
 
       if (employeesError) {
         console.error('Error checking employees:', employeesError);
@@ -133,12 +133,12 @@ class UserValidationService {
     try {
       // Check for role conflicts at the same station
       if (userData.station && userData.user_id) {
-        const { data: existingProfiles, error } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('station', userData.station)
-          .eq('user_id', userData.user_id)
-          .eq('is_active', true);
+        const { data: existingProfiles, error } = await supabase.
+        from('user_profiles').
+        select('*').
+        eq('station', userData.station).
+        eq('user_id', userData.user_id).
+        eq('is_active', true);
 
         if (error) {
           console.error('Error checking existing profiles:', error);
@@ -147,8 +147,8 @@ class UserValidationService {
 
           // Check for conflicting roles
           for (const [role1, role2] of this.CONFLICTING_ROLES) {
-            if ((userData.role === role1 && existingProfile.role === role2) ||
-                (userData.role === role2 && existingProfile.role === role1)) {
+            if (userData.role === role1 && existingProfile.role === role2 ||
+            userData.role === role2 && existingProfile.role === role1) {
               errors.push({
                 field: 'role',
                 message: `Role conflict: Cannot assign ${userData.role} role when user already has ${existingProfile.role} role at ${userData.station}`,
@@ -160,11 +160,11 @@ class UserValidationService {
 
         // Check for multiple admin roles (only one admin per system)
         if (userData.role === 'Administrator') {
-          const { data: adminProfiles, error: adminError } = await supabase
-            .from('user_profiles')
-            .select('*')
-            .eq('role', 'Administrator')
-            .eq('is_active', true);
+          const { data: adminProfiles, error: adminError } = await supabase.
+          from('user_profiles').
+          select('*').
+          eq('role', 'Administrator').
+          eq('is_active', true);
 
           if (adminError) {
             console.error('Error checking admin profiles:', adminError);
@@ -232,7 +232,7 @@ class UserValidationService {
       // Get user email if not provided
       if (!userEmail) {
         const { data: { user }, error } = await supabase.auth.admin.getUserById(userId.toString());
-        
+
         if (error) {
           console.error('Error getting user:', error);
         } else if (user) {
@@ -294,24 +294,24 @@ class UserValidationService {
 
     try {
       // Find conflicting roles
-      const conflictingRoles = this.CONFLICTING_ROLES
-        .filter(([role1, role2]) => role1 === role || role2 === role)
-        .flatMap(([role1, role2]) => role === role1 ? [role2] : [role1]);
+      const conflictingRoles = this.CONFLICTING_ROLES.
+      filter(([role1, role2]) => role1 === role || role2 === role).
+      flatMap(([role1, role2]) => role === role1 ? [role2] : [role1]);
 
       for (const conflictRole of conflictingRoles) {
-        const { data: profiles, error } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('role', conflictRole)
-          .eq('station', station)
-          .eq('is_active', true);
+        const { data: profiles, error } = await supabase.
+        from('user_profiles').
+        select('*').
+        eq('role', conflictRole).
+        eq('station', station).
+        eq('is_active', true);
 
         if (error) {
           console.error('Error checking role conflicts:', error);
         } else if (profiles) {
-          const filteredConflicts = excludeUserId 
-            ? profiles.filter((profile: any) => profile.user_id !== excludeUserId)
-            : profiles;
+          const filteredConflicts = excludeUserId ?
+          profiles.filter((profile: any) => profile.user_id !== excludeUserId) :
+          profiles;
 
           conflicts.push(...filteredConflicts.map((profile: any) => ({
             ...profile,

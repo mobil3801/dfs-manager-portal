@@ -45,10 +45,10 @@ class LicenseAlertService {
       console.log('🔍 Checking for licenses requiring alerts...');
 
       // Get all active alert settings
-      const { data: settingsData, error: settingsError } = await supabase
-        .from('alert_settings')
-        .select('*')
-        .eq('is_active', true);
+      const { data: settingsData, error: settingsError } = await supabase.
+      from('alert_settings').
+      select('*').
+      eq('is_active', true);
 
       if (settingsError) {
         console.error('Error loading SMS settings:', settingsError);
@@ -62,11 +62,11 @@ class LicenseAlertService {
       }
 
       // Get all active licenses
-      const { data: licensesData, error: licensesError } = await supabase
-        .from('licenses')
-        .select('*')
-        .eq('status', 'Active')
-        .order('expiry_date', { ascending: true });
+      const { data: licensesData, error: licensesError } = await supabase.
+      from('licenses').
+      select('*').
+      eq('status', 'Active').
+      order('expiry_date', { ascending: true });
 
       if (licensesError) {
         console.error('Error loading licenses:', licensesError);
@@ -77,10 +77,10 @@ class LicenseAlertService {
       console.log(`Found ${licenses.length} active licenses to check`);
 
       // Get all active SMS contacts
-      const { data: contactsData, error: contactsError } = await supabase
-        .from('sms_contacts')
-        .select('*')
-        .eq('is_active', true);
+      const { data: contactsData, error: contactsError } = await supabase.
+      from('sms_contacts').
+      select('*').
+      eq('is_active', true);
 
       if (contactsError) {
         console.error('Error loading SMS contacts:', contactsError);
@@ -139,18 +139,18 @@ class LicenseAlertService {
    * Check if we should send an alert based on frequency settings
    */
   private async shouldSendAlert(
-    licenseId: number,
-    settingId: number,
-    frequencyDays: number
-  ): Promise<boolean> {
+  licenseId: number,
+  settingId: number,
+  frequencyDays: number)
+  : Promise<boolean> {
     try {
       // Get the last alert sent for this license/setting combination
-      const { data, error } = await supabase
-        .from('alert_history')
-        .select('*')
-        .eq('license_id', licenseId)
-        .order('sent_date', { ascending: false })
-        .limit(1);
+      const { data, error } = await supabase.
+      from('alert_history').
+      select('*').
+      eq('license_id', licenseId).
+      order('sent_date', { ascending: false }).
+      limit(1);
 
       if (error) {
         console.error('Error checking alert history:', error);
@@ -179,7 +179,7 @@ class LicenseAlertService {
    */
   private getRelevantContacts(contacts: SMSContact[], station: string): SMSContact[] {
     return contacts.filter((contact) =>
-      contact.station === 'ALL' || contact.station === station
+    contact.station === 'ALL' || contact.station === station
     );
   }
 
@@ -187,11 +187,11 @@ class LicenseAlertService {
    * Send SMS alert for a specific license
    */
   private async sendLicenseAlert(
-    license: License,
-    contact: SMSContact,
-    setting: SMSAlertSetting,
-    daysUntilExpiry: number
-  ): Promise<void> {
+  license: License,
+  contact: SMSContact,
+  setting: SMSAlertSetting,
+  daysUntilExpiry: number)
+  : Promise<void> {
     try {
       // Create message from template
       const message = this.createMessageFromTemplate(
@@ -210,18 +210,18 @@ class LicenseAlertService {
       });
 
       // Record in history
-      const { error } = await supabase
-        .from('alert_history')
-        .insert([{
-          license_id: license.id,
-          contact_id: contact.id,
-          mobile_number: contact.mobile_number,
-          message_content: message,
-          sent_date: new Date().toISOString(),
-          delivery_status: smsResult.success ? 'Sent' : `Failed - ${smsResult.error}`,
-          days_before_expiry: daysUntilExpiry,
-          created_by: 1 // System generated
-        }]);
+      const { error } = await supabase.
+      from('alert_history').
+      insert([{
+        license_id: license.id,
+        contact_id: contact.id,
+        mobile_number: contact.mobile_number,
+        message_content: message,
+        sent_date: new Date().toISOString(),
+        delivery_status: smsResult.success ? 'Sent' : `Failed - ${smsResult.error}`,
+        days_before_expiry: daysUntilExpiry,
+        created_by: 1 // System generated
+      }]);
 
       if (error) {
         console.error('Error recording alert history:', error);
@@ -241,32 +241,32 @@ class LicenseAlertService {
    * Create SMS message from template
    */
   private createMessageFromTemplate(
-    template: string,
-    license: License,
-    daysUntilExpiry: number
-  ): string {
+  template: string,
+  license: License,
+  daysUntilExpiry: number)
+  : string {
     const expiryDate = new Date(license.expiry_date).toLocaleDateString();
 
-    return template
-      .replace(/{license_name}/g, license.license_name)
-      .replace(/{station}/g, license.station)
-      .replace(/{expiry_date}/g, expiryDate)
-      .replace(/{days_remaining}/g, daysUntilExpiry.toString())
-      .replace(/{license_number}/g, license.license_number)
-      .replace(/{category}/g, license.category);
+    return template.
+    replace(/{license_name}/g, license.license_name).
+    replace(/{station}/g, license.station).
+    replace(/{expiry_date}/g, expiryDate).
+    replace(/{days_remaining}/g, daysUntilExpiry.toString()).
+    replace(/{license_number}/g, license.license_number).
+    replace(/{category}/g, license.category);
   }
 
   /**
    * Send immediate alert for a specific license (manual trigger)
    */
-  async sendImmediateAlert(licenseId: number): Promise<{success: boolean; message: string;}> {
+  async sendImmediateAlert(licenseId: number): Promise<{success: boolean;message: string;}> {
     try {
       // Get license details
-      const { data: licenseData, error: licenseError } = await supabase
-        .from('licenses')
-        .select('*')
-        .eq('id', licenseId)
-        .single();
+      const { data: licenseData, error: licenseError } = await supabase.
+      from('licenses').
+      select('*').
+      eq('id', licenseId).
+      single();
 
       if (licenseError || !licenseData) {
         return { success: false, message: 'License not found' };
@@ -278,10 +278,10 @@ class LicenseAlertService {
       const daysUntilExpiry = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
       // Get active contacts
-      const { data: contactsData, error: contactsError } = await supabase
-        .from('sms_contacts')
-        .select('*')
-        .eq('is_active', true);
+      const { data: contactsData, error: contactsError } = await supabase.
+      from('sms_contacts').
+      select('*').
+      eq('is_active', true);
 
       if (contactsError) {
         return { success: false, message: 'Failed to load contacts' };
@@ -306,18 +306,18 @@ class LicenseAlertService {
         });
 
         // Record in history
-        await supabase
-          .from('alert_history')
-          .insert([{
-            license_id: license.id,
-            contact_id: contact.id,
-            mobile_number: contact.mobile_number,
-            message_content: defaultTemplate,
-            sent_date: new Date().toISOString(),
-            delivery_status: smsResult.success ? 'Sent' : `Failed - ${smsResult.error}`,
-            days_before_expiry: daysUntilExpiry,
-            created_by: 1
-          }]);
+        await supabase.
+        from('alert_history').
+        insert([{
+          license_id: license.id,
+          contact_id: contact.id,
+          mobile_number: contact.mobile_number,
+          message_content: defaultTemplate,
+          sent_date: new Date().toISOString(),
+          delivery_status: smsResult.success ? 'Sent' : `Failed - ${smsResult.error}`,
+          days_before_expiry: daysUntilExpiry,
+          created_by: 1
+        }]);
 
         if (smsResult.success) {
           successCount++;

@@ -48,15 +48,15 @@ class OptimizedDataService {
    * Intelligent data fetching with selective loading
    */
   async fetchData(
-    tableName: string,
-    params: any,
-    options: {
-      priority?: 'high' | 'medium' | 'low';
-      cache?: boolean;
-      viewport?: {start: number; end: number;};
-      fields?: string[];
-    } = {}
-  ) {
+  tableName: string,
+  params: any,
+  options: {
+    priority?: 'high' | 'medium' | 'low';
+    cache?: boolean;
+    viewport?: {start: number;end: number;};
+    fields?: string[];
+  } = {})
+  {
     const startTime = performance.now();
     const cacheKey = this.generateCacheKey(tableName, params, options);
 
@@ -111,9 +111,9 @@ class OptimizedDataService {
 
           // Build Supabase query
           let query = supabase.from(tableName).select(
-            options.fields && options.fields.length > 0 
-              ? options.fields.join(',') 
-              : '*'
+            options.fields && options.fields.length > 0 ?
+            options.fields.join(',') :
+            '*'
           );
 
           // Apply filters
@@ -147,8 +147,8 @@ class OptimizedDataService {
 
           // Apply ordering
           if (optimizedParams.OrderByField) {
-            query = query.order(optimizedParams.OrderByField, { 
-              ascending: optimizedParams.IsAsc 
+            query = query.order(optimizedParams.OrderByField, {
+              ascending: optimizedParams.IsAsc
             });
           }
 
@@ -163,13 +163,13 @@ class OptimizedDataService {
 
           if (error) throw error;
 
-          resolve({ 
-            data: { 
-              List: data, 
+          resolve({
+            data: {
+              List: data,
               TotalCount: count,
-              VirtualCount: count 
-            }, 
-            fromCache: false 
+              VirtualCount: count
+            },
+            fromCache: false
           });
         } catch (error) {
           reject(error);
@@ -215,7 +215,7 @@ class OptimizedDataService {
    */
   private processQueue() {
     if (this.connectionPool.queue.length > 0 &&
-        this.connectionPool.active < this.connectionPool.maxConnections) {
+    this.connectionPool.active < this.connectionPool.maxConnections) {
       const nextRequest = this.connectionPool.queue.shift();
       if (nextRequest) {
         nextRequest();
@@ -279,15 +279,15 @@ class OptimizedDataService {
 
     if (success) {
       this.performanceMetrics.avgResponseTime =
-        (this.performanceMetrics.avgResponseTime + responseTime) / 2;
+      (this.performanceMetrics.avgResponseTime + responseTime) / 2;
     }
 
     // Calculate cache hit rate
-    const totalCacheRequests = Object.values(this.cache)
-      .reduce((sum, item) => sum + item.accessCount, 0);
+    const totalCacheRequests = Object.values(this.cache).
+    reduce((sum, item) => sum + item.accessCount, 0);
 
     this.performanceMetrics.cacheHitRate =
-      totalCacheRequests / this.performanceMetrics.totalRequests;
+    totalCacheRequests / this.performanceMetrics.totalRequests;
   }
 
   /**

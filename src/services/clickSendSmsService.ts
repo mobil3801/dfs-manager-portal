@@ -86,12 +86,12 @@ class ClickSendSMSService {
 
     // Load configuration from the database
     try {
-      const { data, error } = await supabase
-        .from('sms_config')
-        .select('*')
-        .eq('is_enabled', true)
-        .order('id', { ascending: false })
-        .limit(1);
+      const { data, error } = await supabase.
+      from('sms_config').
+      select('*').
+      eq('is_enabled', true).
+      order('id', { ascending: false }).
+      limit(1);
 
       if (!error && data && data.length > 0) {
         const config = data[0];
@@ -269,11 +269,11 @@ class ClickSendSMSService {
 
   private async processTemplate(templateId: number, placeholders: Record<string, string>): Promise<string> {
     try {
-      const { data, error } = await supabase
-        .from('sms_templates')
-        .select('*')
-        .eq('id', templateId)
-        .single();
+      const { data, error } = await supabase.
+      from('sms_templates').
+      select('*').
+      eq('id', templateId).
+      single();
 
       if (error) throw error;
 
@@ -298,12 +298,12 @@ class ClickSendSMSService {
   private async checkDailyLimit(): Promise<void> {
     try {
       // Check configuration from database
-      const { data, error } = await supabase
-        .from('sms_config')
-        .select('*')
-        .eq('is_enabled', true)
-        .order('id', { ascending: false })
-        .limit(1);
+      const { data, error } = await supabase.
+      from('sms_config').
+      select('*').
+      eq('is_enabled', true).
+      order('id', { ascending: false }).
+      limit(1);
 
       if (error) throw error;
 
@@ -312,11 +312,11 @@ class ClickSendSMSService {
         const today = new Date().toISOString().split('T')[0];
 
         // Count today's SMS messages
-        const { count } = await supabase
-          .from('sms_history')
-          .select('*', { count: 'exact', head: true })
-          .gte('sent_at', today)
-          .eq('status', 'Sent');
+        const { count } = await supabase.
+        from('sms_history').
+        select('*', { count: 'exact', head: true }).
+        gte('sent_at', today).
+        eq('status', 'Sent');
 
         const todayCount = count || 0;
 
@@ -331,18 +331,18 @@ class ClickSendSMSService {
   }
 
   private async updateDailyCount(): Promise<void> {
+
+
+
+
     // This is handled by counting records in the history table
     // No need for a separate counter field
-  }
-
-  private async logSMSHistory(historyData: any): Promise<void> {
-    try {
-      const { error } = await supabase
-        .from('sms_history')
-        .insert([{
-          ...historyData,
-          sent_by_user_id: 1 // This should be the current user ID
-        }]);
+  }private async logSMSHistory(historyData: any): Promise<void> {try {const { error } = await supabase.
+      from('sms_history').
+      insert([{
+        ...historyData,
+        sent_by_user_id: 1 // This should be the current user ID
+      }]);
 
       if (error) throw error;
     } catch (error) {
@@ -375,7 +375,7 @@ class ClickSendSMSService {
     return results;
   }
 
-  async getDeliveryStatus(messageId: string): Promise<{status: string; delivered: boolean;}> {
+  async getDeliveryStatus(messageId: string): Promise<{status: string;delivered: boolean;}> {
     if (!this.isConfigured) {
       throw new Error('SMS service not configured');
     }
@@ -424,15 +424,15 @@ class ClickSendSMSService {
     return [...this.testNumbers];
   }
 
-  async getDailyUsage(): Promise<{used: number; limit: number; percentage: number;}> {
+  async getDailyUsage(): Promise<{used: number;limit: number;percentage: number;}> {
     try {
       // Get configuration from database
-      const { data, error } = await supabase
-        .from('sms_config')
-        .select('*')
-        .eq('is_enabled', true)
-        .order('id', { ascending: false })
-        .limit(1);
+      const { data, error } = await supabase.
+      from('sms_config').
+      select('*').
+      eq('is_enabled', true).
+      order('id', { ascending: false }).
+      limit(1);
 
       if (error) throw error;
 
@@ -441,11 +441,11 @@ class ClickSendSMSService {
         const today = new Date().toISOString().split('T')[0];
 
         // Count today's SMS messages
-        const { count } = await supabase
-          .from('sms_history')
-          .select('*', { count: 'exact', head: true })
-          .gte('sent_at', today)
-          .eq('status', 'Sent');
+        const { count } = await supabase.
+        from('sms_history').
+        select('*', { count: 'exact', head: true }).
+        gte('sent_at', today).
+        eq('status', 'Sent');
 
         const used = count || 0;
         const limit = config.daily_limit;
@@ -469,7 +469,7 @@ class ClickSendSMSService {
     return this.config;
   }
 
-  async getServiceStatus(): Promise<{available: boolean; message: string; providers?: any; quota?: any;}> {
+  async getServiceStatus(): Promise<{available: boolean;message: string;providers?: any;quota?: any;}> {
     try {
       if (!this.isConfigured) {
         return {
@@ -524,14 +524,14 @@ class ClickSendSMSService {
     }
   }
 
-  async getAvailableFromNumbers(): Promise<{number: string; provider: string; isActive: boolean; testMode: boolean;}[]> {
+  async getAvailableFromNumbers(): Promise<{number: string;provider: string;isActive: boolean;testMode: boolean;}[]> {
     try {
       // Get from database
-      const { data, error } = await supabase
-        .from('sms_config')
-        .select('*')
-        .order('id', { ascending: false })
-        .limit(10);
+      const { data, error } = await supabase.
+      from('sms_config').
+      select('*').
+      order('id', { ascending: false }).
+      limit(10);
 
       if (error) throw error;
 
