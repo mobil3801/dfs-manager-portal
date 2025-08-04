@@ -18,8 +18,7 @@ const AdminFixSuccess: React.FC = () => {
       const { data: profiles, error } = await supabase
         .from('user_profiles')
         .select('*')
-        .eq('email', 'admin@dfs-portal.com')
-        .eq('user role', 'Administrator');
+        .eq('email', 'admin@dfs-portal.com');
 
       if (error) throw error;
 

@@ -296,6 +296,13 @@ const TopNavigation = () => {
         <DropdownMenuContent align="center" className="w-56">
           <DropdownMenuLabel>Admin Panel</DropdownMenuLabel>
           <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => navigate('/admin-emergency-fix')}
+            className="flex items-center space-x-2 text-sm font-medium text-red-700 hover:text-red-900 w-full bg-red-50 hover:bg-red-100">
+              <AlertCircle className="mr-2 h-4 w-4" />
+              🚨 Emergency Admin Fix
+            </DropdownMenuItem>
+          <DropdownMenuSeparator />
           {adminNavItems.map((item) =>
           <DropdownMenuItem
             key={item.href}
@@ -496,6 +503,17 @@ const TopNavigation = () => {
                   {accessibleSecondaryItems.map((item) =>
                 <NavigationLink key={item.href} item={item} mobile />
                 )}
+                  
+                  {/* Emergency Admin Fix Button */}
+                  <button
+                    onClick={() => {
+                      navigate('/admin-emergency-fix');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex items-center space-x-3 px-4 py-3 text-left w-full transition-colors text-sm font-medium rounded-md mx-2 bg-red-50 text-red-700 hover:bg-red-100 hover:text-red-900 border border-red-200">
+                    <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                    <span className="ml-2">🚨 Emergency Admin Fix</span>
+                  </button>
                 </div>
               </div>
               
