@@ -50,11 +50,11 @@ const AdminAccessFix = () => {
 
           // Check user profile
           try {
-            const { data: profileData, error: profileError } = await supabase.
-            from('user_profiles').
-            select('*').
-            eq('user_id', userId).
-            single();
+            const { data: profileData, error: profileError } = await supabase
+              .from('user_profiles')
+              .select('*')
+              .eq('user_id', userId)
+              .single();
 
             if (!profileError && profileData) {
               userProfileExists = true;
@@ -71,11 +71,11 @@ const AdminAccessFix = () => {
         console.warn('Auth check failed:', error);
         // Try to check profiles table directly
         try {
-          const { data: profileData, error: profileError } = await supabase.
-          from('user_profiles').
-          select('*').
-          eq('role', 'Administrator').
-          limit(1);
+          const { data: profileData, error: profileError } = await supabase
+            .from('user_profiles')
+            .select('*')
+            .eq('role', 'Administrator')
+            .limit(1);
 
           if (!profileError && profileData && profileData.length > 0) {
             userProfileExists = true;

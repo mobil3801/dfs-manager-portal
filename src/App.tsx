@@ -24,6 +24,7 @@ import AdminSetupPage from '@/pages/Admin/AdminSetupPage';
 import AdminDebugPage from '@/pages/AdminDebugPage';
 import AdminEmergencyFixPage from '@/pages/AdminEmergencyFixPage';
 import AdminFixSuccessPage from '@/pages/AdminFixSuccessPage';
+import CriticalErrorFixPage from '@/pages/CriticalErrorFixPage';
 
 // Lazy load feature pages
 const ProductList = lazy(() => import('@/pages/Products/ProductList'));
@@ -68,7 +69,6 @@ const OverflowTestingPage = lazy(() => import('@/pages/OverflowTestingPage'));
 const EnhancedIDDocumentTestPage = lazy(() => import('./pages/EnhancedIDDocumentTestPage'));
 const DocumentViewerTestPage = lazy(() => import('./pages/DocumentViewerTestPage'));
 const SupabaseTestPage = lazy(() => import('@/pages/SupabaseTestPage'));
-
 const DocumentLoadingDebugPage = lazy(() => import('@/pages/DocumentLoadingDebugPage'));
 const DocumentSolutionPage = lazy(() => import('@/pages/DocumentSolutionPage'));
 const IDFileDebugPage = lazy(() => import('@/pages/IDFileDebugPage'));
@@ -180,7 +180,8 @@ const AppRouter = () => {
           <Route path="/admin-setup" element={<AdminSetupPage />} />
           <Route path="/admin-debug" element={<AdminDebugPage />} />
           <Route path="/admin-emergency-fix" element={<AdminEmergencyFixPage />} />
-        <Route path="/admin-fix-success" element={<AdminFixSuccessPage />} />
+          <Route path="/admin-fix-success" element={<AdminFixSuccessPage />} />
+          <Route path="/critical-error-fix" element={<CriticalErrorFixPage />} />
           
           {/* Protected Routes */}
           <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
