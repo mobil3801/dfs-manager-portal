@@ -8,10 +8,10 @@ import { sanitizeUserInput, sanitizeTextContent, isValidAttributeValue, removeBO
  * Safely creates DOM elements with sanitized attributes
  */
 export const safeCreateElement = (
-  tagName: string,
-  attributes: Record<string, any> = {},
-  textContent?: string
-): HTMLElement => {
+tagName: string,
+attributes: Record<string, any> = {},
+textContent?: string)
+: HTMLElement => {
   try {
     const element = document.createElement(tagName);
 
@@ -217,7 +217,7 @@ export const setupInvalidCharacterErrorMonitor = (): void => {
       try {
         const errorMessage = args.join(' ');
         if (errorMessage.includes('InvalidCharacterError') ||
-            errorMessage.includes('invalid characters')) {
+        errorMessage.includes('invalid characters')) {
 
           // Provide additional debugging information
           console.group('InvalidCharacterError Debug Info');
@@ -249,10 +249,10 @@ export const setupInvalidCharacterErrorMonitor = (): void => {
           console.groupEnd();
         }
       } catch (monitorError) {
-        // Fallback to original error if monitoring fails
-      }
 
-      originalError.apply(console, args);
+
+        // Fallback to original error if monitoring fails
+      }originalError.apply(console, args);
     };
 
     // Monitor DOM mutations that might cause InvalidCharacterError
@@ -276,10 +276,10 @@ export const setupInvalidCharacterErrorMonitor = (): void => {
                     }
                   });
                 } catch (attrError) {
+
+
                   // Skip problematic attributes
-                }
-              }
-            });
+                }}});
           });
         } catch (mutationError) {
           console.warn('Error in mutation observer:', mutationError);

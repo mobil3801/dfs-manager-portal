@@ -36,7 +36,7 @@ class EnhancedGlobalErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Enhanced Global Error Boundary caught an error:', error, errorInfo);
-    
+
     this.setState({
       error,
       errorInfo
@@ -87,7 +87,7 @@ class EnhancedGlobalErrorBoundary extends Component<Props, State> {
       return;
     }
 
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       hasError: false,
       error: null,
       errorInfo: null,
@@ -98,9 +98,9 @@ class EnhancedGlobalErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError && this.state.error) {
       const FallbackComponent = this.props.fallback || ErrorFallback;
-      
+
       const severity = this.getSeverity(this.state.error);
-      
+
       return (
         <FallbackComponent
           error={this.state.error}
@@ -109,9 +109,9 @@ class EnhancedGlobalErrorBoundary extends Component<Props, State> {
           component="EnhancedGlobalErrorBoundary"
           showDetails={true}
           showNavigation={true}
-          customMessage={this.getCustomMessage()}
-        />
-      );
+          customMessage={this.getCustomMessage()} />);
+
+
     }
 
     return this.props.children;
@@ -119,23 +119,23 @@ class EnhancedGlobalErrorBoundary extends Component<Props, State> {
 
   private getSeverity = (error: Error): 'low' | 'medium' | 'high' | 'critical' => {
     const errorMessage = error.message.toLowerCase();
-    
+
     if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
       return 'medium';
     }
-    
+
     if (errorMessage.includes('chunk') || errorMessage.includes('loading')) {
       return 'medium';
     }
-    
+
     if (errorMessage.includes('auth') || errorMessage.includes('permission')) {
       return 'high';
     }
-    
+
     if (this.state.retryCount >= 2) {
       return 'critical';
     }
-    
+
     return 'medium';
   };
 
@@ -143,11 +143,11 @@ class EnhancedGlobalErrorBoundary extends Component<Props, State> {
     if (this.state.retryCount >= this.maxRetries) {
       return 'Multiple errors occurred. You will be redirected to the login page for a fresh start.';
     }
-    
+
     if (this.state.retryCount > 0) {
       return `This is retry attempt ${this.state.retryCount + 1} of ${this.maxRetries + 1}.`;
     }
-    
+
     return undefined;
   };
 }

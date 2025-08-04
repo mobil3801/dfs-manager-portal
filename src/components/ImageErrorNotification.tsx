@@ -36,7 +36,7 @@ const ImageErrorNotification: React.FC<ImageErrorNotificationProps> = ({
         if (imageErrorService && typeof imageErrorService.getRecentErrors === 'function') {
           const imageErrors = imageErrorService.getRecentErrors();
           const recentErrors = imageErrors.filter((error: any) =>
-            Date.now() - error.timestamp < 60000 // Errors from last minute
+          Date.now() - error.timestamp < 60000 // Errors from last minute
           );
 
           if (recentErrors.length > 0 && !isVisible) {
@@ -71,15 +71,15 @@ const ImageErrorNotification: React.FC<ImageErrorNotificationProps> = ({
     try {
       const uniqueUrls = [...new Set(errors.map((error) => error.url).filter(Boolean))];
       const results = await Promise.allSettled(
-        uniqueUrls.map((url) => 
-          imageErrorService.loadImage ? 
-          imageErrorService.loadImage({ url: url!, maxRetries: 1 }) :
-          Promise.resolve({ success: false })
+        uniqueUrls.map((url) =>
+        imageErrorService.loadImage ?
+        imageErrorService.loadImage({ url: url!, maxRetries: 1 }) :
+        Promise.resolve({ success: false })
         )
       );
 
       const successful = results.filter((result) =>
-        result.status === 'fulfilled' && (result.value as any).success
+      result.status === 'fulfilled' && (result.value as any).success
       ).length;
 
       if (successful > 0) {
@@ -148,17 +148,17 @@ const ImageErrorNotification: React.FC<ImageErrorNotificationProps> = ({
                   onClick={handleRetryAll}
                   disabled={isRetrying}
                   className="text-xs h-7">
-                  {isRetrying ? (
-                    <>
+                  {isRetrying ?
+                  <>
                       <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
                       Retrying...
-                    </>
-                  ) : (
-                    <>
+                    </> :
+
+                  <>
                       <RefreshCw className="w-3 h-3 mr-1" />
                       Retry All
                     </>
-                  )}
+                  }
                 </Button>
                 <Button
                   size="sm"
@@ -173,8 +173,8 @@ const ImageErrorNotification: React.FC<ImageErrorNotificationProps> = ({
           </div>
         </AlertDescription>
       </Alert>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ImageErrorNotification;

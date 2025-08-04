@@ -27,7 +27,9 @@ import {
   X,
   AlertCircle,
   MoreHorizontal,
-  ClipboardList } from
+  ClipboardList,
+  Database,
+  MessageSquare } from
 'lucide-react';
 
 const TopNavigation = () => {

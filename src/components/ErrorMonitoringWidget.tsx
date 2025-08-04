@@ -31,7 +31,7 @@ const ErrorMonitoringWidget: React.FC<ErrorMonitoringWidgetProps> = ({
       try {
         const stats = getErrorStats();
         setErrorStats(stats);
-        
+
         // Show widget if there are recent errors
         setIsVisible(stats.recentErrors > 0 || stats.totalErrors > 0);
       } catch (error) {
@@ -93,26 +93,26 @@ const ErrorMonitoringWidget: React.FC<ErrorMonitoringWidgetProps> = ({
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
-              {errorStats.recentErrors === 0 ? (
-                <CheckCircle className="w-4 h-4" />
-              ) : (
-                <AlertTriangle className="w-4 h-4" />
-              )}
+              {errorStats.recentErrors === 0 ?
+              <CheckCircle className="w-4 h-4" /> :
+
+              <AlertTriangle className="w-4 h-4" />
+              }
               Error Monitor
             </CardTitle>
             <div className="flex items-center gap-1">
               <Badge variant="outline" className="text-xs">
                 {errorStats.recentErrors}
               </Badge>
-              {minimizable && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsMinimized(!isMinimized)}
-                  className="h-6 w-6 p-0">
+              {minimizable &&
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsMinimized(!isMinimized)}
+                className="h-6 w-6 p-0">
                   <Eye className="w-3 h-3" />
                 </Button>
-              )}
+              }
               <Button
                 variant="ghost"
                 size="sm"
@@ -149,8 +149,8 @@ const ErrorMonitoringWidget: React.FC<ErrorMonitoringWidgetProps> = ({
                   </div>
                 </div>
 
-                {errorStats.lastError && (
-                  <div className="mt-3 p-2 bg-gray-100 rounded text-xs">
+                {errorStats.lastError &&
+                <div className="mt-3 p-2 bg-gray-100 rounded text-xs">
                     <div className="font-medium mb-1">Last Error:</div>
                     <div className="text-gray-700 truncate">
                       {errorStats.lastError.error?.message || 'Unknown error'}
@@ -159,7 +159,7 @@ const ErrorMonitoringWidget: React.FC<ErrorMonitoringWidgetProps> = ({
                       {new Date(errorStats.lastError.timestamp).toLocaleTimeString()}
                     </div>
                   </div>
-                )}
+                }
 
                 <div className="flex gap-2 mt-3">
                   <Button
@@ -184,8 +184,8 @@ const ErrorMonitoringWidget: React.FC<ErrorMonitoringWidgetProps> = ({
           </CollapsibleContent>
         </Collapsible>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ErrorMonitoringWidget;

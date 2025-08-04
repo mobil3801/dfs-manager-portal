@@ -24,10 +24,10 @@ export const setupGlobalErrorHandlers = () => {
   // Handle unhandled promise rejections
   window.addEventListener('unhandledrejection', (event) => {
     console.error('Unhandled promise rejection:', event.reason);
-    
+
     const error = event.reason instanceof Error ? event.reason : new Error(String(event.reason));
     logError(error, 'UnhandledPromiseRejection');
-    
+
     // Prevent the default browser behavior
     event.preventDefault();
   });
@@ -35,7 +35,7 @@ export const setupGlobalErrorHandlers = () => {
   // Handle global JavaScript errors
   window.addEventListener('error', (event) => {
     console.error('Global JavaScript error:', event.error);
-    
+
     const error = event.error || new Error(event.message);
     logError(error, 'GlobalJavaScriptError');
   });
@@ -54,9 +54,9 @@ export const setupGlobalErrorHandlers = () => {
  */
 export const logError = (error: Error, context = 'Unknown') => {
   const now = Date.now();
-  
+
   // Rate limiting: don't log too many errors
-  if (now - lastErrorTime < 60000) { // Within 1 minute
+  if (now - lastErrorTime < 60000) {// Within 1 minute
     if (errorCount >= maxErrorsPerMinute) {
       console.warn('Error rate limit reached, suppressing error logging');
       return;
@@ -106,8 +106,8 @@ export const logError = (error: Error, context = 'Unknown') => {
  * Get error statistics
  */
 export const getErrorStats = () => {
-  const recentErrors = errorLog.filter(entry => 
-    Date.now() - entry.timestamp < 300000 // Last 5 minutes
+  const recentErrors = errorLog.filter((entry) =>
+  Date.now() - entry.timestamp < 300000 // Last 5 minutes
   );
 
   return {
@@ -130,11 +130,11 @@ export const clearErrorLog = () => {
 /**
  * Safe function wrapper that catches and logs errors
  */
-export const safeExecute = <T extends (...args: any[]) => any>(
-  fn: T,
-  context: string,
-  fallback?: any
-): ((...args: Parameters<T>) => ReturnType<T> | typeof fallback) => {
+export const safeExecute = <T extends (...args: any[]) => any,>(
+fn: T,
+context: string,
+fallback?: any)
+: ((...args: Parameters<T>) => ReturnType<T> | typeof fallback) => {
   return (...args: Parameters<T>) => {
     try {
       return fn(...args);
@@ -148,11 +148,11 @@ export const safeExecute = <T extends (...args: any[]) => any>(
 /**
  * Safe async function wrapper
  */
-export const safeAsyncExecute = <T extends (...args: any[]) => Promise<any>>(
-  fn: T,
-  context: string,
-  fallback?: any
-): ((...args: Parameters<T>) => Promise<Awaited<ReturnType<T>> | typeof fallback>) => {
+export const safeAsyncExecute = <T extends (...args: any[]) => Promise<any>,>(
+fn: T,
+context: string,
+fallback?: any)
+: ((...args: Parameters<T>) => Promise<Awaited<ReturnType<T>> | typeof fallback>) => {
   return async (...args: Parameters<T>) => {
     try {
       return await fn(...args);
@@ -168,7 +168,7 @@ export const safeAsyncExecute = <T extends (...args: any[]) => Promise<any>>(
  */
 export const initializeErrorHandling = () => {
   setupGlobalErrorHandlers();
-  
+
   // Expose error utilities globally for debugging
   if (typeof window !== 'undefined') {
     (window as any).errorUtils = {
@@ -177,7 +177,7 @@ export const initializeErrorHandling = () => {
       logError
     };
   }
-  
+
   console.log('Global error handling initialized');
 };
 
