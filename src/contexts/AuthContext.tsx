@@ -78,16 +78,29 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     setAuthError(null);
   };
 
-  const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
+  const safeExecute = async <T,>(
+    operation: () => Promise<T>,
+    fallback: T,
+    errorContext: string
+  ): Promise<T> => {
     try {
-      const { data, error } = await supabase.
-      from('user_profiles').
-      select(`
+      return await operation();
+    } catch (error) {
+      console.error(`Error in ${errorContext}:`, error);
+      return fallback;
+    }
+  };
+
+  const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
+    return safeExecute(async () => {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select(`
           *,
           stations(name, address, phone)
-        `).
-      eq('user_id', userId).
-      single();
+        `)
+        .eq('user_id', userId)
+        .single();
 
       if (error) {
         if (error.code === 'PGRST116') {
@@ -104,14 +117,14 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
             detailed_permissions: {}
           };
 
-          const { data: newProfile, error: createError } = await supabase.
-          from('user_profiles').
-          insert(defaultProfile).
-          select(`
+          const { data: newProfile, error: createError } = await supabase
+            .from('user_profiles')
+            .insert(defaultProfile)
+            .select(`
               *,
               stations(name, address, phone)
-            `).
-          single();
+            `)
+            .single();
 
           if (createError) {
             console.error('Failed to create default profile:', createError);
@@ -124,21 +137,18 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       }
 
       return data;
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-      return null;
-    }
+    }, null, 'fetchUserProfile');
   };
 
-  const safeFetchUserData = async (showErrors = false): Promise<{success: boolean;userData?: User;}> => {
-    try {
+  const safeFetchUserData = async (showErrors = false): Promise<{success: boolean; userData?: User;}> => {
+    return safeExecute(async () => {
       console.log('🔄 Attempting to fetch user data...');
 
       const { data: { user: supabaseUser }, error } = await auth.getUser();
 
       if (error) {
         console.log('❌ Auth error:', error);
-        if (showErrors) {
+        if (showErrors && !error.message.includes('not authenticated')) {
           setAuthError(`Authentication failed: ${error.message}`);
         }
         setUser(null);
@@ -181,18 +191,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       setAuthError(null);
       return { success: true, userData: supabaseUser };
 
-    } catch (error) {
-      console.error('❌ Error fetching user data:', error);
-      const errorMessage = error instanceof Error ? error.message : String(error);
-
-      if (showErrors && !errorMessage.includes('not authenticated')) {
-        setAuthError(`Failed to load user data: ${errorMessage}`);
-      }
-
-      setUser(null);
-      setUserProfile(GUEST_PROFILE);
-      return { success: false };
-    }
+    }, { success: false }, 'safeFetchUserData');
   };
 
   const refreshUserData = async (): Promise<void> => {
@@ -223,7 +222,10 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
     } catch (error) {
       console.error('❌ Auth initialization failed:', error);
-      setAuthError(`Initialization failed: ${error instanceof Error ? error.message : String(error)}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (!errorMessage.includes('not authenticated')) {
+        setAuthError(`Initialization failed: ${errorMessage}`);
+      }
       setUser(null);
       setUserProfile(GUEST_PROFILE);
     } finally {
@@ -240,15 +242,19 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     const { data: { subscription } } = auth.onAuthStateChange(async (event, session) => {
       console.log('🔄 Auth state change:', event);
 
-      if (event === 'SIGNED_IN' && session?.user) {
-        setUser(session.user);
-        const profile = await fetchUserProfile(session.user.id);
-        if (profile) {
-          setUserProfile(profile);
+      try {
+        if (event === 'SIGNED_IN' && session?.user) {
+          setUser(session.user);
+          const profile = await fetchUserProfile(session.user.id);
+          if (profile) {
+            setUserProfile(profile);
+          }
+        } else if (event === 'SIGNED_OUT') {
+          setUser(null);
+          setUserProfile(GUEST_PROFILE);
         }
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-        setUserProfile(GUEST_PROFILE);
+      } catch (error) {
+        console.error('Error handling auth state change:', error);
       }
     });
 
@@ -258,7 +264,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    try {
+    return safeExecute(async () => {
       setIsLoading(true);
       setAuthError(null);
 
@@ -268,7 +274,11 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
       if (error) {
         console.log('❌ Login failed:', error);
-        await auditLogger.logLogin(email, false, undefined, error.message);
+        await safeExecute(
+          () => auditLogger.logLogin(email, false, undefined, error.message),
+          undefined,
+          'loginAuditLog'
+        );
         setAuthError(error.message);
         toast({
           title: "Login Failed",
@@ -280,7 +290,11 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
       if (data.user) {
         console.log('✅ Login successful');
-        await auditLogger.logLogin(email, true, data.user.id);
+        await safeExecute(
+          () => auditLogger.logLogin(email, true, data.user.id),
+          undefined,
+          'loginSuccessAuditLog'
+        );
         toast({
           title: "Login Successful",
           description: "Welcome back!"
@@ -290,29 +304,22 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
       return false;
 
-    } catch (error) {
-      console.error('❌ Login error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
-      setAuthError(errorMessage);
-      await auditLogger.logLogin(email, false, undefined, errorMessage);
-      toast({
-        title: "Login Failed",
-        description: errorMessage,
-        variant: "destructive"
-      });
-      return false;
-    } finally {
+    }, false, 'login').finally(() => {
       setIsLoading(false);
-    }
+    });
   };
 
   const logout = async (): Promise<void> => {
-    try {
+    return safeExecute(async () => {
       console.log('🚪 Logging out user...');
 
       // Log logout before clearing user data
       if (user) {
-        await auditLogger.logLogout(user.email || '', user.id);
+        await safeExecute(
+          () => auditLogger.logLogout(user.email || '', user.id),
+          undefined,
+          'logoutAuditLog'
+        );
       }
 
       const { error } = await auth.signOut();
@@ -331,17 +338,11 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       });
 
       console.log('✅ Logout successful');
-    } catch (error) {
-      console.error('⚠️ Logout error (non-critical):', error);
-      // Still clear local state even if API call fails
-      setUser(null);
-      setUserProfile(GUEST_PROFILE);
-      setAuthError(null);
-    }
+    }, undefined, 'logout');
   };
 
   const register = async (email: string, password: string, name: string): Promise<boolean> => {
-    try {
+    return safeExecute(async () => {
       setIsLoading(true);
       setAuthError(null);
 
@@ -351,7 +352,11 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
       if (error) {
         console.log('❌ Registration failed:', error);
-        await auditLogger.logRegistration(email, false, error.message);
+        await safeExecute(
+          () => auditLogger.logRegistration(email, false, error.message),
+          undefined,
+          'registrationAuditLog'
+        );
         setAuthError(error.message);
         toast({
           title: "Registration Failed",
@@ -362,27 +367,20 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       }
 
       console.log('✅ Registration successful');
-      await auditLogger.logRegistration(email, true);
+      await safeExecute(
+        () => auditLogger.logRegistration(email, true),
+        undefined,
+        'registrationSuccessAuditLog'
+      );
       toast({
         title: "Registration Successful",
         description: "Please check your email to verify your account"
       });
 
       return true;
-    } catch (error) {
-      console.error('❌ Registration error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
-      setAuthError(errorMessage);
-      await auditLogger.logRegistration(email, false, errorMessage);
-      toast({
-        title: "Registration Failed",
-        description: errorMessage,
-        variant: "destructive"
-      });
-      return false;
-    } finally {
+    }, false, 'register').finally(() => {
       setIsLoading(false);
-    }
+    });
   };
 
   const hasPermission = (action: string, resource?: string): boolean => {
@@ -437,7 +435,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
   const isManager = (): boolean => {
     return userProfile?.role === 'Management' || userProfile?.role === 'Manager' ||
-    userProfile?.role === 'Administrator' || userProfile?.role === 'Admin';
+           userProfile?.role === 'Administrator' || userProfile?.role === 'Admin';
   };
 
   const value: AuthContextType = {

@@ -10,19 +10,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AuthTestingGuide from '@/components/AuthTestingGuide';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { 
-  CheckCircle, 
-  XCircle, 
-  User, 
-  LogIn, 
-  LogOut, 
-  Shield, 
+import {
+  CheckCircle,
+  XCircle,
+  User,
+  LogIn,
+  LogOut,
+  Shield,
   Clock,
   RefreshCw,
   AlertCircle,
   Eye,
-  EyeOff
-} from 'lucide-react';
+  EyeOff } from
+'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -67,16 +67,16 @@ const AuthFlowTester: React.FC = () => {
     const getInitialSession = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       setAuthState({
         user,
         session,
         isLoading: false
       });
 
-      addTestResult('Initial Session Check', 
-        session ? 'success' : 'warning',
-        session ? `User logged in: ${user?.email}` : 'No active session found'
+      addTestResult('Initial Session Check',
+      session ? 'success' : 'warning',
+      session ? `User logged in: ${user?.email}` : 'No active session found'
       );
     };
 
@@ -86,16 +86,16 @@ const AuthFlowTester: React.FC = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('Auth state change:', event, session);
-        
-        setAuthState(prev => ({
+
+        setAuthState((prev) => ({
           ...prev,
           user: session?.user || null,
           session,
           isLoading: false
         }));
 
-        addTestResult('Auth State Change', 'success', 
-          `Event: ${event}, User: ${session?.user?.email || 'None'}`
+        addTestResult('Auth State Change', 'success',
+        `Event: ${event}, User: ${session?.user?.email || 'None'}`
         );
       }
     );
@@ -112,9 +112,9 @@ const AuthFlowTester: React.FC = () => {
       message,
       timestamp: new Date()
     };
-    
-    setTestResults(prev => [result, ...prev.slice(0, 19)]); // Keep last 20 results
-    
+
+    setTestResults((prev) => [result, ...prev.slice(0, 19)]); // Keep last 20 results
+
     if (status === 'error') {
       toast.error(`${name}: ${message}`);
     } else if (status === 'success') {
@@ -131,7 +131,7 @@ const AuthFlowTester: React.FC = () => {
 
     try {
       addTestResult('Login Test', 'pending', 'Attempting login...');
-      
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email: loginCredentials.email,
         password: loginCredentials.password
@@ -140,8 +140,8 @@ const AuthFlowTester: React.FC = () => {
       if (error) {
         addTestResult('Login Test', 'error', error.message);
       } else if (data.user) {
-        addTestResult('Login Test', 'success', 
-          `Successfully logged in as ${data.user.email}`
+        addTestResult('Login Test', 'success',
+        `Successfully logged in as ${data.user.email}`
         );
       }
     } catch (error: any) {
@@ -152,24 +152,24 @@ const AuthFlowTester: React.FC = () => {
   const testInvalidLogin = async () => {
     try {
       addTestResult('Invalid Login Test', 'pending', 'Testing invalid credentials...');
-      
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email: 'invalid@example.com',
         password: 'wrongpassword'
       });
 
       if (error) {
-        addTestResult('Invalid Login Test', 'success', 
-          `Correctly rejected invalid login: ${error.message}`
+        addTestResult('Invalid Login Test', 'success',
+        `Correctly rejected invalid login: ${error.message}`
         );
       } else {
-        addTestResult('Invalid Login Test', 'warning', 
-          'Invalid login was accepted - check auth configuration'
+        addTestResult('Invalid Login Test', 'warning',
+        'Invalid login was accepted - check auth configuration'
         );
       }
     } catch (error: any) {
-      addTestResult('Invalid Login Test', 'success', 
-        `Login properly failed: ${error.message}`
+      addTestResult('Invalid Login Test', 'success',
+      `Login properly failed: ${error.message}`
       );
     }
   };
@@ -178,7 +178,7 @@ const AuthFlowTester: React.FC = () => {
   const testLogout = async () => {
     try {
       addTestResult('Logout Test', 'pending', 'Attempting logout...');
-      
+
       const { error } = await supabase.auth.signOut();
 
       if (error) {
@@ -195,14 +195,14 @@ const AuthFlowTester: React.FC = () => {
   const testSessionRetrieval = async () => {
     try {
       addTestResult('Session Retrieval', 'pending', 'Getting current session...');
-      
+
       const { data: { session }, error } = await supabase.auth.getSession();
 
       if (error) {
         addTestResult('Session Retrieval', 'error', error.message);
       } else if (session) {
-        addTestResult('Session Retrieval', 'success', 
-          `Session active, expires: ${new Date(session.expires_at! * 1000).toLocaleString()}`
+        addTestResult('Session Retrieval', 'success',
+        `Session active, expires: ${new Date(session.expires_at! * 1000).toLocaleString()}`
         );
       } else {
         addTestResult('Session Retrieval', 'warning', 'No active session');
@@ -215,14 +215,14 @@ const AuthFlowTester: React.FC = () => {
   const testSessionRefresh = async () => {
     try {
       addTestResult('Session Refresh', 'pending', 'Refreshing session...');
-      
+
       const { data, error } = await supabase.auth.refreshSession();
 
       if (error) {
         addTestResult('Session Refresh', 'error', error.message);
       } else if (data.session) {
-        addTestResult('Session Refresh', 'success', 
-          `Session refreshed successfully`
+        addTestResult('Session Refresh', 'success',
+        `Session refreshed successfully`
         );
       } else {
         addTestResult('Session Refresh', 'warning', 'No session to refresh');
@@ -236,14 +236,14 @@ const AuthFlowTester: React.FC = () => {
   const testUserRetrieval = async () => {
     try {
       addTestResult('User Retrieval', 'pending', 'Getting current user...');
-      
+
       const { data: { user }, error } = await supabase.auth.getUser();
 
       if (error) {
         addTestResult('User Retrieval', 'error', error.message);
       } else if (user) {
-        addTestResult('User Retrieval', 'success', 
-          `User: ${user.email}, ID: ${user.id}`
+        addTestResult('User Retrieval', 'success',
+        `User: ${user.email}, ID: ${user.id}`
         );
       } else {
         addTestResult('User Retrieval', 'warning', 'No authenticated user');
@@ -267,7 +267,7 @@ const AuthFlowTester: React.FC = () => {
 
     try {
       addTestResult('Signup Test', 'pending', 'Attempting signup...');
-      
+
       const { data, error } = await supabase.auth.signUp({
         email: signupCredentials.email,
         password: signupCredentials.password
@@ -276,8 +276,8 @@ const AuthFlowTester: React.FC = () => {
       if (error) {
         addTestResult('Signup Test', 'error', error.message);
       } else if (data.user) {
-        addTestResult('Signup Test', 'success', 
-          `Signup successful for ${data.user.email}. Check email for verification.`
+        addTestResult('Signup Test', 'success',
+        `Signup successful for ${data.user.email}. Check email for verification.`
         );
       }
     } catch (error: any) {
@@ -291,15 +291,15 @@ const AuthFlowTester: React.FC = () => {
     setTestResults([]);
 
     const tests = [
-      testSessionRetrieval,
-      testUserRetrieval,
-      testInvalidLogin,
-      testSessionRefresh
-    ];
+    testSessionRetrieval,
+    testUserRetrieval,
+    testInvalidLogin,
+    testSessionRefresh];
+
 
     for (const test of tests) {
       await test();
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Delay between tests
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Delay between tests
     }
 
     setIsRunningTests(false);
@@ -337,8 +337,8 @@ const AuthFlowTester: React.FC = () => {
     return (
       <Badge variant={variants[status]} className="text-xs">
         {status.toUpperCase()}
-      </Badge>
-    );
+      </Badge>);
+
   };
 
   return (
@@ -351,16 +351,16 @@ const AuthFlowTester: React.FC = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            onClick={runAllTests} 
+          <Button
+            onClick={runAllTests}
             disabled={isRunningTests}
-            className="flex items-center gap-2"
-          >
-            {isRunningTests ? (
-              <RefreshCw className="h-4 w-4 animate-spin" />
-            ) : (
-              <Shield className="h-4 w-4" />
-            )}
+            className="flex items-center gap-2">
+
+            {isRunningTests ?
+            <RefreshCw className="h-4 w-4 animate-spin" /> :
+
+            <Shield className="h-4 w-4" />
+            }
             Run All Tests
           </Button>
           <Button variant="outline" onClick={clearResults}>
@@ -382,16 +382,16 @@ const AuthFlowTester: React.FC = () => {
             <div className="space-y-2">
               <Label>User Status</Label>
               <div className="flex items-center gap-2">
-                {authState.isLoading ? (
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                ) : authState.user ? (
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                ) : (
-                  <XCircle className="h-4 w-4 text-red-500" />
-                )}
+                {authState.isLoading ?
+                <RefreshCw className="h-4 w-4 animate-spin" /> :
+                authState.user ?
+                <CheckCircle className="h-4 w-4 text-green-500" /> :
+
+                <XCircle className="h-4 w-4 text-red-500" />
+                }
                 <span>
-                  {authState.isLoading ? 'Loading...' : 
-                   authState.user ? 'Authenticated' : 'Not Authenticated'}
+                  {authState.isLoading ? 'Loading...' :
+                  authState.user ? 'Authenticated' : 'Not Authenticated'}
                 </span>
               </div>
             </div>
@@ -406,17 +406,17 @@ const AuthFlowTester: React.FC = () => {
             <div className="space-y-2">
               <Label>Session Status</Label>
               <div className="flex items-center gap-2">
-                {authState.session ? (
-                  <>
+                {authState.session ?
+                <>
                     <CheckCircle className="h-4 w-4 text-green-500" />
                     <span>Active</span>
-                  </>
-                ) : (
-                  <>
+                  </> :
+
+                <>
                     <XCircle className="h-4 w-4 text-red-500" />
                     <span>No Session</span>
                   </>
-                )}
+                }
               </div>
             </div>
           </div>
@@ -451,11 +451,11 @@ const AuthFlowTester: React.FC = () => {
                     type="email"
                     placeholder="Enter email"
                     value={loginCredentials.email}
-                    onChange={(e) => setLoginCredentials(prev => ({
+                    onChange={(e) => setLoginCredentials((prev) => ({
                       ...prev,
                       email: e.target.value
-                    }))}
-                  />
+                    }))} />
+
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
@@ -465,23 +465,23 @@ const AuthFlowTester: React.FC = () => {
                       type={showPassword ? 'text' : 'password'}
                       placeholder="Enter password"
                       value={loginCredentials.password}
-                      onChange={(e) => setLoginCredentials(prev => ({
+                      onChange={(e) => setLoginCredentials((prev) => ({
                         ...prev,
                         password: e.target.value
-                      }))}
-                    />
+                      }))} />
+
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       className="absolute right-0 top-0 h-full px-3"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
+                      onClick={() => setShowPassword(!showPassword)}>
+
+                      {showPassword ?
+                      <EyeOff className="h-4 w-4" /> :
+
+                      <Eye className="h-4 w-4" />
+                      }
                     </Button>
                   </div>
                 </div>
@@ -513,11 +513,11 @@ const AuthFlowTester: React.FC = () => {
                     type="email"
                     placeholder="Enter email"
                     value={signupCredentials.email}
-                    onChange={(e) => setSignupCredentials(prev => ({
+                    onChange={(e) => setSignupCredentials((prev) => ({
                       ...prev,
                       email: e.target.value
-                    }))}
-                  />
+                    }))} />
+
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-password">Password</Label>
@@ -526,11 +526,11 @@ const AuthFlowTester: React.FC = () => {
                     type="password"
                     placeholder="Enter password"
                     value={signupCredentials.password}
-                    onChange={(e) => setSignupCredentials(prev => ({
+                    onChange={(e) => setSignupCredentials((prev) => ({
                       ...prev,
                       password: e.target.value
-                    }))}
-                  />
+                    }))} />
+
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirm-password">Confirm Password</Label>
@@ -539,11 +539,11 @@ const AuthFlowTester: React.FC = () => {
                     type="password"
                     placeholder="Confirm password"
                     value={signupCredentials.confirmPassword}
-                    onChange={(e) => setSignupCredentials(prev => ({
+                    onChange={(e) => setSignupCredentials((prev) => ({
                       ...prev,
                       confirmPassword: e.target.value
-                    }))}
-                  />
+                    }))} />
+
                 </div>
               </div>
               
@@ -561,18 +561,18 @@ const AuthFlowTester: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={testSessionRetrieval}
-                  className="w-full"
-                >
+                  className="w-full">
+
                   Test Session Retrieval
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={testSessionRefresh}
-                  className="w-full"
-                >
+                  className="w-full">
+
                   Test Session Refresh
                 </Button>
               </CardContent>
@@ -586,18 +586,18 @@ const AuthFlowTester: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={testUserRetrieval}
-                  className="w-full"
-                >
+                  className="w-full">
+
                   Test User Retrieval
                 </Button>
-                <Button 
-                  variant="destructive" 
+                <Button
+                  variant="destructive"
                   onClick={testLogout}
-                  className="w-full"
-                >
+                  className="w-full">
+
                   Test Logout
                 </Button>
               </CardContent>
@@ -614,17 +614,17 @@ const AuthFlowTester: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {testResults.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
+              {testResults.length === 0 ?
+              <div className="text-center py-8 text-muted-foreground">
                   No test results yet. Run some tests to see results here.
-                </div>
-              ) : (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {testResults.map((result, index) => (
-                    <div
-                      key={index}
-                      className="flex items-start gap-3 p-3 rounded-lg bg-muted/20 border"
-                    >
+                </div> :
+
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {testResults.map((result, index) =>
+                <div
+                  key={index}
+                  className="flex items-start gap-3 p-3 rounded-lg bg-muted/20 border">
+
                       {getStatusIcon(result.status)}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
@@ -641,9 +641,9 @@ const AuthFlowTester: React.FC = () => {
                         </p>
                       </div>
                     </div>
-                  ))}
+                )}
                 </div>
-              )}
+              }
             </CardContent>
           </Card>
         </TabsContent>
@@ -652,8 +652,8 @@ const AuthFlowTester: React.FC = () => {
           <AuthTestingGuide />
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AuthFlowTester;

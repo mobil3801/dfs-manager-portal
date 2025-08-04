@@ -4,180 +4,180 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { 
-  CheckCircle, 
-  AlertTriangle, 
-  Info, 
-  Shield, 
-  Users, 
+import {
+  CheckCircle,
+  AlertTriangle,
+  Info,
+  Shield,
+  Users,
   Key,
   Clock,
   Database,
   Globe,
   Lock,
   Unlock,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw } from
+'lucide-react';
 
 const AuthTestingGuide: React.FC = () => {
   const testScenarios = [
+  {
+    category: "Login Testing",
+    icon: <Shield className="h-5 w-5" />,
+    tests: [
     {
-      category: "Login Testing",
-      icon: <Shield className="h-5 w-5" />,
-      tests: [
-        {
-          name: "Valid Credentials Login",
-          description: "Test login with correct email and password",
-          steps: ["Enter valid email", "Enter correct password", "Click login", "Verify successful authentication"],
-          expectedResult: "User should be logged in and redirected to dashboard",
-          priority: "Critical"
-        },
-        {
-          name: "Invalid Credentials Login",
-          description: "Test login with incorrect credentials",
-          steps: ["Enter invalid email or password", "Click login", "Verify error handling"],
-          expectedResult: "Should display appropriate error message without revealing security details",
-          priority: "High"
-        },
-        {
-          name: "Empty Fields Validation",
-          description: "Test form validation with empty fields",
-          steps: ["Leave email empty", "Leave password empty", "Attempt login"],
-          expectedResult: "Should show field validation errors",
-          priority: "Medium"
-        },
-        {
-          name: "Rate Limiting",
-          description: "Test multiple failed login attempts",
-          steps: ["Attempt multiple failed logins", "Check if rate limiting kicks in"],
-          expectedResult: "Should implement rate limiting after multiple failures",
-          priority: "High"
-        }
-      ]
+      name: "Valid Credentials Login",
+      description: "Test login with correct email and password",
+      steps: ["Enter valid email", "Enter correct password", "Click login", "Verify successful authentication"],
+      expectedResult: "User should be logged in and redirected to dashboard",
+      priority: "Critical"
     },
     {
-      category: "Session Management",
-      icon: <Clock className="h-5 w-5" />,
-      tests: [
-        {
-          name: "Session Creation",
-          description: "Verify session is created on successful login",
-          steps: ["Login successfully", "Check session data", "Verify session tokens"],
-          expectedResult: "Valid session with proper expiration time should be created",
-          priority: "Critical"
-        },
-        {
-          name: "Session Persistence",
-          description: "Test session across page refreshes",
-          steps: ["Login", "Refresh page", "Verify user remains logged in"],
-          expectedResult: "User should remain authenticated after page refresh",
-          priority: "Critical"
-        },
-        {
-          name: "Session Expiration",
-          description: "Test session expiration handling",
-          steps: ["Wait for session to expire", "Attempt authenticated action"],
-          expectedResult: "Should redirect to login when session expires",
-          priority: "High"
-        },
-        {
-          name: "Session Refresh",
-          description: "Test automatic session token refresh",
-          steps: ["Wait near session expiry", "Check if token refreshes automatically"],
-          expectedResult: "Session should refresh automatically before expiration",
-          priority: "High"
-        }
-      ]
+      name: "Invalid Credentials Login",
+      description: "Test login with incorrect credentials",
+      steps: ["Enter invalid email or password", "Click login", "Verify error handling"],
+      expectedResult: "Should display appropriate error message without revealing security details",
+      priority: "High"
     },
     {
-      category: "Logout Testing",
-      icon: <Unlock className="h-5 w-5" />,
-      tests: [
-        {
-          name: "Standard Logout",
-          description: "Test normal logout functionality",
-          steps: ["Click logout button", "Verify session termination", "Check redirect to login"],
-          expectedResult: "User should be logged out and redirected to login page",
-          priority: "Critical"
-        },
-        {
-          name: "Session Invalidation",
-          description: "Verify session is properly invalidated on logout",
-          steps: ["Logout", "Try to access protected routes", "Check session tokens"],
-          expectedResult: "All session data should be cleared and protected routes inaccessible",
-          priority: "Critical"
-        },
-        {
-          name: "Multiple Device Logout",
-          description: "Test logout behavior across multiple devices",
-          steps: ["Login on multiple devices", "Logout from one device", "Check other devices"],
-          expectedResult: "Behavior depends on implementation - single or multi-device logout",
-          priority: "Medium"
-        }
-      ]
+      name: "Empty Fields Validation",
+      description: "Test form validation with empty fields",
+      steps: ["Leave email empty", "Leave password empty", "Attempt login"],
+      expectedResult: "Should show field validation errors",
+      priority: "Medium"
     },
     {
-      category: "Security Testing",
-      icon: <Lock className="h-5 w-5" />,
-      tests: [
-        {
-          name: "Protected Route Access",
-          description: "Test access to protected routes without authentication",
-          steps: ["Logout", "Try to access protected routes directly"],
-          expectedResult: "Should redirect to login page",
-          priority: "Critical"
-        },
-        {
-          name: "Token Validation",
-          description: "Test with invalid or tampered tokens",
-          steps: ["Modify session tokens", "Try to access protected resources"],
-          expectedResult: "Should reject invalid tokens and redirect to login",
-          priority: "High"
-        },
-        {
-          name: "CSRF Protection",
-          description: "Test cross-site request forgery protection",
-          steps: ["Attempt cross-site requests", "Check CSRF token validation"],
-          expectedResult: "Should block unauthorized cross-site requests",
-          priority: "High"
-        }
-      ]
+      name: "Rate Limiting",
+      description: "Test multiple failed login attempts",
+      steps: ["Attempt multiple failed logins", "Check if rate limiting kicks in"],
+      expectedResult: "Should implement rate limiting after multiple failures",
+      priority: "High"
+    }]
+
+  },
+  {
+    category: "Session Management",
+    icon: <Clock className="h-5 w-5" />,
+    tests: [
+    {
+      name: "Session Creation",
+      description: "Verify session is created on successful login",
+      steps: ["Login successfully", "Check session data", "Verify session tokens"],
+      expectedResult: "Valid session with proper expiration time should be created",
+      priority: "Critical"
     },
     {
-      category: "User Management",
-      icon: <Users className="h-5 w-5" />,
-      tests: [
-        {
-          name: "User Registration",
-          description: "Test new user signup process",
-          steps: ["Fill registration form", "Submit form", "Check email verification"],
-          expectedResult: "Should create user account and send verification email",
-          priority: "Critical"
-        },
-        {
-          name: "Email Verification",
-          description: "Test email verification process",
-          steps: ["Register new user", "Click verification link", "Try to login"],
-          expectedResult: "Account should be verified and login should work",
-          priority: "High"
-        },
-        {
-          name: "Password Reset",
-          description: "Test password reset functionality",
-          steps: ["Request password reset", "Check email", "Reset password", "Login with new password"],
-          expectedResult: "Should successfully reset password and allow login",
-          priority: "High"
-        },
-        {
-          name: "Role-Based Access",
-          description: "Test different user roles and permissions",
-          steps: ["Login as different roles", "Try to access role-specific features"],
-          expectedResult: "Should grant/deny access based on user roles",
-          priority: "Critical"
-        }
-      ]
-    }
-  ];
+      name: "Session Persistence",
+      description: "Test session across page refreshes",
+      steps: ["Login", "Refresh page", "Verify user remains logged in"],
+      expectedResult: "User should remain authenticated after page refresh",
+      priority: "Critical"
+    },
+    {
+      name: "Session Expiration",
+      description: "Test session expiration handling",
+      steps: ["Wait for session to expire", "Attempt authenticated action"],
+      expectedResult: "Should redirect to login when session expires",
+      priority: "High"
+    },
+    {
+      name: "Session Refresh",
+      description: "Test automatic session token refresh",
+      steps: ["Wait near session expiry", "Check if token refreshes automatically"],
+      expectedResult: "Session should refresh automatically before expiration",
+      priority: "High"
+    }]
+
+  },
+  {
+    category: "Logout Testing",
+    icon: <Unlock className="h-5 w-5" />,
+    tests: [
+    {
+      name: "Standard Logout",
+      description: "Test normal logout functionality",
+      steps: ["Click logout button", "Verify session termination", "Check redirect to login"],
+      expectedResult: "User should be logged out and redirected to login page",
+      priority: "Critical"
+    },
+    {
+      name: "Session Invalidation",
+      description: "Verify session is properly invalidated on logout",
+      steps: ["Logout", "Try to access protected routes", "Check session tokens"],
+      expectedResult: "All session data should be cleared and protected routes inaccessible",
+      priority: "Critical"
+    },
+    {
+      name: "Multiple Device Logout",
+      description: "Test logout behavior across multiple devices",
+      steps: ["Login on multiple devices", "Logout from one device", "Check other devices"],
+      expectedResult: "Behavior depends on implementation - single or multi-device logout",
+      priority: "Medium"
+    }]
+
+  },
+  {
+    category: "Security Testing",
+    icon: <Lock className="h-5 w-5" />,
+    tests: [
+    {
+      name: "Protected Route Access",
+      description: "Test access to protected routes without authentication",
+      steps: ["Logout", "Try to access protected routes directly"],
+      expectedResult: "Should redirect to login page",
+      priority: "Critical"
+    },
+    {
+      name: "Token Validation",
+      description: "Test with invalid or tampered tokens",
+      steps: ["Modify session tokens", "Try to access protected resources"],
+      expectedResult: "Should reject invalid tokens and redirect to login",
+      priority: "High"
+    },
+    {
+      name: "CSRF Protection",
+      description: "Test cross-site request forgery protection",
+      steps: ["Attempt cross-site requests", "Check CSRF token validation"],
+      expectedResult: "Should block unauthorized cross-site requests",
+      priority: "High"
+    }]
+
+  },
+  {
+    category: "User Management",
+    icon: <Users className="h-5 w-5" />,
+    tests: [
+    {
+      name: "User Registration",
+      description: "Test new user signup process",
+      steps: ["Fill registration form", "Submit form", "Check email verification"],
+      expectedResult: "Should create user account and send verification email",
+      priority: "Critical"
+    },
+    {
+      name: "Email Verification",
+      description: "Test email verification process",
+      steps: ["Register new user", "Click verification link", "Try to login"],
+      expectedResult: "Account should be verified and login should work",
+      priority: "High"
+    },
+    {
+      name: "Password Reset",
+      description: "Test password reset functionality",
+      steps: ["Request password reset", "Check email", "Reset password", "Login with new password"],
+      expectedResult: "Should successfully reset password and allow login",
+      priority: "High"
+    },
+    {
+      name: "Role-Based Access",
+      description: "Test different user roles and permissions",
+      steps: ["Login as different roles", "Try to access role-specific features"],
+      expectedResult: "Should grant/deny access based on user roles",
+      priority: "Critical"
+    }]
+
+  }];
+
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -302,8 +302,8 @@ const AuthTestingGuide: React.FC = () => {
       <div className="space-y-6">
         <h2 className="text-2xl font-bold">Test Scenarios</h2>
         
-        {testScenarios.map((category, categoryIndex) => (
-          <Card key={categoryIndex}>
+        {testScenarios.map((category, categoryIndex) =>
+        <Card key={categoryIndex}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 {category.icon}
@@ -312,16 +312,16 @@ const AuthTestingGuide: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {category.tests.map((test, testIndex) => (
-                  <div key={testIndex} className="space-y-3">
+                {category.tests.map((test, testIndex) =>
+              <div key={testIndex} className="space-y-3">
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <h4 className="font-semibold">{test.name}</h4>
-                          <Badge 
-                            variant={getPriorityColor(test.priority) as any}
-                            className="text-xs flex items-center gap-1"
-                          >
+                          <Badge
+                        variant={getPriorityColor(test.priority) as any}
+                        className="text-xs flex items-center gap-1">
+
                             {getPriorityIcon(test.priority)}
                             {test.priority}
                           </Badge>
@@ -334,12 +334,12 @@ const AuthTestingGuide: React.FC = () => {
                       <div className="space-y-2">
                         <h5 className="text-sm font-medium">Test Steps:</h5>
                         <ol className="text-sm space-y-1">
-                          {test.steps.map((step, stepIndex) => (
-                            <li key={stepIndex} className="flex items-start gap-2">
+                          {test.steps.map((step, stepIndex) =>
+                      <li key={stepIndex} className="flex items-start gap-2">
                               <span className="text-muted-foreground">{stepIndex + 1}.</span>
                               <span>{step}</span>
                             </li>
-                          ))}
+                      )}
                         </ol>
                       </div>
                       <div className="space-y-2">
@@ -350,11 +350,11 @@ const AuthTestingGuide: React.FC = () => {
                     
                     {testIndex < category.tests.length - 1 && <Separator />}
                   </div>
-                ))}
+              )}
               </div>
             </CardContent>
           </Card>
-        ))}
+        )}
       </div>
 
       {/* Best Practices */}
@@ -391,8 +391,8 @@ const AuthTestingGuide: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AuthTestingGuide;

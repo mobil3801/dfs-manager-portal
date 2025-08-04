@@ -6,15 +6,15 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
-import { 
-  Clock, 
-  RefreshCw, 
-  Shield, 
+import {
+  Clock,
+  RefreshCw,
+  Shield,
   AlertTriangle,
   CheckCircle,
   XCircle,
-  Timer
-} from 'lucide-react';
+  Timer } from
+'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -45,16 +45,16 @@ const SessionManager: React.FC = () => {
 
   useEffect(() => {
     updateSessionInfo();
-    
+
     // Set up interval to update session info every second
     const interval = setInterval(updateSessionInfo, 1000);
-    
+
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('Session Manager - Auth state change:', event);
         updateSessionInfo();
-        
+
         if (event === 'TOKEN_REFRESHED') {
           toast.success('Session refreshed successfully');
         } else if (event === 'SIGNED_OUT') {
@@ -72,7 +72,7 @@ const SessionManager: React.FC = () => {
   const updateSessionInfo = async () => {
     try {
       const { data: { session }, error } = await supabase.auth.getSession();
-      
+
       if (error) {
         console.error('Session error:', error);
         return;
@@ -82,7 +82,7 @@ const SessionManager: React.FC = () => {
         const expiresAt = new Date(session.expires_at! * 1000);
         const now = new Date();
         const timeRemaining = Math.max(0, expiresAt.getTime() - now.getTime());
-        
+
         setSessionInfo({
           isActive: true,
           expiresAt,
@@ -115,7 +115,7 @@ const SessionManager: React.FC = () => {
     setIsRefreshing(true);
     try {
       const { data, error } = await supabase.auth.refreshSession();
-      
+
       if (error) {
         toast.error(`Session refresh failed: ${error.message}`);
       } else if (data.session) {
@@ -132,7 +132,7 @@ const SessionManager: React.FC = () => {
   const invalidateSession = async () => {
     try {
       const { error } = await supabase.auth.signOut();
-      
+
       if (error) {
         toast.error(`Logout failed: ${error.message}`);
       } else {
@@ -145,11 +145,11 @@ const SessionManager: React.FC = () => {
 
   const formatTimeRemaining = (milliseconds: number): string => {
     if (milliseconds <= 0) return 'Expired';
-    
+
     const seconds = Math.floor(milliseconds / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
     } else if (minutes > 0) {
@@ -161,16 +161,16 @@ const SessionManager: React.FC = () => {
 
   const getExpirationProgress = (): number => {
     if (!sessionInfo.expiresAt || !sessionInfo.isActive) return 0;
-    
+
     const sessionDuration = 60 * 60 * 1000; // 1 hour in milliseconds
     const remaining = sessionInfo.timeRemaining;
-    
-    return Math.max(0, Math.min(100, (remaining / sessionDuration) * 100));
+
+    return Math.max(0, Math.min(100, remaining / sessionDuration * 100));
   };
 
   const getExpirationStatus = () => {
     const minutes = sessionInfo.timeRemaining / (1000 * 60);
-    
+
     if (minutes <= 0) return { color: 'text-red-500', status: 'Expired' };
     if (minutes <= 5) return { color: 'text-red-500', status: 'Critical' };
     if (minutes <= 15) return { color: 'text-yellow-500', status: 'Warning' };
@@ -192,8 +192,8 @@ const SessionManager: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setAutoRefresh(!autoRefresh)}
-          >
+            onClick={() => setAutoRefresh(!autoRefresh)}>
+
             <Timer className="h-4 w-4 mr-2" />
             Auto Refresh: {autoRefresh ? 'ON' : 'OFF'}
           </Button>
@@ -212,11 +212,11 @@ const SessionManager: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                {sessionInfo.isActive ? (
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                ) : (
-                  <XCircle className="h-4 w-4 text-red-500" />
-                )}
+                {sessionInfo.isActive ?
+                <CheckCircle className="h-4 w-4 text-green-500" /> :
+
+                <XCircle className="h-4 w-4 text-red-500" />
+                }
                 <span className="font-medium">Status</span>
               </div>
               <Badge variant={sessionInfo.isActive ? "default" : "destructive"} className="text-xs">
@@ -239,11 +239,11 @@ const SessionManager: React.FC = () => {
                 <AlertTriangle className="h-4 w-4" />
                 <span className="font-medium">Expiration Status</span>
               </div>
-              <Badge 
-                variant={expirationStatus.status === 'Good' ? 'default' : 
-                        expirationStatus.status === 'Warning' ? 'secondary' : 'destructive'} 
-                className="text-xs"
-              >
+              <Badge
+                variant={expirationStatus.status === 'Good' ? 'default' :
+                expirationStatus.status === 'Warning' ? 'secondary' : 'destructive'}
+                className="text-xs">
+
                 {expirationStatus.status}
               </Badge>
             </div>
@@ -258,21 +258,21 @@ const SessionManager: React.FC = () => {
             </div>
           </div>
 
-          {sessionInfo.isActive && (
-            <div className="mt-4 space-y-2">
+          {sessionInfo.isActive &&
+          <div className="mt-4 space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span>Session Progress</span>
                 <span>{Math.round(getExpirationProgress())}%</span>
               </div>
               <Progress value={getExpirationProgress()} className="w-full" />
             </div>
-          )}
+          }
 
-          {sessionInfo.expiresAt && (
-            <div className="mt-4 text-sm text-muted-foreground">
+          {sessionInfo.expiresAt &&
+          <div className="mt-4 text-sm text-muted-foreground">
               <strong>Expires:</strong> {sessionInfo.expiresAt.toLocaleString()}
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
@@ -286,23 +286,23 @@ const SessionManager: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="flex gap-2">
-            <Button 
-              onClick={refreshSession} 
-              disabled={isRefreshing || !sessionInfo.isActive}
-            >
-              {isRefreshing ? (
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <RefreshCw className="h-4 w-4 mr-2" />
-              )}
+            <Button
+              onClick={refreshSession}
+              disabled={isRefreshing || !sessionInfo.isActive}>
+
+              {isRefreshing ?
+              <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> :
+
+              <RefreshCw className="h-4 w-4 mr-2" />
+              }
               Refresh Session
             </Button>
             
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={invalidateSession}
-              disabled={!sessionInfo.isActive}
-            >
+              disabled={!sessionInfo.isActive}>
+
               Invalidate Session
             </Button>
           </div>
@@ -310,8 +310,8 @@ const SessionManager: React.FC = () => {
       </Card>
 
       {/* Session Details */}
-      {sessionInfo.isActive && (
-        <Card>
+      {sessionInfo.isActive &&
+      <Card>
           <CardHeader>
             <CardTitle>Session Details</CardTitle>
             <CardDescription>
@@ -345,19 +345,19 @@ const SessionManager: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-      )}
+      }
 
       {/* Warnings */}
-      {sessionInfo.isActive && sessionInfo.timeRemaining < 5 * 60 * 1000 && (
-        <Alert>
+      {sessionInfo.isActive && sessionInfo.timeRemaining < 5 * 60 * 1000 &&
+      <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
             Your session will expire in less than 5 minutes. Consider refreshing your session to avoid losing your work.
           </AlertDescription>
         </Alert>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default SessionManager;

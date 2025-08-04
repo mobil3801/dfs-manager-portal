@@ -7,8 +7,8 @@ const AuthFlowTestPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       <AuthFlowTester />
-    </div>
-  );
+    </div>);
+
 };
 
 export default AuthFlowTestPage;
