@@ -112,12 +112,19 @@ const ComprehensiveIDDocumentSolution: React.FC = () => {
       // Test each file ID
       for (const fileId of allFileIds) {
         try {
-          const { data: fileUrl, error: urlError } = (await Promise.race([
-          window.ezsite.apis.getUploadUrl(fileId),
-          new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Timeout')), 5000)
-          )]
-          )) as {data: string;error: string;};
+          if (!fileId || fileId === null || fileId === undefined) {
+            console.log(`[ComprehensiveIDDocumentSolution] Skipping invalid fileId: ${fileId}`);
+            continue;
+          }
+
+          const response = await Promise.race([
+            window.ezsite.apis.getUploadUrl(fileId),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('Timeout')), 5000)
+            )
+          ]) as {data?: string; error?: string;};
+
+          const { data: fileUrl, error: urlError } = response;
 
           if (!urlError && fileUrl && fileUrl.trim() !== '') {
             workingFiles.push(fileId);
@@ -128,7 +135,7 @@ const ComprehensiveIDDocumentSolution: React.FC = () => {
           }
         } catch (error) {
           problemFiles.push(fileId);
-          console.log(`[ComprehensiveIDDocumentSolution] File ${fileId}: Error ✗ - ${error}`);
+          console.log(`[ComprehensiveIDDocumentSolution] File ${fileId}: Error ✗ - ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
 
         // Small delay to avoid overwhelming the API

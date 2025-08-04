@@ -150,13 +150,39 @@ const EnhancedIDDocumentTestPage: React.FC = () => {
       </Card>
 
       {/* Enhanced ID Documents Display */}
-      <EnhancedLiveIDDocumentsDisplay
-        key={refreshKey}
-        employee={sampleEmployee}
-        isAdminUser={isAdminUser}
-        onRefresh={handleRefresh}
-        allowDelete={true}
-        showPreview={true} />
+      <div className="space-y-4">
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-center">
+              <FileText className="w-16 h-16 mx-auto mb-4 text-blue-500" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">ID Document Viewer</h3>
+              <p className="text-gray-600 mb-4">
+                Enhanced ID document viewer is temporarily disabled to resolve system errors.
+              </p>
+              <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                Using Safe Mode
+              </Badge>
+            </div>
+            
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[sampleEmployee.id_document_file_id, sampleEmployee.id_document_2_file_id]
+                .filter(id => id)
+                .map((fileId, index) => (
+                  <SafeIDDocumentViewer
+                    key={`safe-${fileId}-${index}`}
+                    fileId={fileId}
+                    label={`ID Document ${index + 1}`}
+                    documentType={sampleEmployee.id_document_type || 'Driving License'}
+                    isAdminUser={isAdminUser}
+                    size="lg"
+                    className="border border-gray-200 rounded-lg"
+                  />
+                ))
+              }
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
 
       {/* Implementation Notes */}

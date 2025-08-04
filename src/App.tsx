@@ -138,17 +138,8 @@ function App() {
                   <Route path="/supabase-login" element={<SupabaseLoginPage />} />
                   <Route path="/supabase-test" element={<SupabaseTestPage />} />
                   
-                  {/* Test & Debug Routes (temporarily public for development) */}
+                  {/* Test & Debug Routes (temporarily disabled to fix system errors) */}
                   <Route path="/test-products" element={<TestProductsPage />} />
-                  <Route path="/document-solution" element={<DocumentSolutionPage />} />
-                  <Route path="/id-document-solution" element={<IDDocumentSolutionPage />} />
-                  <Route path="/document-viewer-test" element={<DocumentViewerTestPage />} />
-                  <Route path="/enhanced-id-test" element={<EnhancedIDDocumentTestPage />} />
-                  <Route path="/document-loading-debug" element={<DocumentLoadingDebugPage />} />
-                  <Route path="/id-file-debug" element={<IDFileDebugPage />} />
-                  <Route path="/employee-test" element={<EmployeeTestPage />} />
-                  <Route path="/overflow-test" element={<OverflowTestPage />} />
-                  <Route path="/overflow-testing" element={<OverflowTestingPage />} />
                   <Route path="/auth-diagnostic" element={<AuthDiagnosticPage />} />
                   <Route path="/admin-debug" element={<AdminDebugPage />} />
                   <Route path="/admin-emergency-fix" element={<AdminEmergencyFixPage />} />

@@ -99,11 +99,16 @@ const DocumentViewerTestPage: React.FC = () => {
           return 'No valid file ID found for testing';
         }
 
-        const urlResponse = await window.ezsite.apis.getUploadUrl(testFileId);
-        if (urlResponse.error) throw new Error(urlResponse.error);
-        if (!urlResponse.data) throw new Error('No URL returned');
+        try {
+          const urlResponse = await window.ezsite.apis.getUploadUrl(testFileId);
+          if (urlResponse.error) throw new Error(urlResponse.error);
+          if (!urlResponse.data) throw new Error('No URL returned');
 
-        return `File URL retrieval successful for ID ${testFileId}`;
+          return `File URL retrieval successful for ID ${testFileId}`;
+        } catch (error) {
+          console.error('Error getting upload URL:', error);
+          return `File URL test failed for ID ${testFileId}: ${error instanceof Error ? error.message : 'Unknown error'}`;
+        }
       }
     }];
 
