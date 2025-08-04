@@ -68,7 +68,7 @@ const FixedAdminSetup: React.FC = () => {
         email: user.email || 'admin@dfs-portal.com',
         first_name: 'System',
         last_name: 'Administrator',
-        'user role': 'Administrator',
+        role: 'Administrator',
         permissions: {
           all_modules: true,
           system_admin: true,
@@ -126,17 +126,13 @@ const FixedAdminSetup: React.FC = () => {
       }
 
       // Clear existing module access
-      try {
-        const { error: deleteError } = await supabase
-          .from('module_access')
-          .delete()
-          .eq('user_id', user.id);
+      const { error: deleteError } = await supabase.
+      from('module_access').
+      delete().
+      eq('user_id', user.id);
 
-        if (deleteError) {
-          console.warn('Delete warning (may be expected):', deleteError);
-        }
-      } catch (deleteErr) {
-        console.warn('Delete operation failed (may be expected):', deleteErr);
+      if (deleteError) {
+        console.warn('Delete warning (may be expected):', deleteError);
       }
 
       // Define all modules with full access

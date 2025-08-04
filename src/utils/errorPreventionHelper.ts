@@ -269,17 +269,13 @@ export const setupInvalidCharacterErrorMonitor = (): void => {
 
 
 
-
-
-
-
         // Fallback to original error if monitoring fails
       }originalError.apply(console, args);}; // Monitor DOM mutations that might cause InvalidCharacterError
     if (typeof MutationObserver !== 'undefined') {const observer = new MutationObserver((mutations) => {try {mutations.forEach((mutation) => {mutation.addedNodes.forEach((node) => {if (node.nodeType === Node.ELEMENT_NODE) {const element = node as Element; // Check for problematic attributes
-                      try {Array.from(element.attributes || []).forEach((attr) => {if (!isValidAttributeValue(attr.value)) {console.warn('Potentially problematic attribute detected:', { element: element.tagName, attribute: attr.name, value: attr.value });}});} catch (attrError) {
-
-
-
+                      try {Array.from(element.attributes || []).forEach((attr) => {if (!isValidAttributeValue(attr.value)) {console.warn('Potentially problematic attribute detected:', { element: element.tagName, attribute: attr.name, value: attr.value });
+                            }
+                          });
+                      } catch (attrError) {
 
 
 
@@ -301,7 +297,11 @@ export const setupInvalidCharacterErrorMonitor = (): void => {
 
 
                         // Skip problematic attributes
-                      }}});});} catch (mutationError) {console.warn('Error in mutation observer:', mutationError);}});try {observer.observe(document.body, { childList: true, subtree: true, attributes: true });} catch (observerError) {console.warn('Error setting up mutation observer:', observerError);}}} catch (setupError) {console.warn('Error setting up InvalidCharacterError monitor:', setupError);}};export default {
+                      }}});});} catch (mutationError) {console.warn('Error in mutation observer:', mutationError);}});try {observer.observe(document.body, { childList: true, subtree: true, attributes: true });} catch (observerError) {console.warn('Error setting up mutation observer:', observerError);}}} catch (setupError) {console.warn('Error setting up InvalidCharacterError monitor:', setupError);
+  }
+};
+
+export default {
   safeCreateElement,
   safeSetInnerHTML,
   safeProcessFormData,
