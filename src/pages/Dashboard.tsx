@@ -20,7 +20,6 @@ import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import AuthStatusCard from '@/components/AuthStatusCard';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import QuickFixAccess from '@/components/QuickFixAccess';
 
 interface DashboardStats {
   totalEmployees: number;
@@ -337,9 +336,6 @@ const Dashboard = () => {
           </div>
         </TabsContent>
       </Tabs>
-      
-      {/* Emergency Fix Access - Show when there are critical errors */}
-      <QuickFixAccess />
     </div>);
 
 };

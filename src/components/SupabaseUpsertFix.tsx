@@ -30,10 +30,10 @@ const SupabaseUpsertFix: React.FC = () => {
 
     try {
       // Test basic connection
-      const { data: tables, error: tablesError } = await supabase.
-      from('user_profiles').
-      select('count').
-      limit(1);
+      const { data: tables, error: tablesError } = await supabase
+        .from('user_profiles')
+        .select('count')
+        .limit(1);
 
       // Test auth
       const { data: session } = await supabase.auth.getSession();
@@ -50,17 +50,17 @@ const SupabaseUpsertFix: React.FC = () => {
         updated_at: new Date().toISOString()
       };
 
-      const { data: upsertData, error: upsertError } = await supabase.
-      from('user_profiles').
-      upsert(testData, { onConflict: 'user_id' }).
-      select();
+      const { data: upsertData, error: upsertError } = await supabase
+        .from('user_profiles')
+        .upsert(testData, { onConflict: 'user_id' })
+        .select();
 
       // Clean up test data
       if (!upsertError) {
-        await supabase.
-        from('user_profiles').
-        delete().
-        eq('user_id', 'test-user-id');
+        await supabase
+          .from('user_profiles')
+          .delete()
+          .eq('user_id', 'test-user-id');
       }
 
       setTestResults({
@@ -134,10 +134,10 @@ const SupabaseUpsertFix: React.FC = () => {
         updated_at: new Date().toISOString()
       };
 
-      const { data: profileResult, error: profileError } = await supabase.
-      from('user_profiles').
-      upsert(profileData, { onConflict: 'email' }).
-      select();
+      const { data: profileResult, error: profileError } = await supabase
+        .from('user_profiles')
+        .upsert(profileData, { onConflict: 'email' })
+        .select();
 
       if (profileError) {
         addResult('profile', 'error', `❌ Profile error: ${profileError.message}`);
@@ -149,10 +149,10 @@ const SupabaseUpsertFix: React.FC = () => {
       addResult('modules', 'success', '🔑 Setting up module access permissions...');
 
       // Delete existing module access for admin user
-      await supabase.
-      from('module_access').
-      delete().
-      eq('user_id', adminUserId);
+      await supabase
+        .from('module_access')
+        .delete()
+        .eq('user_id', adminUserId);
 
       const modules = [
       'Dashboard', 'Products', 'Sales', 'Employees', 'Deliveries',
@@ -178,9 +178,9 @@ const SupabaseUpsertFix: React.FC = () => {
           updated_at: new Date().toISOString()
         };
 
-        const { error: moduleError } = await supabase.
-        from('module_access').
-        insert(moduleData);
+        const { error: moduleError } = await supabase
+          .from('module_access')
+          .insert(moduleData);
 
         if (!moduleError) {
           moduleSuccessCount++;

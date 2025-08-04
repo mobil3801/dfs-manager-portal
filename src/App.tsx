@@ -9,10 +9,6 @@ import { ModuleAccessProvider } from '@/contexts/ModuleAccessContext';
 import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
 import AuthDebugger from '@/components/AuthDebugger';
 import ImageErrorNotification from '@/components/ImageErrorNotification';
-import AuthenticationFix from '@/components/AuthenticationFix';
-import { SimpleAuthProvider } from '@/components/SimpleAuthProvider';
-import SimpleLoginPage from '@/pages/SimpleLoginPage';
-import SimpleProtectedRoute from '@/components/SimpleProtectedRoute';
 
 // Layout
 import DashboardLayout from '@/components/Layout/DashboardLayout';
@@ -20,22 +16,15 @@ import DashboardLayout from '@/components/Layout/DashboardLayout';
 // Core pages (loaded immediately)
 import Dashboard from '@/pages/Dashboard';
 import LoginPage from '@/pages/LoginPage';
-import SupabaseAuthFix from '@/components/SupabaseAuthFix';
-import SimpleLoginFix from '@/components/SimpleLoginFix';
-import AuthStatusCheck from '@/components/AuthStatusCheck';
-import LoginSuccessMessage from '@/components/LoginSuccessMessage';
 import SupabaseLoginPage from '@/pages/SupabaseLoginPage';
 import OnAuthSuccessPage from '@/pages/OnAuthSuccessPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import NotFound from '@/pages/NotFound';
 import AdminSetupPage from '@/pages/Admin/AdminSetupPage';
-import AdminSetup from '@/pages/AdminSetup';
 import AdminDebugPage from '@/pages/AdminDebugPage';
 import AdminEmergencyFixPage from '@/pages/AdminEmergencyFixPage';
 import AdminFixSuccessPage from '@/pages/AdminFixSuccessPage';
 import CriticalErrorFixPage from '@/pages/CriticalErrorFixPage';
-import FixedAdminSetup from '@/components/FixedAdminSetup';
-import EmergencyFixPage from '@/pages/EmergencyFixPage';
 
 // Lazy load feature pages
 const ProductList = lazy(() => import('@/pages/Products/ProductList'));
@@ -183,16 +172,9 @@ const AppRouter = () => {
       <div className="App">
         <Routes>
           {/* Public Routes */}
-          <Route path="/login" element={<SimpleLoginFix />} />
-          <Route path="/supabase-login" element={<SupabaseAuthFix />} />
-          <Route path="/legacy-login" element={<LoginPage />} />
+          <Route path="/login" element={<SupabaseLoginPage />} />
           <Route path="/legacy-login" element={<LoginPage />} />
           <Route path="/supabase-login" element={<SupabaseLoginPage />} />
-          <Route path="/auth-test" element={
-          <Suspense fallback={<PageLoader />}>
-              {React.createElement(React.lazy(() => import('@/components/AuthTestComponent')))}
-            </Suspense>
-          } />
           <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
           <Route path="/resetpassword" element={<ResetPasswordPage />} />
           <Route path="/admin-setup" element={<AdminSetupPage />} />
@@ -200,9 +182,16 @@ const AppRouter = () => {
           <Route path="/admin-emergency-fix" element={<AdminEmergencyFixPage />} />
           <Route path="/admin-fix-success" element={<AdminFixSuccessPage />} />
           <Route path="/critical-error-fix" element={<CriticalErrorFixPage />} />
-          <Route path="/upsert-fix" element={<Suspense fallback={<PageLoader />}><FixedAdminSetup /></Suspense>} />
-          <Route path="/admin-fix" element={<Suspense fallback={<PageLoader />}><FixedAdminSetup /></Suspense>} />
-          <Route path="/emergency-fix" element={<EmergencyFixPage />} />
+          <Route path="/upsert-fix" element={<Suspense fallback={<PageLoader />}><div className="min-h-screen p-6"><div dangerouslySetInnerHTML={{__html: `
+<div class="max-w-4xl mx-auto">
+<h1 class="text-3xl font-bold mb-4">Emergency Supabase Fix</h1>
+<div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+<p class="text-red-800"><strong>CRITICAL ERROR DETECTED:</strong> Supabase upsert function not working</p>
+</div>
+<button onclick="window.location.href='/critical-error-fix'" class="bg-red-600 text-white px-6 py-3 rounded-lg text-lg font-semibold hover:bg-red-700">
+🛠️ Fix Critical Errors Now
+</button>
+</div>`}} /></div></Suspense>} />
           <Route path="/admin-setup" element={<AdminSetupPage />} />
           <Route path="/admin-debug" element={<AdminDebugPage />} />
           <Route path="/admin-emergency-fix" element={<AdminEmergencyFixPage />} />
@@ -212,7 +201,7 @@ const AppRouter = () => {
           {/* Protected Routes */}
           <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
             <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<AuthStatusCheck><Dashboard /></AuthStatusCheck>} />
+            <Route path="dashboard" element={<Dashboard />} />
             
             {/* Products */}
             <Route path="products" element={
@@ -526,9 +515,6 @@ const AppRouter = () => {
         
         {/* Auth Debugger - Only show in development or for debugging */}
         <AuthDebugger />
-        
-        {/* Authentication Fix - Handles proper redirects */}
-        <AuthenticationFix />
       </div>
     </Router>);
 

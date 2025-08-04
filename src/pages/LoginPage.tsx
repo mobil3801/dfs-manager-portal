@@ -1,147 +1,95 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Eye, EyeOff, Mail, Lock, LogIn, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff, Mail, Lock, UserPlus, LogIn, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabase';
+
+type AuthMode = 'login' | 'register' | 'forgot-password';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [authMode, setAuthMode] = useState<AuthMode>('login');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'error' | 'success'>('error');
-  
+  const [lastSubmitTime, setLastSubmitTime] = useState(0); // Debounce rapid submissions
+
+  const { login, register, clearError, authError } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Test Supabase connection on component mount
+  // Clear error when switching auth modes or on component mount
   useEffect(() => {
-    const testConnection = async () => {
-      try {
-        const { data, error } = await supabase.from('user_profiles').select('count').limit(1);
-        if (error) {
-          console.warn('Database connection issue:', error);
-        } else {
-          console.log('✅ Database connection verified');
-        }
-      } catch (error) {
-        console.warn('Database connection test failed:', error);
-      }
-    };
-    
-    testConnection();
-  }, []);
+    clearError();
+    setMessage('');
+  }, [authMode, clearError]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Display auth errors from context
+  useEffect(() => {
+    if (authError) {
+      setMessage(authError);
+      setMessageType('error');
+    }
+  }, [authError]);
+
+  const clearForm = () => {
+    setEmail('');
+    setPassword('');
+    setConfirmPassword('');
+    setMessage('');
+    clearError();
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!email || !password) {
-      setMessage('Please enter both email and password');
+    if (!email) {
+      setMessage('Please enter your email address');
       setMessageType('error');
       return;
     }
 
     setIsLoading(true);
-    setMessage('');
+    setMessage(''); // Clear previous messages
 
     try {
-      console.log('🔐 Starting Supabase authentication for:', email);
-      
-      // Use Supabase's built-in authentication
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password: password
-      });
-
+      const { error } = await window.ezsite.apis.sendResetPwdEmail({ email });
       if (error) {
-        console.error('❌ Supabase auth error:', error);
-        let errorMessage = 'Login failed';
-        
-        switch (error.message) {
-          case 'Invalid login credentials':
-            errorMessage = 'Invalid email or password. Please check your credentials.';
-            break;
-          case 'Email not confirmed':
-            errorMessage = 'Please check your email and click the verification link before signing in.';
-            break;
-          case 'Too many requests':
-            errorMessage = 'Too many login attempts. Please wait a moment and try again.';
-            break;
-          default:
-            errorMessage = error.message;
-        }
-        
-        setMessage(errorMessage);
+        setMessage(error);
         setMessageType('error');
         toast({
-          title: "Login Failed",
-          description: errorMessage,
+          title: "Error",
+          description: error,
           variant: "destructive"
         });
-        return;
-      }
-
-      if (data.user) {
-        console.log('✅ Login successful:', data.user.email);
-        
-        // Check if user profile exists
-        const { data: profile, error: profileError } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('user_id', data.user.id)
-          .single();
-
-        if (profileError && profileError.code !== 'PGRST116') {
-          console.warn('Profile lookup error:', profileError);
-        }
-
-        if (!profile) {
-          // Create a default profile for new users
-          const { error: createProfileError } = await supabase
-            .from('user_profiles')
-            .insert({
-              user_id: data.user.id,
-              role: 'Employee',
-              station: 'MOBIL',
-              employee_id: '',
-              phone: '',
-              hire_date: new Date().toISOString(),
-              is_active: true,
-              detailed_permissions: {}
-            });
-
-          if (createProfileError) {
-            console.warn('Failed to create user profile:', createProfileError);
-          }
-        }
-
-        setMessage('Login successful! Redirecting...');
+      } else {
+        setMessage('Password reset link has been sent to your email address');
         setMessageType('success');
         toast({
-          title: "Welcome back!",
-          description: "Successfully logged in"
+          title: "Success",
+          description: "Password reset link sent to your email"
         });
-
-        // Redirect to dashboard
         setTimeout(() => {
-          navigate('/dashboard');
-        }, 1000);
+          setAuthMode('login');
+          clearForm();
+        }, 3000);
       }
-
     } catch (error) {
-      console.error('❌ Unexpected login error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      const errorMessage = error instanceof Error ? error.message : 'Failed to send reset email';
       setMessage(errorMessage);
       setMessageType('error');
       toast({
-        title: "Login Error",
+        title: "Error",
         description: errorMessage,
         variant: "destructive"
       });
@@ -150,7 +98,115 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  // Removed helper functions as they're no longer needed
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Prevent rapid successive submissions (debounce)
+    const now = Date.now();
+    if (now - lastSubmitTime < 1000) {
+      console.log('⏳ Ignoring rapid submission attempt');
+      return;
+    }
+    setLastSubmitTime(now);
+
+    // Clear previous messages and errors
+    setMessage('');
+    clearError();
+
+    if (authMode === 'forgot-password') {
+      return handleForgotPassword(e);
+    }
+
+    if (authMode === 'register' && password !== confirmPassword) {
+      setMessage('Passwords do not match');
+      setMessageType('error');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      if (authMode === 'login') {
+        console.log('🔑 Initiating login attempt for:', email);
+        const success = await login(email, password);
+        if (success) {
+          console.log('✅ Login successful, navigating to dashboard');
+          toast({
+            title: "Welcome back!",
+            description: "Successfully logged in"
+          });
+          navigate('/dashboard');
+        } else {
+          console.log('❌ Login failed - check authError state');
+          // Error will be handled by useEffect watching authError
+        }
+      } else if (authMode === 'register') {
+        const success = await register(email, password, email.split('@')[0]);
+        if (success) {
+          setMessage('Account created successfully! Please check your email for verification.');
+          setMessageType('success');
+          toast({
+            title: "Account Created",
+            description: "Please check your email for verification"
+          });
+          setTimeout(() => {
+            setAuthMode('login');
+            clearForm();
+          }, 3000);
+        }
+      }
+    } catch (error) {
+      console.error('❌ Form submission error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
+      setMessage(errorMessage);
+      setMessageType('error');
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getFormTitle = () => {
+    switch (authMode) {
+      case 'login':return 'Welcome Back';
+      case 'register':return 'Create Account';
+      case 'forgot-password':return 'Reset Password';
+      default:return 'Sign In';
+    }
+  };
+
+  const getFormDescription = () => {
+    switch (authMode) {
+      case 'login':return 'Enter your credentials to access the portal';
+      case 'register':return 'Create a new account to get started';
+      case 'forgot-password':return 'Enter your email to receive a password reset link';
+      default:return '';
+    }
+  };
+
+  const getSubmitButtonText = () => {
+    if (isLoading) return 'Please wait...';
+    switch (authMode) {
+      case 'login':return 'Sign In';
+      case 'register':return 'Create Account';
+      case 'forgot-password':return 'Send Reset Link';
+      default:return 'Submit';
+    }
+  };
+
+  const getSubmitButtonIcon = () => {
+    if (isLoading) return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
+    switch (authMode) {
+      case 'login':return <LogIn className="mr-2 h-4 w-4" />;
+      case 'register':return <UserPlus className="mr-2 h-4 w-4" />;
+      case 'forgot-password':return <Mail className="mr-2 h-4 w-4" />;
+      default:return null;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -172,10 +228,10 @@ const LoginPage: React.FC = () => {
           <Card className="shadow-2xl border-0 backdrop-blur-sm bg-white/95">
             <CardHeader className="space-y-1 pb-6">
               <CardTitle className="text-2xl font-bold text-center text-slate-800">
-                Welcome Back
+                {getFormTitle()}
               </CardTitle>
               <CardDescription className="text-center text-slate-600">
-                Enter your credentials to access the portal
+                {getFormDescription()}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -210,11 +266,12 @@ const LoginPage: React.FC = () => {
                 </div>
 
                 {/* Password Field */}
+                {authMode !== 'forgot-password' &&
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-slate-700 font-medium">Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-                    <Input
+                    <Label htmlFor="password" className="text-slate-700 font-medium">Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                      <Input
                       id="password"
                       type={showPassword ? 'text' : 'password'}
                       placeholder="Enter your password"
@@ -222,49 +279,125 @@ const LoginPage: React.FC = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       disabled={isLoading}
-                      className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                    />
-                    <button
+                      className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
+                      <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       disabled={isLoading}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:opacity-50"
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:opacity-50">
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
                   </div>
-                </div>
+                }
 
-                {/* Remove confirm password and forgot password sections for now */}
+                {/* Confirm Password Field */}
+                {authMode === 'register' &&
+                <div className="space-y-2">
+                    <Label htmlFor="confirmPassword" className="text-slate-700 font-medium">Confirm Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                      <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      placeholder="Confirm your password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      disabled={isLoading}
+                      className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
+                      <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      disabled={isLoading}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:opacity-50">
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                }
+
+                {/* Forgot Password Link */}
+                {authMode === 'login' &&
+                <div className="text-right">
+                    <Button
+                    type="button"
+                    variant="link"
+                    className="p-0 h-auto text-blue-600 hover:text-blue-800 text-sm"
+                    disabled={isLoading}
+                    onClick={() => {
+                      setAuthMode('forgot-password');
+                      setPassword('');
+                      setMessage('');
+                      clearError();
+                    }}>
+                      Forgot password?
+                    </Button>
+                  </div>
+                }
 
                 {/* Submit Button */}
                 <Button
                   type="submit"
                   className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Signing in...
-                    </>
-                  ) : (
-                    <>
-                      <LogIn className="mr-2 h-4 w-4" />
-                      Sign In
-                    </>
-                  )}
+                  disabled={isLoading}>
+                  {getSubmitButtonIcon()}
+                  {getSubmitButtonText()}
                 </Button>
               </form>
 
-              {/* Help Text */}
-              <div className="mt-6 text-center">
-                <p className="text-sm text-slate-600">
-                  Use your Supabase authentication credentials
-                </p>
-                <p className="text-xs text-slate-500 mt-2">
-                  If you're having trouble, contact your administrator
-                </p>
+              {/* Auth Mode Switcher */}
+              <div className="mt-6">
+                <Separator className="my-4" />
+                <div className="text-center space-y-2">
+                  {authMode === 'login'
+
+
+
+
+
+
+
+
+
+
+
+
+
+                  }
+
+                  {authMode === 'register' &&
+                  <div>
+                      <span className="text-sm text-slate-600">Already have an account? </span>
+                      <Button
+                      variant="link"
+                      className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
+                      disabled={isLoading}
+                      onClick={() => {
+                        setAuthMode('login');
+                        clearForm();
+                      }}>
+                        Sign in
+                      </Button>
+                    </div>
+                  }
+
+                  {authMode === 'forgot-password' &&
+                  <div>
+                      <span className="text-sm text-slate-600">Remember your password? </span>
+                      <Button
+                      variant="link"
+                      className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
+                      disabled={isLoading}
+                      onClick={() => {
+                        setAuthMode('login');
+                        clearForm();
+                      }}>
+                        Sign in
+                      </Button>
+                    </div>
+                  }
+                </div>
               </div>
             </CardContent>
           </Card>

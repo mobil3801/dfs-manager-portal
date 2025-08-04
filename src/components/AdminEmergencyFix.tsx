@@ -25,10 +25,10 @@ const AdminEmergencyFix: React.FC = () => {
     setIsDiagnosing(true);
     try {
       // Check auth user by trying to get user profile
-      const { data: profiles, error: profileError } = await supabase.
-      from('user_profiles').
-      select('*').
-      eq('email', 'admin@dfs-portal.com');
+      const { data: profiles, error: profileError } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('email', 'admin@dfs-portal.com');
 
       const adminExists = profiles && profiles.length > 0;
 
@@ -41,10 +41,10 @@ const AdminEmergencyFix: React.FC = () => {
       if (profileExists && profiles[0]) {
         adminRole = profiles[0].role === 'Administrator';
 
-        const { data: modules } = await supabase.
-        from('module_access').
-        select('*').
-        eq('user_id', profiles[0].user_id);
+        const { data: modules } = await supabase
+          .from('module_access')
+          .select('*')
+          .eq('user_id', profiles[0].user_id);
 
         moduleAccess = modules && modules.length > 0;
       }
@@ -101,11 +101,11 @@ const AdminEmergencyFix: React.FC = () => {
 
       if (!adminUserId) {
         // Check if profile exists and get user_id
-        const { data: existingProfiles } = await supabase.
-        from('user_profiles').
-        select('user_id').
-        eq('email', 'admin@dfs-portal.com').
-        limit(1);
+        const { data: existingProfiles } = await supabase
+          .from('user_profiles')
+          .select('user_id')
+          .eq('email', 'admin@dfs-portal.com')
+          .limit(1);
 
         if (existingProfiles && existingProfiles.length > 0) {
           adminUserId = existingProfiles[0].user_id;
@@ -119,28 +119,28 @@ const AdminEmergencyFix: React.FC = () => {
       setFixResults([...results]);
 
       // Step 3: Create/update user profile
-      const { error: profileError } = await supabase.
-      from('user_profiles').
-      upsert({
-        user_id: adminUserId,
-        email: 'admin@dfs-portal.com',
-        first_name: 'System',
-        last_name: 'Administrator',
-        role: 'Administrator',
-        permissions: {
-          all_modules: true,
-          system_admin: true,
-          user_management: true,
-          station_management: true,
-          reporting: true
-        },
-        station_access: { all_stations: true },
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'user_id'
-      });
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .upsert({
+          user_id: adminUserId,
+          email: 'admin@dfs-portal.com',
+          first_name: 'System',
+          last_name: 'Administrator',
+          role: 'Administrator',
+          permissions: {
+            all_modules: true,
+            system_admin: true,
+            user_management: true,
+            station_management: true,
+            reporting: true
+          },
+          station_access: { all_stations: true },
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id'
+        });
 
       if (profileError) throw profileError;
 
@@ -159,24 +159,24 @@ const AdminEmergencyFix: React.FC = () => {
 
 
       for (const module of modules) {
-        await supabase.
-        from('module_access').
-        upsert({
-          user_id: adminUserId,
-          module_name: module,
-          display_name: module,
-          access_level: 'full',
-          is_active: true,
-          create_enabled: true,
-          edit_enabled: true,
-          delete_enabled: true,
-          granted_by: adminUserId,
-          granted_at: new Date().toISOString(),
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'user_id,module_name'
-        });
+        await supabase
+          .from('module_access')
+          .upsert({
+            user_id: adminUserId,
+            module_name: module,
+            display_name: module,
+            access_level: 'full',
+            is_active: true,
+            create_enabled: true,
+            edit_enabled: true,
+            delete_enabled: true,
+            granted_by: adminUserId,
+            granted_at: new Date().toISOString(),
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'user_id,module_name'
+          });
       }
 
       results.push('✅ Module access permissions configured');
