@@ -20,6 +20,7 @@ import SupabaseLoginPage from '@/pages/SupabaseLoginPage';
 import OnAuthSuccessPage from '@/pages/OnAuthSuccessPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import NotFound from '@/pages/NotFound';
+import AdminSetupPage from '@/pages/Admin/AdminSetupPage';
 
 // Lazy load feature pages
 const ProductList = lazy(() => import('@/pages/Products/ProductList'));
@@ -436,6 +437,7 @@ const AppRouter = () => {
                 <RoleManagementPage />
               </Suspense>
             } />
+            <Route path="admin/setup" element={<AdminSetupPage />} />
           </Route>
           
           {/* 404 */}

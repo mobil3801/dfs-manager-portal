@@ -26,8 +26,8 @@ import {
   Edit,
   Trash2,
   RefreshCw,
-  Save
-} from 'lucide-react';
+  Save } from
+'lucide-react';
 import AccessDenied from '@/components/AccessDenied';
 import useAdminAccess from '@/hooks/use-admin-access';
 
@@ -78,26 +78,26 @@ const AlertSettings: React.FC = () => {
   });
 
   const alertTypes = [
-    { value: 'license_expiry', label: 'License Expiry' },
-    { value: 'low_stock', label: 'Low Stock' },
-    { value: 'system_error', label: 'System Error' },
-    { value: 'failed_login', label: 'Failed Login' },
-    { value: 'daily_report', label: 'Daily Report' },
-    { value: 'maintenance_due', label: 'Maintenance Due' }
-  ];
+  { value: 'license_expiry', label: 'License Expiry' },
+  { value: 'low_stock', label: 'Low Stock' },
+  { value: 'system_error', label: 'System Error' },
+  { value: 'failed_login', label: 'Failed Login' },
+  { value: 'daily_report', label: 'Daily Report' },
+  { value: 'maintenance_due', label: 'Maintenance Due' }];
+
 
   const notificationMethods = [
-    { value: 'sms', label: 'SMS' },
-    { value: 'email', label: 'Email' },
-    { value: 'both', label: 'SMS + Email' }
-  ];
+  { value: 'sms', label: 'SMS' },
+  { value: 'email', label: 'Email' },
+  { value: 'both', label: 'SMS + Email' }];
+
 
   const frequencies = [
-    { value: 'once', label: 'Once' },
-    { value: 'daily', label: 'Daily' },
-    { value: 'weekly', label: 'Weekly' },
-    { value: 'monthly', label: 'Monthly' }
-  ];
+  { value: 'once', label: 'Once' },
+  { value: 'daily', label: 'Daily' },
+  { value: 'weekly', label: 'Weekly' },
+  { value: 'monthly', label: 'Monthly' }];
+
 
   useEffect(() => {
     fetchAlertSettings();
@@ -268,7 +268,7 @@ const AlertSettings: React.FC = () => {
   const testAlert = async (alertId: number) => {
     try {
       setLoading(true);
-      
+
       // Log a test alert to history
       await window.ezsite.apis.tableCreate(12613, {
         alert_setting_id: alertId,
@@ -326,9 +326,9 @@ const AlertSettings: React.FC = () => {
     return (
       <AccessDenied
         feature="Alert Settings"
-        requiredRole="Administrator"
-      />
-    );
+        requiredRole="Administrator" />);
+
+
   }
 
   return (
@@ -347,8 +347,8 @@ const AlertSettings: React.FC = () => {
               fetchAlertSettings();
               fetchAlertHistory();
             }}
-            disabled={loading}
-          >
+            disabled={loading}>
+
             <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
@@ -374,24 +374,24 @@ const AlertSettings: React.FC = () => {
                       id="alert_name"
                       value={newAlert.alert_name}
                       onChange={(e) => setNewAlert({ ...newAlert, alert_name: e.target.value })}
-                      placeholder="License Expiry Alert"
-                    />
+                      placeholder="License Expiry Alert" />
+
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="alert_type">Alert Type</Label>
                     <Select
                       value={newAlert.alert_type}
-                      onValueChange={(value) => setNewAlert({ ...newAlert, alert_type: value })}
-                    >
+                      onValueChange={(value) => setNewAlert({ ...newAlert, alert_type: value })}>
+
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {alertTypes.map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
+                        {alertTypes.map((type) =>
+                        <SelectItem key={type.value} value={type.value}>
                             {type.label}
                           </SelectItem>
-                        ))}
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
@@ -405,24 +405,24 @@ const AlertSettings: React.FC = () => {
                       type="number"
                       value={newAlert.threshold_value}
                       onChange={(e) => setNewAlert({ ...newAlert, threshold_value: parseInt(e.target.value) || 0 })}
-                      placeholder="30"
-                    />
+                      placeholder="30" />
+
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="notification_method">Notification Method</Label>
                     <Select
                       value={newAlert.notification_method}
-                      onValueChange={(value) => setNewAlert({ ...newAlert, notification_method: value })}
-                    >
+                      onValueChange={(value) => setNewAlert({ ...newAlert, notification_method: value })}>
+
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {notificationMethods.map((method) => (
-                          <SelectItem key={method.value} value={method.value}>
+                        {notificationMethods.map((method) =>
+                        <SelectItem key={method.value} value={method.value}>
                             {method.label}
                           </SelectItem>
-                        ))}
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
@@ -434,8 +434,8 @@ const AlertSettings: React.FC = () => {
                     id="recipient_list"
                     value={newAlert.recipient_list}
                     onChange={(e) => setNewAlert({ ...newAlert, recipient_list: e.target.value })}
-                    placeholder="+1234567890,admin@example.com"
-                  />
+                    placeholder="+1234567890,admin@example.com" />
+
                   <p className="text-sm text-muted-foreground">
                     Comma-separated list of phone numbers and/or email addresses
                   </p>
@@ -448,8 +448,8 @@ const AlertSettings: React.FC = () => {
                     value={newAlert.message_template}
                     onChange={(e) => setNewAlert({ ...newAlert, message_template: e.target.value })}
                     placeholder="Alert: {alert_name} - {details}"
-                    rows={3}
-                  />
+                    rows={3} />
+
                 </div>
 
                 <div className="flex items-center space-x-4">
@@ -457,25 +457,25 @@ const AlertSettings: React.FC = () => {
                     <Switch
                       id="is_enabled"
                       checked={newAlert.is_enabled}
-                      onCheckedChange={(checked) => setNewAlert({ ...newAlert, is_enabled: checked })}
-                    />
+                      onCheckedChange={(checked) => setNewAlert({ ...newAlert, is_enabled: checked })} />
+
                     <Label htmlFor="is_enabled">Enable Alert</Label>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="frequency">Frequency</Label>
                     <Select
                       value={newAlert.frequency}
-                      onValueChange={(value) => setNewAlert({ ...newAlert, frequency: value })}
-                    >
+                      onValueChange={(value) => setNewAlert({ ...newAlert, frequency: value })}>
+
                       <SelectTrigger className="w-32">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {frequencies.map((freq) => (
-                          <SelectItem key={freq.value} value={freq.value}>
+                        {frequencies.map((freq) =>
+                        <SelectItem key={freq.value} value={freq.value}>
                             {freq.label}
                           </SelectItem>
-                        ))}
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
@@ -512,7 +512,7 @@ const AlertSettings: React.FC = () => {
               <div>
                 <p className="text-sm text-gray-600">Active Alerts</p>
                 <p className="text-2xl font-bold">
-                  {alertSettings.filter(a => a.is_enabled).length}
+                  {alertSettings.filter((a) => a.is_enabled).length}
                 </p>
               </div>
             </div>
@@ -526,8 +526,8 @@ const AlertSettings: React.FC = () => {
               <div>
                 <p className="text-sm text-gray-600">Sent Today</p>
                 <p className="text-2xl font-bold">
-                  {alertHistory.filter(h => 
-                    new Date(h.triggered_at).toDateString() === new Date().toDateString()
+                  {alertHistory.filter((h) =>
+                  new Date(h.triggered_at).toDateString() === new Date().toDateString()
                   ).length}
                 </p>
               </div>
@@ -542,7 +542,7 @@ const AlertSettings: React.FC = () => {
               <div>
                 <p className="text-sm text-gray-600">Failed Alerts</p>
                 <p className="text-2xl font-bold">
-                  {alertHistory.filter(h => h.status === 'failed').length}
+                  {alertHistory.filter((h) => h.status === 'failed').length}
                 </p>
               </div>
             </div>
@@ -568,21 +568,21 @@ const AlertSettings: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {alertSettings.length === 0 ? (
-                <div className="text-center py-8">
+              {alertSettings.length === 0 ?
+              <div className="text-center py-8">
                   <Bell className="w-12 h-12 mx-auto text-gray-300 mb-4" />
                   <p className="text-gray-500 font-medium">No alert settings configured</p>
                   <p className="text-sm text-gray-400">Create your first alert to get started</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {alertSettings.map((alert) => (
-                    <div key={alert.id} className="border rounded-lg p-4">
+                </div> :
+
+              <div className="space-y-4">
+                  {alertSettings.map((alert) =>
+                <div key={alert.id} className="border rounded-lg p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-3">
                           <h3 className="font-semibold">{alert.alert_name}</h3>
                           <Badge className={getAlertTypeBadge(alert.alert_type)}>
-                            {alertTypes.find(t => t.value === alert.alert_type)?.label}
+                            {alertTypes.find((t) => t.value === alert.alert_type)?.label}
                           </Badge>
                           <Badge variant={alert.is_enabled ? "default" : "secondary"}>
                             {alert.is_enabled ? 'Enabled' : 'Disabled'}
@@ -590,27 +590,27 @@ const AlertSettings: React.FC = () => {
                         </div>
                         <div className="flex items-center space-x-2">
                           <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => testAlert(alert.id!)}
-                            disabled={loading}
-                          >
+                        size="sm"
+                        variant="outline"
+                        onClick={() => testAlert(alert.id!)}
+                        disabled={loading}>
+
                             <Bell className="w-4 h-4 mr-1" />
                             Test
                           </Button>
                           <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleEditAlert(alert)}
-                          >
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditAlert(alert)}>
+
                             <Edit className="w-4 h-4" />
                           </Button>
                           <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => deleteAlertSetting(alert.id!)}
-                            className="text-red-600 hover:text-red-700"
-                          >
+                        size="sm"
+                        variant="outline"
+                        onClick={() => deleteAlertSetting(alert.id!)}
+                        className="text-red-600 hover:text-red-700">
+
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -633,9 +633,9 @@ const AlertSettings: React.FC = () => {
                         <span className="font-medium">Message:</span> {alert.message_template}
                       </div>
                     </div>
-                  ))}
+                )}
                 </div>
-              )}
+              }
             </CardContent>
           </Card>
         </TabsContent>
@@ -664,8 +664,8 @@ const AlertSettings: React.FC = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {alertHistory.length === 0 ? (
-                      <TableRow>
+                    {alertHistory.length === 0 ?
+                    <TableRow>
                         <TableCell colSpan={5} className="text-center py-8">
                           <div className="flex flex-col items-center space-y-3">
                             <Clock className="w-12 h-12 text-gray-300" />
@@ -675,10 +675,10 @@ const AlertSettings: React.FC = () => {
                             </div>
                           </div>
                         </TableCell>
-                      </TableRow>
-                    ) : (
-                      alertHistory.map((history) => (
-                        <TableRow key={history.id}>
+                      </TableRow> :
+
+                    alertHistory.map((history) =>
+                    <TableRow key={history.id}>
                           <TableCell className="font-mono text-sm">
                             {new Date(history.triggered_at).toLocaleString()}
                           </TableCell>
@@ -692,15 +692,15 @@ const AlertSettings: React.FC = () => {
                           </TableCell>
                           <TableCell>{history.recipients}</TableCell>
                           <TableCell>
-                            {history.error_message && (
-                              <div className="text-xs text-red-600">
+                            {history.error_message &&
+                        <div className="text-xs text-red-600">
                                 {history.error_message}
                               </div>
-                            )}
+                        }
                           </TableCell>
                         </TableRow>
-                      ))
-                    )}
+                    )
+                    }
                   </TableBody>
                 </Table>
               </div>
@@ -726,24 +726,24 @@ const AlertSettings: React.FC = () => {
                   id="edit_alert_name"
                   value={newAlert.alert_name}
                   onChange={(e) => setNewAlert({ ...newAlert, alert_name: e.target.value })}
-                  placeholder="License Expiry Alert"
-                />
+                  placeholder="License Expiry Alert" />
+
               </div>
               <div className="space-y-2">
                 <Label htmlFor="edit_alert_type">Alert Type</Label>
                 <Select
                   value={newAlert.alert_type}
-                  onValueChange={(value) => setNewAlert({ ...newAlert, alert_type: value })}
-                >
+                  onValueChange={(value) => setNewAlert({ ...newAlert, alert_type: value })}>
+
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {alertTypes.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
+                    {alertTypes.map((type) =>
+                    <SelectItem key={type.value} value={type.value}>
                         {type.label}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -757,24 +757,24 @@ const AlertSettings: React.FC = () => {
                   type="number"
                   value={newAlert.threshold_value}
                   onChange={(e) => setNewAlert({ ...newAlert, threshold_value: parseInt(e.target.value) || 0 })}
-                  placeholder="30"
-                />
+                  placeholder="30" />
+
               </div>
               <div className="space-y-2">
                 <Label htmlFor="edit_notification_method">Notification Method</Label>
                 <Select
                   value={newAlert.notification_method}
-                  onValueChange={(value) => setNewAlert({ ...newAlert, notification_method: value })}
-                >
+                  onValueChange={(value) => setNewAlert({ ...newAlert, notification_method: value })}>
+
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {notificationMethods.map((method) => (
-                      <SelectItem key={method.value} value={method.value}>
+                    {notificationMethods.map((method) =>
+                    <SelectItem key={method.value} value={method.value}>
                         {method.label}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -786,8 +786,8 @@ const AlertSettings: React.FC = () => {
                 id="edit_recipient_list"
                 value={newAlert.recipient_list}
                 onChange={(e) => setNewAlert({ ...newAlert, recipient_list: e.target.value })}
-                placeholder="+1234567890,admin@example.com"
-              />
+                placeholder="+1234567890,admin@example.com" />
+
             </div>
 
             <div className="space-y-2">
@@ -797,8 +797,8 @@ const AlertSettings: React.FC = () => {
                 value={newAlert.message_template}
                 onChange={(e) => setNewAlert({ ...newAlert, message_template: e.target.value })}
                 placeholder="Alert: {alert_name} - {details}"
-                rows={3}
-              />
+                rows={3} />
+
             </div>
 
             <div className="flex items-center space-x-4">
@@ -806,25 +806,25 @@ const AlertSettings: React.FC = () => {
                 <Switch
                   id="edit_is_enabled"
                   checked={newAlert.is_enabled}
-                  onCheckedChange={(checked) => setNewAlert({ ...newAlert, is_enabled: checked })}
-                />
+                  onCheckedChange={(checked) => setNewAlert({ ...newAlert, is_enabled: checked })} />
+
                 <Label htmlFor="edit_is_enabled">Enable Alert</Label>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="edit_frequency">Frequency</Label>
                 <Select
                   value={newAlert.frequency}
-                  onValueChange={(value) => setNewAlert({ ...newAlert, frequency: value })}
-                >
+                  onValueChange={(value) => setNewAlert({ ...newAlert, frequency: value })}>
+
                   <SelectTrigger className="w-32">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {frequencies.map((freq) => (
-                      <SelectItem key={freq.value} value={freq.value}>
+                    {frequencies.map((freq) =>
+                    <SelectItem key={freq.value} value={freq.value}>
                         {freq.label}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -837,8 +837,8 @@ const AlertSettings: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AlertSettings;

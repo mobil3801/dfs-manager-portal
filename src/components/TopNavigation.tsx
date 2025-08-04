@@ -137,16 +137,16 @@ const TopNavigation = () => {
 
   // Admin navigation items - comprehensive admin menu
   const adminNavItems = [
-    { name: 'Admin Dashboard', href: '/admin', icon: Shield },
-    { name: 'User Management', href: '/admin/users', icon: Users },
-    { name: 'Audit Logs', href: '/admin/audit', icon: Database },
-    { name: 'SMS Management', href: '/admin/sms', icon: MessageSquare },
-    { name: 'Alert Settings', href: '/admin/alerts', icon: AlertCircle },
-    { name: 'System Logs', href: '/admin/logs', icon: FileText },
-    { name: 'Database Monitor', href: '/admin/database', icon: Database },
-    { name: 'Security Settings', href: '/admin/security', icon: Shield },
-    { name: 'Site Management', href: '/admin/sites', icon: Building }
-  ];
+  { name: 'Admin Dashboard', href: '/admin', icon: Shield },
+  { name: 'User Management', href: '/admin/users', icon: Users },
+  { name: 'Audit Logs', href: '/admin/audit', icon: Database },
+  { name: 'SMS Management', href: '/admin/sms', icon: MessageSquare },
+  { name: 'Alert Settings', href: '/admin/alerts', icon: AlertCircle },
+  { name: 'System Logs', href: '/admin/logs', icon: FileText },
+  { name: 'Database Monitor', href: '/admin/database', icon: Database },
+  { name: 'Security Settings', href: '/admin/security', icon: Shield },
+  { name: 'Site Management', href: '/admin/sites', icon: Building }];
+
 
   const handleLogout = async () => {
     try {
@@ -272,18 +272,18 @@ const TopNavigation = () => {
         <DropdownMenuContent align="center" className="w-56">
           <DropdownMenuLabel>Admin Panel</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          {adminNavItems.map((item) => (
-            <DropdownMenuItem 
-              key={item.href}
-              onClick={() => navigate(item.href)}
-              className="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-gray-900 w-full">
+          {adminNavItems.map((item) =>
+          <DropdownMenuItem
+            key={item.href}
+            onClick={() => navigate(item.href)}
+            className="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-gray-900 w-full">
               <item.icon className="mr-2 h-4 w-4" />
               {item.name}
             </DropdownMenuItem>
-          ))}
+          )}
         </DropdownMenuContent>
-      </DropdownMenu>
-    );
+      </DropdownMenu>);
+
   };
 
   // Show loading state for navigation
