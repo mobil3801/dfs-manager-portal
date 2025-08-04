@@ -50,12 +50,12 @@ export const userProfileService = {
 
   updateUserProfile: async (userId: string, profileData: any) => {
     try {
-      const { data, error } = await supabase.
-      from('user_profiles').
-      update(profileData).
-      eq('user_id', userId).
-      select().
-      single();
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .update(profileData)
+        .eq('user_id', userId)
+        .select()
+        .single();
 
       if (error) throw error;
 
@@ -78,17 +78,17 @@ export const auditLogService = {
   newValues?: any) =>
   {
     try {
-      const { data, error } = await supabase.
-      from('audit_logs').
-      insert({
-        user_id: userId,
-        action,
-        resource_type: resourceType,
-        resource_id: resourceId,
-        old_values: oldValues,
-        new_values: newValues,
-        timestamp: new Date().toISOString()
-      });
+      const { data, error } = await supabase
+        .from('audit_logs')
+        .insert({
+          user_id: userId,
+          action,
+          resource_type: resourceType,
+          resource_id: resourceId,
+          old_values: oldValues,
+          new_values: newValues,
+          timestamp: new Date().toISOString()
+        });
 
       if (error) throw error;
 
@@ -105,11 +105,11 @@ export const auditLogService = {
 export const stationService = {
   getAllStations: async () => {
     try {
-      const { data, error } = await supabase.
-      from('stations').
-      select('*').
-      eq('is_active', true).
-      order('name');
+      const { data, error } = await supabase
+        .from('stations')
+        .select('*')
+        .eq('is_active', true)
+        .order('name');
 
       if (error) throw error;
 
@@ -122,11 +122,11 @@ export const stationService = {
 
   getStationById: async (stationId: string) => {
     try {
-      const { data, error } = await supabase.
-      from('stations').
-      select('*').
-      eq('id', stationId).
-      single();
+      const { data, error } = await supabase
+        .from('stations')
+        .select('*')
+        .eq('id', stationId)
+        .single();
 
       if (error) throw error;
 
@@ -165,10 +165,10 @@ export const databaseService = {
   // Generic insert
   insert: async (table: string, data: any) => {
     try {
-      const { data: result, error } = await supabase.
-      from(table).
-      insert(data).
-      select();
+      const { data: result, error } = await supabase
+        .from(table)
+        .insert(data)
+        .select();
 
       if (error) throw error;
 
@@ -182,11 +182,11 @@ export const databaseService = {
   // Generic update
   update: async (table: string, id: string, data: any) => {
     try {
-      const { data: result, error } = await supabase.
-      from(table).
-      update(data).
-      eq('id', id).
-      select();
+      const { data: result, error } = await supabase
+        .from(table)
+        .update(data)
+        .eq('id', id)
+        .select();
 
       if (error) throw error;
 
@@ -200,10 +200,10 @@ export const databaseService = {
   // Generic delete
   delete: async (table: string, id: string) => {
     try {
-      const { error } = await supabase.
-      from(table).
-      delete().
-      eq('id', id);
+      const { error } = await supabase
+        .from(table)
+        .delete()
+        .eq('id', id);
 
       if (error) throw error;
 

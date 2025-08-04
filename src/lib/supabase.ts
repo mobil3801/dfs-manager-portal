@@ -1,8 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = 'https://nehhjsiuhthflfwkfequ.supabase.co';
-// Use the anon key for client-side authentication
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5laGhqc2l1aHRoZmxmd2tmZXF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwMTMxNzUsImV4cCI6MjA2ODU4OTE3NX0.bpinWqPKNpyQTLfJV0w38j1rDCKuKYXWCxJ9b2EJfuI';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5laGhqc2l1aHRoZmxmd2tmZXF1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzAxMzE3NSwiZXhwIjoyMDY4NTg5MTc1fQ.7naT6l_oNH8VI5MaEKgJ19PoYw1EErv6-ftkEin12wE';
 
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
@@ -22,8 +21,8 @@ export const handleSupabaseError = (error: any) => {
 
 // Helper function for safe database operations
 export const safeSupabaseOperation = async <T,>(
-operation: () => Promise<{data: T;error: any;}>)
-: Promise<T> => {
+  operation: () => Promise<{data: T; error: any;}>
+): Promise<T> => {
   try {
     const { data, error } = await operation();
     handleSupabaseError(error);
