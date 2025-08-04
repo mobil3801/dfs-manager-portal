@@ -53,9 +53,9 @@ const DeliveryList: React.FC = () => {
     try {
       setLoading(true);
 
-      let query = supabase
-        .from('deliveries')
-        .select('*', { count: 'exact' });
+      let query = supabase.
+      from('deliveries').
+      select('*', { count: 'exact' });
 
       // Apply station filter
       if (stationFilter !== 'all') {
@@ -71,9 +71,9 @@ const DeliveryList: React.FC = () => {
       const from = (currentPage - 1) * pageSize;
       const to = from + pageSize - 1;
 
-      const { data, error, count } = await query
-        .order('delivery_date', { ascending: false })
-        .range(from, to);
+      const { data, error, count } = await query.
+      order('delivery_date', { ascending: false }).
+      range(from, to);
 
       if (error) throw error;
 
@@ -159,10 +159,10 @@ const DeliveryList: React.FC = () => {
     }
 
     try {
-      const { error } = await supabase
-        .from('deliveries')
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.
+      from('deliveries').
+      delete().
+      eq('id', id);
 
       if (error) throw error;
 

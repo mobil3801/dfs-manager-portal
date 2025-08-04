@@ -1,6 +1,8 @@
+import { supabase } from '@/lib/supabase';
+
 interface AuditLogEntry {
   event_type: string;
-  user_id?: number;
+  user_id?: string;
   username?: string;
   ip_address?: string;
   user_agent?: string;
@@ -18,7 +20,7 @@ interface AuditLogEntry {
 
 interface AuditLogFilters {
   event_type?: string;
-  user_id?: number;
+  user_id?: string;
   event_status?: string;
   risk_level?: string;
   date_from?: string;
@@ -28,7 +30,6 @@ interface AuditLogFilters {
 
 class AuditLoggerService {
   private static instance: AuditLoggerService;
-  private readonly tableId = 12706; // audit_logs table ID
 
   static getInstance(): AuditLoggerService {
     if (!AuditLoggerService.instance) {
@@ -38,7 +39,7 @@ class AuditLoggerService {
   }
 
   // Get browser and system information
-  private getBrowserInfo(): {ip_address: string;user_agent: string;session_id: string;} {
+  private getBrowserInfo(): {ip_address: string; user_agent: string; session_id: string;} {
     return {
       ip_address: 'Unknown', // In a real app, this would come from server
       user_agent: navigator.userAgent,
@@ -72,18 +73,18 @@ class AuditLoggerService {
 
   // Log an audit event
   async logEvent(
-  eventType: string,
-  status: 'Success' | 'Failed' | 'Blocked' | 'Suspicious',
-  details: {
-    user_id?: number;
-    username?: string;
-    resource_accessed?: string;
-    action_performed?: string;
-    failure_reason?: string;
-    station?: string;
-    additional_data?: any;
-  } = {})
-  : Promise<void> {
+    eventType: string,
+    status: 'Success' | 'Failed' | 'Blocked' | 'Suspicious',
+    details: {
+      user_id?: string;
+      username?: string;
+      resource_accessed?: string;
+      action_performed?: string;
+      failure_reason?: string;
+      station?: string;
+      additional_data?: any;
+    } = {}
+  ): Promise<void> {
     try {
       const browserInfo = this.getBrowserInfo();
       const timestamp = new Date().toISOString();
@@ -99,7 +100,10 @@ class AuditLoggerService {
         additional_data: JSON.stringify(details.additional_data || {})
       };
 
-      const { error } = await window.ezsite.apis.tableCreate(this.tableId, logEntry);
+      const { error } = await supabase
+        .from('audit_logs')
+        .insert([logEntry]);
+
       if (error) {
         console.error('Failed to create audit log:', error);
         // Don't throw error to avoid breaking main functionality
@@ -111,7 +115,7 @@ class AuditLoggerService {
   }
 
   // Convenience methods for common events
-  async logLogin(username: string, success: boolean, userId?: number, failureReason?: string): Promise<void> {
+  async logLogin(username: string, success: boolean, userId?: string, failureReason?: string): Promise<void> {
     await this.logEvent(
       'Login',
       success ? 'Success' : 'Failed',
@@ -125,7 +129,7 @@ class AuditLoggerService {
     );
   }
 
-  async logLogout(username: string, userId?: number): Promise<void> {
+  async logLogout(username: string, userId?: string): Promise<void> {
     await this.logEvent(
       'Logout',
       'Success',
@@ -162,12 +166,12 @@ class AuditLoggerService {
   }
 
   async logDataAccess(
-  resource: string,
-  action: string,
-  userId?: number,
-  username?: string,
-  station?: string)
-  : Promise<void> {
+    resource: string,
+    action: string,
+    userId?: string,
+    username?: string,
+    station?: string
+  ): Promise<void> {
     await this.logEvent(
       'Data Access',
       'Success',
@@ -182,13 +186,13 @@ class AuditLoggerService {
   }
 
   async logDataModification(
-  resource: string,
-  action: string,
-  userId?: number,
-  username?: string,
-  station?: string,
-  changes?: any)
-  : Promise<void> {
+    resource: string,
+    action: string,
+    userId?: string,
+    username?: string,
+    station?: string,
+    changes?: any
+  ): Promise<void> {
     await this.logEvent(
       'Data Modification',
       'Success',
@@ -204,10 +208,10 @@ class AuditLoggerService {
   }
 
   async logPermissionChange(
-  targetUserId: number,
-  changedBy: number,
-  changes: any)
-  : Promise<void> {
+    targetUserId: string,
+    changedBy: string,
+    changes: any
+  ): Promise<void> {
     await this.logEvent(
       'Permission Change',
       'Success',
@@ -221,10 +225,10 @@ class AuditLoggerService {
   }
 
   async logAdminAction(
-  action: string,
-  userId: number,
-  details?: any)
-  : Promise<void> {
+    action: string,
+    userId: string,
+    details?: any
+  ): Promise<void> {
     await this.logEvent(
       'Admin Action',
       'Success',
@@ -237,11 +241,11 @@ class AuditLoggerService {
   }
 
   async logSuspiciousActivity(
-  description: string,
-  userId?: number,
-  username?: string,
-  details?: any)
-  : Promise<void> {
+    description: string,
+    userId?: string,
+    username?: string,
+    details?: any
+  ): Promise<void> {
     await this.logEvent(
       'Suspicious Activity',
       'Suspicious',
@@ -257,78 +261,55 @@ class AuditLoggerService {
 
   // Retrieve audit logs with filtering and pagination
   async getLogs(
-  pageNo: number = 1,
-  pageSize: number = 50,
-  filters: AuditLogFilters = {})
-  : Promise<{data: any;error: string | null;}> {
+    pageNo: number = 1,
+    pageSize: number = 50,
+    filters: AuditLogFilters = {}
+  ): Promise<{data: any; error: string | null;}> {
     try {
-      const queryFilters = [];
+      let query = supabase
+        .from('audit_logs')
+        .select('*', { count: 'exact' });
 
+      // Apply filters
       if (filters.event_type) {
-        queryFilters.push({
-          name: 'event_type',
-          op: 'Equal',
-          value: filters.event_type
-        });
+        query = query.eq('event_type', filters.event_type);
       }
 
       if (filters.user_id) {
-        queryFilters.push({
-          name: 'user_id',
-          op: 'Equal',
-          value: filters.user_id
-        });
+        query = query.eq('user_id', filters.user_id);
       }
 
       if (filters.event_status) {
-        queryFilters.push({
-          name: 'event_status',
-          op: 'Equal',
-          value: filters.event_status
-        });
+        query = query.eq('event_status', filters.event_status);
       }
 
       if (filters.risk_level) {
-        queryFilters.push({
-          name: 'risk_level',
-          op: 'Equal',
-          value: filters.risk_level
-        });
+        query = query.eq('risk_level', filters.risk_level);
       }
 
       if (filters.station) {
-        queryFilters.push({
-          name: 'station',
-          op: 'Equal',
-          value: filters.station
-        });
+        query = query.eq('station', filters.station);
       }
 
       if (filters.date_from) {
-        queryFilters.push({
-          name: 'event_timestamp',
-          op: 'GreaterThanOrEqual',
-          value: filters.date_from
-        });
+        query = query.gte('event_timestamp', filters.date_from);
       }
 
       if (filters.date_to) {
-        queryFilters.push({
-          name: 'event_timestamp',
-          op: 'LessThanOrEqual',
-          value: filters.date_to
-        });
+        query = query.lte('event_timestamp', filters.date_to);
       }
 
-      const { data, error } = await window.ezsite.apis.tablePage(this.tableId, {
-        PageNo: pageNo,
-        PageSize: pageSize,
-        OrderByField: 'event_timestamp',
-        IsAsc: false,
-        Filters: queryFilters
-      });
+      // Apply pagination and ordering
+      const from = (pageNo - 1) * pageSize;
+      const to = from + pageSize - 1;
 
-      return { data, error };
+      const { data, error, count } = await query
+        .order('event_timestamp', { ascending: false })
+        .range(from, to);
+
+      if (error) throw error;
+
+      return { data: { List: data, TotalCount: count }, error: null };
     } catch (error) {
       return { data: null, error: error instanceof Error ? error.message : 'Unknown error' };
     }
@@ -339,8 +320,8 @@ class AuditLoggerService {
     totalEvents: number;
     failedAttempts: number;
     suspiciousActivity: number;
-    topEventTypes: Array<{type: string;count: number;}>;
-    riskDistribution: Array<{level: string;count: number;}>;
+    topEventTypes: Array<{type: string; count: number;}>;
+    riskDistribution: Array<{level: string; count: number;}>;
   }> {
     try {
       const endDate = new Date();
@@ -377,7 +358,7 @@ class AuditLoggerService {
       const totalEvents = logs.length;
       const failedAttempts = logs.filter((log: any) => log.event_status === 'Failed').length;
       const suspiciousActivity = logs.filter((log: any) =>
-      log.event_status === 'Suspicious' || log.risk_level === 'Critical'
+        log.event_status === 'Suspicious' || log.risk_level === 'Critical'
       ).length;
 
       // Event type distribution
@@ -389,13 +370,13 @@ class AuditLoggerService {
         riskLevelCounts[log.risk_level] = (riskLevelCounts[log.risk_level] || 0) + 1;
       });
 
-      const topEventTypes = Object.entries(eventTypeCounts).
-      map(([type, count]) => ({ type, count })).
-      sort((a, b) => b.count - a.count).
-      slice(0, 5);
+      const topEventTypes = Object.entries(eventTypeCounts)
+        .map(([type, count]) => ({ type, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
 
-      const riskDistribution = Object.entries(riskLevelCounts).
-      map(([level, count]) => ({ level, count }));
+      const riskDistribution = Object.entries(riskLevelCounts)
+        .map(([level, count]) => ({ level, count }));
 
       return {
         totalEvents,

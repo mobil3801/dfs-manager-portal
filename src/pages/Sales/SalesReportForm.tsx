@@ -154,11 +154,11 @@ export default function SalesReportForm() {
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('sales_reports')
-        .select('*')
-        .eq('id', id)
-        .single();
+      const { data, error } = await supabase.
+      from('sales_reports').
+      select('*').
+      eq('id', id).
+      single();
 
       if (error) {
         throw error;
@@ -259,12 +259,12 @@ export default function SalesReportForm() {
   const loadEmployees = async (station: string) => {
     setIsLoadingEmployees(true);
     try {
-      const { data, error } = await supabase
-        .from('employees')
-        .select('id, first_name, last_name, employee_id')
-        .eq('department', station)
-        .eq('is_active', true)
-        .order('first_name', { ascending: true });
+      const { data, error } = await supabase.
+      from('employees').
+      select('id, first_name, last_name, employee_id').
+      eq('department', station).
+      eq('is_active', true).
+      order('first_name', { ascending: true });
 
       if (error) throw error;
       setEmployees(data || []);
@@ -462,25 +462,25 @@ export default function SalesReportForm() {
       let result;
       if (isEditing) {
         // Update existing report
-        const { data, error } = await supabase
-          .from('sales_reports')
-          .update(submitData)
-          .eq('id', id)
-          .select()
-          .single();
+        const { data, error } = await supabase.
+        from('sales_reports').
+        update(submitData).
+        eq('id', id).
+        select().
+        single();
 
         if (error) throw error;
         result = { data };
       } else {
         // Create new report
-        const { data, error } = await supabase
-          .from('sales_reports')
-          .insert([{
-            ...submitData,
-            created_at: new Date().toISOString()
-          }])
-          .select()
-          .single();
+        const { data, error } = await supabase.
+        from('sales_reports').
+        insert([{
+          ...submitData,
+          created_at: new Date().toISOString()
+        }]).
+        select().
+        single();
 
         if (error) throw error;
         result = { data };

@@ -1,27 +1,35 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase, auth } from '@/lib/supabase';
 import AuditLoggerService from '@/services/auditLogger';
 
 const auditLogger = AuditLoggerService.getInstance();
 
 interface User {
-  ID: number;
-  Name: string;
-  Email: string;
-  CreateTime: string;
+  id: string;
+  email: string;
+  user_metadata?: {
+    name?: string;
+  };
+  created_at: string;
 }
 
 interface UserProfile {
-  id: number;
-  user_id: number;
+  id: string;
+  user_id: string;
   role: string;
-  station: string;
+  station_id?: string;
   employee_id: string;
   phone: string;
   hire_date: string;
   is_active: boolean;
   detailed_permissions: any;
-  profile_image_id?: number | null;
+  profile_image_url?: string;
+  stations?: {
+    name: string;
+    address: string;
+    phone: string;
+  };
 }
 
 interface AuthContextType {
@@ -45,16 +53,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Default guest user profile for non-authenticated users
 const GUEST_PROFILE: UserProfile = {
-  id: 0,
-  user_id: 0,
+  id: '0',
+  user_id: '0',
   role: 'Guest',
-  station: '',
+  station_id: '',
   employee_id: '',
   phone: '',
   hire_date: '',
   is_active: false,
-  detailed_permissions: {},
-  profile_image_id: null
+  detailed_permissions: {}
 };
 
 export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children }) => {
@@ -63,28 +70,83 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
   const [isLoading, setIsLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [loginInProgress, setLoginInProgress] = useState(false); // Prevent multiple concurrent logins
   const { toast } = useToast();
 
-  const isAuthenticated = !!user && !!userProfile;
+  const isAuthenticated = !!user && !!userProfile && userProfile.role !== 'Guest';
 
   const clearError = () => {
     setAuthError(null);
   };
 
-  const safeFetchUserData = async (showErrors = false): Promise<{success: boolean;userData?: User;}> => {
+  const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select(`
+          *,
+          stations(name, address, phone)
+        `)
+        .eq('user_id', userId)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // No profile found, create a default one
+          console.log('🔄 No profile found, creating default profile...');
+          
+          const defaultProfile = {
+            user_id: userId,
+            role: 'Employee',
+            employee_id: '',
+            phone: '',
+            hire_date: new Date().toISOString(),
+            is_active: true,
+            detailed_permissions: {}
+          };
+
+          const { data: newProfile, error: createError } = await supabase
+            .from('user_profiles')
+            .insert(defaultProfile)
+            .select(`
+              *,
+              stations(name, address, phone)
+            `)
+            .single();
+
+          if (createError) {
+            console.error('Failed to create default profile:', createError);
+            return null;
+          }
+
+          return newProfile;
+        }
+        throw error;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      return null;
+    }
+  };
+
+  const safeFetchUserData = async (showErrors = false): Promise<{success: boolean; userData?: User;}> => {
     try {
       console.log('🔄 Attempting to fetch user data...');
 
-      // Check if APIs are available
-      if (!window.ezsite?.apis) {
-        throw new Error('EZSite APIs not available');
+      const { data: { user: supabaseUser }, error } = await auth.getUser();
+
+      if (error) {
+        console.log('❌ Auth error:', error);
+        if (showErrors) {
+          setAuthError(`Authentication failed: ${error.message}`);
+        }
+        setUser(null);
+        setUserProfile(GUEST_PROFILE);
+        return { success: false };
       }
 
-      const userResponse = await window.ezsite.apis.getUserInfo();
-
-      // Handle response with no data (user not authenticated)
-      if (!userResponse.data) {
+      if (!supabaseUser) {
         console.log('👤 No user data - user not authenticated');
         setUser(null);
         setUserProfile(GUEST_PROFILE);
@@ -92,74 +154,22 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
         return { success: false };
       }
 
-      // Handle API errors
-      if (userResponse.error) {
-        console.log('❌ User info API error:', userResponse.error);
-        if (showErrors) {
-          setAuthError(`Authentication failed: ${userResponse.error}`);
-        }
-        setUser(null);
-        setUserProfile(GUEST_PROFILE);
-        return { success: false };
-      }
+      console.log('✅ User data fetched successfully:', supabaseUser);
+      setUser(supabaseUser);
 
-      console.log('✅ User data fetched successfully:', userResponse.data);
-      setUser(userResponse.data);
-
-      // Fetch user profile with retries
-      try {
-        console.log('🔄 Fetching user profile for user ID:', userResponse.data.ID);
-
-        const profileResponse = await window.ezsite.apis.tablePage(11725, {
-          PageNo: 1,
-          PageSize: 1,
-          Filters: [
-          { name: "user_id", op: "Equal", value: userResponse.data.ID }]
-
-        });
-
-        if (profileResponse.error) {
-          console.log('⚠️ Profile fetch error:', profileResponse.error);
-          // Use default profile for authenticated user without profile
-          setUserProfile({
-            id: 0,
-            user_id: userResponse.data.ID,
-            role: 'Employee',
-            station: 'MOBIL',
-            employee_id: '',
-            phone: '',
-            hire_date: new Date().toISOString(),
-            is_active: true,
-            detailed_permissions: {},
-            profile_image_id: null
-          });
-        } else if (profileResponse.data?.List?.length > 0) {
-          console.log('✅ User profile found:', profileResponse.data.List[0]);
-          setUserProfile(profileResponse.data.List[0]);
-        } else {
-          console.log('⚠️ No profile found, creating default profile');
-          // Create default profile for user without one
-          setUserProfile({
-            id: 0,
-            user_id: userResponse.data.ID,
-            role: 'Employee',
-            station: 'MOBIL',
-            employee_id: '',
-            phone: '',
-            hire_date: new Date().toISOString(),
-            is_active: true,
-            detailed_permissions: {},
-            profile_image_id: null
-          });
-        }
-      } catch (profileError) {
-        console.log('⚠️ Profile fetch failed, using default:', profileError);
-        // Use default profile if profile fetch fails
+      // Fetch user profile
+      const profile = await fetchUserProfile(supabaseUser.id);
+      
+      if (profile) {
+        console.log('✅ User profile found:', profile);
+        setUserProfile(profile);
+      } else {
+        console.log('⚠️ Using default profile');
         setUserProfile({
-          id: 0,
-          user_id: userResponse.data.ID,
+          id: '0',
+          user_id: supabaseUser.id,
           role: 'Employee',
-          station: 'MOBIL',
+          station_id: '',
           employee_id: '',
           phone: '',
           hire_date: new Date().toISOString(),
@@ -169,19 +179,16 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       }
 
       setAuthError(null);
-      return { success: true, userData: userResponse.data };
+      return { success: true, userData: supabaseUser };
 
     } catch (error) {
       console.error('❌ Error fetching user data:', error);
-
       const errorMessage = error instanceof Error ? error.message : String(error);
 
-      // Only show error for critical failures
       if (showErrors && !errorMessage.includes('not authenticated')) {
         setAuthError(`Failed to load user data: ${errorMessage}`);
       }
 
-      // Set guest state for any error
       setUser(null);
       setUserProfile(GUEST_PROFILE);
       return { success: false };
@@ -200,20 +207,19 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     setIsLoading(true);
 
     try {
-      // Wait for APIs to be available
-      let attempts = 0;
-      while (!window.ezsite?.apis && attempts < 30) {
-        console.log(`⏳ Waiting for EZSite APIs... (attempt ${attempts + 1})`);
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        attempts++;
+      // Check initial session
+      const { data: { session }, error } = await auth.getSession();
+      
+      if (error) {
+        console.error('Session error:', error);
       }
 
-      if (!window.ezsite?.apis) {
-        throw new Error('EZSite APIs failed to load');
+      if (session?.user) {
+        await safeFetchUserData(false);
+      } else {
+        setUser(null);
+        setUserProfile(GUEST_PROFILE);
       }
-
-      console.log('✅ EZSite APIs loaded, fetching user data...');
-      await safeFetchUserData(false);
 
     } catch (error) {
       console.error('❌ Auth initialization failed:', error);
@@ -229,62 +235,60 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
   useEffect(() => {
     initializeAuth();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = auth.onAuthStateChange(async (event, session) => {
+      console.log('🔄 Auth state change:', event);
+      
+      if (event === 'SIGNED_IN' && session?.user) {
+        setUser(session.user);
+        const profile = await fetchUserProfile(session.user.id);
+        if (profile) {
+          setUserProfile(profile);
+        }
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setUserProfile(GUEST_PROFILE);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Prevent multiple concurrent login attempts
-    if (loginInProgress) {
-      console.log('⏳ Login already in progress, ignoring duplicate request');
-      return false;
-    }
-
     try {
-      setLoginInProgress(true);
       setIsLoading(true);
-      setAuthError(null); // Clear any previous errors
+      setAuthError(null);
 
       console.log('🔑 Attempting login for:', email);
 
-      if (!window.ezsite?.apis) {
-        throw new Error('Authentication system not available');
-      }
+      const { data, error } = await auth.signIn(email, password);
 
-      // Small delay to prevent rapid successive calls
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      const response = await window.ezsite.apis.login({ email, password });
-
-      if (response.error) {
-        console.log('❌ Login API failed:', response.error);
-        await auditLogger.logLogin(email, false, undefined, response.error);
-        setAuthError(response.error);
+      if (error) {
+        console.log('❌ Login failed:', error);
+        await auditLogger.logLogin(email, false, undefined, error.message);
+        setAuthError(error.message);
         toast({
           title: "Login Failed",
-          description: response.error,
+          description: error.message,
           variant: "destructive"
         });
         return false;
       }
 
-      console.log('✅ Login API successful, fetching user data...');
-
-      // Add delay to ensure server state is updated
-      await new Promise((resolve) => setTimeout(resolve, 200));
-
-      const userDataResult = await safeFetchUserData(true);
-
-      if (userDataResult.success && userDataResult.userData) {
-        console.log('✅ User data fetched successfully after login');
-        await auditLogger.logLogin(email, true, userDataResult.userData.ID);
+      if (data.user) {
+        console.log('✅ Login successful');
+        await auditLogger.logLogin(email, true, data.user.id);
         toast({
           title: "Login Successful",
           description: "Welcome back!"
         });
         return true;
-      } else {
-        console.log('❌ Failed to fetch user data after successful login');
-        throw new Error('Failed to load user information after login');
       }
+
+      return false;
 
     } catch (error) {
       console.error('❌ Login error:', error);
@@ -299,7 +303,6 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       return false;
     } finally {
       setIsLoading(false);
-      setLoginInProgress(false);
     }
   };
 
@@ -309,11 +312,13 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
       // Log logout before clearing user data
       if (user) {
-        await auditLogger.logLogout(user.Email, user.ID);
+        await auditLogger.logLogout(user.email || '', user.id);
       }
 
-      if (window.ezsite?.apis) {
-        await window.ezsite.apis.logout();
+      const { error } = await auth.signOut();
+      
+      if (error) {
+        console.warn('Logout error (non-critical):', error);
       }
 
       setUser(null);
@@ -342,19 +347,15 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
       console.log('📝 Attempting registration for:', email);
 
-      if (!window.ezsite?.apis) {
-        throw new Error('Registration system not available');
-      }
+      const { data, error } = await auth.signUp(email, password, { name });
 
-      const response = await window.ezsite.apis.register({ email, password });
-
-      if (response.error) {
-        console.log('❌ Registration failed:', response.error);
-        await auditLogger.logRegistration(email, false, response.error);
-        setAuthError(response.error);
+      if (error) {
+        console.log('❌ Registration failed:', error);
+        await auditLogger.logRegistration(email, false, error.message);
+        setAuthError(error.message);
         toast({
           title: "Registration Failed",
-          description: response.error,
+          description: error.message,
           variant: "destructive"
         });
         return false;
@@ -399,11 +400,9 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       try {
         let permissions;
         if (typeof userProfile.detailed_permissions === 'string') {
-          // Only try to parse if it's a valid JSON string
           if (userProfile.detailed_permissions.trim().startsWith('{') || userProfile.detailed_permissions.trim().startsWith('[')) {
             permissions = JSON.parse(userProfile.detailed_permissions);
           } else {
-            // Invalid JSON string, skip detailed permissions
             permissions = {};
           }
         } else {
@@ -438,7 +437,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
   const isManager = (): boolean => {
     return userProfile?.role === 'Management' || userProfile?.role === 'Manager' ||
-    userProfile?.role === 'Administrator' || userProfile?.role === 'Admin';
+           userProfile?.role === 'Administrator' || userProfile?.role === 'Admin';
   };
 
   const value: AuthContextType = {

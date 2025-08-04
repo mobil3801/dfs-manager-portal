@@ -117,13 +117,13 @@ const DeliveryForm: React.FC = () => {
     try {
       // Note: This table might not exist in the current Supabase setup
       // You would need to create it first if needed
-      const { data, error } = await supabase
-        .from('after_delivery_reports')
-        .select('*')
-        .eq('delivery_record_id', deliveryId)
-        .single();
+      const { data, error } = await supabase.
+      from('after_delivery_reports').
+      select('*').
+      eq('delivery_record_id', deliveryId).
+      single();
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
+      if (error && error.code !== 'PGRST116') {// PGRST116 is "not found"
         throw error;
       }
 
@@ -142,11 +142,11 @@ const DeliveryForm: React.FC = () => {
   const loadDeliveryRecord = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('deliveries')
-        .select('*')
-        .eq('id', id)
-        .single();
+      const { data, error } = await supabase.
+      from('deliveries').
+      select('*').
+      eq('id', id).
+      single();
 
       if (error) throw error;
 
@@ -206,12 +206,12 @@ const DeliveryForm: React.FC = () => {
       let deliveryRecordId;
 
       if (id) {
-        const { data, error } = await supabase
-          .from('deliveries')
-          .update(submitData)
-          .eq('id', id)
-          .select()
-          .single();
+        const { data, error } = await supabase.
+        from('deliveries').
+        update(submitData).
+        eq('id', id).
+        select().
+        single();
 
         if (error) throw error;
         deliveryRecordId = id;
@@ -221,14 +221,14 @@ const DeliveryForm: React.FC = () => {
           description: "Delivery record updated successfully"
         });
       } else {
-        const { data, error } = await supabase
-          .from('deliveries')
-          .insert([{
-            ...submitData,
-            created_at: new Date().toISOString()
-          }])
-          .select()
-          .single();
+        const { data, error } = await supabase.
+        from('deliveries').
+        insert([{
+          ...submitData,
+          created_at: new Date().toISOString()
+        }]).
+        select().
+        single();
 
         if (error) throw error;
         deliveryRecordId = data.id;
@@ -254,28 +254,28 @@ const DeliveryForm: React.FC = () => {
         };
 
         // Check if after-delivery report already exists for this delivery
-        const { data: existingReport } = await supabase
-          .from('after_delivery_reports')
-          .select('id')
-          .eq('delivery_record_id', deliveryRecordId)
-          .single();
+        const { data: existingReport } = await supabase.
+        from('after_delivery_reports').
+        select('id').
+        eq('delivery_record_id', deliveryRecordId).
+        single();
 
         if (existingReport) {
           // Update existing report
-          const { error: afterError } = await supabase
-            .from('after_delivery_reports')
-            .update(afterDeliverySubmitData)
-            .eq('id', existingReport.id);
+          const { error: afterError } = await supabase.
+          from('after_delivery_reports').
+          update(afterDeliverySubmitData).
+          eq('id', existingReport.id);
 
           if (afterError) throw afterError;
         } else {
           // Create new report
-          const { error: afterError } = await supabase
-            .from('after_delivery_reports')
-            .insert([{
-              ...afterDeliverySubmitData,
-              created_at: new Date().toISOString()
-            }]);
+          const { error: afterError } = await supabase.
+          from('after_delivery_reports').
+          insert([{
+            ...afterDeliverySubmitData,
+            created_at: new Date().toISOString()
+          }]);
 
           if (afterError) throw afterError;
         }

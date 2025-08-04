@@ -86,9 +86,9 @@ const SalesReportList: React.FC = () => {
     try {
       setLoading(true);
 
-      let query = supabase
-        .from('sales_reports')
-        .select('*', { count: 'exact' });
+      let query = supabase.
+      from('sales_reports').
+      select('*', { count: 'exact' });
 
       // Add station filter based on selection
       if (selectedStation && selectedStation !== 'ALL_STATIONS' && selectedStation !== 'ALL') {
@@ -104,9 +104,9 @@ const SalesReportList: React.FC = () => {
       const from = (currentPage - 1) * pageSize;
       const to = from + pageSize - 1;
 
-      const { data, error, count } = await query
-        .order('report_date', { ascending: false })
-        .range(from, to);
+      const { data, error, count } = await query.
+      order('report_date', { ascending: false }).
+      range(from, to);
 
       if (error) throw error;
 
@@ -140,10 +140,10 @@ const SalesReportList: React.FC = () => {
     }
 
     try {
-      const { error } = await supabase
-        .from('sales_reports')
-        .delete()
-        .eq('id', reportId);
+      const { error } = await supabase.
+      from('sales_reports').
+      delete().
+      eq('id', reportId);
 
       if (error) throw error;
 
