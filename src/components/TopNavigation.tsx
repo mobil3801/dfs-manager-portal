@@ -29,7 +29,9 @@ import {
   MoreHorizontal,
   ClipboardList,
   Database,
-  MessageSquare } from
+  MessageSquare,
+  Activity,
+  Bell } from
 'lucide-react';
 
 const TopNavigation = () => {
@@ -139,15 +141,18 @@ const TopNavigation = () => {
 
   // Admin navigation items - comprehensive admin menu
   const adminNavItems = [
-  { name: 'Admin Dashboard', href: '/admin', icon: Shield },
+  { name: 'Admin Panel', href: '/admin/panel', icon: Shield },
   { name: 'User Management', href: '/admin/users', icon: Users },
+  { name: 'Role Management', href: '/admin/roles', icon: Shield },
   { name: 'Audit Logs', href: '/admin/audit', icon: Database },
   { name: 'SMS Management', href: '/admin/sms', icon: MessageSquare },
-  { name: 'Alert Settings', href: '/admin/alerts', icon: AlertCircle },
+  { name: 'Alert Settings', href: '/admin/alerts', icon: Bell },
   { name: 'System Logs', href: '/admin/logs', icon: FileText },
   { name: 'Database Monitor', href: '/admin/database', icon: Database },
   { name: 'Security Settings', href: '/admin/security', icon: Shield },
-  { name: 'Site Management', href: '/admin/sites', icon: Building }];
+  { name: 'Site Management', href: '/admin/sites', icon: Building },
+  { name: 'Performance Monitor', href: '/admin/performance', icon: Activity },
+  { name: 'Error Monitoring', href: '/admin/errors', icon: AlertCircle }];
 
 
   const handleLogout = async () => {

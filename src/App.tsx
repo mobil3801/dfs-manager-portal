@@ -43,6 +43,7 @@ const AppSettings = lazy(() => import('@/pages/Settings/AppSettings'));
 
 // Admin pages (lazy loaded)
 const AdminPanel = lazy(() => import('@/pages/Admin/AdminPanel'));
+const ComprehensiveAdminPanel = lazy(() => import('@/pages/Admin/ComprehensiveAdminPanel'));
 const UserManagement = lazy(() => import('@/pages/Admin/UserManagement'));
 const SiteManagement = lazy(() => import('@/pages/Admin/SiteManagement'));
 const SystemLogs = lazy(() => import('@/pages/Admin/SystemLogs'));
@@ -372,6 +373,11 @@ const AppRouter = () => {
                 <AdminPanel />
               </Suspense>
             } />
+            <Route path="admin/panel" element={
+            <Suspense fallback={<PageLoader />}>
+                <ComprehensiveAdminPanel />
+              </Suspense>
+            } />
             <Route path="admin/users" element={
             <Suspense fallback={<PageLoader />}>
                 <UserManagement />
@@ -438,6 +444,46 @@ const AppRouter = () => {
               </Suspense>
             } />
             <Route path="admin/setup" element={<AdminSetupPage />} />
+            <Route path="admin/errors" element={
+            <Suspense fallback={<PageLoader />}>
+                <div className="p-6">
+                  <h1 className="text-2xl font-bold mb-4">Error Monitoring</h1>
+                  <p className="text-gray-600">Error monitoring system coming soon...</p>
+                </div>
+              </Suspense>
+            } />
+            <Route path="admin/performance" element={
+            <Suspense fallback={<PageLoader />}>
+                <div className="p-6">
+                  <h1 className="text-2xl font-bold mb-4">Performance Monitor</h1>
+                  <p className="text-gray-600">Performance monitoring system coming soon...</p>
+                </div>
+              </Suspense>
+            } />
+            <Route path="admin/memory" element={
+            <Suspense fallback={<PageLoader />}>
+                <div className="p-6">
+                  <h1 className="text-2xl font-bold mb-4">Memory Monitoring</h1>
+                  <p className="text-gray-600">Memory monitoring system coming soon...</p>
+                </div>
+              </Suspense>
+            } />
+            <Route path="admin/development" element={
+            <Suspense fallback={<PageLoader />}>
+                <div className="p-6">
+                  <h1 className="text-2xl font-bold mb-4">Development Monitor</h1>
+                  <p className="text-gray-600">Development monitoring tools coming soon...</p>
+                </div>
+              </Suspense>
+            } />
+            <Route path="admin/analytics" element={
+            <Suspense fallback={<PageLoader />}>
+                <div className="p-6">
+                  <h1 className="text-2xl font-bold mb-4">Real-time Analytics</h1>
+                  <p className="text-gray-600">Analytics dashboard coming soon...</p>
+                </div>
+              </Suspense>
+            } />
           </Route>
           
           {/* 404 */}
