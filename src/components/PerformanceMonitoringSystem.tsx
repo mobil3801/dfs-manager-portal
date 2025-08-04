@@ -591,12 +591,6 @@ const PerformanceMonitoringSystem: React.FC = () => {
 
 
 
-
-
-
-
-
-
       // Layout shift not supported
     }return clsValue;}; /**
   * Get First Input Delay

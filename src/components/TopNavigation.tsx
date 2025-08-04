@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useSimpleAuth } from '@/contexts/SimpleAuthContext';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -31,7 +31,7 @@ import {
 'lucide-react';
 
 const TopNavigation = () => {
-  const { userProfile, signOut, isAdmin, isManager, isAuthenticated, isLoading, isInitialized } = useSimpleAuth();
+  const { userProfile, logout, isAdmin, isManager, isAuthenticated, isLoading, isInitialized } = useSupabaseAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -137,8 +137,8 @@ const TopNavigation = () => {
 
   // Add admin section if user is admin
   if (isAuthenticated && isAdmin()) {
-    primaryNavItems.push({
-      name: 'Admin',
+    secondaryNavItems.push({
+      name: 'Admin Panel',
       href: '/admin',
       icon: Shield,
       requiredRole: 'admin'
@@ -147,7 +147,7 @@ const TopNavigation = () => {
 
   const handleLogout = async () => {
     try {
-      await signOut();
+      await logout();
       navigate('/login');
     } catch (error) {
       console.error('Logout failed:', error);
@@ -332,14 +332,14 @@ const TopNavigation = () => {
                   <Button variant="ghost" className="flex items-center space-x-2 px-2 py-1.5 h-auto min-w-0 max-w-fit">
                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                       <span className="text-sm font-medium text-blue-700">
-                        {userProfile?.email?.charAt(0)?.toUpperCase() || 'U'}
+                        {userProfile?.user_id?.charAt(0)?.toUpperCase() || 'U'}
                       </span>
                     </div>
                     <div className="hidden xl:block text-left min-w-0 max-w-32">
                       <p className="text-sm font-medium text-gray-900 leading-none truncate">
                         {userProfile?.role || 'User'}
                       </p>
-                      <p className="text-xs text-gray-500 leading-none mt-0.5 truncate">{userProfile?.email}</p>
+                      <p className="text-xs text-gray-500 leading-none mt-0.5 truncate">{userProfile?.user_id}</p>
                     </div>
                     <ChevronDown className="h-3 w-3 text-gray-500 flex-shrink-0" />
                   </Button>
@@ -449,7 +449,7 @@ const TopNavigation = () => {
                     <p className="text-sm font-medium text-gray-900 truncate">
                       {userProfile?.role || 'User'}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">{userProfile?.email}</p>
+                    <p className="text-xs text-gray-500 truncate">{userProfile?.user_id}</p>
                   </div>
                 </div>
                 <Button

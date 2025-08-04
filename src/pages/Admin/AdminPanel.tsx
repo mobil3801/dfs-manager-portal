@@ -266,12 +266,6 @@ const AdminPanel = () => {
               icon={Shield}
               onClick={() => navigate('/admin/user-validation')} />
 
-            <QuickAdminAction
-              title="Role Management"
-              description="Assign and manage user roles with Supabase integration"
-              icon={Users}
-              onClick={() => navigate('/admin/role-management')} />
-
           </div>
         </TabsContent>
 
