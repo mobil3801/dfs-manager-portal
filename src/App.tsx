@@ -74,6 +74,7 @@ const DocumentSolutionPage = lazy(() => import('@/pages/DocumentSolutionPage'));
 const IDFileDebugPage = lazy(() => import('@/pages/IDFileDebugPage'));
 const IDDocumentSolutionPage = lazy(() => import('@/pages/IDDocumentSolutionPage'));
 const EmployeeTestPage = lazy(() => import('@/pages/EmployeeTestPage'));
+const TestProductsPage = lazy(() => import('@/pages/TestProductsPage'));
 
 import './App.css';
 
