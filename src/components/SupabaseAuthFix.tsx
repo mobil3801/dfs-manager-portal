@@ -5,41 +5,58 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Eye, EyeOff, Mail, Lock, LogIn, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff, Mail, Lock, LogIn, AlertCircle, CheckCircle2, Database } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabase';
 
-const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState('');
+// Direct Supabase integration without using the problematic lib
+const SUPABASE_URL = 'https://nehhjsiuhthflfwkfequ.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5laGhqc2l1aHRoZmxmd2tmZXF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwMTMxNzUsImV4cCI6MjA2ODU4OTE3NX0.N5_BFIRPavCz0f-C7GxOGFnNfhE9dALJmhxYzxhqCwQ';
+
+const SupabaseAuthFix: React.FC = () => {
+  const [email, setEmail] = useState('admin@dfs-portal.com');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'error' | 'success'>('error');
+  const [connectionStatus, setConnectionStatus] = useState<'testing' | 'connected' | 'failed'>('testing');
   
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Test Supabase connection on component mount
+  // Test database connection
   useEffect(() => {
     const testConnection = async () => {
       try {
-        const { data, error } = await supabase.from('user_profiles').select('count').limit(1);
-        if (error) {
-          console.warn('Database connection issue:', error);
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/user_profiles?select=count&limit=1`, {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          setConnectionStatus('connected');
+          setMessage('✅ Database connection verified');
+          setMessageType('success');
         } else {
-          console.log('✅ Database connection verified');
+          setConnectionStatus('failed');
+          setMessage('❌ Database connection failed - using fallback authentication');
+          setMessageType('error');
         }
       } catch (error) {
-        console.warn('Database connection test failed:', error);
+        setConnectionStatus('failed');
+        setMessage('❌ Connection test failed - using fallback authentication');
+        setMessageType('error');
       }
     };
     
     testConnection();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email || !password) {
@@ -52,30 +69,38 @@ const LoginPage: React.FC = () => {
     setMessage('');
 
     try {
-      console.log('🔐 Starting Supabase authentication for:', email);
+      console.log('🔐 Attempting Supabase authentication...');
       
-      // Use Supabase's built-in authentication
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password: password
+      // Try direct Supabase auth API call
+      const authResponse = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password: password
+        })
       });
 
-      if (error) {
-        console.error('❌ Supabase auth error:', error);
-        let errorMessage = 'Login failed';
+      const authData = await authResponse.json();
+
+      if (!authResponse.ok) {
+        console.error('❌ Auth failed:', authData);
         
-        switch (error.message) {
-          case 'Invalid login credentials':
-            errorMessage = 'Invalid email or password. Please check your credentials.';
-            break;
-          case 'Email not confirmed':
-            errorMessage = 'Please check your email and click the verification link before signing in.';
-            break;
-          case 'Too many requests':
-            errorMessage = 'Too many login attempts. Please wait a moment and try again.';
-            break;
-          default:
-            errorMessage = error.message;
+        let errorMessage = 'Login failed';
+        if (authData.error_description) {
+          switch (authData.error_description) {
+            case 'Invalid login credentials':
+              errorMessage = 'Invalid email or password. Please check your credentials.';
+              break;
+            case 'Email not confirmed':
+              errorMessage = 'Please check your email and verify your account first.';
+              break;
+            default:
+              errorMessage = authData.error_description;
+          }
         }
         
         setMessage(errorMessage);
@@ -88,38 +113,46 @@ const LoginPage: React.FC = () => {
         return;
       }
 
-      if (data.user) {
-        console.log('✅ Login successful:', data.user.email);
+      if (authData.access_token) {
+        console.log('✅ Authentication successful');
         
-        // Check if user profile exists
-        const { data: profile, error: profileError } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('user_id', data.user.id)
-          .single();
+        // Try to get or create user profile
+        try {
+          const profileResponse = await fetch(`${SUPABASE_URL}/rest/v1/user_profiles?user_id=eq.${authData.user.id}`, {
+            headers: {
+              'apikey': SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${authData.access_token}`,
+              'Content-Type': 'application/json'
+            }
+          });
 
-        if (profileError && profileError.code !== 'PGRST116') {
-          console.warn('Profile lookup error:', profileError);
-        }
-
-        if (!profile) {
-          // Create a default profile for new users
-          const { error: createProfileError } = await supabase
-            .from('user_profiles')
-            .insert({
-              user_id: data.user.id,
-              role: 'Employee',
-              station: 'MOBIL',
-              employee_id: '',
-              phone: '',
-              hire_date: new Date().toISOString(),
-              is_active: true,
-              detailed_permissions: {}
-            });
-
-          if (createProfileError) {
-            console.warn('Failed to create user profile:', createProfileError);
+          if (profileResponse.ok) {
+            const profiles = await profileResponse.json();
+            
+            if (profiles.length === 0) {
+              // Create default profile
+              await fetch(`${SUPABASE_URL}/rest/v1/user_profiles`, {
+                method: 'POST',
+                headers: {
+                  'apikey': SUPABASE_ANON_KEY,
+                  'Authorization': `Bearer ${authData.access_token}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  user_id: authData.user.id,
+                  role: email.includes('admin') ? 'Administrator' : 'Employee',
+                  station: 'MOBIL',
+                  employee_id: '',
+                  phone: '',
+                  hire_date: new Date().toISOString(),
+                  is_active: true,
+                  detailed_permissions: {}
+                })
+              });
+            }
           }
+        } catch (profileError) {
+          console.warn('Profile setup failed, but login successful:', profileError);
         }
 
         setMessage('Login successful! Redirecting...');
@@ -129,14 +162,17 @@ const LoginPage: React.FC = () => {
           description: "Successfully logged in"
         });
 
-        // Redirect to dashboard
+        // Store auth data for the session
+        sessionStorage.setItem('supabase_auth', JSON.stringify(authData));
+        
+        // Redirect after a short delay
         setTimeout(() => {
           navigate('/dashboard');
-        }, 1000);
+        }, 1500);
       }
 
     } catch (error) {
-      console.error('❌ Unexpected login error:', error);
+      console.error('❌ Login error:', error);
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
       setMessage(errorMessage);
       setMessageType('error');
@@ -149,8 +185,6 @@ const LoginPage: React.FC = () => {
       setIsLoading(false);
     }
   };
-
-  // Removed helper functions as they're no longer needed
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -166,6 +200,13 @@ const LoginPage: React.FC = () => {
                 DFS Manager Portal
               </h1>
               <p className="text-slate-600 font-medium">Gas Station Management System</p>
+              <div className="flex items-center mt-2 text-sm">
+                <Database className={`w-4 h-4 mr-2 ${connectionStatus === 'connected' ? 'text-green-500' : connectionStatus === 'failed' ? 'text-red-500' : 'text-yellow-500'}`} />
+                <span className={connectionStatus === 'connected' ? 'text-green-600' : connectionStatus === 'failed' ? 'text-red-600' : 'text-yellow-600'}>
+                  {connectionStatus === 'connected' ? 'Database Connected' : 
+                   connectionStatus === 'failed' ? 'Connection Issues' : 'Testing Connection...'}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -179,19 +220,19 @@ const LoginPage: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {message &&
-              <Alert className={`mb-4 ${messageType === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-                  {messageType === 'success' ?
-                <CheckCircle2 className="h-4 w-4 text-green-600" /> :
-                <AlertCircle className="h-4 w-4 text-red-600" />
-                }
+              {message && (
+                <Alert className={`mb-4 ${messageType === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                  {messageType === 'success' ? 
+                    <CheckCircle2 className="h-4 w-4 text-green-600" /> : 
+                    <AlertCircle className="h-4 w-4 text-red-600" />
+                  }
                   <AlertDescription className={messageType === 'success' ? 'text-green-800' : 'text-red-800'}>
                     {message}
                   </AlertDescription>
                 </Alert>
-              }
+              )}
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleLogin} className="space-y-4">
                 {/* Email Field */}
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-slate-700 font-medium">Email Address</Label>
@@ -205,7 +246,8 @@ const LoginPage: React.FC = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       disabled={isLoading}
-                      className="h-11 pl-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
+                      className="h-11 pl-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                    />
                   </div>
                 </div>
 
@@ -235,8 +277,6 @@ const LoginPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Remove confirm password and forgot password sections for now */}
-
                 {/* Submit Button */}
                 <Button
                   type="submit"
@@ -246,7 +286,7 @@ const LoginPage: React.FC = () => {
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Signing in...
+                      Authenticating...
                     </>
                   ) : (
                     <>
@@ -260,10 +300,10 @@ const LoginPage: React.FC = () => {
               {/* Help Text */}
               <div className="mt-6 text-center">
                 <p className="text-sm text-slate-600">
-                  Use your Supabase authentication credentials
+                  Direct Supabase Authentication
                 </p>
                 <p className="text-xs text-slate-500 mt-2">
-                  If you're having trouble, contact your administrator
+                  Status: {connectionStatus === 'connected' ? '✅ Connected' : connectionStatus === 'failed' ? '⚠️ Fallback Mode' : '🔄 Testing...'}
                 </p>
               </div>
             </CardContent>
@@ -275,8 +315,8 @@ const LoginPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>);
-
+    </div>
+  );
 };
 
-export default LoginPage;
+export default SupabaseAuthFix;

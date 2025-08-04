@@ -91,11 +91,11 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
   const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
     try {
       // Query the user_profiles table directly
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
+      const { data, error } = await supabase.
+      from('user_profiles').
+      select('*').
+      eq('user_id', userId).
+      single();
 
       if (error) {
         if (error.code === 'PGRST116') {
@@ -115,11 +115,11 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
             updated_at: new Date().toISOString()
           };
 
-          const { data: newProfile, error: createError } = await supabase
-            .from('user_profiles')
-            .insert(defaultProfile)
-            .select()
-            .single();
+          const { data: newProfile, error: createError } = await supabase.
+          from('user_profiles').
+          insert(defaultProfile).
+          select().
+          single();
 
           if (createError) {
             console.error('Failed to create user profile:', createError);

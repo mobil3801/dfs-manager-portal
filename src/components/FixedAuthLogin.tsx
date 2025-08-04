@@ -10,7 +10,7 @@ import { Logo } from '@/components/Logo';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
 
-const LoginPage: React.FC = () => {
+const FixedAuthLogin: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -39,7 +39,7 @@ const LoginPage: React.FC = () => {
     testConnection();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email || !password) {
@@ -150,8 +150,6 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  // Removed helper functions as they're no longer needed
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <div className="flex items-center justify-center p-4 min-h-screen">
@@ -166,6 +164,7 @@ const LoginPage: React.FC = () => {
                 DFS Manager Portal
               </h1>
               <p className="text-slate-600 font-medium">Gas Station Management System</p>
+              <p className="text-sm text-slate-500 mt-1">Powered by Supabase</p>
             </div>
           </div>
 
@@ -179,19 +178,19 @@ const LoginPage: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {message &&
-              <Alert className={`mb-4 ${messageType === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-                  {messageType === 'success' ?
-                <CheckCircle2 className="h-4 w-4 text-green-600" /> :
-                <AlertCircle className="h-4 w-4 text-red-600" />
-                }
+              {message && (
+                <Alert className={`mb-4 ${messageType === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                  {messageType === 'success' ? 
+                    <CheckCircle2 className="h-4 w-4 text-green-600" /> : 
+                    <AlertCircle className="h-4 w-4 text-red-600" />
+                  }
                   <AlertDescription className={messageType === 'success' ? 'text-green-800' : 'text-red-800'}>
                     {message}
                   </AlertDescription>
                 </Alert>
-              }
+              )}
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleLogin} className="space-y-4">
                 {/* Email Field */}
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-slate-700 font-medium">Email Address</Label>
@@ -205,7 +204,8 @@ const LoginPage: React.FC = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       disabled={isLoading}
-                      className="h-11 pl-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
+                      className="h-11 pl-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                    />
                   </div>
                 </div>
 
@@ -234,8 +234,6 @@ const LoginPage: React.FC = () => {
                     </button>
                   </div>
                 </div>
-
-                {/* Remove confirm password and forgot password sections for now */}
 
                 {/* Submit Button */}
                 <Button
@@ -275,8 +273,8 @@ const LoginPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>);
-
+    </div>
+  );
 };
 
-export default LoginPage;
+export default FixedAuthLogin;

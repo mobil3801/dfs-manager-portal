@@ -46,28 +46,28 @@ const AdminSetupHelper = () => {
 
       if (authData.user) {
         // Create admin profile
-        const { error: profileError } = await supabase
-          .from('user_profiles')
-          .insert({
-            user_id: authData.user.id,
-            email: email,
-            first_name: 'Administrator',
-            last_name: '',
-            user_role: 'Administrator',
-            permissions: {
-              admin: {
-                view: true,
-                create: true,
-                edit: true,
-                delete: true
-              }
-            },
-            station_access: {},
-            is_active: true,
-            phone: '',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          });
+        const { error: profileError } = await supabase.
+        from('user_profiles').
+        insert({
+          user_id: authData.user.id,
+          email: email,
+          first_name: 'Administrator',
+          last_name: '',
+          user_role: 'Administrator',
+          permissions: {
+            admin: {
+              view: true,
+              create: true,
+              edit: true,
+              delete: true
+            }
+          },
+          station_access: {},
+          is_active: true,
+          phone: '',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
 
         if (profileError) {
           console.error('Profile creation error:', profileError);
@@ -102,8 +102,8 @@ const AdminSetupHelper = () => {
           <CardTitle className="text-green-600">Admin Access Confirmed</CardTitle>
           <CardDescription>You have administrator privileges</CardDescription>
         </CardHeader>
-      </Card>
-    );
+      </Card>);
+
   }
 
   if (setupComplete) {
@@ -117,15 +117,15 @@ const AdminSetupHelper = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button 
-            onClick={() => window.location.href = '/login'} 
-            className="w-full"
-          >
+          <Button
+            onClick={() => window.location.href = '/login'}
+            className="w-full">
+
             Go to Login
           </Button>
         </CardContent>
-      </Card>
-    );
+      </Card>);
+
   }
 
   return (
@@ -153,8 +153,8 @@ const AdminSetupHelper = () => {
             placeholder="admin@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            disabled={isLoading}
-          />
+            disabled={isLoading} />
+
         </div>
 
         <div className="space-y-2">
@@ -165,27 +165,27 @@ const AdminSetupHelper = () => {
             placeholder="Enter a secure password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            disabled={isLoading}
-          />
+            disabled={isLoading} />
+
         </div>
 
-        <Button 
-          onClick={createAdminUser} 
+        <Button
+          onClick={createAdminUser}
           className="w-full"
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <>Creating Administrator...</>
-          ) : (
-            <>
+          disabled={isLoading}>
+
+          {isLoading ?
+          <>Creating Administrator...</> :
+
+          <>
               <UserPlus className="w-4 h-4 mr-2" />
               Create Administrator
             </>
-          )}
+          }
         </Button>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default AdminSetupHelper;

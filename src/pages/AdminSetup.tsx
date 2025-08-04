@@ -13,8 +13,8 @@ const AdminSetup: React.FC = () => {
         </div>
         <AdminSetupHelper />
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AdminSetup;

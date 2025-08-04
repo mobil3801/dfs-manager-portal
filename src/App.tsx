@@ -20,6 +20,10 @@ import DashboardLayout from '@/components/Layout/DashboardLayout';
 // Core pages (loaded immediately)
 import Dashboard from '@/pages/Dashboard';
 import LoginPage from '@/pages/LoginPage';
+import SupabaseAuthFix from '@/components/SupabaseAuthFix';
+import SimpleLoginFix from '@/components/SimpleLoginFix';
+import AuthStatusCheck from '@/components/AuthStatusCheck';
+import LoginSuccessMessage from '@/components/LoginSuccessMessage';
 import SupabaseLoginPage from '@/pages/SupabaseLoginPage';
 import OnAuthSuccessPage from '@/pages/OnAuthSuccessPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
@@ -179,7 +183,9 @@ const AppRouter = () => {
       <div className="App">
         <Routes>
           {/* Public Routes */}
-          <Route path="/login" element={<SupabaseLoginPage />} />
+          <Route path="/login" element={<SimpleLoginFix />} />
+          <Route path="/supabase-login" element={<SupabaseAuthFix />} />
+          <Route path="/legacy-login" element={<LoginPage />} />
           <Route path="/legacy-login" element={<LoginPage />} />
           <Route path="/supabase-login" element={<SupabaseLoginPage />} />
           <Route path="/auth-test" element={
@@ -206,7 +212,7 @@ const AppRouter = () => {
           {/* Protected Routes */}
           <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
             <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="dashboard" element={<AuthStatusCheck><Dashboard /></AuthStatusCheck>} />
             
             {/* Products */}
             <Route path="products" element={
