@@ -79,10 +79,10 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
   };
 
   const safeExecute = async <T,>(
-    operation: () => Promise<T>,
-    fallback: T,
-    errorContext: string
-  ): Promise<T> => {
+  operation: () => Promise<T>,
+  fallback: T,
+  errorContext: string)
+  : Promise<T> => {
     try {
       return await operation();
     } catch (error) {
@@ -93,14 +93,14 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
   const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
     return safeExecute(async () => {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select(`
+      const { data, error } = await supabase.
+      from('user_profiles').
+      select(`
           *,
           stations(name, address, phone)
-        `)
-        .eq('user_id', userId)
-        .single();
+        `).
+      eq('user_id', userId).
+      single();
 
       if (error) {
         if (error.code === 'PGRST116') {
@@ -117,14 +117,14 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
             detailed_permissions: {}
           };
 
-          const { data: newProfile, error: createError } = await supabase
-            .from('user_profiles')
-            .insert(defaultProfile)
-            .select(`
+          const { data: newProfile, error: createError } = await supabase.
+          from('user_profiles').
+          insert(defaultProfile).
+          select(`
               *,
               stations(name, address, phone)
-            `)
-            .single();
+            `).
+          single();
 
           if (createError) {
             console.error('Failed to create default profile:', createError);
@@ -140,7 +140,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     }, null, 'fetchUserProfile');
   };
 
-  const safeFetchUserData = async (showErrors = false): Promise<{success: boolean; userData?: User;}> => {
+  const safeFetchUserData = async (showErrors = false): Promise<{success: boolean;userData?: User;}> => {
     return safeExecute(async () => {
       console.log('🔄 Attempting to fetch user data...');
 
@@ -435,7 +435,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
   const isManager = (): boolean => {
     return userProfile?.role === 'Management' || userProfile?.role === 'Manager' ||
-           userProfile?.role === 'Administrator' || userProfile?.role === 'Admin';
+    userProfile?.role === 'Administrator' || userProfile?.role === 'Admin';
   };
 
   const value: AuthContextType = {

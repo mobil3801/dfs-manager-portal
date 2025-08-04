@@ -72,7 +72,7 @@ const SupabaseLoginPage: React.FC = () => {
       // Use Supabase auth for password reset
       const { auth } = await import('@/lib/supabase');
       const { error } = await auth.resetPassword(email);
-      
+
       if (error) {
         setMessage(error.message);
         setMessageType('error');
@@ -145,39 +145,39 @@ const SupabaseLoginPage: React.FC = () => {
 
   const getFormTitle = () => {
     switch (authMode) {
-      case 'login': return 'Welcome Back';
-      case 'register': return 'Create Account';
-      case 'forgot-password': return 'Reset Password';
-      default: return 'Sign In';
+      case 'login':return 'Welcome Back';
+      case 'register':return 'Create Account';
+      case 'forgot-password':return 'Reset Password';
+      default:return 'Sign In';
     }
   };
 
   const getFormDescription = () => {
     switch (authMode) {
-      case 'login': return 'Enter your credentials to access the portal';
-      case 'register': return 'Create a new account to get started';
-      case 'forgot-password': return 'Enter your email to receive a password reset link';
-      default: return '';
+      case 'login':return 'Enter your credentials to access the portal';
+      case 'register':return 'Create a new account to get started';
+      case 'forgot-password':return 'Enter your email to receive a password reset link';
+      default:return '';
     }
   };
 
   const getSubmitButtonText = () => {
     if (isLoading) return 'Please wait...';
     switch (authMode) {
-      case 'login': return 'Sign In';
-      case 'register': return 'Create Account';
-      case 'forgot-password': return 'Send Reset Link';
-      default: return 'Submit';
+      case 'login':return 'Sign In';
+      case 'register':return 'Create Account';
+      case 'forgot-password':return 'Send Reset Link';
+      default:return 'Submit';
     }
   };
 
   const getSubmitButtonIcon = () => {
     if (isLoading) return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
     switch (authMode) {
-      case 'login': return <LogIn className="mr-2 h-4 w-4" />;
-      case 'register': return <UserPlus className="mr-2 h-4 w-4" />;
-      case 'forgot-password': return <Mail className="mr-2 h-4 w-4" />;
-      default: return null;
+      case 'login':return <LogIn className="mr-2 h-4 w-4" />;
+      case 'register':return <UserPlus className="mr-2 h-4 w-4" />;
+      case 'forgot-password':return <Mail className="mr-2 h-4 w-4" />;
+      default:return null;
     }
   };
 
@@ -209,35 +209,35 @@ const SupabaseLoginPage: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {message && (
-                <Alert className={`mb-4 ${messageType === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-                  {messageType === 'success' ? 
-                    <CheckCircle2 className="h-4 w-4 text-green-600" /> : 
-                    <AlertCircle className="h-4 w-4 text-red-600" />
-                  }
+              {message &&
+              <Alert className={`mb-4 ${messageType === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                  {messageType === 'success' ?
+                <CheckCircle2 className="h-4 w-4 text-green-600" /> :
+                <AlertCircle className="h-4 w-4 text-red-600" />
+                }
                   <AlertDescription className={messageType === 'success' ? 'text-green-800' : 'text-red-800'}>
                     {message}
                   </AlertDescription>
                 </Alert>
-              )}
+              }
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Full Name Field (Register only) */}
-                {authMode === 'register' && (
-                  <div className="space-y-2">
+                {authMode === 'register' &&
+                <div className="space-y-2">
                     <Label htmlFor="fullName" className="text-slate-700 font-medium">Full Name</Label>
                     <Input
-                      id="fullName"
-                      type="text"
-                      placeholder="Enter your full name"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      required
-                      disabled={isLoading}
-                      className="h-11 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                    />
+                    id="fullName"
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                    disabled={isLoading}
+                    className="h-11 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
+
                   </div>
-                )}
+                }
 
                 {/* Email Field */}
                 <div className="space-y-2">
@@ -252,93 +252,93 @@ const SupabaseLoginPage: React.FC = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       disabled={isLoading}
-                      className="h-11 pl-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                    />
+                      className="h-11 pl-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
+
                   </div>
                 </div>
 
                 {/* Password Field */}
-                {authMode !== 'forgot-password' && (
-                  <div className="space-y-2">
+                {authMode !== 'forgot-password' &&
+                <div className="space-y-2">
                     <Label htmlFor="password" className="text-slate-700 font-medium">Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                       <Input
-                        id="password"
-                        type={showPassword ? 'text' : 'password'}
-                        placeholder="Enter your password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        disabled={isLoading}
-                        className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                      />
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      disabled={isLoading}
+                      className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
+
                       <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        disabled={isLoading}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:opacity-50"
-                      >
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      disabled={isLoading}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:opacity-50">
+
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                   </div>
-                )}
+                }
 
                 {/* Confirm Password Field */}
-                {authMode === 'register' && (
-                  <div className="space-y-2">
+                {authMode === 'register' &&
+                <div className="space-y-2">
                     <Label htmlFor="confirmPassword" className="text-slate-700 font-medium">Confirm Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                       <Input
-                        id="confirmPassword"
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        placeholder="Confirm your password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                        disabled={isLoading}
-                        className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                      />
+                      id="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      placeholder="Confirm your password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      disabled={isLoading}
+                      className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
+
                       <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        disabled={isLoading}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:opacity-50"
-                      >
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      disabled={isLoading}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:opacity-50">
+
                         {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                   </div>
-                )}
+                }
 
                 {/* Forgot Password Link */}
-                {authMode === 'login' && (
-                  <div className="text-right">
+                {authMode === 'login' &&
+                <div className="text-right">
                     <Button
-                      type="button"
-                      variant="link"
-                      className="p-0 h-auto text-blue-600 hover:text-blue-800 text-sm"
-                      disabled={isLoading}
-                      onClick={() => {
-                        setAuthMode('forgot-password');
-                        setPassword('');
-                        setMessage('');
-                        clearError();
-                      }}
-                    >
+                    type="button"
+                    variant="link"
+                    className="p-0 h-auto text-blue-600 hover:text-blue-800 text-sm"
+                    disabled={isLoading}
+                    onClick={() => {
+                      setAuthMode('forgot-password');
+                      setPassword('');
+                      setMessage('');
+                      clearError();
+                    }}>
+
                       Forgot password?
                     </Button>
                   </div>
-                )}
+                }
 
                 {/* Submit Button */}
                 <Button
                   type="submit"
                   className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                  disabled={isLoading}
-                >
+                  disabled={isLoading}>
+
                   {getSubmitButtonIcon()}
                   {getSubmitButtonText()}
                 </Button>
@@ -348,56 +348,56 @@ const SupabaseLoginPage: React.FC = () => {
               <div className="mt-6">
                 <Separator className="my-4" />
                 <div className="text-center space-y-2">
-                  {authMode === 'login' && (
-                    <div>
+                  {authMode === 'login' &&
+                  <div>
                       <span className="text-sm text-slate-600">Don't have an account? </span>
                       <Button
-                        variant="link"
-                        className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
-                        disabled={isLoading}
-                        onClick={() => {
-                          setAuthMode('register');
-                          clearForm();
-                        }}
-                      >
+                      variant="link"
+                      className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
+                      disabled={isLoading}
+                      onClick={() => {
+                        setAuthMode('register');
+                        clearForm();
+                      }}>
+
                         Sign up
                       </Button>
                     </div>
-                  )}
+                  }
 
-                  {authMode === 'register' && (
-                    <div>
+                  {authMode === 'register' &&
+                  <div>
                       <span className="text-sm text-slate-600">Already have an account? </span>
                       <Button
-                        variant="link"
-                        className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
-                        disabled={isLoading}
-                        onClick={() => {
-                          setAuthMode('login');
-                          clearForm();
-                        }}
-                      >
+                      variant="link"
+                      className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
+                      disabled={isLoading}
+                      onClick={() => {
+                        setAuthMode('login');
+                        clearForm();
+                      }}>
+
                         Sign in
                       </Button>
                     </div>
-                  )}
+                  }
 
-                  {authMode === 'forgot-password' && (
-                    <div>
+                  {authMode === 'forgot-password' &&
+                  <div>
                       <span className="text-sm text-slate-600">Remember your password? </span>
                       <Button
-                        variant="link"
-                        className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
-                        disabled={isLoading}
-                        onClick={() => {
-                          setAuthMode('login');
-                          clearForm();
-                        }}
-                      >
+                      variant="link"
+                      className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
+                      disabled={isLoading}
+                      onClick={() => {
+                        setAuthMode('login');
+                        clearForm();
+                      }}>
+
                         Sign in
                       </Button>
                     </div>
-                  )}
+                  }
                 </div>
               </div>
             </CardContent>
@@ -410,8 +410,8 @@ const SupabaseLoginPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SupabaseLoginPage;

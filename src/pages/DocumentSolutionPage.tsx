@@ -14,8 +14,8 @@ import {
   Download,
   Eye,
   ExternalLink,
-  Info } from
-'lucide-react';
+  Info
+} from 'lucide-react';
 import FixedDocumentViewer from '@/components/FixedDocumentViewer';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -168,30 +168,6 @@ const DocumentSolutionPage: React.FC = () => {
                 <p className="text-xs text-purple-600">Uses actual database files for testing</p>
               </div>
             </div>
-            
-            <div className="flex items-center space-x-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
-              <CheckCircle className="w-5 h-5 text-orange-500" />
-              <div>
-                <p className="text-sm font-medium text-orange-800">Auto Retry System</p>
-                <p className="text-xs text-orange-600">Automatic retry with manual override</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-3 p-3 bg-indigo-50 rounded-lg border border-indigo-200">
-              <CheckCircle className="w-5 h-5 text-indigo-500" />
-              <div>
-                <p className="text-sm font-medium text-indigo-800">Status Indicators</p>
-                <p className="text-xs text-indigo-600">Real-time loading and error states</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-3 p-3 bg-teal-50 rounded-lg border border-teal-200">
-              <CheckCircle className="w-5 h-5 text-teal-500" />
-              <div>
-                <p className="text-sm font-medium text-teal-800">Image Detection</p>
-                <p className="text-xs text-teal-600">Automatic image vs document detection</p>
-              </div>
-            </div>
           </div>
         </CardContent>
       </Card>
@@ -205,23 +181,23 @@ const DocumentSolutionPage: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {isLoading ?
-          <div className="flex items-center justify-center py-8">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
               <RefreshCw className="w-8 h-8 animate-spin text-blue-500" />
               <span className="ml-2 text-gray-600">Loading files from database...</span>
-            </div> :
-          realFiles.length > 0 ?
-          <div className="space-y-3">
-              {realFiles.map((file) =>
-            <div
-              key={file.id}
-              className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-              selectedFileId === file.store_file_id ?
-              'border-blue-500 bg-blue-50' :
-              'border-gray-200 hover:border-gray-300'}`
-              }
-              onClick={() => handleFileSelect(file.store_file_id)}>
-
+            </div>
+          ) : realFiles.length > 0 ? (
+            <div className="space-y-3">
+              {realFiles.map((file) => (
+                <div
+                  key={file.id}
+                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                    selectedFileId === file.store_file_id
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  onClick={() => handleFileSelect(file.store_file_id)}
+                >
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium">File ID: {file.store_file_id}</p>
@@ -233,38 +209,38 @@ const DocumentSolutionPage: React.FC = () => {
                       </p>
                     </div>
                     <div className="flex items-center space-x-2">
-                      {selectedFileId === file.store_file_id &&
-                  <Badge className="bg-blue-100 text-blue-800">Selected</Badge>
-                  }
+                      {selectedFileId === file.store_file_id && (
+                        <Badge className="bg-blue-100 text-blue-800">Selected</Badge>
+                      )}
                       <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      testFileUrl(file.store_file_id);
-                    }}>
-
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          testFileUrl(file.store_file_id);
+                        }}
+                      >
                         Test URL
                       </Button>
                     </div>
                   </div>
                 </div>
-            )}
-            </div> :
-
-          <Alert>
+              ))}
+            </div>
+          ) : (
+            <Alert>
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
                 No files found in the database. Upload some files to test the document viewer.
               </AlertDescription>
             </Alert>
-          }
+          )}
         </CardContent>
       </Card>
 
       {/* Fixed Document Viewer Demo */}
-      {selectedFileId &&
-      <Card>
+      {selectedFileId && (
+        <Card>
           <CardHeader>
             <CardTitle>Fixed Document Viewer Demo</CardTitle>
             <p className="text-sm text-gray-600">
@@ -277,12 +253,12 @@ const DocumentSolutionPage: React.FC = () => {
               <div>
                 <h4 className="font-medium mb-3">Document Viewer</h4>
                 <FixedDocumentViewer
-                fileId={selectedFileId}
-                label={`Document ${selectedFileId}`}
-                isAdminUser={true}
-                size="lg"
-                showRetryButton={true} />
-
+                  fileId={selectedFileId}
+                  label={`Document ${selectedFileId}`}
+                  isAdminUser={true}
+                  size="lg"
+                  showRetryButton={true}
+                />
               </div>
               
               {/* Status Information */}
@@ -301,30 +277,30 @@ const DocumentSolutionPage: React.FC = () => {
                   
                   <div className="space-y-2">
                     <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => testFileUrl(selectedFileId)}
-                    className="w-full">
-
+                      variant="outline"
+                      size="sm"
+                      onClick={() => testFileUrl(selectedFileId)}
+                      className="w-full"
+                    >
                       <ExternalLink className="w-4 h-4 mr-2" />
                       Test File URL Directly
                     </Button>
                     
                     <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      const file = realFiles.find((f) => f.store_file_id === selectedFileId);
-                      if (file) {
-                        navigator.clipboard.writeText(JSON.stringify(file, null, 2));
-                        toast({
-                          title: 'Copied',
-                          description: 'File data copied to clipboard'
-                        });
-                      }
-                    }}
-                    className="w-full">
-
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const file = realFiles.find((f) => f.store_file_id === selectedFileId);
+                        if (file) {
+                          navigator.clipboard.writeText(JSON.stringify(file, null, 2));
+                          toast({
+                            title: 'Copied',
+                            description: 'File data copied to clipboard'
+                          });
+                        }
+                      }}
+                      className="w-full"
+                    >
                       <FileText className="w-4 h-4 mr-2" />
                       Copy File Data
                     </Button>
@@ -334,7 +310,7 @@ const DocumentSolutionPage: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-      }
+      )}
 
       {/* Technical Details */}
       <Card>
@@ -346,7 +322,7 @@ const DocumentSolutionPage: React.FC = () => {
             <div>
               <h4 className="font-medium mb-3 text-green-700">✅ What's Fixed</h4>
               <ul className="text-sm text-gray-600 space-y-2">
-                <li>• <strong>ID Display:</strong> Shows "ID: {fileId}" instead of full URLs</li>
+                <li>• <strong>ID Display:</strong> Shows "ID: {selectedFileId}" instead of full URLs</li>
                 <li>• <strong>Error Messages:</strong> Clear, actionable error descriptions</li>
                 <li>• <strong>Retry Logic:</strong> Manual retry with attempt counter</li>
                 <li>• <strong>Loading States:</strong> Proper loading indicators</li>
@@ -382,8 +358,8 @@ const DocumentSolutionPage: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>);
-
+    </div>
+  );
 };
 
 export default DocumentSolutionPage;

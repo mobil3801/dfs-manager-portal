@@ -94,7 +94,7 @@ import DashboardLayout from '@/components/Layout/DashboardLayout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 // Safe component wrapper to catch any remaining initialization errors
-const SafeComponent: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const SafeComponent: React.FC<{children: React.ReactNode;}> = ({ children }) => {
   try {
     return <>{children}</>;
   } catch (error) {
@@ -113,13 +113,13 @@ const SafeComponent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           </p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
-          >
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+
             Refresh Page
           </button>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 };
 
@@ -158,7 +158,7 @@ function App() {
 
                   {/* Protected Routes */}
                   <Route path="/" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <HomePage />
                       </DashboardLayout>
@@ -166,7 +166,7 @@ function App() {
                   } />
                   
                   <Route path="/dashboard" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <Dashboard />
                       </DashboardLayout>
@@ -175,21 +175,21 @@ function App() {
 
                   {/* Products Routes */}
                   <Route path="/products" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <ProductList />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/products/new" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <ProductForm />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/products/:id/edit" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <ProductForm />
                       </DashboardLayout>
@@ -198,21 +198,21 @@ function App() {
 
                   {/* Sales Routes */}
                   <Route path="/sales" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <SalesReportList />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/sales/new" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <SalesReportForm />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/sales/:id/edit" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <SalesReportForm />
                       </DashboardLayout>
@@ -221,21 +221,21 @@ function App() {
 
                   {/* Employee Routes */}
                   <Route path="/employees" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <EmployeeList />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/employees/new" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <EmployeeForm />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/employees/:id/edit" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <EmployeeForm />
                       </DashboardLayout>
@@ -244,21 +244,21 @@ function App() {
 
                   {/* License Routes */}
                   <Route path="/licenses" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <LicenseList />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/licenses/new" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <LicenseForm />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/licenses/:id/edit" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <LicenseForm />
                       </DashboardLayout>
@@ -267,21 +267,21 @@ function App() {
 
                   {/* Delivery Routes */}
                   <Route path="/deliveries" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <DeliveryList />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/deliveries/new" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <DeliveryForm />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/deliveries/:id/edit" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <DeliveryForm />
                       </DashboardLayout>
@@ -290,21 +290,21 @@ function App() {
 
                   {/* Order Routes */}
                   <Route path="/orders" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <OrderList />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/orders/new" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <OrderForm />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/orders/:id/edit" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <OrderForm />
                       </DashboardLayout>
@@ -313,21 +313,21 @@ function App() {
 
                   {/* Vendor Routes */}
                   <Route path="/vendors" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <VendorList />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/vendors/new" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <VendorForm />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/vendors/:id/edit" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <VendorForm />
                       </DashboardLayout>
@@ -336,21 +336,21 @@ function App() {
 
                   {/* Salary Routes */}
                   <Route path="/salary" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <SalaryList />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/salary/new" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <SalaryForm />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/salary/:id/edit" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <SalaryForm />
                       </DashboardLayout>
@@ -359,140 +359,140 @@ function App() {
 
                   {/* Admin Routes */}
                   <Route path="/admin" element={
-                    <ProtectedRoute requireAdmin>
+                  <ProtectedRoute requireAdmin>
                       <DashboardLayout>
                         <AdminDashboard />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/admin/comprehensive" element={
-                    <ProtectedRoute requireAdmin>
+                  <ProtectedRoute requireAdmin>
                       <DashboardLayout>
                         <ComprehensiveAdminPanel />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/admin/users" element={
-                    <ProtectedRoute requireAdmin>
+                  <ProtectedRoute requireAdmin>
                       <DashboardLayout>
                         <UserManagement />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/admin/security" element={
-                    <ProtectedRoute requireAdmin>
+                  <ProtectedRoute requireAdmin>
                       <DashboardLayout>
                         <SecuritySettings />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/admin/logs" element={
-                    <ProtectedRoute requireAdmin>
+                  <ProtectedRoute requireAdmin>
                       <DashboardLayout>
                         <SystemLogs />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/admin/sms" element={
-                    <ProtectedRoute requireAdmin>
+                  <ProtectedRoute requireAdmin>
                       <DashboardLayout>
                         <SMSManagement />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/admin/site" element={
-                    <ProtectedRoute requireAdmin>
+                  <ProtectedRoute requireAdmin>
                       <DashboardLayout>
                         <SiteManagement />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/admin/errors" element={
-                    <ProtectedRoute requireAdmin>
+                  <ProtectedRoute requireAdmin>
                       <DashboardLayout>
                         <ErrorMonitoringPage />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/admin/memory" element={
-                    <ProtectedRoute requireAdmin>
+                  <ProtectedRoute requireAdmin>
                       <DashboardLayout>
                         <MemoryMonitoring />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/admin/navigation" element={
-                    <ProtectedRoute requireAdmin>
+                  <ProtectedRoute requireAdmin>
                       <DashboardLayout>
                         <NavigationDebugPage />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/admin/development" element={
-                    <ProtectedRoute requireAdmin>
+                  <ProtectedRoute requireAdmin>
                       <DashboardLayout>
                         <DevelopmentMonitoring />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/admin/database" element={
-                    <ProtectedRoute requireAdmin>
+                  <ProtectedRoute requireAdmin>
                       <DashboardLayout>
                         <DatabaseMonitoring />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/admin/audit" element={
-                    <ProtectedRoute requireAdmin>
+                  <ProtectedRoute requireAdmin>
                       <DashboardLayout>
                         <AuditMonitoring />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/admin/modules" element={
-                    <ProtectedRoute requireAdmin>
+                  <ProtectedRoute requireAdmin>
                       <DashboardLayout>
                         <ModuleAccessPage />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/admin/role-testing" element={
-                    <ProtectedRoute requireAdmin>
+                  <ProtectedRoute requireAdmin>
                       <DashboardLayout>
                         <RoleTestingPage />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/admin/validation-test" element={
-                    <ProtectedRoute requireAdmin>
+                  <ProtectedRoute requireAdmin>
                       <DashboardLayout>
                         <UserValidationTestPage />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/admin/roles" element={
-                    <ProtectedRoute requireAdmin>
+                  <ProtectedRoute requireAdmin>
                       <DashboardLayout>
                         <RoleManagementPage />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/admin/easy-roles" element={
-                    <ProtectedRoute requireAdmin>
+                  <ProtectedRoute requireAdmin>
                       <DashboardLayout>
                         <EasyRoleManagement />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/admin/alerts" element={
-                    <ProtectedRoute requireAdmin>
+                  <ProtectedRoute requireAdmin>
                       <DashboardLayout>
                         <AlertSettings />
                       </DashboardLayout>
                     </ProtectedRoute>
                   } />
                   <Route path="/admin/setup" element={
-                    <ProtectedRoute requireAdmin>
+                  <ProtectedRoute requireAdmin>
                       <DashboardLayout>
                         <AdminSetupPage />
                       </DashboardLayout>
@@ -501,7 +501,7 @@ function App() {
 
                   {/* Settings Routes */}
                   <Route path="/settings" element={
-                    <ProtectedRoute>
+                  <ProtectedRoute>
                       <DashboardLayout>
                         <AppSettings />
                       </DashboardLayout>
@@ -518,8 +518,8 @@ function App() {
           </ModuleAccessProvider>
         </AuthProvider>
       </SafeComponent>
-    </GlobalErrorBoundary>
-  );
+    </GlobalErrorBoundary>);
+
 }
 
 export default App;

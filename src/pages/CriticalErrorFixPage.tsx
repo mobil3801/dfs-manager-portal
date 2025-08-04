@@ -84,10 +84,10 @@ const CriticalErrorFixPage: React.FC = () => {
 
 
 
-        // Auth test failed
-      }setSystemStatus({ supabaseConnection: !connectionError, adminProfileExists: !!adminProfile && !adminError, moduleAccessCount: moduleCount, authenticationWorks: authTest, errors: { connectionError: connectionError?.message, adminError: adminError?.message } });toast({ title: "System Status Updated", description: "Check the results below", variant: "default"
-        });
 
+
+        // Auth test failed
+      }setSystemStatus({ supabaseConnection: !connectionError, adminProfileExists: !!adminProfile && !adminError, moduleAccessCount: moduleCount, authenticationWorks: authTest, errors: { connectionError: connectionError?.message, adminError: adminError?.message } });toast({ title: "System Status Updated", description: "Check the results below", variant: "default" });
     } catch (error: any) {
       setSystemStatus({
         supabaseConnection: false,

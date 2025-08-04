@@ -38,11 +38,11 @@ const safeInitialize = async () => {
         <App />
       </StrictMode>
     );
-    
+
     console.log('✅ React application initialized successfully');
   } catch (error) {
     console.error('❌ Failed to initialize React application:', error);
-    
+
     // Show fallback UI
     const container = document.getElementById('root');
     if (container) {

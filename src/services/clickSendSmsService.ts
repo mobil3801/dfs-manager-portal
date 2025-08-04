@@ -82,12 +82,12 @@ class ClickSendSMSService {
       }
 
       // Safely load configuration from the database without blocking
-      const { data, error } = await supabase
-        .from('sms_config')
-        .select('*')
-        .eq('is_enabled', true)
-        .order('id', { ascending: false })
-        .limit(1);
+      const { data, error } = await supabase.
+      from('sms_config').
+      select('*').
+      eq('is_enabled', true).
+      order('id', { ascending: false }).
+      limit(1);
 
       if (!error && data && data.length > 0) {
         const config = data[0];
@@ -108,10 +108,10 @@ class ClickSendSMSService {
   }
 
   private async safeApiCall<T>(
-    operation: () => Promise<T>,
-    fallback: T,
-    errorContext: string
-  ): Promise<T> {
+  operation: () => Promise<T>,
+  fallback: T,
+  errorContext: string)
+  : Promise<T> {
     if (!this.serviceEnabled) {
       console.warn(`SMS service disabled, skipping ${errorContext}`);
       return fallback;
@@ -267,11 +267,11 @@ class ClickSendSMSService {
   }
 
   private async processTemplate(templateId: number, placeholders: Record<string, string>): Promise<string> {
-    const { data, error } = await supabase
-      .from('sms_templates')
-      .select('*')
-      .eq('id', templateId)
-      .single();
+    const { data, error } = await supabase.
+    from('sms_templates').
+    select('*').
+    eq('id', templateId).
+    single();
 
     if (error) throw error;
 
@@ -291,12 +291,12 @@ class ClickSendSMSService {
 
   private async logSMSHistory(historyData: any): Promise<void> {
     try {
-      const { error } = await supabase
-        .from('sms_history')
-        .insert([{
-          ...historyData,
-          sent_by_user_id: 1 // This should be the current user ID
-        }]);
+      const { error } = await supabase.
+      from('sms_history').
+      insert([{
+        ...historyData,
+        sent_by_user_id: 1 // This should be the current user ID
+      }]);
 
       if (error) throw error;
     } catch (error) {
@@ -321,7 +321,7 @@ class ClickSendSMSService {
     return this.sendSMS(testMessage);
   }
 
-  async getServiceStatus(): Promise<{available: boolean; message: string; providers?: any; quota?: any;}> {
+  async getServiceStatus(): Promise<{available: boolean;message: string;providers?: any;quota?: any;}> {
     if (!this.serviceEnabled) {
       return {
         available: false,
@@ -403,14 +403,14 @@ class ClickSendSMSService {
     return [...this.testNumbers];
   }
 
-  async getDailyUsage(): Promise<{used: number; limit: number; percentage: number;}> {
+  async getDailyUsage(): Promise<{used: number;limit: number;percentage: number;}> {
     return this.safeApiCall(async () => {
-      const { data, error } = await supabase
-        .from('sms_config')
-        .select('*')
-        .eq('is_enabled', true)
-        .order('id', { ascending: false })
-        .limit(1);
+      const { data, error } = await supabase.
+      from('sms_config').
+      select('*').
+      eq('is_enabled', true).
+      order('id', { ascending: false }).
+      limit(1);
 
       if (error) throw error;
 
@@ -418,11 +418,11 @@ class ClickSendSMSService {
         const config = data[0];
         const today = new Date().toISOString().split('T')[0];
 
-        const { count } = await supabase
-          .from('sms_history')
-          .select('*', { count: 'exact', head: true })
-          .gte('sent_at', today)
-          .eq('status', 'Sent');
+        const { count } = await supabase.
+        from('sms_history').
+        select('*', { count: 'exact', head: true }).
+        gte('sent_at', today).
+        eq('status', 'Sent');
 
         const used = count || 0;
         const limit = config.daily_limit;
