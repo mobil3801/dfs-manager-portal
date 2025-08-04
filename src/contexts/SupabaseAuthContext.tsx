@@ -20,13 +20,18 @@ import { useToast } from '@/hooks/use-toast';
 interface UserProfile {
   id: string;
   user_id: string;
-  role: string;
-  station_id?: string;
-  employee_id?: string;
-  phone?: string;
-  hire_date?: string;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  user_role: string;
+  role?: string; // backward compatibility
+  permissions?: any;
+  station_access?: any;
   is_active: boolean;
-  detailed_permissions: any;
+  last_login?: string;
+  phone?: string;
+  created_at?: string;
+  updated_at?: string;
   profile_image_url?: string;
   stations?: {
     name: string;
@@ -61,13 +66,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const GUEST_PROFILE: UserProfile = {
   id: '0',
   user_id: '0',
+  email: '',
+  user_role: 'Guest',
   role: 'Guest',
-  station_id: undefined,
-  employee_id: '',
   phone: '',
-  hire_date: '',
   is_active: false,
-  detailed_permissions: {}
+  permissions: {}
 };
 
 export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => {
@@ -383,7 +387,7 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
   };
 
   const isAdmin = (): boolean => {
-    return userProfile?.role === 'Administrator' || userProfile?.role === 'Admin';
+    return userProfile?.role === 'Administrator' || userProfile?.role === 'Admin' || userProfile?.user_role === 'Administrator';
   };
 
   const isManager = (): boolean => {

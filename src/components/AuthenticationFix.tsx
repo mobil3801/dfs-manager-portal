@@ -24,12 +24,12 @@ const AuthenticationFix: React.FC = () => {
     // If user is not authenticated and on protected route, redirect to login
     if (!isAuthenticated && !user) {
       const publicPaths = [
-        '/login', '/supabase-login', '/legacy-login', 
-        '/onauthsuccess', '/resetpassword', 
-        '/admin-setup', '/admin-debug', '/admin-emergency-fix', 
-        '/admin-fix-success', '/critical-error-fix', '/emergency-fix'
-      ];
-      
+      '/login', '/supabase-login', '/legacy-login',
+      '/onauthsuccess', '/resetpassword',
+      '/admin-setup', '/admin-debug', '/admin-emergency-fix',
+      '/admin-fix-success', '/critical-error-fix', '/emergency-fix'];
+
+
       if (!publicPaths.includes(location.pathname)) {
         console.log('🔒 User not authenticated, redirecting to login from:', location.pathname);
         navigate('/login', { replace: true });

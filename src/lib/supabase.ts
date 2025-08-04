@@ -21,8 +21,8 @@ export const handleSupabaseError = (error: any) => {
 
 // Helper function for safe database operations
 export const safeSupabaseOperation = async <T,>(
-  operation: () => Promise<{data: T; error: any;}>
-): Promise<T> => {
+operation: () => Promise<{data: T;error: any;}>)
+: Promise<T> => {
   try {
     const { data, error } = await operation();
     handleSupabaseError(error);

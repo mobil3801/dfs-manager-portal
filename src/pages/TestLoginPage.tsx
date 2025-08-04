@@ -95,14 +95,14 @@ const TestLoginPage: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {message && (
-                <Alert className="mb-4 border-red-200 bg-red-50">
+              {message &&
+              <Alert className="mb-4 border-red-200 bg-red-50">
                   <AlertCircle className="h-4 w-4 text-red-600" />
                   <AlertDescription className="text-red-800">
                     {message}
                   </AlertDescription>
                 </Alert>
-              )}
+              }
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Email Field */}
@@ -118,8 +118,8 @@ const TestLoginPage: React.FC = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       disabled={isLoading}
-                      className="h-11 pl-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                    />
+                      className="h-11 pl-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
+
                   </div>
                 </div>
 
@@ -136,14 +136,14 @@ const TestLoginPage: React.FC = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       disabled={isLoading}
-                      className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                    />
+                      className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
+
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       disabled={isLoading}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:opacity-50"
-                    >
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:opacity-50">
+
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
@@ -160,13 +160,13 @@ const TestLoginPage: React.FC = () => {
                 <Button
                   type="submit"
                   className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <LogIn className="mr-2 h-4 w-4" />
-                  )}
+                  disabled={isLoading}>
+
+                  {isLoading ?
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> :
+
+                  <LogIn className="mr-2 h-4 w-4" />
+                  }
                   {isLoading ? 'Please wait...' : 'Sign In'}
                 </Button>
               </form>
@@ -179,8 +179,8 @@ const TestLoginPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default TestLoginPage;

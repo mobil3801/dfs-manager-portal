@@ -17,7 +17,7 @@ import {
   TestTube,
   Bell } from
 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import AccessDenied from '@/components/AccessDenied';
@@ -33,7 +33,7 @@ interface AdminStats {
 }
 
 const AdminPanel = () => {
-  const { isAdmin, user } = useAuth();
+  const { isAdmin, user } = useSupabaseAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [stats, setStats] = useState<AdminStats>({

@@ -12,20 +12,20 @@ const AuthTestComponent: React.FC = () => {
   const [password, setPassword] = useState('Admin123!');
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { login, isAuthenticated, user, userProfile } = useSupabaseAuth();
 
   const testDirectLogin = async () => {
     setIsLoading(true);
     setMessage('');
-    
+
     try {
       console.log('🔐 Testing direct Supabase login...');
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
-      
+
       if (error) {
         setMessage(`Direct login error: ${error.message}`);
         console.error('Direct login error:', error);
@@ -44,11 +44,11 @@ const AuthTestComponent: React.FC = () => {
   const testContextLogin = async () => {
     setIsLoading(true);
     setMessage('');
-    
+
     try {
       console.log('🔐 Testing context login...');
       const success = await login(email, password);
-      
+
       if (success) {
         setMessage('Context login success!');
         console.log('Context login success');
@@ -66,10 +66,10 @@ const AuthTestComponent: React.FC = () => {
 
   const testSession = async () => {
     setMessage('');
-    
+
     try {
       const { data: { session }, error } = await supabase.auth.getSession();
-      
+
       if (error) {
         setMessage(`Session error: ${error.message}`);
       } else if (session) {
@@ -95,8 +95,8 @@ const AuthTestComponent: React.FC = () => {
               id="email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+              onChange={(e) => setEmail(e.target.value)} />
+
           </div>
           
           <div className="space-y-2">
@@ -105,8 +105,8 @@ const AuthTestComponent: React.FC = () => {
               id="password"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+              onChange={(e) => setPassword(e.target.value)} />
+
           </div>
           
           <div className="flex gap-2 flex-wrap">
@@ -121,11 +121,11 @@ const AuthTestComponent: React.FC = () => {
             </Button>
           </div>
           
-          {message && (
-            <Alert>
+          {message &&
+          <Alert>
               <AlertDescription>{message}</AlertDescription>
             </Alert>
-          )}
+          }
           
           <div className="mt-4 p-4 bg-gray-50 rounded">
             <h3 className="font-semibold mb-2">Current Auth State:</h3>
@@ -135,8 +135,8 @@ const AuthTestComponent: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AuthTestComponent;

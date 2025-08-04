@@ -93,7 +93,7 @@ export const SimpleAuthProvider: React.FC<{children: ReactNode;}> = ({ children 
       if (email === 'admin@dfsmanager.com' && password === 'Admin123!') {
         setUser(TEST_ADMIN);
         setUserProfile(TEST_ADMIN_PROFILE);
-        
+
         toast({
           title: 'Login Successful',
           description: 'Welcome back!'
@@ -198,7 +198,7 @@ export const SimpleAuthProvider: React.FC<{children: ReactNode;}> = ({ children 
 
   const refreshUserData = async (): Promise<void> => {
     if (!user) return;
-    
+
     // No-op for simple auth
     console.log('RefreshUserData called');
   };
@@ -233,9 +233,9 @@ export const SimpleAuthProvider: React.FC<{children: ReactNode;}> = ({ children 
 
   const isManager = (): boolean => {
     return userProfile?.role === 'Management' ||
-           userProfile?.role === 'Manager' ||
-           userProfile?.role === 'Administrator' ||
-           userProfile?.role === 'Admin';
+    userProfile?.role === 'Manager' ||
+    userProfile?.role === 'Administrator' ||
+    userProfile?.role === 'Admin';
   };
 
   const value: AuthContextType = {
