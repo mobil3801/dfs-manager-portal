@@ -25,6 +25,8 @@ import AdminDebugPage from '@/pages/AdminDebugPage';
 import AdminEmergencyFixPage from '@/pages/AdminEmergencyFixPage';
 import AdminFixSuccessPage from '@/pages/AdminFixSuccessPage';
 import CriticalErrorFixPage from '@/pages/CriticalErrorFixPage';
+import FixedAdminSetup from '@/components/FixedAdminSetup';
+import EmergencyFixPage from '@/pages/EmergencyFixPage';
 
 // Lazy load feature pages
 const ProductList = lazy(() => import('@/pages/Products/ProductList'));
@@ -182,16 +184,9 @@ const AppRouter = () => {
           <Route path="/admin-emergency-fix" element={<AdminEmergencyFixPage />} />
           <Route path="/admin-fix-success" element={<AdminFixSuccessPage />} />
           <Route path="/critical-error-fix" element={<CriticalErrorFixPage />} />
-          <Route path="/upsert-fix" element={<Suspense fallback={<PageLoader />}><div className="min-h-screen p-6"><div dangerouslySetInnerHTML={{__html: `
-<div class="max-w-4xl mx-auto">
-<h1 class="text-3xl font-bold mb-4">Emergency Supabase Fix</h1>
-<div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-<p class="text-red-800"><strong>CRITICAL ERROR DETECTED:</strong> Supabase upsert function not working</p>
-</div>
-<button onclick="window.location.href='/critical-error-fix'" class="bg-red-600 text-white px-6 py-3 rounded-lg text-lg font-semibold hover:bg-red-700">
-🛠️ Fix Critical Errors Now
-</button>
-</div>`}} /></div></Suspense>} />
+          <Route path="/upsert-fix" element={<Suspense fallback={<PageLoader />}><FixedAdminSetup /></Suspense>} />
+          <Route path="/admin-fix" element={<Suspense fallback={<PageLoader />}><FixedAdminSetup /></Suspense>} />
+          <Route path="/emergency-fix" element={<EmergencyFixPage />} />
           <Route path="/admin-setup" element={<AdminSetupPage />} />
           <Route path="/admin-debug" element={<AdminDebugPage />} />
           <Route path="/admin-emergency-fix" element={<AdminEmergencyFixPage />} />

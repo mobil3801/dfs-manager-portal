@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle2, XCircle, Loader2, Database, User, Shield, Wifi } from 'lucide-react';
-import { supabase, auth } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 
 interface ConnectionTest {
@@ -224,7 +224,7 @@ const SupabaseConnectionTest: React.FC = () => {
   const testAuthentication = async () => {
     try {
       // Test with a dummy email - this should fail but show auth is working
-      const { error } = await auth.signIn('test@example.com', 'wrongpassword');
+      const { error } = await supabase.auth.signInWithPassword({ email: 'test@example.com', password: 'wrongpassword' });
 
       if (error) {
         toast({

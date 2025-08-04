@@ -22,11 +22,11 @@ const CriticalErrorFixPage: React.FC = () => {
   const { toast } = useToast();
 
   const addResult = (step: string, status: 'success' | 'error' | 'warning', message: string) => {
-    setFixResults((prev) => [...prev, { 
-      step, 
-      status, 
-      message, 
-      timestamp: new Date().toLocaleTimeString() 
+    setFixResults((prev) => [...prev, {
+      step,
+      status,
+      message,
+      timestamp: new Date().toLocaleTimeString()
     }]);
   };
 
@@ -34,25 +34,25 @@ const CriticalErrorFixPage: React.FC = () => {
     setIsTesting(true);
     try {
       // Test 1: Supabase Connection
-      const { data: connectionTest, error: connectionError } = await supabase
-        .from('user_profiles')
-        .select('count')
-        .limit(1);
+      const { data: connectionTest, error: connectionError } = await supabase.
+      from('user_profiles').
+      select('count').
+      limit(1);
 
       // Test 2: Admin Profile Exists
-      const { data: adminProfile, error: adminError } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('email', 'admin@dfs-portal.com')
-        .single();
+      const { data: adminProfile, error: adminError } = await supabase.
+      from('user_profiles').
+      select('*').
+      eq('email', 'admin@dfs-portal.com').
+      single();
 
       // Test 3: Module Access
       let moduleCount = 0;
       if (adminProfile) {
-        const { data: modules } = await supabase
-          .from('module_access')
-          .select('count')
-          .eq('user_id', adminProfile.user_id);
+        const { data: modules } = await supabase.
+        from('module_access').
+        select('count').
+        eq('user_id', adminProfile.user_id);
         moduleCount = modules?.length || 0;
       }
 
@@ -68,10 +68,10 @@ const CriticalErrorFixPage: React.FC = () => {
           await supabase.auth.signOut();
         }
       } catch (e) {
-        // Auth test failed
-      }
 
-      setSystemStatus({
+
+        // Auth test failed
+      }setSystemStatus({
         supabaseConnection: !connectionError,
         adminProfileExists: !!adminProfile && !adminError,
         moduleAccessCount: moduleCount,
@@ -117,16 +117,16 @@ const CriticalErrorFixPage: React.FC = () => {
 
       // Step 1: Test Supabase Connection
       addResult('connection', 'success', '🔗 Testing Supabase connection...');
-      const { data: connectionTest, error: connectionError } = await supabase
-        .from('user_profiles')
-        .select('count')
-        .limit(1);
+      const { data: connectionTest, error: connectionError } = await supabase.
+      from('user_profiles').
+      select('count').
+      limit(1);
 
       if (connectionError) {
         addResult('connection', 'error', `❌ Supabase connection failed: ${connectionError.message}`);
         throw new Error('Cannot connect to Supabase');
       }
-      
+
       addResult('connection', 'success', '✅ Supabase connection successful');
 
       // Step 2: Generate/Use Admin User ID
@@ -135,7 +135,7 @@ const CriticalErrorFixPage: React.FC = () => {
 
       // Step 3: Create/Update Admin Profile
       addResult('profile', 'success', '👤 Creating/updating admin profile...');
-      
+
       const profileData = {
         id: adminUserId,
         user_id: adminUserId,
@@ -157,17 +157,17 @@ const CriticalErrorFixPage: React.FC = () => {
         updated_at: new Date().toISOString()
       };
 
-      const { data: profileResult, error: profileError } = await supabase
-        .from('user_profiles')
-        .upsert(profileData, { onConflict: 'email' });
+      const { data: profileResult, error: profileError } = await supabase.
+      from('user_profiles').
+      upsert(profileData, { onConflict: 'email' });
 
       if (profileError) {
         addResult('profile', 'warning', `⚠️ Profile upsert issue: ${profileError.message}`);
         // Try insert instead
-        const { error: insertError } = await supabase
-          .from('user_profiles')
-          .insert(profileData);
-        
+        const { error: insertError } = await supabase.
+        from('user_profiles').
+        insert(profileData);
+
         if (insertError && !insertError.message.includes('duplicate')) {
           addResult('profile', 'error', `❌ Profile creation failed: ${insertError.message}`);
         } else {
@@ -181,17 +181,17 @@ const CriticalErrorFixPage: React.FC = () => {
       addResult('modules', 'success', '🔑 Setting up module access...');
 
       // Clear existing module access
-      await supabase
-        .from('module_access')
-        .delete()
-        .eq('user_id', adminUserId);
+      await supabase.
+      from('module_access').
+      delete().
+      eq('user_id', adminUserId);
 
       const modules = [
-        'Dashboard', 'Products', 'Sales', 'Employees', 'Deliveries',
-        'Licenses', 'Orders', 'Vendors', 'Salary', 'Admin Panel',
-        'User Management', 'Role Management', 'SMS Management',
-        'System Settings', 'Audit Logs', 'Station Management'
-      ];
+      'Dashboard', 'Products', 'Sales', 'Employees', 'Deliveries',
+      'Licenses', 'Orders', 'Vendors', 'Salary', 'Admin Panel',
+      'User Management', 'Role Management', 'SMS Management',
+      'System Settings', 'Audit Logs', 'Station Management'];
+
 
       let moduleSuccessCount = 0;
       for (const module of modules) {
@@ -210,9 +210,9 @@ const CriticalErrorFixPage: React.FC = () => {
           updated_at: new Date().toISOString()
         };
 
-        const { error: moduleError } = await supabase
-          .from('module_access')
-          .insert(moduleData);
+        const { error: moduleError } = await supabase.
+        from('module_access').
+        insert(moduleData);
 
         if (!moduleError) {
           moduleSuccessCount++;
@@ -223,7 +223,7 @@ const CriticalErrorFixPage: React.FC = () => {
 
       // Step 5: Create Auth User
       addResult('auth', 'success', '🔐 Creating authentication user...');
-      
+
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: 'admin@dfs-portal.com',
         password: 'Admin123!@#',
@@ -244,7 +244,7 @@ const CriticalErrorFixPage: React.FC = () => {
 
       // Step 6: Test Login
       addResult('test', 'success', '🧪 Testing admin login...');
-      
+
       const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
         email: 'admin@dfs-portal.com',
         password: 'Admin123!@#'
@@ -290,17 +290,17 @@ const CriticalErrorFixPage: React.FC = () => {
   };
 
   const getStatusIcon = (status: boolean) => {
-    return status ? 
-      <CheckCircle2 className="w-5 h-5 text-green-600" /> : 
-      <XCircle className="w-5 h-5 text-red-600" />;
+    return status ?
+    <CheckCircle2 className="w-5 h-5 text-green-600" /> :
+    <XCircle className="w-5 h-5 text-red-600" />;
   };
 
   const getStatusBadge = (status: boolean) => {
     return (
       <Badge variant={status ? "default" : "destructive"}>
         {status ? "OK" : "ISSUE"}
-      </Badge>
-    );
+      </Badge>);
+
   };
 
   const getResultIcon = (status: 'success' | 'error' | 'warning') => {
@@ -329,11 +329,11 @@ const CriticalErrorFixPage: React.FC = () => {
     testSystemStatus();
   }, []);
 
-  const allIssuesFixed = systemStatus && 
-    systemStatus.supabaseConnection && 
-    systemStatus.adminProfileExists && 
-    systemStatus.moduleAccessCount > 0 &&
-    systemStatus.authenticationWorks;
+  const allIssuesFixed = systemStatus &&
+  systemStatus.supabaseConnection &&
+  systemStatus.adminProfileExists &&
+  systemStatus.moduleAccessCount > 0 &&
+  systemStatus.authenticationWorks;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
@@ -363,30 +363,30 @@ const CriticalErrorFixPage: React.FC = () => {
                 disabled={isTesting}
                 variant="outline"
                 size="sm"
-                className="ml-auto"
-              >
-                {isTesting ? (
-                  <>
+                className="ml-auto">
+
+                {isTesting ?
+                <>
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
                     Testing...
-                  </>
-                ) : (
-                  <>
+                  </> :
+
+                <>
                     <RefreshCw className="w-4 h-4 mr-2" />
                     Refresh Status
                   </>
-                )}
+                }
               </Button>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {isTesting ? (
-              <div className="flex items-center justify-center py-8">
+            {isTesting ?
+            <div className="flex items-center justify-center py-8">
                 <Loader2 className="w-6 h-6 animate-spin mr-2" />
                 Running system diagnostics...
-              </div>
-            ) : systemStatus ? (
-              <>
+              </div> :
+            systemStatus ?
+            <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-3">
@@ -446,23 +446,23 @@ const CriticalErrorFixPage: React.FC = () => {
                 </div>
 
                 {/* Overall Status */}
-                {allIssuesFixed ? (
-                  <Alert>
+                {allIssuesFixed ?
+              <Alert>
                     <CheckCircle2 className="h-4 w-4" />
                     <AlertDescription>
                       <strong>✅ ALL SYSTEMS OPERATIONAL!</strong> All critical issues have been resolved.
                     </AlertDescription>
-                  </Alert>
-                ) : (
-                  <Alert variant="destructive">
+                  </Alert> :
+
+              <Alert variant="destructive">
                     <AlertTriangle className="h-4 w-4" />
                     <AlertDescription>
                       <strong>❌ CRITICAL ISSUES DETECTED!</strong> System requires immediate fixing.
                     </AlertDescription>
                   </Alert>
-                )}
-              </>
-            ) : null}
+              }
+              </> :
+            null}
           </CardContent>
         </Card>
 
@@ -481,18 +481,18 @@ const CriticalErrorFixPage: React.FC = () => {
               onClick={fixCriticalErrors}
               disabled={isFixing}
               className="w-full bg-red-600 hover:bg-red-700 text-white text-lg py-3"
-              size="lg"
-            >
-              {isFixing ? (
-                <>
+              size="lg">
+
+              {isFixing ?
+              <>
                   <Loader2 className="w-5 h-5 animate-spin mr-2" />
                   Fixing Critical Errors...
-                </>
-              ) : (
-                <>
+                </> :
+
+              <>
                   🛠️🔥 FIX ALL CRITICAL ERRORS NOW!
                 </>
-              )}
+              }
             </Button>
 
             {/* Quick Actions */}
@@ -500,8 +500,8 @@ const CriticalErrorFixPage: React.FC = () => {
               <Button
                 onClick={() => window.location.href = '/login'}
                 variant="outline"
-                className="flex items-center gap-2"
-              >
+                className="flex items-center gap-2">
+
                 <Shield className="w-4 h-4" />
                 Go to Login Page
               </Button>
@@ -509,8 +509,8 @@ const CriticalErrorFixPage: React.FC = () => {
               <Button
                 onClick={() => window.location.href = '/dashboard'}
                 variant="outline"
-                className="flex items-center gap-2"
-              >
+                className="flex items-center gap-2">
+
                 <Database className="w-4 h-4" />
                 Go to Dashboard
               </Button>
@@ -549,18 +549,18 @@ const CriticalErrorFixPage: React.FC = () => {
         </Card>
 
         {/* Fix Results */}
-        {fixResults.length > 0 && (
-          <Card>
+        {fixResults.length > 0 &&
+        <Card>
             <CardHeader>
               <CardTitle>Fix Progress & Results</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2 max-h-96 overflow-y-auto">
-                {fixResults.map((result, index) => (
-                  <div
-                    key={index}
-                    className={`p-3 rounded-lg border ${getResultBgColor(result.status)}`}
-                  >
+                {fixResults.map((result, index) =>
+              <div
+                key={index}
+                className={`p-3 rounded-lg border ${getResultBgColor(result.status)}`}>
+
                     <div className="flex items-start gap-2">
                       {getResultIcon(result.status)}
                       <div className="flex-1">
@@ -572,34 +572,34 @@ const CriticalErrorFixPage: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                ))}
+              )}
               </div>
             </CardContent>
           </Card>
-        )}
+        }
 
         {/* Error Details */}
-        {systemStatus?.errors && (
-          <Card>
+        {systemStatus?.errors &&
+        <Card>
             <CardHeader>
               <CardTitle className="text-red-600">Error Details</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2 font-mono text-sm">
-                {Object.entries(systemStatus.errors).map(([key, value]) => (
-                  value && (
-                    <div key={key} className="p-2 bg-red-50 rounded border border-red-200">
+                {Object.entries(systemStatus.errors).map(([key, value]) =>
+              value &&
+              <div key={key} className="p-2 bg-red-50 rounded border border-red-200">
                       <strong>{key}:</strong> {value as string}
                     </div>
-                  )
-                ))}
+
+              )}
               </div>
             </CardContent>
           </Card>
-        )}
+        }
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default CriticalErrorFixPage;
