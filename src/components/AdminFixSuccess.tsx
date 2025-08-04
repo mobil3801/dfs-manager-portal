@@ -15,21 +15,21 @@ const AdminFixSuccess: React.FC = () => {
     setVerifying(true);
     try {
       // Check if admin profile exists
-      const { data: profiles, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('email', 'admin@dfs-portal.com');
+      const { data: profiles, error } = await supabase.
+      from('user_profiles').
+      select('*').
+      eq('email', 'admin@dfs-portal.com');
 
       if (error) throw error;
 
       if (profiles && profiles.length > 0) {
         // Check module access
-        const { data: modules } = await supabase
-          .from('module_access')
-          .select('*')
-          .eq('user_id', profiles[0].user_id);
+        const { data: modules } = await supabase.
+        from('module_access').
+        select('*').
+        eq('user_id', profiles[0].user_id);
 
-        if (modules && modules.length >= 10) { // Should have multiple modules
+        if (modules && modules.length >= 10) {// Should have multiple modules
           setVerified(true);
           toast({
             title: "✅ Fix Verified!",
@@ -136,35 +136,35 @@ const AdminFixSuccess: React.FC = () => {
       </Card>
 
       <div className="space-y-3">
-        <Button 
+        <Button
           onClick={goToLogin}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg py-6"
-        >
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg py-6">
+
           <Key className="w-5 h-5 mr-2" />
           Go to Login Page
           <ArrowRight className="w-5 h-5 ml-2" />
         </Button>
 
-        <Button 
+        <Button
           onClick={goToAdminPanel}
           variant="outline"
-          className="w-full"
-        >
+          className="w-full">
+
           <Database className="w-4 h-4 mr-2" />
           Access Admin Panel
         </Button>
       </div>
 
-      {verified && (
-        <Alert className="border-green-200 bg-green-50">
+      {verified &&
+      <Alert className="border-green-200 bg-green-50">
           <CheckCircle2 className="h-4 w-4 text-green-600" />
           <AlertDescription className="text-green-800">
             ✅ <strong>Verification Complete:</strong> All admin access components are working correctly.
           </AlertDescription>
         </Alert>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default AdminFixSuccess;

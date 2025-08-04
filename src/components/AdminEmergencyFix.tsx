@@ -29,7 +29,7 @@ const AdminEmergencyFix: React.FC = () => {
         .from('user_profiles')
         .select('*')
         .eq('email', 'admin@dfs-portal.com');
-      
+
       const adminExists = profiles && profiles.length > 0;
 
       const profileExists = adminExists;
@@ -37,15 +37,15 @@ const AdminEmergencyFix: React.FC = () => {
       // Check admin role and module access
       let adminRole = false;
       let moduleAccess = false;
-      
-      if (profileExists && userProfiles[0]) {
-        adminRole = userProfiles[0].role === 'Administrator';
-        
+
+      if (profileExists && profiles[0]) {
+        adminRole = profiles[0].role === 'Administrator';
+
         const { data: modules } = await supabase
           .from('module_access')
           .select('*')
-          .eq('user_id', userProfiles[0].user_id);
-        
+          .eq('user_id', profiles[0].user_id);
+
         moduleAccess = modules && modules.length > 0;
       }
 
@@ -76,7 +76,7 @@ const AdminEmergencyFix: React.FC = () => {
       // Step 1: Create/ensure auth user exists
       results.push('🔄 Creating admin authentication user...');
       setFixResults([...results]);
-      
+
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: 'admin@dfs-portal.com',
         password: 'Admin123!@#',
@@ -98,7 +98,7 @@ const AdminEmergencyFix: React.FC = () => {
 
       // Step 2: Get current user or generate ID
       let adminUserId = signUpData?.user?.id;
-      
+
       if (!adminUserId) {
         // Check if profile exists and get user_id
         const { data: existingProfiles } = await supabase
@@ -106,7 +106,7 @@ const AdminEmergencyFix: React.FC = () => {
           .select('user_id')
           .eq('email', 'admin@dfs-portal.com')
           .limit(1);
-        
+
         if (existingProfiles && existingProfiles.length > 0) {
           adminUserId = existingProfiles[0].user_id;
         } else {
@@ -152,11 +152,11 @@ const AdminEmergencyFix: React.FC = () => {
       setFixResults([...results]);
 
       const modules = [
-        'Dashboard', 'Products', 'Sales', 'Employees', 'Deliveries', 
-        'Licenses', 'Orders', 'Vendors', 'Salary', 'Admin Panel',
-        'User Management', 'Role Management', 'SMS Management', 
-        'System Settings', 'Audit Logs', 'Station Management'
-      ];
+      'Dashboard', 'Products', 'Sales', 'Employees', 'Deliveries',
+      'Licenses', 'Orders', 'Vendors', 'Salary', 'Admin Panel',
+      'User Management', 'Role Management', 'SMS Management',
+      'System Settings', 'Audit Logs', 'Station Management'];
+
 
       for (const module of modules) {
         await supabase
@@ -200,7 +200,7 @@ const AdminEmergencyFix: React.FC = () => {
       console.error('Fix error:', error);
       results.push(`❌ Error: ${error.message}`);
       setFixResults([...results]);
-      
+
       toast({
         title: "Fix Failed",
         description: error.message,
@@ -242,26 +242,26 @@ const AdminEmergencyFix: React.FC = () => {
   }, []);
 
   const getStatusIcon = (status: boolean) => {
-    return status ? (
-      <CheckCircle2 className="w-5 h-5 text-green-600" />
-    ) : (
-      <XCircle className="w-5 h-5 text-red-600" />
-    );
+    return status ?
+    <CheckCircle2 className="w-5 h-5 text-green-600" /> :
+
+    <XCircle className="w-5 h-5 text-red-600" />;
+
   };
 
   const getStatusBadge = (status: boolean) => {
     return (
       <Badge variant={status ? "default" : "destructive"}>
         {status ? "OK" : "ISSUE"}
-      </Badge>
-    );
+      </Badge>);
+
   };
 
-  const allIssuesFixed = diagnostic && 
-    diagnostic.authUser && 
-    diagnostic.userProfile && 
-    diagnostic.adminRole && 
-    diagnostic.moduleAccess;
+  const allIssuesFixed = diagnostic &&
+  diagnostic.authUser &&
+  diagnostic.userProfile &&
+  diagnostic.adminRole &&
+  diagnostic.moduleAccess;
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
@@ -271,14 +271,14 @@ const AdminEmergencyFix: React.FC = () => {
       </div>
 
       {/* Error Alert */}
-      {!allIssuesFixed && (
-        <Alert variant="destructive">
+      {!allIssuesFixed &&
+      <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
             <strong>Failed to set up admin access:</strong> Critical issues detected that need immediate fixing.
           </AlertDescription>
         </Alert>
-      )}
+      }
 
       {/* System Diagnostic Results */}
       <Card>
@@ -289,13 +289,13 @@ const AdminEmergencyFix: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {isDiagnosing ? (
-            <div className="flex items-center justify-center py-8">
+          {isDiagnosing ?
+          <div className="flex items-center justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin mr-2" />
               Running diagnostic...
-            </div>
-          ) : diagnostic ? (
-            <>
+            </div> :
+          diagnostic ?
+          <>
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center gap-3">
                   <UserCheck className="w-5 h-5 text-red-600" />
@@ -351,27 +351,27 @@ const AdminEmergencyFix: React.FC = () => {
                   {getStatusBadge(diagnostic.moduleAccess)}
                 </div>
               </div>
-            </>
-          ) : null}
+            </> :
+          null}
 
           {/* Status Alert */}
-          {diagnostic && !allIssuesFixed && (
-            <Alert variant="destructive">
+          {diagnostic && !allIssuesFixed &&
+          <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
                 <strong>❌ BROKEN!</strong> Admin access has critical issues that need immediate fixing.
               </AlertDescription>
             </Alert>
-          )}
+          }
 
-          {diagnostic && allIssuesFixed && (
-            <Alert>
+          {diagnostic && allIssuesFixed &&
+          <Alert>
               <CheckCircle2 className="h-4 w-4" />
               <AlertDescription>
                 <strong>✅ ALL GOOD!</strong> Admin access is working correctly.
               </AlertDescription>
             </Alert>
-          )}
+          }
         </CardContent>
       </Card>
 
@@ -407,45 +407,45 @@ const AdminEmergencyFix: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Button 
+          <Button
             onClick={fixAdminAccess}
             disabled={isFixing}
             className="w-full bg-red-600 hover:bg-red-700 text-white"
-            size="lg"
-          >
-            {isFixing ? (
-              <>
+            size="lg">
+
+            {isFixing ?
+            <>
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
                 Fixing Admin Access...
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 🛡️🔥 FIX ADMIN ACCESS NOW!
               </>
-            )}
+            }
           </Button>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Button 
+            <Button
               onClick={testAdminLogin}
               variant="outline"
-              className="flex items-center gap-2"
-            >
+              className="flex items-center gap-2">
+
               <Shield className="w-4 h-4" />
               Test Admin Login
             </Button>
 
-            <Button 
+            <Button
               onClick={runDiagnostic}
               disabled={isDiagnosing}
               variant="outline"
-              className="flex items-center gap-2"
-            >
-              {isDiagnosing ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Database className="w-4 h-4" />
-              )}
+              className="flex items-center gap-2">
+
+              {isDiagnosing ?
+              <Loader2 className="w-4 h-4 animate-spin" /> :
+
+              <Database className="w-4 h-4" />
+              }
               Refresh Diagnostic
             </Button>
           </div>
@@ -453,24 +453,24 @@ const AdminEmergencyFix: React.FC = () => {
       </Card>
 
       {/* Fix Results */}
-      {fixResults.length > 0 && (
-        <Card>
+      {fixResults.length > 0 &&
+      <Card>
           <CardHeader>
             <CardTitle>Fix Progress</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2 font-mono text-sm">
-              {fixResults.map((result, index) => (
-                <div key={index} className="p-2 bg-gray-50 rounded">
+              {fixResults.map((result, index) =>
+            <div key={index} className="p-2 bg-gray-50 rounded">
                   {result}
                 </div>
-              ))}
+            )}
             </div>
           </CardContent>
         </Card>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default AdminEmergencyFix;

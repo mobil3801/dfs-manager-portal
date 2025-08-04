@@ -350,6 +350,70 @@ class InsertBuilder {
   }
 }
 
+class UpsertBuilder {
+  private client: SimpleSupabaseClient;
+  private table: string;
+  private values: any;
+  private selectFields = '*';
+  private onConflict?: string;
+
+  constructor(client: SimpleSupabaseClient, table: string, values: any, options?: { onConflict?: string }) {
+    this.client = client;
+    this.table = table;
+    this.values = values;
+    this.onConflict = options?.onConflict;
+  }
+
+  select(fields = '*') {
+    this.selectFields = fields;
+    return this;
+  }
+
+  single() {
+    return this;
+  }
+
+  async execute() {
+    try {
+      const headers: Record<string, string> = {
+        ...(this.client as any).getHeaders(true),
+        'Prefer': 'return=representation'
+      };
+
+      // Add resolution preference for conflicts
+      if (this.onConflict) {
+        headers['Prefer'] += `,resolution=merge-duplicates`;
+      }
+
+      const response = await fetch(`${this.client.supabaseUrl}/rest/v1/${this.table}`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(Array.isArray(this.values) ? this.values : [this.values])
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { data: null, error: data };
+      }
+
+      // For single() calls or single item upserts, return the first item
+      if (!Array.isArray(this.values) && Array.isArray(data)) {
+        return { data: data[0] || null, error: null };
+      }
+
+      return { data, error: null };
+    } catch (error: any) {
+      return { data: null, error: { message: error.message } };
+    }
+  }
+
+  // Make UpsertBuilder thenable so it can be awaited directly
+  then(onFulfilled?: (value: any) => any, onRejected?: (reason: any) => any) {
+    return this.execute().then(onFulfilled, onRejected);
+  }
+}
+
 class QueryBuilder {
   private client: SimpleSupabaseClient;
   private table: string;
@@ -522,6 +586,11 @@ class QueryBuilder {
     } catch (error: any) {
       return { error: { message: error.message } };
     }
+  }
+
+  // Upsert method (insert or update)
+  upsert(values: any, options?: { onConflict?: string }) {
+    return new UpsertBuilder(this.client, this.table, values, options);
   }
 }
 

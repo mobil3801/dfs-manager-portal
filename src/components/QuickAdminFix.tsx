@@ -36,7 +36,7 @@ const QuickAdminFix: React.FC = () => {
           email: 'admin@dfs-portal.com',
           first_name: 'System',
           last_name: 'Administrator',
-          'user role': 'Administrator',
+          role: 'Administrator',
           permissions: {
             all_modules: true,
             system_admin: true,
@@ -71,11 +71,11 @@ const QuickAdminFix: React.FC = () => {
         .eq('user_id', adminUserId);
 
       const modules = [
-        'Dashboard', 'Products', 'Sales', 'Employees', 'Deliveries', 
-        'Licenses', 'Orders', 'Vendors', 'Salary', 'Admin Panel',
-        'User Management', 'Role Management', 'SMS Management', 
-        'System Settings', 'Audit Logs', 'Station Management'
-      ];
+      'Dashboard', 'Products', 'Sales', 'Employees', 'Deliveries',
+      'Licenses', 'Orders', 'Vendors', 'Salary', 'Admin Panel',
+      'User Management', 'Role Management', 'SMS Management',
+      'System Settings', 'Audit Logs', 'Station Management'];
+
 
       for (const module of modules) {
         const { error: moduleError } = await supabase
@@ -124,14 +124,14 @@ const QuickAdminFix: React.FC = () => {
       } else {
         results.push('✅ Authentication user created/verified');
       }
-      
+
       setFixResults([...results]);
 
       results.push('🎉 ADMIN ACCESS EMERGENCY FIX COMPLETED!');
       results.push('📧 Email: admin@dfs-portal.com');
       results.push('🔑 Password: Admin123!@#');
       results.push('⚠️ CHANGE PASSWORD AFTER FIRST LOGIN!');
-      
+
       setFixResults([...results]);
       setIsFixed(true);
 
@@ -145,7 +145,7 @@ const QuickAdminFix: React.FC = () => {
       console.error('Emergency fix error:', error);
       results.push(`❌ CRITICAL ERROR: ${error.message}`);
       setFixResults([...results]);
-      
+
       toast({
         title: "Emergency Fix Failed",
         description: error.message,
@@ -201,32 +201,32 @@ const QuickAdminFix: React.FC = () => {
           <CardTitle className="text-red-600">🔥 Emergency Actions</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Button 
+          <Button
             onClick={quickFix}
             disabled={isFixing}
-            className="w-full bg-red-600 hover:bg-red-700 text-white text-lg py-6"
-          >
-            {isFixing ? (
-              <>
+            className="w-full bg-red-600 hover:bg-red-700 text-white text-lg py-6">
+
+            {isFixing ?
+            <>
                 <Loader2 className="w-6 h-6 animate-spin mr-2" />
                 EMERGENCY FIX IN PROGRESS...
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 🚨🛠️ RUN EMERGENCY FIX NOW! 🛠️🚨
               </>
-            )}
+            }
           </Button>
 
-          {isFixed && (
-            <Button 
-              onClick={testLogin}
-              className="w-full bg-green-600 hover:bg-green-700 text-white"
-            >
+          {isFixed &&
+          <Button
+            onClick={testLogin}
+            className="w-full bg-green-600 hover:bg-green-700 text-white">
+
               <CheckCircle2 className="w-4 h-4 mr-2" />
               Test Admin Login
             </Button>
-          )}
+          }
         </CardContent>
       </Card>
 
@@ -255,42 +255,42 @@ const QuickAdminFix: React.FC = () => {
       </Card>
 
       {/* Fix Progress */}
-      {fixResults.length > 0 && (
-        <Card>
+      {fixResults.length > 0 &&
+      <Card>
           <CardHeader>
             <CardTitle>🔧 Emergency Fix Progress</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2 font-mono text-sm max-h-96 overflow-y-auto">
-              {fixResults.map((result, index) => (
-                <div 
-                  key={index} 
-                  className={`p-3 rounded ${
-                    result.includes('✅') ? 'bg-green-50 text-green-800' :
-                    result.includes('❌') ? 'bg-red-50 text-red-800' :
-                    result.includes('⚠️') ? 'bg-yellow-50 text-yellow-800' :
-                    result.includes('🎉') ? 'bg-blue-50 text-blue-800 font-bold' :
-                    'bg-gray-50'
-                  }`}
-                >
+              {fixResults.map((result, index) =>
+            <div
+              key={index}
+              className={`p-3 rounded ${
+              result.includes('✅') ? 'bg-green-50 text-green-800' :
+              result.includes('❌') ? 'bg-red-50 text-red-800' :
+              result.includes('⚠️') ? 'bg-yellow-50 text-yellow-800' :
+              result.includes('🎉') ? 'bg-blue-50 text-blue-800 font-bold' :
+              'bg-gray-50'}`
+              }>
+
                   <div className="whitespace-pre-wrap">{result}</div>
                 </div>
-              ))}
+            )}
             </div>
           </CardContent>
         </Card>
-      )}
+      }
 
-      {isFixed && (
-        <Alert>
+      {isFixed &&
+      <Alert>
           <CheckCircle2 className="h-4 w-4" />
           <AlertDescription className="text-lg font-bold">
             🎉 EMERGENCY FIX SUCCESSFUL! You can now login with the admin credentials above.
           </AlertDescription>
         </Alert>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default QuickAdminFix;
