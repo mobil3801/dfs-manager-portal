@@ -3,16 +3,16 @@ import { useNavigate } from 'react-router-dom';
 
 interface SimpleAuthContextType {
   isAuthenticated: boolean;
-  user: { email: string; name: string } | null;
+  user: {email: string;name: string;} | null;
   login: (email: string, password: string) => boolean;
   logout: () => void;
 }
 
 const SimpleAuthContext = createContext<SimpleAuthContextType | undefined>(undefined);
 
-export const SimpleAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const SimpleAuthProvider: React.FC<{children: React.ReactNode;}> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<{ email: string; name: string } | null>(null);
+  const [user, setUser] = useState<{email: string;name: string;} | null>(null);
 
   // Check for existing session on mount
   useEffect(() => {
@@ -34,24 +34,24 @@ export const SimpleAuthProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       const userData = { email, name: 'Admin User' };
       setIsAuthenticated(true);
       setUser(userData);
-      
+
       // Store in localStorage for persistence
       localStorage.setItem('dfs_auth', JSON.stringify({ user: userData }));
-      
+
       return true;
     }
-    
+
     // Also accept any email ending with @dfs-portal.com for demo purposes
     if (email.endsWith('@dfs-portal.com') && password.length >= 6) {
       const userData = { email, name: email.split('@')[0] };
       setIsAuthenticated(true);
       setUser(userData);
-      
+
       localStorage.setItem('dfs_auth', JSON.stringify({ user: userData }));
-      
+
       return true;
     }
-    
+
     return false;
   };
 
@@ -64,8 +64,8 @@ export const SimpleAuthProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   return (
     <SimpleAuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
       {children}
-    </SimpleAuthContext.Provider>
-  );
+    </SimpleAuthContext.Provider>);
+
 };
 
 export const useSimpleAuth = () => {

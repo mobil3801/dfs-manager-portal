@@ -4,14 +4,14 @@ import { supabase } from '@/lib/supabase';
 export const userProfileService = {
   getUserProfileByUserId: async (userId: string) => {
     try {
-      const { data, error } = await supabase.
-      from('user_profiles').
-      select(`
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select(`
           *,
           stations(name, address, phone)
-        `).
-      eq('user_id', userId).
-      single();
+        `)
+        .eq('user_id', userId)
+        .single();
 
       if (error) {
         if (error.code === 'PGRST116') {
@@ -30,14 +30,14 @@ export const userProfileService = {
 
   createUserProfile: async (userId: string, profileData: any) => {
     try {
-      const { data, error } = await supabase.
-      from('user_profiles').
-      insert({
-        user_id: userId,
-        ...profileData
-      }).
-      select().
-      single();
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .insert({
+          user_id: userId,
+          ...profileData
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 

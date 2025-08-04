@@ -181,6 +181,11 @@ const AppRouter = () => {
           <Route path="/login" element={<SupabaseLoginPage />} />
           <Route path="/legacy-login" element={<LoginPage />} />
           <Route path="/supabase-login" element={<SupabaseLoginPage />} />
+          <Route path="/auth-test" element={
+            <Suspense fallback={<PageLoader />}>
+              {React.createElement(React.lazy(() => import('@/components/AuthTestComponent')))}
+            </Suspense>
+          } />
           <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
           <Route path="/resetpassword" element={<ResetPasswordPage />} />
           <Route path="/admin-setup" element={<AdminSetupPage />} />

@@ -30,7 +30,8 @@ const SupabaseLoginPage: React.FC = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard');
+      console.log('✅ Already authenticated, redirecting to dashboard');
+      navigate('/dashboard', { replace: true });
     }
   }, [isAuthenticated, navigate]);
 
@@ -113,12 +114,16 @@ const SupabaseLoginPage: React.FC = () => {
 
     try {
       if (authMode === 'login') {
+        console.log('🔐 Attempting login for:', email);
         const success = await login(email, password);
         if (success) {
+          console.log('✅ Login successful, redirecting to dashboard');
           // Add a small delay to ensure auth state is updated
           setTimeout(() => {
-            navigate('/dashboard');
+            navigate('/dashboard', { replace: true });
           }, 100);
+        } else {
+          console.log('❌ Login failed');
         }
       } else if (authMode === 'register') {
         const success = await register(email, password, fullName);
