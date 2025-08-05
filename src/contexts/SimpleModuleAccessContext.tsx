@@ -43,20 +43,20 @@ export const SimpleModuleAccessProvider: React.FC<{children: React.ReactNode;}> 
   const { toast } = useToast();
 
   const defaultModules = [
-    { module_name: 'products', display_name: 'Products', create_enabled: true, edit_enabled: true, delete_enabled: true },
-    { module_name: 'employees', display_name: 'Employees', create_enabled: true, edit_enabled: true, delete_enabled: true },
-    { module_name: 'sales', display_name: 'Sales Reports', create_enabled: true, edit_enabled: true, delete_enabled: true },
-    { module_name: 'vendors', display_name: 'Vendors', create_enabled: true, edit_enabled: true, delete_enabled: true },
-    { module_name: 'orders', display_name: 'Orders', create_enabled: true, edit_enabled: true, delete_enabled: true },
-    { module_name: 'licenses', display_name: 'Licenses & Certificates', create_enabled: true, edit_enabled: true, delete_enabled: true },
-    { module_name: 'salary', display_name: 'Salary Records', create_enabled: true, edit_enabled: true, delete_enabled: true },
-    { module_name: 'delivery', display_name: 'Delivery Records', create_enabled: true, edit_enabled: true, delete_enabled: true }
-  ];
+  { module_name: 'products', display_name: 'Products', create_enabled: true, edit_enabled: true, delete_enabled: true },
+  { module_name: 'employees', display_name: 'Employees', create_enabled: true, edit_enabled: true, delete_enabled: true },
+  { module_name: 'sales', display_name: 'Sales Reports', create_enabled: true, edit_enabled: true, delete_enabled: true },
+  { module_name: 'vendors', display_name: 'Vendors', create_enabled: true, edit_enabled: true, delete_enabled: true },
+  { module_name: 'orders', display_name: 'Orders', create_enabled: true, edit_enabled: true, delete_enabled: true },
+  { module_name: 'licenses', display_name: 'Licenses & Certificates', create_enabled: true, edit_enabled: true, delete_enabled: true },
+  { module_name: 'salary', display_name: 'Salary Records', create_enabled: true, edit_enabled: true, delete_enabled: true },
+  { module_name: 'delivery', display_name: 'Delivery Records', create_enabled: true, edit_enabled: true, delete_enabled: true }];
+
 
   const createDefaultModules = async () => {
     try {
       setLoading(true);
-      
+
       // For now, just use the default modules as they are all enabled
       const modules = defaultModules.map((module, index) => ({
         id: index + 1,
@@ -66,7 +66,7 @@ export const SimpleModuleAccessProvider: React.FC<{children: React.ReactNode;}> 
       }));
 
       setModuleAccess(modules);
-      
+
       toast({
         title: 'Success',
         description: 'Default modules initialized successfully'
@@ -121,9 +121,9 @@ export const SimpleModuleAccessProvider: React.FC<{children: React.ReactNode;}> 
     try {
       // Update local state immediately for real-time feedback
       setModuleAccess((prev) =>
-        prev.map((module) =>
-          module.id === id ? { ...module, ...updates, updated_at: new Date().toISOString() } : module
-        )
+      prev.map((module) =>
+      module.id === id ? { ...module, ...updates, updated_at: new Date().toISOString() } : module
+      )
       );
 
       toast({
@@ -186,6 +186,6 @@ export const SimpleModuleAccessProvider: React.FC<{children: React.ReactNode;}> 
   return (
     <ModuleAccessContext.Provider value={value}>
       {children}
-    </ModuleAccessContext.Provider>
-  );
+    </ModuleAccessContext.Provider>);
+
 };

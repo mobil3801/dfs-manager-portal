@@ -86,7 +86,7 @@ export const SimpleAuthProvider: React.FC<{children: ReactNode;}> = ({ children 
           email: 'admin@test.com',
           created_at: new Date().toISOString()
         };
-        
+
         const mockProfile: UserProfile = {
           id: '1',
           user_id: '1',

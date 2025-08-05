@@ -14,26 +14,26 @@ const createMockClient = () => ({
     onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
   },
   from: () => ({
-    select: () => ({ 
-      eq: () => ({ 
+    select: () => ({
+      eq: () => ({
         single: async () => ({ data: null, error: { message: 'Supabase not available' } }),
         order: () => ({ eq: async () => ({ data: null, error: { message: 'Supabase not available' } }) })
-      }) 
+      })
     }),
-    insert: () => ({ 
-      select: () => ({ 
+    insert: () => ({
+      select: () => ({
         single: async () => ({ data: null, error: { message: 'Supabase not available' } })
-      }) 
+      })
     }),
-    update: () => ({ 
-      eq: () => ({ 
-        select: () => ({ 
+    update: () => ({
+      eq: () => ({
+        select: () => ({
           single: async () => ({ data: null, error: { message: 'Supabase not available' } })
-        }) 
-      }) 
+        })
+      })
     }),
-    delete: () => ({ 
-      eq: async () => ({ error: null }) 
+    delete: () => ({
+      eq: async () => ({ error: null })
     })
   }),
   storage: {
@@ -52,12 +52,12 @@ let isSupabaseLoaded = false;
 // Initialize Supabase asynchronously
 const initializeSupabase = async () => {
   if (isSupabaseLoaded) return supabase;
-  
+
   try {
     console.log('Loading Supabase client...');
     const module = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
     const { createClient } = module;
-    
+
     supabase = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         autoRefreshToken: true,
@@ -65,7 +65,7 @@ const initializeSupabase = async () => {
         detectSessionInUrl: true
       }
     });
-    
+
     isSupabaseLoaded = true;
     console.log('Supabase client loaded successfully');
     return supabase;
@@ -125,7 +125,7 @@ export const auth = {
   },
 
   onAuthStateChange: (callback: (event: string, session: any) => void) => {
-    initializeSupabase().then(client => {
+    initializeSupabase().then((client) => {
       return client.auth.onAuthStateChange(callback);
     });
   }
