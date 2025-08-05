@@ -189,45 +189,45 @@ const SupabaseProductForm: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
-    );
+      </div>);
+
   }
 
   const categories = [
-    'Fuel',
-    'Food & Beverages',
-    'Tobacco',
-    'Automotive',
-    'Lottery',
-    'Convenience Store',
-    'Health & Personal Care',
-    'Electronics & Accessories',
-    'Cleaning Supplies',
-    'Office Supplies',
-    'Snacks & Candy',
-    'Hot Foods & Coffee',
-    'Cold Beverages',
-    'Energy Drinks',
-    'Beer & Wine',
-    'Ice & Frozen',
-    'Phone Cards & Prepaid',
-    'Car Accessories',
-    'Gift Cards',
-    'Pharmacy & Medicine'
-  ];
+  'Fuel',
+  'Food & Beverages',
+  'Tobacco',
+  'Automotive',
+  'Lottery',
+  'Convenience Store',
+  'Health & Personal Care',
+  'Electronics & Accessories',
+  'Cleaning Supplies',
+  'Office Supplies',
+  'Snacks & Candy',
+  'Hot Foods & Coffee',
+  'Cold Beverages',
+  'Energy Drinks',
+  'Beer & Wine',
+  'Ice & Frozen',
+  'Phone Cards & Prepaid',
+  'Car Accessories',
+  'Gift Cards',
+  'Pharmacy & Medicine'];
+
 
   const unitOfMeasures = [
-    'Each',
-    'Pound (lb)',
-    'Ounce (oz)',
-    'Gallon (gal)',
-    'Quart (qt)',
-    'Liter (L)',
-    'Case',
-    'Box',
-    'Pack',
-    'Carton'
-  ];
+  'Each',
+  'Pound (lb)',
+  'Ounce (oz)',
+  'Gallon (gal)',
+  'Quart (qt)',
+  'Liter (L)',
+  'Case',
+  'Box',
+  'Pack',
+  'Carton'];
+
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -269,12 +269,12 @@ const SupabaseProductForm: React.FC = () => {
                     {...register('product_name')}
                     placeholder="Enter product name"
                     className="pl-10"
-                    disabled={isLoading}
-                  />
+                    disabled={isLoading} />
+
                 </div>
-                {errors.product_name && (
-                  <p className="text-sm text-red-600">{errors.product_name.message}</p>
-                )}
+                {errors.product_name &&
+                <p className="text-sm text-red-600">{errors.product_name.message}</p>
+                }
               </div>
 
               <div className="space-y-2">
@@ -283,8 +283,8 @@ const SupabaseProductForm: React.FC = () => {
                   id="sku"
                   {...register('sku')}
                   placeholder="Enter SKU"
-                  disabled={isLoading}
-                />
+                  disabled={isLoading} />
+
               </div>
 
               <div className="space-y-2">
@@ -296,8 +296,8 @@ const SupabaseProductForm: React.FC = () => {
                     {...register('barcode')}
                     placeholder="Enter barcode"
                     className="pl-10"
-                    disabled={isLoading}
-                  />
+                    disabled={isLoading} />
+
                 </div>
               </div>
 
@@ -306,17 +306,17 @@ const SupabaseProductForm: React.FC = () => {
                 <Select
                   value={watch('category') || ''}
                   onValueChange={(value) => setValue('category', value)}
-                  disabled={isLoading}
-                >
+                  disabled={isLoading}>
+
                   <SelectTrigger>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category} value={category}>
+                    {categories.map((category) =>
+                    <SelectItem key={category} value={category}>
                         {category}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -336,12 +336,12 @@ const SupabaseProductForm: React.FC = () => {
                     {...register('cost', { valueAsNumber: true })}
                     placeholder="0.00"
                     className="pl-10"
-                    disabled={isLoading}
-                  />
+                    disabled={isLoading} />
+
                 </div>
-                {errors.cost && (
-                  <p className="text-sm text-red-600">{errors.cost.message}</p>
-                )}
+                {errors.cost &&
+                <p className="text-sm text-red-600">{errors.cost.message}</p>
+                }
               </div>
 
               <div className="space-y-2">
@@ -356,12 +356,12 @@ const SupabaseProductForm: React.FC = () => {
                     {...register('price', { valueAsNumber: true })}
                     placeholder="0.00"
                     className="pl-10"
-                    disabled={isLoading}
-                  />
+                    disabled={isLoading} />
+
                 </div>
-                {errors.price && (
-                  <p className="text-sm text-red-600">{errors.price.message}</p>
-                )}
+                {errors.price &&
+                <p className="text-sm text-red-600">{errors.price.message}</p>
+                }
               </div>
             </div>
 
@@ -378,12 +378,12 @@ const SupabaseProductForm: React.FC = () => {
                     {...register('stock_quantity', { valueAsNumber: true })}
                     placeholder="0"
                     className="pl-10"
-                    disabled={isLoading}
-                  />
+                    disabled={isLoading} />
+
                 </div>
-                {errors.stock_quantity && (
-                  <p className="text-sm text-red-600">{errors.stock_quantity.message}</p>
-                )}
+                {errors.stock_quantity &&
+                <p className="text-sm text-red-600">{errors.stock_quantity.message}</p>
+                }
               </div>
 
               <div className="space-y-2">
@@ -397,12 +397,12 @@ const SupabaseProductForm: React.FC = () => {
                     {...register('min_stock_level', { valueAsNumber: true })}
                     placeholder="0"
                     className="pl-10"
-                    disabled={isLoading}
-                  />
+                    disabled={isLoading} />
+
                 </div>
-                {errors.min_stock_level && (
-                  <p className="text-sm text-red-600">{errors.min_stock_level.message}</p>
-                )}
+                {errors.min_stock_level &&
+                <p className="text-sm text-red-600">{errors.min_stock_level.message}</p>
+                }
               </div>
 
               <div className="space-y-2">
@@ -416,12 +416,12 @@ const SupabaseProductForm: React.FC = () => {
                     {...register('max_stock_level', { valueAsNumber: true })}
                     placeholder="0"
                     className="pl-10"
-                    disabled={isLoading}
-                  />
+                    disabled={isLoading} />
+
                 </div>
-                {errors.max_stock_level && (
-                  <p className="text-sm text-red-600">{errors.max_stock_level.message}</p>
-                )}
+                {errors.max_stock_level &&
+                <p className="text-sm text-red-600">{errors.max_stock_level.message}</p>
+                }
               </div>
             </div>
 
@@ -432,17 +432,17 @@ const SupabaseProductForm: React.FC = () => {
                 <Select
                   value={watch('unit_of_measure') || ''}
                   onValueChange={(value) => setValue('unit_of_measure', value)}
-                  disabled={isLoading}
-                >
+                  disabled={isLoading}>
+
                   <SelectTrigger>
                     <SelectValue placeholder="Select unit" />
                   </SelectTrigger>
                   <SelectContent>
-                    {unitOfMeasures.map((unit) => (
-                      <SelectItem key={unit} value={unit}>
+                    {unitOfMeasures.map((unit) =>
+                    <SelectItem key={unit} value={unit}>
                         {unit}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -456,11 +456,11 @@ const SupabaseProductForm: React.FC = () => {
                   min="0"
                   {...register('weight', { valueAsNumber: true })}
                   placeholder="0.000"
-                  disabled={isLoading}
-                />
-                {errors.weight && (
-                  <p className="text-sm text-red-600">{errors.weight.message}</p>
-                )}
+                  disabled={isLoading} />
+
+                {errors.weight &&
+                <p className="text-sm text-red-600">{errors.weight.message}</p>
+                }
               </div>
 
               <div className="space-y-2">
@@ -468,17 +468,17 @@ const SupabaseProductForm: React.FC = () => {
                 <Select
                   value={watch('station_id') || ''}
                   onValueChange={(value) => setValue('station_id', value)}
-                  disabled={isLoading}
-                >
+                  disabled={isLoading}>
+
                   <SelectTrigger>
                     <SelectValue placeholder="Select station" />
                   </SelectTrigger>
                   <SelectContent>
-                    {stations.map((station) => (
-                      <SelectItem key={station.id} value={station.id}>
+                    {stations.map((station) =>
+                    <SelectItem key={station.id} value={station.id}>
                         {station.name}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -492,8 +492,8 @@ const SupabaseProductForm: React.FC = () => {
                 {...register('description')}
                 placeholder="Enter product description"
                 rows={3}
-                disabled={isLoading}
-              />
+                disabled={isLoading} />
+
             </div>
 
             {/* Form Actions */}
@@ -502,33 +502,33 @@ const SupabaseProductForm: React.FC = () => {
                 type="button"
                 variant="outline"
                 onClick={() => navigate('/products')}
-                disabled={isLoading}
-              >
+                disabled={isLoading}>
+
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="min-w-[120px]"
-              >
-                {isLoading ? (
-                  <>
+                className="min-w-[120px]">
+
+                {isLoading ?
+                <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Saving...
-                  </>
-                ) : (
-                  <>
+                  </> :
+
+                <>
                     <Save className="mr-2 h-4 w-4" />
                     {isEdit ? 'Update' : 'Create'} Product
                   </>
-                )}
+                }
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SupabaseProductForm;

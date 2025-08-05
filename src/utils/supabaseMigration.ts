@@ -46,7 +46,7 @@ export const migrateProductsToSupabase = async (): Promise<{
     }
 
     const legacyProducts: LegacyProduct[] = legacyResponse.data?.List || [];
-    
+
     if (legacyProducts.length === 0) {
       return { success: 0, failed: 0, errors: ['No legacy products found'] };
     }
@@ -123,7 +123,7 @@ export const showMigrationDialog = async (): Promise<boolean> => {
 export const performProductMigration = async () => {
   try {
     const confirmed = await showMigrationDialog();
-    
+
     if (!confirmed) {
       toast({
         title: 'Migration Cancelled',

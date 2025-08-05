@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Printer, X, Truck, Fuel, Calendar, FileText, MapPin, Gauge, BarChart3, AlertTriangle } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 interface DeliveryRecord {
   id: number;
@@ -18,7 +19,9 @@ interface DeliveryRecord {
   plus_delivered: number;
   super_delivered: number;
   delivery_notes: string;
-  created_by: number;
+  created_by?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 interface AfterDeliveryReport {
@@ -30,28 +33,54 @@ interface AfterDeliveryReport {
   regular_tank_final: number;
   plus_tank_final: number;
   super_tank_final: number;
-  tank_temperature: number;
-  verification_status: string;
-  discrepancy_notes: string;
-  reported_by: string;
-  supervisor_approval: boolean;
-  additional_notes: string;
-  created_by: number;
+  created_by?: string;
+  created_at?: string;
 }
 
 interface EnhancedDeliveryPrintDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   delivery: DeliveryRecord | null;
-  afterDeliveryReport?: AfterDeliveryReport | null;
 }
 
 const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = ({
   open,
   onOpenChange,
-  delivery,
-  afterDeliveryReport
+  delivery
 }) => {
+  const [afterDeliveryReport, setAfterDeliveryReport] = useState<AfterDeliveryReport | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (delivery && open) {
+      loadAfterDeliveryReport(delivery.id);
+    }
+  }, [delivery, open]);
+
+  const loadAfterDeliveryReport = async (deliveryId: number) => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('after_delivery_reports')
+        .select('*')
+        .eq('delivery_record_id', deliveryId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
+        console.error('Error loading after delivery report:', error);
+        return;
+      }
+
+      if (data) {
+        setAfterDeliveryReport(data);
+      }
+    } catch (error) {
+      console.error('Error loading after delivery report:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!delivery) return null;
 
   const formatDate = (dateString: string) => {
@@ -93,19 +122,6 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'verified':
-        return 'text-green-600';
-      case 'discrepancy found':
-        return 'text-red-600';
-      case 'pending review':
-        return 'text-yellow-600';
-      default:
-        return 'text-gray-600';
-    }
-  };
-
   // Calculate totals and comparisons
   const totalTankVolumeBefore = delivery.regular_tank_volume + delivery.plus_tank_volume + delivery.super_tank_volume;
   const totalDelivered = delivery.regular_delivered + delivery.plus_delivered + delivery.super_delivered;
@@ -113,7 +129,7 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
 
   // After delivery calculations (if available)
   const totalAfterDelivery = afterDeliveryReport ?
-  afterDeliveryReport.regular_tank_final + afterDeliveryReport.plus_tank_final + afterDeliveryReport.super_tank_final : 0;
+    afterDeliveryReport.regular_tank_final + afterDeliveryReport.plus_tank_final + afterDeliveryReport.super_tank_final : 0;
 
   const volumeDiscrepancy = afterDeliveryReport ? Math.abs(expectedTotalAfter - totalAfterDelivery) : 0;
   const hasVolumeDiscrepancy = volumeDiscrepancy > 5; // 5 gallon tolerance
@@ -122,6 +138,10 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
   const regularExpected = delivery.regular_tank_volume + delivery.regular_delivered;
   const plusExpected = delivery.plus_tank_volume + delivery.plus_delivered;
   const superExpected = delivery.super_tank_volume + delivery.super_delivered;
+
+  const regularDiscrepancy = afterDeliveryReport ? Math.abs(regularExpected - afterDeliveryReport.regular_tank_final) : 0;
+  const plusDiscrepancy = afterDeliveryReport ? Math.abs(plusExpected - afterDeliveryReport.plus_tank_final) : 0;
+  const superDiscrepancy = afterDeliveryReport ? Math.abs(superExpected - afterDeliveryReport.super_tank_final) : 0;
 
   const handlePrint = () => {
     const printContent = `
@@ -457,8 +477,8 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
                   <td>${formatNumber(delivery.regular_delivered)}</td>
                   <td>${formatNumber(regularExpected)}</td>
                   <td>${formatNumber(afterDeliveryReport.regular_tank_final)}</td>
-                  <td class="${Math.abs(regularExpected - afterDeliveryReport.regular_tank_final) <= 2 ? 'status-verified' : 'status-error'}">
-                    ${formatNumber(Math.abs(regularExpected - afterDeliveryReport.regular_tank_final))}
+                  <td class="${regularDiscrepancy <= 5 ? 'status-verified' : 'status-error'}">
+                    ${formatNumber(regularDiscrepancy)}
                   </td>
                 </tr>
                 <tr>
@@ -467,8 +487,8 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
                   <td>${formatNumber(delivery.plus_delivered)}</td>
                   <td>${formatNumber(plusExpected)}</td>
                   <td>${formatNumber(afterDeliveryReport.plus_tank_final)}</td>
-                  <td class="${Math.abs(plusExpected - afterDeliveryReport.plus_tank_final) <= 2 ? 'status-verified' : 'status-error'}">
-                    ${formatNumber(Math.abs(plusExpected - afterDeliveryReport.plus_tank_final))}
+                  <td class="${plusDiscrepancy <= 5 ? 'status-verified' : 'status-error'}">
+                    ${formatNumber(plusDiscrepancy)}
                   </td>
                 </tr>
                 <tr>
@@ -477,8 +497,8 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
                   <td>${formatNumber(delivery.super_delivered)}</td>
                   <td>${formatNumber(superExpected)}</td>
                   <td>${formatNumber(afterDeliveryReport.super_tank_final)}</td>
-                  <td class="${Math.abs(superExpected - afterDeliveryReport.super_tank_final) <= 2 ? 'status-verified' : 'status-error'}">
-                    ${formatNumber(Math.abs(superExpected - afterDeliveryReport.super_tank_final))}
+                  <td class="${superDiscrepancy <= 5 ? 'status-verified' : 'status-error'}">
+                    ${formatNumber(superDiscrepancy)}
                   </td>
                 </tr>
                 <tr style="border-top: 2px solid #374151; font-weight: bold;">
@@ -503,29 +523,17 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
             <div class="data-grid">
               <div class="data-card">
                 <div class="data-label">Status</div>
-                <div class="data-value ${getStatusColor(afterDeliveryReport.verification_status)}">${afterDeliveryReport.verification_status}</div>
+                <div class="data-value ${hasVolumeDiscrepancy ? 'status-error' : 'status-verified'}">${hasVolumeDiscrepancy ? 'Discrepancy Found' : 'Verified'}</div>
               </div>
               <div class="data-card">
-                <div class="data-label">Tank Temperature</div>
-                <div class="data-value">${afterDeliveryReport.tank_temperature}°F</div>
+                <div class="data-label">Total Discrepancy</div>
+                <div class="data-value">${formatNumber(volumeDiscrepancy)} gal</div>
               </div>
               <div class="data-card">
-                <div class="data-label">Reported By</div>
-                <div class="data-value">${afterDeliveryReport.reported_by}</div>
-              </div>
-              <div class="data-card">
-                <div class="data-label">Supervisor Approval</div>
-                <div class="data-value ${afterDeliveryReport.supervisor_approval ? 'status-verified' : 'status-warning'}">
-                  ${afterDeliveryReport.supervisor_approval ? '✅ Approved' : '⏳ Pending'}
-                </div>
+                <div class="data-label">Report Date</div>
+                <div class="data-value">${formatDate(afterDeliveryReport.report_date)}</div>
               </div>
             </div>
-            ${afterDeliveryReport.discrepancy_notes ? `
-            <div style="margin-top: 15px; padding: 10px; background: #fef2f2; border-radius: 5px;">
-              <strong>Discrepancy Notes:</strong><br>
-              ${afterDeliveryReport.discrepancy_notes}
-            </div>
-            ` : ''}
           </div>
           ` : `
           <div class="verification-section verification-warning">
@@ -547,20 +555,10 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
           </div>
           ` : ''}
 
-          ${afterDeliveryReport && afterDeliveryReport.additional_notes ? `
-          <div class="notes-section">
-            <div class="section-header">
-              <span class="section-icon">📋</span>
-              <span class="section-title">Additional Verification Notes</span>
-            </div>
-            <p style="margin: 0; white-space: pre-wrap;">${afterDeliveryReport.additional_notes}</p>
-          </div>
-          ` : ''}
-
           <div class="footer">
             <div>Delivery Record ID: #${delivery.id} | Generated on ${new Date().toLocaleString()}</div>
-            <div>Created by User #${delivery.created_by} | DFS Manager Portal v2.0</div>
-            ${afterDeliveryReport ? `<div>Verification Report ID: #${afterDeliveryReport.id} | Verified by User #${afterDeliveryReport.created_by}</div>` : ''}
+            <div>Created by User ${delivery.created_by || 'System'} | DFS Manager Portal v2.0</div>
+            ${afterDeliveryReport ? `<div>Verification Report ID: #${afterDeliveryReport.id} | Verified by User ${afterDeliveryReport.created_by || 'System'}</div>` : ''}
             <div style="margin-top: 10px; font-style: italic;">
               This is an official fuel delivery document. Please retain for your records and regulatory compliance.
             </div>
@@ -657,29 +655,25 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
 
           {/* Verification Status */}
           {afterDeliveryReport &&
-          <Card className={`border-2 ${hasVolumeDiscrepancy ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50'}`}>
+            <Card className={`border-2 ${hasVolumeDiscrepancy ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50'}`}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   {hasVolumeDiscrepancy ?
-                <div className="text-red-600 flex items-center gap-2">
+                    <div className="text-red-600 flex items-center gap-2">
                       <AlertTriangle className="h-5 w-5" />
                       Volume Discrepancy Detected
                     </div> :
-                <div className="text-green-600">✓ Delivery Verified</div>
-                }
+                    <div className="text-green-600">✓ Delivery Verified</div>
+                  }
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div className="flex justify-between">
                     <span>Status:</span>
-                    <span className={`font-medium ${getStatusColor(afterDeliveryReport.verification_status)}`}>
-                      {afterDeliveryReport.verification_status}
+                    <span className={`font-medium ${hasVolumeDiscrepancy ? 'text-red-600' : 'text-green-600'}`}>
+                      {hasVolumeDiscrepancy ? 'Discrepancy Found' : 'Verified'}
                     </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Temperature:</span>
-                    <span className="font-medium">{afterDeliveryReport.tank_temperature}°F</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Volume Difference:</span>
@@ -688,12 +682,24 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Supervisor Approval:</span>
-                    <span className={`font-medium ${afterDeliveryReport.supervisor_approval ? 'text-green-600' : 'text-yellow-600'}`}>
-                      {afterDeliveryReport.supervisor_approval ? '✓ Approved' : '⏳ Pending'}
-                    </span>
+                    <span>Report Date:</span>
+                    <span className="font-medium">{formatDate(afterDeliveryReport.report_date)}</span>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+          }
+
+          {!afterDeliveryReport &&
+            <Card className="border-2 border-yellow-200 bg-yellow-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-yellow-600">
+                  <AlertTriangle className="h-5 w-5" />
+                  Verification Pending
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-yellow-700">Post-delivery tank verification has not been completed yet. Please ensure tank levels are measured and recorded after the delivery is complete.</p>
               </CardContent>
             </Card>
           }
@@ -751,25 +757,80 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
             </Card>
           </div>
 
-          {/* Notes Preview */}
-          {(delivery.delivery_notes || afterDeliveryReport && afterDeliveryReport.additional_notes) &&
-          <Card>
+          {/* After Delivery Volumes (if available) */}
+          {afterDeliveryReport &&
+            <Card>
               <CardHeader>
-                <CardTitle className="text-sm">Notes</CardTitle>
+                <CardTitle className="text-sm">Tank Volumes After Delivery</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                {delivery.delivery_notes &&
-              <div>
-                    <div className="text-xs font-medium text-gray-600 mb-1">Delivery Notes:</div>
-                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{delivery.delivery_notes}</p>
+              <CardContent className="space-y-2">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <div className="text-xs text-gray-500 mb-1">Regular Tank</div>
+                    <div className="flex justify-between text-sm">
+                      <span>Expected:</span>
+                      <span className="font-medium">{formatNumber(regularExpected)} gal</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Actual:</span>
+                      <span className="font-medium">{formatNumber(afterDeliveryReport.regular_tank_final)} gal</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Difference:</span>
+                      <span className={`font-medium ${regularDiscrepancy <= 5 ? 'text-green-600' : 'text-red-600'}`}>
+                        {formatNumber(regularDiscrepancy)} gal
+                      </span>
+                    </div>
                   </div>
-              }
-                {afterDeliveryReport && afterDeliveryReport.additional_notes &&
-              <div>
-                    <div className="text-xs font-medium text-gray-600 mb-1">Verification Notes:</div>
-                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{afterDeliveryReport.additional_notes}</p>
+                  
+                  <div>
+                    <div className="text-xs text-gray-500 mb-1">Plus Tank</div>
+                    <div className="flex justify-between text-sm">
+                      <span>Expected:</span>
+                      <span className="font-medium">{formatNumber(plusExpected)} gal</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Actual:</span>
+                      <span className="font-medium">{formatNumber(afterDeliveryReport.plus_tank_final)} gal</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Difference:</span>
+                      <span className={`font-medium ${plusDiscrepancy <= 5 ? 'text-green-600' : 'text-red-600'}`}>
+                        {formatNumber(plusDiscrepancy)} gal
+                      </span>
+                    </div>
                   </div>
-              }
+                  
+                  <div>
+                    <div className="text-xs text-gray-500 mb-1">Super Tank</div>
+                    <div className="flex justify-between text-sm">
+                      <span>Expected:</span>
+                      <span className="font-medium">{formatNumber(superExpected)} gal</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Actual:</span>
+                      <span className="font-medium">{formatNumber(afterDeliveryReport.super_tank_final)} gal</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Difference:</span>
+                      <span className={`font-medium ${superDiscrepancy <= 5 ? 'text-green-600' : 'text-red-600'}`}>
+                        {formatNumber(superDiscrepancy)} gal
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          }
+
+          {/* Notes Preview */}
+          {delivery.delivery_notes &&
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">Delivery Notes</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-700 whitespace-pre-wrap">{delivery.delivery_notes}</p>
               </CardContent>
             </Card>
           }
@@ -786,8 +847,8 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
           </Button>
         </DialogFooter>
       </DialogContent>
-    </Dialog>);
-
+    </Dialog>
+  );
 };
 
 export default EnhancedDeliveryPrintDialog;

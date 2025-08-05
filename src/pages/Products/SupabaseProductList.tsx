@@ -34,7 +34,7 @@ const SupabaseProductList: React.FC = () => {
   const loadProducts = async () => {
     try {
       setLoading(true);
-      
+
       let result;
       if (userProfile?.station_id) {
         // If user has a specific station, load products for that station
@@ -67,15 +67,15 @@ const SupabaseProductList: React.FC = () => {
       return;
     }
 
-    const filtered = products.filter(product => {
+    const filtered = products.filter((product) => {
       const searchLower = searchTerm.toLowerCase();
       return (
         product.product_name?.toLowerCase().includes(searchLower) ||
         product.description?.toLowerCase().includes(searchLower) ||
         product.sku?.toLowerCase().includes(searchLower) ||
         product.barcode?.toLowerCase().includes(searchLower) ||
-        product.category?.toLowerCase().includes(searchLower)
-      );
+        product.category?.toLowerCase().includes(searchLower));
+
     });
 
     setFilteredProducts(filtered);
@@ -155,8 +155,8 @@ const SupabaseProductList: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -190,35 +190,35 @@ const SupabaseProductList: React.FC = () => {
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+                className="pl-10" />
+
             </div>
-            {searchTerm && (
-              <div className="ml-4">
+            {searchTerm &&
+            <div className="ml-4">
                 <Badge variant="secondary">
                   {filteredProducts.length} result{filteredProducts.length !== 1 ? 's' : ''} found
                 </Badge>
               </div>
-            )}
+            }
           </div>
 
           {/* Products Table */}
-          {filteredProducts.length === 0 ? (
-            <div className="text-center py-8">
+          {filteredProducts.length === 0 ?
+          <div className="text-center py-8">
               <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">
                 {searchTerm ? `No products found matching "${searchTerm}"` : 'No products found'}
               </p>
               <Button
-                variant="outline"
-                className="mt-4"
-                onClick={() => searchTerm ? setSearchTerm('') : navigate('/products/new')}
-              >
+              variant="outline"
+              className="mt-4"
+              onClick={() => searchTerm ? setSearchTerm('') : navigate('/products/new')}>
+
                 {searchTerm ? 'Clear Search' : 'Add Your First Product'}
               </Button>
-            </div>
-          ) : (
-            <div className="border rounded-lg overflow-hidden">
+            </div> :
+
+          <div className="border rounded-lg overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -234,40 +234,40 @@ const SupabaseProductList: React.FC = () => {
                 </TableHeader>
                 <TableBody>
                   {filteredProducts.map((product) => {
-                    const stockStatus = getStockStatus(product);
-                    
-                    return (
-                      <TableRow key={product.id}>
+                  const stockStatus = getStockStatus(product);
+
+                  return (
+                    <TableRow key={product.id}>
                         <TableCell>
                           <div>
                             <p className="font-medium">{product.product_name}</p>
-                            {product.description && (
-                              <p className="text-sm text-gray-500 truncate max-w-xs">
+                            {product.description &&
+                          <p className="text-sm text-gray-500 truncate max-w-xs">
                                 {product.description}
                               </p>
-                            )}
+                          }
                           </div>
                         </TableCell>
                         <TableCell className="font-mono text-sm">
                           {product.sku || '-'}
                         </TableCell>
                         <TableCell>
-                          {product.category ? (
-                            <Badge variant="outline">{product.category}</Badge>
-                          ) : (
-                            '-'
-                          )}
+                          {product.category ?
+                        <Badge variant="outline">{product.category}</Badge> :
+
+                        '-'
+                        }
                         </TableCell>
                         <TableCell>{formatPrice(product.price)}</TableCell>
                         <TableCell>{formatPrice(product.cost)}</TableCell>
                         <TableCell>
                           <div className="text-sm">
                             <div>{product.stock_quantity || 0}</div>
-                            {product.min_stock_level && (
-                              <div className="text-gray-500">
+                            {product.min_stock_level &&
+                          <div className="text-gray-500">
                                 Min: {product.min_stock_level}
                               </div>
-                            )}
+                          }
                           </div>
                         </TableCell>
                         <TableCell>
@@ -278,38 +278,38 @@ const SupabaseProductList: React.FC = () => {
                         <TableCell>
                           <div className="flex items-center space-x-1">
                             <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleEdit(product.id)}
-                              title="Edit product"
-                            >
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(product.id)}
+                            title="Edit product">
+
                               <Edit className="w-4 h-4" />
                             </Button>
                             <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDeleteClick(product)}
-                              className="text-red-600 hover:text-red-700"
-                              title="Delete product"
-                            >
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteClick(product)}
+                            className="text-red-600 hover:text-red-700"
+                            title="Delete product">
+
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                         </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                      </TableRow>);
+
+                })}
                 </TableBody>
               </Table>
             </div>
-          )}
+          }
 
           {/* Results Summary */}
-          {filteredProducts.length > 0 && (
-            <div className="mt-4 text-sm text-gray-700 text-center">
+          {filteredProducts.length > 0 &&
+          <div className="mt-4 text-sm text-gray-700 text-center">
               Showing {filteredProducts.length} of {products.length} products
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
@@ -330,29 +330,29 @@ const SupabaseProductList: React.FC = () => {
             <Button
               variant="outline"
               onClick={() => setDeleteDialogOpen(false)}
-              disabled={deleting}
-            >
+              disabled={deleting}>
+
               Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={handleDeleteConfirm}
-              disabled={deleting}
-            >
-              {deleting ? (
-                <>
+              disabled={deleting}>
+
+              {deleting ?
+              <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   Deleting...
-                </>
-              ) : (
-                'Delete Product'
-              )}
+                </> :
+
+              'Delete Product'
+              }
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SupabaseProductList;

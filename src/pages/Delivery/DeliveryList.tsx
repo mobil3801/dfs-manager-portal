@@ -6,10 +6,10 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Search, Edit, Trash2, Truck, Filter, Download, Eye } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Truck, Filter, Download, Eye, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-
+import { supabase } from '@/lib/supabase';
 import EnhancedDeliveryPrintDialog from '@/components/EnhancedDeliveryPrintDialog';
 
 interface DeliveryRecord {
@@ -24,7 +24,9 @@ interface DeliveryRecord {
   plus_delivered: number;
   super_delivered: number;
   delivery_notes: string;
-  created_by: number;
+  created_by?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 const DeliveryList: React.FC = () => {
@@ -51,36 +53,34 @@ const DeliveryList: React.FC = () => {
     try {
       setLoading(true);
 
-      const filters = [];
+      let query = supabase
+        .from('deliveries')
+        .select('*', { count: 'exact' });
 
+      // Apply station filter
       if (stationFilter !== 'all') {
-        filters.push({
-          name: 'station',
-          op: 'Equal',
-          value: stationFilter
-        });
+        query = query.eq('station', stationFilter);
       }
 
+      // Apply search filter
       if (searchTerm) {
-        filters.push({
-          name: 'bol_number',
-          op: 'StringContains',
-          value: searchTerm
-        });
+        query = query.like('bol_number', `%${searchTerm}%`);
       }
 
-      const { data, error } = await window.ezsite.apis.tablePage(12196, {
-        PageNo: currentPage,
-        PageSize: pageSize,
-        OrderByField: 'delivery_date',
-        IsAsc: false,
-        Filters: filters
-      });
+      // Apply pagination and ordering
+      const from = (currentPage - 1) * pageSize;
+      const to = from + pageSize - 1;
+
+      query = query
+        .order('delivery_date', { ascending: false })
+        .range(from, to);
+
+      const { data, error, count } = await query;
 
       if (error) throw error;
 
-      setDeliveries(data?.List || []);
-      setTotalCount(data?.VirtualCount || 0);
+      setDeliveries(data || []);
+      setTotalCount(count || 0);
     } catch (error) {
       console.error('Error loading deliveries:', error);
       toast({
@@ -130,7 +130,6 @@ const DeliveryList: React.FC = () => {
         variant: "destructive"
       });
     }
-
   };
 
   const handleDelete = async (id: number) => {
@@ -161,7 +160,22 @@ const DeliveryList: React.FC = () => {
     }
 
     try {
-      const { error } = await window.ezsite.apis.tableDelete(12196, { ID: id });
+      // Delete associated after_delivery_reports first
+      const { error: afterReportError } = await supabase
+        .from('after_delivery_reports')
+        .delete()
+        .eq('delivery_record_id', id);
+
+      if (afterReportError) {
+        console.warn('Warning deleting after delivery reports:', afterReportError);
+      }
+
+      // Delete the main delivery record
+      const { error } = await supabase
+        .from('deliveries')
+        .delete()
+        .eq('id', id);
+
       if (error) throw error;
 
       toast({
@@ -178,7 +192,98 @@ const DeliveryList: React.FC = () => {
         variant: "destructive"
       });
     }
+  };
 
+  const exportToCSV = async () => {
+    try {
+      setLoading(true);
+
+      // Get all deliveries for export (no pagination)
+      let query = supabase
+        .from('deliveries')
+        .select('*');
+
+      if (stationFilter !== 'all') {
+        query = query.eq('station', stationFilter);
+      }
+
+      if (searchTerm) {
+        query = query.like('bol_number', `%${searchTerm}%`);
+      }
+
+      query = query.order('delivery_date', { ascending: false });
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        toast({
+          title: "No Data",
+          description: "No delivery records to export",
+        });
+        return;
+      }
+
+      // Create CSV content
+      const headers = [
+        'ID',
+        'Date',
+        'BOL Number',
+        'Station',
+        'Regular Tank Volume',
+        'Plus Tank Volume',
+        'Super Tank Volume',
+        'Regular Delivered',
+        'Plus Delivered',
+        'Super Delivered',
+        'Total Delivered',
+        'Notes'
+      ];
+
+      const csvContent = [
+        headers.join(','),
+        ...data.map(delivery => [
+          delivery.id,
+          formatDate(delivery.delivery_date),
+          `"${delivery.bol_number}"`,
+          `"${delivery.station}"`,
+          delivery.regular_tank_volume,
+          delivery.plus_tank_volume,
+          delivery.super_tank_volume,
+          delivery.regular_delivered,
+          delivery.plus_delivered,
+          delivery.super_delivered,
+          getTotalDelivered(delivery),
+          `"${delivery.delivery_notes || ''}"`
+        ].join(','))
+      ].join('\n');
+
+      // Download CSV
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `delivery_records_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "Success",
+        description: "Delivery records exported successfully"
+      });
+    } catch (error) {
+      console.error('Error exporting deliveries:', error);
+      toast({
+        title: "Error",
+        description: "Failed to export delivery records",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -224,13 +329,12 @@ const DeliveryList: React.FC = () => {
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading delivery records...</p>
         </div>
-      </div>);
-
+      </div>
+    );
   }
 
   return (
     <div className="container mx-auto px-4 py-6">
-      
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -246,7 +350,7 @@ const DeliveryList: React.FC = () => {
         {/* Search and Filter */}
         <Card>
           <CardContent className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
@@ -254,7 +358,6 @@ const DeliveryList: React.FC = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10" />
-
               </div>
               
               <div>
@@ -265,7 +368,7 @@ const DeliveryList: React.FC = () => {
                   <SelectContent>
                     <SelectItem value="all">All Stations</SelectItem>
                     {stations.map((station) =>
-                    <SelectItem key={station} value={station}>
+                      <SelectItem key={station} value={station}>
                         {station}
                       </SelectItem>
                     )}
@@ -274,9 +377,16 @@ const DeliveryList: React.FC = () => {
               </div>
               
               <div className="flex gap-2">
-                <Button variant="outline" onClick={loadDeliveries}>
-                  <Filter className="mr-2 h-4 w-4" />
+                <Button variant="outline" onClick={loadDeliveries} disabled={loading}>
+                  <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                   Refresh
+                </Button>
+              </div>
+
+              <div>
+                <Button variant="outline" onClick={exportToCSV} disabled={loading}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Export CSV
                 </Button>
               </div>
             </div>
@@ -324,11 +434,14 @@ const DeliveryList: React.FC = () => {
       {/* Delivery Records Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Delivery Records</CardTitle>
+          <CardTitle className="flex items-center justify-between">
+            <span>Delivery Records</span>
+            {loading && <RefreshCw className="h-4 w-4 animate-spin" />}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {deliveries.length === 0 ?
-          <div className="text-center py-8">
+            <div className="text-center py-8">
               <Truck className="mx-auto h-12 w-12 text-gray-400 mb-4" />
               <p className="text-gray-600">No delivery records found</p>
               <Button onClick={() => navigate('/delivery/new')} className="mt-4">
@@ -336,8 +449,7 @@ const DeliveryList: React.FC = () => {
                 Add First Delivery
               </Button>
             </div> :
-
-          <>
+            <>
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -346,15 +458,16 @@ const DeliveryList: React.FC = () => {
                       <TableHead>Date</TableHead>
                       <TableHead>BOL Number</TableHead>
                       <TableHead>Station Name</TableHead>
-                      <TableHead>Regular (Delivered)</TableHead>
+                      <TableHead>Regular Delivered</TableHead>
                       <TableHead>Plus Delivered</TableHead>
                       <TableHead>Super Delivered</TableHead>
+                      <TableHead>Total Delivered</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {deliveries.map((delivery, index) =>
-                  <TableRow key={delivery.id}>
+                      <TableRow key={delivery.id}>
                         <TableCell className="font-medium">
                           {(currentPage - 1) * pageSize + index + 1}
                         </TableCell>
@@ -378,87 +491,88 @@ const DeliveryList: React.FC = () => {
                         <TableCell className="font-medium text-purple-600">
                           {formatNumber(delivery.super_delivered)} gal
                         </TableCell>
+                        <TableCell className="font-medium text-gray-900">
+                          {formatNumber(getTotalDelivered(delivery))} gal
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleViewReport(delivery)}
-                          className="h-8 w-8 p-0 hover:bg-blue-50"
-                          title="View Report">
-
-                            <Eye className="h-4 w-4 text-blue-600" />
-                          </Button>
-                          
-                          {/* Only show Edit button if user is Administrator */}
-                          {isAdmin() &&
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEdit(delivery.id)}
-                          className="h-8 w-8 p-0 hover:bg-orange-50"
-                          title="Edit Delivery">
-
-                            <Edit className="h-4 w-4 text-orange-600" />
-                          </Button>
-                        }
-                          
-                          {/* Only show Delete button if user is Administrator */}
-                          {isAdmin() &&
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(delivery.id)}
-                          className="h-8 w-8 p-0 hover:bg-red-50"
-                          title="Delete Delivery">
-
-                            <Trash2 className="h-4 w-4 text-red-600" />
-                          </Button>
-                        }
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleViewReport(delivery)}
+                              className="h-8 w-8 p-0 hover:bg-blue-50"
+                              title="View Report">
+                              <Eye className="h-4 w-4 text-blue-600" />
+                            </Button>
+                            
+                            {/* Only show Edit button if user is Administrator */}
+                            {isAdmin() &&
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEdit(delivery.id)}
+                                className="h-8 w-8 p-0 hover:bg-orange-50"
+                                title="Edit Delivery">
+                                <Edit className="h-4 w-4 text-orange-600" />
+                              </Button>
+                            }
+                            
+                            {/* Only show Delete button if user is Administrator */}
+                            {isAdmin() &&
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDelete(delivery.id)}
+                                className="h-8 w-8 p-0 hover:bg-red-50"
+                                title="Delete Delivery">
+                                <Trash2 className="h-4 w-4 text-red-600" />
+                              </Button>
+                            }
                           </div>
                         </TableCell>
                       </TableRow>
-                  )}
+                    )}
                   </TableBody>
                 </Table>
               </div>
 
               {/* Show permission status when actions are disabled */}
               {!isAdmin() &&
-            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                   <p className="text-sm text-amber-700">
                     <strong>Access Restrictions:</strong>
                     Only administrators can edit or delete delivery records.
                   </p>
                 </div>
-            }
+              }
 
               {/* Pagination */}
               {totalPages > 1 &&
-            <div className="flex items-center justify-between mt-4">
+                <div className="flex items-center justify-between mt-4">
                   <p className="text-sm text-gray-600">
                     Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} records
                   </p>
                   <div className="flex space-x-2">
                     <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                  disabled={currentPage === 1}>
-
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}>
                       Previous
                     </Button>
+                    <span className="flex items-center px-3 py-1 text-sm">
+                      Page {currentPage} of {totalPages}
+                    </span>
                     <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                  disabled={currentPage === totalPages}>
-
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages}>
                       Next
                     </Button>
                   </div>
                 </div>
-            }
+              }
             </>
           }
         </CardContent>
@@ -469,9 +583,8 @@ const DeliveryList: React.FC = () => {
         open={reportDialogOpen}
         onOpenChange={setReportDialogOpen}
         delivery={selectedDelivery} />
-
-    </div>);
-
+    </div>
+  );
 };
 
 export default DeliveryList;

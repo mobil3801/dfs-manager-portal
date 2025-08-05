@@ -45,11 +45,11 @@ export const productService = {
   // Get all products
   getAll: async () => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('is_active', true)
-        .order('product_name');
+      const { data, error } = await supabase.
+      from('products').
+      select('*').
+      eq('is_active', true).
+      order('product_name');
 
       if (error) throw error;
 
@@ -63,12 +63,12 @@ export const productService = {
   // Get products by station
   getByStation: async (stationId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('station_id', stationId)
-        .eq('is_active', true)
-        .order('product_name');
+      const { data, error } = await supabase.
+      from('products').
+      select('*').
+      eq('station_id', stationId).
+      eq('is_active', true).
+      order('product_name');
 
       if (error) throw error;
 
@@ -82,11 +82,11 @@ export const productService = {
   // Get product by ID
   getById: async (id: string) => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', id)
-        .single();
+      const { data, error } = await supabase.
+      from('products').
+      select('*').
+      eq('id', id).
+      single();
 
       if (error) throw error;
 
@@ -100,10 +100,10 @@ export const productService = {
   // Search products
   search: async (searchTerm: string, stationId?: string) => {
     try {
-      let query = supabase
-        .from('products')
-        .select('*')
-        .eq('is_active', true);
+      let query = supabase.
+      from('products').
+      select('*').
+      eq('is_active', true);
 
       if (stationId) {
         query = query.eq('station_id', stationId);
@@ -126,16 +126,16 @@ export const productService = {
   // Create product
   create: async (productData: CreateProductData) => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .insert({
-          ...productData,
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .select()
-        .single();
+      const { data, error } = await supabase.
+      from('products').
+      insert({
+        ...productData,
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }).
+      select().
+      single();
 
       if (error) throw error;
 
@@ -149,15 +149,15 @@ export const productService = {
   // Update product
   update: async (id: string, productData: Partial<CreateProductData>) => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .update({
-          ...productData,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', id)
-        .select()
-        .single();
+      const { data, error } = await supabase.
+      from('products').
+      update({
+        ...productData,
+        updated_at: new Date().toISOString()
+      }).
+      eq('id', id).
+      select().
+      single();
 
       if (error) throw error;
 
@@ -171,15 +171,15 @@ export const productService = {
   // Delete product (soft delete)
   delete: async (id: string) => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .update({
-          is_active: false,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', id)
-        .select()
-        .single();
+      const { data, error } = await supabase.
+      from('products').
+      update({
+        is_active: false,
+        updated_at: new Date().toISOString()
+      }).
+      eq('id', id).
+      select().
+      single();
 
       if (error) throw error;
 
@@ -193,10 +193,10 @@ export const productService = {
   // Hard delete product
   hardDelete: async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.
+      from('products').
+      delete().
+      eq('id', id);
 
       if (error) throw error;
 
@@ -210,11 +210,11 @@ export const productService = {
   // Get low stock products
   getLowStock: async (stationId?: string) => {
     try {
-      let query = supabase
-        .from('products')
-        .select('*')
-        .eq('is_active', true)
-        .lt('stock_quantity', supabase.from('products').select('min_stock_level'));
+      let query = supabase.
+      from('products').
+      select('*').
+      eq('is_active', true).
+      lt('stock_quantity', supabase.from('products').select('min_stock_level'));
 
       if (stationId) {
         query = query.eq('station_id', stationId);
@@ -234,15 +234,15 @@ export const productService = {
   // Update stock quantity
   updateStock: async (id: string, quantity: number) => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .update({
-          stock_quantity: quantity,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', id)
-        .select()
-        .single();
+      const { data, error } = await supabase.
+      from('products').
+      update({
+        stock_quantity: quantity,
+        updated_at: new Date().toISOString()
+      }).
+      eq('id', id).
+      select().
+      single();
 
       if (error) throw error;
 
@@ -256,11 +256,11 @@ export const productService = {
   // Get products by category
   getByCategory: async (category: string, stationId?: string) => {
     try {
-      let query = supabase
-        .from('products')
-        .select('*')
-        .eq('category', category)
-        .eq('is_active', true);
+      let query = supabase.
+      from('products').
+      select('*').
+      eq('category', category).
+      eq('is_active', true);
 
       if (stationId) {
         query = query.eq('station_id', stationId);
@@ -280,16 +280,16 @@ export const productService = {
   // Get product categories
   getCategories: async () => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('category')
-        .eq('is_active', true)
-        .not('category', 'is', null);
+      const { data, error } = await supabase.
+      from('products').
+      select('category').
+      eq('is_active', true).
+      not('category', 'is', null);
 
       if (error) throw error;
 
       // Extract unique categories
-      const categories = [...new Set(data?.map(item => item.category) || [])];
+      const categories = [...new Set(data?.map((item) => item.category) || [])];
 
       return { data: categories, error: null };
     } catch (error: any) {

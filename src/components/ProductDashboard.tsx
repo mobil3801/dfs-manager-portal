@@ -53,36 +53,36 @@ const ProductDashboard: React.FC = () => {
       }
 
       const products = result.data || [];
-      
+
       // Calculate stats
       const totalProducts = products.length;
       const totalValue = products.reduce((sum, product) => {
-        return sum + ((product.stock_quantity || 0) * (product.cost || 0));
+        return sum + (product.stock_quantity || 0) * (product.cost || 0);
       }, 0);
 
-      const lowStockProducts = products.filter(product => 
-        product.stock_quantity !== undefined && 
-        product.min_stock_level !== undefined &&
-        product.stock_quantity <= product.min_stock_level &&
-        product.stock_quantity > 0
+      const lowStockProducts = products.filter((product) =>
+      product.stock_quantity !== undefined &&
+      product.min_stock_level !== undefined &&
+      product.stock_quantity <= product.min_stock_level &&
+      product.stock_quantity > 0
       );
 
-      const outOfStockProducts = products.filter(product => 
-        (product.stock_quantity || 0) <= 0
+      const outOfStockProducts = products.filter((product) =>
+      (product.stock_quantity || 0) <= 0
       );
 
       // Category counts
       const categoryCounts: Record<string, number> = {};
-      products.forEach(product => {
+      products.forEach((product) => {
         if (product.category) {
           categoryCounts[product.category] = (categoryCounts[product.category] || 0) + 1;
         }
       });
 
       // Recently added (last 5 products by created_at)
-      const recentlyAdded = products
-        .sort((a, b) => new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime())
-        .slice(0, 5);
+      const recentlyAdded = products.
+      sort((a, b) => new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime()).
+      slice(0, 5);
 
       setStats({
         totalProducts,
@@ -120,9 +120,9 @@ const ProductDashboard: React.FC = () => {
 
   const getStockStatusColor = (product: Product) => {
     if ((product.stock_quantity || 0) <= 0) return 'text-red-600';
-    if (product.stock_quantity !== undefined && 
-        product.min_stock_level !== undefined && 
-        product.stock_quantity <= product.min_stock_level) {
+    if (product.stock_quantity !== undefined &&
+    product.min_stock_level !== undefined &&
+    product.stock_quantity <= product.min_stock_level) {
       return 'text-orange-600';
     }
     return 'text-green-600';
@@ -130,14 +130,14 @@ const ProductDashboard: React.FC = () => {
 
   const getStockPercentage = (product: Product) => {
     if (!product.max_stock_level || product.max_stock_level === 0) return 0;
-    return Math.min(((product.stock_quantity || 0) / product.max_stock_level) * 100, 100);
+    return Math.min((product.stock_quantity || 0) / product.max_stock_level * 100, 100);
   };
 
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[...Array(4)].map((_, i) => (
-          <Card key={i}>
+        {[...Array(4)].map((_, i) =>
+        <Card key={i}>
             <CardContent className="p-6">
               <div className="animate-pulse">
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -145,9 +145,9 @@ const ProductDashboard: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
-    );
+        )}
+      </div>);
+
   }
 
   return (
@@ -219,23 +219,23 @@ const ProductDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {Object.entries(stats.categoryCounts)
-                .sort(([,a], [,b]) => b - a)
-                .slice(0, 6)
-                .map(([category, count]) => (
-                  <div key={category} className="flex items-center justify-between">
+              {Object.entries(stats.categoryCounts).
+              sort(([, a], [, b]) => b - a).
+              slice(0, 6).
+              map(([category, count]) =>
+              <div key={category} className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <Badge variant="outline">{category}</Badge>
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="text-sm font-medium">{count}</div>
-                      <Progress 
-                        value={(count / stats.totalProducts) * 100} 
-                        className="w-16" 
-                      />
+                      <Progress
+                    value={count / stats.totalProducts * 100}
+                    className="w-16" />
+
                     </div>
                   </div>
-                ))}
+              )}
             </div>
           </CardContent>
         </Card>
@@ -251,13 +251,13 @@ const ProductDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {stats.lowStockProducts.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">
+              {stats.lowStockProducts.length === 0 ?
+              <p className="text-sm text-muted-foreground text-center py-4">
                   No low stock items found
-                </p>
-              ) : (
-                stats.lowStockProducts.map((product) => (
-                  <div key={product.id} className="flex items-center justify-between p-3 border rounded-lg">
+                </p> :
+
+              stats.lowStockProducts.map((product) =>
+              <div key={product.id} className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="flex-1">
                       <p className="font-medium text-sm">{product.product_name}</p>
                       <p className="text-xs text-muted-foreground">{product.category}</p>
@@ -266,29 +266,29 @@ const ProductDashboard: React.FC = () => {
                       <p className={`text-sm font-medium ${getStockStatusColor(product)}`}>
                         {product.stock_quantity}/{product.min_stock_level}
                       </p>
-                      {product.max_stock_level && product.max_stock_level > 0 && (
-                        <Progress 
-                          value={getStockPercentage(product)} 
-                          className="w-16 h-2 mt-1" 
-                        />
-                      )}
+                      {product.max_stock_level && product.max_stock_level > 0 &&
+                  <Progress
+                    value={getStockPercentage(product)}
+                    className="w-16 h-2 mt-1" />
+
+                  }
                     </div>
                   </div>
-                ))
-              )}
+              )
+              }
             </div>
-            {stats.lowStockProducts.length > 0 && (
-              <div className="pt-4 border-t">
+            {stats.lowStockProducts.length > 0 &&
+            <div className="pt-4 border-t">
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate('/products?filter=low-stock')}
-                  className="w-full"
-                >
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/products?filter=low-stock')}
+                className="w-full">
+
                   View All Low Stock Items
                 </Button>
               </div>
-            )}
+            }
           </CardContent>
         </Card>
       </div>
@@ -304,45 +304,45 @@ const ProductDashboard: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {stats.recentlyAdded.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">
+            {stats.recentlyAdded.length === 0 ?
+            <p className="text-sm text-muted-foreground text-center py-4">
                 No products found
-              </p>
-            ) : (
-              stats.recentlyAdded.map((product) => (
-                <div key={product.id} className="flex items-center justify-between p-3 border rounded-lg">
+              </p> :
+
+            stats.recentlyAdded.map((product) =>
+            <div key={product.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex-1">
                     <p className="font-medium text-sm">{product.product_name}</p>
                     <div className="flex items-center space-x-2 mt-1">
-                      {product.category && (
-                        <Badge variant="outline" className="text-xs">
+                      {product.category &&
+                  <Badge variant="outline" className="text-xs">
                           {product.category}
                         </Badge>
-                      )}
+                  }
                       <span className="text-xs text-muted-foreground">
                         Added {formatDate(product.created_at)}
                       </span>
                     </div>
                   </div>
                   <div className="text-right">
-                    {product.price && (
-                      <p className="text-sm font-medium">{formatCurrency(product.price)}</p>
-                    )}
+                    {product.price &&
+                <p className="text-sm font-medium">{formatCurrency(product.price)}</p>
+                }
                     <p className={`text-xs ${getStockStatusColor(product)}`}>
                       Stock: {product.stock_quantity || 0}
                     </p>
                   </div>
                 </div>
-              ))
-            )}
+            )
+            }
           </div>
           <div className="pt-4 border-t">
             <Button
               variant="outline"
               size="sm"
               onClick={() => navigate('/products')}
-              className="w-full"
-            >
+              className="w-full">
+
               View All Products
             </Button>
           </div>
@@ -356,34 +356,34 @@ const ProductDashboard: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button 
+            <Button
               onClick={() => navigate('/products/new')}
-              className="flex items-center space-x-2"
-            >
+              className="flex items-center space-x-2">
+
               <Package className="w-4 h-4" />
               <span>Add New Product</span>
             </Button>
-            <Button 
+            <Button
               variant="outline"
               onClick={() => navigate('/products?filter=low-stock')}
-              className="flex items-center space-x-2"
-            >
+              className="flex items-center space-x-2">
+
               <AlertTriangle className="w-4 h-4" />
               <span>Review Low Stock</span>
             </Button>
-            <Button 
+            <Button
               variant="outline"
               onClick={() => loadProductStats()}
-              className="flex items-center space-x-2"
-            >
+              className="flex items-center space-x-2">
+
               <TrendingUp className="w-4 h-4" />
               <span>Refresh Data</span>
             </Button>
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ProductDashboard;
