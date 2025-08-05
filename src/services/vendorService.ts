@@ -247,9 +247,9 @@ class VendorService {
    */
   async uploadDocument(vendorId: string, file: File) {
     try {
-      // Check if bucket exists, create if not
       const bucketName = 'vendor-documents';
-      
+
+      // Generate unique file name
       const fileExt = file.name.split('.').pop();
       const fileName = `vendor-${vendorId}-${Date.now()}.${fileExt}`;
       const filePath = `vendors/${vendorId}/${fileName}`;
@@ -257,24 +257,38 @@ class VendorService {
       // Upload file to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from(bucketName)
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
       if (uploadError) {
         console.error('Error uploading file:', uploadError);
+        
+        // Handle specific storage errors
+        if (uploadError.message?.includes('Bucket not found')) {
+          throw new Error('Storage bucket not configured. Please contact administrator to set up vendor document storage.');
+        }
+        
         throw uploadError;
       }
 
-      // Get public URL
+      // Get public URL for the uploaded file
       const { data: { publicUrl } } = supabase.storage
         .from(bucketName)
         .getPublicUrl(filePath);
 
-      // Update vendor's documents array
-      const { data: vendor } = await supabase
+      // Get current vendor documents
+      const { data: vendor, error: fetchError } = await supabase
         .from('vendors')
         .select('documents')
         .eq('id', vendorId)
         .single();
+
+      if (fetchError) {
+        console.error('Error fetching vendor:', fetchError);
+        throw fetchError;
+      }
 
       const currentDocuments = vendor?.documents || [];
       const newDocument = {
@@ -287,6 +301,7 @@ class VendorService {
         uploaded_at: new Date().toISOString()
       };
 
+      // Update vendor's documents array
       const { data, error } = await supabase
         .from('vendors')
         .update({
@@ -318,11 +333,16 @@ class VendorService {
   async deleteDocument(vendorId: string, documentId: string) {
     try {
       // Get current vendor documents
-      const { data: vendor } = await supabase
+      const { data: vendor, error: fetchError } = await supabase
         .from('vendors')
         .select('documents')
         .eq('id', vendorId)
         .single();
+
+      if (fetchError) {
+        console.error('Error fetching vendor:', fetchError);
+        throw fetchError;
+      }
 
       if (!vendor?.documents) {
         throw new Error('No documents found for this vendor');
@@ -373,19 +393,19 @@ class VendorService {
    */
   getVendorCategories() {
     return [
-      'Fuel Supplier',
-      'Food & Beverages',
-      'Automotive',
-      'Maintenance',
-      'Office Supplies',
-      'Technology',
-      'Cleaning Services',
-      'Security Services',
-      'Insurance',
-      'Legal Services',
-      'Marketing',
-      'Other'
-    ];
+    'Fuel Supplier',
+    'Food & Beverages',
+    'Automotive',
+    'Maintenance',
+    'Office Supplies',
+    'Technology',
+    'Cleaning Services',
+    'Security Services',
+    'Insurance',
+    'Legal Services',
+    'Marketing',
+    'Other'];
+
   }
 
   /**
@@ -393,15 +413,15 @@ class VendorService {
    */
   getPaymentTermsOptions() {
     return [
-      'Net 30',
-      'Net 15',
-      'Net 10',
-      'Payment on Delivery',
-      'Prepaid',
-      '2/10 Net 30',
-      '1/10 Net 30',
-      'Custom Terms'
-    ];
+    'Net 30',
+    'Net 15',
+    'Net 10',
+    'Payment on Delivery',
+    'Prepaid',
+    '2/10 Net 30',
+    '1/10 Net 30',
+    'Custom Terms'];
+
   }
 
   /**
