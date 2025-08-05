@@ -21,9 +21,9 @@ import OnAuthSuccessPage from '@/pages/OnAuthSuccessPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import NotFound from '@/pages/NotFound';
 
-// Lazy load feature pages
-const ProductList = lazy(() => import('@/pages/Products/ProductList'));
-const ProductForm = lazy(() => import('@/pages/Products/ProductForm'));
+// Lazy load feature pages - Updated to use Supabase
+const ProductList = lazy(() => import('@/pages/Products/SupabaseProductList'));
+const ProductForm = lazy(() => import('@/pages/Products/SupabaseProductForm'));
 const EmployeeList = lazy(() => import('@/pages/Employees/EmployeeList'));
 const EmployeeForm = lazy(() => import('@/pages/Employees/EmployeeForm'));
 const SalesReportList = lazy(() => import('@/pages/Sales/SalesReportList'));

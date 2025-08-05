@@ -103,6 +103,23 @@ export const auditLogService = {
 
 // Station Service
 export const stationService = {
+  getAll: async () => {
+    try {
+      const { data, error } = await supabase.
+      from('stations').
+      select('*').
+      eq('is_active', true).
+      order('name');
+
+      if (error) throw error;
+
+      return { data, error: null };
+    } catch (error: any) {
+      console.error('Error fetching stations:', error);
+      return { data: null, error };
+    }
+  },
+
   getAllStations: async () => {
     try {
       const { data, error } = await supabase.

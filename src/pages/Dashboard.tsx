@@ -18,6 +18,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import AuthStatusCard from '@/components/AuthStatusCard';
+import ProductDashboard from '@/components/ProductDashboard';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
@@ -231,8 +232,9 @@ const Dashboard = () => {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid w-full lg:w-[400px] grid-cols-2">
+        <TabsList className="grid w-full lg:w-[600px] grid-cols-3">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="products">Products</TabsTrigger>
           <TabsTrigger value="quick-actions">Quick Actions</TabsTrigger>
         </TabsList>
 
@@ -286,6 +288,10 @@ const Dashboard = () => {
               </div>
             </div>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="products" className="space-y-4">
+          <ProductDashboard />
         </TabsContent>
 
         <TabsContent value="quick-actions" className="space-y-4">
