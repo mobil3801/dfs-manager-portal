@@ -326,7 +326,8 @@ const CriticalErrorFixPage: React.FC = () => {
   };
 
   React.useEffect(() => {
-    testSystemStatus();
+    // Don't auto-test on mount to avoid authentication errors
+    console.log('CriticalErrorFixPage loaded - manual status check required');
   }, []);
 
   const allIssuesFixed = systemStatus &&
