@@ -11,10 +11,10 @@ interface VendorErrorBoundaryState {
 }
 
 class VendorErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  VendorErrorBoundaryState
-> {
-  constructor(props: { children: React.ReactNode }) {
+  {children: React.ReactNode;},
+  VendorErrorBoundaryState>
+{
+  constructor(props: {children: React.ReactNode;}) {
     super(props);
     this.state = {
       hasError: false,
@@ -82,13 +82,13 @@ const VendorErrorFallback: React.FC<{
             <li>• Network connectivity issues</li>
           </ul>
           
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded p-3">
+          {error &&
+          <div className="bg-red-50 border border-red-200 rounded p-3">
               <p className="text-xs text-red-600 font-mono">
                 {error.name}: {error.message}
               </p>
             </div>
-          )}
+          }
 
           <div className="flex flex-col space-y-2">
             <Button onClick={onRetry} className="w-full">
@@ -102,8 +102,8 @@ const VendorErrorFallback: React.FC<{
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default VendorErrorBoundary;

@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Search, Edit, Trash2, Building2, Mail, Phone, MapPin, Eye, Download, FileText, AlertCircle } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Building2, Mail, Phone, MapPin, Eye, Download, FileText, AlertCircle, RefreshCw, CheckCircle, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useModuleAccess } from '@/contexts/ModuleAccessContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -26,6 +26,8 @@ const VendorListContent: React.FC = () => {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
   const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [supabaseConnected, setSupabaseConnected] = useState<boolean>(false);
+  const [realTimeEnabled, setRealTimeEnabled] = useState<boolean>(false);
   const navigate = useNavigate();
 
   // Auth context for admin checking
@@ -46,22 +48,39 @@ const VendorListContent: React.FC = () => {
 
   const pageSize = 10;
 
+  // Test Supabase connection on component mount
   useEffect(() => {
-    loadVendors();
-  }, [currentPage, searchTerm]);
+    testSupabaseConnection();
+  }, []);
+
+  useEffect(() => {
+    if (supabaseConnected) {
+      loadVendors();
+    }
+  }, [currentPage, searchTerm, supabaseConnected]);
 
   // Set up real-time subscription
   useEffect(() => {
     let subscription: any = null;
-    
-    try {
-      subscription = vendorService.subscribeToVendors((payload) => {
-        console.log('Vendor change detected:', payload);
-        // Reload vendors when changes occur
-        loadVendors();
-      });
-    } catch (error) {
-      console.error('Error setting up subscription:', error);
+
+    if (supabaseConnected) {
+      try {
+        subscription = vendorService.subscribeToVendors((payload) => {
+          console.log('Vendor change detected:', payload);
+          // Reload vendors when changes occur
+          loadVendors();
+          setRealTimeEnabled(true);
+          
+          toast({
+            title: "Real-time Update",
+            description: "Vendor data updated from Supabase",
+            variant: "default"
+          });
+        });
+      } catch (error) {
+        console.error('Error setting up subscription:', error);
+        setRealTimeEnabled(false);
+      }
     }
 
     return () => {
@@ -73,9 +92,46 @@ const VendorListContent: React.FC = () => {
         }
       }
     };
-  }, []);
+  }, [supabaseConnected]);
+
+  const testSupabaseConnection = async () => {
+    try {
+      setLoading(true);
+      await vendorService.checkTableExists();
+      setSupabaseConnected(true);
+      setConnectionError(null);
+      
+      toast({
+        title: "Connection Successful",
+        description: "Supabase database and storage are properly connected",
+        variant: "default"
+      });
+    } catch (error: any) {
+      console.error('Supabase connection test failed:', error);
+      setSupabaseConnected(false);
+      setRealTimeEnabled(false);
+      
+      if (error.message?.includes('relation "vendors" does not exist')) {
+        setConnectionError('DATABASE_TABLE_MISSING');
+      } else if (error.message?.includes('JWT')) {
+        setConnectionError('AUTH_ERROR');
+      } else {
+        setConnectionError('CONNECTION_ERROR');
+      }
+      
+      toast({
+        title: "Connection Error",
+        description: "Failed to connect to Supabase database. Please check your configuration.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadVendors = async () => {
+    if (!supabaseConnected) return;
+
     try {
       setLoading(true);
       setConnectionError(null);
@@ -89,11 +145,13 @@ const VendorListContent: React.FC = () => {
       setVendors(result.vendors);
       setTotalCount(result.totalCount);
       setTotalPages(result.totalPages);
+      setSupabaseConnected(true);
     } catch (error: any) {
       console.error('Error loading vendors:', error);
-      
+      setSupabaseConnected(false);
+
       let errorMessage = 'Failed to load vendors. Please check your connection.';
-      
+
       if (error.message?.includes('relation "vendors" does not exist')) {
         errorMessage = 'Vendors table not found. Please contact administrator to set up the database.';
         setConnectionError('DATABASE_TABLE_MISSING');
@@ -103,6 +161,8 @@ const VendorListContent: React.FC = () => {
       } else if (error.message?.includes('network')) {
         errorMessage = 'Network connection error. Please check your internet connection.';
         setConnectionError('NETWORK_ERROR');
+      } else {
+        setConnectionError('CONNECTION_ERROR');
       }
 
       toast({
@@ -200,7 +260,7 @@ const VendorListContent: React.FC = () => {
 
       toast({
         title: "Success",
-        description: "Vendor deleted successfully"
+        description: "Vendor deleted successfully from Supabase"
       });
 
       loadVendors();
@@ -209,7 +269,7 @@ const VendorListContent: React.FC = () => {
       console.error('Error deleting vendor:', error);
       toast({
         title: "Error",
-        description: "Failed to delete vendor",
+        description: "Failed to delete vendor from Supabase",
         variant: "destructive"
       });
     }
@@ -257,6 +317,11 @@ const VendorListContent: React.FC = () => {
     }
 
     navigate('/vendors/new');
+  };
+
+  const handleRetryConnection = () => {
+    setConnectionError(null);
+    testSupabaseConnection();
   };
 
   // Keyboard shortcuts
@@ -374,7 +439,7 @@ const VendorListContent: React.FC = () => {
                 The vendors table hasn't been created yet. Please contact your administrator to set up the database.
               </p>
               <div className="space-y-2">
-                <Button onClick={loadVendors} variant="outline">
+                <Button onClick={handleRetryConnection} variant="outline">
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Retry Connection
                 </Button>
@@ -392,6 +457,39 @@ const VendorListContent: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Supabase Connection Status */}
+      <Card className={`border ${supabaseConnected ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50'}`}>
+        <CardContent className="pt-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              {supabaseConnected ? (
+                <>
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span className="text-green-700 font-medium">Supabase Connected</span>
+                  <span className="text-green-600 text-sm">Database and storage are properly connected</span>
+                  {realTimeEnabled && (
+                    <Badge variant="outline" className="text-green-600 border-green-300">
+                      Real-time Updates
+                    </Badge>
+                  )}
+                </>
+              ) : (
+                <>
+                  <AlertCircle className="w-5 h-5 text-amber-600" />
+                  <span className="text-amber-700 font-medium">Connection Issue</span>
+                </>
+              )}
+            </div>
+            {!supabaseConnected && (
+              <Button size="sm" variant="outline" onClick={testSupabaseConnection}>
+                <RefreshCw className="w-4 h-4 mr-1" />
+                Test Connection
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -407,7 +505,7 @@ const VendorListContent: React.FC = () => {
             
             {/* Only show Add Vendor button if create permission is enabled */}
             {canCreateVendor ? (
-              <Button onClick={handleCreateVendor} className="flex items-center space-x-2">
+              <Button onClick={handleCreateVendor} className="flex items-center space-x-2" disabled={!supabaseConnected}>
                 <Plus className="w-4 h-4" />
                 <span>Add Vendor</span>
               </Button>
@@ -430,6 +528,7 @@ const VendorListContent: React.FC = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
+                disabled={!supabaseConnected}
               />
             </div>
           </div>
@@ -445,7 +544,7 @@ const VendorListContent: React.FC = () => {
             <div className="text-center py-8">
               <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No vendors found</p>
-              {canCreateVendor && (
+              {canCreateVendor && supabaseConnected && (
                 <Button
                   variant="outline"
                   className="mt-4"
