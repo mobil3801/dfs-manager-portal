@@ -10,12 +10,11 @@ interface VendorErrorBoundaryState {
   errorInfo: React.ErrorInfo | null;
 }
 
-interface VendorErrorBoundaryProps {
-  children: React.ReactNode;
-}
-
-class VendorErrorBoundary extends React.Component<VendorErrorBoundaryProps, VendorErrorBoundaryState> {
-  constructor(props: VendorErrorBoundaryProps) {
+class VendorErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  VendorErrorBoundaryState
+> {
+  constructor(props: { children: React.ReactNode }) {
     super(props);
     this.state = {
       hasError: false,
@@ -33,14 +32,14 @@ class VendorErrorBoundary extends React.Component<VendorErrorBoundaryProps, Vend
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Vendor Error Boundary caught an error:', error, errorInfo);
+    console.error('Vendor page error:', error, errorInfo);
     this.setState({
       error,
       errorInfo
     });
   }
 
-  handleReset = () => {
+  handleRetry = () => {
     this.setState({
       hasError: false,
       error: null,
@@ -50,126 +49,61 @@ class VendorErrorBoundary extends React.Component<VendorErrorBoundaryProps, Vend
 
   render() {
     if (this.state.hasError) {
-      return <VendorErrorFallback
-        error={this.state.error}
-        onReset={this.handleReset} />;
-
+      return <VendorErrorFallback onRetry={this.handleRetry} error={this.state.error} />;
     }
 
     return this.props.children;
   }
 }
 
-interface VendorErrorFallbackProps {
+const VendorErrorFallback: React.FC<{
+  onRetry: () => void;
   error: Error | null;
-  onReset: () => void;
-}
-
-const VendorErrorFallback: React.FC<VendorErrorFallbackProps> = ({ error, onReset }) => {
+}> = ({ onRetry, error }) => {
   const navigate = useNavigate();
 
-  const getErrorMessage = () => {
-    if (error?.message?.includes('relation "vendors" does not exist')) {
-      return {
-        title: 'Database Setup Required',
-        description: 'The vendors table hasn\'t been created yet. Please contact your administrator to set up the database.',
-        type: 'database' as const
-      };
-    }
-
-    if (error?.message?.includes('JWT')) {
-      return {
-        title: 'Authentication Error',
-        description: 'Your session has expired. Please try logging in again.',
-        type: 'auth' as const
-      };
-    }
-
-    if (error?.message?.includes('network')) {
-      return {
-        title: 'Connection Error',
-        description: 'Unable to connect to the server. Please check your internet connection and try again.',
-        type: 'network' as const
-      };
-    }
-
-    return {
-      title: 'Vendor System Error',
-      description: 'An unexpected error occurred in the vendor management system. Please try again or contact support if the problem persists.',
-      type: 'general' as const
-    };
-  };
-
-  const errorDetails = getErrorMessage();
-
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center space-x-2 text-red-600">
-                <AlertCircle className="w-6 h-6" />
-                <span>{errorDetails.title}</span>
-              </CardTitle>
-              <CardDescription>
-                {errorDetails.description}
-              </CardDescription>
+    <div className="min-h-[400px] flex items-center justify-center p-6">
+      <Card className="max-w-md w-full">
+        <CardHeader className="text-center">
+          <div className="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
+            <AlertCircle className="w-6 h-6 text-red-600" />
+          </div>
+          <CardTitle className="text-red-600">Vendor Page Error</CardTitle>
+          <CardDescription>
+            Something went wrong while loading the vendor page. This might be due to:
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <ul className="text-sm text-gray-600 space-y-2">
+            <li>• Database connection issues</li>
+            <li>• Missing table structure</li>
+            <li>• Authentication problems</li>
+            <li>• Network connectivity issues</li>
+          </ul>
+          
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded p-3">
+              <p className="text-xs text-red-600 font-mono">
+                {error.name}: {error.message}
+              </p>
             </div>
-            <Button variant="outline" onClick={() => navigate('/dashboard')}>
+          )}
+
+          <div className="flex flex-col space-y-2">
+            <Button onClick={onRetry} className="w-full">
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Try Again
+            </Button>
+            <Button variant="outline" onClick={() => navigate('/dashboard')} className="w-full">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Dashboard
             </Button>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">
-            <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-            
-            <div className="space-y-4">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <h4 className="font-medium text-red-900 mb-2">Error Details</h4>
-                <p className="text-sm text-red-700">
-                  {error?.message || 'Unknown error occurred'}
-                </p>
-              </div>
-
-              <div className="flex justify-center space-x-4">
-                <Button onClick={onReset} variant="outline">
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Try Again
-                </Button>
-                
-                {errorDetails.type === 'database' &&
-                <Button onClick={() => navigate('/admin/site-management')} variant="outline">
-                    Database Setup
-                  </Button>
-                }
-                
-                {errorDetails.type === 'auth' &&
-                <Button onClick={() => navigate('/login')} variant="outline">
-                    Re-login
-                  </Button>
-                }
-              </div>
-            </div>
-
-            <details className="mt-6 text-left">
-              <summary className="cursor-pointer text-sm text-gray-600 hover:text-gray-800">
-                Technical Details (for developers)
-              </summary>
-              <div className="mt-2 p-3 bg-gray-100 rounded text-xs font-mono text-gray-800 overflow-auto">
-                <div><strong>Error:</strong> {error?.name}</div>
-                <div><strong>Message:</strong> {error?.message}</div>
-                <div><strong>Stack:</strong></div>
-                <pre className="whitespace-pre-wrap">{error?.stack}</pre>
-              </div>
-            </details>
-          </div>
         </CardContent>
       </Card>
-    </div>);
-
+    </div>
+  );
 };
 
 export default VendorErrorBoundary;

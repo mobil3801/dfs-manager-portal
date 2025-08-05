@@ -12,7 +12,7 @@ const OnAuthSuccessPage: React.FC = () => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          navigate('/dashboard');
+          navigate('/login');
           return 0;
         }
         return prev - 1;
@@ -39,7 +39,7 @@ const OnAuthSuccessPage: React.FC = () => {
               Your email has been verified and your account is now active.
             </p>
             <p className="text-sm text-gray-500">
-              You will be redirected to the dashboard in {countdown} seconds...
+              You will be redirected to the login page in {countdown} seconds...
             </p>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div

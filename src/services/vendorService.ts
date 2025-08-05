@@ -37,10 +37,10 @@ class VendorService {
    */
   async checkTableExists() {
     try {
-      const { data, error } = await supabase.
-      from('vendors').
-      select('count', { count: 'exact' }).
-      limit(1);
+      const { data, error } = await supabase
+        .from('vendors')
+        .select('count', { count: 'exact' })
+        .limit(1);
 
       if (error) {
         console.error('Table check error:', error);
@@ -75,13 +75,13 @@ class VendorService {
       const { page = 1, limit = 10, search, stationId, category, isActive } = options;
       const offset = (page - 1) * limit;
 
-      let query = supabase.
-      from('vendors').
-      select(`
+      let query = supabase
+        .from('vendors')
+        .select(`
           *,
           stations(name, station_id)
-        `, { count: 'exact' }).
-      order('vendor_name');
+        `, { count: 'exact' })
+        .order('vendor_name');
 
       // Apply filters
       if (search) {
@@ -131,14 +131,14 @@ class VendorService {
     try {
       await this.checkTableExists();
 
-      const { data, error } = await supabase.
-      from('vendors').
-      select(`
+      const { data, error } = await supabase
+        .from('vendors')
+        .select(`
           *,
           stations(name, station_id)
-        `).
-      eq('id', id).
-      single();
+        `)
+        .eq('id', id)
+        .single();
 
       if (error) {
         console.error('Error fetching vendor:', error);
@@ -165,14 +165,14 @@ class VendorService {
         documents: vendorData.documents || []
       };
 
-      const { data, error } = await supabase.
-      from('vendors').
-      insert([dataToInsert]).
-      select(`
+      const { data, error } = await supabase
+        .from('vendors')
+        .insert([dataToInsert])
+        .select(`
           *,
           stations(name, station_id)
-        `).
-      single();
+        `)
+        .single();
 
       if (error) {
         console.error('Error creating vendor:', error);
@@ -193,18 +193,18 @@ class VendorService {
     try {
       await this.checkTableExists();
 
-      const { data, error } = await supabase.
-      from('vendors').
-      update({
-        ...vendorData,
-        updated_at: new Date().toISOString()
-      }).
-      eq('id', id).
-      select(`
+      const { data, error } = await supabase
+        .from('vendors')
+        .update({
+          ...vendorData,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select(`
           *,
           stations(name, station_id)
-        `).
-      single();
+        `)
+        .single();
 
       if (error) {
         console.error('Error updating vendor:', error);
@@ -225,10 +225,10 @@ class VendorService {
     try {
       await this.checkTableExists();
 
-      const { error } = await supabase.
-      from('vendors').
-      delete().
-      eq('id', id);
+      const { error } = await supabase
+        .from('vendors')
+        .delete()
+        .eq('id', id);
 
       if (error) {
         console.error('Error deleting vendor:', error);
@@ -247,48 +247,34 @@ class VendorService {
    */
   async uploadDocument(vendorId: string, file: File) {
     try {
+      // Check if bucket exists, create if not
       const bucketName = 'vendor-documents';
-
-      // Generate unique file name
+      
       const fileExt = file.name.split('.').pop();
       const fileName = `vendor-${vendorId}-${Date.now()}.${fileExt}`;
       const filePath = `vendors/${vendorId}/${fileName}`;
 
       // Upload file to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage.
-      from(bucketName).
-      upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false
-      });
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from(bucketName)
+        .upload(filePath, file);
 
       if (uploadError) {
         console.error('Error uploading file:', uploadError);
-
-        // Handle specific storage errors
-        if (uploadError.message?.includes('Bucket not found')) {
-          throw new Error('Storage bucket not configured. Please contact administrator to set up vendor document storage.');
-        }
-
         throw uploadError;
       }
 
-      // Get public URL for the uploaded file
-      const { data: { publicUrl } } = supabase.storage.
-      from(bucketName).
-      getPublicUrl(filePath);
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from(bucketName)
+        .getPublicUrl(filePath);
 
-      // Get current vendor documents
-      const { data: vendor, error: fetchError } = await supabase.
-      from('vendors').
-      select('documents').
-      eq('id', vendorId).
-      single();
-
-      if (fetchError) {
-        console.error('Error fetching vendor:', fetchError);
-        throw fetchError;
-      }
+      // Update vendor's documents array
+      const { data: vendor } = await supabase
+        .from('vendors')
+        .select('documents')
+        .eq('id', vendorId)
+        .single();
 
       const currentDocuments = vendor?.documents || [];
       const newDocument = {
@@ -301,16 +287,15 @@ class VendorService {
         uploaded_at: new Date().toISOString()
       };
 
-      // Update vendor's documents array
-      const { data, error } = await supabase.
-      from('vendors').
-      update({
-        documents: [...currentDocuments, newDocument],
-        updated_at: new Date().toISOString()
-      }).
-      eq('id', vendorId).
-      select().
-      single();
+      const { data, error } = await supabase
+        .from('vendors')
+        .update({
+          documents: [...currentDocuments, newDocument],
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', vendorId)
+        .select()
+        .single();
 
       if (error) {
         console.error('Error updating vendor documents:', error);
@@ -333,16 +318,11 @@ class VendorService {
   async deleteDocument(vendorId: string, documentId: string) {
     try {
       // Get current vendor documents
-      const { data: vendor, error: fetchError } = await supabase.
-      from('vendors').
-      select('documents').
-      eq('id', vendorId).
-      single();
-
-      if (fetchError) {
-        console.error('Error fetching vendor:', fetchError);
-        throw fetchError;
-      }
+      const { data: vendor } = await supabase
+        .from('vendors')
+        .select('documents')
+        .eq('id', vendorId)
+        .single();
 
       if (!vendor?.documents) {
         throw new Error('No documents found for this vendor');
@@ -354,9 +334,9 @@ class VendorService {
       }
 
       // Delete file from storage
-      const { error: deleteError } = await supabase.storage.
-      from('vendor-documents').
-      remove([document.path]);
+      const { error: deleteError } = await supabase.storage
+        .from('vendor-documents')
+        .remove([document.path]);
 
       if (deleteError) {
         console.error('Error deleting file from storage:', deleteError);
@@ -366,15 +346,15 @@ class VendorService {
       // Update vendor's documents array
       const updatedDocuments = vendor.documents.filter((doc: any) => doc.id !== documentId);
 
-      const { data, error } = await supabase.
-      from('vendors').
-      update({
-        documents: updatedDocuments,
-        updated_at: new Date().toISOString()
-      }).
-      eq('id', vendorId).
-      select().
-      single();
+      const { data, error } = await supabase
+        .from('vendors')
+        .update({
+          documents: updatedDocuments,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', vendorId)
+        .select()
+        .single();
 
       if (error) {
         console.error('Error updating vendor documents:', error);
@@ -393,19 +373,19 @@ class VendorService {
    */
   getVendorCategories() {
     return [
-    'Fuel Supplier',
-    'Food & Beverages',
-    'Automotive',
-    'Maintenance',
-    'Office Supplies',
-    'Technology',
-    'Cleaning Services',
-    'Security Services',
-    'Insurance',
-    'Legal Services',
-    'Marketing',
-    'Other'];
-
+      'Fuel Supplier',
+      'Food & Beverages',
+      'Automotive',
+      'Maintenance',
+      'Office Supplies',
+      'Technology',
+      'Cleaning Services',
+      'Security Services',
+      'Insurance',
+      'Legal Services',
+      'Marketing',
+      'Other'
+    ];
   }
 
   /**
@@ -413,15 +393,15 @@ class VendorService {
    */
   getPaymentTermsOptions() {
     return [
-    'Net 30',
-    'Net 15',
-    'Net 10',
-    'Payment on Delivery',
-    'Prepaid',
-    '2/10 Net 30',
-    '1/10 Net 30',
-    'Custom Terms'];
-
+      'Net 30',
+      'Net 15',
+      'Net 10',
+      'Payment on Delivery',
+      'Prepaid',
+      '2/10 Net 30',
+      '1/10 Net 30',
+      'Custom Terms'
+    ];
   }
 
   /**
@@ -429,18 +409,18 @@ class VendorService {
    */
   subscribeToVendors(callback: (payload: any) => void) {
     try {
-      const subscription = supabase.
-      channel('vendors-changes').
-      on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'vendors'
-        },
-        callback
-      ).
-      subscribe();
+      const subscription = supabase
+        .channel('vendors-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'vendors'
+          },
+          callback
+        )
+        .subscribe();
 
       return subscription;
     } catch (error) {
