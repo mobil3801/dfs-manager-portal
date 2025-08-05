@@ -33,7 +33,10 @@ class DatabaseConnectionManager {
   private readonly MAX_RETRIES = 3;
 
   constructor() {
-    this.startHealthCheck();
+    // Delay initial health check to allow app to initialize
+    setTimeout(() => {
+      this.startHealthCheck();
+    }, 2000);
   }
 
   /**
@@ -66,15 +69,23 @@ class DatabaseConnectionManager {
     const startTime = Date.now();
 
     try {
-      // Test basic Supabase connection with a simple query
-      const { data, error } = await supabase.
-      from('user_profiles').
-      select('id').
-      limit(1);
+      // Test basic Supabase connection with a simple auth check first
+      const { data: { session }, error: authError } = await supabase.auth.getSession();
+      
+      if (authError && !authError.message.includes('not authenticated')) {
+        throw new Error(`Auth service unavailable: ${authError.message}`);
+      }
+
+      // Try a simple database query if auth is working
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('id')
+        .limit(1);
 
       const responseTime = Date.now() - startTime;
 
-      if (error) {
+      // Consider connection successful even if no data (RLS may block query)
+      if (error && !error.message.includes('row-level security') && !error.message.includes('permission denied')) {
         throw new Error(`Database query failed: ${error.message}`);
       }
 
@@ -102,7 +113,11 @@ class DatabaseConnectionManager {
       };
 
       this.retryCount++;
-      console.error(`Database connection failed (attempt ${this.retryCount}):`, error);
+      
+      // Only log significant errors, not routine auth checks
+      if (this.retryCount <= this.MAX_RETRIES) {
+        console.warn(`Database connection check failed (attempt ${this.retryCount}):`, error);
+      }
 
       this.notifyListeners();
       return this.connectionStatus;

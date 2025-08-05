@@ -148,7 +148,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
       if (error) {
         console.log('❌ Auth error:', error);
-        if (showErrors && !error.message.includes('not authenticated')) {
+        // Only show meaningful errors to users
+        if (showErrors && !error.message.includes('not authenticated') && !error.message.includes('JWT')) {
           setAuthError(`Authentication failed: ${error.message}`);
         }
         setUser(null);
@@ -164,17 +165,49 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
         return { success: false };
       }
 
-      console.log('✅ User data fetched successfully:', supabaseUser);
+      console.log('✅ User data fetched successfully:', supabaseUser.email);
       setUser(supabaseUser);
 
-      // Fetch user profile
-      const profile = await fetchUserProfile(supabaseUser.id);
+      // Fetch user profile with retry logic
+      let profile = await fetchUserProfile(supabaseUser.id);
+      
+      // If no profile found, try creating one
+      if (!profile) {
+        console.log('⚠️ No profile found, creating default profile...');
+        try {
+          const defaultProfile = {
+            user_id: supabaseUser.id,
+            role: 'Employee',
+            employee_id: '',
+            phone: '',
+            hire_date: new Date().toISOString(),
+            is_active: true,
+            detailed_permissions: {}
+          };
+
+          const { data: newProfile, error: createError } = await supabase
+            .from('user_profiles')
+            .insert(defaultProfile)
+            .select(`
+              *,
+              stations(name, address, phone)
+            `)
+            .single();
+
+          if (!createError && newProfile) {
+            profile = newProfile;
+            console.log('✅ Default profile created:', profile);
+          }
+        } catch (createError) {
+          console.warn('Failed to create default profile:', createError);
+        }
+      }
 
       if (profile) {
-        console.log('✅ User profile found:', profile);
+        console.log('✅ User profile loaded:', profile.role);
         setUserProfile(profile);
       } else {
-        console.log('⚠️ Using default profile');
+        console.log('⚠️ Using fallback profile');
         setUserProfile({
           id: '0',
           user_id: supabaseUser.id,
@@ -270,7 +303,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
       console.log('🔑 Attempting login for:', email);
 
-      const { data, error } = await auth.signIn(email, password);
+      const { data, error } = await auth.signIn(email.trim(), password);
 
       if (error) {
         console.log('❌ Login failed:', error);
@@ -279,17 +312,28 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
           undefined,
           'loginAuditLog'
         );
-        setAuthError(error.message);
+        
+        // Provide user-friendly error messages
+        let userMessage = error.message;
+        if (error.message.includes('Invalid login credentials')) {
+          userMessage = 'Invalid email or password. Please check your credentials and try again.';
+        } else if (error.message.includes('Email not confirmed')) {
+          userMessage = 'Please check your email and click the verification link before logging in.';
+        } else if (error.message.includes('Too many requests')) {
+          userMessage = 'Too many login attempts. Please wait a moment and try again.';
+        }
+        
+        setAuthError(userMessage);
         toast({
           title: "Login Failed",
-          description: error.message,
+          description: userMessage,
           variant: "destructive"
         });
         return false;
       }
 
       if (data.user) {
-        console.log('✅ Login successful');
+        console.log('✅ Login successful for:', data.user.email);
         await safeExecute(
           () => auditLogger.logLogin(email, true, data.user.id),
           undefined,
@@ -297,7 +341,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
         );
         toast({
           title: "Login Successful",
-          description: "Welcome back!"
+          description: `Welcome back, ${data.user.email}!`
         });
         return true;
       }
@@ -348,7 +392,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
       console.log('📝 Attempting registration for:', email);
 
-      const { data, error } = await auth.signUp(email, password, { name });
+      const { data, error } = await auth.signUp(email.trim(), password, { name });
 
       if (error) {
         console.log('❌ Registration failed:', error);
@@ -357,10 +401,21 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
           undefined,
           'registrationAuditLog'
         );
-        setAuthError(error.message);
+        
+        // Provide user-friendly error messages
+        let userMessage = error.message;
+        if (error.message.includes('User already registered')) {
+          userMessage = 'An account with this email already exists. Please try logging in instead.';
+        } else if (error.message.includes('Password should be at least')) {
+          userMessage = 'Password must be at least 6 characters long.';
+        } else if (error.message.includes('Signup is disabled')) {
+          userMessage = 'Account registration is currently disabled. Please contact an administrator.';
+        }
+        
+        setAuthError(userMessage);
         toast({
           title: "Registration Failed",
-          description: error.message,
+          description: userMessage,
           variant: "destructive"
         });
         return false;
@@ -374,7 +429,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       );
       toast({
         title: "Registration Successful",
-        description: "Please check your email to verify your account"
+        description: "Please check your email to verify your account before logging in."
       });
 
       return true;

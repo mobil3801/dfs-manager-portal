@@ -39,14 +39,14 @@ const SafeIDDocumentViewer: React.FC<SafeIDDocumentViewerProps> = ({
       if (!label || typeof label !== 'string') {
         return `${documentType} ${fileId || 'Unknown'}`;
       }
-      
+
       let cleanName = label.replace(/https?:\/\/[^\s]+/g, '').trim();
       cleanName = cleanName.replace(/\.(jpg|jpeg|png|gif|pdf|doc|docx)$/i, '');
-      
+
       if (!cleanName) {
         return `${documentType} ${fileId || 'Unknown'}`;
       }
-      
+
       return cleanName;
     } catch (error) {
       console.error('[SafeIDDocumentViewer] Error getting clean document name:', error);
@@ -56,11 +56,11 @@ const SafeIDDocumentViewer: React.FC<SafeIDDocumentViewerProps> = ({
 
   const getSizeClasses = (): string => {
     switch (size) {
-      case 'sm': return 'h-24';
-      case 'md': return 'h-32';
-      case 'lg': return 'h-48';
-      case 'xl': return 'h-80';
-      default: return 'h-48';
+      case 'sm':return 'h-24';
+      case 'md':return 'h-32';
+      case 'lg':return 'h-48';
+      case 'xl':return 'h-80';
+      default:return 'h-48';
     }
   };
 
@@ -126,8 +126,8 @@ const SafeIDDocumentViewer: React.FC<SafeIDDocumentViewerProps> = ({
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default SafeIDDocumentViewer;

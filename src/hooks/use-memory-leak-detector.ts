@@ -817,6 +817,8 @@ config: MemoryLeakConfig = DEFAULT_CONFIG)
 
 
 
+
+
       // Ignore circular reference errors for closure size checking
     }}, [componentName, config.warnOnLargeClosure, config.maxClosureSize]);return { safeSetTimeout, safeSetInterval, safeAddEventListener, trackSubscription, trackAsyncOperation, safeSetState, monitorClosureSize, cleanup: { timers: cleanupTimers, eventListeners: cleanupEventListeners, subscriptions: cleanupSubscriptions, asyncOperations: cleanupAsyncOperations, all: () => {cleanupTimers();cleanupEventListeners();cleanupSubscriptions();cleanupAsyncOperations();} }, isComponentMounted: () => isMounted.current };} // HOC for automatic memory leak detection
 export function withMemoryLeakDetection<P extends object>(WrappedComponent: React.ComponentType<P>, componentName?: string) {return function MemoryLeakDetectedComponent(props: P) {const displayName = componentName || WrappedComponent.displayName || WrappedComponent.name || 'Component';const memoryTools = useMemoryLeakDetector(displayName);return <WrappedComponent {...props} memoryTools={memoryTools} />;};}export default useMemoryLeakDetector;

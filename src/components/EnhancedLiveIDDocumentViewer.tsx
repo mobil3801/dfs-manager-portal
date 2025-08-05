@@ -67,7 +67,7 @@ const EnhancedLiveIDDocumentViewer: React.FC<EnhancedLiveIDDocumentViewerProps> 
       if (!label || typeof label !== 'string') {
         return `${documentType} ${fileId || 'Unknown'}`;
       }
-      
+
       // Remove any URLs or file extensions from the label
       let cleanName = label.replace(/https?:\/\/[^\s]+/g, '').trim();
       cleanName = cleanName.replace(/\.(jpg|jpeg|png|gif|pdf|doc|docx)$/i, '');

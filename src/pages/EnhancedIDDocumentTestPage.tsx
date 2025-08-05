@@ -165,19 +165,19 @@ const EnhancedIDDocumentTestPage: React.FC = () => {
             </div>
             
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[sampleEmployee.id_document_file_id, sampleEmployee.id_document_2_file_id]
-                .filter(id => id)
-                .map((fileId, index) => (
-                  <SafeIDDocumentViewer
-                    key={`safe-${fileId}-${index}`}
-                    fileId={fileId}
-                    label={`ID Document ${index + 1}`}
-                    documentType={sampleEmployee.id_document_type || 'Driving License'}
-                    isAdminUser={isAdminUser}
-                    size="lg"
-                    className="border border-gray-200 rounded-lg"
-                  />
-                ))
+              {[sampleEmployee.id_document_file_id, sampleEmployee.id_document_2_file_id].
+              filter((id) => id).
+              map((fileId, index) =>
+              <SafeIDDocumentViewer
+                key={`safe-${fileId}-${index}`}
+                fileId={fileId}
+                label={`ID Document ${index + 1}`}
+                documentType={sampleEmployee.id_document_type || 'Driving License'}
+                isAdminUser={isAdminUser}
+                size="lg"
+                className="border border-gray-200 rounded-lg" />
+
+              )
               }
             </div>
           </CardContent>

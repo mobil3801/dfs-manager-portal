@@ -117,12 +117,12 @@ const ComprehensiveIDDocumentSolution: React.FC = () => {
             continue;
           }
 
-          const response = await Promise.race([
-            window.ezsite.apis.getUploadUrl(fileId),
-            new Promise((_, reject) =>
-              setTimeout(() => reject(new Error('Timeout')), 5000)
-            )
-          ]) as {data?: string; error?: string;};
+          const response = (await Promise.race([
+          window.ezsite.apis.getUploadUrl(fileId),
+          new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout')), 5000)
+          )]
+          )) as {data?: string;error?: string;};
 
           const { data: fileUrl, error: urlError } = response;
 

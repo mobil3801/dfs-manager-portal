@@ -14,8 +14,8 @@ import {
   Database,
   Settings,
   LogOut,
-  RefreshCw
-} from 'lucide-react';
+  RefreshCw } from
+'lucide-react';
 
 const WorkingDashboard: React.FC = () => {
   const [user, setUser] = useState<any>(null);
@@ -40,7 +40,7 @@ const WorkingDashboard: React.FC = () => {
         console.error('Session error:', error);
         return;
       }
-      
+
       if (session?.user) {
         setUser(session.user);
       }
@@ -55,21 +55,21 @@ const WorkingDashboard: React.FC = () => {
     try {
       // Load basic statistics
       const [employeesResult, productsResult, salesResult, stationsResult] = await Promise.allSettled([
-        window.ezsite.apis.tablePage('11727', { PageNo: 1, PageSize: 1, Filters: [] }),
-        window.ezsite.apis.tablePage('11729', { PageNo: 1, PageSize: 1, Filters: [] }),
-        window.ezsite.apis.tablePage('11730', { PageNo: 1, PageSize: 1, Filters: [] }),
-        window.ezsite.apis.tablePage('11731', { PageNo: 1, PageSize: 1, Filters: [] })
-      ]);
+      window.ezsite.apis.tablePage('11727', { PageNo: 1, PageSize: 1, Filters: [] }),
+      window.ezsite.apis.tablePage('11729', { PageNo: 1, PageSize: 1, Filters: [] }),
+      window.ezsite.apis.tablePage('11730', { PageNo: 1, PageSize: 1, Filters: [] }),
+      window.ezsite.apis.tablePage('11731', { PageNo: 1, PageSize: 1, Filters: [] })]
+      );
 
       setStats({
-        employees: employeesResult.status === 'fulfilled' ? 
-          (employeesResult.value.data?.Count || 0) : 0,
-        products: productsResult.status === 'fulfilled' ? 
-          (productsResult.value.data?.Count || 0) : 0,
-        salesReports: salesResult.status === 'fulfilled' ? 
-          (salesResult.value.data?.Count || 0) : 0,
-        stations: stationsResult.status === 'fulfilled' ? 
-          (stationsResult.value.data?.Count || 0) : 0
+        employees: employeesResult.status === 'fulfilled' ?
+        employeesResult.value.data?.Count || 0 : 0,
+        products: productsResult.status === 'fulfilled' ?
+        productsResult.value.data?.Count || 0 : 0,
+        salesReports: salesResult.status === 'fulfilled' ?
+        salesResult.value.data?.Count || 0 : 0,
+        stations: stationsResult.status === 'fulfilled' ?
+        stationsResult.value.data?.Count || 0 : 0
       });
     } catch (error) {
       console.error('Error loading stats:', error);
@@ -80,7 +80,7 @@ const WorkingDashboard: React.FC = () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      
+
       toast({
         title: 'Logged Out',
         description: 'You have been successfully logged out.'
@@ -103,8 +103,8 @@ const WorkingDashboard: React.FC = () => {
           <RefreshCw className="w-8 h-8 animate-spin text-blue-500 mx-auto mb-4" />
           <p className="text-gray-600">Loading dashboard...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -114,31 +114,31 @@ const WorkingDashboard: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <img 
-                src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png" 
+              <img
+                src="https://cdn.ezsite.ai/AutoDev/19016/c533e5f9-97eb-43d2-8be6-bcdff5709bba.png"
                 alt="DFS Manager"
-                className="w-8 h-8"
-              />
+                className="w-8 h-8" />
+
               <h1 className="text-xl font-semibold text-gray-900">
                 DFS Manager Portal
               </h1>
             </div>
             <div className="flex items-center space-x-4">
-              {user && (
-                <div className="flex items-center space-x-3">
+              {user &&
+              <div className="flex items-center space-x-3">
                   <Badge variant="secondary" className="hidden sm:flex">
                     {user.email}
                   </Badge>
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleLogout}
-                  >
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLogout}>
+
                     <LogOut className="w-4 h-4 mr-2" />
                     Logout
                   </Button>
                 </div>
-              )}
+              }
             </div>
           </div>
         </div>
@@ -271,8 +271,8 @@ const WorkingDashboard: React.FC = () => {
               <Button
                 variant="outline"
                 className="h-20 flex-col space-y-2"
-                onClick={() => window.location.href = '/employees'}
-              >
+                onClick={() => window.location.href = '/employees'}>
+
                 <Users className="w-6 h-6" />
                 <span>Manage Employees</span>
               </Button>
@@ -280,8 +280,8 @@ const WorkingDashboard: React.FC = () => {
               <Button
                 variant="outline"
                 className="h-20 flex-col space-y-2"
-                onClick={() => window.location.href = '/products'}
-              >
+                onClick={() => window.location.href = '/products'}>
+
                 <FileText className="w-6 h-6" />
                 <span>Manage Products</span>
               </Button>
@@ -289,8 +289,8 @@ const WorkingDashboard: React.FC = () => {
               <Button
                 variant="outline"
                 className="h-20 flex-col space-y-2"
-                onClick={() => window.location.href = '/sales'}
-              >
+                onClick={() => window.location.href = '/sales'}>
+
                 <BarChart3 className="w-6 h-6" />
                 <span>Sales Reports</span>
               </Button>
@@ -298,8 +298,8 @@ const WorkingDashboard: React.FC = () => {
               <Button
                 variant="outline"
                 className="h-20 flex-col space-y-2"
-                onClick={() => window.location.href = '/admin'}
-              >
+                onClick={() => window.location.href = '/admin'}>
+
                 <Settings className="w-6 h-6" />
                 <span>Admin Panel</span>
               </Button>
@@ -341,8 +341,8 @@ const WorkingDashboard: React.FC = () => {
           </CardContent>
         </Card>
       </main>
-    </div>
-  );
+    </div>);
+
 };
 
 export default WorkingDashboard;
