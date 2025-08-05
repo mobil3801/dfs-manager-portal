@@ -30,10 +30,10 @@ const ServerHealthMonitor: React.FC = () => {
       const start = performance.now();
       const { error } = await supabase.from('user_profiles').select('id').limit(1);
       const duration = performance.now() - start;
-      
+
       newMetrics.push({
         name: 'Database Connection',
-        status: error ? 'error' : (duration > 2000 ? 'warning' : 'healthy'),
+        status: error ? 'error' : duration > 2000 ? 'warning' : 'healthy',
         value: `${duration.toFixed(0)}ms`,
         lastCheck: now,
         message: error ? 'Database connection failed' : `Response time: ${duration.toFixed(0)}ms`
@@ -81,7 +81,7 @@ const ServerHealthMonitor: React.FC = () => {
     } : null;
 
     if (memUsage) {
-      const memPercent = (memUsage.used / memUsage.total) * 100;
+      const memPercent = memUsage.used / memUsage.total * 100;
       newMetrics.push({
         name: 'Memory Usage',
         status: memPercent > 80 ? 'warning' : 'healthy',
@@ -140,13 +140,13 @@ const ServerHealthMonitor: React.FC = () => {
     };
 
     return (
-      <Badge 
-        variant={variants[status]} 
-        className={status !== 'error' ? colors[status] : ''}
-      >
+      <Badge
+        variant={variants[status]}
+        className={status !== 'error' ? colors[status] : ''}>
+
         {status.charAt(0).toUpperCase() + status.slice(1)}
-      </Badge>
-    );
+      </Badge>);
+
   };
 
   const getCategoryIcon = (metricName: string) => {
@@ -157,8 +157,8 @@ const ServerHealthMonitor: React.FC = () => {
   };
 
   const overallStatus = metrics.length > 0 ? (() => {
-    if (metrics.some(m => m.status === 'error')) return 'error';
-    if (metrics.some(m => m.status === 'warning')) return 'warning';
+    if (metrics.some((m) => m.status === 'error')) return 'error';
+    if (metrics.some((m) => m.status === 'warning')) return 'warning';
     return 'healthy';
   })() : 'checking';
 
@@ -189,16 +189,16 @@ const ServerHealthMonitor: React.FC = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setAutoRefresh(!autoRefresh)}
-            >
+              onClick={() => setAutoRefresh(!autoRefresh)}>
+
               {autoRefresh ? 'Auto-refresh ON' : 'Auto-refresh OFF'}
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={handleRefresh}
-              disabled={isMonitoring}
-            >
+              disabled={isMonitoring}>
+
               <RefreshCw className={`h-4 w-4 mr-2 ${isMonitoring ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
@@ -208,19 +208,19 @@ const ServerHealthMonitor: React.FC = () => {
       <CardContent className="space-y-4">
         {/* Overall Status */}
         <Alert className={`${
-          overallStatus === 'healthy' ? 'border-green-200 bg-green-50' :
-          overallStatus === 'error' ? 'border-red-200 bg-red-50' :
-          overallStatus === 'warning' ? 'border-yellow-200 bg-yellow-50' :
-          'border-blue-200 bg-blue-50'
-        }`}>
+        overallStatus === 'healthy' ? 'border-green-200 bg-green-50' :
+        overallStatus === 'error' ? 'border-red-200 bg-red-50' :
+        overallStatus === 'warning' ? 'border-yellow-200 bg-yellow-50' :
+        'border-blue-200 bg-blue-50'}`
+        }>
           <div className="flex items-center gap-2">
             {getStatusIcon(overallStatus)}
             <AlertDescription className={`font-medium ${
-              overallStatus === 'healthy' ? 'text-green-800' :
-              overallStatus === 'error' ? 'text-red-800' :
-              overallStatus === 'warning' ? 'text-yellow-800' :
-              'text-blue-800'
-            }`}>
+            overallStatus === 'healthy' ? 'text-green-800' :
+            overallStatus === 'error' ? 'text-red-800' :
+            overallStatus === 'warning' ? 'text-yellow-800' :
+            'text-blue-800'}`
+            }>
               {overallStatus === 'healthy' && 'All systems are running normally'}
               {overallStatus === 'error' && 'Critical issues detected'}
               {overallStatus === 'warning' && 'Some systems need attention'}
@@ -231,8 +231,8 @@ const ServerHealthMonitor: React.FC = () => {
 
         {/* Health Metrics */}
         <div className="grid gap-3">
-          {metrics.map((metric, index) => (
-            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+          {metrics.map((metric, index) =>
+          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <div className="flex items-center gap-3">
                 {getCategoryIcon(metric.name)}
                 <div>
@@ -241,37 +241,37 @@ const ServerHealthMonitor: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                {metric.value && (
-                  <span className="text-sm font-mono text-gray-700">
+                {metric.value &&
+              <span className="text-sm font-mono text-gray-700">
                     {metric.value}
                   </span>
-                )}
+              }
                 {getStatusBadge(metric.status)}
               </div>
             </div>
-          ))}
+          )}
         </div>
 
-        {metrics.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
+        {metrics.length === 0 &&
+        <div className="text-center py-8 text-gray-500">
             <Activity className="h-8 w-8 mx-auto mb-2 opacity-50" />
             <p>No health metrics available</p>
             <Button variant="outline" size="sm" onClick={handleRefresh} className="mt-2">
               Run Health Check
             </Button>
           </div>
-        )}
+        }
 
         {/* Last Update */}
-        {metrics.length > 0 && (
-          <div className="text-xs text-gray-500 text-center pt-2 border-t">
+        {metrics.length > 0 &&
+        <div className="text-xs text-gray-500 text-center pt-2 border-t">
             Last updated: {metrics[0]?.lastCheck.toLocaleTimeString()}
             {autoRefresh && ' • Auto-refresh enabled'}
           </div>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default ServerHealthMonitor;

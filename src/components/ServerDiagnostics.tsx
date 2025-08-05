@@ -21,22 +21,22 @@ const ServerDiagnostics: React.FC = () => {
   const { toast } = useToast();
 
   const updateCheck = (name: string, status: DiagnosticCheck['status'], message: string, details?: string) => {
-    setChecks(prev => prev.map(check => 
-      check.name === name ? { ...check, status, message, details } : check
+    setChecks((prev) => prev.map((check) =>
+    check.name === name ? { ...check, status, message, details } : check
     ));
   };
 
   const initializeChecks = () => {
     const initialChecks: DiagnosticCheck[] = [
-      { name: 'Frontend Build', status: 'checking', message: 'Checking application build...' },
-      { name: 'Supabase Connection', status: 'checking', message: 'Testing database connection...' },
-      { name: 'Authentication System', status: 'checking', message: 'Verifying auth configuration...' },
-      { name: 'API Endpoints', status: 'checking', message: 'Testing API connectivity...' },
-      { name: 'Database Tables', status: 'checking', message: 'Checking database schema...' },
-      { name: 'Storage Access', status: 'checking', message: 'Testing file storage...' },
-      { name: 'Environment Config', status: 'checking', message: 'Validating configuration...' },
-      { name: 'Performance Metrics', status: 'checking', message: 'Collecting performance data...' }
-    ];
+    { name: 'Frontend Build', status: 'checking', message: 'Checking application build...' },
+    { name: 'Supabase Connection', status: 'checking', message: 'Testing database connection...' },
+    { name: 'Authentication System', status: 'checking', message: 'Verifying auth configuration...' },
+    { name: 'API Endpoints', status: 'checking', message: 'Testing API connectivity...' },
+    { name: 'Database Tables', status: 'checking', message: 'Checking database schema...' },
+    { name: 'Storage Access', status: 'checking', message: 'Testing file storage...' },
+    { name: 'Environment Config', status: 'checking', message: 'Validating configuration...' },
+    { name: 'Performance Metrics', status: 'checking', message: 'Collecting performance data...' }];
+
     setChecks(initialChecks);
   };
 
@@ -112,15 +112,15 @@ const ServerDiagnostics: React.FC = () => {
           })
         );
 
-        const failedTables = tableChecks.filter(check => !check.success);
+        const failedTables = tableChecks.filter((check) => !check.success);
         if (failedTables.length === 0) {
           updateCheck('Database Tables', 'pass', 'All required tables accessible');
         } else if (failedTables.length < tables.length / 2) {
-          updateCheck('Database Tables', 'warning', 'Some tables have issues', 
-            `Failed tables: ${failedTables.map(t => t.table).join(', ')}`);
+          updateCheck('Database Tables', 'warning', 'Some tables have issues',
+          `Failed tables: ${failedTables.map((t) => t.table).join(', ')}`);
         } else {
-          updateCheck('Database Tables', 'fail', 'Multiple database tables inaccessible', 
-            `Failed tables: ${failedTables.map(t => t.table).join(', ')}`);
+          updateCheck('Database Tables', 'fail', 'Multiple database tables inaccessible',
+          `Failed tables: ${failedTables.map((t) => t.table).join(', ')}`);
         }
       } catch (error) {
         updateCheck('Database Tables', 'fail', 'Cannot check database schema', error instanceof Error ? error.message : 'Schema error');
@@ -144,13 +144,13 @@ const ServerDiagnostics: React.FC = () => {
       updateCheck('Environment Config', 'checking', 'Validating environment...');
       try {
         const requiredEnvVars = ['NODE_ENV'];
-        const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-        
+        const missingVars = requiredEnvVars.filter((varName) => !process.env[varName]);
+
         if (missingVars.length === 0) {
           updateCheck('Environment Config', 'pass', 'Environment configuration valid');
         } else {
-          updateCheck('Environment Config', 'warning', 'Some environment variables missing', 
-            `Missing: ${missingVars.join(', ')}`);
+          updateCheck('Environment Config', 'warning', 'Some environment variables missing',
+          `Missing: ${missingVars.join(', ')}`);
         }
       } catch (error) {
         updateCheck('Environment Config', 'fail', 'Environment configuration error', error instanceof Error ? error.message : 'Config error');
@@ -162,7 +162,7 @@ const ServerDiagnostics: React.FC = () => {
         const start = performance.now();
         await supabase.from('user_profiles').select('id').limit(1);
         const duration = performance.now() - start;
-        
+
         if (duration < 1000) {
           updateCheck('Performance Metrics', 'pass', `Database response time: ${duration.toFixed(2)}ms`);
         } else if (duration < 5000) {
@@ -234,12 +234,12 @@ const ServerDiagnostics: React.FC = () => {
   };
 
   const overallStatus = checks.length > 0 ? (() => {
-    const failCount = checks.filter(c => c.status === 'fail').length;
-    const warningCount = checks.filter(c => c.status === 'warning').length;
-    
+    const failCount = checks.filter((c) => c.status === 'fail').length;
+    const warningCount = checks.filter((c) => c.status === 'warning').length;
+
     if (failCount > 0) return 'fail';
     if (warningCount > 0) return 'warning';
-    if (checks.every(c => c.status === 'pass')) return 'pass';
+    if (checks.every((c) => c.status === 'pass')) return 'pass';
     return 'checking';
   })() : 'checking';
 
@@ -252,17 +252,17 @@ const ServerDiagnostics: React.FC = () => {
           <p className="text-gray-600 mt-1">
             System health check and troubleshooting tools
           </p>
-          {lastRun && (
-            <p className="text-sm text-gray-500 mt-1">
+          {lastRun &&
+          <p className="text-sm text-gray-500 mt-1">
               Last run: {lastRun.toLocaleString()}
             </p>
-          )}
+          }
         </div>
-        <Button 
-          onClick={runDiagnostics} 
+        <Button
+          onClick={runDiagnostics}
           disabled={isRunning}
-          className="flex items-center gap-2"
-        >
+          className="flex items-center gap-2">
+
           <RefreshCw className={`h-4 w-4 ${isRunning ? 'animate-spin' : ''}`} />
           {isRunning ? 'Running...' : 'Run Diagnostics'}
         </Button>
@@ -270,19 +270,19 @@ const ServerDiagnostics: React.FC = () => {
 
       {/* Overall Status */}
       <Alert className={`${
-        overallStatus === 'pass' ? 'border-green-200 bg-green-50' :
-        overallStatus === 'fail' ? 'border-red-200 bg-red-50' :
-        overallStatus === 'warning' ? 'border-yellow-200 bg-yellow-50' :
-        'border-blue-200 bg-blue-50'
-      }`}>
+      overallStatus === 'pass' ? 'border-green-200 bg-green-50' :
+      overallStatus === 'fail' ? 'border-red-200 bg-red-50' :
+      overallStatus === 'warning' ? 'border-yellow-200 bg-yellow-50' :
+      'border-blue-200 bg-blue-50'}`
+      }>
         <div className="flex items-center gap-2">
           {getStatusIcon(overallStatus)}
           <AlertDescription className={`font-medium ${
-            overallStatus === 'pass' ? 'text-green-800' :
-            overallStatus === 'fail' ? 'text-red-800' :
-            overallStatus === 'warning' ? 'text-yellow-800' :
-            'text-blue-800'
-          }`}>
+          overallStatus === 'pass' ? 'text-green-800' :
+          overallStatus === 'fail' ? 'text-red-800' :
+          overallStatus === 'warning' ? 'text-yellow-800' :
+          'text-blue-800'}`
+          }>
             {overallStatus === 'pass' && 'All systems operational'}
             {overallStatus === 'fail' && 'Critical issues detected - server may not be working properly'}
             {overallStatus === 'warning' && 'Some issues detected - server is functional but needs attention'}
@@ -293,8 +293,8 @@ const ServerDiagnostics: React.FC = () => {
 
       {/* Diagnostic Results */}
       <div className="grid gap-4 md:grid-cols-2">
-        {checks.map((check, index) => (
-          <Card key={index} className="relative">
+        {checks.map((check, index) =>
+        <Card key={index} className="relative">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -311,16 +311,16 @@ const ServerDiagnostics: React.FC = () => {
                   {check.message}
                 </CardDescription>
               </div>
-              {check.details && (
-                <div className="bg-gray-50 p-3 rounded-md">
+              {check.details &&
+            <div className="bg-gray-50 p-3 rounded-md">
                   <p className="text-xs text-gray-600 font-mono">
                     {check.details}
                   </p>
                 </div>
-              )}
+            }
             </CardContent>
           </Card>
-        ))}
+        )}
       </div>
 
       {/* Quick Actions */}
@@ -374,8 +374,8 @@ const ServerDiagnostics: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default ServerDiagnostics;

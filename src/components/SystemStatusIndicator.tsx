@@ -23,7 +23,7 @@ const SystemStatusIndicator: React.FC = () => {
 
   const checkSystemStatus = async () => {
     setIsChecking(true);
-    
+
     const newStatus: SystemStatus = {
       overall: 'healthy',
       database: 'healthy',
@@ -62,7 +62,7 @@ const SystemStatusIndicator: React.FC = () => {
 
   useEffect(() => {
     checkSystemStatus();
-    
+
     // Check status every 2 minutes
     const interval = setInterval(checkSystemStatus, 120000);
     return () => clearInterval(interval);
@@ -112,10 +112,10 @@ const SystemStatusIndicator: React.FC = () => {
       <PopoverTrigger asChild>
         <Button variant="ghost" size="sm" className="h-8 gap-2">
           <Activity className="h-4 w-4" />
-          <Badge 
-            variant="outline" 
-            className={`text-xs ${getStatusColor(status.overall)}`}
-          >
+          <Badge
+            variant="outline"
+            className={`text-xs ${getStatusColor(status.overall)}`}>
+
             {getStatusIcon(status.overall)}
             {getStatusText(status.overall)}
           </Badge>
@@ -129,8 +129,8 @@ const SystemStatusIndicator: React.FC = () => {
               variant="ghost"
               size="sm"
               onClick={checkSystemStatus}
-              disabled={isChecking}
-            >
+              disabled={isChecking}>
+
               <RefreshCw className={`h-4 w-4 ${isChecking ? 'animate-spin' : ''}`} />
             </Button>
           </div>
@@ -160,22 +160,22 @@ const SystemStatusIndicator: React.FC = () => {
             </div>
           </div>
           
-          {status.overall !== 'healthy' && (
-            <div className="pt-2">
+          {status.overall !== 'healthy' &&
+          <div className="pt-2">
               <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => window.location.href = '/admin/server-diagnostics'}
-              >
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() => window.location.href = '/admin/server-diagnostics'}>
+
                 View Diagnostics
               </Button>
             </div>
-          )}
+          }
         </div>
       </PopoverContent>
-    </Popover>
-  );
+    </Popover>);
+
 };
 
 export default SystemStatusIndicator;
