@@ -14,6 +14,7 @@ import { useListKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { motion } from 'motion/react';
 import { vendorService, type Vendor } from '@/services/vendorService';
 import VendorErrorBoundary from '@/components/ErrorBoundary/VendorErrorBoundary';
+import VendorDatabaseTestPanel from '@/components/VendorDatabaseTestPanel';
 
 const VendorListContent: React.FC = () => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
@@ -457,6 +458,11 @@ const VendorListContent: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Database Test Panel - Only show for admins */}
+      {isAdmin() && (
+        <VendorDatabaseTestPanel />
+      )}
+      
       {/* Supabase Connection Status */}
       <Card className={`border ${supabaseConnected ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50'}`}>
         <CardContent className="pt-4">

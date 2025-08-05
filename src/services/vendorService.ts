@@ -77,10 +77,7 @@ class VendorService {
 
       let query = supabase.
       from('vendors').
-      select(`
-          *,
-          stations(name, station_id)
-        `, { count: 'exact' }).
+      select('*', { count: 'exact' }).
       order('vendor_name');
 
       // Apply filters
@@ -133,10 +130,7 @@ class VendorService {
 
       const { data, error } = await supabase.
       from('vendors').
-      select(`
-          *,
-          stations(name, station_id)
-        `).
+      select('*').
       eq('id', id).
       single();
 
@@ -168,10 +162,7 @@ class VendorService {
       const { data, error } = await supabase.
       from('vendors').
       insert([dataToInsert]).
-      select(`
-          *,
-          stations(name, station_id)
-        `).
+      select('*').
       single();
 
       if (error) {
@@ -200,10 +191,7 @@ class VendorService {
         updated_at: new Date().toISOString()
       }).
       eq('id', id).
-      select(`
-          *,
-          stations(name, station_id)
-        `).
+      select('*').
       single();
 
       if (error) {
