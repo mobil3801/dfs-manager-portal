@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import { Users, Save, ArrowLeft, X, FileText, Upload } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import ProfilePictureUpload from '@/components/ProfilePictureUpload';
+import EmployeeProfilePicture from '@/components/EmployeeProfilePicture';
 import { displayPhoneNumber, formatPhoneNumber } from '@/utils/phoneFormatter';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { supabase } from '@/lib/supabase';
@@ -30,6 +30,7 @@ interface EmployeeFormData {
   is_active: boolean;
   emergency_contact: any;
   notes: string;
+  profile_image_url: string | null;
 }
 
 const EmployeeForm: React.FC = () => {
@@ -47,7 +48,8 @@ const EmployeeForm: React.FC = () => {
     hourly_rate: 0,
     is_active: true,
     emergency_contact: {},
-    notes: ''
+    notes: '',
+    profile_image_url: null
   });
 
   const [selectedProfileImage, setSelectedProfileImage] = useState<File | null>(null);
@@ -162,7 +164,8 @@ const EmployeeForm: React.FC = () => {
           hourly_rate: data.hourly_rate || 0,
           is_active: data.is_active !== false,
           emergency_contact: data.emergency_contact || {},
-          notes: data.notes || ''
+          notes: data.notes || '',
+          profile_image_url: data.profile_image_url || null
         });
 
         console.log('Employee data loaded successfully');
@@ -483,6 +486,33 @@ const EmployeeForm: React.FC = () => {
                     min="0"
                     value={formData.hourly_rate}
                     onChange={(value) => handleInputChange('hourly_rate', value)} />
+                </div>
+              </div>
+            </div>
+
+            {/* Profile Picture Section */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">Profile Picture</h3>
+              <div className="flex items-center space-x-6">
+                <EmployeeProfilePicture
+                  employeeId={id && id !== 'new' ? id : ''}
+                  size="xl"
+                  allowEdit={true}
+                  disabled={!id || id === 'new'}
+                  onImageUpdate={(newImageUrl) => handleInputChange('profile_image_url', newImageUrl)}
+                />
+                <div className="flex-1">
+                  <div className="text-sm text-gray-600 space-y-1">
+                    <p>Upload a profile picture for this employee</p>
+                    <p className="text-xs text-gray-500">
+                      Supported formats: JPG, PNG, GIF (max 5MB)
+                    </p>
+                    {!id || id === 'new' ? (
+                      <p className="text-xs text-amber-600 font-medium">
+                        Save the employee first to enable profile picture upload
+                      </p>
+                    ) : null}
+                  </div>
                 </div>
               </div>
             </div>

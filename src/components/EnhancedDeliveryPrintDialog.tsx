@@ -60,13 +60,13 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
   const loadAfterDeliveryReport = async (deliveryId: number) => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('after_delivery_reports')
-        .select('*')
-        .eq('delivery_record_id', deliveryId)
-        .single();
+      const { data, error } = await supabase.
+      from('after_delivery_reports').
+      select('*').
+      eq('delivery_record_id', deliveryId).
+      single();
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
+      if (error && error.code !== 'PGRST116') {// PGRST116 is "not found"
         console.error('Error loading after delivery report:', error);
         return;
       }
@@ -129,7 +129,7 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
 
   // After delivery calculations (if available)
   const totalAfterDelivery = afterDeliveryReport ?
-    afterDeliveryReport.regular_tank_final + afterDeliveryReport.plus_tank_final + afterDeliveryReport.super_tank_final : 0;
+  afterDeliveryReport.regular_tank_final + afterDeliveryReport.plus_tank_final + afterDeliveryReport.super_tank_final : 0;
 
   const volumeDiscrepancy = afterDeliveryReport ? Math.abs(expectedTotalAfter - totalAfterDelivery) : 0;
   const hasVolumeDiscrepancy = volumeDiscrepancy > 5; // 5 gallon tolerance
@@ -655,16 +655,16 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
 
           {/* Verification Status */}
           {afterDeliveryReport &&
-            <Card className={`border-2 ${hasVolumeDiscrepancy ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50'}`}>
+          <Card className={`border-2 ${hasVolumeDiscrepancy ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50'}`}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   {hasVolumeDiscrepancy ?
-                    <div className="text-red-600 flex items-center gap-2">
+                <div className="text-red-600 flex items-center gap-2">
                       <AlertTriangle className="h-5 w-5" />
                       Volume Discrepancy Detected
                     </div> :
-                    <div className="text-green-600">✓ Delivery Verified</div>
-                  }
+                <div className="text-green-600">✓ Delivery Verified</div>
+                }
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -691,7 +691,7 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
           }
 
           {!afterDeliveryReport &&
-            <Card className="border-2 border-yellow-200 bg-yellow-50">
+          <Card className="border-2 border-yellow-200 bg-yellow-50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-yellow-600">
                   <AlertTriangle className="h-5 w-5" />
@@ -759,7 +759,7 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
 
           {/* After Delivery Volumes (if available) */}
           {afterDeliveryReport &&
-            <Card>
+          <Card>
               <CardHeader>
                 <CardTitle className="text-sm">Tank Volumes After Delivery</CardTitle>
               </CardHeader>
@@ -825,7 +825,7 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
 
           {/* Notes Preview */}
           {delivery.delivery_notes &&
-            <Card>
+          <Card>
               <CardHeader>
                 <CardTitle className="text-sm">Delivery Notes</CardTitle>
               </CardHeader>
@@ -847,8 +847,8 @@ const EnhancedDeliveryPrintDialog: React.FC<EnhancedDeliveryPrintDialogProps> = 
           </Button>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default EnhancedDeliveryPrintDialog;

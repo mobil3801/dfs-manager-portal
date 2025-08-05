@@ -14,7 +14,7 @@ import ViewModal from '@/components/ViewModal';
 import { useListKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { motion } from 'motion/react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import ProfilePicture from '@/components/ProfilePicture';
+import EmployeeProfilePicture from '@/components/EmployeeProfilePicture';
 import { displayPhoneNumber } from '@/utils/phoneFormatter';
 import { supabase } from '@/lib/supabase';
 
@@ -37,6 +37,7 @@ interface Employee {
   notes?: string;
   created_at?: string;
   updated_at?: string;
+  profile_image_url?: string | null;
   // Legacy fields for compatibility
   station?: string;
   shift?: string;
@@ -473,10 +474,8 @@ const EmployeeList: React.FC = () => {
                   onClick={() => setSelectedEmployeeId(employee.id)}>
                         <CardContent className="p-4">
                           <div className="flex items-center space-x-3">
-                            <ProfilePicture
-                        imageId={employee.profile_image_id}
-                        firstName={employee.first_name}
-                        lastName={employee.last_name}
+                            <EmployeeProfilePicture
+                        employeeId={employee.id}
                         size="md" />
                             
                             <div className="flex-1 min-w-0">
@@ -679,10 +678,8 @@ const EmployeeList: React.FC = () => {
                   }
                   onClick={() => setSelectedEmployeeId(employee.id)}>
                         <TableCell>
-                          <ProfilePicture
-                      imageId={employee.profile_image_id}
-                      firstName={employee.first_name}
-                      lastName={employee.last_name}
+                          <EmployeeProfilePicture
+                      employeeId={employee.id}
                       size="sm" />
                         </TableCell>
                         <TableCell className="font-medium">{employee.employee_id}</TableCell>

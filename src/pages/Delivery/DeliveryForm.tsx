@@ -94,9 +94,9 @@ const DeliveryForm: React.FC = () => {
 
     const tolerance = 5; // 5 gallon tolerance
     const has_discrepancy =
-      Math.abs(regular_discrepancy) > tolerance ||
-      Math.abs(plus_discrepancy) > tolerance ||
-      Math.abs(super_discrepancy) > tolerance;
+    Math.abs(regular_discrepancy) > tolerance ||
+    Math.abs(plus_discrepancy) > tolerance ||
+    Math.abs(super_discrepancy) > tolerance;
 
     setDiscrepancyData({
       regular_expected,
@@ -117,13 +117,13 @@ const DeliveryForm: React.FC = () => {
 
   const loadAfterDeliveryReport = async (deliveryId: number) => {
     try {
-      const { data, error } = await supabase
-        .from('after_delivery_reports')
-        .select('*')
-        .eq('delivery_record_id', deliveryId)
-        .single();
+      const { data, error } = await supabase.
+      from('after_delivery_reports').
+      select('*').
+      eq('delivery_record_id', deliveryId).
+      single();
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
+      if (error && error.code !== 'PGRST116') {// PGRST116 is "not found"
         throw error;
       }
 
@@ -142,11 +142,11 @@ const DeliveryForm: React.FC = () => {
   const loadDeliveryRecord = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('deliveries')
-        .select('*')
-        .eq('id', parseInt(id!))
-        .single();
+      const { data, error } = await supabase.
+      from('deliveries').
+      select('*').
+      eq('id', parseInt(id!)).
+      single();
 
       if (error) throw error;
 
@@ -174,12 +174,12 @@ const DeliveryForm: React.FC = () => {
   const handleFileUpload = (files: FileList | null) => {
     if (files) {
       const newFiles = Array.from(files);
-      setDeliveryDocuments(prev => [...prev, ...newFiles]);
+      setDeliveryDocuments((prev) => [...prev, ...newFiles]);
     }
   };
 
   const removeFile = (index: number) => {
-    setDeliveryDocuments(prev => prev.filter((_, i) => i !== index));
+    setDeliveryDocuments((prev) => prev.filter((_, i) => i !== index));
   };
 
   const uploadDocuments = async (deliveryId: number) => {
@@ -191,15 +191,15 @@ const DeliveryForm: React.FC = () => {
         const fileName = `delivery_${deliveryId}_${Date.now()}.${fileExt}`;
         const filePath = `deliveries/${fileName}`;
 
-        const { data, error } = await supabase.storage
-          .from('')
-          .upload(filePath, file);
+        const { data, error } = await supabase.storage.
+        from('').
+        upload(filePath, file);
 
         if (error) throw error;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('')
-          .getPublicUrl(filePath);
+        const { data: { publicUrl } } = supabase.storage.
+        from('').
+        getPublicUrl(filePath);
 
         uploadedUrls.push(publicUrl);
       } catch (error) {
@@ -207,7 +207,7 @@ const DeliveryForm: React.FC = () => {
         toast({
           title: "Upload Warning",
           description: `Failed to upload ${file.name}`,
-          variant: "destructive" 
+          variant: "destructive"
         });
       }
     }
@@ -250,12 +250,12 @@ const DeliveryForm: React.FC = () => {
       let deliveryRecordId: number;
 
       if (id) {
-        const { data, error } = await supabase
-          .from('deliveries')
-          .update(submitData)
-          .eq('id', parseInt(id))
-          .select()
-          .single();
+        const { data, error } = await supabase.
+        from('deliveries').
+        update(submitData).
+        eq('id', parseInt(id)).
+        select().
+        single();
 
         if (error) throw error;
         deliveryRecordId = parseInt(id);
@@ -265,11 +265,11 @@ const DeliveryForm: React.FC = () => {
           description: "Delivery record updated successfully"
         });
       } else {
-        const { data, error } = await supabase
-          .from('deliveries')
-          .insert([submitData])
-          .select()
-          .single();
+        const { data, error } = await supabase.
+        from('deliveries').
+        insert([submitData]).
+        select().
+        single();
 
         if (error) throw error;
         deliveryRecordId = data.id;
@@ -298,25 +298,25 @@ const DeliveryForm: React.FC = () => {
         };
 
         // Check if after-delivery report already exists for this delivery
-        const { data: existingReport } = await supabase
-          .from('after_delivery_reports')
-          .select('id')
-          .eq('delivery_record_id', deliveryRecordId)
-          .single();
+        const { data: existingReport } = await supabase.
+        from('after_delivery_reports').
+        select('id').
+        eq('delivery_record_id', deliveryRecordId).
+        single();
 
         if (existingReport) {
           // Update existing report
-          const { error: afterError } = await supabase
-            .from('after_delivery_reports')
-            .update(afterDeliverySubmitData)
-            .eq('id', existingReport.id);
+          const { error: afterError } = await supabase.
+          from('after_delivery_reports').
+          update(afterDeliverySubmitData).
+          eq('id', existingReport.id);
 
           if (afterError) throw afterError;
         } else {
           // Create new report
-          const { error: afterError } = await supabase
-            .from('after_delivery_reports')
-            .insert([afterDeliverySubmitData]);
+          const { error: afterError } = await supabase.
+          from('after_delivery_reports').
+          insert([afterDeliverySubmitData]);
 
           if (afterError) throw afterError;
         }
@@ -356,8 +356,8 @@ const DeliveryForm: React.FC = () => {
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading delivery record...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -436,31 +436,31 @@ const DeliveryForm: React.FC = () => {
                 multiple
                 accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                 onChange={(e) => handleFileUpload(e.target.files)}
-                className="mt-2"
-              />
+                className="mt-2" />
+
             </div>
             
-            {deliveryDocuments.length > 0 && (
-              <div className="space-y-2">
+            {deliveryDocuments.length > 0 &&
+            <div className="space-y-2">
                 <Label>Selected Files:</Label>
-                {deliveryDocuments.map((file, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                {deliveryDocuments.map((file, index) =>
+              <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                     <div className="flex items-center gap-2">
                       <File className="h-4 w-4" />
                       <span className="text-sm">{file.name}</span>
                     </div>
                     <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeFile(index)}
-                    >
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeFile(index)}>
+
                       Remove
                     </Button>
                   </div>
-                ))}
+              )}
               </div>
-            )}
+            }
           </CardContent>
         </Card>
 
@@ -580,15 +580,15 @@ const DeliveryForm: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               {discrepancyData.has_discrepancy ?
-                <AlertTriangle className="h-5 w-5 text-red-500" /> :
-                <CheckCircle className="h-5 w-5 text-green-500" />
+              <AlertTriangle className="h-5 w-5 text-red-500" /> :
+              <CheckCircle className="h-5 w-5 text-green-500" />
               }
               Discrepancy Analysis
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {discrepancyData.has_discrepancy &&
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
                 <div className="flex items-center gap-2 mb-2">
                   <XCircle className="h-4 w-4 text-red-500" />
                   <span className="font-medium text-red-800">Discrepancies Detected</span>
@@ -600,7 +600,7 @@ const DeliveryForm: React.FC = () => {
             }
             
             {!discrepancyData.has_discrepancy && (afterDeliveryData.regular_tank_final > 0 || afterDeliveryData.plus_tank_final > 0 || afterDeliveryData.super_tank_final > 0) &&
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
                 <div className="flex items-center gap-2 mb-2">
                   <CheckCircle className="h-4 w-4 text-green-500" />
                   <span className="font-medium text-green-800">All Measurements Verified</span>
@@ -624,7 +624,7 @@ const DeliveryForm: React.FC = () => {
                     <span>{afterDeliveryData.regular_tank_final.toFixed(2)} gal</span>
                   </div>
                   <div className={`flex justify-between font-medium ${
-                    Math.abs(discrepancyData.regular_discrepancy) > 5 ? 'text-red-600' : 'text-green-600'}`
+                  Math.abs(discrepancyData.regular_discrepancy) > 5 ? 'text-red-600' : 'text-green-600'}`
                   }>
                     <span>Difference:</span>
                     <span>{discrepancyData.regular_discrepancy >= 0 ? '+' : ''}{discrepancyData.regular_discrepancy.toFixed(2)} gal</span>
@@ -644,7 +644,7 @@ const DeliveryForm: React.FC = () => {
                     <span>{afterDeliveryData.plus_tank_final.toFixed(2)} gal</span>
                   </div>
                   <div className={`flex justify-between font-medium ${
-                    Math.abs(discrepancyData.plus_discrepancy) > 5 ? 'text-red-600' : 'text-green-600'}`
+                  Math.abs(discrepancyData.plus_discrepancy) > 5 ? 'text-red-600' : 'text-green-600'}`
                   }>
                     <span>Difference:</span>
                     <span>{discrepancyData.plus_discrepancy >= 0 ? '+' : ''}{discrepancyData.plus_discrepancy.toFixed(2)} gal</span>
@@ -664,7 +664,7 @@ const DeliveryForm: React.FC = () => {
                     <span>{afterDeliveryData.super_tank_final.toFixed(2)} gal</span>
                   </div>
                   <div className={`flex justify-between font-medium ${
-                    Math.abs(discrepancyData.super_discrepancy) > 5 ? 'text-red-600' : 'text-green-600'}`
+                  Math.abs(discrepancyData.super_discrepancy) > 5 ? 'text-red-600' : 'text-green-600'}`
                   }>
                     <span>Difference:</span>
                     <span>{discrepancyData.super_discrepancy >= 0 ? '+' : ''}{discrepancyData.super_discrepancy.toFixed(2)} gal</span>
@@ -713,8 +713,8 @@ const DeliveryForm: React.FC = () => {
           </Button>
         </div>
       </form>
-    </div>
-  );
+    </div>);
+
 };
 
 export default DeliveryForm;

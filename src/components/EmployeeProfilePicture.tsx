@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import ProfilePicture from '@/components/ProfilePicture';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabase';
+import { employeeStorageService } from '@/services/employeeStorageService';
 
 interface EmployeeProfilePictureProps {
-  employeeId: number;
+  employeeId: string;
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   className?: string;
   allowEdit?: boolean;
@@ -11,7 +13,7 @@ interface EmployeeProfilePictureProps {
   enableHover?: boolean;
   rounded?: 'full' | 'md' | 'lg' | 'xl';
   disabled?: boolean;
-  onImageUpdate?: (imageId: number | null) => void;
+  onImageUpdate?: (imageUrl: string | null) => void;
 }
 
 const EmployeeProfilePicture: React.FC<EmployeeProfilePictureProps> = ({
@@ -40,11 +42,11 @@ const EmployeeProfilePicture: React.FC<EmployeeProfilePictureProps> = ({
     try {
       setIsLoading(true);
 
-      const { data, error } = await window.ezsite.apis.tablePage('11727', {
-        PageNo: 1,
-        PageSize: 1,
-        Filters: [{ name: 'ID', op: 'Equal', value: employeeId }]
-      });
+      const { data, error } = await supabase
+        .from('employees')
+        .select('*')
+        .eq('id', employeeId)
+        .single();
 
       if (error) {
         console.error('Error loading employee:', error);
@@ -56,8 +58,8 @@ const EmployeeProfilePicture: React.FC<EmployeeProfilePictureProps> = ({
         return;
       }
 
-      if (data && data.List && data.List.length > 0) {
-        setEmployee(data.List[0]);
+      if (data) {
+        setEmployee(data);
       }
     } catch (error) {
       console.error('Error loading employee:', error);
@@ -71,20 +73,22 @@ const EmployeeProfilePicture: React.FC<EmployeeProfilePictureProps> = ({
     }
   };
 
-  const handleImageUpdate = async (newImageId: number | null) => {
+  const handleImageUpdate = async (newImageUrl: string | null) => {
     try {
-      // Update the employee record with the new image ID
+      // Use the storage service to update the employee profile image
+      const { data, error } = await employeeStorageService.updateEmployeeProfileImage(employeeId, newImageUrl);
+      
+      if (error) throw error;
+
+      // Update local state
       setEmployee((prev: any) => ({
         ...prev,
-        profile_image_id: newImageId
+        profile_image_url: newImageUrl
       }));
-
-      // Reload employee data to get the latest information
-      await loadEmployeeData();
 
       // Call parent callback if provided
       if (onImageUpdate) {
-        onImageUpdate(newImageId);
+        onImageUpdate(newImageUrl);
       }
 
       toast({
@@ -101,7 +105,7 @@ const EmployeeProfilePicture: React.FC<EmployeeProfilePictureProps> = ({
     }
   };
 
-  if (!employee) {
+  if (!employee && !isLoading) {
     return (
       <ProfilePicture
         size={size}
@@ -111,16 +115,14 @@ const EmployeeProfilePicture: React.FC<EmployeeProfilePictureProps> = ({
         rounded={rounded}
         disabled={true}
         allowEdit={false}
-        showLoadingState={isLoading} />);
-
-
+        showLoadingState={false} />);
   }
 
   return (
     <ProfilePicture
-      imageId={employee.profile_image_id}
-      firstName={employee.first_name}
-      lastName={employee.last_name}
+      imageUrl={employee?.profile_image_url}
+      firstName={employee?.first_name}
+      lastName={employee?.last_name}
       size={size}
       className={className}
       showFallbackIcon={showFallbackIcon}
@@ -129,12 +131,9 @@ const EmployeeProfilePicture: React.FC<EmployeeProfilePictureProps> = ({
       allowEdit={allowEdit}
       disabled={disabled || isLoading}
       onImageUpdate={handleImageUpdate}
-      employeeId={employeeId}
       tableName="employees"
       recordId={employeeId}
-      alt={`${employee.first_name} ${employee.last_name}`.trim() || 'Employee profile picture'} />);
-
-
+      alt={`${employee?.first_name} ${employee?.last_name}`.trim() || 'Employee profile picture'} />);
 };
 
 export default EmployeeProfilePicture;

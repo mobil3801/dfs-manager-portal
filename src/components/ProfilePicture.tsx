@@ -20,9 +20,12 @@ import {
 import { cn } from '@/lib/utils';
 import { compressImage, formatFileSize, type CompressionResult } from '@/utils/imageCompression';
 import { imageErrorService } from '@/services/imageErrorService';
+import { supabase } from '@/lib/supabase';
+import { employeeStorageService } from '@/services/employeeStorageService';
 
 interface ProfilePictureProps {
   imageId?: number | null;
+  imageUrl?: string | null;
   firstName?: string;
   lastName?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
@@ -35,16 +38,17 @@ interface ProfilePictureProps {
   alt?: string;
   // Edit functionality props
   allowEdit?: boolean;
-  onImageUpdate?: (imageId: number | null) => void;
+  onImageUpdate?: (imageUrl: string | null) => void;
   userId?: number;
   employeeId?: number;
   tableName?: string; // 'user_profiles' or 'employees'
-  recordId?: number; // The ID of the record to update
+  recordId?: string | number; // The ID of the record to update
   disabled?: boolean;
 }
 
 const ProfilePicture: React.FC<ProfilePictureProps> = ({
   imageId,
+  imageUrl,
   firstName = '',
   lastName = '',
   size = 'md',
@@ -99,7 +103,7 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
 
   // Reset states when imageId changes
   useEffect(() => {
-    if (imageId) {
+    if (imageUrl || imageId) {
       setIsLoading(true);
       setImageLoaded(false);
       setImageError(false);
@@ -109,7 +113,7 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
       setImageLoaded(false);
       setImageError(false);
     }
-  }, [imageId]);
+  }, [imageUrl, imageId]);
 
   // Generate initials from first and last name
   const getInitials = () => {
@@ -160,6 +164,7 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
 
   // Get image URL if imageId exists
   const getImageUrl = () => {
+    if (imageUrl) return imageUrl;
     if (!imageId) return undefined;
 
     // Use the image error service to get a safe URL
@@ -181,7 +186,7 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
     setImageLoaded(false);
     setIsLoading(false);
 
-    if (retryCount < maxRetries && imageId) {
+    if (retryCount < maxRetries && (imageId || imageUrl)) {
       setTimeout(() => {
         setRetryCount((prev) => prev + 1);
         setImageError(false);
@@ -318,39 +323,60 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
     event.target.value = '';
   };
 
-  // Handle file upload
+  // Handle file upload with Supabase
   const handleUpload = async () => {
     if (!selectedFile) return;
 
     setIsUploading(true);
 
     try {
-      const { data: fileId, error } = await window.ezsite.apis.upload({
-        filename: selectedFile.name,
-        file: selectedFile
-      });
+      let publicUrl: string;
 
-      if (error) throw error;
+      // Use employee storage service for employee profiles
+      if (tableName === 'employees' && recordId) {
+        const { data, error } = await employeeStorageService.uploadAndUpdateProfilePicture(
+          recordId.toString(), 
+          selectedFile
+        );
+        
+        if (error || !data) throw error || new Error('Upload failed');
+        
+        publicUrl = data.imageUrl;
+      } else {
+        // Generic upload for other use cases
+        const fileName = `profile_${Date.now()}_${selectedFile.name}`;
+        const filePath = `profiles/${fileName}`;
 
-      // Update the record with the new image ID
-      if (tableName && recordId) {
-        const updateData: any = { ID: recordId };
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('')
+          .upload(filePath, selectedFile);
 
-        if (tableName === 'employees') {
-          updateData.profile_image_id = fileId;
-        } else if (tableName === 'user_profiles') {
-          updateData.profile_image_id = fileId;
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl: url } } = supabase.storage
+          .from('')
+          .getPublicUrl(filePath);
+
+        publicUrl = url;
+
+        // Update the database record if table and recordId are provided
+        if (tableName && recordId) {
+          const updateData: any = {
+            profile_image_url: publicUrl
+          };
+
+          const { error: updateError } = await supabase
+            .from(tableName)
+            .update(updateData)
+            .eq('id', recordId);
+
+          if (updateError) throw updateError;
         }
-
-        const tableId = tableName === 'employees' ? '11727' : '11725';
-        const { error: updateError } = await window.ezsite.apis.tableUpdate(tableId, updateData);
-
-        if (updateError) throw updateError;
       }
 
       // Call the update callback
       if (onImageUpdate) {
-        onImageUpdate(fileId);
+        onImageUpdate(publicUrl);
       }
 
       toast({
@@ -380,17 +406,20 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
     try {
       setIsUploading(true);
 
-      if (tableName && recordId) {
-        const updateData: any = { ID: recordId };
+      // Use employee storage service for employee profiles
+      if (tableName === 'employees' && recordId) {
+        const { error } = await employeeStorageService.removeEmployeeProfilePicture(recordId.toString());
+        if (error) throw error;
+      } else if (tableName && recordId) {
+        // Generic removal for other use cases
+        const updateData: any = {
+          profile_image_url: null
+        };
 
-        if (tableName === 'employees') {
-          updateData.profile_image_id = null;
-        } else if (tableName === 'user_profiles') {
-          updateData.profile_image_id = null;
-        }
-
-        const tableId = tableName === 'employees' ? '11727' : '11725';
-        const { error: updateError } = await window.ezsite.apis.tableUpdate(tableId, updateData);
+        const { error: updateError } = await supabase
+          .from(tableName)
+          .update(updateData)
+          .eq('id', recordId);
 
         if (updateError) throw updateError;
       }
@@ -628,7 +657,7 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
                     Select Image
                   </Button>
                   
-                  {(imageId || selectedFile) &&
+                  {(imageUrl || imageToShow || selectedFile) &&
                 <Button
                   variant="outline"
                   size="sm"

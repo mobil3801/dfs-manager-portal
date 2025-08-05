@@ -53,9 +53,9 @@ const DeliveryList: React.FC = () => {
     try {
       setLoading(true);
 
-      let query = supabase
-        .from('deliveries')
-        .select('*', { count: 'exact' });
+      let query = supabase.
+      from('deliveries').
+      select('*', { count: 'exact' });
 
       // Apply station filter
       if (stationFilter !== 'all') {
@@ -71,9 +71,9 @@ const DeliveryList: React.FC = () => {
       const from = (currentPage - 1) * pageSize;
       const to = from + pageSize - 1;
 
-      query = query
-        .order('delivery_date', { ascending: false })
-        .range(from, to);
+      query = query.
+      order('delivery_date', { ascending: false }).
+      range(from, to);
 
       const { data, error, count } = await query;
 
@@ -161,20 +161,20 @@ const DeliveryList: React.FC = () => {
 
     try {
       // Delete associated after_delivery_reports first
-      const { error: afterReportError } = await supabase
-        .from('after_delivery_reports')
-        .delete()
-        .eq('delivery_record_id', id);
+      const { error: afterReportError } = await supabase.
+      from('after_delivery_reports').
+      delete().
+      eq('delivery_record_id', id);
 
       if (afterReportError) {
         console.warn('Warning deleting after delivery reports:', afterReportError);
       }
 
       // Delete the main delivery record
-      const { error } = await supabase
-        .from('deliveries')
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.
+      from('deliveries').
+      delete().
+      eq('id', id);
 
       if (error) throw error;
 
@@ -199,9 +199,9 @@ const DeliveryList: React.FC = () => {
       setLoading(true);
 
       // Get all deliveries for export (no pagination)
-      let query = supabase
-        .from('deliveries')
-        .select('*');
+      let query = supabase.
+      from('deliveries').
+      select('*');
 
       if (stationFilter !== 'all') {
         query = query.eq('station', stationFilter);
@@ -220,44 +220,44 @@ const DeliveryList: React.FC = () => {
       if (!data || data.length === 0) {
         toast({
           title: "No Data",
-          description: "No delivery records to export",
+          description: "No delivery records to export"
         });
         return;
       }
 
       // Create CSV content
       const headers = [
-        'ID',
-        'Date',
-        'BOL Number',
-        'Station',
-        'Regular Tank Volume',
-        'Plus Tank Volume',
-        'Super Tank Volume',
-        'Regular Delivered',
-        'Plus Delivered',
-        'Super Delivered',
-        'Total Delivered',
-        'Notes'
-      ];
+      'ID',
+      'Date',
+      'BOL Number',
+      'Station',
+      'Regular Tank Volume',
+      'Plus Tank Volume',
+      'Super Tank Volume',
+      'Regular Delivered',
+      'Plus Delivered',
+      'Super Delivered',
+      'Total Delivered',
+      'Notes'];
+
 
       const csvContent = [
-        headers.join(','),
-        ...data.map(delivery => [
-          delivery.id,
-          formatDate(delivery.delivery_date),
-          `"${delivery.bol_number}"`,
-          `"${delivery.station}"`,
-          delivery.regular_tank_volume,
-          delivery.plus_tank_volume,
-          delivery.super_tank_volume,
-          delivery.regular_delivered,
-          delivery.plus_delivered,
-          delivery.super_delivered,
-          getTotalDelivered(delivery),
-          `"${delivery.delivery_notes || ''}"`
-        ].join(','))
-      ].join('\n');
+      headers.join(','),
+      ...data.map((delivery) => [
+      delivery.id,
+      formatDate(delivery.delivery_date),
+      `"${delivery.bol_number}"`,
+      `"${delivery.station}"`,
+      delivery.regular_tank_volume,
+      delivery.plus_tank_volume,
+      delivery.super_tank_volume,
+      delivery.regular_delivered,
+      delivery.plus_delivered,
+      delivery.super_delivered,
+      getTotalDelivered(delivery),
+      `"${delivery.delivery_notes || ''}"`].
+      join(','))].
+      join('\n');
 
       // Download CSV
       const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -329,8 +329,8 @@ const DeliveryList: React.FC = () => {
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading delivery records...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -368,7 +368,7 @@ const DeliveryList: React.FC = () => {
                   <SelectContent>
                     <SelectItem value="all">All Stations</SelectItem>
                     {stations.map((station) =>
-                      <SelectItem key={station} value={station}>
+                    <SelectItem key={station} value={station}>
                         {station}
                       </SelectItem>
                     )}
@@ -441,7 +441,7 @@ const DeliveryList: React.FC = () => {
         </CardHeader>
         <CardContent>
           {deliveries.length === 0 ?
-            <div className="text-center py-8">
+          <div className="text-center py-8">
               <Truck className="mx-auto h-12 w-12 text-gray-400 mb-4" />
               <p className="text-gray-600">No delivery records found</p>
               <Button onClick={() => navigate('/delivery/new')} className="mt-4">
@@ -449,7 +449,7 @@ const DeliveryList: React.FC = () => {
                 Add First Delivery
               </Button>
             </div> :
-            <>
+          <>
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -467,7 +467,7 @@ const DeliveryList: React.FC = () => {
                   </TableHeader>
                   <TableBody>
                     {deliveries.map((delivery, index) =>
-                      <TableRow key={delivery.id}>
+                  <TableRow key={delivery.id}>
                         <TableCell className="font-medium">
                           {(currentPage - 1) * pageSize + index + 1}
                         </TableCell>
@@ -497,82 +497,82 @@ const DeliveryList: React.FC = () => {
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleViewReport(delivery)}
-                              className="h-8 w-8 p-0 hover:bg-blue-50"
-                              title="View Report">
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewReport(delivery)}
+                          className="h-8 w-8 p-0 hover:bg-blue-50"
+                          title="View Report">
                               <Eye className="h-4 w-4 text-blue-600" />
                             </Button>
                             
                             {/* Only show Edit button if user is Administrator */}
                             {isAdmin() &&
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleEdit(delivery.id)}
-                                className="h-8 w-8 p-0 hover:bg-orange-50"
-                                title="Edit Delivery">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEdit(delivery.id)}
+                          className="h-8 w-8 p-0 hover:bg-orange-50"
+                          title="Edit Delivery">
                                 <Edit className="h-4 w-4 text-orange-600" />
                               </Button>
-                            }
+                        }
                             
                             {/* Only show Delete button if user is Administrator */}
                             {isAdmin() &&
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDelete(delivery.id)}
-                                className="h-8 w-8 p-0 hover:bg-red-50"
-                                title="Delete Delivery">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(delivery.id)}
+                          className="h-8 w-8 p-0 hover:bg-red-50"
+                          title="Delete Delivery">
                                 <Trash2 className="h-4 w-4 text-red-600" />
                               </Button>
-                            }
+                        }
                           </div>
                         </TableCell>
                       </TableRow>
-                    )}
+                  )}
                   </TableBody>
                 </Table>
               </div>
 
               {/* Show permission status when actions are disabled */}
               {!isAdmin() &&
-                <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                   <p className="text-sm text-amber-700">
                     <strong>Access Restrictions:</strong>
                     Only administrators can edit or delete delivery records.
                   </p>
                 </div>
-              }
+            }
 
               {/* Pagination */}
               {totalPages > 1 &&
-                <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center justify-between mt-4">
                   <p className="text-sm text-gray-600">
                     Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} records
                   </p>
                   <div className="flex space-x-2">
                     <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                      disabled={currentPage === 1}>
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}>
                       Previous
                     </Button>
                     <span className="flex items-center px-3 py-1 text-sm">
                       Page {currentPage} of {totalPages}
                     </span>
                     <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                      disabled={currentPage === totalPages}>
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}>
                       Next
                     </Button>
                   </div>
                 </div>
-              }
+            }
             </>
           }
         </CardContent>
@@ -583,8 +583,8 @@ const DeliveryList: React.FC = () => {
         open={reportDialogOpen}
         onOpenChange={setReportDialogOpen}
         delivery={selectedDelivery} />
-    </div>
-  );
+    </div>);
+
 };
 
 export default DeliveryList;
