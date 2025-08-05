@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Search, Edit, Trash2, Building2, Mail, Phone, MapPin, Eye, Download, FileText, AlertCircle } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Building2, Mail, Phone, MapPin, Eye, Download, FileText, AlertCircle, RefreshCw, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useModuleAccess } from '@/contexts/ModuleAccessContext';
 import { useAuth } from '@/contexts/AuthContext';
