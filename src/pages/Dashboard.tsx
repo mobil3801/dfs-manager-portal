@@ -19,6 +19,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import AuthStatusCard from '@/components/AuthStatusCard';
 import ProductDashboard from '@/components/ProductDashboard';
+import ServerHealthMonitor from '@/components/ServerHealthMonitor';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
@@ -239,6 +240,9 @@ const Dashboard = () => {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
+          {/* Server Health Monitor */}
+          <ServerHealthMonitor />
+          
           {/* Authentication Status */}
           <AuthStatusCard />
           

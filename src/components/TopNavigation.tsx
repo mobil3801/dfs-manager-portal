@@ -29,6 +29,7 @@ import {
   MoreHorizontal,
   ClipboardList } from
 'lucide-react';
+import SystemStatusIndicator from '@/components/SystemStatusIndicator';
 
 const TopNavigation = () => {
   const { userProfile, logout, isAdmin, isManager, isAuthenticated, isLoading, isInitialized } = useSupabaseAuth();
@@ -314,6 +315,9 @@ const TopNavigation = () => {
 
             {/* Right Section - User Profile and Controls */}
             <div className="flex items-center space-x-2 flex-shrink-0 min-w-0">
+              
+              {/* System Status Indicator */}
+              <SystemStatusIndicator />
               
               {/* Debug Toggle (Development) */}
               {process.env.NODE_ENV === 'development' &&
