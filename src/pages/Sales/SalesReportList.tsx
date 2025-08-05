@@ -10,13 +10,12 @@ import { Plus, Search, Edit, Trash2, TrendingUp, DollarSign, Calendar, Printer, 
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useModuleAccess } from '@/contexts/ModuleAccessContext';
-import { supabase } from '@/lib/supabase';
 import EnhancedSalesReportPrintDialog from '@/components/EnhancedSalesReportPrintDialog';
 import StationDropdown from '@/components/StationDropdown';
 import { useStationFilter } from '@/hooks/use-station-options';
 
 interface SalesReport {
-  id: string;
+  ID: number;
   report_date: string;
   station: string;
   shift: string;
@@ -43,9 +42,7 @@ interface SalesReport {
   scratch_off_report_file_id?: number;
   total_sales: number;
   notes: string;
-  created_by: string;
-  created_at: string;
-  updated_at: string;
+  created_by: number;
 }
 
 const SalesReportList: React.FC = () => {
@@ -85,33 +82,30 @@ const SalesReportList: React.FC = () => {
   const loadReports = async () => {
     try {
       setLoading(true);
-
-      let query = supabase.
-      from('sales_reports').
-      select('*', { count: 'exact' });
+      const filters = [];
 
       // Add station filter based on selection
-      if (selectedStation && selectedStation !== 'ALL_STATIONS' && selectedStation !== 'ALL') {
-        query = query.eq('station', selectedStation);
+      if (stationFilters) {
+        filters.push(...stationFilters);
       }
 
       // Add search filter if provided
       if (searchTerm) {
-        query = query.or(`station.ilike.%${searchTerm}%,employee_name.ilike.%${searchTerm}%`);
+        filters.push({ name: 'station', op: 'StringContains', value: searchTerm });
       }
 
-      // Add pagination
-      const from = (currentPage - 1) * pageSize;
-      const to = from + pageSize - 1;
-
-      const { data, error, count } = await query.
-      order('report_date', { ascending: false }).
-      range(from, to);
+      const { data, error } = await window.ezsite.apis.tablePage('12356', {
+        PageNo: currentPage,
+        PageSize: pageSize,
+        OrderByField: 'report_date',
+        IsAsc: false,
+        Filters: filters
+      });
 
       if (error) throw error;
 
-      setReports(data || []);
-      setTotalCount(count || 0);
+      setReports(data?.List || []);
+      setTotalCount(data?.VirtualCount || 0);
     } catch (error) {
       console.error('Error loading sales reports:', error);
       toast({
@@ -124,7 +118,7 @@ const SalesReportList: React.FC = () => {
     }
   };
 
-  const handleDelete = async (reportId: string) => {
+  const handleDelete = async (reportId: number) => {
     // Check delete permission - only admin users can delete
     if (!canDeleteSales) {
       toast({
@@ -140,11 +134,7 @@ const SalesReportList: React.FC = () => {
     }
 
     try {
-      const { error } = await supabase.
-      from('sales_reports').
-      delete().
-      eq('id', reportId);
-
+      const { error } = await window.ezsite.apis.tableDelete('12356', { ID: reportId });
       if (error) throw error;
 
       toast({
@@ -162,7 +152,7 @@ const SalesReportList: React.FC = () => {
     }
   };
 
-  const handleEdit = (reportId: string) => {
+  const handleEdit = (reportId: number) => {
     // Check edit permission - only admin users can edit
     if (!canEditSales) {
       toast({
@@ -241,7 +231,7 @@ const SalesReportList: React.FC = () => {
 
     // Log any discrepancies for debugging
     if (Math.abs(paymentTotal + grocerySales - totalSales) > 0.01) {
-      console.warn(`Report ID ${report.id}: Payment methods + grocery (${paymentTotal + grocerySales}) don't match total (${totalSales})`);
+      console.warn(`Report ID ${report.ID}: Payment methods + grocery (${paymentTotal + grocerySales}) don't match total (${totalSales})`);
     }
 
     return {
@@ -511,7 +501,7 @@ const SalesReportList: React.FC = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleEdit(report.id)}
+                        onClick={() => handleEdit(report.ID)}
                         title="Edit Report">
                               <Edit className="w-4 h-4" />
                             </Button>
@@ -522,7 +512,7 @@ const SalesReportList: React.FC = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleDelete(report.id)}
+                        onClick={() => handleDelete(report.ID)}
                         className="text-red-600 hover:text-red-700"
                         title="Delete Report">
                               <Trash2 className="w-4 h-4" />

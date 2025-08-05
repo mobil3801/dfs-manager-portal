@@ -49,38 +49,23 @@ const EnhancedLiveIDDocumentViewer: React.FC<EnhancedLiveIDDocumentViewerProps> 
 
   // Format document ID for display
   const getDisplayId = () => {
-    try {
-      if (!fileId || fileId === null || fileId === undefined) {
-        return 'No ID';
-      }
-      // Format the file ID properly for display
-      return `ID: ${fileId}`;
-    } catch (error) {
-      console.error('[EnhancedLiveIDDocumentViewer] Error in getDisplayId:', error);
-      return 'ID: Error';
-    }
+    if (!fileId) return 'No ID';
+
+    // Format the file ID properly for display
+    return `ID: ${fileId}`;
   };
 
   // Get clean document name for display
   const getCleanDocumentName = () => {
-    try {
-      if (!label || typeof label !== 'string') {
-        return `${documentType} ${fileId || 'Unknown'}`;
-      }
+    // Remove any URLs or file extensions from the label
+    let cleanName = label.replace(/https?:\/\/[^\s]+/g, '').trim();
+    cleanName = cleanName.replace(/\.(jpg|jpeg|png|gif|pdf|doc|docx)$/i, '');
 
-      // Remove any URLs or file extensions from the label
-      let cleanName = label.replace(/https?:\/\/[^\s]+/g, '').trim();
-      cleanName = cleanName.replace(/\.(jpg|jpeg|png|gif|pdf|doc|docx)$/i, '');
-
-      if (!cleanName) {
-        return `${documentType} ${fileId || 'Unknown'}`;
-      }
-
-      return cleanName;
-    } catch (error) {
-      console.error('[EnhancedLiveIDDocumentViewer] Error in getCleanDocumentName:', error);
-      return `${documentType} Document`;
+    if (!cleanName) {
+      return `${documentType} ${fileId}`;
     }
+
+    return cleanName;
   };
 
   // Load document URL when component mounts or fileId changes

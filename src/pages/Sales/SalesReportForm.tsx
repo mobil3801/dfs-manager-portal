@@ -23,7 +23,6 @@ import {
   Printer } from
 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
 import StationSelector from '@/components/StationSelector';
 import GasGrocerySalesSection from '@/components/SalesReportSections/GasGrocerySalesSection';
 import LotterySalesSection from '@/components/SalesReportSections/LotterySalesSection';
@@ -39,7 +38,7 @@ export default function SalesReportForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
-  const { userProfile } = useAuth();
+  const { user } = useAuth();
   const isEditing = !!id;
 
   const [selectedStation, setSelectedStation] = useState('');
@@ -154,21 +153,22 @@ export default function SalesReportForm() {
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.
-      from('sales_reports').
-      select('*').
-      eq('id', id).
-      single();
+      const { data, error } = await window.ezsite.apis.tablePage(12356, {
+        PageNo: 1,
+        PageSize: 1,
+        Filters: [{ name: 'id', op: 'Equal', value: parseInt(id) }]
+      });
 
       if (error) {
-        throw error;
+        throw new Error(error);
       }
 
-      if (data) {
-        setCurrentReport(data);
+      if (data?.List && data.List.length > 0) {
+        const report = data.List[0];
+        setCurrentReport(report);
 
         // Set station first, which will trigger employee loading
-        setSelectedStation(data.station);
+        setSelectedStation(report.station);
 
         // Helper function to safely parse numeric values
         const parseNumeric = (value: any) => {
@@ -187,9 +187,9 @@ export default function SalesReportForm() {
         let expensesData = { total_expenses: 0, cash_expenses: 0 };
         let groceryBreakdown = { groceryCashSales: 0, groceryCardSales: 0 };
 
-        if (data.expenses_data) {
+        if (report.expenses_data) {
           try {
-            expensesData = JSON.parse(data.expenses_data);
+            expensesData = JSON.parse(report.expenses_data);
 
             // Parse grocery breakdown data from expenses_data
             if (expensesData.grocery_breakdown) {
@@ -202,30 +202,30 @@ export default function SalesReportForm() {
 
         // Update form data with all fields from the report
         setFormData({
-          report_date: parseDate(data.report_date),
-          station: data.station || '',
-          shift: data.shift || 'DAY',
-          employee_name: data.employee_name || '',
-          employee_id: data.employee_id || '',
-          cashCollectionOnHand: parseNumeric(data.cash_collection_on_hand),
-          creditCardAmount: parseNumeric(data.credit_card_amount),
-          debitCardAmount: parseNumeric(data.debit_card_amount),
-          mobileAmount: parseNumeric(data.mobile_amount),
-          cashAmount: parseNumeric(data.cash_amount),
-          grocerySales: parseNumeric(data.grocery_sales),
-          ebtSales: parseNumeric(data.ebt_sales),
+          report_date: parseDate(report.report_date),
+          station: report.station || '',
+          shift: report.shift || 'DAY',
+          employee_name: report.employee_name || '',
+          employee_id: report.employee_id || '',
+          cashCollectionOnHand: parseNumeric(report.cash_collection_on_hand),
+          creditCardAmount: parseNumeric(report.credit_card_amount),
+          debitCardAmount: parseNumeric(report.debit_card_amount),
+          mobileAmount: parseNumeric(report.mobile_amount),
+          cashAmount: parseNumeric(report.cash_amount),
+          grocerySales: parseNumeric(report.grocery_sales),
+          ebtSales: parseNumeric(report.ebt_sales),
           groceryCashSales: parseNumeric(groceryBreakdown.groceryCashSales),
           groceryCardSales: parseNumeric(groceryBreakdown.groceryCardSales),
-          lotteryNetSales: parseNumeric(data.lottery_net_sales),
-          scratchOffSales: parseNumeric(data.scratch_off_sales),
-          regularGallons: parseNumeric(data.regular_gallons),
-          superGallons: parseNumeric(data.super_gallons),
-          dieselGallons: parseNumeric(data.diesel_gallons),
-          dayReportFileId: data.day_report_file_id || undefined,
-          veederRootFileId: data.veeder_root_file_id || undefined,
-          lottoReportFileId: data.lotto_report_file_id || undefined,
-          scratchOffReportFileId: data.scratch_off_report_file_id || undefined,
-          notes: data.notes || ''
+          lotteryNetSales: parseNumeric(report.lottery_net_sales),
+          scratchOffSales: parseNumeric(report.scratch_off_sales),
+          regularGallons: parseNumeric(report.regular_gallons),
+          superGallons: parseNumeric(report.super_gallons),
+          dieselGallons: parseNumeric(report.diesel_gallons),
+          dayReportFileId: report.day_report_file_id || undefined,
+          veederRootFileId: report.veeder_root_file_id || undefined,
+          lottoReportFileId: report.lotto_report_file_id || undefined,
+          scratchOffReportFileId: report.scratch_off_report_file_id || undefined,
+          notes: report.notes || ''
         });
 
         // Set expenses data
@@ -242,7 +242,7 @@ export default function SalesReportForm() {
           description: 'The requested report could not be found.',
           variant: 'destructive'
         });
-        navigate('/sales');
+        navigate('/sales-reports');
       }
     } catch (error) {
       console.error('Error loading report:', error);
@@ -259,15 +259,19 @@ export default function SalesReportForm() {
   const loadEmployees = async (station: string) => {
     setIsLoadingEmployees(true);
     try {
-      const { data, error } = await supabase.
-      from('employees').
-      select('id, first_name, last_name, employee_id').
-      eq('department', station).
-      eq('is_active', true).
-      order('first_name', { ascending: true });
+      const { data, error } = await window.ezsite.apis.tablePage(11727, {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: 'first_name',
+        IsAsc: true,
+        Filters: [
+        { name: 'station', op: 'Equal', value: station },
+        { name: 'is_active', op: 'Equal', value: true }]
 
-      if (error) throw error;
-      setEmployees(data || []);
+      });
+
+      if (error) throw new Error(error);
+      setEmployees(data?.List || []);
     } catch (error) {
       console.error('Error loading employees:', error);
       toast({
@@ -455,35 +459,22 @@ export default function SalesReportForm() {
         scratch_off_report_file_id: formData.scratchOffReportFileId || null,
         total_sales: parseAndRound(totalSales),
         notes: formData.notes || '',
-        created_by: userProfile?.id || '',
-        updated_at: new Date().toISOString()
+        created_by: user?.ID || 0
       };
 
       let result;
       if (isEditing) {
-        // Update existing report
-        const { data, error } = await supabase.
-        from('sales_reports').
-        update(submitData).
-        eq('id', id).
-        select().
-        single();
-
-        if (error) throw error;
-        result = { data };
-      } else {
-        // Create new report
-        const { data, error } = await supabase.
-        from('sales_reports').
-        insert([{
+        // Include ID for update
+        result = await window.ezsite.apis.tableUpdate(12356, {
           ...submitData,
-          created_at: new Date().toISOString()
-        }]).
-        select().
-        single();
+          id: parseInt(id!)
+        });
+      } else {
+        result = await window.ezsite.apis.tableCreate(12356, submitData);
+      }
 
-        if (error) throw error;
-        result = { data };
+      if (result.error) {
+        throw new Error(result.error);
       }
 
       toast({
@@ -499,8 +490,8 @@ export default function SalesReportForm() {
       // Set current report for printing
       setCurrentReport({
         ...submitData,
-        id: id || result.data?.id || '',
-        created_by: userProfile?.id || ''
+        id: parseInt(id!) || result.data?.id || 0,
+        created_by: user?.ID || 0
       });
 
       // For edit mode, reload the updated data
@@ -599,7 +590,7 @@ export default function SalesReportForm() {
           <div className="mb-6">
             <Button
               variant="outline"
-              onClick={() => navigate('/sales')}
+              onClick={() => navigate('/dashboard')}
               className="mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Reports
@@ -621,7 +612,7 @@ export default function SalesReportForm() {
         <div className="mb-6">
           <Button
             variant="outline"
-            onClick={() => navigate('/sales')}
+            onClick={() => navigate('/sales-reports')}
             className="mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Reports
@@ -911,7 +902,7 @@ export default function SalesReportForm() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/sales')}>
+                onClick={() => navigate('/sales-reports')}>
                 Cancel
               </Button>
               

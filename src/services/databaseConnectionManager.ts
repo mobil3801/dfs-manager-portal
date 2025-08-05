@@ -1,328 +1,358 @@
-import { supabase } from '@/lib/supabase';
-
-interface ConnectionStatus {
-  isConnected: boolean;
-  lastChecked: Date;
-  responseTime?: number;
-  error?: string;
-  serverHealth?: 'healthy' | 'degraded' | 'down';
+interface ConnectionStats {
+  activeConnections: number;
+  maxConnections: number;
+  idleConnections: number;
+  queuedRequests: number;
+  connectionPressure: number;
 }
 
-interface HealthCheckResult {
-  status: 'healthy' | 'degraded' | 'down';
-  checks: {
-    database: boolean;
-    auth: boolean;
-    storage: boolean;
-  };
-  responseTime: number;
-  timestamp: Date;
-  errorDetails?: string;
+interface ConnectionConfig {
+  maxConnections: number;
+  idleTimeout: number;
+  connectionTimeout: number;
+  retryAttempts: number;
+  retryDelay: number;
+  healthCheckInterval: number;
 }
 
 class DatabaseConnectionManager {
-  private connectionStatus: ConnectionStatus = {
-    isConnected: false,
-    lastChecked: new Date()
+  private static instance: DatabaseConnectionManager;
+  private activeConnections = new Set<string>();
+  private idleConnections = new Set<string>();
+  private requestQueue: Array<{
+    id: string;
+    timestamp: number;
+    resolve: (connectionId: string) => void;
+    reject: (error: Error) => void;
+  }> = [];
+
+  private config: ConnectionConfig = {
+    maxConnections: 80, // Lower than the 100 limit to provide buffer
+    idleTimeout: 30000, // 30 seconds
+    connectionTimeout: 10000, // 10 seconds
+    retryAttempts: 3,
+    retryDelay: 1000, // 1 second
+    healthCheckInterval: 60000 // 1 minute
   };
 
-  private healthCheckInterval?: NodeJS.Timeout;
-  private listeners: Array<(status: ConnectionStatus) => void> = [];
-  private readonly CHECK_INTERVAL = 30000; // 30 seconds
-  private retryCount = 0;
-  private readonly MAX_RETRIES = 3;
+  private healthCheckInterval: NodeJS.Timeout | null = null;
+  private connectionCleanupInterval: NodeJS.Timeout | null = null;
+  private alertThresholds = {
+    warning: 0.7, // 70% of max connections
+    critical: 0.85 // 85% of max connections
+  };
 
-  constructor() {
-    // Delay initial health check to allow app to initialize
+  private constructor() {
+    this.startHealthCheck();
+    this.startConnectionCleanup();
+  }
+
+  static getInstance(): DatabaseConnectionManager {
+    if (!DatabaseConnectionManager.instance) {
+      DatabaseConnectionManager.instance = new DatabaseConnectionManager();
+    }
+    return DatabaseConnectionManager.instance;
+  }
+
+  async acquireConnection(): Promise<string> {
+    const connectionId = this.generateConnectionId();
+
+    // Check if we're at capacity
+    if (this.activeConnections.size >= this.config.maxConnections) {
+      console.warn('Database connection pool at capacity, queuing request');
+      return this.queueConnection(connectionId);
+    }
+
+    // Try to reuse an idle connection first
+    const idleConnectionId = this.getIdleConnection();
+    if (idleConnectionId) {
+      this.activateConnection(idleConnectionId);
+      return idleConnectionId;
+    }
+
+    // Create new connection
+    this.activeConnections.add(connectionId);
+    this.logConnectionStats();
+
+    return connectionId;
+  }
+
+  releaseConnection(connectionId: string): void {
+    if (!this.activeConnections.has(connectionId)) {
+      console.warn(`Attempted to release non-existent connection: ${connectionId}`);
+      return;
+    }
+
+    this.activeConnections.delete(connectionId);
+
+    // Convert to idle connection for reuse
+    this.idleConnections.add(connectionId);
+
+    // Set timeout to clean up idle connection
     setTimeout(() => {
-      this.startHealthCheck();
-    }, 2000);
+      this.cleanupIdleConnection(connectionId);
+    }, this.config.idleTimeout);
+
+    // Process queued requests
+    this.processQueue();
+
+    this.logConnectionStats();
   }
 
-  /**
-   * Start periodic health checks
-   */
-  startHealthCheck(): void {
-    // Initial check
-    this.checkConnection();
-
-    // Set up periodic checks
-    this.healthCheckInterval = setInterval(() => {
-      this.checkConnection();
-    }, this.CHECK_INTERVAL);
+  forceCloseConnection(connectionId: string): void {
+    this.activeConnections.delete(connectionId);
+    this.idleConnections.delete(connectionId);
+    console.log(`Forcefully closed connection: ${connectionId}`);
+    this.processQueue();
+    this.logConnectionStats();
   }
 
-  /**
-   * Stop periodic health checks
-   */
-  stopHealthCheck(): void {
-    if (this.healthCheckInterval) {
-      clearInterval(this.healthCheckInterval);
-      this.healthCheckInterval = undefined;
-    }
-  }
-
-  /**
-   * Check database connection
-   */
-  async checkConnection(): Promise<ConnectionStatus> {
-    const startTime = Date.now();
-
-    try {
-      // Test basic Supabase connection with a simple auth check first
-      const { data: { session }, error: authError } = await supabase.auth.getSession();
-      
-      if (authError && !authError.message.includes('not authenticated')) {
-        throw new Error(`Auth service unavailable: ${authError.message}`);
-      }
-
-      // Try a simple database query if auth is working
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('id')
-        .limit(1);
-
-      const responseTime = Date.now() - startTime;
-
-      // Consider connection successful even if no data (RLS may block query)
-      if (error && !error.message.includes('row-level security') && !error.message.includes('permission denied')) {
-        throw new Error(`Database query failed: ${error.message}`);
-      }
-
-      // Connection successful
-      this.connectionStatus = {
-        isConnected: true,
-        lastChecked: new Date(),
-        responseTime,
-        serverHealth: responseTime < 1000 ? 'healthy' : responseTime < 3000 ? 'degraded' : 'down'
+  private async queueConnection(connectionId: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const queueItem = {
+        id: connectionId,
+        timestamp: Date.now(),
+        resolve,
+        reject
       };
 
-      this.retryCount = 0;
-      this.notifyListeners();
+      this.requestQueue.push(queueItem);
 
-      return this.connectionStatus;
-    } catch (error) {
-      const responseTime = Date.now() - startTime;
-
-      this.connectionStatus = {
-        isConnected: false,
-        lastChecked: new Date(),
-        responseTime,
-        error: error instanceof Error ? error.message : 'Unknown connection error',
-        serverHealth: 'down'
-      };
-
-      this.retryCount++;
-      
-      // Only log significant errors, not routine auth checks
-      if (this.retryCount <= this.MAX_RETRIES) {
-        console.warn(`Database connection check failed (attempt ${this.retryCount}):`, error);
-      }
-
-      this.notifyListeners();
-      return this.connectionStatus;
-    }
-  }
-
-  /**
-   * Comprehensive health check
-   */
-  async performHealthCheck(): Promise<HealthCheckResult> {
-    const startTime = Date.now();
-    const checks = {
-      database: false,
-      auth: false,
-      storage: false
-    };
-
-    let errorDetails = '';
-
-    try {
-      // Test database connection
-      const { data: dbData, error: dbError } = await supabase.
-      from('user_profiles').
-      select('id').
-      limit(1);
-
-      checks.database = !dbError;
-      if (dbError) errorDetails += `Database: ${dbError.message}; `;
-
-      // Test auth service
-      try {
-        const { data: { session }, error: authError } = await supabase.auth.getSession();
-        checks.auth = !authError;
-        if (authError) errorDetails += `Auth: ${authError.message}; `;
-      } catch (authError) {
-        checks.auth = false;
-        errorDetails += `Auth: ${authError instanceof Error ? authError.message : 'Unknown auth error'}; `;
-      }
-
-      // Test storage service (list files in bucket)
-      try {
-        const { data: storageData, error: storageError } = await supabase.
-        storage.
-        from('').
-        list('', {
-          limit: 1
-        });
-
-        checks.storage = !storageError;
-        if (storageError) errorDetails += `Storage: ${storageError.message}; `;
-      } catch (storageError) {
-        checks.storage = false;
-        errorDetails += `Storage: ${storageError instanceof Error ? storageError.message : 'Unknown storage error'}; `;
-      }
-
-    } catch (error) {
-      errorDetails = error instanceof Error ? error.message : 'Unknown error during health check';
-    }
-
-    const responseTime = Date.now() - startTime;
-    const allChecksPass = Object.values(checks).every((check) => check);
-    const someChecksPass = Object.values(checks).some((check) => check);
-
-    let status: 'healthy' | 'degraded' | 'down';
-    if (allChecksPass) {
-      status = 'healthy';
-    } else if (someChecksPass) {
-      status = 'degraded';
-    } else {
-      status = 'down';
-    }
-
-    return {
-      status,
-      checks,
-      responseTime,
-      timestamp: new Date(),
-      errorDetails: errorDetails || undefined
-    };
-  }
-
-  /**
-   * Test a specific database operation
-   */
-  async testDatabaseOperation(): Promise<{success: boolean;error?: string;responseTime: number;}> {
-    const startTime = Date.now();
-
-    try {
-      // Test a simple select operation
-      const { data, error } = await supabase.
-      from('user_profiles').
-      select('id, role').
-      limit(5);
-
-      const responseTime = Date.now() - startTime;
-
-      if (error) {
-        return {
-          success: false,
-          error: error.message,
-          responseTime
-        };
-      }
-
-      return {
-        success: true,
-        responseTime
-      };
-    } catch (error) {
-      const responseTime = Date.now() - startTime;
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown database error',
-        responseTime
-      };
-    }
-  }
-
-  /**
-   * Get current connection status
-   */
-  getConnectionStatus(): ConnectionStatus {
-    return { ...this.connectionStatus };
-  }
-
-  /**
-   * Get connection health metrics
-   */
-  getHealthMetrics(): {
-    isHealthy: boolean;
-    responseTime: number;
-    lastChecked: Date;
-    retryCount: number;
-  } {
-    return {
-      isHealthy: this.connectionStatus.isConnected,
-      responseTime: this.connectionStatus.responseTime || 0,
-      lastChecked: this.connectionStatus.lastChecked,
-      retryCount: this.retryCount
-    };
-  }
-
-  /**
-   * Force a connection check
-   */
-  async forceCheck(): Promise<ConnectionStatus> {
-    return await this.checkConnection();
-  }
-
-  /**
-   * Add listener for connection status changes
-   */
-  addListener(callback: (status: ConnectionStatus) => void): void {
-    this.listeners.push(callback);
-  }
-
-  /**
-   * Remove listener
-   */
-  removeListener(callback: (status: ConnectionStatus) => void): void {
-    const index = this.listeners.indexOf(callback);
-    if (index > -1) {
-      this.listeners.splice(index, 1);
-    }
-  }
-
-  /**
-   * Notify all listeners of status change
-   */
-  private notifyListeners(): void {
-    this.listeners.forEach((callback) => {
-      try {
-        callback(this.connectionStatus);
-      } catch (error) {
-        console.error('Error in connection status listener:', error);
-      }
+      // Set timeout for queued request
+      setTimeout(() => {
+        const index = this.requestQueue.findIndex((item) => item.id === connectionId);
+        if (index !== -1) {
+          this.requestQueue.splice(index, 1);
+          reject(new Error(`Connection request timeout after ${this.config.connectionTimeout}ms`));
+        }
+      }, this.config.connectionTimeout);
     });
   }
 
-  /**
-   * Get connection statistics
-   */
-  getConnectionStats(): {
-    currentStatus: string;
-    avgResponseTime: number | null;
-    uptime: number;
-    lastError: string | null;
-  } {
+  private getIdleConnection(): string | null {
+    const idleConnectionArray = Array.from(this.idleConnections);
+    if (idleConnectionArray.length > 0) {
+      const connectionId = idleConnectionArray[0];
+      this.idleConnections.delete(connectionId);
+      return connectionId;
+    }
+    return null;
+  }
+
+  private activateConnection(connectionId: string): void {
+    this.idleConnections.delete(connectionId);
+    this.activeConnections.add(connectionId);
+  }
+
+  private processQueue(): void {
+    while (this.requestQueue.length > 0 && this.activeConnections.size < this.config.maxConnections) {
+      const queueItem = this.requestQueue.shift()!;
+
+      // Check if request hasn't timed out
+      if (Date.now() - queueItem.timestamp < this.config.connectionTimeout) {
+        this.activeConnections.add(queueItem.id);
+        queueItem.resolve(queueItem.id);
+      } else {
+        queueItem.reject(new Error('Connection request timeout'));
+      }
+    }
+  }
+
+  private cleanupIdleConnection(connectionId: string): void {
+    if (this.idleConnections.has(connectionId)) {
+      this.idleConnections.delete(connectionId);
+      console.log(`Cleaned up idle connection: ${connectionId}`);
+    }
+  }
+
+  private generateConnectionId(): string {
+    return `conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  private startHealthCheck(): void {
+    this.healthCheckInterval = setInterval(() => {
+      this.performHealthCheck();
+    }, this.config.healthCheckInterval);
+  }
+
+  private startConnectionCleanup(): void {
+    this.connectionCleanupInterval = setInterval(() => {
+      this.cleanupStaleConnections();
+    }, this.config.idleTimeout / 2); // Run cleanup every 15 seconds
+  }
+
+  private performHealthCheck(): void {
+    const stats = this.getConnectionStats();
+
+    // Check for connection pressure
+    if (stats.connectionPressure >= this.alertThresholds.critical) {
+      console.error('🚨 CRITICAL: Database connection usage is critically high!', stats);
+      this.triggerEmergencyCleanup();
+    } else if (stats.connectionPressure >= this.alertThresholds.warning) {
+      console.warn('⚠️ WARNING: Database connection usage is high', stats);
+      this.optimizeConnections();
+    }
+
+    // Clean up long-running connections
+    this.cleanupLongRunningConnections();
+  }
+
+  private cleanupStaleConnections(): void {
+    const now = Date.now();
+    const staleConnections: string[] = [];
+
+    // Find connections that have been idle too long
+    this.idleConnections.forEach((connectionId) => {
+      // Extract timestamp from connection ID
+      const timestamp = parseInt(connectionId.split('_')[1]);
+      if (now - timestamp > this.config.idleTimeout) {
+        staleConnections.push(connectionId);
+      }
+    });
+
+    // Clean up stale connections
+    staleConnections.forEach((connectionId) => {
+      this.idleConnections.delete(connectionId);
+      console.log(`Removed stale idle connection: ${connectionId}`);
+    });
+  }
+
+  private cleanupLongRunningConnections(): void {
+    const now = Date.now();
+    const longRunningThreshold = 300000; // 5 minutes
+    const longRunningConnections: string[] = [];
+
+    this.activeConnections.forEach((connectionId) => {
+      const timestamp = parseInt(connectionId.split('_')[1]);
+      if (now - timestamp > longRunningThreshold) {
+        longRunningConnections.push(connectionId);
+      }
+    });
+
+    if (longRunningConnections.length > 0) {
+      console.warn(`Found ${longRunningConnections.length} long-running connections`, longRunningConnections);
+
+      // Force close some long-running connections if we're at high capacity
+      const stats = this.getConnectionStats();
+      if (stats.connectionPressure > this.alertThresholds.warning) {
+        const connectionsToClose = Math.min(longRunningConnections.length, 5);
+        for (let i = 0; i < connectionsToClose; i++) {
+          this.forceCloseConnection(longRunningConnections[i]);
+        }
+        console.log(`Force closed ${connectionsToClose} long-running connections due to high capacity`);
+      }
+    }
+  }
+
+  private triggerEmergencyCleanup(): void {
+    console.log('Triggering emergency connection cleanup...');
+
+    // Force close some active connections if needed
+    const connectionsToClose = Math.min(10, this.activeConnections.size);
+    const connectionArray = Array.from(this.activeConnections);
+
+    for (let i = 0; i < connectionsToClose; i++) {
+      this.forceCloseConnection(connectionArray[i]);
+    }
+
+    // Clear all idle connections
+    this.idleConnections.clear();
+
+    // Process any queued requests
+    this.processQueue();
+
+    console.log(`Emergency cleanup completed. Closed ${connectionsToClose} connections.`);
+  }
+
+  private optimizeConnections(): void {
+    console.log('Optimizing database connections...');
+
+    // Clean up idle connections more aggressively
+    const idleToRemove = Math.min(5, this.idleConnections.size);
+    const idleArray = Array.from(this.idleConnections);
+
+    for (let i = 0; i < idleToRemove; i++) {
+      this.cleanupIdleConnection(idleArray[i]);
+    }
+
+    console.log(`Optimization completed. Removed ${idleToRemove} idle connections.`);
+  }
+
+  private logConnectionStats(): void {
+    const stats = this.getConnectionStats();
+
+    if (stats.connectionPressure > 0.5) {// Only log when usage is significant
+      console.log(`Database Connections - Active: ${stats.activeConnections}/${stats.maxConnections} (${(stats.connectionPressure * 100).toFixed(1)}%), Idle: ${stats.idleConnections}, Queued: ${stats.queuedRequests}`);
+    }
+  }
+
+  getConnectionStats(): ConnectionStats {
+    const activeConnections = this.activeConnections.size;
+    const maxConnections = this.config.maxConnections;
+    const idleConnections = this.idleConnections.size;
+    const queuedRequests = this.requestQueue.length;
+    const connectionPressure = activeConnections / maxConnections;
+
     return {
-      currentStatus: this.connectionStatus.isConnected ? 'Connected' : 'Disconnected',
-      avgResponseTime: this.connectionStatus.responseTime || null,
-      uptime: this.retryCount === 0 ? 100 : Math.max(0, 100 - this.retryCount * 10),
-      lastError: this.connectionStatus.error || null
+      activeConnections,
+      maxConnections,
+      idleConnections,
+      queuedRequests,
+      connectionPressure
     };
   }
 
-  /**
-   * Cleanup resources
-   */
-  destroy(): void {
-    this.stopHealthCheck();
-    this.listeners = [];
+  getDetailedStats(): {
+    stats: ConnectionStats;
+    config: ConnectionConfig;
+    activeConnectionIds: string[];
+    idleConnectionIds: string[];
+    queuedRequestIds: string[];
+    lastHealthCheck: number;
+  } {
+    return {
+      stats: this.getConnectionStats(),
+      config: this.config,
+      activeConnectionIds: Array.from(this.activeConnections),
+      idleConnectionIds: Array.from(this.idleConnections),
+      queuedRequestIds: this.requestQueue.map((item) => item.id),
+      lastHealthCheck: Date.now()
+    };
+  }
+
+  updateConfig(newConfig: Partial<ConnectionConfig>): void {
+    this.config = { ...this.config, ...newConfig };
+    console.log('Database connection manager configuration updated:', this.config);
+  }
+
+  reset(): void {
+    // Clear all connections
+    this.activeConnections.clear();
+    this.idleConnections.clear();
+
+    // Reject all queued requests
+    this.requestQueue.forEach((item) => {
+      item.reject(new Error('Connection manager reset'));
+    });
+    this.requestQueue = [];
+
+    console.log('Database connection manager reset completed');
+  }
+
+  shutdown(): void {
+    if (this.healthCheckInterval) {
+      clearInterval(this.healthCheckInterval);
+      this.healthCheckInterval = null;
+    }
+
+    if (this.connectionCleanupInterval) {
+      clearInterval(this.connectionCleanupInterval);
+      this.connectionCleanupInterval = null;
+    }
+
+    this.reset();
+    console.log('Database connection manager shut down');
   }
 }
 
-// Export singleton instance
-export const databaseConnectionManager = new DatabaseConnectionManager();
-export default databaseConnectionManager;
+export default DatabaseConnectionManager;

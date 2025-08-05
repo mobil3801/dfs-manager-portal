@@ -168,6 +168,30 @@ const DocumentSolutionPage: React.FC = () => {
                 <p className="text-xs text-purple-600">Uses actual database files for testing</p>
               </div>
             </div>
+            
+            <div className="flex items-center space-x-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
+              <CheckCircle className="w-5 h-5 text-orange-500" />
+              <div>
+                <p className="text-sm font-medium text-orange-800">Auto Retry System</p>
+                <p className="text-xs text-orange-600">Automatic retry with manual override</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-3 p-3 bg-indigo-50 rounded-lg border border-indigo-200">
+              <CheckCircle className="w-5 h-5 text-indigo-500" />
+              <div>
+                <p className="text-sm font-medium text-indigo-800">Status Indicators</p>
+                <p className="text-xs text-indigo-600">Real-time loading and error states</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-3 p-3 bg-teal-50 rounded-lg border border-teal-200">
+              <CheckCircle className="w-5 h-5 text-teal-500" />
+              <div>
+                <p className="text-sm font-medium text-teal-800">Image Detection</p>
+                <p className="text-xs text-teal-600">Automatic image vs document detection</p>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -322,7 +346,7 @@ const DocumentSolutionPage: React.FC = () => {
             <div>
               <h4 className="font-medium mb-3 text-green-700">✅ What's Fixed</h4>
               <ul className="text-sm text-gray-600 space-y-2">
-                <li>• <strong>ID Display:</strong> Shows "ID: {selectedFileId}" instead of full URLs</li>
+                <li>• <strong>ID Display:</strong> Shows "ID: {fileId}" instead of full URLs</li>
                 <li>• <strong>Error Messages:</strong> Clear, actionable error descriptions</li>
                 <li>• <strong>Retry Logic:</strong> Manual retry with attempt counter</li>
                 <li>• <strong>Loading States:</strong> Proper loading indicators</li>

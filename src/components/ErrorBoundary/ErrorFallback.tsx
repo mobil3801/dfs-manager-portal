@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { useNavigate } from 'react-router-dom';
 
 export interface ErrorFallbackProps {
   error: Error;
@@ -26,6 +27,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
   customMessage,
   customActions
 }) => {
+  const navigate = useNavigate();
   const [showDetailedError, setShowDetailedError] = React.useState(false);
 
   const getSeverityConfig = (severity: string) => {
@@ -59,7 +61,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
         title: 'Critical System Error'
       }
     };
-    return configs[severity as keyof typeof configs] || configs.medium;
+    return configs[severity] || configs.medium;
   };
 
   const config = getSeverityConfig(severity);
@@ -83,11 +85,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
   };
 
   const handleGoHome = () => {
-    try {
-      window.location.href = '/dashboard';
-    } catch (error) {
-      window.location.reload();
-    }
+    navigate('/dashboard');
   };
 
   const handleRefreshPage = () => {
@@ -95,27 +93,11 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
   };
 
   const formatErrorForDisplay = (error: Error) => {
-    try {
-      return {
-        name: error?.name || 'Unknown Error',
-        message: error?.message || 'No error message available',
-        stack: error?.stack?.split('\n').slice(0, 10).join('\n') || 'No stack trace available'
-      };
-    } catch (e) {
-      return {
-        name: 'Error Processing Error',
-        message: 'Unable to display error details',
-        stack: 'Stack trace unavailable'
-      };
-    }
-  };
-
-  const safeResetError = () => {
-    try {
-      resetError();
-    } catch (e) {
-      window.location.reload();
-    }
+    return {
+      name: error.name,
+      message: error.message,
+      stack: error.stack?.split('\n').slice(0, 10).join('\n') // Limit stack trace
+    };
   };
 
   return (
@@ -150,9 +132,10 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button
-              onClick={safeResetError}
+              onClick={resetError}
               variant="default"
               className="flex items-center gap-2">
+
               <RefreshCw size={16} />
               Try Again
             </Button>
@@ -163,6 +146,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
                 onClick={handleGoHome}
                 variant="outline"
                 className="flex items-center gap-2">
+
                   <Home size={16} />
                   Go to Dashboard
                 </Button>
@@ -171,6 +155,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
                 onClick={handleRefreshPage}
                 variant="outline"
                 className="flex items-center gap-2">
+
                   <RefreshCw size={16} />
                   Refresh Page
                 </Button>
@@ -191,11 +176,13 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
             open={showDetailedError}
             onOpenChange={setShowDetailedError}
             className="mt-6">
+
               <CollapsibleTrigger asChild>
                 <Button
                 variant="ghost"
                 size="sm"
                 className="w-full flex items-center justify-center gap-2 text-gray-600 hover:text-gray-800">
+
                   {showDetailedError ?
                 <>
                       <ChevronUp size={16} />

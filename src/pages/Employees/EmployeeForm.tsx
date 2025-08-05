@@ -12,7 +12,7 @@ import { Users, Save, ArrowLeft, X, FileText, Upload } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ProfilePictureUpload from '@/components/ProfilePictureUpload';
 import { displayPhoneNumber, formatPhoneNumber } from '@/utils/phoneFormatter';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { supabase } from '@/lib/supabase';
 
 interface EmployeeFormData {
@@ -57,7 +57,7 @@ const EmployeeForm: React.FC = () => {
 
   const navigate = useNavigate();
   const { id } = useParams();
-  const { isAdmin } = useAuth();
+  const { isAdmin } = useSupabaseAuth();
 
   const positions = ['Manager', 'Supervisor', 'Cashier', 'Attendant', 'Mechanic', 'Cleaner'];
   const departments = ['MOBIL', 'AMOCO ROSEDALE', 'AMOCO BROOKLYN'];
@@ -314,7 +314,6 @@ const EmployeeForm: React.FC = () => {
                       readOnly={!isEditing}
                       className={!isEditing ? "bg-gray-50 cursor-not-allowed" : ""}
                       required />
-
                     {!isEditing &&
                     <Button
                       type="button"
@@ -326,6 +325,11 @@ const EmployeeForm: React.FC = () => {
                       </Button>
                     }
                   </div>
+                  {!isEditing
+
+
+
+                  }
                 </div>
 
                 <div className="space-y-2">
@@ -352,7 +356,6 @@ const EmployeeForm: React.FC = () => {
                     onChange={(e) => handleInputChange('first_name', e.target.value)}
                     placeholder="Enter first name"
                     required />
-
                 </div>
 
                 <div className="space-y-2">
@@ -363,7 +366,6 @@ const EmployeeForm: React.FC = () => {
                     onChange={(e) => handleInputChange('last_name', e.target.value)}
                     placeholder="Enter last name"
                     required />
-
                 </div>
 
                 <div className="space-y-2">
@@ -374,7 +376,6 @@ const EmployeeForm: React.FC = () => {
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     placeholder="Enter email address" />
-
                 </div>
 
                 <div className="space-y-2">
@@ -384,7 +385,6 @@ const EmployeeForm: React.FC = () => {
                     value={formData.phone}
                     onChange={(e) => handlePhoneChange(e.target.value)}
                     placeholder="Enter phone number (e.g., 1234567890)" />
-
                   {formData.phone &&
                   <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
                       <span className="font-medium">Display format:</span> {displayPhoneNumber(formData.phone)}
@@ -452,7 +452,6 @@ const EmployeeForm: React.FC = () => {
                     type="date"
                     value={formData.hire_date}
                     onChange={(e) => handleInputChange('hire_date', e.target.value)} />
-
                 </div>
 
                 {!formData.is_active &&
@@ -463,9 +462,18 @@ const EmployeeForm: React.FC = () => {
                     type="date"
                     value={formData.termination_date}
                     onChange={(e) => handleInputChange('termination_date', e.target.value)} />
-
                   </div>
                 }
+
+                
+
+
+
+
+
+
+
+
 
                 <div className="space-y-2">
                   <Label htmlFor="hourly_rate" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Hourly Salary Rate ($)</Label>
@@ -475,7 +483,6 @@ const EmployeeForm: React.FC = () => {
                     min="0"
                     value={formData.hourly_rate}
                     onChange={(value) => handleInputChange('hourly_rate', value)} />
-
                 </div>
               </div>
             </div>
@@ -492,7 +499,6 @@ const EmployeeForm: React.FC = () => {
                     onChange={(e) => handleInputChange('notes', e.target.value)}
                     placeholder="Enter any additional notes about the employee"
                     rows={4} />
-
                 </div>
               </div>
             </div>
@@ -507,7 +513,8 @@ const EmployeeForm: React.FC = () => {
               <Button
                 type="submit"
                 disabled={loading || isUploading}>
-                {loading || isUploading ? 'Saving...' :
+                {loading || isUploading ?
+                'Saving...' :
                 <>
                     <Save className="w-4 h-4 mr-2" />
                     {isEditing ? 'Update Employee' : 'Create Employee'}

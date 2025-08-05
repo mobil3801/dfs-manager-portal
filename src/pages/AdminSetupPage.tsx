@@ -1,42 +1,29 @@
 import React from 'react';
-import AdminSetupManager from '@/components/AdminSetupManager';
+import AdminUserSetup from '@/components/AdminUserSetup';
+import { Logo } from '@/components/Logo';
 
-const AdminSetupPage = () => {
+const AdminSetupPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center py-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">DFS Manager Portal</h1>
-          <p className="text-xl text-gray-600">Administrator Account Setup & Testing</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-6">
+        {/* Logo and Company Name */}
+        <div className="text-center">
+          <div className="flex flex-col items-center">
+            <div className="mb-4 transform hover:scale-105 transition-transform duration-200">
+              <Logo className="mb-4" />
+            </div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-800 to-indigo-800 bg-clip-text text-transparent mb-2">
+              DFS Manager Portal
+            </h1>
+            <p className="text-slate-600 font-medium">Admin Setup</p>
+          </div>
         </div>
 
-        {/* Main Setup Component */}
-        <div className="flex justify-center">
-          <AdminSetupManager />
-        </div>
+        <AdminUserSetup />
 
-        {/* Info Cards */}
-        <div className="grid gap-4 md:grid-cols-2 max-w-4xl mx-auto">
-          <div className="bg-white p-6 rounded-lg border">
-            <h3 className="font-semibold text-lg mb-3">🔒 Security Information</h3>
-            <ul className="text-sm space-y-2 text-gray-600">
-              <li>• The default password is temporary and should be changed immediately</li>
-              <li>• Admin account has full system access</li>
-              <li>• All actions are logged for security audit</li>
-              <li>• Two-factor authentication can be enabled later</li>
-            </ul>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg border">
-            <h3 className="font-semibold text-lg mb-3">⚙️ System Features</h3>
-            <ul className="text-sm space-y-2 text-gray-600">
-              <li>• Complete user and role management</li>
-              <li>• Station and inventory tracking</li>
-              <li>• Sales reporting and analytics</li>
-              <li>• SMS notifications and alerts</li>
-            </ul>
-          </div>
+        {/* Footer */}
+        <div className="text-center text-sm text-slate-500">
+          <p>&copy; 2024 DFS Management Systems. All rights reserved.</p>
         </div>
       </div>
     </div>);

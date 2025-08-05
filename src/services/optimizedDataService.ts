@@ -3,8 +3,6 @@
  * Provides intelligent data loading with memory and performance optimization
  */
 
-import { supabase } from '@/lib/supabase';
-
 interface DataCache {
   [key: string]: {
     data: any;
@@ -48,7 +46,7 @@ class OptimizedDataService {
    * Intelligent data fetching with selective loading
    */
   async fetchData(
-  tableName: string,
+  tableId: string,
   params: any,
   options: {
     priority?: 'high' | 'medium' | 'low';
@@ -58,7 +56,7 @@ class OptimizedDataService {
   } = {})
   {
     const startTime = performance.now();
-    const cacheKey = this.generateCacheKey(tableName, params, options);
+    const cacheKey = this.generateCacheKey(tableId, params, options);
 
     try {
       // Check cache first
@@ -73,7 +71,7 @@ class OptimizedDataService {
       }
 
       // Create new request
-      const requestPromise = this.executeRequest(tableName, params, options);
+      const requestPromise = this.executeRequest(tableId, params, options);
       this.requestQueue.set(cacheKey, requestPromise);
 
       const result = await requestPromise;
@@ -100,7 +98,7 @@ class OptimizedDataService {
   /**
    * Execute request with connection pooling
    */
-  private async executeRequest(tableName: string, params: any, options: any) {
+  private async executeRequest(tableId: string, params: any, options: any) {
     return new Promise(async (resolve, reject) => {
       const executeWithConnection = async () => {
         this.connectionPool.active++;
@@ -109,68 +107,14 @@ class OptimizedDataService {
           // Optimize query based on viewport and fields
           const optimizedParams = this.optimizeQuery(params, options);
 
-          // Build Supabase query
-          let query = supabase.from(tableName).select(
-            options.fields && options.fields.length > 0 ?
-            options.fields.join(',') :
-            '*'
+          const { data, error } = await window.ezsite.apis.tablePage(
+            tableId,
+            optimizedParams
           );
 
-          // Apply filters
-          if (optimizedParams.Filters) {
-            optimizedParams.Filters.forEach((filter: any) => {
-              switch (filter.op) {
-                case 'Equal':
-                  query = query.eq(filter.name, filter.value);
-                  break;
-                case 'GreaterThan':
-                  query = query.gt(filter.name, filter.value);
-                  break;
-                case 'GreaterThanOrEqual':
-                  query = query.gte(filter.name, filter.value);
-                  break;
-                case 'LessThan':
-                  query = query.lt(filter.name, filter.value);
-                  break;
-                case 'StringContains':
-                  query = query.ilike(filter.name, `%${filter.value}%`);
-                  break;
-                case 'StringStartsWith':
-                  query = query.ilike(filter.name, `${filter.value}%`);
-                  break;
-                case 'StringEndsWith':
-                  query = query.ilike(filter.name, `%${filter.value}`);
-                  break;
-              }
-            });
-          }
+          if (error) throw new Error(error);
 
-          // Apply ordering
-          if (optimizedParams.OrderByField) {
-            query = query.order(optimizedParams.OrderByField, {
-              ascending: optimizedParams.IsAsc
-            });
-          }
-
-          // Apply pagination
-          if (optimizedParams.PageSize && optimizedParams.PageNo) {
-            const from = (optimizedParams.PageNo - 1) * optimizedParams.PageSize;
-            const to = from + optimizedParams.PageSize - 1;
-            query = query.range(from, to);
-          }
-
-          const { data, error, count } = await query;
-
-          if (error) throw error;
-
-          resolve({
-            data: {
-              List: data,
-              TotalCount: count,
-              VirtualCount: count
-            },
-            fromCache: false
-          });
+          resolve({ data, fromCache: false });
         } catch (error) {
           reject(error);
         } finally {
@@ -201,6 +145,11 @@ class OptimizedDataService {
       optimized.PageSize = Math.min(end - start, params.PageSize || 10);
     }
 
+    // Optimize field selection
+    if (options.fields && options.fields.length > 0) {
+      optimized.Fields = options.fields;
+    }
+
     // Apply priority-based ordering
     if (options.priority === 'high') {
       optimized.OrderByField = optimized.OrderByField || 'id';
@@ -226,9 +175,9 @@ class OptimizedDataService {
   /**
    * Generate cache key
    */
-  private generateCacheKey(tableName: string, params: any, options: any): string {
+  private generateCacheKey(tableId: string, params: any, options: any): string {
     const keyData = {
-      tableName,
+      tableId,
       params: JSON.stringify(params),
       fields: options.fields?.join(',') || 'all',
       viewport: options.viewport ? `${options.viewport.start}-${options.viewport.end}` : 'full'

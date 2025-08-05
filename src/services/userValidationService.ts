@@ -1,6 +1,4 @@
 // User validation service for role conflicts, email uniqueness, and admin protection
-import { supabase } from '@/lib/supabase';
-
 export interface UserValidationError {
   field: string;
   message: string;
@@ -67,17 +65,27 @@ class UserValidationService {
     const errors: UserValidationError[] = [];
 
     try {
-      // Check in auth.users table (built-in Supabase auth)
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      // Check in User table (built-in)
+      const userResponse = await window.ezsite.apis.tablePage('User', {
+        PageNo: 1,
+        PageSize: 1,
+        Filters: [
+        {
+          name: 'Email',
+          op: 'Equal',
+          value: email
+        }]
 
-      if (authError) {
-        console.error('Error checking auth users:', authError);
-      } else {
-        const existingAuthUser = authUsers.users.find((user) =>
-        user.email === email && (!userId || user.id !== userId.toString())
-        );
+      });
 
-        if (existingAuthUser) {
+      if (userResponse.error) {
+        throw new Error(userResponse.error);
+      }
+
+      // If found and it's not the current user being updated
+      if (userResponse.data?.List?.length > 0) {
+        const existingUser = userResponse.data.List[0];
+        if (!userId || existingUser.ID !== userId) {
           errors.push({
             field: 'email',
             message: 'This email address is already in use by another user',
@@ -87,14 +95,19 @@ class UserValidationService {
       }
 
       // Check in employees table as well
-      const { data: employees, error: employeesError } = await supabase.
-      from('employees').
-      select('*').
-      eq('email', email);
+      const employeeResponse = await window.ezsite.apis.tablePage(11727, {
+        PageNo: 1,
+        PageSize: 1,
+        Filters: [
+        {
+          name: 'email',
+          op: 'Equal',
+          value: email
+        }]
 
-      if (employeesError) {
-        console.error('Error checking employees:', employeesError);
-      } else if (employees && employees.length > 0) {
+      });
+
+      if (employeeResponse.data?.List?.length > 0) {
         errors.push({
           field: 'email',
           message: 'This email address is already registered as an employee',
@@ -133,17 +146,30 @@ class UserValidationService {
     try {
       // Check for role conflicts at the same station
       if (userData.station && userData.user_id) {
-        const { data: existingProfiles, error } = await supabase.
-        from('user_profiles').
-        select('*').
-        eq('station', userData.station).
-        eq('user_id', userData.user_id).
-        eq('is_active', true);
+        const existingProfiles = await window.ezsite.apis.tablePage(11725, {
+          PageNo: 1,
+          PageSize: 100,
+          Filters: [
+          {
+            name: 'station',
+            op: 'Equal',
+            value: userData.station
+          },
+          {
+            name: 'user_id',
+            op: 'Equal',
+            value: userData.user_id
+          },
+          {
+            name: 'is_active',
+            op: 'Equal',
+            value: true
+          }]
 
-        if (error) {
-          console.error('Error checking existing profiles:', error);
-        } else if (existingProfiles && existingProfiles.length > 0) {
-          const existingProfile = existingProfiles[0];
+        });
+
+        if (existingProfiles.data?.List?.length > 0) {
+          const existingProfile = existingProfiles.data.List[0];
 
           // Check for conflicting roles
           for (const [role1, role2] of this.CONFLICTING_ROLES) {
@@ -160,16 +186,25 @@ class UserValidationService {
 
         // Check for multiple admin roles (only one admin per system)
         if (userData.role === 'Administrator') {
-          const { data: adminProfiles, error: adminError } = await supabase.
-          from('user_profiles').
-          select('*').
-          eq('role', 'Administrator').
-          eq('is_active', true);
+          const adminResponse = await window.ezsite.apis.tablePage(11725, {
+            PageNo: 1,
+            PageSize: 1,
+            Filters: [
+            {
+              name: 'role',
+              op: 'Equal',
+              value: 'Administrator'
+            },
+            {
+              name: 'is_active',
+              op: 'Equal',
+              value: true
+            }]
 
-          if (adminError) {
-            console.error('Error checking admin profiles:', adminError);
-          } else if (adminProfiles && adminProfiles.length > 0) {
-            const existingAdmin = adminProfiles[0];
+          });
+
+          if (adminResponse.data?.List?.length > 0) {
+            const existingAdmin = adminResponse.data.List[0];
             // Check if it's not the same user profile being updated
             if (existingAdmin.id !== userData.id) {
               errors.push({
@@ -231,12 +266,20 @@ class UserValidationService {
     try {
       // Get user email if not provided
       if (!userEmail) {
-        const { data: { user }, error } = await supabase.auth.admin.getUserById(userId.toString());
+        const userResponse = await window.ezsite.apis.tablePage('User', {
+          PageNo: 1,
+          PageSize: 1,
+          Filters: [
+          {
+            name: 'ID',
+            op: 'Equal',
+            value: userId
+          }]
 
-        if (error) {
-          console.error('Error getting user:', error);
-        } else if (user) {
-          userEmail = user.email;
+        });
+
+        if (userResponse.data?.List?.length > 0) {
+          userEmail = userResponse.data.List[0].Email;
         }
       }
 
@@ -299,19 +342,32 @@ class UserValidationService {
       flatMap(([role1, role2]) => role === role1 ? [role2] : [role1]);
 
       for (const conflictRole of conflictingRoles) {
-        const { data: profiles, error } = await supabase.
-        from('user_profiles').
-        select('*').
-        eq('role', conflictRole).
-        eq('station', station).
-        eq('is_active', true);
+        const response = await window.ezsite.apis.tablePage(11725, {
+          PageNo: 1,
+          PageSize: 100,
+          Filters: [
+          {
+            name: 'role',
+            op: 'Equal',
+            value: conflictRole
+          },
+          {
+            name: 'station',
+            op: 'Equal',
+            value: station
+          },
+          {
+            name: 'is_active',
+            op: 'Equal',
+            value: true
+          }]
 
-        if (error) {
-          console.error('Error checking role conflicts:', error);
-        } else if (profiles) {
+        });
+
+        if (response.data?.List) {
           const filteredConflicts = excludeUserId ?
-          profiles.filter((profile: any) => profile.user_id !== excludeUserId) :
-          profiles;
+          response.data.List.filter((profile: any) => profile.user_id !== excludeUserId) :
+          response.data.List;
 
           conflicts.push(...filteredConflicts.map((profile: any) => ({
             ...profile,

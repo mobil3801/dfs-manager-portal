@@ -83,8 +83,6 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
   const loadDocumentUrl = async (isRetry = false) => {
     if (!fileId || fileId <= 0) return;
 
-    const currentFileId = fileId; // Store fileId in local variable
-
     setState((prev) => ({
       ...prev,
       isLoading: true,
@@ -96,10 +94,10 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
     }));
 
     try {
-      console.log(`[FixedDocumentViewer] Loading URL for file ${currentFileId}${isRetry ? ` (retry ${state.retryCount + 1})` : ''}`);
+      console.log(`[FixedDocumentViewer] Loading URL for file ${fileId}${isRetry ? ` (retry ${state.retryCount + 1})` : ''}`);
 
       // Step 1: Get the file URL from the API
-      const urlResponse = await window.ezsite.apis.getUploadUrl(currentFileId);
+      const urlResponse = await window.ezsite.apis.getUploadUrl(fileId);
 
       if (urlResponse.error) {
         throw new Error(`API Error: ${urlResponse.error}`);
@@ -110,7 +108,7 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
       }
 
       const documentUrl = urlResponse.data;
-      console.log(`[FixedDocumentViewer] Got URL for file ${currentFileId}: ${documentUrl.substring(0, 50)}...`);
+      console.log(`[FixedDocumentViewer] Got URL for file ${fileId}: ${documentUrl.substring(0, 50)}...`);
 
       // Step 2: Update state with URL
       setState((prev) => ({
@@ -119,11 +117,11 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
       }));
 
       // Step 3: Test if it's an image
-      await testImageLoad(documentUrl, currentFileId);
+      await testImageLoad(documentUrl);
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      console.error(`[FixedDocumentViewer] Error loading file ${currentFileId}:`, errorMessage);
+      console.error(`[FixedDocumentViewer] Error loading file ${fileId}:`, errorMessage);
 
       setState((prev) => ({
         ...prev,
@@ -143,7 +141,7 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
     }
   };
 
-  const testImageLoad = (url: string, currentFileId: number): Promise<void> => {
+  const testImageLoad = (url: string): Promise<void> => {
     return new Promise((resolve) => {
       const img = new Image();
       let resolved = false;
@@ -151,7 +149,7 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
       const handleLoad = () => {
         if (!resolved) {
           resolved = true;
-          console.log(`[FixedDocumentViewer] Image loaded successfully for file ${currentFileId}`);
+          console.log(`[FixedDocumentViewer] Image loaded successfully for file ${fileId}`);
           setState((prev) => ({
             ...prev,
             isImageFile: true,
@@ -165,7 +163,7 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
       const handleError = (e: any) => {
         if (!resolved) {
           resolved = true;
-          console.log(`[FixedDocumentViewer] Image load failed for file ${currentFileId}:`, e);
+          console.log(`[FixedDocumentViewer] Image load failed for file ${fileId}:`, e);
           setState((prev) => ({
             ...prev,
             isImageFile: false,
@@ -180,7 +178,7 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
       setTimeout(() => {
         if (!resolved) {
           resolved = true;
-          console.log(`[FixedDocumentViewer] Image load timeout for file ${currentFileId}`);
+          console.log(`[FixedDocumentViewer] Image load timeout for file ${fileId}`);
           setState((prev) => ({
             ...prev,
             isImageFile: false,
@@ -322,6 +320,7 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
                   size="sm"
                   onClick={handleRetry}
                   className="text-xs">
+
                       <RefreshCw className="w-3 h-3 mr-1" />
                       Retry Load
                     </Button>
@@ -354,6 +353,7 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
           <div
             className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 cursor-pointer hover:bg-blue-100 transition-colors"
             onClick={handleViewFullScreen}>
+
               <div className="text-center p-4">
                 <FileText className="w-16 h-16 text-blue-500 mx-auto mb-3" />
                 <p className="text-sm font-medium text-blue-800">Document File</p>
@@ -376,6 +376,7 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
               className="h-6 w-6 p-0 bg-white bg-opacity-90 hover:bg-opacity-100 shadow-sm"
               onClick={handleViewFullScreen}
               disabled={!state.url}>
+
               <Eye className="w-3 h-3" />
             </Button>
             
@@ -385,6 +386,7 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
               size="sm"
               className="h-6 w-6 p-0 bg-green-500 bg-opacity-90 hover:bg-opacity-100 text-white shadow-sm"
               onClick={handleDownload}>
+
                 <Download className="w-3 h-3" />
               </Button>
             }
@@ -395,6 +397,7 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
               size="sm"
               className="h-6 w-6 p-0 bg-orange-500 bg-opacity-90 hover:bg-opacity-100 text-white shadow-sm"
               onClick={handleRetry}>
+
                 <RefreshCw className="w-3 h-3" />
               </Button>
             }
@@ -437,6 +440,7 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
                 size="sm"
                 className="h-6 px-2 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
                 onClick={handleDownload}>
+
                   <Download className="w-3 h-3 mr-1" />
                   Download
                 </Button>

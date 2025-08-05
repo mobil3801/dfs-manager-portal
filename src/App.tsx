@@ -1,515 +1,459 @@
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { ModuleAccessProvider } from '@/contexts/ModuleAccessContext';
 import { Toaster } from '@/components/ui/toaster';
-import GlobalErrorBoundary from '@/components/ErrorBoundary/GlobalErrorBoundary';
-import PerformanceMonitoringSystem from '@/components/PerformanceMonitoringSystem';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { SupabaseAuthProvider, useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+import { ModuleAccessProvider } from '@/contexts/ModuleAccessContext';
+import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
+import AuthDebugger from '@/components/AuthDebugger';
+import ImageErrorNotification from '@/components/ImageErrorNotification';
 
-// Page imports
-import LoginPage from '@/pages/LoginPage';
-import OnAuthSuccessPage from '@/pages/OnAuthSuccessPage';
+// Layout
+import DashboardLayout from '@/components/Layout/DashboardLayout';
+
+// Core pages (loaded immediately)
 import Dashboard from '@/pages/Dashboard';
-import HomePage from '@/pages/HomePage';
+import LoginPage from '@/pages/LoginPage';
+import SupabaseLoginPage from '@/pages/SupabaseLoginPage';
+import OnAuthSuccessPage from '@/pages/OnAuthSuccessPage';
+import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import NotFound from '@/pages/NotFound';
 
-// Products
-import ProductList from '@/pages/Products/ProductList';
-import ProductForm from '@/pages/Products/ProductForm';
+// Lazy load feature pages
+const ProductList = lazy(() => import('@/pages/Products/ProductList'));
+const ProductForm = lazy(() => import('@/pages/Products/ProductForm'));
+const EmployeeList = lazy(() => import('@/pages/Employees/EmployeeList'));
+const EmployeeForm = lazy(() => import('@/pages/Employees/EmployeeForm'));
+const SalesReportList = lazy(() => import('@/pages/Sales/SalesReportList'));
+const SalesReportForm = lazy(() => import('@/pages/Sales/SalesReportForm'));
+const VendorList = lazy(() => import('@/pages/Vendors/VendorList'));
+const VendorForm = lazy(() => import('@/pages/Vendors/VendorForm'));
+const OrderList = lazy(() => import('@/pages/Orders/OrderList'));
+const OrderForm = lazy(() => import('@/pages/Orders/OrderForm'));
+const LicenseList = lazy(() => import('@/pages/Licenses/LicenseList'));
+const LicenseForm = lazy(() => import('@/pages/Licenses/LicenseForm'));
+const SalaryList = lazy(() => import('@/pages/Salary/SalaryList'));
+const SalaryForm = lazy(() => import('@/pages/Salary/SalaryForm'));
+const DeliveryList = lazy(() => import('@/pages/Delivery/DeliveryList'));
+const DeliveryForm = lazy(() => import('@/pages/Delivery/DeliveryForm'));
+const AppSettings = lazy(() => import('@/pages/Settings/AppSettings'));
 
-// Sales Reports
-import SalesReportList from '@/pages/Sales/SalesReportList';
-import SalesReportForm from '@/pages/Sales/SalesReportForm';
+// Admin pages (lazy loaded)
+const AdminPanel = lazy(() => import('@/pages/Admin/AdminPanel'));
+const UserManagement = lazy(() => import('@/pages/Admin/UserManagement'));
+const SiteManagement = lazy(() => import('@/pages/Admin/SiteManagement'));
+const SystemLogs = lazy(() => import('@/pages/Admin/SystemLogs'));
+const SecuritySettings = lazy(() => import('@/pages/Admin/SecuritySettings'));
+const SMSManagement = lazy(() => import('@/pages/Admin/SMSManagement'));
+const UserValidationTestPage = lazy(() => import('@/pages/Admin/UserValidationTestPage'));
+const AuthDiagnosticPage = lazy(() => import('@/pages/AuthDiagnosticPage'));
+const ModuleAccessPage = lazy(() => import('@/pages/Admin/ModuleAccessPage'));
+const NavigationDebugPage = lazy(() => import('@/pages/Admin/NavigationDebugPage'));
+const DatabaseMonitoring = lazy(() => import('@/pages/Admin/DatabaseMonitoring'));
+const AuditMonitoring = lazy(() => import('@/pages/Admin/AuditMonitoring'));
 
-// Employees
-import EmployeeList from '@/pages/Employees/EmployeeList';
-import EmployeeForm from '@/pages/Employees/EmployeeForm';
+// Demo and test pages (lazy loaded)
+const ProfilePictureDemo = lazy(() => import('@/components/ProfilePictureDemo'));
+const OverflowTestPage = lazy(() => import('@/pages/OverflowTestPage'));
+const OverflowTestingPage = lazy(() => import('@/pages/OverflowTestingPage'));
+const EnhancedIDDocumentTestPage = lazy(() => import('./pages/EnhancedIDDocumentTestPage'));
+const DocumentViewerTestPage = lazy(() => import('./pages/DocumentViewerTestPage'));
+const SupabaseTestPage = lazy(() => import('@/pages/SupabaseTestPage'));
 
-// Licenses
-import LicenseList from '@/pages/Licenses/LicenseList';
-import LicenseForm from '@/pages/Licenses/LicenseForm';
+const DocumentLoadingDebugPage = lazy(() => import('@/pages/DocumentLoadingDebugPage'));
+const DocumentSolutionPage = lazy(() => import('@/pages/DocumentSolutionPage'));
+const IDFileDebugPage = lazy(() => import('@/pages/IDFileDebugPage'));
+const IDDocumentSolutionPage = lazy(() => import('@/pages/IDDocumentSolutionPage'));
+const EmployeeTestPage = lazy(() => import('@/pages/EmployeeTestPage'));
 
-// Deliveries
-import DeliveryList from '@/pages/Delivery/DeliveryList';
-import DeliveryForm from '@/pages/Delivery/DeliveryForm';
+import './App.css';
 
-// Orders
-import OrderList from '@/pages/Orders/OrderList';
-import OrderForm from '@/pages/Orders/OrderForm';
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000 // 5 minutes
+    }
+  }
+});
 
-// Vendors
-import VendorList from '@/pages/Vendors/VendorList';
-import VendorForm from '@/pages/Vendors/VendorForm';
+// Loading Spinner Component
+const LoadingSpinner = () =>
+<div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+      <p className="text-gray-600">Loading DFS Manager Portal...</p>
+      <p className="text-sm text-gray-500 mt-2">Initializing authentication system...</p>
+    </div>
+  </div>;
 
-// Salary
-import SalaryList from '@/pages/Salary/SalaryList';
-import SalaryForm from '@/pages/Salary/SalaryForm';
+// Page Loading Component for lazy-loaded components
+const PageLoader = () =>
+<div className="min-h-[400px] flex items-center justify-center">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
+      <p className="text-gray-600">Loading page...</p>
+    </div>
+  </div>;
 
-// Admin
-import AdminDashboard from '@/pages/Admin/AdminDashboard';
-import UserManagement from '@/pages/Admin/UserManagement';
-import SecuritySettings from '@/pages/Admin/SecuritySettings';
-import SystemLogs from '@/pages/Admin/SystemLogs';
-import SMSManagement from '@/pages/Admin/SMSManagement';
-import SiteManagement from '@/pages/Admin/SiteManagement';
-import ErrorMonitoringPage from '@/pages/Admin/ErrorMonitoringPage';
-import MemoryMonitoring from '@/pages/Admin/MemoryMonitoring';
-import NavigationDebugPage from '@/pages/Admin/NavigationDebugPage';
-import DevelopmentMonitoring from '@/pages/Admin/DevelopmentMonitoring';
-import DatabaseMonitoring from '@/pages/Admin/DatabaseMonitoring';
-import AuditMonitoring from '@/pages/Admin/AuditMonitoring';
-import ModuleAccessPage from '@/pages/Admin/ModuleAccessPage';
-import RoleTestingPage from '@/pages/Admin/RoleTestingPage';
-import UserValidationTestPage from '@/pages/Admin/UserValidationTestPage';
-import RoleManagementPage from '@/pages/Admin/RoleManagementPage';
-import EasyRoleManagement from '@/pages/Admin/EasyRoleManagement';
-import AlertSettings from '@/pages/Admin/AlertSettings';
-import AdminSetupPage from '@/pages/Admin/AdminSetupPage';
-import ComprehensiveAdminPanel from '@/pages/Admin/ComprehensiveAdminPanel';
-
-// Settings
-import AppSettings from '@/pages/Settings/AppSettings';
-
-// Test & Debug Pages
-import SupabaseTestPage from '@/pages/SupabaseTestPage';
-import SupabaseLoginPage from '@/pages/SupabaseLoginPage';
-import DocumentSolutionPage from '@/pages/DocumentSolutionPage';
-import IDDocumentSolutionPage from '@/pages/IDDocumentSolutionPage';
-import DocumentViewerTestPage from '@/pages/DocumentViewerTestPage';
-import EnhancedIDDocumentTestPage from '@/pages/EnhancedIDDocumentTestPage';
-import DocumentLoadingDebugPage from '@/pages/DocumentLoadingDebugPage';
-import IDFileDebugPage from '@/pages/IDFileDebugPage';
-import EmployeeTestPage from '@/pages/EmployeeTestPage';
-import OverflowTestPage from '@/pages/OverflowTestPage';
-import OverflowTestingPage from '@/pages/OverflowTestingPage';
-import AuthDiagnosticPage from '@/pages/AuthDiagnosticPage';
-import AdminDebugPage from '@/pages/AdminDebugPage';
-import AdminEmergencyFixPage from '@/pages/AdminEmergencyFixPage';
-import AdminFixSuccessPage from '@/pages/AdminFixSuccessPage';
-import CriticalErrorFixPage from '@/pages/CriticalErrorFixPage';
-import TestProductsPage from '@/pages/TestProductsPage';
-import AuthFlowTestPage from '@/pages/AuthFlowTestPage';
-
-// Layout Components
-import DashboardLayout from '@/components/Layout/DashboardLayout';
-import ProtectedRoute from '@/components/ProtectedRoute';
-
-// Safe component wrapper to catch any remaining initialization errors
-const SafeComponent: React.FC<{children: React.ReactNode;}> = ({ children }) => {
-  try {
-    return <>{children}</>;
-  } catch (error) {
-    console.error('Component rendering error:', error);
-    return (
-      <div className="min-h-screen bg-red-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full text-center">
-          <div className="mb-4">
-            <svg className="mx-auto h-12 w-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Component Error</h3>
-          <p className="text-gray-600 mb-4">
-            There was an error loading this component. Please refresh the page.
-          </p>
+// Error Display Component
+const AuthError = ({ error, onRetry }: {error: string;onRetry: () => void;}) =>
+<div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="max-w-md w-full text-center">
+      <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="text-red-600 mb-4">
+          <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
+          </svg>
+        </div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Authentication Error</h3>
+        <p className="text-gray-600 mb-4">{error}</p>
+        <div className="space-y-2">
           <button
-            onClick={() => window.location.reload()}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+          onClick={onRetry}
+          className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
 
-            Refresh Page
+            Try Again
+          </button>
+          <button
+          onClick={() => window.location.href = '/login'}
+          className="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors">
+
+            Go to Login
           </button>
         </div>
-      </div>);
+      </div>
+    </div>
+  </div>;
 
+// Protected Route Component with improved error handling
+const ProtectedRoute: React.FC<{children: React.ReactNode;}> = ({ children }) => {
+  const { isAuthenticated, isLoading, authError, isInitialized, refreshUserData } = useSupabaseAuth();
+
+  // Show loading while initializing
+  if (!isInitialized || isLoading) {
+    return <LoadingSpinner />;
   }
+
+  // Show error if there's a critical authentication error
+  if (authError && authError.includes('Failed to load user data')) {
+    return <AuthError error={authError} onRetry={refreshUserData} />;
+  }
+
+  // Redirect to login if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+// Main App Router Component
+const AppRouter = () => {
+  const { isInitialized } = useSupabaseAuth();
+
+  // Show loading during initial authentication setup
+  if (!isInitialized) {
+    return <LoadingSpinner />;
+  }
+
+  return (
+    <Router>
+      <div className="App">
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<SupabaseLoginPage />} />
+          <Route path="/legacy-login" element={<LoginPage />} />
+          <Route path="/supabase-login" element={<SupabaseLoginPage />} />
+          <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
+          <Route path="/resetpassword" element={<ResetPasswordPage />} />
+          
+          {/* Protected Routes */}
+          <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            
+            {/* Products */}
+            <Route path="products" element={
+            <Suspense fallback={<PageLoader />}>
+                <ProductList />
+              </Suspense>
+            } />
+            <Route path="products/new" element={
+            <Suspense fallback={<PageLoader />}>
+                <ProductForm />
+              </Suspense>
+            } />
+            <Route path="products/:id/edit" element={
+            <Suspense fallback={<PageLoader />}>
+                <ProductForm />
+              </Suspense>
+            } />
+            
+            {/* Employees */}
+            <Route path="employees" element={
+            <Suspense fallback={<PageLoader />}>
+                <EmployeeList />
+              </Suspense>
+            } />
+            <Route path="employees/new" element={
+            <Suspense fallback={<PageLoader />}>
+                <EmployeeForm />
+              </Suspense>
+            } />
+            <Route path="employees/:id/edit" element={
+            <Suspense fallback={<PageLoader />}>
+                <EmployeeForm />
+              </Suspense>
+            } />
+            
+            {/* Sales */}
+            <Route path="sales" element={
+            <Suspense fallback={<PageLoader />}>
+                <SalesReportList />
+              </Suspense>
+            } />
+            <Route path="sales/new" element={
+            <Suspense fallback={<PageLoader />}>
+                <SalesReportForm />
+              </Suspense>
+            } />
+            <Route path="sales/:id/edit" element={
+            <Suspense fallback={<PageLoader />}>
+                <SalesReportForm />
+              </Suspense>
+            } />
+            
+            {/* Vendors */}
+            <Route path="vendors" element={
+            <Suspense fallback={<PageLoader />}>
+                <VendorList />
+              </Suspense>
+            } />
+            <Route path="vendors/new" element={
+            <Suspense fallback={<PageLoader />}>
+                <VendorForm />
+              </Suspense>
+            } />
+            <Route path="vendors/:id/edit" element={
+            <Suspense fallback={<PageLoader />}>
+                <VendorForm />
+              </Suspense>
+            } />
+            
+            {/* Orders */}
+            <Route path="orders" element={
+            <Suspense fallback={<PageLoader />}>
+                <OrderList />
+              </Suspense>
+            } />
+            <Route path="orders/new" element={
+            <Suspense fallback={<PageLoader />}>
+                <OrderForm />
+              </Suspense>
+            } />
+            <Route path="orders/:id/edit" element={
+            <Suspense fallback={<PageLoader />}>
+                <OrderForm />
+              </Suspense>
+            } />
+            
+            {/* Licenses */}
+            <Route path="licenses" element={
+            <Suspense fallback={<PageLoader />}>
+                <LicenseList />
+              </Suspense>
+            } />
+            <Route path="licenses/new" element={
+            <Suspense fallback={<PageLoader />}>
+                <LicenseForm />
+              </Suspense>
+            } />
+            <Route path="licenses/:id/edit" element={
+            <Suspense fallback={<PageLoader />}>
+                <LicenseForm />
+              </Suspense>
+            } />
+            
+            {/* Salary */}
+            <Route path="salary" element={
+            <Suspense fallback={<PageLoader />}>
+                <SalaryList />
+              </Suspense>
+            } />
+            <Route path="salary/new" element={
+            <Suspense fallback={<PageLoader />}>
+                <SalaryForm />
+              </Suspense>
+            } />
+            <Route path="salary/:id/edit" element={
+            <Suspense fallback={<PageLoader />}>
+                <SalaryForm />
+              </Suspense>
+            } />
+            
+            {/* Delivery */}
+            <Route path="delivery" element={
+            <Suspense fallback={<PageLoader />}>
+                <DeliveryList />
+              </Suspense>
+            } />
+            <Route path="delivery/new" element={
+            <Suspense fallback={<PageLoader />}>
+                <DeliveryForm />
+              </Suspense>
+            } />
+            <Route path="delivery/:id/edit" element={
+            <Suspense fallback={<PageLoader />}>
+                <DeliveryForm />
+              </Suspense>
+            } />
+            
+            {/* Settings */}
+            <Route path="settings" element={
+            <Suspense fallback={<PageLoader />}>
+                <AppSettings />
+              </Suspense>
+            } />
+            
+            {/* Demo and Test Pages */}
+            <Route path="profile-picture-demo" element={
+            <Suspense fallback={<PageLoader />}>
+                <ProfilePictureDemo />
+              </Suspense>
+            } />
+            <Route path="overflow-test" element={
+            <Suspense fallback={<PageLoader />}>
+                <OverflowTestPage />
+              </Suspense>
+            } />
+            <Route path="overflow-testing" element={
+            <Suspense fallback={<PageLoader />}>
+                <OverflowTestingPage />
+              </Suspense>
+            } />
+            <Route path="enhanced-id-document-test" element={<EnhancedIDDocumentTestPage />} />
+            <Route path="document-viewer-test" element={<DocumentViewerTestPage />} />
+            <Route path="document-loading-debug" element={
+            <Suspense fallback={<PageLoader />}>
+                <DocumentLoadingDebugPage />
+              </Suspense>
+            } />
+            <Route path="document-solution" element={
+            <Suspense fallback={<PageLoader />}>
+                <DocumentSolutionPage />
+              </Suspense>
+            } />
+            <Route path="id-file-debug" element={
+            <Suspense fallback={<PageLoader />}>
+                <IDFileDebugPage />
+              </Suspense>
+            } />
+            <Route path="id-document-solution" element={
+            <Suspense fallback={<PageLoader />}>
+                <IDDocumentSolutionPage />
+              </Suspense>
+            } />
+            <Route path="supabase-test" element={
+            <Suspense fallback={<PageLoader />}>
+                <SupabaseTestPage />
+              </Suspense>
+            } />
+            
+            {/* Admin Routes */}
+            <Route path="admin" element={
+            <Suspense fallback={<PageLoader />}>
+                <AdminPanel />
+              </Suspense>
+            } />
+            <Route path="admin/users" element={
+            <Suspense fallback={<PageLoader />}>
+                <UserManagement />
+              </Suspense>
+            } />
+            <Route path="admin/sites" element={
+            <Suspense fallback={<PageLoader />}>
+                <SiteManagement />
+              </Suspense>
+            } />
+            <Route path="admin/logs" element={
+            <Suspense fallback={<PageLoader />}>
+                <SystemLogs />
+              </Suspense>
+            } />
+            <Route path="admin/security" element={
+            <Suspense fallback={<PageLoader />}>
+                <SecuritySettings />
+              </Suspense>
+            } />
+            <Route path="admin/sms" element={
+            <Suspense fallback={<PageLoader />}>
+                <SMSManagement />
+              </Suspense>
+            } />
+            <Route path="admin/user-validation" element={
+            <Suspense fallback={<PageLoader />}>
+                <UserValidationTestPage />
+              </Suspense>
+            } />
+            <Route path="admin/auth-diagnostic" element={
+            <Suspense fallback={<PageLoader />}>
+                <AuthDiagnosticPage />
+              </Suspense>
+            } />
+            <Route path="admin/module-access" element={
+            <Suspense fallback={<PageLoader />}>
+                <ModuleAccessPage />
+              </Suspense>
+            } />
+            <Route path="admin/navigation-debug" element={
+            <Suspense fallback={<PageLoader />}>
+                <NavigationDebugPage />
+              </Suspense>
+            } />
+            <Route path="admin/database" element={
+            <Suspense fallback={<PageLoader />}>
+                <DatabaseMonitoring />
+              </Suspense>
+            } />
+            <Route path="admin/audit" element={
+            <Suspense fallback={<PageLoader />}>
+                <AuditMonitoring />
+              </Suspense>
+            } />
+          </Route>
+          
+          {/* 404 */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        
+        {/* Auth Debugger - Only show in development or for debugging */}
+        <AuthDebugger />
+      </div>
+    </Router>);
+
 };
 
 function App() {
   return (
-    <GlobalErrorBoundary>
-      <SafeComponent>
-        <AuthProvider>
-          <ModuleAccessProvider>
-            <Router>
-              <div className="min-h-screen bg-gray-50">
-                <Routes>
-                  {/* Public Routes */}
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
-                  <Route path="/supabase-login" element={<SupabaseLoginPage />} />
-                  <Route path="/supabase-test" element={<SupabaseTestPage />} />
-                  
-                  {/* Test & Debug Routes (temporarily disabled to fix system errors) */}
-                  <Route path="/test-products" element={<TestProductsPage />} />
-                  <Route path="/auth-diagnostic" element={<AuthDiagnosticPage />} />
-                  <Route path="/admin-debug" element={<AdminDebugPage />} />
-                  <Route path="/admin-emergency-fix" element={<AdminEmergencyFixPage />} />
-                  <Route path="/admin-fix-success" element={<AdminFixSuccessPage />} />
-                  <Route path="/critical-error-fix" element={<CriticalErrorFixPage />} />
-                  <Route path="/auth-flow-test" element={<AuthFlowTestPage />} />
-
-                  {/* Protected Routes */}
-                  <Route path="/" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <HomePage />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  
-                  <Route path="/dashboard" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <Dashboard />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-
-                  {/* Products Routes */}
-                  <Route path="/products" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <ProductList />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/products/new" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <ProductForm />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/products/:id/edit" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <ProductForm />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-
-                  {/* Sales Routes */}
-                  <Route path="/sales" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <SalesReportList />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/sales/new" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <SalesReportForm />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/sales/:id/edit" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <SalesReportForm />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-
-                  {/* Employee Routes */}
-                  <Route path="/employees" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <EmployeeList />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/employees/new" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <EmployeeForm />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/employees/:id/edit" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <EmployeeForm />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-
-                  {/* License Routes */}
-                  <Route path="/licenses" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <LicenseList />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/licenses/new" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <LicenseForm />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/licenses/:id/edit" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <LicenseForm />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-
-                  {/* Delivery Routes */}
-                  <Route path="/deliveries" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <DeliveryList />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/deliveries/new" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <DeliveryForm />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/deliveries/:id/edit" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <DeliveryForm />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-
-                  {/* Order Routes */}
-                  <Route path="/orders" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <OrderList />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/orders/new" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <OrderForm />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/orders/:id/edit" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <OrderForm />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-
-                  {/* Vendor Routes */}
-                  <Route path="/vendors" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <VendorList />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/vendors/new" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <VendorForm />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/vendors/:id/edit" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <VendorForm />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-
-                  {/* Salary Routes */}
-                  <Route path="/salary" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <SalaryList />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/salary/new" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <SalaryForm />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/salary/:id/edit" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <SalaryForm />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-
-                  {/* Admin Routes */}
-                  <Route path="/admin" element={
-                  <ProtectedRoute requireAdmin>
-                      <DashboardLayout>
-                        <AdminDashboard />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/comprehensive" element={
-                  <ProtectedRoute requireAdmin>
-                      <DashboardLayout>
-                        <ComprehensiveAdminPanel />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/users" element={
-                  <ProtectedRoute requireAdmin>
-                      <DashboardLayout>
-                        <UserManagement />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/security" element={
-                  <ProtectedRoute requireAdmin>
-                      <DashboardLayout>
-                        <SecuritySettings />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/logs" element={
-                  <ProtectedRoute requireAdmin>
-                      <DashboardLayout>
-                        <SystemLogs />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/sms" element={
-                  <ProtectedRoute requireAdmin>
-                      <DashboardLayout>
-                        <SMSManagement />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/site" element={
-                  <ProtectedRoute requireAdmin>
-                      <DashboardLayout>
-                        <SiteManagement />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/errors" element={
-                  <ProtectedRoute requireAdmin>
-                      <DashboardLayout>
-                        <ErrorMonitoringPage />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/memory" element={
-                  <ProtectedRoute requireAdmin>
-                      <DashboardLayout>
-                        <MemoryMonitoring />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/navigation" element={
-                  <ProtectedRoute requireAdmin>
-                      <DashboardLayout>
-                        <NavigationDebugPage />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/development" element={
-                  <ProtectedRoute requireAdmin>
-                      <DashboardLayout>
-                        <DevelopmentMonitoring />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/database" element={
-                  <ProtectedRoute requireAdmin>
-                      <DashboardLayout>
-                        <DatabaseMonitoring />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/audit" element={
-                  <ProtectedRoute requireAdmin>
-                      <DashboardLayout>
-                        <AuditMonitoring />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/modules" element={
-                  <ProtectedRoute requireAdmin>
-                      <DashboardLayout>
-                        <ModuleAccessPage />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/role-testing" element={
-                  <ProtectedRoute requireAdmin>
-                      <DashboardLayout>
-                        <RoleTestingPage />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/validation-test" element={
-                  <ProtectedRoute requireAdmin>
-                      <DashboardLayout>
-                        <UserValidationTestPage />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/roles" element={
-                  <ProtectedRoute requireAdmin>
-                      <DashboardLayout>
-                        <RoleManagementPage />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/easy-roles" element={
-                  <ProtectedRoute requireAdmin>
-                      <DashboardLayout>
-                        <EasyRoleManagement />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/alerts" element={
-                  <ProtectedRoute requireAdmin>
-                      <DashboardLayout>
-                        <AlertSettings />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/setup" element={
-                  <ProtectedRoute requireAdmin>
-                      <DashboardLayout>
-                        <AdminSetupPage />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-
-                  {/* Settings Routes */}
-                  <Route path="/settings" element={
-                  <ProtectedRoute>
-                      <DashboardLayout>
-                        <AppSettings />
-                      </DashboardLayout>
-                    </ProtectedRoute>
-                  } />
-
-                  {/* 404 Route */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </div>
-              <Toaster />
-              <PerformanceMonitoringSystem />
-            </Router>
-          </ModuleAccessProvider>
-        </AuthProvider>
-      </SafeComponent>
-    </GlobalErrorBoundary>);
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <GlobalErrorBoundary>
+          <AuthProvider>
+            <SupabaseAuthProvider>
+              <ModuleAccessProvider>
+                <AppRouter />
+              </ModuleAccessProvider>
+            </SupabaseAuthProvider>
+          </AuthProvider>
+        </GlobalErrorBoundary>
+      </TooltipProvider>
+      <Toaster />
+      <ImageErrorNotification />
+    </QueryClientProvider>);
 
 }
 

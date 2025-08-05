@@ -1,35 +1,27 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase, auth } from '@/lib/supabase';
 import AuditLoggerService from '@/services/auditLogger';
 
 const auditLogger = AuditLoggerService.getInstance();
 
 interface User {
-  id: string;
-  email: string;
-  user_metadata?: {
-    name?: string;
-  };
-  created_at: string;
+  ID: number;
+  Name: string;
+  Email: string;
+  CreateTime: string;
 }
 
 interface UserProfile {
-  id: string;
-  user_id: string;
+  id: number;
+  user_id: number;
   role: string;
-  station_id?: string;
+  station: string;
   employee_id: string;
   phone: string;
   hire_date: string;
   is_active: boolean;
   detailed_permissions: any;
-  profile_image_url?: string;
-  stations?: {
-    name: string;
-    address: string;
-    phone: string;
-  };
+  profile_image_id?: number | null;
 }
 
 interface AuthContextType {
@@ -53,15 +45,16 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Default guest user profile for non-authenticated users
 const GUEST_PROFILE: UserProfile = {
-  id: '0',
-  user_id: '0',
+  id: 0,
+  user_id: 0,
   role: 'Guest',
-  station_id: '',
+  station: '',
   employee_id: '',
   phone: '',
   hire_date: '',
   is_active: false,
-  detailed_permissions: {}
+  detailed_permissions: {},
+  profile_image_id: null
 };
 
 export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children }) => {
@@ -70,94 +63,28 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
   const [isLoading, setIsLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [loginInProgress, setLoginInProgress] = useState(false); // Prevent multiple concurrent logins
   const { toast } = useToast();
 
-  const isAuthenticated = !!user && !!userProfile && userProfile.role !== 'Guest';
+  const isAuthenticated = !!user && !!userProfile;
 
   const clearError = () => {
     setAuthError(null);
   };
 
-  const safeExecute = async <T,>(
-  operation: () => Promise<T>,
-  fallback: T,
-  errorContext: string)
-  : Promise<T> => {
-    try {
-      return await operation();
-    } catch (error) {
-      console.error(`Error in ${errorContext}:`, error);
-      return fallback;
-    }
-  };
-
-  const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
-    return safeExecute(async () => {
-      const { data, error } = await supabase.
-      from('user_profiles').
-      select(`
-          *,
-          stations(name, address, phone)
-        `).
-      eq('user_id', userId).
-      single();
-
-      if (error) {
-        if (error.code === 'PGRST116') {
-          // No profile found, create a default one
-          console.log('🔄 No profile found, creating default profile...');
-
-          const defaultProfile = {
-            user_id: userId,
-            role: 'Employee',
-            employee_id: '',
-            phone: '',
-            hire_date: new Date().toISOString(),
-            is_active: true,
-            detailed_permissions: {}
-          };
-
-          const { data: newProfile, error: createError } = await supabase.
-          from('user_profiles').
-          insert(defaultProfile).
-          select(`
-              *,
-              stations(name, address, phone)
-            `).
-          single();
-
-          if (createError) {
-            console.error('Failed to create default profile:', createError);
-            return null;
-          }
-
-          return newProfile;
-        }
-        throw error;
-      }
-
-      return data;
-    }, null, 'fetchUserProfile');
-  };
-
   const safeFetchUserData = async (showErrors = false): Promise<{success: boolean;userData?: User;}> => {
-    return safeExecute(async () => {
+    try {
       console.log('🔄 Attempting to fetch user data...');
 
-      const { data: { user: supabaseUser }, error } = await auth.getUser();
-
-      if (error) {
-        console.log('❌ Auth error:', error);
-        // Only show meaningful errors to users
-        if (showErrors && !error.message.includes('not authenticated') && !error.message.includes('JWT')) {
-          setAuthError(`Authentication failed: ${error.message}`);
-        }
-        setUser(null);
-        setUserProfile(GUEST_PROFILE);
-        return { success: false };
+      // Check if APIs are available
+      if (!window.ezsite?.apis) {
+        throw new Error('EZSite APIs not available');
       }
 
-      if (!supabaseUser) {
+      const userResponse = await window.ezsite.apis.getUserInfo();
+
+      // Handle response with no data (user not authenticated)
+      if (!userResponse.data) {
         console.log('👤 No user data - user not authenticated');
         setUser(null);
         setUserProfile(GUEST_PROFILE);
@@ -165,54 +92,74 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
         return { success: false };
       }
 
-      console.log('✅ User data fetched successfully:', supabaseUser.email);
-      setUser(supabaseUser);
+      // Handle API errors
+      if (userResponse.error) {
+        console.log('❌ User info API error:', userResponse.error);
+        if (showErrors) {
+          setAuthError(`Authentication failed: ${userResponse.error}`);
+        }
+        setUser(null);
+        setUserProfile(GUEST_PROFILE);
+        return { success: false };
+      }
 
-      // Fetch user profile with retry logic
-      let profile = await fetchUserProfile(supabaseUser.id);
-      
-      // If no profile found, try creating one
-      if (!profile) {
-        console.log('⚠️ No profile found, creating default profile...');
-        try {
-          const defaultProfile = {
-            user_id: supabaseUser.id,
+      console.log('✅ User data fetched successfully:', userResponse.data);
+      setUser(userResponse.data);
+
+      // Fetch user profile with retries
+      try {
+        console.log('🔄 Fetching user profile for user ID:', userResponse.data.ID);
+
+        const profileResponse = await window.ezsite.apis.tablePage(11725, {
+          PageNo: 1,
+          PageSize: 1,
+          Filters: [
+          { name: "user_id", op: "Equal", value: userResponse.data.ID }]
+
+        });
+
+        if (profileResponse.error) {
+          console.log('⚠️ Profile fetch error:', profileResponse.error);
+          // Use default profile for authenticated user without profile
+          setUserProfile({
+            id: 0,
+            user_id: userResponse.data.ID,
             role: 'Employee',
+            station: 'MOBIL',
             employee_id: '',
             phone: '',
             hire_date: new Date().toISOString(),
             is_active: true,
-            detailed_permissions: {}
-          };
-
-          const { data: newProfile, error: createError } = await supabase
-            .from('user_profiles')
-            .insert(defaultProfile)
-            .select(`
-              *,
-              stations(name, address, phone)
-            `)
-            .single();
-
-          if (!createError && newProfile) {
-            profile = newProfile;
-            console.log('✅ Default profile created:', profile);
-          }
-        } catch (createError) {
-          console.warn('Failed to create default profile:', createError);
+            detailed_permissions: {},
+            profile_image_id: null
+          });
+        } else if (profileResponse.data?.List?.length > 0) {
+          console.log('✅ User profile found:', profileResponse.data.List[0]);
+          setUserProfile(profileResponse.data.List[0]);
+        } else {
+          console.log('⚠️ No profile found, creating default profile');
+          // Create default profile for user without one
+          setUserProfile({
+            id: 0,
+            user_id: userResponse.data.ID,
+            role: 'Employee',
+            station: 'MOBIL',
+            employee_id: '',
+            phone: '',
+            hire_date: new Date().toISOString(),
+            is_active: true,
+            detailed_permissions: {},
+            profile_image_id: null
+          });
         }
-      }
-
-      if (profile) {
-        console.log('✅ User profile loaded:', profile.role);
-        setUserProfile(profile);
-      } else {
-        console.log('⚠️ Using fallback profile');
+      } catch (profileError) {
+        console.log('⚠️ Profile fetch failed, using default:', profileError);
+        // Use default profile if profile fetch fails
         setUserProfile({
-          id: '0',
-          user_id: supabaseUser.id,
+          id: 0,
+          user_id: userResponse.data.ID,
           role: 'Employee',
-          station_id: '',
+          station: 'MOBIL',
           employee_id: '',
           phone: '',
           hire_date: new Date().toISOString(),
@@ -222,9 +169,23 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       }
 
       setAuthError(null);
-      return { success: true, userData: supabaseUser };
+      return { success: true, userData: userResponse.data };
 
-    }, { success: false }, 'safeFetchUserData');
+    } catch (error) {
+      console.error('❌ Error fetching user data:', error);
+
+      const errorMessage = error instanceof Error ? error.message : String(error);
+
+      // Only show error for critical failures
+      if (showErrors && !errorMessage.includes('not authenticated')) {
+        setAuthError(`Failed to load user data: ${errorMessage}`);
+      }
+
+      // Set guest state for any error
+      setUser(null);
+      setUserProfile(GUEST_PROFILE);
+      return { success: false };
+    }
   };
 
   const refreshUserData = async (): Promise<void> => {
@@ -239,26 +200,24 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     setIsLoading(true);
 
     try {
-      // Check initial session
-      const { data: { session }, error } = await auth.getSession();
-
-      if (error) {
-        console.error('Session error:', error);
+      // Wait for APIs to be available
+      let attempts = 0;
+      while (!window.ezsite?.apis && attempts < 30) {
+        console.log(`⏳ Waiting for EZSite APIs... (attempt ${attempts + 1})`);
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        attempts++;
       }
 
-      if (session?.user) {
-        await safeFetchUserData(false);
-      } else {
-        setUser(null);
-        setUserProfile(GUEST_PROFILE);
+      if (!window.ezsite?.apis) {
+        throw new Error('EZSite APIs failed to load');
       }
+
+      console.log('✅ EZSite APIs loaded, fetching user data...');
+      await safeFetchUserData(false);
 
     } catch (error) {
       console.error('❌ Auth initialization failed:', error);
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      if (!errorMessage.includes('not authenticated')) {
-        setAuthError(`Initialization failed: ${errorMessage}`);
-      }
+      setAuthError(`Initialization failed: ${error instanceof Error ? error.message : String(error)}`);
       setUser(null);
       setUserProfile(GUEST_PROFILE);
     } finally {
@@ -270,106 +229,91 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
   useEffect(() => {
     initializeAuth();
-
-    // Listen for auth state changes
-    const { data: { subscription } } = auth.onAuthStateChange(async (event, session) => {
-      console.log('🔄 Auth state change:', event);
-
-      try {
-        if (event === 'SIGNED_IN' && session?.user) {
-          setUser(session.user);
-          const profile = await fetchUserProfile(session.user.id);
-          if (profile) {
-            setUserProfile(profile);
-          }
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null);
-          setUserProfile(GUEST_PROFILE);
-        }
-      } catch (error) {
-        console.error('Error handling auth state change:', error);
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    return safeExecute(async () => {
+    // Prevent multiple concurrent login attempts
+    if (loginInProgress) {
+      console.log('⏳ Login already in progress, ignoring duplicate request');
+      return false;
+    }
+
+    try {
+      setLoginInProgress(true);
       setIsLoading(true);
-      setAuthError(null);
+      setAuthError(null); // Clear any previous errors
 
       console.log('🔑 Attempting login for:', email);
 
-      const { data, error } = await auth.signIn(email.trim(), password);
+      if (!window.ezsite?.apis) {
+        throw new Error('Authentication system not available');
+      }
 
-      if (error) {
-        console.log('❌ Login failed:', error);
-        await safeExecute(
-          () => auditLogger.logLogin(email, false, undefined, error.message),
-          undefined,
-          'loginAuditLog'
-        );
-        
-        // Provide user-friendly error messages
-        let userMessage = error.message;
-        if (error.message.includes('Invalid login credentials')) {
-          userMessage = 'Invalid email or password. Please check your credentials and try again.';
-        } else if (error.message.includes('Email not confirmed')) {
-          userMessage = 'Please check your email and click the verification link before logging in.';
-        } else if (error.message.includes('Too many requests')) {
-          userMessage = 'Too many login attempts. Please wait a moment and try again.';
-        }
-        
-        setAuthError(userMessage);
+      // Small delay to prevent rapid successive calls
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      const response = await window.ezsite.apis.login({ email, password });
+
+      if (response.error) {
+        console.log('❌ Login API failed:', response.error);
+        await auditLogger.logLogin(email, false, undefined, response.error);
+        setAuthError(response.error);
         toast({
           title: "Login Failed",
-          description: userMessage,
+          description: response.error,
           variant: "destructive"
         });
         return false;
       }
 
-      if (data.user) {
-        console.log('✅ Login successful for:', data.user.email);
-        await safeExecute(
-          () => auditLogger.logLogin(email, true, data.user.id),
-          undefined,
-          'loginSuccessAuditLog'
-        );
+      console.log('✅ Login API successful, fetching user data...');
+
+      // Add delay to ensure server state is updated
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      const userDataResult = await safeFetchUserData(true);
+
+      if (userDataResult.success && userDataResult.userData) {
+        console.log('✅ User data fetched successfully after login');
+        await auditLogger.logLogin(email, true, userDataResult.userData.ID);
         toast({
           title: "Login Successful",
-          description: `Welcome back, ${data.user.email}!`
+          description: "Welcome back!"
         });
         return true;
+      } else {
+        console.log('❌ Failed to fetch user data after successful login');
+        throw new Error('Failed to load user information after login');
       }
 
+    } catch (error) {
+      console.error('❌ Login error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      setAuthError(errorMessage);
+      await auditLogger.logLogin(email, false, undefined, errorMessage);
+      toast({
+        title: "Login Failed",
+        description: errorMessage,
+        variant: "destructive"
+      });
       return false;
-
-    }, false, 'login').finally(() => {
+    } finally {
       setIsLoading(false);
-    });
+      setLoginInProgress(false);
+    }
   };
 
   const logout = async (): Promise<void> => {
-    return safeExecute(async () => {
+    try {
       console.log('🚪 Logging out user...');
 
       // Log logout before clearing user data
       if (user) {
-        await safeExecute(
-          () => auditLogger.logLogout(user.email || '', user.id),
-          undefined,
-          'logoutAuditLog'
-        );
+        await auditLogger.logLogout(user.Email, user.ID);
       }
 
-      const { error } = await auth.signOut();
-
-      if (error) {
-        console.warn('Logout error (non-critical):', error);
+      if (window.ezsite?.apis) {
+        await window.ezsite.apis.logout();
       }
 
       setUser(null);
@@ -382,60 +326,62 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       });
 
       console.log('✅ Logout successful');
-    }, undefined, 'logout');
+    } catch (error) {
+      console.error('⚠️ Logout error (non-critical):', error);
+      // Still clear local state even if API call fails
+      setUser(null);
+      setUserProfile(GUEST_PROFILE);
+      setAuthError(null);
+    }
   };
 
   const register = async (email: string, password: string, name: string): Promise<boolean> => {
-    return safeExecute(async () => {
+    try {
       setIsLoading(true);
       setAuthError(null);
 
       console.log('📝 Attempting registration for:', email);
 
-      const { data, error } = await auth.signUp(email.trim(), password, { name });
+      if (!window.ezsite?.apis) {
+        throw new Error('Registration system not available');
+      }
 
-      if (error) {
-        console.log('❌ Registration failed:', error);
-        await safeExecute(
-          () => auditLogger.logRegistration(email, false, error.message),
-          undefined,
-          'registrationAuditLog'
-        );
-        
-        // Provide user-friendly error messages
-        let userMessage = error.message;
-        if (error.message.includes('User already registered')) {
-          userMessage = 'An account with this email already exists. Please try logging in instead.';
-        } else if (error.message.includes('Password should be at least')) {
-          userMessage = 'Password must be at least 6 characters long.';
-        } else if (error.message.includes('Signup is disabled')) {
-          userMessage = 'Account registration is currently disabled. Please contact an administrator.';
-        }
-        
-        setAuthError(userMessage);
+      const response = await window.ezsite.apis.register({ email, password });
+
+      if (response.error) {
+        console.log('❌ Registration failed:', response.error);
+        await auditLogger.logRegistration(email, false, response.error);
+        setAuthError(response.error);
         toast({
           title: "Registration Failed",
-          description: userMessage,
+          description: response.error,
           variant: "destructive"
         });
         return false;
       }
 
       console.log('✅ Registration successful');
-      await safeExecute(
-        () => auditLogger.logRegistration(email, true),
-        undefined,
-        'registrationSuccessAuditLog'
-      );
+      await auditLogger.logRegistration(email, true);
       toast({
         title: "Registration Successful",
-        description: "Please check your email to verify your account before logging in."
+        description: "Please check your email to verify your account"
       });
 
       return true;
-    }, false, 'register').finally(() => {
+    } catch (error) {
+      console.error('❌ Registration error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      setAuthError(errorMessage);
+      await auditLogger.logRegistration(email, false, errorMessage);
+      toast({
+        title: "Registration Failed",
+        description: errorMessage,
+        variant: "destructive"
+      });
+      return false;
+    } finally {
       setIsLoading(false);
-    });
+    }
   };
 
   const hasPermission = (action: string, resource?: string): boolean => {
@@ -453,9 +399,11 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       try {
         let permissions;
         if (typeof userProfile.detailed_permissions === 'string') {
+          // Only try to parse if it's a valid JSON string
           if (userProfile.detailed_permissions.trim().startsWith('{') || userProfile.detailed_permissions.trim().startsWith('[')) {
             permissions = JSON.parse(userProfile.detailed_permissions);
           } else {
+            // Invalid JSON string, skip detailed permissions
             permissions = {};
           }
         } else {

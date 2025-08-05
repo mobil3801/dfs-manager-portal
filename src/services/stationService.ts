@@ -1,307 +1,290 @@
-import { supabase } from '@/lib/supabase';
+import { toast } from '@/hooks/use-toast';
 
 export interface Station {
-  id: string;
-  name: string;
+  id: number;
+  station_name: string;
   address: string;
   phone: string;
-  manager?: string;
-  is_active: boolean;
-  created_at?: string;
-  updated_at?: string;
+  operating_hours: string;
+  manager_name: string;
+  status: string;
+  last_updated: string;
+  created_by: number;
 }
 
 export interface StationOption {
   value: string;
   label: string;
   color?: string;
-  description?: string;
-}
-
-interface StationServiceResult {
-  success: boolean;
-  error?: string;
-  data?: any;
+  station?: Station;
 }
 
 class StationService {
-  private static instance: StationService;
-  private stationsCache: Station[] | null = null;
+  private stationsCache: Station[] = [];
   private cacheTimestamp: number = 0;
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+  private isLoading = false;
 
-  static getInstance(): StationService {
-    if (!StationService.instance) {
-      StationService.instance = new StationService();
-    }
-    return StationService.instance;
-  }
+  // Fallback hardcoded stations for when database is unavailable
+  private readonly FALLBACK_STATIONS: StationOption[] = [
+  {
+    value: 'MOBIL',
+    label: 'MOBIL',
+    color: 'bg-blue-500'
+  },
+  {
+    value: 'AMOCO ROSEDALE',
+    label: 'AMOCO ROSEDALE',
+    color: 'bg-green-500'
+  },
+  {
+    value: 'AMOCO BROOKLYN',
+    label: 'AMOCO BROOKLYN',
+    color: 'bg-purple-500'
+  }];
 
-  // Get all stations with caching
-  async getStations(forceRefresh = false): Promise<Station[]> {
-    if (!forceRefresh && this.stationsCache && this.isCacheValid()) {
+
+  /**
+   * Get all stations from database or cache
+   */
+  async getStations(): Promise<Station[]> {
+    // Check cache first
+    if (this.isCacheValid()) {
       return this.stationsCache;
     }
 
+    if (this.isLoading) {
+      // Wait for ongoing request
+      await this.waitForLoading();
+      return this.stationsCache;
+    }
+
+    this.isLoading = true;
+
     try {
-      const { data, error } = await supabase.
-      from('stations').
-      select('*').
-      eq('is_active', true).
-      order('name', { ascending: true });
+      const { data, error } = await window.ezsite.apis.tablePage(12599, {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: 'station_name',
+        IsAsc: true,
+        Filters: [
+        { name: 'status', op: 'Equal', value: 'Active' }]
 
-      if (error) throw error;
+      });
 
-      this.stationsCache = data || [];
+      if (error) {
+        console.error('Error loading stations from database:', error);
+        // Use fallback stations
+        return this.getFallbackStations();
+      }
+
+      this.stationsCache = data?.List || [];
       this.cacheTimestamp = Date.now();
+
       return this.stationsCache;
     } catch (error) {
       console.error('Error fetching stations:', error);
-      return [];
+      return this.getFallbackStations();
+    } finally {
+      this.isLoading = false;
     }
   }
 
-  // Get station options for dropdowns
-  async getStationOptions(
-  includeAll: boolean = true,
-  userRole?: string,
-  userPermissions?: string[])
-  : Promise<StationOption[]> {
-    try {
-      const stations = await this.getStations();
-      const options: StationOption[] = [];
+  /**
+   * Get station options for dropdowns
+   */
+  async getStationOptions(includeAll: boolean = false, userRole?: string, userPermissions?: string[]): Promise<StationOption[]> {
+    const stations = await this.getStations();
 
-      // Add "All Stations" option if requested and user has permission
-      if (includeAll && this.canUserSelectAll(userRole, userPermissions)) {
-        options.push({
-          value: 'ALL_STATIONS',
-          label: 'All Stations',
-          color: 'bg-blue-600',
-          description: 'View data from all stations'
-        });
-      }
+    const options: StationOption[] = stations.map((station) => ({
+      value: station.station_name,
+      label: station.station_name,
+      color: this.getStationColor(station.station_name),
+      station: station
+    }));
 
-      // Add individual station options
-      stations.forEach((station) => {
-        options.push({
-          value: station.name,
-          label: station.name,
-          color: this.getStationColor(station.name),
-          description: station.address
-        });
+    // Add "All Stations" option if user has permission
+    if (includeAll && this.canUserViewAll(userRole, userPermissions)) {
+      options.unshift({
+        value: 'ALL_STATIONS',
+        label: 'All Stations',
+        color: 'bg-indigo-600'
       });
-
-      return options;
-    } catch (error) {
-      console.error('Error getting station options:', error);
-      return [];
     }
+
+    return options;
   }
 
-  // Get station color for UI consistency
+  /**
+   * Get station names only (for backward compatibility)
+   */
+  async getStationNames(): Promise<string[]> {
+    const stations = await this.getStations();
+    return stations.map((station) => station.station_name);
+  }
+
+  /**
+   * Get station by name
+   */
+  async getStationByName(name: string): Promise<Station | null> {
+    const stations = await this.getStations();
+    return stations.find((station) => station.station_name === name) || null;
+  }
+
+  /**
+   * Get station color based on name
+   */
   getStationColor(stationName: string): string {
-    const colors: Record<string, string> = {
+    const colorMap: {[key: string]: string;} = {
       'MOBIL': 'bg-blue-500',
       'AMOCO ROSEDALE': 'bg-green-500',
       'AMOCO BROOKLYN': 'bg-purple-500'
     };
-
-    return colors[stationName?.toUpperCase()] || 'bg-gray-500';
+    return colorMap[stationName] || 'bg-gray-500';
   }
 
-  // Get accessible stations for a user
-  async getUserAccessibleStations(
-  userRole?: string,
-  userPermissions?: string[],
-  userStationAccess?: string[])
-  : Promise<string[]> {
-    try {
-      // Admins and managers can access all stations
-      if (this.canUserSelectAll(userRole, userPermissions)) {
-        const stations = await this.getStations();
-        return stations.map((station) => station.name);
-      }
+  /**
+   * Check if user can view all stations
+   */
+  private canUserViewAll(userRole?: string, userPermissions?: string[]): boolean {
+    if (!userRole) return false;
 
-      // Return user's specific station access
-      if (userStationAccess && userStationAccess.length > 0) {
-        return userStationAccess;
-      }
-
-      // Default to no access
-      return [];
-    } catch (error) {
-      console.error('Error getting user accessible stations:', error);
-      return [];
-    }
-  }
-
-  // Check if user can select "All Stations"
-  private canUserSelectAll(userRole?: string, userPermissions?: string[]): boolean {
     return userRole === 'Administrator' ||
     userRole === 'Management' ||
     userRole === 'Manager' ||
     userPermissions?.includes('view_all_stations') || false;
   }
 
-  // Add a new station
-  async addStation(stationData: Omit<Station, 'id'>): Promise<StationServiceResult> {
-    try {
-      const { data, error } = await supabase.
-      from('stations').
-      insert([{
-        ...stationData,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }]).
-      select().
-      single();
-
-      if (error) throw error;
-
-      // Clear cache to force refresh
-      this.clearCache();
-
-      return { success: true, data };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.message || 'Failed to add station'
-      };
-    }
+  /**
+   * Get fallback stations when database is unavailable
+   */
+  private getFallbackStations(): Station[] {
+    return this.FALLBACK_STATIONS.map((station, index) => ({
+      id: index + 1,
+      station_name: station.value,
+      address: 'Address not available',
+      phone: 'Phone not available',
+      operating_hours: '24/7',
+      manager_name: 'Manager not assigned',
+      status: 'Active',
+      last_updated: new Date().toISOString(),
+      created_by: 0
+    }));
   }
 
-  // Update an existing station
-  async updateStation(stationData: Station): Promise<StationServiceResult> {
-    try {
-      const { data, error } = await supabase.
-      from('stations').
-      update({
-        ...stationData,
-        updated_at: new Date().toISOString()
-      }).
-      eq('id', stationData.id).
-      select().
-      single();
-
-      if (error) throw error;
-
-      // Clear cache to force refresh
-      this.clearCache();
-
-      return { success: true, data };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.message || 'Failed to update station'
-      };
-    }
-  }
-
-  // Delete (deactivate) a station
-  async deleteStation(stationId: string): Promise<StationServiceResult> {
-    try {
-      const { data, error } = await supabase.
-      from('stations').
-      update({
-        is_active: false,
-        updated_at: new Date().toISOString()
-      }).
-      eq('id', stationId).
-      select().
-      single();
-
-      if (error) throw error;
-
-      // Clear cache to force refresh
-      this.clearCache();
-
-      return { success: true, data };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.message || 'Failed to delete station'
-      };
-    }
-  }
-
-  // Get station by ID
-  async getStationById(stationId: string): Promise<Station | null> {
-    try {
-      const { data, error } = await supabase.
-      from('stations').
-      select('*').
-      eq('id', stationId).
-      single();
-
-      if (error) throw error;
-
-      return data;
-    } catch (error) {
-      console.error('Error fetching station by ID:', error);
-      return null;
-    }
-  }
-
-  // Get station by name
-  async getStationByName(stationName: string): Promise<Station | null> {
-    try {
-      const stations = await this.getStations();
-      return stations.find((station) => station.name === stationName) || null;
-    } catch (error) {
-      console.error('Error fetching station by name:', error);
-      return null;
-    }
-  }
-
-  // Check if cache is still valid
+  /**
+   * Check if cache is valid
+   */
   private isCacheValid(): boolean {
-    return Date.now() - this.cacheTimestamp < this.CACHE_DURATION;
+    return this.stationsCache.length > 0 &&
+    Date.now() - this.cacheTimestamp < this.CACHE_DURATION;
   }
 
-  // Clear the cache
+  /**
+   * Wait for ongoing loading to complete
+   */
+  private async waitForLoading(): Promise<void> {
+    while (this.isLoading) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+  }
+
+  /**
+   * Clear cache (useful for forcing refresh)
+   */
   clearCache(): void {
-    this.stationsCache = null;
+    this.stationsCache = [];
     this.cacheTimestamp = 0;
   }
 
-  // Get station statistics
-  async getStationStatistics(): Promise<{
-    totalStations: number;
-    activeStations: number;
-    stationsByType: Array<{type: string;count: number;}>;
-  }> {
+  /**
+   * Add new station (invalidates cache)
+   */
+  async addStation(stationData: Omit<Station, 'id'>): Promise<{success: boolean;error?: string;}> {
     try {
-      const stations = await this.getStations();
-      const totalStations = stations.length;
-      const activeStations = stations.filter((station) => station.is_active).length;
+      const { error } = await window.ezsite.apis.tableCreate(12599, stationData);
 
-      // Group by station type (based on name patterns)
-      const typeGroups: Record<string, number> = {};
-      stations.forEach((station) => {
-        const type = station.name.split(' ')[0]; // First word as type
-        typeGroups[type] = (typeGroups[type] || 0) + 1;
-      });
+      if (error) {
+        return { success: false, error };
+      }
 
-      const stationsByType = Object.entries(typeGroups).
-      map(([type, count]) => ({ type, count })).
-      sort((a, b) => b.count - a.count);
+      // Clear cache to force refresh
+      this.clearCache();
 
-      return {
-        totalStations,
-        activeStations,
-        stationsByType
-      };
+      return { success: true };
     } catch (error) {
-      console.error('Error getting station statistics:', error);
-      return {
-        totalStations: 0,
-        activeStations: 0,
-        stationsByType: []
-      };
+      return { success: false, error: String(error) };
     }
+  }
+
+  /**
+   * Update station (invalidates cache)
+   */
+  async updateStation(stationData: Station): Promise<{success: boolean;error?: string;}> {
+    try {
+      const { error } = await window.ezsite.apis.tableUpdate(12599, stationData);
+
+      if (error) {
+        return { success: false, error };
+      }
+
+      // Clear cache to force refresh
+      this.clearCache();
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: String(error) };
+    }
+  }
+
+  /**
+   * Delete station (invalidates cache)
+   */
+  async deleteStation(stationId: number): Promise<{success: boolean;error?: string;}> {
+    try {
+      const { error } = await window.ezsite.apis.tableDelete(12599, { id: stationId });
+
+      if (error) {
+        return { success: false, error };
+      }
+
+      // Clear cache to force refresh
+      this.clearCache();
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: String(error) };
+    }
+  }
+
+  /**
+   * Get user accessible stations based on permissions
+   */
+  async getUserAccessibleStations(userRole?: string, userPermissions?: string[], userStationAccess?: string[]): Promise<string[]> {
+    const stations = await this.getStations();
+    const allStationNames = stations.map((station) => station.station_name);
+
+    // Admin/Management can access all stations
+    if (this.canUserViewAll(userRole, userPermissions)) {
+      return allStationNames;
+    }
+
+    // Filter based on specific permissions
+    const accessibleStations: string[] = [];
+
+    for (const stationName of allStationNames) {
+      const permissionKey = `view_${stationName.toLowerCase().replace(/\s+/g, '_')}`;
+
+      if (userPermissions?.includes(permissionKey) ||
+      userStationAccess?.includes(stationName)) {
+        accessibleStations.push(stationName);
+      }
+    }
+
+    return accessibleStations;
   }
 }
 
 // Export singleton instance
-export const stationService = StationService.getInstance();
+export const stationService = new StationService();
 export default stationService;

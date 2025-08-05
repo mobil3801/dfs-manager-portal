@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,7 +24,7 @@ const SupabaseLoginPage: React.FC = () => {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'error' | 'success'>('error');
 
-  const { login, register, clearError, authError, isAuthenticated } = useAuth();
+  const { login, register, resetPassword, clearError, authError, isAuthenticated } = useSupabaseAuth();
   const navigate = useNavigate();
 
   // Redirect if already authenticated
@@ -69,14 +69,8 @@ const SupabaseLoginPage: React.FC = () => {
     setMessage('');
 
     try {
-      // Use Supabase auth for password reset
-      const { auth } = await import('@/lib/supabase');
-      const { error } = await auth.resetPassword(email);
-
-      if (error) {
-        setMessage(error.message);
-        setMessageType('error');
-      } else {
+      const success = await resetPassword(email);
+      if (success) {
         setMessage('Password reset link has been sent to your email address');
         setMessageType('success');
         setTimeout(() => {
@@ -85,9 +79,7 @@ const SupabaseLoginPage: React.FC = () => {
         }, 3000);
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to send reset email';
-      setMessage(errorMessage);
-      setMessageType('error');
+      console.error('Reset password error:', error);
     } finally {
       setIsLoading(false);
     }

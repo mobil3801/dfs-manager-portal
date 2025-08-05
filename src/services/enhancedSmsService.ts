@@ -1,8 +1,7 @@
 // Legacy Enhanced SMS Service - DEPRECATED: Use enhancedClickSendSmsService.ts instead
 // This file is kept for backward compatibility
 
-import { supabase } from '@/lib/supabase';
-import { smsService, SMSResponse, SMSMessage, ClickSendConfig } from './smsService';
+import { smsService, SMSResponse, SMSMessage, SinchClickSendConfig } from './smsService';
 
 export interface AdvancedSMSOptions {
   priority?: 'low' | 'normal' | 'high';
@@ -220,35 +219,39 @@ class EnhancedSMSService {
 
   async getSMSAnalytics(dateRange?: {start: Date;end: Date;}): Promise<SMSAnalytics> {
     try {
-      let query = supabase.
-      from('sms_history').
-      select('*').
-      order('sent_at', { ascending: false });
-
-      // Apply date range filter if provided
+      // Build date filter
+      const filters: any[] = [];
       if (dateRange) {
-        query = query.
-        gte('sent_at', dateRange.start.toISOString()).
-        lte('sent_at', dateRange.end.toISOString());
+        filters.push(
+          { name: 'sent_at', op: 'GreaterThanOrEqual', value: dateRange.start.toISOString() },
+          { name: 'sent_at', op: 'LessThanOrEqual', value: dateRange.end.toISOString() }
+        );
       }
 
-      const { data: messages, error } = await query.limit(1000);
+      // Get SMS history data
+      const { data, error } = await window.ezsite.apis.tablePage(24062, {
+        PageNo: 1,
+        PageSize: 1000,
+        OrderByField: 'sent_at',
+        IsAsc: false,
+        Filters: filters
+      });
 
-      if (error) throw error;
+      if (error) throw new Error(error);
 
-      const messageList = messages || [];
+      const messages = data?.List || [];
 
       // Calculate analytics
-      const totalSent = messageList.length;
-      const totalDelivered = messageList.filter((m: any) => m.status === 'Delivered').length;
-      const totalFailed = messageList.filter((m: any) => m.status === 'Failed').length;
+      const totalSent = messages.length;
+      const totalDelivered = messages.filter((m: any) => m.status === 'Delivered').length;
+      const totalFailed = messages.filter((m: any) => m.status === 'Failed').length;
       const deliveryRate = totalSent > 0 ? totalDelivered / totalSent * 100 : 0;
 
-      const totalCost = messageList.reduce((sum: number, m: any) => sum + (m.cost || 0), 0);
+      const totalCost = messages.reduce((sum: number, m: any) => sum + (m.cost || 0), 0);
       const averageCost = totalSent > 0 ? totalCost / totalSent : 0;
 
       // Top recipients
-      const recipientCounts = messageList.reduce((acc: Record<string, number>, m: any) => {
+      const recipientCounts = messages.reduce((acc: Record<string, number>, m: any) => {
         acc[m.recipient_phone] = (acc[m.recipient_phone] || 0) + 1;
         return acc;
       }, {});
@@ -259,7 +262,7 @@ class EnhancedSMSService {
       slice(0, 10);
 
       // Daily stats (last 30 days)
-      const dailyStats = this.calculateDailyStats(messageList);
+      const dailyStats = this.calculateDailyStats(messages);
 
       return {
         totalSent,
@@ -324,15 +327,20 @@ class EnhancedSMSService {
   : Promise<SMSResponse[]> {
     try {
       // Get emergency contacts from settings
-      const { data, error } = await supabase.
-      from('sms_contacts').
-      select('*').
-      eq('is_emergency', true).
-      eq('is_active', true);
+      const { data, error } = await window.ezsite.apis.tablePage(24061, {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: 'id',
+        IsAsc: false,
+        Filters: [
+        { name: 'is_emergency', op: 'Equal', value: true },
+        { name: 'is_active', op: 'Equal', value: true }]
 
-      if (error) throw error;
+      });
 
-      const emergencyContacts = data || [];
+      if (error) throw new Error(error);
+
+      const emergencyContacts = data?.List || [];
       const results: SMSResponse[] = [];
 
       for (const contact of emergencyContacts) {
@@ -399,13 +407,17 @@ class EnhancedSMSService {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
 
-      const { data: recentMessages } = await supabase.
-      from('sms_history').
-      select('*').
-      gte('sent_at', yesterday.toISOString()).
-      limit(100);
+      const { data: recentMessages } = await window.ezsite.apis.tablePage(24062, {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: 'sent_at',
+        IsAsc: false,
+        Filters: [
+        { name: 'sent_at', op: 'GreaterThanOrEqual', value: yesterday.toISOString() }]
 
-      const messages = recentMessages || [];
+      });
+
+      const messages = recentMessages?.List || [];
       const failedCount = messages.filter((m: any) => m.status === 'Failed').length;
       const errorRate = messages.length > 0 ? failedCount / messages.length * 100 : 0;
 
@@ -444,18 +456,14 @@ class EnhancedSMSService {
   type: string = 'custom')
   : Promise<void> {
     try {
-      const { error } = await supabase.
-      from('sms_templates').
-      insert([{
+      await window.ezsite.apis.tableCreate('sms_templates', {
         template_name: name,
         message_content: content,
         template_type: type,
         is_active: true,
         priority_level: 'normal',
         created_by: 1
-      }]);
-
-      if (error) throw error;
+      });
     } catch (error) {
       console.error('Error creating message template:', error);
       throw error;
@@ -464,14 +472,16 @@ class EnhancedSMSService {
 
   async getMessageTemplates(): Promise<any[]> {
     try {
-      const { data, error } = await supabase.
-      from('sms_templates').
-      select('*').
-      eq('is_active', true).
-      order('template_name');
+      const { data, error } = await window.ezsite.apis.tablePage('sms_templates', {
+        PageNo: 1,
+        PageSize: 100,
+        OrderByField: 'template_name',
+        IsAsc: true,
+        Filters: [{ name: 'is_active', op: 'Equal', value: true }]
+      });
 
-      if (error) throw error;
-      return data || [];
+      if (error) throw new Error(error);
+      return data?.List || [];
     } catch (error) {
       console.error('Error getting message templates:', error);
       return [];
