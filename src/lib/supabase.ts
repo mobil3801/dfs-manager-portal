@@ -1,657 +1,551 @@
-// Supabase configuration and client setup
-const supabaseUrl = 'https://nehhjsiuhthflfwkfequ.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5laGhqc2l1aHRoZmxmd2tmZXF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwMTMxNzUsImV4cCI6MjA2ODU4OTE3NX0.osjykkMo-WoYdRdh6quNu2F8DQHi5dN32JwSiaT5eLc';
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
-// Simplified Supabase client using direct API calls
-class SimpleSupabaseClient {
-  private url: string;
-  private key: string;
-  private authToken: string | null = null;
+const supabaseUrl = 'https://nehhjsiuhthflfwkfequ.supabase.co'
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5laGhqc2l1aHRoZmxmd2tmZXF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwMTMxNzUsImV4cCI6MjA2ODU4OTE3NX0.osjykkMo-WoYdRdh6quNu2F8DQHi5dN32JwSiaT5eLc'
 
-  constructor(url: string, key: string) {
-    this.url = url;
-    this.key = key;
-    this.supabaseUrl = url;
-
-    // Try to get existing session from localStorage
-    this.loadSession();
-  }
-
-  supabaseUrl: string;
-
-  private loadSession() {
-    try {
-      const sessionStr = localStorage.getItem('supabase.auth.token');
-      if (sessionStr) {
-        const session = JSON.parse(sessionStr);
-        if (session?.access_token && new Date(session.expires_at * 1000) > new Date()) {
-          this.authToken = session.access_token;
-        }
-      }
-    } catch (error) {
-      console.warn('Failed to load session:', error);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10
     }
   }
+})
 
-  private saveSession(session: any) {
-    try {
-      localStorage.setItem('supabase.auth.token', JSON.stringify(session));
-      this.authToken = session.access_token;
-    } catch (error) {
-      console.warn('Failed to save session:', error);
+// Database service functions
+export const databaseService = {
+  // Vendors
+  async getVendors() {
+    const { data, error } = await supabase
+      .from('vendors')
+      .select('*')
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    return data
+  },
+
+  async createVendor(vendor: any) {
+    const { data, error } = await supabase
+      .from('vendors')
+      .insert([vendor])
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  async updateVendor(id: number, updates: any) {
+    const { data, error } = await supabase
+      .from('vendors')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  async deleteVendor(id: number) {
+    const { error } = await supabase
+      .from('vendors')
+      .delete()
+      .eq('id', id)
+    
+    if (error) throw error
+  },
+
+  // Orders
+  async getOrders() {
+    const { data, error } = await supabase
+      .from('order_summary')
+      .select('*')
+      .order('order_date', { ascending: false })
+    
+    if (error) throw error
+    return data
+  },
+
+  async createOrder(order: any) {
+    const { data, error } = await supabase
+      .from('orders')
+      .insert([order])
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  async updateOrder(id: number, updates: any) {
+    const { data, error } = await supabase
+      .from('orders')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  async deleteOrder(id: number) {
+    const { error } = await supabase
+      .from('orders')
+      .delete()
+      .eq('id', id)
+    
+    if (error) throw error
+  },
+
+  // Salaries
+  async getSalaries(employeeId?: number) {
+    let query = supabase
+      .from('salaries')
+      .select(`
+        *,
+        employee:employees(name, employee_id),
+        station:stations(name)
+      `)
+      .order('pay_period_start', { ascending: false })
+    
+    if (employeeId) {
+      query = query.eq('employee_id', employeeId)
     }
+    
+    const { data, error } = await query
+    
+    if (error) throw error
+    return data
+  },
+
+  async createSalary(salary: any) {
+    const { data, error } = await supabase
+      .from('salaries')
+      .insert([salary])
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  async updateSalary(id: number, updates: any) {
+    const { data, error } = await supabase
+      .from('salaries')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  async deleteSalary(id: number) {
+    const { error } = await supabase
+      .from('salaries')
+      .delete()
+      .eq('id', id)
+    
+    if (error) throw error
+  },
+
+  // Employees
+  async getEmployees() {
+    const { data, error } = await supabase
+      .from('employees')
+      .select(`
+        *,
+        station:stations(name)
+      `)
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    return data
+  },
+
+  async createEmployee(employee: any) {
+    const { data, error } = await supabase
+      .from('employees')
+      .insert([employee])
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  async updateEmployee(id: number, updates: any) {
+    const { data, error } = await supabase
+      .from('employees')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  async deleteEmployee(id: number) {
+    const { error } = await supabase
+      .from('employees')
+      .delete()
+      .eq('id', id)
+    
+    if (error) throw error
+  },
+
+  // Products
+  async getProducts() {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    return data
+  },
+
+  async createProduct(product: any) {
+    const { data, error } = await supabase
+      .from('products')
+      .insert([product])
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  async updateProduct(id: number, updates: any) {
+    const { data, error } = await supabase
+      .from('products')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  async deleteProduct(id: number) {
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', id)
+    
+    if (error) throw error
+  },
+
+  // Stations
+  async getStations() {
+    const { data, error } = await supabase
+      .from('stations')
+      .select('*')
+      .order('name')
+    
+    if (error) throw error
+    return data
+  },
+
+  // Licenses
+  async getLicenses() {
+    const { data, error } = await supabase
+      .from('licenses')
+      .select('*')
+      .order('expiration_date')
+    
+    if (error) throw error
+    return data
+  },
+
+  async createLicense(license: any) {
+    const { data, error } = await supabase
+      .from('licenses')
+      .insert([license])
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  async updateLicense(id: number, updates: any) {
+    const { data, error } = await supabase
+      .from('licenses')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  async deleteLicense(id: number) {
+    const { error } = await supabase
+      .from('licenses')
+      .delete()
+      .eq('id', id)
+    
+    if (error) throw error
+  },
+
+  // Sales Reports
+  async getSalesReports() {
+    const { data, error } = await supabase
+      .from('sales_reports')
+      .select(`
+        *,
+        station:stations(name)
+      `)
+      .order('report_date', { ascending: false })
+    
+    if (error) throw error
+    return data
+  },
+
+  async createSalesReport(report: any) {
+    const { data, error } = await supabase
+      .from('sales_reports')
+      .insert([report])
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  async updateSalesReport(id: number, updates: any) {
+    const { data, error } = await supabase
+      .from('sales_reports')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  async deleteSalesReport(id: number) {
+    const { error } = await supabase
+      .from('sales_reports')
+      .delete()
+      .eq('id', id)
+    
+    if (error) throw error
+  },
+
+  // Deliveries
+  async getDeliveries() {
+    const { data, error } = await supabase
+      .from('deliveries')
+      .select(`
+        *,
+        station:stations(name)
+      `)
+      .order('delivery_date', { ascending: false })
+    
+    if (error) throw error
+    return data
+  },
+
+  async createDelivery(delivery: any) {
+    const { data, error } = await supabase
+      .from('deliveries')
+      .insert([delivery])
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  async updateDelivery(id: number, updates: any) {
+    const { data, error } = await supabase
+      .from('deliveries')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  async deleteDelivery(id: number) {
+    const { error } = await supabase
+      .from('deliveries')
+      .delete()
+      .eq('id', id)
+    
+    if (error) throw error
+  },
+
+  // File uploads
+  async uploadFile(file: File, path: string, bucket = 'documents') {
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .upload(path, file, {
+        cacheControl: '3600',
+        upsert: false
+      })
+    
+    if (error) throw error
+    
+    // Record file upload in database
+    const { data: fileRecord, error: dbError } = await supabase
+      .from('file_uploads')
+      .insert([{
+        file_name: path.split('/').pop(),
+        original_name: file.name,
+        file_path: path,
+        file_size: file.size,
+        file_type: file.type,
+        mime_type: file.type,
+        bucket_name: bucket
+      }])
+      .select()
+      .single()
+    
+    if (dbError) throw dbError
+    
+    return { storage: data, record: fileRecord }
+  },
+
+  async getFileUrl(bucket: string, path: string) {
+    const { data } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(path)
+    
+    return data.publicUrl
+  },
+
+  // User management
+  async getUserProfile() {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+    
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .select('*')
+      .eq('user_id', user.id)
+      .single()
+    
+    if (error && error.code !== 'PGRST116') throw error
+    return data
+  },
+
+  async updateUserProfile(updates: any) {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('No authenticated user')
+    
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .upsert([{
+        user_id: user.id,
+        ...updates,
+        updated_at: new Date().toISOString()
+      }])
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
   }
+}
 
-  private clearSession() {
-    try {
-      localStorage.removeItem('supabase.auth.token');
-      this.authToken = null;
-    } catch (error) {
-      console.warn('Failed to clear session:', error);
-    }
+// Storage service
+export const storageService = {
+  async uploadFile(file: File, bucket: string, path: string) {
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .upload(path, file)
+    
+    if (error) throw error
+    return data
+  },
+
+  async deleteFile(bucket: string, path: string) {
+    const { error } = await supabase.storage
+      .from(bucket)
+      .remove([path])
+    
+    if (error) throw error
+  },
+
+  getPublicUrl(bucket: string, path: string) {
+    const { data } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(path)
+    
+    return data.publicUrl
   }
+}
 
-  private getHeaders(includeAuth = true) {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'apikey': this.key,
-      'X-Client-Info': 'dfs-manager-portal'
-    };
-
-    if (includeAuth && this.authToken) {
-      headers['Authorization'] = `Bearer ${this.authToken}`;
-    }
-
-    return headers;
-  }
-
-  // Auth methods
-  auth = {
-    signUp: async (credentials: {email: string;password: string;options?: any;}) => {
-      try {
-        const response = await fetch(`${this.url}/auth/v1/signup`, {
-          method: 'POST',
-          headers: this.getHeaders(false),
-          body: JSON.stringify({
-            email: credentials.email,
-            password: credentials.password,
-            data: credentials.options?.data
-          })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          return { data: null, error: data };
-        }
-
-        if (data.session) {
-          this.saveSession(data.session);
-        }
-
-        return { data: data.user, error: null };
-      } catch (error: any) {
-        return { data: null, error: { message: error.message } };
-      }
-    },
-
-    signInWithPassword: async (credentials: {email: string;password: string;}) => {
-      try {
-        const response = await fetch(`${this.url}/auth/v1/token?grant_type=password`, {
-          method: 'POST',
-          headers: this.getHeaders(false),
-          body: JSON.stringify({
-            email: credentials.email,
-            password: credentials.password
-          })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          return { data: { user: null, session: null }, error: data };
-        }
-
-        this.saveSession(data);
-
-        return {
-          data: {
-            user: data.user,
-            session: data
-          },
-          error: null
-        };
-      } catch (error: any) {
-        return { data: { user: null, session: null }, error: { message: error.message } };
-      }
-    },
-
-    signOut: async () => {
-      try {
-        if (this.authToken) {
-          await fetch(`${this.url}/auth/v1/logout`, {
-            method: 'POST',
-            headers: this.getHeaders(true)
-          });
-        }
-
-        this.clearSession();
-        return { error: null };
-      } catch (error: any) {
-        this.clearSession(); // Clear anyway
-        return { error: { message: error.message } };
-      }
-    },
-
-    getSession: async () => {
-      try {
-        if (!this.authToken) {
-          return { data: { session: null }, error: null };
-        }
-
-        const response = await fetch(`${this.url}/auth/v1/user`, {
-          method: 'GET',
-          headers: this.getHeaders(true)
-        });
-
-        if (!response.ok) {
-          this.clearSession();
-          return { data: { session: null }, error: null };
-        }
-
-        const user = await response.json();
-        const sessionStr = localStorage.getItem('supabase.auth.token');
-        const session = sessionStr ? JSON.parse(sessionStr) : null;
-
-        if (session && new Date(session.expires_at * 1000) > new Date()) {
-          return {
-            data: {
-              session: {
-                ...session,
-                user
-              }
-            },
-            error: null
-          };
-        } else {
-          this.clearSession();
-          return { data: { session: null }, error: null };
-        }
-      } catch (error: any) {
-        return { data: { session: null }, error: { message: error.message } };
-      }
-    },
-
-    resetPasswordForEmail: async (email: string, options?: any) => {
-      try {
-        const response = await fetch(`${this.url}/auth/v1/recover`, {
-          method: 'POST',
-          headers: this.getHeaders(false),
-          body: JSON.stringify({
-            email,
-            ...(options?.redirectTo && { redirect_to: options.redirectTo })
-          })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          return { error: data };
-        }
-
-        return { error: null };
-      } catch (error: any) {
-        return { error: { message: error.message } };
-      }
-    },
-
-    updateUser: async (attributes: {password?: string;}) => {
-      try {
-        const response = await fetch(`${this.url}/auth/v1/user`, {
-          method: 'PUT',
-          headers: this.getHeaders(true),
-          body: JSON.stringify(attributes)
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          return { data: null, error: data };
-        }
-
-        return { data, error: null };
-      } catch (error: any) {
-        return { data: null, error: { message: error.message } };
-      }
-    },
-
-    onAuthStateChange: (callback: (event: string, session: any) => void) => {
-      // Simple implementation - just return unsubscribe function
-      return {
-        data: { subscription: { unsubscribe: () => {} } }
-      };
-    }
-  };
-
-  // Database methods
-  from(table: string) {
-    return new QueryBuilder(this, table);
-  }
-
-  // Storage methods (simplified)
-  storage = {
-    from: (bucket: string) => ({
-      upload: async (path: string, file: File) => {
-        try {
-          const formData = new FormData();
-          formData.append('file', file);
-
-          const response = await fetch(`${this.url}/storage/v1/object/${bucket}/${path}`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${this.authToken}`,
-              'apikey': this.key
-            },
-            body: formData
-          });
-
-          const data = await response.json();
-
-          if (!response.ok) {
-            return { data: null, error: data };
-          }
-
-          return { data, error: null };
-        } catch (error: any) {
-          return { data: null, error: { message: error.message } };
-        }
-      },
-
-      download: async (path: string) => {
-        try {
-          const response = await fetch(`${this.url}/storage/v1/object/${bucket}/${path}`, {
-            headers: this.getHeaders(true)
-          });
-
-          if (!response.ok) {
-            return { data: null, error: await response.json() };
-          }
-
-          const blob = await response.blob();
-          return { data: blob, error: null };
-        } catch (error: any) {
-          return { data: null, error: { message: error.message } };
-        }
-      },
-
-      getPublicUrl: (path: string) => {
-        return {
-          data: {
-            publicUrl: `${this.url}/storage/v1/object/public/${bucket}/${path}`
-          }
-        };
-      },
-
-      remove: async (paths: string[]) => {
-        try {
-          const response = await fetch(`${this.url}/storage/v1/object/${bucket}`, {
-            method: 'DELETE',
-            headers: this.getHeaders(true),
-            body: JSON.stringify({ prefixes: paths })
-          });
-
-          if (!response.ok) {
-            const error = await response.json();
-            return { data: null, error };
-          }
-
-          return { data: null, error: null };
-        } catch (error: any) {
-          return { data: null, error: { message: error.message } };
-        }
-      }
+// Auth service
+export const authService = {
+  async signIn(email: string, password: string) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
     })
-  };
+    
+    if (error) throw error
+    return data
+  },
 
-  // Real-time subscription methods (simplified)
-  channel(channelName: string) {
-    return {
-      on: (event: string, options: any, callback: (payload: any) => void) => {
-        // Simplified implementation - in production you'd use WebSocket
-        console.log(`Subscribed to ${event} on ${channelName}`);
-        return this;
-      },
-      subscribe: () => {
-        return { unsubscribe: () => console.log('Unsubscribed') };
-      }
-    };
-  }
-
-  removeChannel(subscription: any) {
-    if (subscription && subscription.unsubscribe) {
-      subscription.unsubscribe();
-    }
-  }
-}
-
-class InsertBuilder {
-  private client: SimpleSupabaseClient;
-  private table: string;
-  private values: any;
-  private selectFields = '*';
-
-  constructor(client: SimpleSupabaseClient, table: string, values: any) {
-    this.client = client;
-    this.table = table;
-    this.values = values;
-  }
-
-  select(fields = '*') {
-    this.selectFields = fields;
-    return this;
-  }
-
-  single() {
-    return this;
-  }
-
-  async execute() {
-    try {
-      const response = await fetch(`${this.client.supabaseUrl}/rest/v1/${this.table}`, {
-        method: 'POST',
-        headers: {
-          ...(this.client as any).getHeaders(true),
-          'Prefer': 'return=representation'
-        },
-        body: JSON.stringify(Array.isArray(this.values) ? this.values : [this.values])
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return { data: null, error: data };
-      }
-
-      // For single() calls or single item inserts, return the first item
-      if (!Array.isArray(this.values) && Array.isArray(data)) {
-        return { data: data[0] || null, error: null };
-      }
-
-      return { data, error: null };
-    } catch (error: any) {
-      return { data: null, error: { message: error.message } };
-    }
-  }
-
-  // Make InsertBuilder thenable so it can be awaited directly
-  then(onFulfilled?: (value: any) => any, onRejected?: (reason: any) => any) {
-    return this.execute().then(onFulfilled, onRejected);
-  }
-}
-
-class QueryBuilder {
-  private client: SimpleSupabaseClient;
-  private table: string;
-  private selectFields = '*';
-  private filters: Array<{field: string;operator: string;value: any;}> = [];
-  private orderBy: Array<{field: string;ascending: boolean;}> = [];
-  private limitCount?: number;
-  private offsetCount?: number;
-
-  constructor(client: SimpleSupabaseClient, table: string) {
-    this.client = client;
-    this.table = table;
-  }
-
-  select(fields = '*') {
-    this.selectFields = fields;
-    return this;
-  }
-
-  eq(field: string, value: any) {
-    this.filters.push({ field, operator: 'eq', value });
-    return this;
-  }
-
-  gt(field: string, value: any) {
-    this.filters.push({ field, operator: 'gt', value });
-    return this;
-  }
-
-  like(field: string, value: any) {
-    this.filters.push({ field, operator: 'like', value });
-    return this;
-  }
-
-  or(conditions: string) {
-    // For PostgreSQL OR conditions like 'first_name.ilike.%term%,last_name.ilike.%term%'
-    this.filters.push({ field: 'or', operator: 'custom', value: conditions });
-    return this;
-  }
-
-  order(field: string, options: {ascending?: boolean;} = {}) {
-    this.orderBy.push({ field, ascending: options.ascending !== false });
-    return this;
-  }
-
-  limit(count: number) {
-    this.limitCount = count;
-    return this;
-  }
-
-  range(from: number, to: number) {
-    this.offsetCount = from;
-    this.limitCount = to - from + 1;
-    return this;
-  }
-
-  single() {
-    this.limitCount = 1;
-    return this;
-  }
-
-  private buildQuery() {
-    const params = new URLSearchParams();
-    params.set('select', this.selectFields);
-
-    this.filters.forEach((filter) => {
-      if (filter.field === 'or' && filter.operator === 'custom') {
-        params.set('or', `(${filter.value})`);
-      } else {
-        params.set(filter.field, `${filter.operator}.${filter.value}`);
-      }
-    });
-
-    if (this.orderBy.length > 0) {
-      const orderStr = this.orderBy.map((o) => `${o.field}.${o.ascending ? 'asc' : 'desc'}`).join(',');
-      params.set('order', orderStr);
-    }
-
-    if (this.limitCount) {
-      params.set('limit', this.limitCount.toString());
-    }
-
-    if (this.offsetCount) {
-      params.set('offset', this.offsetCount.toString());
-    }
-
-    return params.toString();
-  }
-
-  async execute() {
-    try {
-      const query = this.buildQuery();
-      const url = `${this.client.supabaseUrl}/rest/v1/${this.table}?${query}`;
-
-      const headers = (this.client as any).getHeaders(true);
-      if (this.countOption) {
-        headers['Prefer'] = `count=${this.countOption}`;
-      }
-
-      const response = await fetch(url, {
-        method: 'GET',
-        headers
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return { data: null, error: data, count: null };
-      }
-
-      // Get count from response headers if requested
-      let count = null;
-      if (this.countOption) {
-        const contentRange = response.headers.get('Content-Range');
-        if (contentRange) {
-          const match = contentRange.match(/\/(\d+)$/);
-          if (match) {
-            count = parseInt(match[1], 10);
-          }
-        }
-      }
-
-      // For single() calls, return the first item
-      if (this.limitCount === 1 && Array.isArray(data)) {
-        return { data: data[0] || null, error: null, count };
-      }
-
-      return { data, error: null, count };
-    } catch (error: any) {
-      return { data: null, error: { message: error.message }, count: null };
-    }
-  }
-
-  // Make QueryBuilder thenable so it can be awaited directly
-  then(onFulfilled?: (value: any) => any, onRejected?: (reason: any) => any) {
-    return this.execute().then(onFulfilled, onRejected);
-  }
-
-  // Insert method that returns a new QueryBuilder for chaining
-  insert(values: any) {
-    const insertBuilder = new InsertBuilder(this.client, this.table, values);
-    return insertBuilder;
-  }
-
-  async update(values: any) {
-    try {
-      const query = this.buildQuery();
-      const url = `${this.client.supabaseUrl}/rest/v1/${this.table}?${query}`;
-
-      const response = await fetch(url, {
-        method: 'PATCH',
-        headers: {
-          ...(this.client as any).getHeaders(true),
-          'Prefer': 'return=representation'
-        },
-        body: JSON.stringify(values)
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        return { data: null, error: data };
-      }
-
-      return { data, error: null };
-    } catch (error: any) {
-      return { data: null, error: { message: error.message } };
-    }
-  }
-
-  async delete() {
-    try {
-      const query = this.buildQuery();
-      const url = `${this.client.supabaseUrl}/rest/v1/${this.table}?${query}`;
-
-      const response = await fetch(url, {
-        method: 'DELETE',
-        headers: (this.client as any).getHeaders(true)
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        return { error };
-      }
-
-      return { error: null };
-    } catch (error: any) {
-      return { error: { message: error.message } };
-    }
-  }
-}
-
-// Create and export the Supabase client
-export const supabase = new SimpleSupabaseClient(supabaseUrl, supabaseAnonKey);
-
-// Auth helper functions
-export const auth = {
-  signUp: async (email: string, password: string, metadata?: Record<string, any>) => {
-    return await supabase.auth.signUp({
+  async signUp(email: string, password: string, userData?: any) {
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/onauthsuccess`,
-        data: metadata
+        data: userData
       }
-    });
+    })
+    
+    if (error) throw error
+    return data
   },
 
-  signIn: async (email: string, password: string) => {
-    return await supabase.auth.signInWithPassword({ email, password });
+  async signOut() {
+    const { error } = await supabase.auth.signOut()
+    if (error) throw error
   },
 
-  signOut: async () => {
-    return await supabase.auth.signOut();
+  async resetPassword(email: string) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email)
+    if (error) throw error
   },
 
-  resetPassword: async (email: string) => {
-    return await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/resetpassword`
-    });
+  async updatePassword(password: string) {
+    const { error } = await supabase.auth.updateUser({ password })
+    if (error) throw error
   },
 
-  updatePassword: async (password: string) => {
-    return await supabase.auth.updateUser({ password });
+  onAuthStateChange(callback: (event: any, session: any) => void) {
+    return supabase.auth.onAuthStateChange(callback)
+  },
+
+  async getSession() {
+    const { data: { session }, error } = await supabase.auth.getSession()
+    if (error) throw error
+    return session
+  },
+
+  async getUser() {
+    const { data: { user }, error } = await supabase.auth.getUser()
+    if (error) throw error
+    return user
   }
-};
-
-// Database helper functions
-export const db = {
-  select: async (table: string, query?: any) => {
-    let request = supabase.from(table).select(query || '*');
-    return await request;
-  },
-
-  insert: async (table: string, data: any) => {
-    const { data: result, error } = await supabase.from(table).insert(data).select();
-    return { data: result, error };
-  },
-
-  update: async (table: string, id: string, data: any) => {
-    const { data: result, error } = await supabase.from(table).update(data).eq('id', id).select();
-    return { data: result, error };
-  },
-
-  delete: async (table: string, id: string) => {
-    const { error } = await supabase.from(table).delete().eq('id', id);
-    return { error };
-  }
-};
-
-// Storage helper functions
-export const storage = {
-  upload: async (bucket: string, path: string, file: File) => {
-    return await supabase.storage.from(bucket).upload(path, file);
-  },
-
-  download: async (bucket: string, path: string) => {
-    return await supabase.storage.from(bucket).download(path);
-  },
-
-  getPublicUrl: (bucket: string, path: string) => {
-    return supabase.storage.from(bucket).getPublicUrl(path);
-  }
-};
-
-export default supabase;
+}

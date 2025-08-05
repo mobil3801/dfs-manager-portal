@@ -26,10 +26,10 @@ const SupabaseConnectionValidator: React.FC = () => {
   const testDatabaseConnection = async () => {
     try {
       // Test basic database connection by querying a simple table
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('count')
-        .limit(1);
+      const { data, error } = await supabase.
+      from('user_profiles').
+      select('count').
+      limit(1);
 
       if (error) {
         console.error('Database connection error:', error);
@@ -47,7 +47,7 @@ const SupabaseConnectionValidator: React.FC = () => {
     try {
       // Test auth connection by getting current session
       const { error } = await supabase.auth.getSession();
-      
+
       if (error) {
         console.error('Auth connection error:', error);
         return 'failed';
@@ -64,7 +64,7 @@ const SupabaseConnectionValidator: React.FC = () => {
     try {
       // Test storage by trying to list buckets (will fail gracefully if no access)
       const publicUrl = supabase.storage.from('test').getPublicUrl('test-file');
-      
+
       if (publicUrl.data.publicUrl) {
         return 'connected';
       }
@@ -79,10 +79,10 @@ const SupabaseConnectionValidator: React.FC = () => {
   const testRLSStatus = async () => {
     try {
       // Check if RLS is enabled by attempting an unauthorized query
-      const { error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .limit(1);
+      const { error } = await supabase.
+      from('user_profiles').
+      select('*').
+      limit(1);
 
       // If we get a permission error, RLS is likely enabled
       if (error && error.message.includes('permission')) {
@@ -99,47 +99,47 @@ const SupabaseConnectionValidator: React.FC = () => {
   const fetchTables = async () => {
     try {
       // Get available tables from the information schema
-      const { data, error } = await supabase
-        .from('information_schema.tables')
-        .select('table_name')
-        .eq('table_schema', 'public');
+      const { data, error } = await supabase.
+      from('information_schema.tables').
+      select('table_name').
+      eq('table_schema', 'public');
 
       if (error) {
         // Fallback to known tables from the schema
         setTables([
-          'products', 'sales_reports', 'deliveries', 'sms_history',
-          'module_access', 'stations', 'employees', 'audit_logs',
-          'alert_settings', 'sms_contacts', 'alert_history',
-          'licenses', 'user_profiles', 'sms_config', 'sms_settings'
-        ]);
+        'products', 'sales_reports', 'deliveries', 'sms_history',
+        'module_access', 'stations', 'employees', 'audit_logs',
+        'alert_settings', 'sms_contacts', 'alert_history',
+        'licenses', 'user_profiles', 'sms_config', 'sms_settings']
+        );
         return;
       }
 
-      const tableNames = data?.map(table => table.table_name) || [];
+      const tableNames = data?.map((table) => table.table_name) || [];
       setTables(tableNames);
     } catch (error) {
       console.error('Failed to fetch tables:', error);
       // Use known tables as fallback
       setTables([
-        'products', 'sales_reports', 'deliveries', 'sms_history',
-        'module_access', 'stations', 'employees', 'audit_logs',
-        'alert_settings', 'sms_contacts', 'alert_history',
-        'licenses', 'user_profiles', 'sms_config', 'sms_settings'
-      ]);
+      'products', 'sales_reports', 'deliveries', 'sms_history',
+      'module_access', 'stations', 'employees', 'audit_logs',
+      'alert_settings', 'sms_contacts', 'alert_history',
+      'licenses', 'user_profiles', 'sms_config', 'sms_settings']
+      );
     }
   };
 
   const runAllTests = async () => {
     setTesting(true);
-    
+
     try {
       // Run all tests simultaneously
       const [dbStatus, authStatus, storageStatus, rlsStatus] = await Promise.all([
-        testDatabaseConnection(),
-        testAuthConnection(),
-        testStorageConnection(),
-        testRLSStatus()
-      ]);
+      testDatabaseConnection(),
+      testAuthConnection(),
+      testStorageConnection(),
+      testRLSStatus()]
+      );
 
       setStatus({
         database: dbStatus,
@@ -191,8 +191,8 @@ const SupabaseConnectionValidator: React.FC = () => {
     return (
       <Badge variant={variants[status]}>
         {status.charAt(0).toUpperCase() + status.slice(1)}
-      </Badge>
-    );
+      </Badge>);
+
   };
 
   return (
@@ -256,18 +256,18 @@ const SupabaseConnectionValidator: React.FC = () => {
           </div>
 
           {/* Database Tables */}
-          {tables.length > 0 && (
-            <div>
+          {tables.length > 0 &&
+          <div>
               <h3 className="text-lg font-semibold mb-3">Available Tables ({tables.length})</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                {tables.map((table) => (
-                  <Badge key={table} variant="outline" className="justify-center">
+                {tables.map((table) =>
+              <Badge key={table} variant="outline" className="justify-center">
                     {table}
                   </Badge>
-                ))}
+              )}
               </div>
             </div>
-          )}
+          }
 
           {/* Configuration Details */}
           <div className="border-t pt-4 space-y-2 text-sm">
@@ -288,20 +288,20 @@ const SupabaseConnectionValidator: React.FC = () => {
           {/* Test Actions */}
           <div className="flex gap-3">
             <Button onClick={runAllTests} disabled={testing}>
-              {testing ? (
-                <>
+              {testing ?
+              <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Testing...
-                </>
-              ) : (
-                'Run Tests Again'
-              )}
+                </> :
+
+              'Run Tests Again'
+              }
             </Button>
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SupabaseConnectionValidator;

@@ -13,7 +13,7 @@ interface Session {
   expires_at?: number;
   user: User;
 }
-import { supabase, auth } from '@/lib/supabase';
+import { supabase, authService as auth } from '@/lib/supabase';
 import { userProfileService, auditLogService } from '@/services/databaseService';
 import { useToast } from '@/hooks/use-toast';
 

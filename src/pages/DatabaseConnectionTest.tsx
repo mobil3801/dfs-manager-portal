@@ -7,8 +7,8 @@ const DatabaseConnectionTest: React.FC = () => {
       <div className="container mx-auto">
         <SupabaseConnectionValidator />
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default DatabaseConnectionTest;
