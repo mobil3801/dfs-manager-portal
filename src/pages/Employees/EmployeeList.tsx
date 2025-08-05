@@ -355,6 +355,14 @@ const EmployeeList: React.FC = () => {
   // Define view modal fields
   const getViewModalFields = (employee: Employee) => [
   {
+    key: 'profile_picture',
+    label: 'Profile Picture',
+    value: employee.profile_image_url,
+    type: 'profile_picture' as const,
+    employeeId: employee.id,
+    employeeName: `${employee.first_name} ${employee.last_name}`
+  },
+  {
     key: 'employee_id',
     label: 'Employee ID',
     value: employee.employee_id,

@@ -23,16 +23,19 @@ import {
   Clock } from
 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import EnhancedEmployeeProfilePicture from '@/components/EnhancedEmployeeProfilePicture';
 
 interface ViewModalField {
   key: string;
   label: string;
   value: any;
-  type?: 'text' | 'date' | 'currency' | 'badge' | 'email' | 'phone' | 'boolean' | 'number' | 'custom';
+  type?: 'text' | 'date' | 'currency' | 'badge' | 'email' | 'phone' | 'boolean' | 'number' | 'custom' | 'profile_picture';
   icon?: React.ComponentType<{className?: string;}>;
   badgeColor?: string;
   hidden?: boolean;
   customComponent?: React.ReactNode;
+  employeeId?: string;
+  employeeName?: string;
 }
 
 interface ViewModalProps {
@@ -79,6 +82,17 @@ const ViewModal: React.FC<ViewModalProps> = ({
     }
 
     switch (type) {
+      case 'profile_picture':
+        return (
+          <EnhancedEmployeeProfilePicture
+            employeeId={field.employeeId || ''}
+            currentImageUrl={value}
+            employeeName={field.employeeName || 'Employee'}
+            size="xl"
+            allowEdit={false}
+          />
+        );
+
       case 'date':
         return new Date(value).toLocaleDateString('en-US', {
           year: 'numeric',
@@ -206,7 +220,7 @@ const ViewModal: React.FC<ViewModalProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {visibleFields.map((field, index) => {
                     // Special handling for custom components that should span full width
-                    const isFullWidth = field.type === 'custom' && field.key === 'profile_picture';
+                    const isFullWidth = (field.type === 'custom' && field.key === 'profile_picture') || field.type === 'profile_picture';
 
                     return (
                       <motion.div

@@ -132,11 +132,14 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
 
       // Delete old profile picture if exists
       if (imageUrl) {
-        const oldPath = imageUrl.split('/').pop();
-        if (oldPath) {
+        // Extract the full path from the URL
+        const urlParts = imageUrl.split('/');
+        const bucketIndex = urlParts.findIndex(part => part === 'employee-profiles');
+        if (bucketIndex !== -1 && bucketIndex < urlParts.length - 1) {
+          const oldPath = urlParts.slice(bucketIndex + 1).join('/');
           await supabase.storage
             .from('employee-profiles')
-            .remove([`employee-profiles/${oldPath}`]);
+            .remove([oldPath]);
         }
       }
 
@@ -202,11 +205,13 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
       setIsUploading(true);
 
       // Remove from storage
-      const oldPath = imageUrl.split('/').pop();
-      if (oldPath) {
+      const urlParts = imageUrl.split('/');
+      const bucketIndex = urlParts.findIndex(part => part === 'employee-profiles');
+      if (bucketIndex !== -1 && bucketIndex < urlParts.length - 1) {
+        const oldPath = urlParts.slice(bucketIndex + 1).join('/');
         await supabase.storage
           .from('employee-profiles')
-          .remove([`employee-profiles/${oldPath}`]);
+          .remove([oldPath]);
       }
 
       // Update employee record
