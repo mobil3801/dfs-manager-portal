@@ -42,11 +42,11 @@ const EmployeeProfilePicture: React.FC<EmployeeProfilePictureProps> = ({
     try {
       setIsLoading(true);
 
-      const { data, error } = await supabase
-        .from('employees')
-        .select('*')
-        .eq('id', employeeId)
-        .single();
+      const { data, error } = await supabase.
+      from('employees').
+      select('*').
+      eq('id', employeeId).
+      single();
 
       if (error) {
         console.error('Error loading employee:', error);
@@ -77,7 +77,7 @@ const EmployeeProfilePicture: React.FC<EmployeeProfilePictureProps> = ({
     try {
       // Use the storage service to update the employee profile image
       const { data, error } = await employeeStorageService.updateEmployeeProfileImage(employeeId, newImageUrl);
-      
+
       if (error) throw error;
 
       // Update local state

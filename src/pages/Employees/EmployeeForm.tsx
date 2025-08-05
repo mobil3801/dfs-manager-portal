@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import { Users, Save, ArrowLeft, X, FileText, Upload } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import EmployeeProfilePicture from '@/components/EmployeeProfilePicture';
+import EnhancedEmployeeProfilePicture from '@/components/EnhancedEmployeeProfilePicture';
 import { displayPhoneNumber, formatPhoneNumber } from '@/utils/phoneFormatter';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { supabase } from '@/lib/supabase';
@@ -494,24 +494,26 @@ const EmployeeForm: React.FC = () => {
             <div>
               <h3 className="text-lg font-semibold mb-4 text-gray-900">Profile Picture</h3>
               <div className="flex items-center space-x-6">
-                <EmployeeProfilePicture
+                <EnhancedEmployeeProfilePicture
                   employeeId={id && id !== 'new' ? id : ''}
+                  currentImageUrl={formData.profile_image_url}
+                  employeeName={`${formData.first_name} ${formData.last_name}`}
                   size="xl"
                   allowEdit={true}
                   disabled={!id || id === 'new'}
-                  onImageUpdate={(newImageUrl) => handleInputChange('profile_image_url', newImageUrl)}
-                />
+                  onImageUpdate={(newImageUrl) => handleInputChange('profile_image_url', newImageUrl)} />
+
                 <div className="flex-1">
                   <div className="text-sm text-gray-600 space-y-1">
                     <p>Upload a profile picture for this employee</p>
                     <p className="text-xs text-gray-500">
                       Supported formats: JPG, PNG, GIF (max 5MB)
                     </p>
-                    {!id || id === 'new' ? (
-                      <p className="text-xs text-amber-600 font-medium">
+                    {!id || id === 'new' ?
+                    <p className="text-xs text-amber-600 font-medium">
                         Save the employee first to enable profile picture upload
-                      </p>
-                    ) : null}
+                      </p> :
+                    null}
                   </div>
                 </div>
               </div>

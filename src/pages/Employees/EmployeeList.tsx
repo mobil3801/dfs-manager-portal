@@ -14,7 +14,8 @@ import ViewModal from '@/components/ViewModal';
 import { useListKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { motion } from 'motion/react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import EmployeeProfilePicture from '@/components/EmployeeProfilePicture';
+import EnhancedEmployeeProfilePicture from '@/components/EnhancedEmployeeProfilePicture';
+import EmployeeEditDialog from '@/components/EmployeeEditDialog';
 import { displayPhoneNumber } from '@/utils/phoneFormatter';
 import { supabase } from '@/lib/supabase';
 
@@ -54,6 +55,8 @@ const EmployeeList: React.FC = () => {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [employeeToEdit, setEmployeeToEdit] = useState<Employee | null>(null);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
@@ -191,18 +194,35 @@ const EmployeeList: React.FC = () => {
         return;
       }
 
-      // Navigate to edit form
-      navigate(`/employees/${employeeId}/edit`);
+      // Open edit dialog instead of navigating
+      setEmployeeToEdit(employee);
+      setEditDialogOpen(true);
 
-      console.log('Navigating to edit employee:', employeeId, employee);
+      console.log('Opening edit dialog for employee:', employeeId, employee);
     } catch (error) {
-      console.error('Error navigating to edit form:', error);
+      console.error('Error opening edit dialog:', error);
       toast({
-        title: "Navigation Error",
-        description: "Failed to open edit form. Please try again.",
+        title: "Error",
+        description: "Failed to open edit dialog. Please try again.",
         variant: "destructive"
       });
     }
+  };
+
+  const handleEditSave = (updatedEmployee: Employee) => {
+    // Update the employee in the local state
+    setEmployees(prev => prev.map(emp => 
+      emp.id === updatedEmployee.id ? updatedEmployee : emp
+    ));
+    
+    // If this employee is currently selected in view modal, update it too
+    if (selectedEmployee && selectedEmployee.id === updatedEmployee.id) {
+      setSelectedEmployee(updatedEmployee);
+    }
+    
+    // Close edit dialog
+    setEditDialogOpen(false);
+    setEmployeeToEdit(null);
   };
 
   const handleDelete = async (employeeId: string) => {
@@ -474,8 +494,10 @@ const EmployeeList: React.FC = () => {
                   onClick={() => setSelectedEmployeeId(employee.id)}>
                         <CardContent className="p-4">
                           <div className="flex items-center space-x-3">
-                            <EmployeeProfilePicture
+                            <EnhancedEmployeeProfilePicture
                         employeeId={employee.id}
+                        currentImageUrl={employee.profile_image_url}
+                        employeeName={`${employee.first_name} ${employee.last_name}`}
                         size="md" />
                             
                             <div className="flex-1 min-w-0">
@@ -678,8 +700,10 @@ const EmployeeList: React.FC = () => {
                   }
                   onClick={() => setSelectedEmployeeId(employee.id)}>
                         <TableCell>
-                          <EmployeeProfilePicture
+                          <EnhancedEmployeeProfilePicture
                       employeeId={employee.id}
+                      currentImageUrl={employee.profile_image_url}
+                      employeeName={`${employee.first_name} ${employee.last_name}`}
                       size="sm" />
                         </TableCell>
                         <TableCell className="font-medium">{employee.employee_id}</TableCell>
@@ -738,7 +762,8 @@ const EmployeeList: React.FC = () => {
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEdit(employee.id);
-                        }}>
+                        }}
+                        title="Edit Employee & Profile Picture">
                                 <Edit className="w-4 h-4" />
                               </Button>
                       }
@@ -802,6 +827,17 @@ const EmployeeList: React.FC = () => {
         canDelete={canDeleteEmployee}
         canExport={true} />
       }
+
+      {/* Employee Edit Dialog */}
+      <EmployeeEditDialog
+        employee={employeeToEdit}
+        isOpen={editDialogOpen}
+        onClose={() => {
+          setEditDialogOpen(false);
+          setEmployeeToEdit(null);
+        }}
+        onSave={handleEditSave}
+      />
     </div>);
 
 };

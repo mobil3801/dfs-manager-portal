@@ -12,7 +12,7 @@ export class EmployeeStorageService {
    * Upload employee profile picture
    */
   async uploadProfilePicture(employeeId: string, file: File): Promise<{
-    data: { publicUrl: string } | null;
+    data: {publicUrl: string;} | null;
     error: Error | null;
   }> {
     try {
@@ -22,12 +22,12 @@ export class EmployeeStorageService {
       const filePath = `profiles/employees/${fileName}`;
 
       // Upload file to Supabase storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from(this.bucketName)
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
+      const { data: uploadData, error: uploadError } = await supabase.storage.
+      from(this.bucketName).
+      upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
 
       if (uploadError) {
         console.error('Upload error:', uploadError);
@@ -35,9 +35,9 @@ export class EmployeeStorageService {
       }
 
       // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from(this.bucketName)
-        .getPublicUrl(filePath);
+      const { data: { publicUrl } } = supabase.storage.
+      from(this.bucketName).
+      getPublicUrl(filePath);
 
       return {
         data: { publicUrl },
@@ -56,24 +56,24 @@ export class EmployeeStorageService {
   /**
    * Delete employee profile picture
    */
-  async deleteProfilePicture(imageUrl: string): Promise<{ error: Error | null }> {
+  async deleteProfilePicture(imageUrl: string): Promise<{error: Error | null;}> {
     try {
       // Extract file path from URL
       const url = new URL(imageUrl);
       const filePath = url.pathname.split('/storage/v1/object/public/')[1];
-      
+
       if (!filePath) {
         throw new Error('Invalid image URL format');
       }
 
       // Remove bucket name from path if present
-      const pathWithoutBucket = filePath.startsWith(this.bucketName + '/') 
-        ? filePath.substring(this.bucketName.length + 1)
-        : filePath;
+      const pathWithoutBucket = filePath.startsWith(this.bucketName + '/') ?
+      filePath.substring(this.bucketName.length + 1) :
+      filePath;
 
-      const { error } = await supabase.storage
-        .from(this.bucketName)
-        .remove([pathWithoutBucket]);
+      const { error } = await supabase.storage.
+      from(this.bucketName).
+      remove([pathWithoutBucket]);
 
       if (error) {
         console.error('Delete error:', error);
@@ -98,15 +98,15 @@ export class EmployeeStorageService {
     error: Error | null;
   }> {
     try {
-      const { data, error } = await supabase
-        .from('employees')
-        .update({ 
-          profile_image_url: imageUrl,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', employeeId)
-        .select()
-        .single();
+      const { data, error } = await supabase.
+      from('employees').
+      update({
+        profile_image_url: imageUrl,
+        updated_at: new Date().toISOString()
+      }).
+      eq('id', employeeId).
+      select().
+      single();
 
       if (error) {
         console.error('Database update error:', error);
@@ -128,16 +128,16 @@ export class EmployeeStorageService {
    * Upload and update employee profile picture in one operation
    */
   async uploadAndUpdateProfilePicture(employeeId: string, file: File): Promise<{
-    data: { employee: any; imageUrl: string } | null;
+    data: {employee: any;imageUrl: string;} | null;
     error: Error | null;
   }> {
     try {
       // First, get current employee data to potentially clean up old image
-      const { data: currentEmployee } = await supabase
-        .from('employees')
-        .select('profile_image_url')
-        .eq('id', employeeId)
-        .single();
+      const { data: currentEmployee } = await supabase.
+      from('employees').
+      select('profile_image_url').
+      eq('id', employeeId).
+      single();
 
       // Upload new image
       const uploadResult = await this.uploadProfilePicture(employeeId, file);
@@ -156,8 +156,8 @@ export class EmployeeStorageService {
       }
 
       // Clean up old image if it exists and is different from new one
-      if (currentEmployee?.profile_image_url && 
-          currentEmployee.profile_image_url !== newImageUrl) {
+      if (currentEmployee?.profile_image_url &&
+      currentEmployee.profile_image_url !== newImageUrl) {
         await this.deleteProfilePicture(currentEmployee.profile_image_url);
       }
 
@@ -187,11 +187,11 @@ export class EmployeeStorageService {
   }> {
     try {
       // Get current employee data
-      const { data: currentEmployee } = await supabase
-        .from('employees')
-        .select('profile_image_url')
-        .eq('id', employeeId)
-        .single();
+      const { data: currentEmployee } = await supabase.
+      from('employees').
+      select('profile_image_url').
+      eq('id', employeeId).
+      single();
 
       // Update database first
       const updateResult = await this.updateEmployeeProfileImage(employeeId, null);
@@ -222,15 +222,15 @@ export class EmployeeStorageService {
    * Get employee profile image URL
    */
   async getEmployeeProfileImage(employeeId: string): Promise<{
-    data: { imageUrl: string | null; employee: any } | null;
+    data: {imageUrl: string | null;employee: any;} | null;
     error: Error | null;
   }> {
     try {
-      const { data, error } = await supabase
-        .from('employees')
-        .select('id, first_name, last_name, profile_image_url')
-        .eq('id', employeeId)
-        .single();
+      const { data, error } = await supabase.
+      from('employees').
+      select('id, first_name, last_name, profile_image_url').
+      eq('id', employeeId).
+      single();
 
       if (error) {
         console.error('Error fetching employee:', error);

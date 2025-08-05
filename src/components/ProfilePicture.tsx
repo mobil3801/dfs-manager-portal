@@ -335,27 +335,27 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
       // Use employee storage service for employee profiles
       if (tableName === 'employees' && recordId) {
         const { data, error } = await employeeStorageService.uploadAndUpdateProfilePicture(
-          recordId.toString(), 
+          recordId.toString(),
           selectedFile
         );
-        
+
         if (error || !data) throw error || new Error('Upload failed');
-        
+
         publicUrl = data.imageUrl;
       } else {
         // Generic upload for other use cases
         const fileName = `profile_${Date.now()}_${selectedFile.name}`;
         const filePath = `profiles/${fileName}`;
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('')
-          .upload(filePath, selectedFile);
+        const { data: uploadData, error: uploadError } = await supabase.storage.
+        from('').
+        upload(filePath, selectedFile);
 
         if (uploadError) throw uploadError;
 
-        const { data: { publicUrl: url } } = supabase.storage
-          .from('')
-          .getPublicUrl(filePath);
+        const { data: { publicUrl: url } } = supabase.storage.
+        from('').
+        getPublicUrl(filePath);
 
         publicUrl = url;
 
@@ -365,10 +365,10 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
             profile_image_url: publicUrl
           };
 
-          const { error: updateError } = await supabase
-            .from(tableName)
-            .update(updateData)
-            .eq('id', recordId);
+          const { error: updateError } = await supabase.
+          from(tableName).
+          update(updateData).
+          eq('id', recordId);
 
           if (updateError) throw updateError;
         }
@@ -416,10 +416,10 @@ const ProfilePicture: React.FC<ProfilePictureProps> = ({
           profile_image_url: null
         };
 
-        const { error: updateError } = await supabase
-          .from(tableName)
-          .update(updateData)
-          .eq('id', recordId);
+        const { error: updateError } = await supabase.
+        from(tableName).
+        update(updateData).
+        eq('id', recordId);
 
         if (updateError) throw updateError;
       }
