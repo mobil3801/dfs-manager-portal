@@ -50,10 +50,10 @@ class VendorErrorBoundary extends React.Component<VendorErrorBoundaryProps, Vend
 
   render() {
     if (this.state.hasError) {
-      return <VendorErrorFallback 
-        error={this.state.error} 
-        onReset={this.handleReset} 
-      />;
+      return <VendorErrorFallback
+        error={this.state.error}
+        onReset={this.handleReset} />;
+
     }
 
     return this.props.children;
@@ -140,17 +140,17 @@ const VendorErrorFallback: React.FC<VendorErrorFallbackProps> = ({ error, onRese
                   Try Again
                 </Button>
                 
-                {errorDetails.type === 'database' && (
-                  <Button onClick={() => navigate('/admin/site-management')} variant="outline">
+                {errorDetails.type === 'database' &&
+                <Button onClick={() => navigate('/admin/site-management')} variant="outline">
                     Database Setup
                   </Button>
-                )}
+                }
                 
-                {errorDetails.type === 'auth' && (
-                  <Button onClick={() => navigate('/login')} variant="outline">
+                {errorDetails.type === 'auth' &&
+                <Button onClick={() => navigate('/login')} variant="outline">
                     Re-login
                   </Button>
-                )}
+                }
               </div>
             </div>
 
@@ -168,8 +168,8 @@ const VendorErrorFallback: React.FC<VendorErrorFallbackProps> = ({ error, onRese
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 export default VendorErrorBoundary;
