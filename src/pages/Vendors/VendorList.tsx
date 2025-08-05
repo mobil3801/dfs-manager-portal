@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Search, Edit, Trash2, Building2, Mail, Phone, MapPin, Eye, Download, FileText } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Building2, Mail, Phone, MapPin, Eye, Download, FileText, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useModuleAccess } from '@/contexts/ModuleAccessContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,8 +13,9 @@ import ViewModal from '@/components/ViewModal';
 import { useListKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { motion } from 'motion/react';
 import { vendorService, type Vendor } from '@/services/vendorService';
+import VendorErrorBoundary from '@/components/ErrorBoundary/VendorErrorBoundary';
 
-const VendorList: React.FC = () => {
+const VendorListContent: React.FC = () => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,6 +25,7 @@ const VendorList: React.FC = () => {
   const [selectedVendorId, setSelectedVendorId] = useState<string | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   // Auth context for admin checking
@@ -50,20 +52,33 @@ const VendorList: React.FC = () => {
 
   // Set up real-time subscription
   useEffect(() => {
-    const subscription = vendorService.subscribeToVendors((payload) => {
-      console.log('Vendor change detected:', payload);
-      // Reload vendors when changes occur
-      loadVendors();
-    });
+    let subscription: any = null;
+    
+    try {
+      subscription = vendorService.subscribeToVendors((payload) => {
+        console.log('Vendor change detected:', payload);
+        // Reload vendors when changes occur
+        loadVendors();
+      });
+    } catch (error) {
+      console.error('Error setting up subscription:', error);
+    }
 
     return () => {
-      vendorService.unsubscribeFromVendors(subscription);
+      if (subscription) {
+        try {
+          vendorService.unsubscribeFromVendors(subscription);
+        } catch (error) {
+          console.error('Error unsubscribing:', error);
+        }
+      }
     };
   }, []);
 
   const loadVendors = async () => {
     try {
       setLoading(true);
+      setConnectionError(null);
 
       const result = await vendorService.getVendors({
         page: currentPage,
@@ -74,11 +89,25 @@ const VendorList: React.FC = () => {
       setVendors(result.vendors);
       setTotalCount(result.totalCount);
       setTotalPages(result.totalPages);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading vendors:', error);
+      
+      let errorMessage = 'Failed to load vendors. Please check your connection.';
+      
+      if (error.message?.includes('relation "vendors" does not exist')) {
+        errorMessage = 'Vendors table not found. Please contact administrator to set up the database.';
+        setConnectionError('DATABASE_TABLE_MISSING');
+      } else if (error.message?.includes('JWT')) {
+        errorMessage = 'Authentication error. Please try logging in again.';
+        setConnectionError('AUTH_ERROR');
+      } else if (error.message?.includes('network')) {
+        errorMessage = 'Network connection error. Please check your internet connection.';
+        setConnectionError('NETWORK_ERROR');
+      }
+
       toast({
         title: "Error",
-        description: "Failed to load vendors. Please check your connection.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
@@ -168,12 +197,12 @@ const VendorList: React.FC = () => {
 
     try {
       await vendorService.deleteVendor(vendorId);
-      
+
       toast({
         title: "Success",
         description: "Vendor deleted successfully"
       });
-      
+
       loadVendors();
       setViewModalOpen(false);
     } catch (error) {
@@ -318,6 +347,48 @@ const VendorList: React.FC = () => {
       icon: FileText
     }
   ];
+
+  // Show database connection error state
+  if (connectionError === 'DATABASE_TABLE_MISSING') {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center space-x-2">
+                  <Building2 className="w-6 h-6" />
+                  <span>Vendors</span>
+                </CardTitle>
+                <CardDescription>
+                  Database Setup Required
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center py-8">
+              <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Database Table Missing</h3>
+              <p className="text-gray-600 mb-4">
+                The vendors table hasn't been created yet. Please contact your administrator to set up the database.
+              </p>
+              <div className="space-y-2">
+                <Button onClick={loadVendors} variant="outline">
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Retry Connection
+                </Button>
+                <Button onClick={() => navigate('/dashboard')} variant="outline">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Dashboard
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -582,6 +653,14 @@ const VendorList: React.FC = () => {
         />
       )}
     </div>
+  );
+};
+
+const VendorList: React.FC = () => {
+  return (
+    <VendorErrorBoundary>
+      <VendorListContent />
+    </VendorErrorBoundary>
   );
 };
 

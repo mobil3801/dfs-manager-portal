@@ -7,14 +7,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import { Building2, Save, ArrowLeft } from 'lucide-react';
+import { Building2, Save, ArrowLeft, AlertCircle, RefreshCw } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import StationDropdown from '@/components/StationDropdown';
 import VendorDocumentUpload from '@/components/VendorDocumentUpload';
 import { vendorService, type VendorFormData, type Vendor } from '@/services/vendorService';
 import { useAuth } from '@/contexts/AuthContext';
+import VendorErrorBoundary from '@/components/ErrorBoundary/VendorErrorBoundary';
 
-const VendorForm: React.FC = () => {
+const VendorFormContent: React.FC = () => {
   const [formData, setFormData] = useState<VendorFormData>({
     vendor_name: '',
     contact_person: '',
@@ -31,6 +32,7 @@ const VendorForm: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedStation, setSelectedStation] = useState<string>('');
   const [documents, setDocuments] = useState<any[]>([]);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const { id } = useParams();
@@ -49,6 +51,8 @@ const VendorForm: React.FC = () => {
   const loadVendor = async (vendorId: string) => {
     try {
       setLoading(true);
+      setConnectionError(null);
+
       const vendor = await vendorService.getVendorById(vendorId);
 
       if (vendor) {
@@ -67,11 +71,22 @@ const VendorForm: React.FC = () => {
         setSelectedStation(vendor.station_id || '');
         setDocuments(vendor.documents || []);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading vendor:', error);
+      
+      let errorMessage = 'Failed to load vendor details';
+      
+      if (error.message?.includes('relation "vendors" does not exist')) {
+        errorMessage = 'Vendors table not found. Please contact administrator.';
+        setConnectionError('DATABASE_TABLE_MISSING');
+      } else if (error.message?.includes('JWT')) {
+        errorMessage = 'Authentication error. Please try logging in again.';
+        setConnectionError('AUTH_ERROR');
+      }
+
       toast({
         title: "Error",
-        description: "Failed to load vendor details",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
@@ -82,8 +97,37 @@ const VendorForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate required fields
+    if (!formData.vendor_name.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Vendor name is required",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!formData.contact_person.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Contact person is required",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!formData.category) {
+      toast({
+        title: "Validation Error",
+        description: "Category is required",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       setLoading(true);
+      setConnectionError(null);
 
       const dataToSubmit = {
         ...formData,
@@ -106,11 +150,22 @@ const VendorForm: React.FC = () => {
       }
 
       navigate('/vendors');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving vendor:', error);
+      
+      let errorMessage = `Failed to ${isEditing ? 'update' : 'create'} vendor`;
+      
+      if (error.message?.includes('relation "vendors" does not exist')) {
+        errorMessage = 'Vendors table not found. Please contact administrator.';
+        setConnectionError('DATABASE_TABLE_MISSING');
+      } else if (error.message?.includes('JWT')) {
+        errorMessage = 'Authentication error. Please try logging in again.';
+        setConnectionError('AUTH_ERROR');
+      }
+
       toast({
         title: "Error",
-        description: `Failed to ${isEditing ? 'update' : 'create'} vendor`,
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
@@ -129,11 +184,64 @@ const VendorForm: React.FC = () => {
 
   const handleDocumentsChange = (updatedDocuments: any[]) => {
     setDocuments(updatedDocuments);
-    setFormData((prev) => ({ 
-      ...prev, 
+    setFormData((prev) => ({
+      ...prev,
       documents: updatedDocuments
     }));
   };
+
+  const handleRetryConnection = () => {
+    setConnectionError(null);
+    if (id) {
+      loadVendor(id);
+    }
+  };
+
+  // Show database connection error state
+  if (connectionError === 'DATABASE_TABLE_MISSING') {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center space-x-2">
+                  <Building2 className="w-6 h-6" />
+                  <span>Vendor Form</span>
+                </CardTitle>
+                <CardDescription>
+                  Database Setup Required
+                </CardDescription>
+              </div>
+              <Button variant="outline" onClick={() => navigate('/vendors')}>
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Vendors
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center py-8">
+              <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Database Table Missing</h3>
+              <p className="text-gray-600 mb-4">
+                The vendors table hasn't been created yet. Please contact your administrator to set up the database.
+              </p>
+              <div className="space-y-2">
+                <Button onClick={handleRetryConnection} variant="outline">
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Retry Connection
+                </Button>
+                <Button onClick={() => navigate('/vendors')} variant="outline">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Vendors
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -338,6 +446,14 @@ const VendorForm: React.FC = () => {
         </CardContent>
       </Card>
     </div>
+  );
+};
+
+const VendorForm: React.FC = () => {
+  return (
+    <VendorErrorBoundary>
+      <VendorFormContent />
+    </VendorErrorBoundary>
   );
 };
 

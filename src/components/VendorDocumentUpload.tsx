@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
-import { Upload, FileText, X, Download, Eye, Loader2 } from 'lucide-react';
+import { Upload, FileText, X, Download, Eye, Loader2, AlertCircle } from 'lucide-react';
 import { vendorService } from '@/services/vendorService';
 
 interface VendorDocumentUploadProps {
@@ -45,13 +45,26 @@ const VendorDocumentUpload: React.FC<VendorDocumentUploadProps> = ({
           throw new Error(`File ${file.name} is too large. Maximum size is 10MB.`);
         }
 
-        const result = await vendorService.uploadDocument(vendorId, file);
-        return result.document;
+        try {
+          const result = await vendorService.uploadDocument(vendorId, file);
+          return result.document;
+        } catch (uploadError: any) {
+          console.error('File upload error:', uploadError);
+          
+          // Handle specific upload errors
+          if (uploadError.message?.includes('Bucket not found')) {
+            throw new Error(`Storage bucket not configured. Please contact administrator.`);
+          } else if (uploadError.message?.includes('JWT')) {
+            throw new Error(`Authentication error. Please try logging in again.`);
+          } else {
+            throw new Error(`Failed to upload ${file.name}: ${uploadError.message}`);
+          }
+        }
       });
 
       const uploadedDocuments = await Promise.all(uploadPromises);
       const updatedDocuments = [...documents, ...uploadedDocuments];
-      
+
       onDocumentsChange(updatedDocuments);
 
       toast({
@@ -75,8 +88,8 @@ const VendorDocumentUpload: React.FC<VendorDocumentUploadProps> = ({
 
     try {
       await vendorService.deleteDocument(vendorId, documentId);
-      
-      const updatedDocuments = documents.filter(doc => doc.id !== documentId);
+
+      const updatedDocuments = documents.filter((doc) => doc.id !== documentId);
       onDocumentsChange(updatedDocuments);
 
       toast({
@@ -85,9 +98,18 @@ const VendorDocumentUpload: React.FC<VendorDocumentUploadProps> = ({
       });
     } catch (error: any) {
       console.error('Error deleting document:', error);
+      
+      let errorMessage = "Failed to delete document";
+      
+      if (error.message?.includes('JWT')) {
+        errorMessage = "Authentication error. Please try logging in again.";
+      } else if (error.message?.includes('not found')) {
+        errorMessage = "Document not found. It may have been already deleted.";
+      }
+
       toast({
         title: "Error",
-        description: "Failed to delete document",
+        description: errorMessage,
         variant: "destructive"
       });
     }
@@ -119,10 +141,22 @@ const VendorDocumentUpload: React.FC<VendorDocumentUploadProps> = ({
   };
 
   const getFileIcon = (fileType: string) => {
-    if (fileType.includes('image')) {
+    if (fileType?.includes('image')) {
       return <Eye className="w-5 h-5 text-blue-500" />;
     }
     return <FileText className="w-5 h-5 text-blue-500" />;
+  };
+
+  const handleViewDocument = (doc: any) => {
+    if (doc.url) {
+      window.open(doc.url, '_blank');
+    } else {
+      toast({
+        title: "Error",
+        description: "Document URL not available",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -203,7 +237,7 @@ const VendorDocumentUpload: React.FC<VendorDocumentUploadProps> = ({
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => window.open(doc.url, '_blank')}
+                      onClick={() => handleViewDocument(doc)}
                       title="View/Download"
                     >
                       <Download className="w-4 h-4" />
@@ -231,6 +265,14 @@ const VendorDocumentUpload: React.FC<VendorDocumentUploadProps> = ({
           Maximum number of files reached ({maxFiles}). Delete some files to upload more.
         </div>
       )}
+
+      {/* Storage Info */}
+      <div className="text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded p-2">
+        <div className="flex items-center space-x-1">
+          <AlertCircle className="w-3 h-3" />
+          <span>Documents are stored securely in Supabase Storage and linked to this vendor record.</span>
+        </div>
+      </div>
     </div>
   );
 };

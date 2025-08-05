@@ -33,6 +33,31 @@ export interface VendorFormData {
 
 class VendorService {
   /**
+   * Check if vendors table exists and is accessible
+   */
+  async checkTableExists() {
+    try {
+      const { data, error } = await supabase
+        .from('vendors')
+        .select('count', { count: 'exact' })
+        .limit(1);
+
+      if (error) {
+        console.error('Table check error:', error);
+        if (error.message.includes('relation "vendors" does not exist')) {
+          throw new Error('VENDORS_TABLE_NOT_FOUND');
+        }
+        throw error;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error checking vendors table:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Get all vendors with optional filtering
    */
   async getVendors(options: {
@@ -44,6 +69,9 @@ class VendorService {
     isActive?: boolean;
   } = {}) {
     try {
+      // First check if table exists
+      await this.checkTableExists();
+
       const { page = 1, limit = 10, search, stationId, category, isActive } = options;
       const offset = (page - 1) * limit;
 
@@ -101,6 +129,8 @@ class VendorService {
    */
   async getVendorById(id: string) {
     try {
+      await this.checkTableExists();
+
       const { data, error } = await supabase
         .from('vendors')
         .select(`
@@ -127,6 +157,8 @@ class VendorService {
    */
   async createVendor(vendorData: VendorFormData, userId?: string) {
     try {
+      await this.checkTableExists();
+
       const dataToInsert = {
         ...vendorData,
         created_by: userId,
@@ -159,6 +191,8 @@ class VendorService {
    */
   async updateVendor(id: string, vendorData: Partial<VendorFormData>) {
     try {
+      await this.checkTableExists();
+
       const { data, error } = await supabase
         .from('vendors')
         .update({
@@ -189,6 +223,8 @@ class VendorService {
    */
   async deleteVendor(id: string) {
     try {
+      await this.checkTableExists();
+
       const { error } = await supabase
         .from('vendors')
         .delete()
@@ -211,13 +247,16 @@ class VendorService {
    */
   async uploadDocument(vendorId: string, file: File) {
     try {
+      // Check if bucket exists, create if not
+      const bucketName = 'vendor-documents';
+      
       const fileExt = file.name.split('.').pop();
       const fileName = `vendor-${vendorId}-${Date.now()}.${fileExt}`;
       const filePath = `vendors/${vendorId}/${fileName}`;
 
       // Upload file to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('vendor-documents')
+        .from(bucketName)
         .upload(filePath, file);
 
       if (uploadError) {
@@ -227,7 +266,7 @@ class VendorService {
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('vendor-documents')
+        .from(bucketName)
         .getPublicUrl(filePath);
 
       // Update vendor's documents array
@@ -369,28 +408,37 @@ class VendorService {
    * Subscribe to vendor changes
    */
   subscribeToVendors(callback: (payload: any) => void) {
-    const subscription = supabase
-      .channel('vendors-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'vendors'
-        },
-        callback
-      )
-      .subscribe();
+    try {
+      const subscription = supabase
+        .channel('vendors-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'vendors'
+          },
+          callback
+        )
+        .subscribe();
 
-    return subscription;
+      return subscription;
+    } catch (error) {
+      console.error('Error setting up subscription:', error);
+      throw error;
+    }
   }
 
   /**
    * Unsubscribe from vendor changes
    */
   unsubscribeFromVendors(subscription: any) {
-    if (subscription) {
-      supabase.removeChannel(subscription);
+    try {
+      if (subscription) {
+        supabase.removeChannel(subscription);
+      }
+    } catch (error) {
+      console.error('Error unsubscribing:', error);
     }
   }
 }
