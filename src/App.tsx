@@ -3,9 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider, useAuth } from '@/contexts/AuthContext';
-import { SupabaseAuthProvider, useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
-import { ModuleAccessProvider } from '@/contexts/ModuleAccessContext';
+// Legacy auth context removed to prevent conflicts
+import { SimpleAuthProvider, useSimpleAuth } from '@/contexts/SimpleAuthContext';
+import { SimpleModuleAccessProvider } from '@/contexts/SimpleModuleAccessContext';
 import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
 import AuthDebugger from '@/components/AuthDebugger';
 import ImageErrorNotification from '@/components/ImageErrorNotification';
@@ -132,7 +132,7 @@ const AuthError = ({ error, onRetry }: {error: string;onRetry: () => void;}) =>
 
 // Protected Route Component with improved error handling
 const ProtectedRoute: React.FC<{children: React.ReactNode;}> = ({ children }) => {
-  const { isAuthenticated, isLoading, authError, isInitialized, refreshUserData } = useSupabaseAuth();
+  const { isAuthenticated, isLoading, authError, isInitialized, refreshUserData } = useSimpleAuth();
 
   // Show loading while initializing
   if (!isInitialized || isLoading) {
@@ -154,7 +154,7 @@ const ProtectedRoute: React.FC<{children: React.ReactNode;}> = ({ children }) =>
 
 // Main App Router Component
 const AppRouter = () => {
-  const { isInitialized } = useSupabaseAuth();
+  const { isInitialized } = useSimpleAuth();
 
   // Show loading during initial authentication setup
   if (!isInitialized) {
@@ -448,13 +448,11 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <GlobalErrorBoundary>
-          <AuthProvider>
-            <SupabaseAuthProvider>
-              <ModuleAccessProvider>
-                <AppRouter />
-              </ModuleAccessProvider>
-            </SupabaseAuthProvider>
-          </AuthProvider>
+          <SimpleAuthProvider>
+            <SimpleModuleAccessProvider>
+              <AppRouter />
+            </SimpleModuleAccessProvider>
+          </SimpleAuthProvider>
         </GlobalErrorBoundary>
       </TooltipProvider>
       <Toaster />
