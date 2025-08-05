@@ -14,7 +14,9 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
-  TestTube } from
+  TestTube,
+  Server,
+  Wrench } from
 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -289,6 +291,12 @@ const AdminPanel = () => {
               description="View and manage system logs"
               icon={Activity}
               onClick={() => navigate('/admin/logs')} />
+
+            <QuickAdminAction
+              title="Server Diagnostics"
+              description="Run comprehensive server diagnostics and troubleshooting"
+              icon={Wrench}
+              onClick={() => navigate('/admin/server-diagnostics')} />
 
           </div>
         </TabsContent>
