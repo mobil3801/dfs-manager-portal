@@ -5,8 +5,8 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  DialogTitle } from
+'@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -69,7 +69,7 @@ const EmployeeEditDialog: React.FC<EmployeeEditDialogProps> = ({
 
   const handleInputChange = (field: keyof Employee, value: any) => {
     if (!formData) return;
-    setFormData(prev => prev ? { ...prev, [field]: value } : null);
+    setFormData((prev) => prev ? { ...prev, [field]: value } : null);
   };
 
   const handleSave = async () => {
@@ -85,12 +85,12 @@ const EmployeeEditDialog: React.FC<EmployeeEditDialogProps> = ({
         updated_at: new Date().toISOString()
       };
 
-      const { data, error } = await supabase
-        .from('employees')
-        .update(updateData)
-        .eq('id', formData.id)
-        .select()
-        .single();
+      const { data, error } = await supabase.
+      from('employees').
+      update(updateData).
+      eq('id', formData.id).
+      select().
+      single();
 
       if (error) {
         console.error('Error updating employee:', error);
@@ -118,7 +118,7 @@ const EmployeeEditDialog: React.FC<EmployeeEditDialogProps> = ({
 
   const handleProfilePictureUpdate = (newImageUrl: string | null) => {
     if (formData) {
-      setFormData(prev => prev ? { ...prev, profile_image_url: newImageUrl } : null);
+      setFormData((prev) => prev ? { ...prev, profile_image_url: newImageUrl } : null);
     }
   };
 
@@ -147,8 +147,8 @@ const EmployeeEditDialog: React.FC<EmployeeEditDialogProps> = ({
               employeeName={`${formData.first_name} ${formData.last_name}`}
               size="xl"
               allowEdit={true}
-              onImageUpdate={handleProfilePictureUpdate}
-            />
+              onImageUpdate={handleProfilePictureUpdate} />
+
           </div>
 
           {/* Basic Information */}
@@ -162,25 +162,25 @@ const EmployeeEditDialog: React.FC<EmployeeEditDialogProps> = ({
                   value={formData.employee_id}
                   onChange={(e) => handleInputChange('employee_id', e.target.value)}
                   className="bg-gray-50"
-                  readOnly
-                />
+                  readOnly />
+
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="department">Department</Label>
                 <Select
                   value={formData.department || ''}
-                  onValueChange={(value) => handleInputChange('department', value)}
-                >
+                  onValueChange={(value) => handleInputChange('department', value)}>
+
                   <SelectTrigger>
                     <SelectValue placeholder="Select department" />
                   </SelectTrigger>
                   <SelectContent>
-                    {departments.map((dept) => (
-                      <SelectItem key={dept} value={dept}>
+                    {departments.map((dept) =>
+                    <SelectItem key={dept} value={dept}>
                         {dept}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -191,8 +191,8 @@ const EmployeeEditDialog: React.FC<EmployeeEditDialogProps> = ({
                   id="first_name"
                   value={formData.first_name}
                   onChange={(e) => handleInputChange('first_name', e.target.value)}
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -201,8 +201,8 @@ const EmployeeEditDialog: React.FC<EmployeeEditDialogProps> = ({
                   id="last_name"
                   value={formData.last_name}
                   onChange={(e) => handleInputChange('last_name', e.target.value)}
-                  required
-                />
+                  required />
+
               </div>
 
               <div className="space-y-2">
@@ -211,8 +211,8 @@ const EmployeeEditDialog: React.FC<EmployeeEditDialogProps> = ({
                   id="email"
                   type="email"
                   value={formData.email || ''}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                />
+                  onChange={(e) => handleInputChange('email', e.target.value)} />
+
               </div>
 
               <div className="space-y-2">
@@ -220,13 +220,13 @@ const EmployeeEditDialog: React.FC<EmployeeEditDialogProps> = ({
                 <Input
                   id="phone"
                   value={formData.phone || ''}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
-                />
-                {formData.phone && (
-                  <div className="text-xs text-gray-500">
+                  onChange={(e) => handleInputChange('phone', e.target.value)} />
+
+                {formData.phone &&
+                <div className="text-xs text-gray-500">
                     Display: {displayPhoneNumber(formData.phone)}
                   </div>
-                )}
+                }
               </div>
             </div>
           </div>
@@ -239,17 +239,17 @@ const EmployeeEditDialog: React.FC<EmployeeEditDialogProps> = ({
                 <Label htmlFor="position">Position</Label>
                 <Select
                   value={formData.position || ''}
-                  onValueChange={(value) => handleInputChange('position', value)}
-                >
+                  onValueChange={(value) => handleInputChange('position', value)}>
+
                   <SelectTrigger>
                     <SelectValue placeholder="Select position" />
                   </SelectTrigger>
                   <SelectContent>
-                    {positions.map((position) => (
-                      <SelectItem key={position} value={position}>
+                    {positions.map((position) =>
+                    <SelectItem key={position} value={position}>
                         {position}
                       </SelectItem>
-                    ))}
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -258,8 +258,8 @@ const EmployeeEditDialog: React.FC<EmployeeEditDialogProps> = ({
                 <Label htmlFor="is_active">Employment Status</Label>
                 <Select
                   value={formData.is_active ? 'active' : 'inactive'}
-                  onValueChange={(value) => handleInputChange('is_active', value === 'active')}
-                >
+                  onValueChange={(value) => handleInputChange('is_active', value === 'active')}>
+
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -289,21 +289,21 @@ const EmployeeEditDialog: React.FC<EmployeeEditDialogProps> = ({
                   id="hire_date"
                   type="date"
                   value={formData.hire_date || ''}
-                  onChange={(e) => handleInputChange('hire_date', e.target.value)}
-                />
+                  onChange={(e) => handleInputChange('hire_date', e.target.value)} />
+
               </div>
 
-              {!formData.is_active && (
-                <div className="space-y-2">
+              {!formData.is_active &&
+              <div className="space-y-2">
                   <Label htmlFor="termination_date">Termination Date</Label>
                   <Input
-                    id="termination_date"
-                    type="date"
-                    value={formData.termination_date || ''}
-                    onChange={(e) => handleInputChange('termination_date', e.target.value)}
-                  />
+                  id="termination_date"
+                  type="date"
+                  value={formData.termination_date || ''}
+                  onChange={(e) => handleInputChange('termination_date', e.target.value)} />
+
                 </div>
-              )}
+              }
 
               <div className="space-y-2">
                 <Label htmlFor="hourly_rate">Hourly Rate ($)</Label>
@@ -313,8 +313,8 @@ const EmployeeEditDialog: React.FC<EmployeeEditDialogProps> = ({
                   step="0.01"
                   min="0"
                   value={formData.hourly_rate || 0}
-                  onChange={(e) => handleInputChange('hourly_rate', parseFloat(e.target.value) || 0)}
-                />
+                  onChange={(e) => handleInputChange('hourly_rate', parseFloat(e.target.value) || 0)} />
+
               </div>
             </div>
           </div>
@@ -329,8 +329,8 @@ const EmployeeEditDialog: React.FC<EmployeeEditDialogProps> = ({
                 value={formData.notes || ''}
                 onChange={(e) => handleInputChange('notes', e.target.value)}
                 rows={4}
-                placeholder="Enter any additional notes about the employee"
-              />
+                placeholder="Enter any additional notes about the employee" />
+
             </div>
           </div>
         </div>
@@ -340,28 +340,28 @@ const EmployeeEditDialog: React.FC<EmployeeEditDialogProps> = ({
             type="button"
             variant="outline"
             onClick={onClose}
-            disabled={isLoading}
-          >
+            disabled={isLoading}>
+
             <X className="w-4 h-4 mr-2" />
             Cancel
           </Button>
           <Button
             onClick={handleSave}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              'Saving...'
-            ) : (
-              <>
+            disabled={isLoading}>
+
+            {isLoading ?
+            'Saving...' :
+
+            <>
                 <Save className="w-4 h-4 mr-2" />
                 Save Changes
               </>
-            )}
+            }
           </Button>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 };
 
 export default EmployeeEditDialog;

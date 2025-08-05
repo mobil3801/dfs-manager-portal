@@ -190,12 +190,33 @@ const EmployeeForm: React.FC = () => {
       setLoading(true);
       console.log('Starting form submission...');
 
+      // Validate required fields
+      if (!formData.employee_id || !formData.first_name || !formData.last_name || !formData.department || !formData.position) {
+        toast({
+          title: "Validation Error",
+          description: "Please fill in all required fields (Employee ID, First Name, Last Name, Department, Position)",
+          variant: "destructive"
+        });
+        return;
+      }
+
       // Create the data object to submit
       const dataToSubmit = {
-        ...formData,
+        employee_id: formData.employee_id.trim(),
+        first_name: formData.first_name.trim(),
+        last_name: formData.last_name.trim(),
+        email: formData.email?.trim() || null,
+        phone: formData.phone?.trim() || null,
+        position: formData.position.trim(),
+        department: formData.department.trim(),
         hire_date: formData.hire_date ? new Date(formData.hire_date).toISOString() : null,
         termination_date: formData.termination_date ? new Date(formData.termination_date).toISOString() : null,
+        salary: formData.salary || null,
+        hourly_rate: formData.hourly_rate || null,
+        is_active: formData.is_active,
         emergency_contact: formData.emergency_contact || {},
+        notes: formData.notes?.trim() || null,
+        profile_image_url: formData.profile_image_url || null,
         updated_at: new Date().toISOString()
       };
 
@@ -204,12 +225,34 @@ const EmployeeForm: React.FC = () => {
       if (isEditing && id && id !== 'new') {
         console.log('Updating employee...');
 
-        const { data, error } = await supabase.
-        from('employees').
-        update(dataToSubmit).
-        eq('id', id).
-        select().
-        single();
+        // First check if employee_id is unique (excluding current record)
+        const { data: existingEmployee, error: duplicateError } = await supabase
+          .from('employees')
+          .select('id')
+          .eq('employee_id', dataToSubmit.employee_id)
+          .neq('id', id)
+          .single();
+
+        if (duplicateError && duplicateError.code !== 'PGRST116') {
+          console.error('Error checking for duplicate employee ID:', duplicateError);
+          throw new Error('Failed to validate employee ID uniqueness');
+        }
+
+        if (existingEmployee) {
+          toast({
+            title: "Duplicate Employee ID",
+            description: `Employee ID "${dataToSubmit.employee_id}" is already in use by another employee.`,
+            variant: "destructive"
+          });
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from('employees')
+          .update(dataToSubmit)
+          .eq('id', id)
+          .select()
+          .single();
 
         if (error) {
           console.error('Update error:', error);
@@ -225,16 +268,37 @@ const EmployeeForm: React.FC = () => {
       } else {
         console.log('Creating employee...');
 
+        // Check if employee_id is unique before creating
+        const { data: existingEmployee, error: duplicateError } = await supabase
+          .from('employees')
+          .select('id')
+          .eq('employee_id', dataToSubmit.employee_id)
+          .single();
+
+        if (duplicateError && duplicateError.code !== 'PGRST116') {
+          console.error('Error checking for duplicate employee ID:', duplicateError);
+          throw new Error('Failed to validate employee ID uniqueness');
+        }
+
+        if (existingEmployee) {
+          toast({
+            title: "Duplicate Employee ID",
+            description: `Employee ID "${dataToSubmit.employee_id}" is already in use. Please use a different ID.`,
+            variant: "destructive"
+          });
+          return;
+        }
+
         const createData = {
           ...dataToSubmit,
           created_at: new Date().toISOString()
         };
 
-        const { data, error } = await supabase.
-        from('employees').
-        insert([createData]).
-        select().
-        single();
+        const { data, error } = await supabase
+          .from('employees')
+          .insert([createData])
+          .select()
+          .single();
 
         if (error) {
           console.error('Create error:', error);

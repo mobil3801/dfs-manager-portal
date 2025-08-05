@@ -16,6 +16,7 @@ import { motion } from 'motion/react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import EnhancedEmployeeProfilePicture from '@/components/EnhancedEmployeeProfilePicture';
 import EmployeeEditDialog from '@/components/EmployeeEditDialog';
+import EmployeeDatabaseHealthCheck from '@/components/EmployeeDatabaseHealthCheck';
 import { displayPhoneNumber } from '@/utils/phoneFormatter';
 import { supabase } from '@/lib/supabase';
 
@@ -114,6 +115,30 @@ const EmployeeList: React.FC = () => {
     loadEmployees();
   }, [searchTerm, selectedStation]);
 
+  // Real-time subscription for employee updates
+  useEffect(() => {
+    const channel = supabase
+      .channel('employee-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'employees'
+        },
+        (payload) => {
+          console.log('Employee data changed:', payload);
+          // Reload employees when data changes
+          loadEmployees();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   const loadEmployees = async () => {
     try {
       setLoading(true);
@@ -211,15 +236,15 @@ const EmployeeList: React.FC = () => {
 
   const handleEditSave = (updatedEmployee: Employee) => {
     // Update the employee in the local state
-    setEmployees(prev => prev.map(emp => 
-      emp.id === updatedEmployee.id ? updatedEmployee : emp
+    setEmployees((prev) => prev.map((emp) =>
+    emp.id === updatedEmployee.id ? updatedEmployee : emp
     ));
-    
+
     // If this employee is currently selected in view modal, update it too
     if (selectedEmployee && selectedEmployee.id === updatedEmployee.id) {
       setSelectedEmployee(updatedEmployee);
     }
-    
+
     // Close edit dialog
     setEditDialogOpen(false);
     setEmployeeToEdit(null);
@@ -607,6 +632,9 @@ const EmployeeList: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Database Health Check - Only show for admin users */}
+      {isAdminUser && <EmployeeDatabaseHealthCheck />}
+      
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -844,8 +872,8 @@ const EmployeeList: React.FC = () => {
           setEditDialogOpen(false);
           setEmployeeToEdit(null);
         }}
-        onSave={handleEditSave}
-      />
+        onSave={handleEditSave} />
+
     </div>);
 
 };

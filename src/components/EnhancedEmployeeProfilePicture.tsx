@@ -38,6 +38,10 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
   const [showPreview, setShowPreview] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Use empty bucket name as configured in the system
+  const BUCKET_NAME = '';
+  const FOLDER_PATH = 'employee-profiles';
+
   const sizeClasses = {
     sm: 'w-8 h-8 text-xs',
     md: 'w-12 h-12 text-sm',
@@ -47,7 +51,7 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
 
   const initials = employeeName
     .split(' ')
-    .map(name => name.charAt(0))
+    .map((name) => name.charAt(0))
     .join('')
     .toUpperCase()
     .slice(0, 2);
@@ -128,24 +132,28 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
       // Create unique filename
       const fileExt = file.name.split('.').pop();
       const fileName = `${employeeId}-${Date.now()}.${fileExt}`;
-      const filePath = `employee-profiles/${fileName}`;
+      const filePath = `${FOLDER_PATH}/${fileName}`;
 
       // Delete old profile picture if exists
       if (imageUrl) {
-        // Extract the full path from the URL
-        const urlParts = imageUrl.split('/');
-        const bucketIndex = urlParts.findIndex(part => part === 'employee-profiles');
-        if (bucketIndex !== -1 && bucketIndex < urlParts.length - 1) {
-          const oldPath = urlParts.slice(bucketIndex + 1).join('/');
-          await supabase.storage
-            .from('employee-profiles')
-            .remove([oldPath]);
+        try {
+          // Extract the file path from the URL
+          const urlParts = imageUrl.split('/');
+          const fileIndex = urlParts.findIndex(part => part === FOLDER_PATH);
+          if (fileIndex !== -1 && fileIndex < urlParts.length - 1) {
+            const oldPath = urlParts.slice(fileIndex).join('/');
+            await supabase.storage
+              .from(BUCKET_NAME)
+              .remove([oldPath]);
+          }
+        } catch (deleteError) {
+          console.warn('Could not delete old profile picture:', deleteError);
         }
       }
 
       // Upload new file
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('employee-profiles')
+        .from(BUCKET_NAME)
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: true
@@ -158,13 +166,13 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('employee-profiles')
+        .from(BUCKET_NAME)
         .getPublicUrl(filePath);
 
       // Update employee record
       const { error: updateError } = await supabase
         .from('employees')
-        .update({ 
+        .update({
           profile_image_url: publicUrl,
           updated_at: new Date().toISOString()
         })
@@ -205,19 +213,23 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
       setIsUploading(true);
 
       // Remove from storage
-      const urlParts = imageUrl.split('/');
-      const bucketIndex = urlParts.findIndex(part => part === 'employee-profiles');
-      if (bucketIndex !== -1 && bucketIndex < urlParts.length - 1) {
-        const oldPath = urlParts.slice(bucketIndex + 1).join('/');
-        await supabase.storage
-          .from('employee-profiles')
-          .remove([oldPath]);
+      try {
+        const urlParts = imageUrl.split('/');
+        const fileIndex = urlParts.findIndex(part => part === FOLDER_PATH);
+        if (fileIndex !== -1 && fileIndex < urlParts.length - 1) {
+          const oldPath = urlParts.slice(fileIndex).join('/');
+          await supabase.storage
+            .from(BUCKET_NAME)
+            .remove([oldPath]);
+        }
+      } catch (deleteError) {
+        console.warn('Could not delete file from storage:', deleteError);
       }
 
       // Update employee record
       const { error: updateError } = await supabase
         .from('employees')
-        .update({ 
+        .update({
           profile_image_url: null,
           updated_at: new Date().toISOString()
         })
@@ -258,8 +270,8 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
     return (
       <div className={cn("flex items-center", className)}>
         <Avatar className={sizeClasses[size]}>
-          <AvatarImage 
-            src={imageUrl || undefined} 
+          <AvatarImage
+            src={imageUrl || undefined}
             alt={employeeName}
             className="object-cover"
           />
@@ -283,8 +295,8 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
               </div>
             ) : (
               <>
-                <AvatarImage 
-                  src={imageUrl || undefined} 
+                <AvatarImage
+                  src={imageUrl || undefined}
                   alt={employeeName}
                   className="object-cover"
                 />
@@ -337,8 +349,8 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
                     <DialogTitle>Profile Picture Preview</DialogTitle>
                   </DialogHeader>
                   <div className="flex items-center justify-center p-4">
-                    <img 
-                      src={imageUrl} 
+                    <img
+                      src={imageUrl}
                       alt={employeeName}
                       className="max-w-full max-h-96 object-contain rounded-lg shadow-lg"
                     />

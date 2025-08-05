@@ -89,9 +89,9 @@ const ViewModal: React.FC<ViewModalProps> = ({
             currentImageUrl={value}
             employeeName={field.employeeName || 'Employee'}
             size="xl"
-            allowEdit={false}
-          />
-        );
+            allowEdit={false} />);
+
+
 
       case 'date':
         return new Date(value).toLocaleDateString('en-US', {
@@ -220,7 +220,7 @@ const ViewModal: React.FC<ViewModalProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {visibleFields.map((field, index) => {
                     // Special handling for custom components that should span full width
-                    const isFullWidth = (field.type === 'custom' && field.key === 'profile_picture') || field.type === 'profile_picture';
+                    const isFullWidth = field.type === 'custom' && field.key === 'profile_picture' || field.type === 'profile_picture';
 
                     return (
                       <motion.div
