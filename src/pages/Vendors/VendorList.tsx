@@ -5,26 +5,14 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Search, Edit, Trash2, Building2, Mail, Phone, MapPin, Eye, Download } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Building2, Mail, Phone, MapPin, Eye, Download, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useModuleAccess } from '@/contexts/ModuleAccessContext';
 import { useAuth } from '@/contexts/AuthContext';
 import ViewModal from '@/components/ViewModal';
 import { useListKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { motion } from 'motion/react';
-
-interface Vendor {
-  ID: number;
-  vendor_name: string;
-  contact_person: string;
-  email: string;
-  phone: string;
-  address: string;
-  category: string;
-  payment_terms: string;
-  is_active: boolean;
-  created_by: number;
-}
+import { vendorService, type Vendor } from '@/services/vendorService';
 
 const VendorList: React.FC = () => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
@@ -32,13 +20,14 @@ const VendorList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [selectedVendorId, setSelectedVendorId] = useState<number | null>(null);
+  const [totalPages, setTotalPages] = useState(0);
+  const [selectedVendorId, setSelectedVendorId] = useState<string | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
   const navigate = useNavigate();
 
   // Auth context for admin checking
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
 
   // Module Access Control
   const {
@@ -59,32 +48,37 @@ const VendorList: React.FC = () => {
     loadVendors();
   }, [currentPage, searchTerm]);
 
+  // Set up real-time subscription
+  useEffect(() => {
+    const subscription = vendorService.subscribeToVendors((payload) => {
+      console.log('Vendor change detected:', payload);
+      // Reload vendors when changes occur
+      loadVendors();
+    });
+
+    return () => {
+      vendorService.unsubscribeFromVendors(subscription);
+    };
+  }, []);
+
   const loadVendors = async () => {
     try {
       setLoading(true);
-      const filters = [];
 
-      if (searchTerm) {
-        filters.push({ name: 'vendor_name', op: 'StringContains', value: searchTerm });
-      }
-
-      const { data, error } = await window.ezsite.apis.tablePage('11729', {
-        PageNo: currentPage,
-        PageSize: pageSize,
-        OrderByField: 'vendor_name',
-        IsAsc: true,
-        Filters: filters
+      const result = await vendorService.getVendors({
+        page: currentPage,
+        limit: pageSize,
+        search: searchTerm || undefined
       });
 
-      if (error) throw error;
-
-      setVendors(data?.List || []);
-      setTotalCount(data?.VirtualCount || 0);
+      setVendors(result.vendors);
+      setTotalCount(result.totalCount);
+      setTotalPages(result.totalPages);
     } catch (error) {
       console.error('Error loading vendors:', error);
       toast({
         title: "Error",
-        description: "Failed to load vendors",
+        description: "Failed to load vendors. Please check your connection.",
         variant: "destructive"
       });
     } finally {
@@ -94,11 +88,11 @@ const VendorList: React.FC = () => {
 
   const handleView = (vendor: Vendor) => {
     setSelectedVendor(vendor);
-    setSelectedVendorId(vendor.ID);
+    setSelectedVendorId(vendor.id);
     setViewModalOpen(true);
   };
 
-  const handleEdit = (vendorId: number) => {
+  const handleEdit = (vendorId: string) => {
     // Check admin permission first
     if (!isAdmin()) {
       toast({
@@ -121,7 +115,7 @@ const VendorList: React.FC = () => {
 
     try {
       // Validate vendor ID exists
-      const vendor = vendors.find((v) => v.ID === vendorId);
+      const vendor = vendors.find((v) => v.id === vendorId);
       if (!vendor) {
         toast({
           title: "Error",
@@ -147,8 +141,7 @@ const VendorList: React.FC = () => {
     }
   };
 
-
-  const handleDelete = async (vendorId: number) => {
+  const handleDelete = async (vendorId: string) => {
     // Check admin permission first
     if (!isAdmin()) {
       toast({
@@ -174,13 +167,13 @@ const VendorList: React.FC = () => {
     }
 
     try {
-      const { error } = await window.ezsite.apis.tableDelete('11729', { ID: vendorId });
-      if (error) throw error;
-
+      await vendorService.deleteVendor(vendorId);
+      
       toast({
         title: "Success",
         description: "Vendor deleted successfully"
       });
+      
       loadVendors();
       setViewModalOpen(false);
     } catch (error) {
@@ -197,16 +190,17 @@ const VendorList: React.FC = () => {
     if (!selectedVendor) return;
 
     const csvContent = [
-    'Field,Value',
-    `Vendor Name,${selectedVendor.vendor_name}`,
-    `Contact Person,${selectedVendor.contact_person}`,
-    `Email,${selectedVendor.email}`,
-    `Phone,${selectedVendor.phone}`,
-    `Address,${selectedVendor.address}`,
-    `Category,${selectedVendor.category}`,
-    `Payment Terms,${selectedVendor.payment_terms}`,
-    `Status,${selectedVendor.is_active ? 'Active' : 'Inactive'}`].
-    join('\n');
+      'Field,Value',
+      `Vendor Name,${selectedVendor.vendor_name}`,
+      `Contact Person,${selectedVendor.contact_person}`,
+      `Email,${selectedVendor.email || 'N/A'}`,
+      `Phone,${selectedVendor.phone || 'N/A'}`,
+      `Address,${selectedVendor.address || 'N/A'}`,
+      `Category,${selectedVendor.category}`,
+      `Payment Terms,${selectedVendor.payment_terms || 'N/A'}`,
+      `Status,${selectedVendor.is_active ? 'Active' : 'Inactive'}`,
+      `Documents,${selectedVendor.documents?.length || 0} files`
+    ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -240,7 +234,7 @@ const VendorList: React.FC = () => {
   useListKeyboardShortcuts(
     selectedVendorId,
     (id) => {
-      const vendor = vendors.find((v) => v.ID === id);
+      const vendor = vendors.find((v) => v.id === id);
       if (vendor) handleView(vendor);
     },
     handleEdit,
@@ -249,73 +243,81 @@ const VendorList: React.FC = () => {
   );
 
   const getCategoryBadgeColor = (category: string) => {
-    const colors = {
+    const colors: Record<string, string> = {
       'Fuel Supplier': 'bg-blue-500',
       'Food & Beverages': 'bg-green-500',
       'Automotive': 'bg-orange-500',
       'Maintenance': 'bg-purple-500',
       'Office Supplies': 'bg-gray-500',
-      'Technology': 'bg-indigo-500'
+      'Technology': 'bg-indigo-500',
+      'Insurance': 'bg-yellow-500',
+      'Legal Services': 'bg-red-500',
+      'Marketing': 'bg-pink-500'
     };
-    return colors[category as keyof typeof colors] || 'bg-gray-500';
+    return colors[category] || 'bg-gray-500';
   };
-
-  const totalPages = Math.ceil(totalCount / pageSize);
 
   // Define view modal fields
   const getViewModalFields = (vendor: Vendor) => [
-  {
-    key: 'vendor_name',
-    label: 'Vendor Name',
-    value: vendor.vendor_name,
-    type: 'text' as const,
-    icon: Building2
-  },
-  {
-    key: 'contact_person',
-    label: 'Contact Person',
-    value: vendor.contact_person,
-    type: 'text' as const
-  },
-  {
-    key: 'email',
-    label: 'Email',
-    value: vendor.email,
-    type: 'email' as const
-  },
-  {
-    key: 'phone',
-    label: 'Phone',
-    value: vendor.phone,
-    type: 'phone' as const
-  },
-  {
-    key: 'address',
-    label: 'Address',
-    value: vendor.address,
-    type: 'text' as const,
-    icon: MapPin
-  },
-  {
-    key: 'category',
-    label: 'Category',
-    value: vendor.category,
-    type: 'badge' as const,
-    badgeColor: getCategoryBadgeColor(vendor.category)
-  },
-  {
-    key: 'payment_terms',
-    label: 'Payment Terms',
-    value: vendor.payment_terms,
-    type: 'text' as const
-  },
-  {
-    key: 'is_active',
-    label: 'Status',
-    value: vendor.is_active,
-    type: 'boolean' as const
-  }];
-
+    {
+      key: 'vendor_name',
+      label: 'Vendor Name',
+      value: vendor.vendor_name,
+      type: 'text' as const,
+      icon: Building2
+    },
+    {
+      key: 'contact_person',
+      label: 'Contact Person',
+      value: vendor.contact_person,
+      type: 'text' as const
+    },
+    {
+      key: 'email',
+      label: 'Email',
+      value: vendor.email || 'N/A',
+      type: 'email' as const
+    },
+    {
+      key: 'phone',
+      label: 'Phone',
+      value: vendor.phone || 'N/A',
+      type: 'phone' as const
+    },
+    {
+      key: 'address',
+      label: 'Address',
+      value: vendor.address || 'N/A',
+      type: 'text' as const,
+      icon: MapPin
+    },
+    {
+      key: 'category',
+      label: 'Category',
+      value: vendor.category,
+      type: 'badge' as const,
+      badgeColor: getCategoryBadgeColor(vendor.category)
+    },
+    {
+      key: 'payment_terms',
+      label: 'Payment Terms',
+      value: vendor.payment_terms || 'N/A',
+      type: 'text' as const
+    },
+    {
+      key: 'is_active',
+      label: 'Status',
+      value: vendor.is_active,
+      type: 'boolean' as const
+    },
+    {
+      key: 'documents',
+      label: 'Documents',
+      value: `${vendor.documents?.length || 0} files`,
+      type: 'text' as const,
+      icon: FileText
+    }
+  ];
 
   return (
     <div className="space-y-6">
@@ -328,21 +330,23 @@ const VendorList: React.FC = () => {
                 <span>Vendors</span>
               </CardTitle>
               <CardDescription>
-                Manage your vendor contacts and information
+                Manage your vendor contacts and information with Supabase integration
               </CardDescription>
             </div>
             
             {/* Only show Add Vendor button if create permission is enabled */}
-            {canCreateVendor ?
-            <Button onClick={handleCreateVendor} className="flex items-center space-x-2">
+            {canCreateVendor ? (
+              <Button onClick={handleCreateVendor} className="flex items-center space-x-2">
                 <Plus className="w-4 h-4" />
                 <span>Add Vendor</span>
-              </Button> :
-            isModuleAccessEnabled &&
-            <Badge variant="secondary" className="text-xs">
-                Create access disabled by admin
-              </Badge>
-            }
+              </Button>
+            ) : (
+              isModuleAccessEnabled && (
+                <Badge variant="secondary" className="text-xs">
+                  Create access disabled by admin
+                </Badge>
+              )
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -354,36 +358,34 @@ const VendorList: React.FC = () => {
                 placeholder="Search vendors..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10" />
-
+                className="pl-10"
+              />
             </div>
           </div>
 
-          {/* Keyboard shortcuts hint */}
-          
-
           {/* Vendors Table */}
-          {loading ?
-          <div className="space-y-4">
-              {[...Array(5)].map((_, i) =>
-            <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
-            )}
-            </div> :
-          vendors.length === 0 ?
-          <div className="text-center py-8">
+          {loading ? (
+            <div className="space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
+              ))}
+            </div>
+          ) : vendors.length === 0 ? (
+            <div className="text-center py-8">
               <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No vendors found</p>
-              {canCreateVendor &&
-            <Button
-              variant="outline"
-              className="mt-4"
-              onClick={handleCreateVendor}>
+              {canCreateVendor && (
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                  onClick={handleCreateVendor}
+                >
                   Add Your First Vendor
                 </Button>
-            }
-            </div> :
-
-          <div className="border rounded-lg overflow-hidden">
+              )}
+            </div>
+          ) : (
+            <div className="border rounded-lg overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -393,30 +395,31 @@ const VendorList: React.FC = () => {
                     <TableHead>Category</TableHead>
                     <TableHead>Payment Terms</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Documents</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {vendors.map((vendor, index) =>
-                <motion.tr
-                  key={vendor.ID}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className={`border-b hover:bg-gray-50 transition-colors cursor-pointer ${
-                  selectedVendorId === vendor.ID ? 'bg-blue-50 border-blue-200' : ''}`
-                  }
-                  onClick={() => setSelectedVendorId(vendor.ID)}>
-
+                  {vendors.map((vendor, index) => (
+                    <motion.tr
+                      key={vendor.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className={`border-b hover:bg-gray-50 transition-colors cursor-pointer ${
+                        selectedVendorId === vendor.id ? 'bg-blue-50 border-blue-200' : ''
+                      }`}
+                      onClick={() => setSelectedVendorId(vendor.id)}
+                    >
                       <TableCell>
                         <div>
                           <p className="font-medium">{vendor.vendor_name}</p>
-                          {vendor.address &&
-                      <div className="flex items-center space-x-1 text-sm text-gray-500 mt-1">
+                          {vendor.address && (
+                            <div className="flex items-center space-x-1 text-sm text-gray-500 mt-1">
                               <MapPin className="w-3 h-3" />
                               <span className="truncate max-w-xs">{vendor.address}</span>
                             </div>
-                      }
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -424,18 +427,18 @@ const VendorList: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1">
-                          {vendor.email &&
-                      <div className="flex items-center space-x-1 text-sm">
+                          {vendor.email && (
+                            <div className="flex items-center space-x-1 text-sm">
                               <Mail className="w-3 h-3" />
                               <span>{vendor.email}</span>
                             </div>
-                      }
-                          {vendor.phone &&
-                      <div className="flex items-center space-x-1 text-sm">
+                          )}
+                          {vendor.phone && (
+                            <div className="flex items-center space-x-1 text-sm">
                               <Phone className="w-3 h-3" />
                               <span>{vendor.phone}</span>
                             </div>
-                      }
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -452,57 +455,67 @@ const VendorList: React.FC = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
+                        <div className="flex items-center space-x-1">
+                          <FileText className="w-4 h-4 text-gray-400" />
+                          <span className="text-sm text-gray-600">
+                            {vendor.documents?.length || 0}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
                         <div className="flex items-center space-x-2">
                           <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleView(vendor);
-                        }}
-                        className="text-blue-600 hover:text-blue-700">
-
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleView(vendor);
+                            }}
+                            className="text-blue-600 hover:text-blue-700"
+                          >
                             <Eye className="w-4 h-4" />
                           </Button>
                           
                           {/* Only show Edit button if user is admin */}
-                          {isAdmin() && canEditVendor &&
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit(vendor.ID);
-                        }}>
+                          {isAdmin() && canEditVendor && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEdit(vendor.id);
+                              }}
+                            >
                               <Edit className="w-4 h-4" />
                             </Button>
-                      }
+                          )}
                           
                           {/* Only show Delete button if user is admin */}
-                          {isAdmin() && canDeleteVendor &&
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(vendor.ID);
-                        }}
-                        className="text-red-600 hover:text-red-700">
+                          {isAdmin() && canDeleteVendor && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(vendor.id);
+                              }}
+                              className="text-red-600 hover:text-red-700"
+                            >
                               <Trash2 className="w-4 h-4" />
                             </Button>
-                      }
+                          )}
                         </div>
                       </TableCell>
                     </motion.tr>
-                )}
+                  ))}
                 </TableBody>
               </Table>
             </div>
-          }
+          )}
 
           {/* Show permission status when actions are disabled */}
-          {(!isAdmin() || !canEditVendor || !canDeleteVendor) && isModuleAccessEnabled &&
-          <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          {(!isAdmin() || !canEditVendor || !canDeleteVendor) && isModuleAccessEnabled && (
+            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
               <p className="text-sm text-amber-700">
                 <strong>Access Restrictions:</strong>
                 {!isAdmin() && " Edit and Delete access restricted to administrators only."}
@@ -510,66 +523,66 @@ const VendorList: React.FC = () => {
                 {isAdmin() && !canDeleteVendor && " Delete access disabled by admin."}
               </p>
             </div>
-          }
+          )}
 
           {/* Pagination */}
-          {totalPages > 1 &&
-          <div className="flex items-center justify-between mt-6">
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-6">
               <p className="text-sm text-gray-700">
                 Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} vendors
               </p>
               <div className="flex items-center space-x-2">
                 <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}>
-
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                >
                   Previous
                 </Button>
                 <span className="text-sm">
                   Page {currentPage} of {totalPages}
                 </span>
                 <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}>
-
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                >
                   Next
                 </Button>
               </div>
             </div>
-          }
+          )}
         </CardContent>
       </Card>
       
       {/* View Modal */}
-      {selectedVendor &&
-      <ViewModal
-        isOpen={viewModalOpen}
-        onClose={() => {
-          setViewModalOpen(false);
-          setSelectedVendor(null);
-          setSelectedVendorId(null);
-        }}
-        title={selectedVendor.vendor_name}
-        subtitle={`Contact: ${selectedVendor.contact_person} • ${selectedVendor.category}`}
-        data={selectedVendor}
-        fields={getViewModalFields(selectedVendor)}
-        onEdit={() => {
-          setViewModalOpen(false);
-          handleEdit(selectedVendor.ID);
-        }}
-        onDelete={() => handleDelete(selectedVendor.ID)}
-        onExport={handleExport}
-        canEdit={isAdmin() && canEditVendor}
-        canDelete={isAdmin() && canDeleteVendor}
-        canExport={true} />
-
-      }
-    </div>);
-
+      {selectedVendor && (
+        <ViewModal
+          isOpen={viewModalOpen}
+          onClose={() => {
+            setViewModalOpen(false);
+            setSelectedVendor(null);
+            setSelectedVendorId(null);
+          }}
+          title={selectedVendor.vendor_name}
+          subtitle={`Contact: ${selectedVendor.contact_person} • ${selectedVendor.category}`}
+          data={selectedVendor}
+          fields={getViewModalFields(selectedVendor)}
+          onEdit={() => {
+            setViewModalOpen(false);
+            handleEdit(selectedVendor.id);
+          }}
+          onDelete={() => handleDelete(selectedVendor.id)}
+          onExport={handleExport}
+          canEdit={isAdmin() && canEditVendor}
+          canDelete={isAdmin() && canDeleteVendor}
+          canExport={true}
+        />
+      )}
+    </div>
+  );
 };
 
 export default VendorList;

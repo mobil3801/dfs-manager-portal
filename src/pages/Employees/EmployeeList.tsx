@@ -117,22 +117,22 @@ const EmployeeList: React.FC = () => {
 
   // Real-time subscription for employee updates
   useEffect(() => {
-    const channel = supabase
-      .channel('employee-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'employees'
-        },
-        (payload) => {
-          console.log('Employee data changed:', payload);
-          // Reload employees when data changes
-          loadEmployees();
-        }
-      )
-      .subscribe();
+    const channel = supabase.
+    channel('employee-changes').
+    on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'employees'
+      },
+      (payload) => {
+        console.log('Employee data changed:', payload);
+        // Reload employees when data changes
+        loadEmployees();
+      }
+    ).
+    subscribe();
 
     return () => {
       supabase.removeChannel(channel);

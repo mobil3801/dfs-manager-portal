@@ -226,12 +226,12 @@ const EmployeeForm: React.FC = () => {
         console.log('Updating employee...');
 
         // First check if employee_id is unique (excluding current record)
-        const { data: existingEmployee, error: duplicateError } = await supabase
-          .from('employees')
-          .select('id')
-          .eq('employee_id', dataToSubmit.employee_id)
-          .neq('id', id)
-          .single();
+        const { data: existingEmployee, error: duplicateError } = await supabase.
+        from('employees').
+        select('id').
+        eq('employee_id', dataToSubmit.employee_id).
+        neq('id', id).
+        single();
 
         if (duplicateError && duplicateError.code !== 'PGRST116') {
           console.error('Error checking for duplicate employee ID:', duplicateError);
@@ -247,12 +247,12 @@ const EmployeeForm: React.FC = () => {
           return;
         }
 
-        const { data, error } = await supabase
-          .from('employees')
-          .update(dataToSubmit)
-          .eq('id', id)
-          .select()
-          .single();
+        const { data, error } = await supabase.
+        from('employees').
+        update(dataToSubmit).
+        eq('id', id).
+        select().
+        single();
 
         if (error) {
           console.error('Update error:', error);
@@ -269,11 +269,11 @@ const EmployeeForm: React.FC = () => {
         console.log('Creating employee...');
 
         // Check if employee_id is unique before creating
-        const { data: existingEmployee, error: duplicateError } = await supabase
-          .from('employees')
-          .select('id')
-          .eq('employee_id', dataToSubmit.employee_id)
-          .single();
+        const { data: existingEmployee, error: duplicateError } = await supabase.
+        from('employees').
+        select('id').
+        eq('employee_id', dataToSubmit.employee_id).
+        single();
 
         if (duplicateError && duplicateError.code !== 'PGRST116') {
           console.error('Error checking for duplicate employee ID:', duplicateError);
@@ -294,11 +294,11 @@ const EmployeeForm: React.FC = () => {
           created_at: new Date().toISOString()
         };
 
-        const { data, error } = await supabase
-          .from('employees')
-          .insert([createData])
-          .select()
-          .single();
+        const { data, error } = await supabase.
+        from('employees').
+        insert([createData]).
+        select().
+        single();
 
         if (error) {
           console.error('Create error:', error);

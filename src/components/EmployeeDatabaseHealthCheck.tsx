@@ -3,17 +3,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
-import { 
-  Database, 
-  CheckCircle, 
-  XCircle, 
-  AlertCircle, 
+import {
+  Database,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
   RefreshCw,
   Users,
   HardDrive,
   Wifi,
-  Activity
-} from 'lucide-react';
+  Activity } from
+'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 interface DatabaseStatus {
@@ -49,10 +49,10 @@ const EmployeeDatabaseHealthCheck: React.FC = () => {
 
     try {
       // Test database connection and table access
-      const { data, error } = await supabase
-        .from('employees')
-        .select('id, created_at', { count: 'exact' })
-        .limit(1);
+      const { data, error } = await supabase.
+      from('employees').
+      select('id, created_at', { count: 'exact' }).
+      limit(1);
 
       if (error) {
         newStatus.connection = 'disconnected';
@@ -64,9 +64,9 @@ const EmployeeDatabaseHealthCheck: React.FC = () => {
       }
 
       // Get record count
-      const { count, error: countError } = await supabase
-        .from('employees')
-        .select('*', { count: 'exact', head: true });
+      const { count, error: countError } = await supabase.
+      from('employees').
+      select('*', { count: 'exact', head: true });
 
       if (!countError) {
         newStatus.recordCount = count || 0;
@@ -74,7 +74,7 @@ const EmployeeDatabaseHealthCheck: React.FC = () => {
 
       // Test storage access
       const { data: buckets, error: storageError } = await supabase.storage.listBuckets();
-      
+
       if (storageError) {
         console.warn('Storage access check failed:', storageError);
         newStatus.storageAccess = false;
@@ -113,48 +113,48 @@ const EmployeeDatabaseHealthCheck: React.FC = () => {
   const getStatusBadge = (type: 'connection' | 'table' | 'storage') => {
     switch (type) {
       case 'connection':
-        return status.connection === 'connected' ? (
-          <Badge className="bg-green-500 text-white">
+        return status.connection === 'connected' ?
+        <Badge className="bg-green-500 text-white">
             <CheckCircle className="w-3 h-3 mr-1" />
             Connected
-          </Badge>
-        ) : status.connection === 'disconnected' ? (
-          <Badge className="bg-red-500 text-white">
+          </Badge> :
+        status.connection === 'disconnected' ?
+        <Badge className="bg-red-500 text-white">
             <XCircle className="w-3 h-3 mr-1" />
             Disconnected
-          </Badge>
-        ) : (
-          <Badge className="bg-yellow-500 text-white">
+          </Badge> :
+
+        <Badge className="bg-yellow-500 text-white">
             <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
             Checking...
-          </Badge>
-        );
+          </Badge>;
+
 
       case 'table':
-        return status.tableExists ? (
-          <Badge className="bg-green-500 text-white">
+        return status.tableExists ?
+        <Badge className="bg-green-500 text-white">
             <CheckCircle className="w-3 h-3 mr-1" />
             Available
-          </Badge>
-        ) : (
-          <Badge className="bg-red-500 text-white">
+          </Badge> :
+
+        <Badge className="bg-red-500 text-white">
             <XCircle className="w-3 h-3 mr-1" />
             Not Found
-          </Badge>
-        );
+          </Badge>;
+
 
       case 'storage':
-        return status.storageAccess ? (
-          <Badge className="bg-green-500 text-white">
+        return status.storageAccess ?
+        <Badge className="bg-green-500 text-white">
             <CheckCircle className="w-3 h-3 mr-1" />
             Accessible
-          </Badge>
-        ) : (
-          <Badge className="bg-orange-500 text-white">
+          </Badge> :
+
+        <Badge className="bg-orange-500 text-white">
             <AlertCircle className="w-3 h-3 mr-1" />
             Limited
-          </Badge>
-        );
+          </Badge>;
+
 
       default:
         return null;
@@ -173,8 +173,8 @@ const EmployeeDatabaseHealthCheck: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={checkDatabaseHealth}
-            disabled={isChecking}
-          >
+            disabled={isChecking}>
+
             <RefreshCw className={`w-4 h-4 mr-2 ${isChecking ? 'animate-spin' : ''}`} />
             {isChecking ? 'Checking...' : 'Refresh'}
           </Button>
@@ -225,19 +225,19 @@ const EmployeeDatabaseHealthCheck: React.FC = () => {
         </div>
 
         {/* Error Display */}
-        {status.error && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+        {status.error &&
+        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
             <div className="flex items-center space-x-2 text-red-800">
               <XCircle className="w-4 h-4" />
               <span className="text-sm font-medium">Connection Error:</span>
             </div>
             <p className="text-sm text-red-700 mt-1">{status.error}</p>
           </div>
-        )}
+        }
 
         {/* Success Summary */}
-        {status.connection === 'connected' && (
-          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+        {status.connection === 'connected' &&
+        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
             <div className="flex items-center space-x-2 text-green-800">
               <CheckCircle className="w-4 h-4" />
               <span className="text-sm font-medium">All Systems Operational</span>
@@ -246,16 +246,16 @@ const EmployeeDatabaseHealthCheck: React.FC = () => {
               Database connected with {status.recordCount} employee records. 
               {status.storageAccess ? ' File storage is accessible.' : ' Note: File storage has limited access.'}
             </p>
-            {status.lastUpdate && (
-              <p className="text-xs text-green-600 mt-2">
+            {status.lastUpdate &&
+          <p className="text-xs text-green-600 mt-2">
                 Last checked: {new Date(status.lastUpdate).toLocaleString()}
               </p>
-            )}
+          }
           </div>
-        )}
+        }
       </CardContent>
-    </Card>
-  );
+    </Card>);
+
 };
 
 export default EmployeeDatabaseHealthCheck;

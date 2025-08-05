@@ -290,9 +290,48 @@ class SimpleSupabaseClient {
             publicUrl: `${this.url}/storage/v1/object/public/${bucket}/${path}`
           }
         };
+      },
+
+      remove: async (paths: string[]) => {
+        try {
+          const response = await fetch(`${this.url}/storage/v1/object/${bucket}`, {
+            method: 'DELETE',
+            headers: this.getHeaders(true),
+            body: JSON.stringify({ prefixes: paths })
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            return { data: null, error };
+          }
+
+          return { data: null, error: null };
+        } catch (error: any) {
+          return { data: null, error: { message: error.message } };
+        }
       }
     })
   };
+
+  // Real-time subscription methods (simplified)
+  channel(channelName: string) {
+    return {
+      on: (event: string, options: any, callback: (payload: any) => void) => {
+        // Simplified implementation - in production you'd use WebSocket
+        console.log(`Subscribed to ${event} on ${channelName}`);
+        return this;
+      },
+      subscribe: () => {
+        return { unsubscribe: () => console.log('Unsubscribed') };
+      }
+    };
+  }
+
+  removeChannel(subscription: any) {
+    if (subscription && subscription.unsubscribe) {
+      subscription.unsubscribe();
+    }
+  }
 }
 
 class InsertBuilder {
@@ -444,25 +483,42 @@ class QueryBuilder {
       const query = this.buildQuery();
       const url = `${this.client.supabaseUrl}/rest/v1/${this.table}?${query}`;
 
+      const headers = (this.client as any).getHeaders(true);
+      if (this.countOption) {
+        headers['Prefer'] = `count=${this.countOption}`;
+      }
+
       const response = await fetch(url, {
         method: 'GET',
-        headers: (this.client as any).getHeaders(true)
+        headers
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        return { data: null, error: data };
+        return { data: null, error: data, count: null };
+      }
+
+      // Get count from response headers if requested
+      let count = null;
+      if (this.countOption) {
+        const contentRange = response.headers.get('Content-Range');
+        if (contentRange) {
+          const match = contentRange.match(/\/(\d+)$/);
+          if (match) {
+            count = parseInt(match[1], 10);
+          }
+        }
       }
 
       // For single() calls, return the first item
       if (this.limitCount === 1 && Array.isArray(data)) {
-        return { data: data[0] || null, error: null };
+        return { data: data[0] || null, error: null, count };
       }
 
-      return { data, error: null };
+      return { data, error: null, count };
     } catch (error: any) {
-      return { data: null, error: { message: error.message } };
+      return { data: null, error: { message: error.message }, count: null };
     }
   }
 
