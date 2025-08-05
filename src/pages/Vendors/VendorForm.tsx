@@ -60,7 +60,7 @@ const VendorFormContent: React.FC = () => {
       await vendorService.checkTableExists();
       setSupabaseConnected(true);
       setConnectionError(null);
-      
+
       toast({
         title: "Connection Successful",
         description: "Supabase database and storage are properly connected",
@@ -69,7 +69,7 @@ const VendorFormContent: React.FC = () => {
     } catch (error: any) {
       console.error('Supabase connection test failed:', error);
       setSupabaseConnected(false);
-      
+
       if (error.message?.includes('relation "vendors" does not exist')) {
         setConnectionError('DATABASE_TABLE_MISSING');
       } else if (error.message?.includes('JWT')) {
@@ -77,7 +77,7 @@ const VendorFormContent: React.FC = () => {
       } else {
         setConnectionError('CONNECTION_ERROR');
       }
-      
+
       toast({
         title: "Connection Error",
         description: "Failed to connect to Supabase database. Please check your configuration.",
@@ -289,8 +289,8 @@ const VendorFormContent: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -299,14 +299,14 @@ const VendorFormContent: React.FC = () => {
       <Card className={`border ${supabaseConnected ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50'}`}>
         <CardContent className="pt-4">
           <div className="flex items-center space-x-2">
-            {supabaseConnected ? (
-              <>
+            {supabaseConnected ?
+            <>
                 <CheckCircle className="w-5 h-5 text-green-600" />
                 <span className="text-green-700 font-medium">Supabase Connected</span>
                 <span className="text-green-600 text-sm">Database and storage are properly connected</span>
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 <AlertCircle className="w-5 h-5 text-amber-600" />
                 <span className="text-amber-700 font-medium">Connection Issue</span>
                 <Button size="sm" variant="outline" onClick={testSupabaseConnection}>
@@ -314,7 +314,7 @@ const VendorFormContent: React.FC = () => {
                   Test Connection
                 </Button>
               </>
-            )}
+            }
           </div>
         </CardContent>
       </Card>
@@ -338,8 +338,8 @@ const VendorFormContent: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {!selectedStation && !isEditing ? (
-            <div className="space-y-6">
+          {!selectedStation && !isEditing ?
+          <div className="space-y-6">
               <div className="text-center space-y-4">
                 <h3 className="text-lg font-semibold">Select Station First</h3>
                 <p className="text-gray-600">Please select a station before creating a vendor.</p>
@@ -347,86 +347,86 @@ const VendorFormContent: React.FC = () => {
               
               <div className="max-w-md mx-auto space-y-4">
                 <StationDropdown
-                  id="station"
-                  label="Station"
-                  value={selectedStation}
-                  onValueChange={handleStationSelect}
-                  placeholder="Select a station"
-                  required
-                  includeAll={true} // Vendors can be associated with ALL stations or specific ones
-                />
+                id="station"
+                label="Station"
+                value={selectedStation}
+                onValueChange={handleStationSelect}
+                placeholder="Select a station"
+                required
+                includeAll={true} // Vendors can be associated with ALL stations or specific ones
+              />
               </div>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {selectedStation && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            </div> :
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+              {selectedStation &&
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-medium text-blue-900">Selected Station</h4>
                       <p className="text-blue-700">
                         {selectedStation === 'ALL' ? 'All Stations' : selectedStation}
-                        {selectedStation === 'ALL' && (
-                          <span className="text-sm text-blue-600 ml-2">(Multi-station vendor)</span>
-                        )}
+                        {selectedStation === 'ALL' &&
+                    <span className="text-sm text-blue-600 ml-2">(Multi-station vendor)</span>
+                    }
                       </p>
                     </div>
-                    {!isEditing && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelectedStation('')}
-                      >
+                    {!isEditing &&
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedStation('')}>
+
                         Change Station
                       </Button>
-                    )}
+                }
                   </div>
                 </div>
-              )}
+            }
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="vendor_name">Vendor Name *</Label>
                   <Input
-                    id="vendor_name"
-                    value={formData.vendor_name}
-                    onChange={(e) => handleInputChange('vendor_name', e.target.value)}
-                    placeholder="Enter vendor company name"
-                    required
-                  />
+                  id="vendor_name"
+                  value={formData.vendor_name}
+                  onChange={(e) => handleInputChange('vendor_name', e.target.value)}
+                  placeholder="Enter vendor company name"
+                  required />
+
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="contact_person">Contact Person *</Label>
                   <Input
-                    id="contact_person"
-                    value={formData.contact_person}
-                    onChange={(e) => handleInputChange('contact_person', e.target.value)}
-                    placeholder="Enter primary contact name"
-                    required
-                  />
+                  id="contact_person"
+                  value={formData.contact_person}
+                  onChange={(e) => handleInputChange('contact_person', e.target.value)}
+                  placeholder="Enter primary contact name"
+                  required />
+
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    placeholder="Enter email address"
-                  />
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  placeholder="Enter email address" />
+
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
                   <Input
-                    id="phone"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                    placeholder="Enter phone number"
-                  />
+                  id="phone"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  placeholder="Enter phone number" />
+
                 </div>
 
                 <div className="space-y-2">
@@ -436,11 +436,11 @@ const VendorFormContent: React.FC = () => {
                       <SelectValue placeholder="Select vendor category" />
                     </SelectTrigger>
                     <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category} value={category}>
+                      {categories.map((category) =>
+                    <SelectItem key={category} value={category}>
                           {category}
                         </SelectItem>
-                      ))}
+                    )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -452,11 +452,11 @@ const VendorFormContent: React.FC = () => {
                       <SelectValue placeholder="Select payment terms" />
                     </SelectTrigger>
                     <SelectContent>
-                      {paymentTermsOptions.map((terms) => (
-                        <SelectItem key={terms} value={terms}>
+                      {paymentTermsOptions.map((terms) =>
+                    <SelectItem key={terms} value={terms}>
                           {terms}
                         </SelectItem>
-                      ))}
+                    )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -465,22 +465,22 @@ const VendorFormContent: React.FC = () => {
               <div className="space-y-2">
                 <Label htmlFor="address">Address</Label>
                 <Textarea
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => handleInputChange('address', e.target.value)}
-                  placeholder="Enter full business address"
-                  rows={3}
-                />
+                id="address"
+                value={formData.address}
+                onChange={(e) => handleInputChange('address', e.target.value)}
+                placeholder="Enter full business address"
+                rows={3} />
+
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="is_active">Active Status</Label>
                 <div className="flex items-center space-x-2">
                   <Switch
-                    id="is_active"
-                    checked={formData.is_active}
-                    onCheckedChange={(checked) => handleInputChange('is_active', checked)}
-                  />
+                  id="is_active"
+                  checked={formData.is_active}
+                  onCheckedChange={(checked) => handleInputChange('is_active', checked)} />
+
                   <span className="text-sm text-gray-600">
                     {formData.is_active ? 'Active vendor' : 'Inactive vendor'}
                   </span>
@@ -488,47 +488,47 @@ const VendorFormContent: React.FC = () => {
               </div>
 
               {/* Document Upload Section - Only show for editing */}
-              {isEditing && id && supabaseConnected && (
-                <VendorDocumentUpload
-                  vendorId={id}
-                  documents={documents}
-                  onDocumentsChange={handleDocumentsChange}
-                />
-              )}
+              {isEditing && id && supabaseConnected &&
+            <VendorDocumentUpload
+              vendorId={id}
+              documents={documents}
+              onDocumentsChange={handleDocumentsChange} />
+
+            }
 
               <div className="flex items-center justify-end space-x-4">
                 <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate('/vendors')}
-                >
+                type="button"
+                variant="outline"
+                onClick={() => navigate('/vendors')}>
+
                   Cancel
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? (
-                    'Saving...'
-                  ) : (
-                    <>
+                  {loading ?
+                'Saving...' :
+
+                <>
                       <Save className="w-4 h-4 mr-2" />
                       {isEditing ? 'Update Vendor' : 'Create Vendor'}
                     </>
-                  )}
+                }
                 </Button>
               </div>
             </form>
-          )}
+          }
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 };
 
 const VendorForm: React.FC = () => {
   return (
     <VendorErrorBoundary>
       <VendorFormContent />
-    </VendorErrorBoundary>
-  );
+    </VendorErrorBoundary>);
+
 };
 
 export default VendorForm;

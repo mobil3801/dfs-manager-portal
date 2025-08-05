@@ -53,6 +53,7 @@ const ModuleAccessPage = lazy(() => import('@/pages/Admin/ModuleAccessPage'));
 const NavigationDebugPage = lazy(() => import('@/pages/Admin/NavigationDebugPage'));
 const DatabaseMonitoring = lazy(() => import('@/pages/Admin/DatabaseMonitoring'));
 const AuditMonitoring = lazy(() => import('@/pages/Admin/AuditMonitoring'));
+const DatabaseConnectionTest = lazy(() => import('@/pages/DatabaseConnectionTest'));
 
 // Demo and test pages (lazy loaded)
 const ProfilePictureDemo = lazy(() => import('@/components/ProfilePictureDemo'));
@@ -422,6 +423,11 @@ const AppRouter = () => {
             <Route path="admin/audit" element={
             <Suspense fallback={<PageLoader />}>
                 <AuditMonitoring />
+              </Suspense>
+            } />
+            <Route path="admin/database-test" element={
+            <Suspense fallback={<PageLoader />}>
+                <DatabaseConnectionTest />
               </Suspense>
             } />
           </Route>

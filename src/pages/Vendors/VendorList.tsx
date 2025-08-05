@@ -70,7 +70,7 @@ const VendorListContent: React.FC = () => {
           // Reload vendors when changes occur
           loadVendors();
           setRealTimeEnabled(true);
-          
+
           toast({
             title: "Real-time Update",
             description: "Vendor data updated from Supabase",
@@ -100,7 +100,7 @@ const VendorListContent: React.FC = () => {
       await vendorService.checkTableExists();
       setSupabaseConnected(true);
       setConnectionError(null);
-      
+
       toast({
         title: "Connection Successful",
         description: "Supabase database and storage are properly connected",
@@ -110,7 +110,7 @@ const VendorListContent: React.FC = () => {
       console.error('Supabase connection test failed:', error);
       setSupabaseConnected(false);
       setRealTimeEnabled(false);
-      
+
       if (error.message?.includes('relation "vendors" does not exist')) {
         setConnectionError('DATABASE_TABLE_MISSING');
       } else if (error.message?.includes('JWT')) {
@@ -118,7 +118,7 @@ const VendorListContent: React.FC = () => {
       } else {
         setConnectionError('CONNECTION_ERROR');
       }
-      
+
       toast({
         title: "Connection Error",
         description: "Failed to connect to Supabase database. Please check your configuration.",
@@ -279,17 +279,17 @@ const VendorListContent: React.FC = () => {
     if (!selectedVendor) return;
 
     const csvContent = [
-      'Field,Value',
-      `Vendor Name,${selectedVendor.vendor_name}`,
-      `Contact Person,${selectedVendor.contact_person}`,
-      `Email,${selectedVendor.email || 'N/A'}`,
-      `Phone,${selectedVendor.phone || 'N/A'}`,
-      `Address,${selectedVendor.address || 'N/A'}`,
-      `Category,${selectedVendor.category}`,
-      `Payment Terms,${selectedVendor.payment_terms || 'N/A'}`,
-      `Status,${selectedVendor.is_active ? 'Active' : 'Inactive'}`,
-      `Documents,${selectedVendor.documents?.length || 0} files`
-    ].join('\n');
+    'Field,Value',
+    `Vendor Name,${selectedVendor.vendor_name}`,
+    `Contact Person,${selectedVendor.contact_person}`,
+    `Email,${selectedVendor.email || 'N/A'}`,
+    `Phone,${selectedVendor.phone || 'N/A'}`,
+    `Address,${selectedVendor.address || 'N/A'}`,
+    `Category,${selectedVendor.category}`,
+    `Payment Terms,${selectedVendor.payment_terms || 'N/A'}`,
+    `Status,${selectedVendor.is_active ? 'Active' : 'Inactive'}`,
+    `Documents,${selectedVendor.documents?.length || 0} files`].
+    join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -353,65 +353,65 @@ const VendorListContent: React.FC = () => {
 
   // Define view modal fields
   const getViewModalFields = (vendor: Vendor) => [
-    {
-      key: 'vendor_name',
-      label: 'Vendor Name',
-      value: vendor.vendor_name,
-      type: 'text' as const,
-      icon: Building2
-    },
-    {
-      key: 'contact_person',
-      label: 'Contact Person',
-      value: vendor.contact_person,
-      type: 'text' as const
-    },
-    {
-      key: 'email',
-      label: 'Email',
-      value: vendor.email || 'N/A',
-      type: 'email' as const
-    },
-    {
-      key: 'phone',
-      label: 'Phone',
-      value: vendor.phone || 'N/A',
-      type: 'phone' as const
-    },
-    {
-      key: 'address',
-      label: 'Address',
-      value: vendor.address || 'N/A',
-      type: 'text' as const,
-      icon: MapPin
-    },
-    {
-      key: 'category',
-      label: 'Category',
-      value: vendor.category,
-      type: 'badge' as const,
-      badgeColor: getCategoryBadgeColor(vendor.category)
-    },
-    {
-      key: 'payment_terms',
-      label: 'Payment Terms',
-      value: vendor.payment_terms || 'N/A',
-      type: 'text' as const
-    },
-    {
-      key: 'is_active',
-      label: 'Status',
-      value: vendor.is_active,
-      type: 'boolean' as const
-    },
-    {
-      key: 'documents',
-      label: 'Documents',
-      value: `${vendor.documents?.length || 0} files`,
-      type: 'text' as const,
-      icon: FileText
-    }
-  ];
+  {
+    key: 'vendor_name',
+    label: 'Vendor Name',
+    value: vendor.vendor_name,
+    type: 'text' as const,
+    icon: Building2
+  },
+  {
+    key: 'contact_person',
+    label: 'Contact Person',
+    value: vendor.contact_person,
+    type: 'text' as const
+  },
+  {
+    key: 'email',
+    label: 'Email',
+    value: vendor.email || 'N/A',
+    type: 'email' as const
+  },
+  {
+    key: 'phone',
+    label: 'Phone',
+    value: vendor.phone || 'N/A',
+    type: 'phone' as const
+  },
+  {
+    key: 'address',
+    label: 'Address',
+    value: vendor.address || 'N/A',
+    type: 'text' as const,
+    icon: MapPin
+  },
+  {
+    key: 'category',
+    label: 'Category',
+    value: vendor.category,
+    type: 'badge' as const,
+    badgeColor: getCategoryBadgeColor(vendor.category)
+  },
+  {
+    key: 'payment_terms',
+    label: 'Payment Terms',
+    value: vendor.payment_terms || 'N/A',
+    type: 'text' as const
+  },
+  {
+    key: 'is_active',
+    label: 'Status',
+    value: vendor.is_active,
+    type: 'boolean' as const
+  },
+  {
+    key: 'documents',
+    label: 'Documents',
+    value: `${vendor.documents?.length || 0} files`,
+    type: 'text' as const,
+    icon: FileText
+  }];
+
 
   // Show database connection error state
   if (connectionError === 'DATABASE_TABLE_MISSING') {
@@ -451,8 +451,8 @@ const VendorListContent: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -462,30 +462,30 @@ const VendorListContent: React.FC = () => {
         <CardContent className="pt-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              {supabaseConnected ? (
-                <>
+              {supabaseConnected ?
+              <>
                   <CheckCircle className="w-5 h-5 text-green-600" />
                   <span className="text-green-700 font-medium">Supabase Connected</span>
                   <span className="text-green-600 text-sm">Database and storage are properly connected</span>
-                  {realTimeEnabled && (
-                    <Badge variant="outline" className="text-green-600 border-green-300">
+                  {realTimeEnabled &&
+                <Badge variant="outline" className="text-green-600 border-green-300">
                       Real-time Updates
                     </Badge>
-                  )}
-                </>
-              ) : (
-                <>
+                }
+                </> :
+
+              <>
                   <AlertCircle className="w-5 h-5 text-amber-600" />
                   <span className="text-amber-700 font-medium">Connection Issue</span>
                 </>
-              )}
+              }
             </div>
-            {!supabaseConnected && (
-              <Button size="sm" variant="outline" onClick={testSupabaseConnection}>
+            {!supabaseConnected &&
+            <Button size="sm" variant="outline" onClick={testSupabaseConnection}>
                 <RefreshCw className="w-4 h-4 mr-1" />
                 Test Connection
               </Button>
-            )}
+            }
           </div>
         </CardContent>
       </Card>
@@ -504,18 +504,18 @@ const VendorListContent: React.FC = () => {
             </div>
             
             {/* Only show Add Vendor button if create permission is enabled */}
-            {canCreateVendor ? (
-              <Button onClick={handleCreateVendor} className="flex items-center space-x-2" disabled={!supabaseConnected}>
+            {canCreateVendor ?
+            <Button onClick={handleCreateVendor} className="flex items-center space-x-2" disabled={!supabaseConnected}>
                 <Plus className="w-4 h-4" />
                 <span>Add Vendor</span>
-              </Button>
-            ) : (
-              isModuleAccessEnabled && (
-                <Badge variant="secondary" className="text-xs">
+              </Button> :
+
+            isModuleAccessEnabled &&
+            <Badge variant="secondary" className="text-xs">
                   Create access disabled by admin
                 </Badge>
-              )
-            )}
+
+            }
           </div>
         </CardHeader>
         <CardContent>
@@ -528,34 +528,34 @@ const VendorListContent: React.FC = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
-                disabled={!supabaseConnected}
-              />
+                disabled={!supabaseConnected} />
+
             </div>
           </div>
 
           {/* Vendors Table */}
-          {loading ? (
-            <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
-              ))}
-            </div>
-          ) : vendors.length === 0 ? (
-            <div className="text-center py-8">
+          {loading ?
+          <div className="space-y-4">
+              {[...Array(5)].map((_, i) =>
+            <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
+            )}
+            </div> :
+          vendors.length === 0 ?
+          <div className="text-center py-8">
               <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No vendors found</p>
-              {canCreateVendor && supabaseConnected && (
-                <Button
-                  variant="outline"
-                  className="mt-4"
-                  onClick={handleCreateVendor}
-                >
+              {canCreateVendor && supabaseConnected &&
+            <Button
+              variant="outline"
+              className="mt-4"
+              onClick={handleCreateVendor}>
+
                   Add Your First Vendor
                 </Button>
-              )}
-            </div>
-          ) : (
-            <div className="border rounded-lg overflow-hidden">
+            }
+            </div> :
+
+          <div className="border rounded-lg overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -570,26 +570,26 @@ const VendorListContent: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {vendors.map((vendor, index) => (
-                    <motion.tr
-                      key={vendor.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className={`border-b hover:bg-gray-50 transition-colors cursor-pointer ${
-                        selectedVendorId === vendor.id ? 'bg-blue-50 border-blue-200' : ''
-                      }`}
-                      onClick={() => setSelectedVendorId(vendor.id)}
-                    >
+                  {vendors.map((vendor, index) =>
+                <motion.tr
+                  key={vendor.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className={`border-b hover:bg-gray-50 transition-colors cursor-pointer ${
+                  selectedVendorId === vendor.id ? 'bg-blue-50 border-blue-200' : ''}`
+                  }
+                  onClick={() => setSelectedVendorId(vendor.id)}>
+
                       <TableCell>
                         <div>
                           <p className="font-medium">{vendor.vendor_name}</p>
-                          {vendor.address && (
-                            <div className="flex items-center space-x-1 text-sm text-gray-500 mt-1">
+                          {vendor.address &&
+                      <div className="flex items-center space-x-1 text-sm text-gray-500 mt-1">
                               <MapPin className="w-3 h-3" />
                               <span className="truncate max-w-xs">{vendor.address}</span>
                             </div>
-                          )}
+                      }
                         </div>
                       </TableCell>
                       <TableCell>
@@ -597,18 +597,18 @@ const VendorListContent: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1">
-                          {vendor.email && (
-                            <div className="flex items-center space-x-1 text-sm">
+                          {vendor.email &&
+                      <div className="flex items-center space-x-1 text-sm">
                               <Mail className="w-3 h-3" />
                               <span>{vendor.email}</span>
                             </div>
-                          )}
-                          {vendor.phone && (
-                            <div className="flex items-center space-x-1 text-sm">
+                      }
+                          {vendor.phone &&
+                      <div className="flex items-center space-x-1 text-sm">
                               <Phone className="w-3 h-3" />
                               <span>{vendor.phone}</span>
                             </div>
-                          )}
+                      }
                         </div>
                       </TableCell>
                       <TableCell>
@@ -635,57 +635,57 @@ const VendorListContent: React.FC = () => {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleView(vendor);
-                            }}
-                            className="text-blue-600 hover:text-blue-700"
-                          >
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleView(vendor);
+                        }}
+                        className="text-blue-600 hover:text-blue-700">
+
                             <Eye className="w-4 h-4" />
                           </Button>
                           
                           {/* Only show Edit button if user is admin */}
-                          {isAdmin() && canEditVendor && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEdit(vendor.id);
-                              }}
-                            >
+                          {isAdmin() && canEditVendor &&
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(vendor.id);
+                        }}>
+
                               <Edit className="w-4 h-4" />
                             </Button>
-                          )}
+                      }
                           
                           {/* Only show Delete button if user is admin */}
-                          {isAdmin() && canDeleteVendor && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDelete(vendor.id);
-                              }}
-                              className="text-red-600 hover:text-red-700"
-                            >
+                          {isAdmin() && canDeleteVendor &&
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(vendor.id);
+                        }}
+                        className="text-red-600 hover:text-red-700">
+
                               <Trash2 className="w-4 h-4" />
                             </Button>
-                          )}
+                      }
                         </div>
                       </TableCell>
                     </motion.tr>
-                  ))}
+                )}
                 </TableBody>
               </Table>
             </div>
-          )}
+          }
 
           {/* Show permission status when actions are disabled */}
-          {(!isAdmin() || !canEditVendor || !canDeleteVendor) && isModuleAccessEnabled && (
-            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          {(!isAdmin() || !canEditVendor || !canDeleteVendor) && isModuleAccessEnabled &&
+          <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
               <p className="text-sm text-amber-700">
                 <strong>Access Restrictions:</strong>
                 {!isAdmin() && " Edit and Delete access restricted to administrators only."}
@@ -693,74 +693,74 @@ const VendorListContent: React.FC = () => {
                 {isAdmin() && !canDeleteVendor && " Delete access disabled by admin."}
               </p>
             </div>
-          )}
+          }
 
           {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-6">
+          {totalPages > 1 &&
+          <div className="flex items-center justify-between mt-6">
               <p className="text-sm text-gray-700">
                 Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} vendors
               </p>
               <div className="flex items-center space-x-2">
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                >
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}>
+
                   Previous
                 </Button>
                 <span className="text-sm">
                   Page {currentPage} of {totalPages}
                 </span>
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                >
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}>
+
                   Next
                 </Button>
               </div>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
       
       {/* View Modal */}
-      {selectedVendor && (
-        <ViewModal
-          isOpen={viewModalOpen}
-          onClose={() => {
-            setViewModalOpen(false);
-            setSelectedVendor(null);
-            setSelectedVendorId(null);
-          }}
-          title={selectedVendor.vendor_name}
-          subtitle={`Contact: ${selectedVendor.contact_person} • ${selectedVendor.category}`}
-          data={selectedVendor}
-          fields={getViewModalFields(selectedVendor)}
-          onEdit={() => {
-            setViewModalOpen(false);
-            handleEdit(selectedVendor.id);
-          }}
-          onDelete={() => handleDelete(selectedVendor.id)}
-          onExport={handleExport}
-          canEdit={isAdmin() && canEditVendor}
-          canDelete={isAdmin() && canDeleteVendor}
-          canExport={true}
-        />
-      )}
-    </div>
-  );
+      {selectedVendor &&
+      <ViewModal
+        isOpen={viewModalOpen}
+        onClose={() => {
+          setViewModalOpen(false);
+          setSelectedVendor(null);
+          setSelectedVendorId(null);
+        }}
+        title={selectedVendor.vendor_name}
+        subtitle={`Contact: ${selectedVendor.contact_person} • ${selectedVendor.category}`}
+        data={selectedVendor}
+        fields={getViewModalFields(selectedVendor)}
+        onEdit={() => {
+          setViewModalOpen(false);
+          handleEdit(selectedVendor.id);
+        }}
+        onDelete={() => handleDelete(selectedVendor.id)}
+        onExport={handleExport}
+        canEdit={isAdmin() && canEditVendor}
+        canDelete={isAdmin() && canDeleteVendor}
+        canExport={true} />
+
+      }
+    </div>);
+
 };
 
 const VendorList: React.FC = () => {
   return (
     <VendorErrorBoundary>
       <VendorListContent />
-    </VendorErrorBoundary>
-  );
+    </VendorErrorBoundary>);
+
 };
 
 export default VendorList;
