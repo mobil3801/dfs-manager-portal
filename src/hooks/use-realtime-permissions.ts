@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabase';
 
 interface ModulePermissions {
   view: boolean;
@@ -22,7 +23,7 @@ interface UserProfile {
 }
 
 export const useRealtimePermissions = (module: string) => {
-  const { userProfile } = useAuth();
+  const { userProfile } = useSupabaseAuth();
   const [permissions, setPermissions] = useState<ModulePermissions>({
     view: true,
     create: false,
@@ -48,19 +49,15 @@ export const useRealtimePermissions = (module: string) => {
       setLoading(true);
 
       // Fetch user profile with permissions using correct field name
-      const { data, error } = await window.ezsite.apis.tablePage('11725', {
-        PageNo: 1,
-        PageSize: 1,
-        OrderByField: 'id',
-        IsAsc: true,
-        Filters: [
-        { name: 'user_id', op: 'Equal', value: userProfile.user_id }]
-
-      });
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('user_id', userProfile.user_id)
+        .single();
 
       if (error) throw error;
 
-      const user = data?.List?.[0];
+      const user = data;
       if (user) {
         let userPermissions = {};
         if (user.detailed_permissions) {
@@ -129,19 +126,15 @@ export const useRealtimePermissions = (module: string) => {
       setPermissions(newPermissions);
 
       // Get current user data
-      const { data, error } = await window.ezsite.apis.tablePage('11725', {
-        PageNo: 1,
-        PageSize: 1,
-        OrderByField: 'id',
-        IsAsc: true,
-        Filters: [
-        { name: 'user_id', op: 'Equal', value: userProfile.user_id }]
-
-      });
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('user_id', userProfile.user_id)
+        .single();
 
       if (error) throw error;
 
-      const user = data?.List?.[0];
+      const user = data;
       if (!user) {
         throw new Error('User not found');
       }
@@ -163,12 +156,14 @@ export const useRealtimePermissions = (module: string) => {
       };
 
       // Save to database
-      const updateResult = await window.ezsite.apis.tableUpdate('11725', {
-        id: user.id,
-        detailed_permissions: JSON.stringify(updatedPermissions)
-      });
+      const { error: updateError } = await supabase
+        .from('user_profiles')
+        .update({
+          detailed_permissions: JSON.stringify(updatedPermissions)
+        })
+        .eq('id', user.id);
 
-      if (updateResult.error) throw updateResult.error;
+      if (updateError) throw updateError;
 
       toast({
         title: "Permission Updated",
