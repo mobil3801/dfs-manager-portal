@@ -1,470 +1,272 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import AuditLoggerService from '@/services/auditLogger';
 
-const auditLogger = AuditLoggerService.getInstance();
-
-interface User {
-  ID: number;
-  Name: string;
-  Email: string;
-  CreateTime: string;
-}
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { User, Session, AuthError } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
+import { toast } from '@/hooks/use-toast'
 
 interface UserProfile {
-  id: number;
-  user_id: number;
-  role: string;
-  station: string;
-  employee_id: string;
-  phone: string;
-  hire_date: string;
-  is_active: boolean;
-  detailed_permissions: any;
-  profile_image_id?: number | null;
+  id: string
+  email: string
+  full_name: string | null
+  role: string
+  station_id: string | null
+  phone: string | null
+  avatar_url: string | null
+  is_active: boolean
+  created_at: string
+  updated_at: string
 }
 
 interface AuthContextType {
-  user: User | null;
-  userProfile: UserProfile | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  authError: string | null;
-  isInitialized: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => Promise<void>;
-  register: (email: string, password: string, name: string) => Promise<boolean>;
-  refreshUserData: () => Promise<void>;
-  hasPermission: (action: string, resource?: string) => boolean;
-  isAdmin: () => boolean;
-  isManager: () => boolean;
-  clearError: () => void;
+  user: User | null
+  userProfile: UserProfile | null
+  session: Session | null
+  loading: boolean
+  signUp: (email: string, password: string, userData?: { full_name?: string; role?: string }) => Promise<void>
+  signIn: (email: string, password: string) => Promise<void>
+  signOut: () => Promise<void>
+  resetPassword: (email: string) => Promise<void>
+  updateProfile: (updates: Partial<UserProfile>) => Promise<void>
+  refreshProfile: () => Promise<void>
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// Default guest user profile for non-authenticated users
-const GUEST_PROFILE: UserProfile = {
-  id: 0,
-  user_id: 0,
-  role: 'Guest',
-  station: '',
-  employee_id: '',
-  phone: '',
-  hire_date: '',
-  is_active: false,
-  detailed_permissions: {},
-  profile_image_id: null
-};
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
+  const [loading, setLoading] = useState(true)
 
-export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [loginInProgress, setLoginInProgress] = useState(false); // Prevent multiple concurrent logins
-  const { toast } = useToast();
-
-  const isAuthenticated = !!user && !!userProfile;
-
-  const clearError = () => {
-    setAuthError(null);
-  };
-
-  const safeFetchUserData = async (showErrors = false): Promise<{success: boolean;userData?: User;}> => {
+  // Load user profile from database
+  const loadUserProfile = async (userId: string) => {
     try {
-      console.log('🔄 Attempting to fetch user data...');
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
 
-      // Check if APIs are available
-      if (!window.ezsite?.apis) {
-        throw new Error('EZSite APIs not available');
+      if (error) {
+        console.error('Error loading user profile:', error)
+        return null
       }
 
-      const userResponse = await window.ezsite.apis.getUserInfo();
-
-      // Handle response with no data (user not authenticated)
-      if (!userResponse.data) {
-        console.log('👤 No user data - user not authenticated');
-        setUser(null);
-        setUserProfile(GUEST_PROFILE);
-        setAuthError(null);
-        return { success: false };
-      }
-
-      // Handle API errors
-      if (userResponse.error) {
-        console.log('❌ User info API error:', userResponse.error);
-        if (showErrors) {
-          setAuthError(`Authentication failed: ${userResponse.error}`);
-        }
-        setUser(null);
-        setUserProfile(GUEST_PROFILE);
-        return { success: false };
-      }
-
-      console.log('✅ User data fetched successfully:', userResponse.data);
-      setUser(userResponse.data);
-
-      // Fetch user profile with retries
-      try {
-        console.log('🔄 Fetching user profile for user ID:', userResponse.data.ID);
-
-        const profileResponse = await window.ezsite.apis.tablePage(11725, {
-          PageNo: 1,
-          PageSize: 1,
-          Filters: [
-          { name: "user_id", op: "Equal", value: userResponse.data.ID }]
-
-        });
-
-        if (profileResponse.error) {
-          console.log('⚠️ Profile fetch error:', profileResponse.error);
-          // Use default profile for authenticated user without profile
-          setUserProfile({
-            id: 0,
-            user_id: userResponse.data.ID,
-            role: 'Employee',
-            station: 'MOBIL',
-            employee_id: '',
-            phone: '',
-            hire_date: new Date().toISOString(),
-            is_active: true,
-            detailed_permissions: {},
-            profile_image_id: null
-          });
-        } else if (profileResponse.data?.List?.length > 0) {
-          console.log('✅ User profile found:', profileResponse.data.List[0]);
-          setUserProfile(profileResponse.data.List[0]);
-        } else {
-          console.log('⚠️ No profile found, creating default profile');
-          // Create default profile for user without one
-          setUserProfile({
-            id: 0,
-            user_id: userResponse.data.ID,
-            role: 'Employee',
-            station: 'MOBIL',
-            employee_id: '',
-            phone: '',
-            hire_date: new Date().toISOString(),
-            is_active: true,
-            detailed_permissions: {},
-            profile_image_id: null
-          });
-        }
-      } catch (profileError) {
-        console.log('⚠️ Profile fetch failed, using default:', profileError);
-        // Use default profile if profile fetch fails
-        setUserProfile({
-          id: 0,
-          user_id: userResponse.data.ID,
-          role: 'Employee',
-          station: 'MOBIL',
-          employee_id: '',
-          phone: '',
-          hire_date: new Date().toISOString(),
-          is_active: true,
-          detailed_permissions: {}
-        });
-      }
-
-      setAuthError(null);
-      return { success: true, userData: userResponse.data };
-
+      return data as UserProfile
     } catch (error) {
-      console.error('❌ Error fetching user data:', error);
-
-      const errorMessage = error instanceof Error ? error.message : String(error);
-
-      // Only show error for critical failures
-      if (showErrors && !errorMessage.includes('not authenticated')) {
-        setAuthError(`Failed to load user data: ${errorMessage}`);
-      }
-
-      // Set guest state for any error
-      setUser(null);
-      setUserProfile(GUEST_PROFILE);
-      return { success: false };
+      console.error('Error loading user profile:', error)
+      return null
     }
-  };
+  }
 
-  const refreshUserData = async (): Promise<void> => {
-    console.log('🔄 Refreshing user data...');
-    setIsLoading(true);
-    await safeFetchUserData(true);
-    setIsLoading(false);
-  };
-
-  const initializeAuth = async () => {
-    console.log('🚀 Initializing authentication...');
-    setIsLoading(true);
-
-    try {
-      // Wait for APIs to be available
-      let attempts = 0;
-      while (!window.ezsite?.apis && attempts < 30) {
-        console.log(`⏳ Waiting for EZSite APIs... (attempt ${attempts + 1})`);
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        attempts++;
-      }
-
-      if (!window.ezsite?.apis) {
-        throw new Error('EZSite APIs failed to load');
-      }
-
-      console.log('✅ EZSite APIs loaded, fetching user data...');
-      await safeFetchUserData(false);
-
-    } catch (error) {
-      console.error('❌ Auth initialization failed:', error);
-      setAuthError(`Initialization failed: ${error instanceof Error ? error.message : String(error)}`);
-      setUser(null);
-      setUserProfile(GUEST_PROFILE);
-    } finally {
-      setIsLoading(false);
-      setIsInitialized(true);
-      console.log('✅ Authentication initialization complete');
-    }
-  };
-
+  // Initialize auth state
   useEffect(() => {
-    initializeAuth();
-  }, []);
-
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // Prevent multiple concurrent login attempts
-    if (loginInProgress) {
-      console.log('⏳ Login already in progress, ignoring duplicate request');
-      return false;
-    }
-
-    try {
-      setLoginInProgress(true);
-      setIsLoading(true);
-      setAuthError(null); // Clear any previous errors
-
-      console.log('🔑 Attempting login for:', email);
-
-      if (!window.ezsite?.apis) {
-        throw new Error('Authentication system not available');
-      }
-
-      // Small delay to prevent rapid successive calls
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      const response = await window.ezsite.apis.login({ email, password });
-
-      if (response.error) {
-        console.log('❌ Login API failed:', response.error);
-        await auditLogger.logLogin(email, false, undefined, response.error);
-        setAuthError(response.error);
-        toast({
-          title: "Login Failed",
-          description: response.error,
-          variant: "destructive"
-        });
-        return false;
-      }
-
-      console.log('✅ Login API successful, fetching user data...');
-
-      // Add delay to ensure server state is updated
-      await new Promise((resolve) => setTimeout(resolve, 200));
-
-      const userDataResult = await safeFetchUserData(true);
-
-      if (userDataResult.success && userDataResult.userData) {
-        console.log('✅ User data fetched successfully after login');
-        await auditLogger.logLogin(email, true, userDataResult.userData.ID);
-        toast({
-          title: "Login Successful",
-          description: "Welcome back!"
-        });
-        return true;
-      } else {
-        console.log('❌ Failed to fetch user data after successful login');
-        throw new Error('Failed to load user information after login');
-      }
-
-    } catch (error) {
-      console.error('❌ Login error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
-      setAuthError(errorMessage);
-      await auditLogger.logLogin(email, false, undefined, errorMessage);
-      toast({
-        title: "Login Failed",
-        description: errorMessage,
-        variant: "destructive"
-      });
-      return false;
-    } finally {
-      setIsLoading(false);
-      setLoginInProgress(false);
-    }
-  };
-
-  const logout = async (): Promise<void> => {
-    try {
-      console.log('🚪 Logging out user...');
-
-      // Log logout before clearing user data
-      if (user) {
-        await auditLogger.logLogout(user.Email, user.ID);
-      }
-
-      if (window.ezsite?.apis) {
-        await window.ezsite.apis.logout();
-      }
-
-      setUser(null);
-      setUserProfile(GUEST_PROFILE);
-      setAuthError(null);
-
-      toast({
-        title: "Logged Out",
-        description: "You have been successfully logged out"
-      });
-
-      console.log('✅ Logout successful');
-    } catch (error) {
-      console.error('⚠️ Logout error (non-critical):', error);
-      // Still clear local state even if API call fails
-      setUser(null);
-      setUserProfile(GUEST_PROFILE);
-      setAuthError(null);
-    }
-  };
-
-  const register = async (email: string, password: string, name: string): Promise<boolean> => {
-    try {
-      setIsLoading(true);
-      setAuthError(null);
-
-      console.log('📝 Attempting registration for:', email);
-
-      if (!window.ezsite?.apis) {
-        throw new Error('Registration system not available');
-      }
-
-      const response = await window.ezsite.apis.register({ email, password });
-
-      if (response.error) {
-        console.log('❌ Registration failed:', response.error);
-        await auditLogger.logRegistration(email, false, response.error);
-        setAuthError(response.error);
-        toast({
-          title: "Registration Failed",
-          description: response.error,
-          variant: "destructive"
-        });
-        return false;
-      }
-
-      console.log('✅ Registration successful');
-      await auditLogger.logRegistration(email, true);
-      toast({
-        title: "Registration Successful",
-        description: "Please check your email to verify your account"
-      });
-
-      return true;
-    } catch (error) {
-      console.error('❌ Registration error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
-      setAuthError(errorMessage);
-      await auditLogger.logRegistration(email, false, errorMessage);
-      toast({
-        title: "Registration Failed",
-        description: errorMessage,
-        variant: "destructive"
-      });
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const hasPermission = (action: string, resource?: string): boolean => {
-    if (!userProfile || userProfile.role === 'Guest') {
-      return false;
-    }
-
-    // Admins have all permissions
-    if (userProfile.role === 'Administrator' || userProfile.role === 'Admin') {
-      return true;
-    }
-
-    // Parse detailed permissions if they exist
-    if (userProfile.detailed_permissions) {
+    const initializeAuth = async () => {
       try {
-        let permissions;
-        if (typeof userProfile.detailed_permissions === 'string') {
-          // Only try to parse if it's a valid JSON string
-          if (userProfile.detailed_permissions.trim().startsWith('{') || userProfile.detailed_permissions.trim().startsWith('[')) {
-            permissions = JSON.parse(userProfile.detailed_permissions);
-          } else {
-            // Invalid JSON string, skip detailed permissions
-            permissions = {};
-          }
-        } else {
-          permissions = userProfile.detailed_permissions;
-        }
-
-        if (resource && permissions[resource] && permissions[resource][action]) {
-          return true;
+        // Get current session
+        const { data: { session: initialSession }, error } = await supabase.auth.getSession()
+        
+        if (error) {
+          console.error('Error getting session:', error)
+        } else if (initialSession) {
+          setSession(initialSession)
+          setUser(initialSession.user)
+          
+          // Load user profile
+          const profile = await loadUserProfile(initialSession.user.id)
+          setUserProfile(profile)
         }
       } catch (error) {
-        console.warn('Error parsing permissions, using default role-based permissions:', error);
+        console.error('Error initializing auth:', error)
+      } finally {
+        setLoading(false)
       }
     }
 
-    // Default permissions for managers
-    if (userProfile.role === 'Management' || userProfile.role === 'Manager') {
-      const managerActions = ['view', 'create', 'edit'];
-      return managerActions.includes(action);
+    initializeAuth()
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session)
+        
+        setSession(session)
+        setUser(session?.user ?? null)
+        
+        if (session?.user) {
+          // Load user profile
+          const profile = await loadUserProfile(session.user.id)
+          setUserProfile(profile)
+        } else {
+          setUserProfile(null)
+        }
+        
+        setLoading(false)
+      }
+    )
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const signUp = async (
+    email: string, 
+    password: string, 
+    userData?: { full_name?: string; role?: string }
+  ) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: userData || {}
+        }
+      })
+
+      if (error) throw error
+
+      toast({
+        title: "Account created successfully",
+        description: "Please check your email to verify your account."
+      })
+    } catch (error: any) {
+      console.error('Sign up error:', error)
+      toast({
+        title: "Sign up failed",
+        description: error.message || "An error occurred during sign up",
+        variant: "destructive"
+      })
+      throw error
     }
+  }
 
-    // Default permissions for employees
-    if (userProfile.role === 'Employee') {
-      return action === 'view';
+  const signIn = async (email: string, password: string) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
+
+      if (error) throw error
+
+      toast({
+        title: "Signed in successfully",
+        description: "Welcome back!"
+      })
+    } catch (error: any) {
+      console.error('Sign in error:', error)
+      toast({
+        title: "Sign in failed",
+        description: error.message || "Invalid email or password",
+        variant: "destructive"
+      })
+      throw error
     }
+  }
 
-    return false;
-  };
+  const signOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut()
+      if (error) throw error
 
-  const isAdmin = (): boolean => {
-    return userProfile?.role === 'Administrator' || userProfile?.role === 'Admin';
-  };
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out."
+      })
+    } catch (error: any) {
+      console.error('Sign out error:', error)
+      toast({
+        title: "Sign out failed",
+        description: error.message || "An error occurred during sign out",
+        variant: "destructive"
+      })
+      throw error
+    }
+  }
 
-  const isManager = (): boolean => {
-    return userProfile?.role === 'Management' || userProfile?.role === 'Manager' ||
-    userProfile?.role === 'Administrator' || userProfile?.role === 'Admin';
-  };
+  const resetPassword = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`
+      })
+
+      if (error) throw error
+
+      toast({
+        title: "Reset email sent",
+        description: "Check your email for password reset instructions."
+      })
+    } catch (error: any) {
+      console.error('Reset password error:', error)
+      toast({
+        title: "Reset password failed",
+        description: error.message || "An error occurred",
+        variant: "destructive"
+      })
+      throw error
+    }
+  }
+
+  const updateProfile = async (updates: Partial<UserProfile>) => {
+    try {
+      if (!user) throw new Error('No user logged in')
+
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .update(updates)
+        .eq('id', user.id)
+        .select()
+        .single()
+
+      if (error) throw error
+
+      setUserProfile(data as UserProfile)
+      
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been updated successfully."
+      })
+    } catch (error: any) {
+      console.error('Update profile error:', error)
+      toast({
+        title: "Update failed",
+        description: error.message || "Failed to update profile",
+        variant: "destructive"
+      })
+      throw error
+    }
+  }
+
+  const refreshProfile = async () => {
+    if (!user) return
+    
+    const profile = await loadUserProfile(user.id)
+    setUserProfile(profile)
+  }
 
   const value: AuthContextType = {
     user,
     userProfile,
-    isAuthenticated,
-    isLoading,
-    authError,
-    isInitialized,
-    login,
-    logout,
-    register,
-    refreshUserData,
-    hasPermission,
-    isAdmin,
-    isManager,
-    clearError
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    session,
+    loading,
+    signUp,
+    signIn,
+    signOut,
+    resetPassword,
+    updateProfile,
+    refreshProfile
   }
-  return context;
-};
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  )
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext)
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
+}

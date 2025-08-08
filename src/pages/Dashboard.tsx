@@ -1,349 +1,394 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  BarChart3,
-  Users,
-  Package,
-  FileText,
-  Truck,
-  Calendar,
+import React, { useState, useEffect } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
+import { supabase } from '@/lib/supabase'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Link } from 'react-router-dom'
+import { 
+  Building2, 
+  Users, 
+  Package, 
+  TrendingUp, 
+  FileText, 
+  Truck, 
   AlertTriangle,
-  TrendingUp,
-  Activity } from
-'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
-import AuthStatusCard from '@/components/AuthStatusCard';
-import ProductDashboard from '@/components/ProductDashboard';
-import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
+  DollarSign,
+  Calendar,
+  Activity,
+  Plus,
+  Settings,
+  LogOut,
+  Bell,
+  User
+} from 'lucide-react'
+import { toast } from '@/hooks/use-toast'
 
 interface DashboardStats {
-  totalEmployees: number;
-  activeProducts: number;
-  todayReports: number;
-  pendingDeliveries: number;
-  expiringLicenses: number;
-  totalSales: number;
+  totalEmployees: number
+  totalProducts: number
+  todaySales: number
+  pendingDeliveries: number
+  expiringLicenses: number
+  lowStockItems: number
 }
 
-const Dashboard = () => {
-  const { user, userProfile, isAdmin, isManager } = useAuth();
-  const navigate = useNavigate();
-  const { toast } = useToast();
+const Dashboard: React.FC = () => {
+  const { user, userProfile, signOut } = useAuth()
   const [stats, setStats] = useState<DashboardStats>({
     totalEmployees: 0,
-    activeProducts: 0,
-    todayReports: 0,
+    totalProducts: 0,
+    todaySales: 0,
     pendingDeliveries: 0,
     expiringLicenses: 0,
-    totalSales: 0
-  });
-  const [loading, setLoading] = useState(true);
-
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-
-      // Fetch employees count
-      const employeesResponse = await window.ezsite.apis.tablePage(11727, {
-        PageNo: 1,
-        PageSize: 1,
-        Filters: [{ name: "is_active", op: "Equal", value: true }]
-      });
-
-      // Fetch active products count
-      const productsResponse = await window.ezsite.apis.tablePage(11726, {
-        PageNo: 1,
-        PageSize: 1
-      });
-
-      // Fetch today's sales reports
-      const today = new Date().toISOString().split('T')[0];
-      const salesResponse = await window.ezsite.apis.tablePage(12356, {
-        PageNo: 1,
-        PageSize: 10,
-        Filters: [{ name: "report_date", op: "StringStartsWith", value: today }]
-      });
-
-      // Fetch pending deliveries
-      const deliveriesResponse = await window.ezsite.apis.tablePage(12196, {
-        PageNo: 1,
-        PageSize: 1
-      });
-
-      // Fetch expiring licenses (next 30 days)
-      const thirtyDaysFromNow = new Date();
-      thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
-      const licensesResponse = await window.ezsite.apis.tablePage(11731, {
-        PageNo: 1,
-        PageSize: 1,
-        Filters: [
-        { name: "expiry_date", op: "LessThanOrEqual", value: thirtyDaysFromNow.toISOString() },
-        { name: "status", op: "Equal", value: "Active" }]
-
-      });
-
-      // Calculate total sales from today's reports
-      let totalSales = 0;
-      if (salesResponse.data?.List) {
-        totalSales = salesResponse.data.List.reduce((sum: number, report: any) =>
-        sum + (report.total_sales || 0), 0
-        );
-      }
-
-      setStats({
-        totalEmployees: employeesResponse.data?.VirtualCount || 0,
-        activeProducts: productsResponse.data?.VirtualCount || 0,
-        todayReports: salesResponse.data?.VirtualCount || 0,
-        pendingDeliveries: deliveriesResponse.data?.VirtualCount || 0,
-        expiringLicenses: licensesResponse.data?.VirtualCount || 0,
-        totalSales
-      });
-
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load dashboard data",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    lowStockItems: 0
+  })
+  const [loading, setLoading] = useState(true)
+  const [recentActivity, setRecentActivity] = useState<any[]>([])
 
   useEffect(() => {
-    fetchDashboardData();
-    // Refresh data every 5 minutes
-    const interval = setInterval(fetchDashboardData, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);
+    loadDashboardData()
+  }, [userProfile])
 
-  const QuickStatCard = ({
-    title,
-    value,
-    icon: Icon,
-    color,
-    onClick
+  const loadDashboardData = async () => {
+    if (!userProfile?.station_id && userProfile?.role !== 'super_admin') {
+      setLoading(false)
+      return
+    }
 
+    try {
+      setLoading(true)
+      const stationFilter = userProfile.role === 'super_admin' ? {} : { station_id: userProfile.station_id }
 
+      // Load statistics
+      const [employeesRes, productsRes, salesRes, deliveriesRes, licensesRes] = await Promise.all([
+        supabase.from('employees').select('id', { count: 'exact' }).match(stationFilter),
+        supabase.from('products').select('id, quantity_in_stock, minimum_stock_level', { count: 'exact' }).match(stationFilter),
+        supabase.from('sales_reports').select('total_sales').match({
+          ...stationFilter,
+          report_date: new Date().toISOString().split('T')[0]
+        }),
+        supabase.from('deliveries').select('id', { count: 'exact' }).match({
+          ...stationFilter,
+          status: 'pending'
+        }),
+        supabase.from('licenses').select('id, expiry_date').match(stationFilter)
+      ])
 
+      // Calculate low stock items
+      const lowStock = productsRes.data?.filter(p => 
+        p.quantity_in_stock <= p.minimum_stock_level
+      ).length || 0
 
+      // Calculate expiring licenses (within 30 days)
+      const thirtyDaysFromNow = new Date()
+      thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30)
+      const expiring = licensesRes.data?.filter(l => 
+        new Date(l.expiry_date) <= thirtyDaysFromNow
+      ).length || 0
 
+      // Calculate today's sales total
+      const todaySales = salesRes.data?.reduce((sum, report) => sum + (report.total_sales || 0), 0) || 0
 
-  }: {title: string;value: number | string;icon: any;color: string;onClick?: () => void;}) =>
-  <Card
-    className={`p-6 cursor-pointer hover:shadow-lg transition-shadow ${onClick ? 'hover:bg-gray-50' : ''}`}
-    onClick={onClick}>
+      setStats({
+        totalEmployees: employeesRes.count || 0,
+        totalProducts: productsRes.count || 0,
+        todaySales,
+        pendingDeliveries: deliveriesRes.count || 0,
+        expiringLicenses: expiring,
+        lowStockItems: lowStock
+      })
 
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-bold">{loading ? '...' : value}</p>
-        </div>
-        <Icon className={`h-8 w-8 ${color}`} />
+      // Load recent activity (audit logs)
+      const { data: auditData } = await supabase
+        .from('audit_logs')
+        .select('*')
+        .match(stationFilter)
+        .order('created_at', { ascending: false })
+        .limit(10)
+
+      setRecentActivity(auditData || [])
+    } catch (error: any) {
+      console.error('Error loading dashboard data:', error)
+      toast({
+        title: "Error loading dashboard",
+        description: error.message,
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+    } catch (error) {
+      console.error('Sign out error:', error)
+    }
+  }
+
+  const quickActions = [
+    { label: 'Add Employee', icon: Users, to: '/employees/new' },
+    { label: 'Add Product', icon: Package, to: '/products/new' },
+    { label: 'New Sales Report', icon: FileText, to: '/sales/new' },
+    { label: 'Record Delivery', icon: Truck, to: '/deliveries/new' },
+  ]
+
+  const menuItems = [
+    { label: 'Employees', icon: Users, to: '/employees' },
+    { label: 'Products', icon: Package, to: '/products' },
+    { label: 'Sales Reports', icon: TrendingUp, to: '/sales' },
+    { label: 'Deliveries', icon: Truck, to: '/deliveries' },
+    { label: 'Licenses', icon: FileText, to: '/licenses' },
+  ]
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
-    </Card>;
-
-
-  const QuickAction = ({
-    title,
-    description,
-    icon: Icon,
-    onClick,
-    color = "text-blue-600"
-
-
-
-
-
-
-  }: {title: string;description: string;icon: any;onClick: () => void;color?: string;}) =>
-  <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={onClick}>
-      <div className="flex items-start space-x-3">
-        <Icon className={`h-6 w-6 ${color} mt-1`} />
-        <div>
-          <h4 className="font-semibold">{title}</h4>
-          <p className="text-sm text-gray-600">{description}</p>
-        </div>
-      </div>
-    </Card>;
-
+    )
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white">
-        <h1 className="text-2xl font-bold">Welcome back, {user?.Name || 'User'}!</h1>
-        <p className="opacity-90">
-          {userProfile?.station || 'All Stations'} • {userProfile?.role || 'User'}
-        </p>
-      </div>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        <QuickStatCard
-          title="Employees"
-          value={stats.totalEmployees}
-          icon={Users}
-          color="text-blue-600"
-          onClick={() => navigate('/employees')} />
-
-        <QuickStatCard
-          title="Products"
-          value={stats.activeProducts}
-          icon={Package}
-          color="text-green-600"
-          onClick={() => navigate('/products')} />
-
-        <QuickStatCard
-          title="Today's Reports"
-          value={stats.todayReports}
-          icon={FileText}
-          color="text-purple-600"
-          onClick={() => navigate('/sales')} />
-
-        <QuickStatCard
-          title="Deliveries"
-          value={stats.pendingDeliveries}
-          icon={Truck}
-          color="text-orange-600"
-          onClick={() => navigate('/delivery')} />
-
-        <QuickStatCard
-          title="Expiring Licenses"
-          value={stats.expiringLicenses}
-          icon={AlertTriangle}
-          color="text-red-600"
-          onClick={() => navigate('/licenses')} />
-
-        <QuickStatCard
-          title="Today's Sales"
-          value={`$${stats.totalSales.toLocaleString()}`}
-          icon={TrendingUp}
-          color="text-emerald-600" />
-
-      </div>
-
-      {/* Main Content Tabs */}
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid w-full lg:w-[600px] grid-cols-3">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="products">Products</TabsTrigger>
-          <TabsTrigger value="quick-actions">Quick Actions</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-4">
-          {/* Authentication Status */}
-          <AuthStatusCard />
-          
-          {/* Alerts and Notifications */}
-          {stats.expiringLicenses > 0 &&
-          <Card className="p-4 border-orange-200 bg-orange-50">
-              <div className="flex items-center space-x-2">
-                <AlertTriangle className="h-5 w-5 text-orange-600" />
-                <div>
-                  <h4 className="font-semibold text-orange-800">License Expiry Alert</h4>
-                  <p className="text-sm text-orange-700">
-                    {stats.expiringLicenses} license(s) expiring within 30 days
-                  </p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex items-center">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">DFS</span>
                 </div>
-                <Button
-                variant="outline"
-                size="sm"
-                className="ml-auto"
-                onClick={() => navigate('/licenses')}>
-
-                  View Licenses
-                </Button>
+                <h1 className="text-xl font-semibold text-gray-900">DFS Manager</h1>
               </div>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <Button variant="outline" size="sm">
+                <Bell className="h-4 w-4 mr-2" />
+                Alerts
+              </Button>
+              
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4 text-gray-500" />
+                <span className="text-sm text-gray-700">
+                  {userProfile?.full_name || user?.email}
+                </span>
+                <Badge variant={userProfile?.role === 'admin' ? 'default' : 'secondary'}>
+                  {userProfile?.role}
+                </Badge>
+              </div>
+              
+              <Button onClick={handleSignOut} variant="outline" size="sm">
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900">
+            Welcome back, {userProfile?.full_name || 'User'}!
+          </h2>
+          <p className="text-gray-600">
+            Here's what's happening with your gas station today.
+          </p>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Today's Sales</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">${stats.todaySales.toFixed(2)}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Employees</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalEmployees}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Products</CardTitle>
+              <Package className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalProducts}</div>
+              {stats.lowStockItems > 0 && (
+                <p className="text-xs text-red-600 mt-1">
+                  {stats.lowStockItems} low stock
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Pending Deliveries</CardTitle>
+              <Truck className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.pendingDeliveries}</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Alerts */}
+        {(stats.lowStockItems > 0 || stats.expiringLicenses > 0) && (
+          <Card className="mb-8 border-orange-200 bg-orange-50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-orange-800">
+                <AlertTriangle className="h-5 w-5" />
+                Attention Required
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {stats.lowStockItems > 0 && (
+                <div className="flex items-center gap-2">
+                  <Badge variant="destructive" className="text-xs">
+                    Low Stock
+                  </Badge>
+                  <span className="text-sm text-orange-700">
+                    {stats.lowStockItems} products need restocking
+                  </span>
+                </div>
+              )}
+              {stats.expiringLicenses > 0 && (
+                <div className="flex items-center gap-2">
+                  <Badge variant="destructive" className="text-xs">
+                    Expiring Soon
+                  </Badge>
+                  <span className="text-sm text-orange-700">
+                    {stats.expiringLicenses} licenses expire within 30 days
+                  </span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Quick Actions */}
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+                <CardDescription>
+                  Common tasks to manage your gas station
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  {quickActions.map((action, index) => (
+                    <Link key={index} to={action.to}>
+                      <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
+                        <action.icon className="h-6 w-6" />
+                        <span className="text-sm">{action.label}</span>
+                      </Button>
+                    </Link>
+                  ))}
+                </div>
+              </CardContent>
             </Card>
-          }
+
+            {/* Navigation Menu */}
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle>Management Tools</CardTitle>
+                <CardDescription>
+                  Access all your business management features
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {menuItems.map((item, index) => (
+                    <Link key={index} to={item.to}>
+                      <Button variant="ghost" className="w-full justify-start gap-3 h-12">
+                        <item.icon className="h-5 w-5 text-gray-500" />
+                        <span>{item.label}</span>
+                      </Button>
+                    </Link>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Recent Activity */}
-          <Card className="p-6">
-            <div className="flex items-center space-x-2 mb-4">
-              <Activity className="h-5 w-5" />
-              <h3 className="text-lg font-semibold">System Status</h3>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Database Connection</span>
-                <Badge variant="default" className="bg-green-100 text-green-800">Active</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Last Data Sync</span>
-                <span className="text-sm text-gray-500">
-                  {new Date().toLocaleTimeString()}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">User Session</span>
-                <Badge variant="default" className="bg-blue-100 text-blue-800">Active</Badge>
-              </div>
-            </div>
-          </Card>
-        </TabsContent>
+          <div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5" />
+                  Recent Activity
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {recentActivity.length > 0 ? (
+                  <div className="space-y-4">
+                    {recentActivity.slice(0, 5).map((activity, index) => (
+                      <div key={index} className="flex items-start gap-3 pb-3 border-b last:border-b-0">
+                        <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{activity.action}</p>
+                          <p className="text-xs text-gray-500">
+                            {new Date(activity.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 text-center py-4">
+                    No recent activity to display
+                  </p>
+                )}
+              </CardContent>
+            </Card>
 
-        <TabsContent value="products" className="space-y-4">
-          <ProductDashboard />
-        </TabsContent>
-
-        <TabsContent value="quick-actions" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <QuickAction
-              title="New Sales Report"
-              description="Create a daily sales report"
-              icon={FileText}
-              onClick={() => navigate('/sales/new')} />
-
-            <QuickAction
-              title="Record Delivery"
-              description="Log a new fuel delivery"
-              icon={Truck}
-              onClick={() => navigate('/delivery/new')} />
-
-            <QuickAction
-              title="Add Product"
-              description="Register a new product"
-              icon={Package}
-              onClick={() => navigate('/products/new')} />
-
-            {isManager() &&
-            <>
-                <QuickAction
-                title="Manage Employees"
-                description="View and edit employee records"
-                icon={Users}
-                onClick={() => navigate('/employees')} />
-
-                <QuickAction
-                title="Check Licenses"
-                description="Review license status and renewals"
-                icon={Calendar}
-                onClick={() => navigate('/licenses')} />
-
-              </>
-            }
-            {isAdmin() &&
-            <QuickAction
-              title="Admin Panel"
-              description="System administration and settings"
-              icon={BarChart3}
-              onClick={() => navigate('/admin')}
-              color="text-red-600" />
-
-            }
+            {/* Admin Panel Link */}
+            {['admin', 'super_admin'].includes(userProfile?.role || '') && (
+              <Card className="mt-6">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="h-5 w-5" />
+                    Administration
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Link to="/admin">
+                    <Button className="w-full">
+                      Access Admin Panel
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            )}
           </div>
-        </TabsContent>
-      </Tabs>
-    </div>);
+        </div>
+      </div>
+    </div>
+  )
+}
 
-};
-
-export default Dashboard;
+export default Dashboard
