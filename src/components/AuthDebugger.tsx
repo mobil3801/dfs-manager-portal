@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdminAccess } from '@/hooks/use-admin-access';
 import { AlertTriangle, CheckCircle, User, Shield, Settings } from 'lucide-react';
+import { DebugWrapper } from '@/utils/productionSafetyWrapper';
 
 const AuthDebugger: React.FC = () => {
   const auth = useAuth();
@@ -13,6 +14,29 @@ const AuthDebugger: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [testResult, setTestResult] = useState<string | null>(null);
 
+  // Disabled in production
+  return (
+    <DebugWrapper>
+      <AuthDebuggerContent 
+        auth={auth}
+        adminAccess={adminAccess}
+        isExpanded={isExpanded}
+        setIsExpanded={setIsExpanded}
+        testResult={testResult}
+        setTestResult={setTestResult}
+      />
+    </DebugWrapper>
+  );
+};
+
+const AuthDebuggerContent: React.FC<any> = ({ 
+  auth, 
+  adminAccess, 
+  isExpanded, 
+  setIsExpanded, 
+  testResult, 
+  setTestResult 
+}) => {
   // Only render for authenticated admin users
   if (!auth.isAuthenticated || !auth.user || !adminAccess.isAdmin) {
     return null;

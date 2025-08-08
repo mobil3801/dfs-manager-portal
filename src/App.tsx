@@ -3,11 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider, useAuth } from '@/contexts/AuthContext';
-import { SupabaseAuthProvider, useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+import { ConsolidatedAuthProvider, useConsolidatedAuth } from '@/contexts/ConsolidatedAuthContext';
 import { ModuleAccessProvider } from '@/contexts/ModuleAccessContext';
 import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
-import AuthDebugger from '@/components/AuthDebugger';
 import ImageErrorNotification from '@/components/ImageErrorNotification';
 
 // Layout
@@ -131,17 +129,23 @@ const AuthError = ({ error, onRetry }: {error: string;onRetry: () => void;}) =>
     </div>
   </div>;
 
-// Protected Route Component with improved error handling
+// Protected Route Component with improved error handling and timeouts
 const ProtectedRoute: React.FC<{children: React.ReactNode;}> = ({ children }) => {
-  const { isAuthenticated, isLoading, authError, isInitialized, refreshUserData } = useSupabaseAuth();
+  const { isAuthenticated, isLoading, authError, isInitialized, refreshUserData } = useConsolidatedAuth();
 
-  // Show loading while initializing
+  // Show loading while initializing with timeout protection
   if (!isInitialized || isLoading) {
     return <LoadingSpinner />;
   }
 
   // Show error if there's a critical authentication error
-  if (authError && authError.includes('Failed to load user data')) {
+  if (authError) {
+    // Handle specific timeout errors
+    if (authError.includes('timeout') || authError.includes('initialization timed out')) {
+      return <AuthError error="Authentication service is taking too long. Please refresh the page." onRetry={() => window.location.reload()} />;
+    }
+    
+    // Handle other authentication errors
     return <AuthError error={authError} onRetry={refreshUserData} />;
   }
 
@@ -155,7 +159,7 @@ const ProtectedRoute: React.FC<{children: React.ReactNode;}> = ({ children }) =>
 
 // Main App Router Component
 const AppRouter = () => {
-  const { isInitialized } = useSupabaseAuth();
+  const { isInitialized } = useConsolidatedAuth();
 
   // Show loading during initial authentication setup
   if (!isInitialized) {
@@ -443,8 +447,7 @@ const AppRouter = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
         
-        {/* Auth Debugger - Only show in development */}
-        {process.env.NODE_ENV === 'development' && <AuthDebugger />}
+        {/* Debug components disabled in production */}
       </div>
     </Router>);
 
@@ -455,13 +458,11 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <GlobalErrorBoundary>
-          <AuthProvider>
-            <SupabaseAuthProvider>
-              <ModuleAccessProvider>
-                <AppRouter />
-              </ModuleAccessProvider>
-            </SupabaseAuthProvider>
-          </AuthProvider>
+          <ConsolidatedAuthProvider>
+            <ModuleAccessProvider>
+              <AppRouter />
+            </ModuleAccessProvider>
+          </ConsolidatedAuthProvider>
         </GlobalErrorBoundary>
       </TooltipProvider>
       <Toaster />
