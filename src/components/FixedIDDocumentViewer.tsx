@@ -57,7 +57,7 @@ const FixedIDDocumentViewer: React.FC<FixedIDDocumentViewerProps> = ({
 
       try {
         console.log(`Loading document URL for file ID: ${fileId}`);
-        const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(fileId);
+        const { data: fileUrl, error } = await globalThis.ezsite.apis.getUploadUrl(fileId);
 
         if (error) {
           console.error(`Error loading document URL for file ${fileId}:`, error);
@@ -108,7 +108,7 @@ const FixedIDDocumentViewer: React.FC<FixedIDDocumentViewerProps> = ({
 
   const handleViewFullScreen = () => {
     if (documentUrl) {
-      window.open(documentUrl, '_blank');
+      globalThis.open(documentUrl, '_blank');
     }
   };
 

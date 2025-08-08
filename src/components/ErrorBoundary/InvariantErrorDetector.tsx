@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle, RefreshCw, Bug, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import process from "node:process";
 
 interface InvariantError {
   id: string;
@@ -81,12 +82,12 @@ const InvariantErrorDetector: React.FC = () => {
       }
     };
 
-    window.addEventListener('unhandledrejection', handleRejection);
+    globalThis.addEventListener('unhandledrejection', handleRejection);
 
     return () => {
       console.error = originalConsoleError;
       console.warn = originalConsoleWarn;
-      window.removeEventListener('unhandledrejection', handleRejection);
+      globalThis.removeEventListener('unhandledrejection', handleRejection);
     };
   }, [isMonitoring, toast]);
 

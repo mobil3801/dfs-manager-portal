@@ -228,7 +228,7 @@ const OverflowNavigationDemo: React.FC = () => {
                   <EnhancedOverflowNavigation
                     items={navigationItems}
                     canAccessRoute={canAccessRoute}
-                    showLoadingIndicator={true}
+                    showLoadingIndicator
                     moreButtonWidth={110}
                     padding={40} />
 

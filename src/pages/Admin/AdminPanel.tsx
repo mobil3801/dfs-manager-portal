@@ -54,13 +54,13 @@ const AdminPanel = () => {
       setLoading(true);
 
       // Fetch user profiles count
-      const usersResponse = await window.ezsite.apis.tablePage(11725, {
+      const usersResponse = await globalThis.ezsite.apis.tablePage(11725, {
         PageNo: 1,
         PageSize: 1
       });
 
       // Fetch active users count
-      const activeUsersResponse = await window.ezsite.apis.tablePage(11725, {
+      const activeUsersResponse = await globalThis.ezsite.apis.tablePage(11725, {
         PageNo: 1,
         PageSize: 1,
         Filters: [{ name: "is_active", op: "Equal", value: true }]
@@ -68,14 +68,14 @@ const AdminPanel = () => {
 
       // Fetch today's audit logs
       const today = new Date().toISOString().split('T')[0];
-      const auditResponse = await window.ezsite.apis.tablePage(12706, {
+      const auditResponse = await globalThis.ezsite.apis.tablePage(12706, {
         PageNo: 1,
         PageSize: 1,
         Filters: [{ name: "event_timestamp", op: "StringStartsWith", value: today }]
       });
 
       // Fetch total audit logs
-      const totalAuditResponse = await window.ezsite.apis.tablePage(12706, {
+      const totalAuditResponse = await globalThis.ezsite.apis.tablePage(12706, {
         PageNo: 1,
         PageSize: 1
       });

@@ -44,7 +44,7 @@ class LicenseAlertService {
       console.log('🔍 Checking for licenses requiring alerts...');
 
       // Get all active alert settings
-      const { data: settingsData, error: settingsError } = await window.ezsite.apis.tablePage('12611', {
+      const { data: settingsData, error: settingsError } = await globalThis.ezsite.apis.tablePage('12611', {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'id',
@@ -66,7 +66,7 @@ class LicenseAlertService {
       }
 
       // Get all active licenses
-      const { data: licensesData, error: licensesError } = await window.ezsite.apis.tablePage('11731', {
+      const { data: licensesData, error: licensesError } = await globalThis.ezsite.apis.tablePage('11731', {
         PageNo: 1,
         PageSize: 1000,
         OrderByField: 'expiry_date',
@@ -85,7 +85,7 @@ class LicenseAlertService {
       console.log(`Found ${licenses.length} active licenses to check`);
 
       // Get all active SMS contacts
-      const { data: contactsData, error: contactsError } = await window.ezsite.apis.tablePage('12612', {
+      const { data: contactsData, error: contactsError } = await globalThis.ezsite.apis.tablePage('12612', {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'id',
@@ -158,7 +158,7 @@ class LicenseAlertService {
   : Promise<boolean> {
     try {
       // Get the last alert sent for this license/setting combination
-      const { data, error } = await window.ezsite.apis.tablePage('12613', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('12613', {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'sent_date',
@@ -226,7 +226,7 @@ class LicenseAlertService {
       });
 
       // Record in history
-      await window.ezsite.apis.tableCreate('12613', {
+      await globalThis.ezsite.apis.tableCreate('12613', {
         license_id: license.id,
         contact_id: contact.id,
         mobile_number: contact.mobile_number,
@@ -272,7 +272,7 @@ class LicenseAlertService {
   async sendImmediateAlert(licenseId: number): Promise<{success: boolean;message: string;}> {
     try {
       // Get license details using ID field
-      const { data: licenseData, error: licenseError } = await window.ezsite.apis.tablePage('11731', {
+      const { data: licenseData, error: licenseError } = await globalThis.ezsite.apis.tablePage('11731', {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'id',
@@ -292,7 +292,7 @@ class LicenseAlertService {
       const daysUntilExpiry = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
       // Get active contacts
-      const { data: contactsData, error: contactsError } = await window.ezsite.apis.tablePage('12612', {
+      const { data: contactsData, error: contactsError } = await globalThis.ezsite.apis.tablePage('12612', {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'id',
@@ -324,7 +324,7 @@ class LicenseAlertService {
           type: 'immediate_alert'
         });
 
-        await window.ezsite.apis.tableCreate('12613', {
+        await globalThis.ezsite.apis.tableCreate('12613', {
           license_id: license.ID, // Use the actual ID field
           contact_id: contact.id,
           mobile_number: contact.mobile_number,

@@ -563,7 +563,7 @@ const EmployeeForm: React.FC = () => {
                   currentImageUrl={formData.profile_image_url}
                   employeeName={`${formData.first_name} ${formData.last_name}`}
                   size="xl"
-                  allowEdit={true}
+                  allowEdit
                   disabled={!id || id === 'new'}
                   onImageUpdate={(newImageUrl) => handleInputChange('profile_image_url', newImageUrl)} />
 

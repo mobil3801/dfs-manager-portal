@@ -98,7 +98,7 @@ const StationFormDialog: React.FC<StationFormDialogProps> = ({
       };
 
       if (mode === 'add') {
-        const { error } = await window.ezsite.apis.tableCreate(12599, dataToSave);
+        const { error } = await globalThis.ezsite.apis.tableCreate(12599, dataToSave);
         if (error) throw error;
 
         toast({
@@ -106,7 +106,7 @@ const StationFormDialog: React.FC<StationFormDialogProps> = ({
           description: "Station added successfully"
         });
       } else {
-        const { error } = await window.ezsite.apis.tableUpdate(12599, dataToSave);
+        const { error } = await globalThis.ezsite.apis.tableUpdate(12599, dataToSave);
         if (error) throw error;
 
         toast({

@@ -66,7 +66,7 @@ class UserValidationService {
 
     try {
       // Check in User table (built-in)
-      const userResponse = await window.ezsite.apis.tablePage('User', {
+      const userResponse = await globalThis.ezsite.apis.tablePage('User', {
         PageNo: 1,
         PageSize: 1,
         Filters: [
@@ -95,7 +95,7 @@ class UserValidationService {
       }
 
       // Check in employees table as well
-      const employeeResponse = await window.ezsite.apis.tablePage(11727, {
+      const employeeResponse = await globalThis.ezsite.apis.tablePage(11727, {
         PageNo: 1,
         PageSize: 1,
         Filters: [
@@ -146,7 +146,7 @@ class UserValidationService {
     try {
       // Check for role conflicts at the same station
       if (userData.station && userData.user_id) {
-        const existingProfiles = await window.ezsite.apis.tablePage(11725, {
+        const existingProfiles = await globalThis.ezsite.apis.tablePage(11725, {
           PageNo: 1,
           PageSize: 100,
           Filters: [
@@ -186,7 +186,7 @@ class UserValidationService {
 
         // Check for multiple admin roles (only one admin per system)
         if (userData.role === 'Administrator') {
-          const adminResponse = await window.ezsite.apis.tablePage(11725, {
+          const adminResponse = await globalThis.ezsite.apis.tablePage(11725, {
             PageNo: 1,
             PageSize: 1,
             Filters: [
@@ -266,7 +266,7 @@ class UserValidationService {
     try {
       // Get user email if not provided
       if (!userEmail) {
-        const userResponse = await window.ezsite.apis.tablePage('User', {
+        const userResponse = await globalThis.ezsite.apis.tablePage('User', {
           PageNo: 1,
           PageSize: 1,
           Filters: [
@@ -342,7 +342,7 @@ class UserValidationService {
       flatMap(([role1, role2]) => role === role1 ? [role2] : [role1]);
 
       for (const conflictRole of conflictingRoles) {
-        const response = await window.ezsite.apis.tablePage(11725, {
+        const response = await globalThis.ezsite.apis.tablePage(11725, {
           PageNo: 1,
           PageSize: 100,
           Filters: [

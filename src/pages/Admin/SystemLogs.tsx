@@ -80,7 +80,7 @@ const SystemLogs: React.FC = () => {
   const fetchAuditLogs = async () => {
     try {
       console.log('Fetching audit logs from database...');
-      const { data, error } = await window.ezsite.apis.tablePage(12706, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(12706, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'event_timestamp',
@@ -143,14 +143,14 @@ const SystemLogs: React.FC = () => {
     )].map((row) => row.join(',')).join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+    const url = globalThis.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `audit-logs-${new Date().toISOString().split('T')[0]}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+    globalThis.URL.revokeObjectURL(url);
 
     toast({
       title: "Export Complete",

@@ -67,7 +67,7 @@ const SMSConfigurationManager: React.FC = () => {
   const loadConfiguration = async () => {
     try {
       setLoading(true);
-      const { data, error } = await window.ezsite.apis.tablePage('12640', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('12640', {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'ID',
@@ -128,7 +128,7 @@ const SMSConfigurationManager: React.FC = () => {
 
       if (config) {
         // Update existing configuration
-        const { error } = await window.ezsite.apis.tableUpdate('12640', {
+        const { error } = await globalThis.ezsite.apis.tableUpdate('12640', {
           ID: config.id,
           ...formData,
           current_month_count: config.current_month_count // Preserve current count
@@ -136,7 +136,7 @@ const SMSConfigurationManager: React.FC = () => {
         if (error) throw error;
       } else {
         // Create new configuration
-        const { error } = await window.ezsite.apis.tableCreate('12640', {
+        const { error } = await globalThis.ezsite.apis.tableCreate('12640', {
           ...formData,
           current_month_count: 0,
           created_by: 1 // This should be the current user ID
@@ -218,7 +218,7 @@ const SMSConfigurationManager: React.FC = () => {
     if (!config) return;
 
     try {
-      const { error } = await window.ezsite.apis.tableUpdate('12640', {
+      const { error } = await globalThis.ezsite.apis.tableUpdate('12640', {
         ID: config.id,
         current_month_count: 0
       });

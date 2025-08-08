@@ -316,12 +316,12 @@ const EmployeeList: React.FC = () => {
     join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+    const url = globalThis.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `employee_${selectedEmployee.employee_id}_details.csv`;
     a.click();
-    window.URL.revokeObjectURL(url);
+    globalThis.URL.revokeObjectURL(url);
 
     toast({
       title: "Success",
@@ -624,7 +624,7 @@ const EmployeeList: React.FC = () => {
           onExport={handleExport}
           canEdit={canEditEmployee}
           canDelete={canDeleteEmployee}
-          canExport={true} />
+          canExport />
         }
       </div>);
 
@@ -861,7 +861,7 @@ const EmployeeList: React.FC = () => {
         onExport={handleExport}
         canEdit={canEditEmployee}
         canDelete={canDeleteEmployee}
-        canExport={true} />
+        canExport />
       }
 
       {/* Employee Edit Dialog */}

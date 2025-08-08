@@ -120,7 +120,7 @@ const RealTimeAdminDashboard = () => {
 
     try {
       // Fetch user profiles
-      const { data: profilesData, error: profilesError } = await window.ezsite.apis.tablePage(11725, {
+      const { data: profilesData, error: profilesError } = await globalThis.ezsite.apis.tablePage(11725, {
         PageNo: 1,
         PageSize: 500,
         OrderByField: "id",
@@ -198,7 +198,7 @@ const RealTimeAdminDashboard = () => {
     if (!selectedProfile) return;
 
     try {
-      const { error } = await window.ezsite.apis.tableUpdate(11725, {
+      const { error } = await globalThis.ezsite.apis.tableUpdate(11725, {
         id: selectedProfile.id,
         ...editFormData
       });
@@ -227,7 +227,7 @@ const RealTimeAdminDashboard = () => {
     if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
 
     try {
-      const { error } = await window.ezsite.apis.tableDelete(11725, { id: profile.id });
+      const { error } = await globalThis.ezsite.apis.tableDelete(11725, { id: profile.id });
 
       if (error) throw error;
 

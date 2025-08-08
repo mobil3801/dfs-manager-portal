@@ -65,12 +65,12 @@ const EnhancedDocumentViewer: React.FC<EnhancedDocumentViewerProps> = ({
     const handleOnline = () => setState((prev) => ({ ...prev, isOnline: true }));
     const handleOffline = () => setState((prev) => ({ ...prev, isOnline: false }));
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    globalThis.addEventListener('online', handleOnline);
+    globalThis.addEventListener('offline', handleOffline);
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      globalThis.removeEventListener('online', handleOnline);
+      globalThis.removeEventListener('offline', handleOffline);
     };
   }, []);
 
@@ -192,7 +192,7 @@ const EnhancedDocumentViewer: React.FC<EnhancedDocumentViewerProps> = ({
 
   const handleViewFullScreen = () => {
     if (state.url) {
-      window.open(state.url, '_blank');
+      globalThis.open(state.url, '_blank');
     } else {
       toast({
         title: 'Error',

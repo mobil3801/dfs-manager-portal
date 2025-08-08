@@ -48,7 +48,7 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
     setLoading(true);
     try {
       // Fetch changelog entries for this product
-      const { data, error } = await window.ezsite.apis.tablePage('24010', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('24010', {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'change_timestamp',
@@ -86,7 +86,7 @@ const ProductChangelogDialog: React.FC<ProductChangelogDialogProps> = ({
       // Fetch user profiles to get names
       for (const userId of userIds) {
         try {
-          const { data, error } = await window.ezsite.apis.tablePage('11725', {
+          const { data, error } = await globalThis.ezsite.apis.tablePage('11725', {
             PageNo: 1,
             PageSize: 1,
             OrderByField: 'id',

@@ -49,7 +49,7 @@ const IDFileDebugPage: React.FC = () => {
                   fileId={fileId}
                   label={`Test Document ${fileId}`}
                   documentType="Driving License"
-                  isAdminUser={true}
+                  isAdminUser
                   size="lg"
                   className="border-2 border-gray-200"
                   showDeleteButton={false} />

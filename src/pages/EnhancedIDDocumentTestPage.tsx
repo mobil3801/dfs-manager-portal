@@ -154,8 +154,8 @@ const EnhancedIDDocumentTestPage: React.FC = () => {
         employee={sampleEmployee}
         isAdminUser={isAdminUser}
         onRefresh={handleRefresh}
-        allowDelete={true}
-        showPreview={true} />
+        allowDelete
+        showPreview />
 
 
       {/* Implementation Notes */}

@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { useToast } from './use-toast';
 import { ErrorLogger } from '@/services/errorLogger';
+import process from "node:process";
 
 interface UseErrorHandlerOptions {
   component?: string;

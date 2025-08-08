@@ -410,7 +410,7 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
       setLoading(true);
       console.log('Fetching user profiles for comprehensive permission management...');
 
-      const { data, error } = await window.ezsite.apis.tablePage(11725, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(11725, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: "id",
@@ -533,7 +533,7 @@ const ComprehensivePermissionDialog: React.FC<ComprehensivePermissionDialogProps
     try {
       console.log('Saving permissions for user:', selectedUser.employee_id);
 
-      const { error } = await window.ezsite.apis.tableUpdate(11725, {
+      const { error } = await globalThis.ezsite.apis.tableUpdate(11725, {
         id: selectedUser.id,
         detailed_permissions: JSON.stringify(permissions)
       });

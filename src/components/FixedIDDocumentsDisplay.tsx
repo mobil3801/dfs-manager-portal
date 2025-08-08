@@ -95,7 +95,7 @@ const FixedIDDocumentsDisplay: React.FC<FixedIDDocumentsDisplayProps> = ({
         [documentKey]: null
       };
 
-      const { error } = await window.ezsite.apis.tableUpdate('11727', updateData);
+      const { error } = await globalThis.ezsite.apis.tableUpdate('11727', updateData);
       if (error) throw new Error(error);
 
       // Update local state immediately
@@ -106,14 +106,14 @@ const FixedIDDocumentsDisplay: React.FC<FixedIDDocumentsDisplayProps> = ({
 
       // Delete the file from storage
       try {
-        const { data: fileData, error: fetchError } = await window.ezsite.apis.tablePage('26928', {
+        const { data: fileData, error: fetchError } = await globalThis.ezsite.apis.tablePage('26928', {
           PageNo: 1,
           PageSize: 1,
           Filters: [{ name: 'store_file_id', op: 'Equal', value: fileId }]
         });
 
         if (!fetchError && fileData && fileData.List && fileData.List.length > 0) {
-          const { error: deleteError } = await window.ezsite.apis.tableDelete('26928', {
+          const { error: deleteError } = await globalThis.ezsite.apis.tableDelete('26928', {
             ID: fileData.List[0].id
           });
           if (deleteError) {

@@ -55,8 +55,8 @@ const StationAccessDemo: React.FC = () => {
               onValueChange={handleStationChange}
               label="Select Station"
               placeholder="Choose a station to view"
-              includeAll={true}
-              showBadge={true}
+              includeAll
+              showBadge
               className="max-w-md" />
 
           </div>

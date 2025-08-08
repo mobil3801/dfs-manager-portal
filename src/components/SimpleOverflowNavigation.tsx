@@ -115,7 +115,7 @@ const SimpleOverflowNavigation: React.FC<SimpleOverflowNavigationProps> = ({
           <NavigationButton
             key={item.href}
             item={item}
-            isOverflow={true} />
+            isOverflow />
           )}
           </DropdownMenuContent>
         </DropdownMenu>

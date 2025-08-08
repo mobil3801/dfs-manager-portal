@@ -97,7 +97,7 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
       console.log(`[FixedDocumentViewer] Loading URL for file ${fileId}${isRetry ? ` (retry ${state.retryCount + 1})` : ''}`);
 
       // Step 1: Get the file URL from the API
-      const urlResponse = await window.ezsite.apis.getUploadUrl(fileId);
+      const urlResponse = await globalThis.ezsite.apis.getUploadUrl(fileId);
 
       if (urlResponse.error) {
         throw new Error(`API Error: ${urlResponse.error}`);
@@ -197,7 +197,7 @@ const FixedDocumentViewer: React.FC<FixedDocumentViewerProps> = ({
 
   const handleViewFullScreen = () => {
     if (state.url) {
-      window.open(state.url, '_blank');
+      globalThis.open(state.url, '_blank');
     } else {
       toast({
         title: 'Error',

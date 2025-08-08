@@ -144,7 +144,7 @@ const DatabaseFileUpload: React.FC<DatabaseFileUploadProps> = ({
   const uploadToDatabase = async (file: File): Promise<FileUploadResult> => {
     try {
       // Upload file to storage
-      const { data: storeFileId, error: uploadError } = await window.ezsite.apis.upload({
+      const { data: storeFileId, error: uploadError } = await globalThis.ezsite.apis.upload({
         filename: file.name,
         file: file
       });
@@ -164,10 +164,10 @@ const DatabaseFileUpload: React.FC<DatabaseFileUploadProps> = ({
         file_category: selectedCategory,
         is_active: true,
         description: description,
-        file_url: `${window.location.origin}/file/${storeFileId}`
+        file_url: `${globalThis.location.origin}/file/${storeFileId}`
       };
 
-      const { data: insertResult, error: insertError } = await window.ezsite.apis.tableCreate(26928, fileData);
+      const { data: insertResult, error: insertError } = await globalThis.ezsite.apis.tableCreate(26928, fileData);
 
       if (insertError) throw insertError;
 
@@ -327,10 +327,10 @@ const DatabaseFileUpload: React.FC<DatabaseFileUploadProps> = ({
                           </p>
                         </div>
                         <div className="flex gap-2">
-                          <Button size="sm" variant="outline" onClick={() => window.open(file.fileUrl, '_blank')}>
+                          <Button size="sm" variant="outline" onClick={() => globalThis.open(file.fileUrl, '_blank')}>
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Button size="sm" variant="outline" onClick={() => window.open(file.fileUrl, '_blank')}>
+                          <Button size="sm" variant="outline" onClick={() => globalThis.open(file.fileUrl, '_blank')}>
                             <Download className="h-4 w-4" />
                           </Button>
                         </div>

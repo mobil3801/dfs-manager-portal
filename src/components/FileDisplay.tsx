@@ -65,7 +65,7 @@ const FileDisplay: React.FC<FileDisplayProps> = ({
         filters.push({ name: "file_category", op: "Equal", value: fileCategory });
       }
 
-      const { data, error } = await window.ezsite.apis.tablePage(26928, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(26928, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: "upload_date",
@@ -92,7 +92,7 @@ const FileDisplay: React.FC<FileDisplayProps> = ({
     if (!confirm(`Are you sure you want to delete "${file.file_name}"?`)) return;
 
     try {
-      const { error } = await window.ezsite.apis.tableUpdate(26928, {
+      const { error } = await globalThis.ezsite.apis.tableUpdate(26928, {
         id: file.id,
         is_active: false
       });
@@ -130,7 +130,7 @@ const FileDisplay: React.FC<FileDisplayProps> = ({
       } catch (error) {
         console.error('Download error:', error);
         // Fallback to opening in new tab
-        window.open(file.file_url, '_blank');
+        globalThis.open(file.file_url, '_blank');
       }
     }
   };

@@ -62,7 +62,7 @@ const LicenseList: React.FC = () => {
         filters.push({ name: 'status', op: 'StringContains', value: 'Active' });
       }
 
-      const { data, error } = await window.ezsite.apis.tablePage('11731', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('11731', {
         PageNo: currentPage,
         PageSize: pageSize,
         OrderByField: 'expiry_date',
@@ -96,7 +96,7 @@ const LicenseList: React.FC = () => {
       setDeletingLicenseId(licenseId);
 
       // Update status to "Cancelled" or "Inactive"
-      const { error } = await window.ezsite.apis.tableUpdate('11731', {
+      const { error } = await globalThis.ezsite.apis.tableUpdate('11731', {
         ID: licenseId,
         status: 'Cancelled'
       });
@@ -138,7 +138,7 @@ const LicenseList: React.FC = () => {
 
     try {
       // Step 1: Get license details to check for associated files
-      const { data: licenseData, error: fetchError } = await window.ezsite.apis.tablePage('11731', {
+      const { data: licenseData, error: fetchError } = await globalThis.ezsite.apis.tablePage('11731', {
         PageNo: 1,
         PageSize: 1,
         Filters: [{ name: 'ID', op: 'Equal', value: licenseId }]
@@ -171,7 +171,7 @@ const LicenseList: React.FC = () => {
 
       // Step 3: Delete SMS alert history for this license
       try {
-        const { data: alertHistory, error: alertHistoryError } = await window.ezsite.apis.tablePage('12613', {
+        const { data: alertHistory, error: alertHistoryError } = await globalThis.ezsite.apis.tablePage('12613', {
           PageNo: 1,
           PageSize: 100,
           Filters: [{ name: 'license_id', op: 'Equal', value: licenseId }]
@@ -179,7 +179,7 @@ const LicenseList: React.FC = () => {
 
         if (!alertHistoryError && alertHistory?.List?.length > 0) {
           for (const alert of alertHistory.List) {
-            await window.ezsite.apis.tableDelete('12613', { ID: alert.ID });
+            await globalThis.ezsite.apis.tableDelete('12613', { ID: alert.ID });
           }
           console.log(`Deleted ${alertHistory.List.length} SMS alert history records`);
         }
@@ -190,7 +190,7 @@ const LicenseList: React.FC = () => {
 
       // Step 4: Delete any scheduled alerts for this license
       try {
-        const { data: schedules, error: scheduleError } = await window.ezsite.apis.tablePage('12642', {
+        const { data: schedules, error: scheduleError } = await globalThis.ezsite.apis.tablePage('12642', {
           PageNo: 1,
           PageSize: 100,
           Filters: [
@@ -208,7 +208,7 @@ const LicenseList: React.FC = () => {
       }
 
       // Step 5: Finally delete the license record
-      const { error: deleteError } = await window.ezsite.apis.tableDelete('11731', { ID: licenseId });
+      const { error: deleteError } = await globalThis.ezsite.apis.tableDelete('11731', { ID: licenseId });
       if (deleteError) throw deleteError;
 
       // Success message with details
@@ -303,7 +303,7 @@ const LicenseList: React.FC = () => {
     try {
       setDeletingLicenseId(licenseId);
 
-      const { error } = await window.ezsite.apis.tableUpdate('11731', {
+      const { error } = await globalThis.ezsite.apis.tableUpdate('11731', {
         ID: licenseId,
         status: 'Active'
       });

@@ -48,7 +48,7 @@ export const useRealtimePermissions = (module: string) => {
       setLoading(true);
 
       // Fetch user profile with permissions using correct field name
-      const { data, error } = await window.ezsite.apis.tablePage('11725', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('11725', {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'id',
@@ -129,7 +129,7 @@ export const useRealtimePermissions = (module: string) => {
       setPermissions(newPermissions);
 
       // Get current user data
-      const { data, error } = await window.ezsite.apis.tablePage('11725', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('11725', {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'id',
@@ -163,7 +163,7 @@ export const useRealtimePermissions = (module: string) => {
       };
 
       // Save to database
-      const updateResult = await window.ezsite.apis.tableUpdate('11725', {
+      const updateResult = await globalThis.ezsite.apis.tableUpdate('11725', {
         id: user.id,
         detailed_permissions: JSON.stringify(updatedPermissions)
       });

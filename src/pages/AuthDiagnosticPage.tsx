@@ -68,12 +68,12 @@ const AuthDiagnosticPage: React.FC = () => {
       };
 
       // Test 2: API Availability
-      if (window.ezsite?.apis) {
+      if (globalThis.ezsite?.apis) {
         addTestResult('API Availability', 'EZSite APIs', 'pass', 'EZSite APIs are available');
 
         const requiredMethods = ['getUserInfo', 'login', 'logout', 'register', 'tablePage'];
         const availableMethods = requiredMethods.filter((method) =>
-        typeof window.ezsite?.apis?.[method] === 'function'
+        typeof globalThis.ezsite?.apis?.[method] === 'function'
         );
 
         addTestResult('API Availability', 'Required Methods',
@@ -86,7 +86,7 @@ const AuthDiagnosticPage: React.FC = () => {
           availableMethods: availableMethods.length,
           methods: requiredMethods.map((method) => ({
             name: method,
-            available: typeof window.ezsite?.apis?.[method] === 'function'
+            available: typeof globalThis.ezsite?.apis?.[method] === 'function'
           }))
         };
       } else {
@@ -160,9 +160,9 @@ const AuthDiagnosticPage: React.FC = () => {
       }
 
       // Test 6: Database Connectivity (if APIs available)
-      if (window.ezsite?.apis?.tablePage) {
+      if (globalThis.ezsite?.apis?.tablePage) {
         try {
-          const testResponse = await window.ezsite.apis.tablePage(11725, {
+          const testResponse = await globalThis.ezsite.apis.tablePage(11725, {
             PageNo: 1,
             PageSize: 1,
             Filters: []
@@ -336,7 +336,7 @@ const AuthDiagnosticPage: React.FC = () => {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm">APIs</span>
-                    {getStatusBadge(!!window.ezsite?.apis ? 'pass' : 'fail')}
+                    {getStatusBadge(!!globalThis.ezsite?.apis ? 'pass' : 'fail')}
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Database</span>
@@ -383,7 +383,7 @@ const AuthDiagnosticPage: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="api">
-          <ApiStatusChecker showFullDetails={true} />
+          <ApiStatusChecker showFullDetails />
         </TabsContent>
 
         <TabsContent value="details" className="space-y-4">

@@ -68,7 +68,7 @@ const NavigationHealthCheck: React.FC<NavigationHealthCheckProps> = ({
       }
 
       // Check API availability
-      if (typeof window !== 'undefined' && !window.ezsite?.apis) {
+      if (typeof window !== 'undefined' && !globalThis.ezsite?.apis) {
         detectedIssues.push('EZSite APIs not available');
         status = 'error';
       }
@@ -208,7 +208,7 @@ const NavigationHealthCheck: React.FC<NavigationHealthCheckProps> = ({
                   <Button
                 variant="outline"
                 size="sm"
-                onClick={() => window.location.reload()}>
+                onClick={() => globalThis.location.reload()}>
 
                     <RefreshCw className="h-4 w-4 mr-2" />
                     Refresh Page
@@ -217,7 +217,7 @@ const NavigationHealthCheck: React.FC<NavigationHealthCheckProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => window.open('/admin/navigation-debug', '_blank')}>
+                onClick={() => globalThis.open('/admin/navigation-debug', '_blank')}>
 
                       <Settings className="h-4 w-4 mr-2" />
                       Debug Tools

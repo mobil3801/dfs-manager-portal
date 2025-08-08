@@ -1,6 +1,7 @@
 import React, { Component, ReactNode } from 'react';
 import { ErrorLogger } from '@/services/errorLogger';
 import ErrorFallback from './ErrorFallback';
+import process from "node:process";
 
 interface Props {
   children: ReactNode;
@@ -43,7 +44,7 @@ class GlobalErrorBoundary extends Component<Props, State> {
       'GlobalErrorBoundary',
       errorInfo,
       {
-        url: window.location.href,
+        url: globalThis.location.href,
         userAgent: navigator.userAgent,
         timestamp: new Date().toISOString()
       }
@@ -98,13 +99,13 @@ class GlobalErrorBoundary extends Component<Props, State> {
             customActions={
             <div className="space-y-2">
                 <button
-                onClick={() => window.location.reload()}
+                onClick={() => globalThis.location.reload()}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
 
                   Reload Application
                 </button>
                 <button
-                onClick={() => window.location.href = '/'}
+                onClick={() => globalThis.location.href = '/'}
                 className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors ml-2">
 
                   Go to Home

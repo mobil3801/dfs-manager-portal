@@ -162,8 +162,8 @@ const OptimizedAdminDashboard: React.FC = () => {
       }
 
       // Clear caches
-      if (window.ezsite?.cache?.clear) {
-        window.ezsite.cache.clear();
+      if (globalThis.ezsite?.cache?.clear) {
+        globalThis.ezsite.cache.clear();
       }
 
       // Reload metrics
@@ -317,9 +317,9 @@ const OptimizedAdminDashboard: React.FC = () => {
   return (
     <MemoryAwareErrorBoundary
       maxRetries={3}
-      autoRecovery={true}
+      autoRecovery
       memoryThreshold={0.8}
-      enableMemoryMonitoring={true}
+      enableMemoryMonitoring
       isolationLevel="page">
 
       <div className="space-y-6">

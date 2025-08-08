@@ -4,6 +4,7 @@ import { AlertTriangle, RefreshCw, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import process from "node:process";
 
 interface Props {
   children: ReactNode;
@@ -51,7 +52,7 @@ class FormErrorBoundary extends Component<Props, State> {
       errorInfo,
       {
         form: formName,
-        url: window.location.href,
+        url: globalThis.location.href,
         timestamp: new Date().toISOString(),
         formData: this.attemptFormDataRecovery()
       }

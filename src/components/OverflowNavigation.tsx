@@ -182,7 +182,7 @@ const OverflowNavigation: React.FC<OverflowNavigationProps> = ({
       }
     } catch (error) {
       console.warn('ResizeObserver not available, falling back to window resize');
-      window.addEventListener('resize', handleResize);
+      globalThis.addEventListener('resize', handleResize);
     }
 
     // Initial calculation
@@ -194,7 +194,7 @@ const OverflowNavigation: React.FC<OverflowNavigationProps> = ({
       if (resizeObserver) {
         resizeObserver.disconnect();
       } else {
-        window.removeEventListener('resize', handleResize);
+        globalThis.removeEventListener('resize', handleResize);
       }
       clearTimeout(timer);
     };
@@ -328,7 +328,7 @@ const OverflowNavigation: React.FC<OverflowNavigationProps> = ({
               <NavigationButton
                 key={item.href}
                 item={item}
-                isOverflow={true} />
+                isOverflow />
 
               )}
                 </DropdownMenuContent>
@@ -361,7 +361,7 @@ const OverflowNavigation: React.FC<OverflowNavigationProps> = ({
           <NavigationButton
             key={`hidden-${item.href}`}
             item={item}
-            isHidden={true} />
+            isHidden />
 
           )}
         </div>

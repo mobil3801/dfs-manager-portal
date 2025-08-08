@@ -36,7 +36,7 @@ const MemoryMonitoringWidget: React.FC = () => {
 
   useEffect(() => {
     // Check if memory monitoring is available
-    if (typeof window !== 'undefined' && window.performance?.memory) {
+    if (typeof window !== 'undefined' && globalThis.performance?.memory) {
       setIsAvailable(true);
 
       // Get initial memory info

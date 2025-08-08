@@ -64,7 +64,7 @@ const ComprehensiveIDDocumentSolution: React.FC = () => {
       setLoading(true);
       console.log('[ComprehensiveIDDocumentSolution] Loading employees with ID documents...');
 
-      const { data, error } = await window.ezsite.apis.tablePage('11727', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('11727', {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'ID',
@@ -113,7 +113,7 @@ const ComprehensiveIDDocumentSolution: React.FC = () => {
       for (const fileId of allFileIds) {
         try {
           const { data: fileUrl, error: urlError } = (await Promise.race([
-          window.ezsite.apis.getUploadUrl(fileId),
+          globalThis.ezsite.apis.getUploadUrl(fileId),
           new Promise((_, reject) =>
           setTimeout(() => reject(new Error('Timeout')), 5000)
           )]
@@ -314,10 +314,10 @@ const ComprehensiveIDDocumentSolution: React.FC = () => {
                 <CardContent className="p-6">
                   <LiveIDDocumentsDisplay
                 employee={employee}
-                isAdminUser={true}
+                isAdminUser
                 onRefresh={loadEmployeesWithIDDocuments}
                 allowDelete={false}
-                showPreview={true}
+                showPreview
                 className="border-0" />
 
                 </CardContent>

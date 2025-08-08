@@ -121,7 +121,7 @@ const SiteManagement: React.FC = () => {
   const loadStations = async () => {
     try {
       console.log('Loading stations from centralized service...');
-      const { data, error } = await window.ezsite.apis.tablePage(12599, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(12599, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'station_name',
@@ -186,7 +186,7 @@ const SiteManagement: React.FC = () => {
 
   const handleTestEmail = async () => {
     try {
-      const { error } = await window.ezsite.apis.sendEmail({
+      const { error } = await globalThis.ezsite.apis.sendEmail({
         from: `${settings.emailFromName} <${settings.emailFromAddress}>`,
         to: [settings.emailFromAddress],
         subject: 'DFS Manager - Email Configuration Test',
@@ -260,7 +260,7 @@ const SiteManagement: React.FC = () => {
       }));
 
       for (const update of updates) {
-        const { error } = await window.ezsite.apis.tableUpdate(12599, update);
+        const { error } = await globalThis.ezsite.apis.tableUpdate(12599, update);
         if (error) throw error;
       }
 
@@ -292,7 +292,7 @@ const SiteManagement: React.FC = () => {
       const selectedData = batchSelection.getSelectedData(stations, (station) => station.id);
 
       for (const station of selectedData) {
-        const { error } = await window.ezsite.apis.tableDelete(12599, { id: station.id });
+        const { error } = await globalThis.ezsite.apis.tableDelete(12599, { id: station.id });
         if (error) throw error;
       }
 
@@ -438,7 +438,7 @@ const SiteManagement: React.FC = () => {
               </Button>
               {stations.length === 0 &&
               <Button
-                onClick={() => window.open('/dashboard?tab=setup', '_blank')}
+                onClick={() => globalThis.open('/dashboard?tab=setup', '_blank')}
                 variant="outline"
                 size="sm">
 
@@ -483,7 +483,7 @@ const SiteManagement: React.FC = () => {
                 Set up your gas stations (MOBIL, AMOCO ROSEDALE, AMOCO BROOKLYN) to get started.
               </p>
               <Button
-              onClick={() => window.open('/dashboard?tab=setup', '_blank')}
+              onClick={() => globalThis.open('/dashboard?tab=setup', '_blank')}
               className="bg-blue-600 hover:bg-blue-700">
 
                 <Settings className="w-4 h-4 mr-2" />
@@ -527,10 +527,10 @@ const SiteManagement: React.FC = () => {
                         size="sm"
                         variant="outline"
                         onClick={() => {
-                          if (window.confirm(`Are you sure you want to delete "${station.station_name}"?`)) {
+                          if (globalThis.confirm(`Are you sure you want to delete "${station.station_name}"?`)) {
                             (async () => {
                               try {
-                                const { error } = await window.ezsite.apis.tableDelete(12599, { id: station.id });
+                                const { error } = await globalThis.ezsite.apis.tableDelete(12599, { id: station.id });
                                 if (error) throw error;
 
                                 toast({

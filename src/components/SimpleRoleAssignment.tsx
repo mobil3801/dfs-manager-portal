@@ -144,7 +144,7 @@ const SimpleRoleAssignment: React.FC<SimpleRoleAssignmentProps> = ({
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const { data, error } = await window.ezsite.apis.tablePage(11725, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(11725, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: "employee_id",
@@ -171,7 +171,7 @@ const SimpleRoleAssignment: React.FC<SimpleRoleAssignmentProps> = ({
       // Get the role template permissions
       const roleTemplate = getRolePermissions(newRole);
 
-      const { error } = await window.ezsite.apis.tableUpdate(11725, {
+      const { error } = await globalThis.ezsite.apis.tableUpdate(11725, {
         id: userId,
         role: newRole,
         detailed_permissions: JSON.stringify(roleTemplate)

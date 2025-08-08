@@ -54,7 +54,7 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 id="creditCard"
                 value={values.creditCardAmount}
                 onChange={(value) => onChange('creditCardAmount', value || 0)}
-                allowNegative={true}
+                allowNegative
                 step={0.01}
                 precision={2}
                 required />
@@ -66,7 +66,7 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 id="debitCard"
                 value={values.debitCardAmount}
                 onChange={(value) => onChange('debitCardAmount', value || 0)}
-                allowNegative={true}
+                allowNegative
                 step={0.01}
                 precision={2}
                 required />
@@ -78,7 +78,7 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 id="mobile"
                 value={values.mobileAmount}
                 onChange={(value) => onChange('mobileAmount', value || 0)}
-                allowNegative={true}
+                allowNegative
                 step={0.01}
                 precision={2}
                 required />
@@ -90,7 +90,7 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 id="cash"
                 value={values.cashAmount}
                 onChange={(value) => onChange('cashAmount', value || 0)}
-                allowNegative={true}
+                allowNegative
                 step={0.01}
                 precision={2}
                 required />
@@ -102,7 +102,7 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 id="grocery"
                 value={values.grocerySales}
                 onChange={(value) => onChange('grocerySales', value || 0)}
-                allowNegative={true}
+                allowNegative
                 step={0.01}
                 precision={2}
                 required />
@@ -138,7 +138,7 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 id="groceryCash"
                 value={values.groceryCashSales || 0}
                 onChange={(value) => onChange('groceryCashSales', value || 0)}
-                allowNegative={true}
+                allowNegative
                 step={0.01}
                 precision={2}
                 required />
@@ -150,7 +150,7 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 id="groceryCard"
                 value={values.groceryCardSales || 0}
                 onChange={(value) => onChange('groceryCardSales', value || 0)}
-                allowNegative={true}
+                allowNegative
                 step={0.01}
                 precision={2}
                 required />
@@ -163,7 +163,7 @@ const GasGrocerySalesSection: React.FC<GasGrocerySalesSectionProps> = ({
                 id="ebt"
                 value={values.ebtSales || 0}
                 onChange={(value) => onChange('ebtSales', value || 0)}
-                allowNegative={true}
+                allowNegative
                 step={0.01}
                 precision={2}
                 required />

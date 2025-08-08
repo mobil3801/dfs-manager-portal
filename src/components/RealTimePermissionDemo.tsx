@@ -175,8 +175,8 @@ const RealTimePermissionDemo: React.FC = () => {
                 
                 <RealTimePermissionToggle
                   module={selectedModule}
-                  showUserSelector={true}
-                  autoSave={true} />
+                  showUserSelector
+                  autoSave />
 
               </div>
             </CardContent>

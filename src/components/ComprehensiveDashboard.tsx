@@ -127,7 +127,7 @@ const ComprehensiveDashboard: React.FC = () => {
       setError(null);
 
       // Fetch sales data
-      const salesResponse = await window.ezsite.apis.tablePage(12356, {
+      const salesResponse = await globalThis.ezsite.apis.tablePage(12356, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'report_date',
@@ -137,7 +137,7 @@ const ComprehensiveDashboard: React.FC = () => {
       setSalesData(salesResponse.data?.List || []);
 
       // Fetch salary data
-      const salaryResponse = await window.ezsite.apis.tablePage(11788, {
+      const salaryResponse = await globalThis.ezsite.apis.tablePage(11788, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'pay_date',
@@ -147,7 +147,7 @@ const ComprehensiveDashboard: React.FC = () => {
       setSalaryData(salaryResponse.data?.List || []);
 
       // Fetch employee data
-      const employeeResponse = await window.ezsite.apis.tablePage(11727, {
+      const employeeResponse = await globalThis.ezsite.apis.tablePage(11727, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'hire_date',
@@ -157,7 +157,7 @@ const ComprehensiveDashboard: React.FC = () => {
       setEmployeeData(employeeResponse.data?.List || []);
 
       // Fetch delivery data
-      const deliveryResponse = await window.ezsite.apis.tablePage(12196, {
+      const deliveryResponse = await globalThis.ezsite.apis.tablePage(12196, {
         PageNo: 1,
         PageSize: 50,
         OrderByField: 'delivery_date',
@@ -167,7 +167,7 @@ const ComprehensiveDashboard: React.FC = () => {
       setDeliveryData(deliveryResponse.data?.List || []);
 
       // Fetch license data
-      const licenseResponse = await window.ezsite.apis.tablePage(11731, {
+      const licenseResponse = await globalThis.ezsite.apis.tablePage(11731, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'expiry_date',
@@ -177,7 +177,7 @@ const ComprehensiveDashboard: React.FC = () => {
       setLicenseData(licenseResponse.data?.List || []);
 
       // Fetch product data
-      const productResponse = await window.ezsite.apis.tablePage(11726, {
+      const productResponse = await globalThis.ezsite.apis.tablePage(11726, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'updated_at',

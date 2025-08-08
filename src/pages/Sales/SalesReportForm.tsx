@@ -153,7 +153,7 @@ export default function SalesReportForm() {
 
     setIsLoading(true);
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(12356, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(12356, {
         PageNo: 1,
         PageSize: 1,
         Filters: [{ name: 'id', op: 'Equal', value: parseInt(id) }]
@@ -259,7 +259,7 @@ export default function SalesReportForm() {
   const loadEmployees = async (station: string) => {
     setIsLoadingEmployees(true);
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(11727, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(11727, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'first_name',
@@ -465,12 +465,12 @@ export default function SalesReportForm() {
       let result;
       if (isEditing) {
         // Include ID for update
-        result = await window.ezsite.apis.tableUpdate(12356, {
+        result = await globalThis.ezsite.apis.tableUpdate(12356, {
           ...submitData,
           id: parseInt(id!)
         });
       } else {
-        result = await window.ezsite.apis.tableCreate(12356, submitData);
+        result = await globalThis.ezsite.apis.tableCreate(12356, submitData);
       }
 
       if (result.error) {

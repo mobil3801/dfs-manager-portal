@@ -62,7 +62,7 @@ class StationService {
     this.isLoading = true;
 
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(12599, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(12599, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'station_name',
@@ -202,7 +202,7 @@ class StationService {
    */
   async addStation(stationData: Omit<Station, 'id'>): Promise<{success: boolean;error?: string;}> {
     try {
-      const { error } = await window.ezsite.apis.tableCreate(12599, stationData);
+      const { error } = await globalThis.ezsite.apis.tableCreate(12599, stationData);
 
       if (error) {
         return { success: false, error };
@@ -222,7 +222,7 @@ class StationService {
    */
   async updateStation(stationData: Station): Promise<{success: boolean;error?: string;}> {
     try {
-      const { error } = await window.ezsite.apis.tableUpdate(12599, stationData);
+      const { error } = await globalThis.ezsite.apis.tableUpdate(12599, stationData);
 
       if (error) {
         return { success: false, error };
@@ -242,7 +242,7 @@ class StationService {
    */
   async deleteStation(stationId: number): Promise<{success: boolean;error?: string;}> {
     try {
-      const { error } = await window.ezsite.apis.tableDelete(12599, { id: stationId });
+      const { error } = await globalThis.ezsite.apis.tableDelete(12599, { id: stationId });
 
       if (error) {
         return { success: false, error };

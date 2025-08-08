@@ -204,7 +204,7 @@ const DeliveryReportDialog: React.FC<DeliveryReportDialogProps> = ({
     `;
 
     // Open print window
-    const printWindow = window.open('', '_blank');
+    const printWindow = globalThis.open('', '_blank');
     if (printWindow) {
       printWindow.document.write(printContent);
       printWindow.document.close();

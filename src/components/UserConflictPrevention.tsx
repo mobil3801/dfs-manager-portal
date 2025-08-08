@@ -64,7 +64,7 @@ const UserConflictPrevention: React.FC = () => {
   const loadExistingUsers = async () => {
     try {
       // Load user profiles
-      const { data, error } = await window.ezsite.apis.tablePage(11725, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(11725, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'id',
@@ -102,7 +102,7 @@ const UserConflictPrevention: React.FC = () => {
 
       // Check email uniqueness in the system
       try {
-        const { data: userData, error: userError } = await window.ezsite.apis.getUserInfo();
+        const { data: userData, error: userError } = await globalThis.ezsite.apis.getUserInfo();
         if (!userError && userData?.Email === email) {
           results.push({
             isValid: false,

@@ -105,7 +105,7 @@ const ProductList: React.FC = () => {
     try {
       setLoading(true);
 
-      const { data, error } = await window.ezsite.apis.tablePage('11726', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('11726', {
         PageNo: 1,
         PageSize: 1000, // Load a large number to get all products
         OrderByField: 'ID',
@@ -178,7 +178,7 @@ const ProductList: React.FC = () => {
       console.log('Starting auto-adjustment of serial numbers...');
 
       // Get all products ordered by ID (creation order)
-      const { data, error } = await window.ezsite.apis.tablePage('11726', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('11726', {
         PageNo: 1,
         PageSize: 1000,
         OrderByField: 'ID',
@@ -244,7 +244,7 @@ const ProductList: React.FC = () => {
             created_by: product.created_by || userProfile?.user_id || null
           };
 
-          const { error: updateError } = await window.ezsite.apis.tableUpdate('11726', updateData);
+          const { error: updateError } = await globalThis.ezsite.apis.tableUpdate('11726', updateData);
           if (updateError) {
             console.error(`Failed to update serial for product ID ${product.ID}:`, updateError);
             throw updateError;
@@ -299,7 +299,7 @@ const ProductList: React.FC = () => {
 
     try {
       console.log('Attempting to delete product with ID:', productId);
-      const { error } = await window.ezsite.apis.tableDelete('11726', { ID: productId });
+      const { error } = await globalThis.ezsite.apis.tableDelete('11726', { ID: productId });
 
       if (error) {
         console.error('API returned error:', error);
@@ -366,7 +366,7 @@ const ProductList: React.FC = () => {
 
         // Create a new product with minimal required data
         // Generate new serial number
-        const { data: serialData } = await window.ezsite.apis.tablePage('11726', {
+        const { data: serialData } = await globalThis.ezsite.apis.tablePage('11726', {
           PageNo: 1,
           PageSize: 1,
           OrderByField: 'serial_number',
@@ -402,7 +402,7 @@ const ProductList: React.FC = () => {
         };
 
         console.log('Creating new product with data:', newProductData);
-        const { error } = await window.ezsite.apis.tableCreate('11726', newProductData);
+        const { error } = await globalThis.ezsite.apis.tableCreate('11726', newProductData);
 
         if (error) {
           console.error('API returned error:', error);
@@ -463,7 +463,7 @@ const ProductList: React.FC = () => {
         };
 
         console.log('Updating product with data:', updateData);
-        const { error } = await window.ezsite.apis.tableUpdate('11726', updateData);
+        const { error } = await globalThis.ezsite.apis.tableUpdate('11726', updateData);
 
         if (error) {
           console.error('API returned error:', error);

@@ -48,7 +48,7 @@ const SalesChart: React.FC = () => {
       console.log('Fetching sales data from:', startDate.toISOString(), 'to:', endDate.toISOString());
 
       // Fetch sales reports for the last 30 days
-      const { data, error: apiError } = await window.ezsite.apis.tablePage('11728', {
+      const { data, error: apiError } = await globalThis.ezsite.apis.tablePage('11728', {
         PageNo: 1,
         PageSize: 1000,
         Filters: [

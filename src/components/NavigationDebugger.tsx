@@ -415,11 +415,11 @@ const NavigationDebugger: React.FC = () => {
             <CardContent>
               <div className="text-sm space-y-2 font-mono bg-gray-50 p-3 rounded">
                 <div>Current Path: {currentRoute}</div>
-                <div>Window Width: {typeof window !== 'undefined' ? window.innerWidth : 'N/A'}px</div>
+                <div>Window Width: {typeof window !== 'undefined' ? globalThis.innerWidth : 'N/A'}px</div>
                 <div>Navigation Items: {navigationItems.length}</div>
                 <div>Accessible Items: {accessibleItems.length}</div>
-                <div>APIs Available: {typeof window !== 'undefined' && window.ezsite?.apis ? 'Yes' : 'No'}</div>
-                <div>User Agent: {typeof window !== 'undefined' ? window.navigator.userAgent.substring(0, 50) + '...' : 'N/A'}</div>
+                <div>APIs Available: {typeof window !== 'undefined' && globalThis.ezsite?.apis ? 'Yes' : 'No'}</div>
+                <div>User Agent: {typeof window !== 'undefined' ? globalThis.navigator.userAgent.substring(0, 50) + '...' : 'N/A'}</div>
                 <div>Timestamp: {new Date().toISOString()}</div>
               </div>
             </CardContent>

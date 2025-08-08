@@ -9,7 +9,7 @@ import { globalErrorHandler } from './utils/globalErrorHandler';
 globalErrorHandler.init();
 
 // Performance API Polyfill for environments that don't support it
-if (typeof window !== 'undefined' && !window.performance) {
+if (typeof window !== 'undefined' && !globalThis.performance) {
   console.warn('Performance API not available, providing minimal polyfill');
   (window as any).performance = {
     now: () => Date.now(),
@@ -18,14 +18,14 @@ if (typeof window !== 'undefined' && !window.performance) {
     getEntriesByType: () => [],
     memory: null
   };
-} else if (typeof window !== 'undefined' && window.performance && !(window.performance as any).getEntriesByType) {
+} else if (typeof window !== 'undefined' && globalThis.performance && !(globalThis.performance as any).getEntriesByType) {
   console.warn('Performance.getEntriesByType not available, providing polyfill');
-  (window.performance as any).getEntriesByType = () => [];
+  (globalThis.performance as any).getEntriesByType = () => [];
 }
 
 // Enhanced global error handler for Performance API errors
-const originalError = window.onerror;
-window.onerror = (message, source, lineno, colno, error) => {
+const originalError = globalThis.onerror;
+globalThis.onerror = (message, source, lineno, colno, error) => {
   // Check for Performance API related errors
   if (typeof message === 'string' && (
   message.includes('getEntriesByType is not a function') ||
@@ -58,7 +58,7 @@ window.onerror = (message, source, lineno, colno, error) => {
 };
 
 // Enhanced global unhandled promise rejection handler
-window.addEventListener('unhandledrejection', (event) => {
+globalThis.addEventListener('unhandledrejection', (event) => {
   if (event.reason) {
     const reason = event.reason;
     const reasonStr = typeof reason === 'string' ? reason :

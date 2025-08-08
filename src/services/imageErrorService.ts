@@ -131,7 +131,7 @@ class ImageErrorService {
   getSafeImageUrl(imageId: number | string | null, baseUrl?: string): string | null {
     if (!imageId) return null;
 
-    const origin = baseUrl || window.location.origin;
+    const origin = baseUrl || globalThis.location.origin;
 
     // Handle different imageId formats
     if (typeof imageId === 'string') {

@@ -1,5 +1,6 @@
 import { MemoryLeakMonitor } from '@/services/memoryLeakMonitor';
 import performanceAPI from './performanceAPIWrapper';
+import process from "node:process";
 
 /**
  * Integration utilities for automatically applying memory leak detection
@@ -10,7 +11,7 @@ import performanceAPI from './performanceAPIWrapper';
 export const MEMORY_LEAK_DETECTION_ENABLED = (
 import.meta.env.VITE_ENABLE_MEMORY_LEAK_DETECTION === 'true' ||
 process.env.NODE_ENV === 'development' ||
-typeof window !== 'undefined' && window.location.search.includes('memory-debug=true')) &&
+typeof window !== 'undefined' && globalThis.location.search.includes('memory-debug=true')) &&
 typeof window !== 'undefined' && performanceAPI.getSupportInfo().performance;
 
 /**
@@ -26,15 +27,15 @@ export function initializeMemoryLeakDetection() {
     console.log('🔍 Memory leak detection initialized');
 
     // Track global timer usage
-    const originalSetTimeout = window.setTimeout;
-    const originalSetInterval = window.setInterval;
-    const originalClearTimeout = window.clearTimeout;
-    const originalClearInterval = window.clearInterval;
+    const originalSetTimeout = globalThis.setTimeout;
+    const originalSetInterval = globalThis.setInterval;
+    const originalClearTimeout = globalThis.clearTimeout;
+    const originalClearInterval = globalThis.clearInterval;
 
     const activeTimers = new Set<number>();
     const activeIntervals = new Set<number>();
 
-    window.setTimeout = function (callback: Function, delay?: number, ...args: any[]) {
+    globalThis.setTimeout = function (callback: Function, delay?: number, ...args: any[]) {
       const id = originalSetTimeout.call(window, (...callbackArgs) => {
         activeTimers.delete(id);
         return callback(...callbackArgs);
@@ -49,7 +50,7 @@ export function initializeMemoryLeakDetection() {
       return id;
     };
 
-    window.setInterval = function (callback: Function, delay?: number, ...args: any[]) {
+    globalThis.setInterval = function (callback: Function, delay?: number, ...args: any[]) {
       const id = originalSetInterval.call(window, callback, delay, ...args);
       activeIntervals.add(id);
 
@@ -60,14 +61,14 @@ export function initializeMemoryLeakDetection() {
       return id;
     };
 
-    window.clearTimeout = function (id?: number) {
+    globalThis.clearTimeout = function (id?: number) {
       if (id) {
         activeTimers.delete(id);
       }
       return originalClearTimeout.call(window, id);
     };
 
-    window.clearInterval = function (id?: number) {
+    globalThis.clearInterval = function (id?: number) {
       if (id) {
         activeIntervals.delete(id);
       }
@@ -75,10 +76,10 @@ export function initializeMemoryLeakDetection() {
     };
 
     // Track fetch requests
-    const originalFetch = window.fetch;
+    const originalFetch = globalThis.fetch;
     const activeRequests = new Set<string>();
 
-    window.fetch = function (input: RequestInfo | URL, init?: RequestInit) {
+    globalThis.fetch = function (input: RequestInfo | URL, init?: RequestInit) {
       const url = typeof input === 'string' ? input : input.toString();
       const requestId = `${Date.now()}-${Math.random()}`;
 
@@ -94,7 +95,7 @@ export function initializeMemoryLeakDetection() {
     };
 
     // Monitor page unload to detect potential leaks
-    window.addEventListener('beforeunload', () => {
+    globalThis.addEventListener('beforeunload', () => {
       const leaks = [];
 
       if (activeTimers.size > 0) {

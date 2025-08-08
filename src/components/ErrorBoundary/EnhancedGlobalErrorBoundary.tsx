@@ -1,6 +1,7 @@
 import React, { Component, ReactNode } from 'react';
 import { ErrorLogger } from '@/services/errorLogger';
 import ErrorFallback from './ErrorFallback';
+import process from "node:process";
 
 interface Props {
   children: ReactNode;
@@ -37,10 +38,10 @@ class EnhancedGlobalErrorBoundary extends Component<Props, State> {
 
   setupGlobalErrorHandlers() {
     // Handle unhandled promise rejections
-    window.addEventListener('unhandledrejection', this.handleUnhandledRejection);
+    globalThis.addEventListener('unhandledrejection', this.handleUnhandledRejection);
 
     // Handle global errors
-    window.addEventListener('error', this.handleGlobalError);
+    globalThis.addEventListener('error', this.handleGlobalError);
 
     // Override console.error to catch React warnings
     const originalConsoleError = console.error;
@@ -67,7 +68,7 @@ class EnhancedGlobalErrorBoundary extends Component<Props, State> {
       {
         type: 'promise_rejection',
         reason: event.reason,
-        url: window.location.href,
+        url: globalThis.location.href,
         timestamp: new Date().toISOString()
       }
     );
@@ -86,7 +87,7 @@ class EnhancedGlobalErrorBoundary extends Component<Props, State> {
         filename: event.filename,
         lineno: event.lineno,
         colno: event.colno,
-        url: window.location.href,
+        url: globalThis.location.href,
         timestamp: new Date().toISOString()
       }
     );
@@ -103,7 +104,7 @@ class EnhancedGlobalErrorBoundary extends Component<Props, State> {
       {
         type: 'react_invariant',
         args: args,
-        url: window.location.href,
+        url: globalThis.location.href,
         timestamp: new Date().toISOString(),
         stack: error.stack
       }
@@ -150,7 +151,7 @@ class EnhancedGlobalErrorBoundary extends Component<Props, State> {
         errorId: this.state.errorId,
         isInvariant,
         retryCount: this.state.retryCount,
-        url: window.location.href,
+        url: globalThis.location.href,
         userAgent: navigator.userAgent,
         timestamp: new Date().toISOString(),
         componentStack: errorInfo.componentStack,
@@ -205,8 +206,8 @@ class EnhancedGlobalErrorBoundary extends Component<Props, State> {
 
   componentWillUnmount() {
     // Clean up event listeners
-    window.removeEventListener('unhandledrejection', this.handleUnhandledRejection);
-    window.removeEventListener('error', this.handleGlobalError);
+    globalThis.removeEventListener('unhandledrejection', this.handleUnhandledRejection);
+    globalThis.removeEventListener('error', this.handleGlobalError);
 
     // Clear any pending retry timeouts
     this.retryTimeouts.forEach((timeout) => clearTimeout(timeout));
@@ -227,12 +228,12 @@ class EnhancedGlobalErrorBoundary extends Component<Props, State> {
 
   handleForceReload = () => {
     console.log('Force reloading application');
-    window.location.reload();
+    globalThis.location.reload();
   };
 
   handleGoHome = () => {
     console.log('Navigating to home page');
-    window.location.href = '/';
+    globalThis.location.href = '/';
   };
 
   render() {

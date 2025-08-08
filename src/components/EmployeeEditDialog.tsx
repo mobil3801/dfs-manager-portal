@@ -146,7 +146,7 @@ const EmployeeEditDialog: React.FC<EmployeeEditDialogProps> = ({
               currentImageUrl={formData.profile_image_url}
               employeeName={`${formData.first_name} ${formData.last_name}`}
               size="xl"
-              allowEdit={true}
+              allowEdit
               onImageUpdate={handleProfilePictureUpdate} />
 
           </div>
