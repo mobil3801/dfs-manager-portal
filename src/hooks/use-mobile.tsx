@@ -32,7 +32,7 @@ export function useIsMobile() {
 
 export function useDeviceDetection(): DeviceInfo {
   const [deviceInfo, setDeviceInfo] = React.useState<DeviceInfo>(() => {
-    if (typeof window === 'undefined') {
+    if (typeof globalThis === 'undefined') {
       return {
         isMobile: false,
         isTablet: false,
@@ -50,7 +50,7 @@ export function useDeviceDetection(): DeviceInfo {
       isDesktop: width >= TABLET_BREAKPOINT,
       screenWidth: width,
       orientation: globalThis.innerHeight > globalThis.innerWidth ? 'portrait' : 'landscape',
-      touchDevice: 'ontouchstart' in window || navigator.maxTouchPoints > 0
+      touchDevice: 'ontouchstart' in globalThis || navigator.maxTouchPoints > 0
     };
   });
 
@@ -65,7 +65,7 @@ export function useDeviceDetection(): DeviceInfo {
         isDesktop: width >= TABLET_BREAKPOINT,
         screenWidth: width,
         orientation: height > width ? 'portrait' : 'landscape',
-        touchDevice: 'ontouchstart' in window || navigator.maxTouchPoints > 0
+        touchDevice: 'ontouchstart' in globalThis || navigator.maxTouchPoints > 0
       });
     };
 
