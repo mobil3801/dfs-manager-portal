@@ -194,6 +194,11 @@ const AppRouter = () => {
                 <ProductForm />
               </Suspense>
             } />
+            <Route path="products/:slug" element={
+            <Suspense fallback={<PageLoader />}>
+                <ProductDetail />
+              </Suspense>
+            } />
             
             {/* Employees */}
             <Route path="employees" element={
