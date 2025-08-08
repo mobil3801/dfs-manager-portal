@@ -8,14 +8,14 @@ interface UseAuditLoggerReturn {
   logRegistration: (username: string, success: boolean, failureReason?: string) => Promise<void>;
   logPasswordReset: (username: string, success: boolean, failureReason?: string) => Promise<void>;
   logDataAccess: (resource: string, action: string, station?: string) => Promise<void>;
-  logDataModification: (resource: string, action: string, station?: string, changes?: any) => Promise<void>;
-  logPermissionChange: (targetUserId: number, changes: any) => Promise<void>;
-  logAdminAction: (action: string, details?: any) => Promise<void>;
-  logSuspiciousActivity: (description: string, details?: any) => Promise<void>;
+  logDataModification: (resource: string, action: string, station?: string, changes?: Record<string, unknown>) => Promise<void>;
+  logPermissionChange: (targetUserId: number, changes: Record<string, unknown>) => Promise<void>;
+  logAdminAction: (action: string, details?: Record<string, unknown>) => Promise<void>;
+  logSuspiciousActivity: (description: string, details?: Record<string, unknown>) => Promise<void>;
   logEvent: (
   eventType: string,
   status: 'Success' | 'Failed' | 'Blocked' | 'Suspicious',
-  details?: any)
+  details?: Record<string, unknown>)
   => Promise<void>;
 }
 
@@ -47,12 +47,12 @@ export const useAuditLogger = (): UseAuditLoggerReturn => {
   resource: string,
   action: string,
   station?: string,
-  changes?: any) =>
+  changes?: Record<string, unknown>) =>
   {
     await auditLogger.logDataModification(resource, action, user?.ID, user?.Email, station, changes);
   }, [user, auditLogger]);
 
-  const logPermissionChange = useCallback(async (targetUserId: number, changes: any) => {
+  const logPermissionChange = useCallback(async (targetUserId: number, changes: Record<string, unknown>) => {
     if (!user?.ID) return;
     await auditLogger.logPermissionChange(targetUserId, user.ID, changes);
   }, [user, auditLogger]);

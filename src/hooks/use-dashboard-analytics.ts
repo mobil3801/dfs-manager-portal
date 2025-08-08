@@ -7,6 +7,14 @@ import { analyticsExport } from '@/utils/analytics-export';
 import { analyticsAlerts } from '@/utils/analytics-alerts';
 import { analyticsPerformance } from '@/utils/analytics-performance';
 
+export interface StationMetrics {
+  totalSales: number;
+  fuelSales: number;
+  merchandiseSales: number;
+  transactions: number;
+  profitMargin: number;
+}
+
 export interface DashboardMetrics {
   totalSales: {
     current: number;
@@ -46,9 +54,9 @@ export interface DashboardMetrics {
     turnoverRate: number;
   };
   stationComparison: {
-    mobil: any;
-    amocoRosedale: any;
-    amocoBrooklyn: any;
+    mobil: StationMetrics;
+    amocoRosedale: StationMetrics;
+    amocoBrooklyn: StationMetrics;
   };
 }
 
@@ -274,7 +282,11 @@ export const useDashboardAnalytics = (options: Partial<AnalyticsOptions> = {}) =
   }, [alerts, config.enableAlerts, toast]);
 
   // Export data functionality
-  const exportData = useCallback(async (format: 'csv' | 'excel' | 'pdf', options?: any) => {
+  const exportData = useCallback(async (format: 'csv' | 'excel' | 'pdf', options?: {
+    dateRange?: { start: Date; end: Date };
+    includeCharts?: boolean;
+    customFields?: string[];
+  }) => {
     try {
       if (!metrics) {
         throw new Error('No data available for export');

@@ -16,7 +16,7 @@ interface InvariantViolation {
   stackTrace?: string;
   autoFixed?: boolean;
   fixSuggestion?: string;
-  rawError?: any;
+  rawError?: unknown;
 }
 
 const EnhancedInvariantDetector: React.FC = () => {

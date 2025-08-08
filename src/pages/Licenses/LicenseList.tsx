@@ -10,7 +10,6 @@ import { Plus, Search, Edit, Trash2, FileText, AlertTriangle, CheckCircle, Print
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import EnhancedLicensePrintDialog from '@/components/EnhancedLicensePrintDialog';
-import { smsService } from '@/services/smsService';
 import licenseAlertService from '@/services/licenseAlertService';
 
 interface License {
@@ -39,9 +38,9 @@ const LicenseList: React.FC = () => {
   const [deletingLicenseId, setDeletingLicenseId] = useState<number | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [licenseToDelete, setLicenseToDelete] = useState<License | null>(null);
-  const [showCancelled, setShowCancelled] = useState(true);
+  const [showCancelled, _setShowCancelled] = useState(true);
   const navigate = useNavigate();
-  const { userProfile, isAdmin } = useAuth();
+  const { isAdmin } = useAuth();
 
   const pageSize = 10;
 

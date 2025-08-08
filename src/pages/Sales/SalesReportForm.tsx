@@ -12,12 +12,9 @@ import { useToast } from '@/hooks/use-toast';
 import {
   ArrowLeft,
   Save,
-  TrendingUp,
   FileEdit,
   Clock,
   Calculator,
-  AlertTriangle,
-  CheckCircle2,
   Folder,
   RefreshCw,
   Printer } from
@@ -55,7 +52,7 @@ export default function SalesReportForm() {
   } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentReport, setCurrentReport] = useState<any>(null);
+  const [currentReport, setCurrentReport] = useState<Record<string, unknown> | null>(null);
 
   const [formData, setFormData] = useState({
     report_date: new Date().toISOString().split('T')[0],
@@ -171,16 +168,16 @@ export default function SalesReportForm() {
         setSelectedStation(report.station);
 
         // Helper function to safely parse numeric values
-        const parseNumeric = (value: any) => {
+        const parseNumeric = (value: unknown) => {
           if (value === null || value === undefined || value === '') return 0;
-          const num = parseFloat(value);
+          const num = parseFloat(String(value));
           return isNaN(num) ? 0 : num;
         };
 
         // Helper function to safely parse date strings
-        const parseDate = (dateString: any) => {
+        const parseDate = (dateString: unknown) => {
           if (!dateString) return new Date().toISOString().split('T')[0];
-          return new Date(dateString).toISOString().split('T')[0];
+          return new Date(String(dateString)).toISOString().split('T')[0];
         };
 
         // Parse expenses data if it exists
@@ -332,7 +329,7 @@ export default function SalesReportForm() {
     }
   };
 
-  const handleLoadDraft = (draftData: any, station: string, reportDate: string) => {
+  const handleLoadDraft = (draftData: Record<string, unknown>, station: string, reportDate: string) => {
     try {
       setSelectedStation(station);
       setFormData({
@@ -530,7 +527,7 @@ export default function SalesReportForm() {
     setShowPrintDialog(true);
   };
 
-  const updateFormData = (field: string, value: any) => {
+  const updateFormData = (field: string, value: unknown) => {
     // Ensure numeric values are properly handled
     let processedValue = value;
     if (typeof value === 'string' && !isNaN(parseFloat(value))) {
