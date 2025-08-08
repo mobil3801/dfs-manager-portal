@@ -346,7 +346,8 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode;}> = ({ chi
   }, [toast]);
 
   const hasPermission = useCallback((action: string, resource?: string): boolean => {
-    if (!userProfile) return false;
+    // Ensure user and userProfile exist
+    if (!user || !userProfile) return false;
 
     // Admins have all permissions
     if (userProfile.role === 'Administrator' || userProfile.role === 'Admin') {
@@ -381,18 +382,20 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode;}> = ({ chi
     }
 
     return false;
-  }, [userProfile]);
+  }, [user, userProfile]);
 
   const isAdmin = useCallback((): boolean => {
+    if (!user || !userProfile) return false;
     return userProfile?.role === 'Administrator' || userProfile?.role === 'Admin';
-  }, [userProfile]);
+  }, [user, userProfile]);
 
   const isManager = useCallback((): boolean => {
+    if (!user || !userProfile) return false;
     return userProfile?.role === 'Management' ||
     userProfile?.role === 'Manager' ||
     userProfile?.role === 'Administrator' ||
     userProfile?.role === 'Admin';
-  }, [userProfile]);
+  }, [user, userProfile]);
 
   // Initialize authentication state with timeout protection
   useEffect(() => {

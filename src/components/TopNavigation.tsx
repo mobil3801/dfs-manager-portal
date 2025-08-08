@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+import { useConsolidatedAuth } from '@/contexts/ConsolidatedAuthContext';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -31,24 +31,44 @@ import {
 'lucide-react';
 
 const TopNavigation = () => {
-  const { userProfile, logout, isAdmin, isManager, isAuthenticated, isLoading, isInitialized } = useSupabaseAuth();
+  const { user, userProfile, logout, isAdmin, isManager, isAuthenticated, isLoading, isInitialized } = useConsolidatedAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [debugMode, setDebugMode] = useState(false);
 
-  // Debug logging
+  // Safe auth checks with null fallbacks
+  const safeIsAdmin = () => {
+    try {
+      return user && userProfile ? isAdmin() : false;
+    } catch (error) {
+      console.warn('Error checking admin status:', error);
+      return false;
+    }
+  };
+
+  const safeIsManager = () => {
+    try {
+      return user && userProfile ? isManager() : false;
+    } catch (error) {
+      console.warn('Error checking manager status:', error);
+      return false;
+    }
+  };
+
+  // Debug logging with safety checks
   useEffect(() => {
     if (debugMode) {
       console.log('TopNavigation Debug:', {
         isAuthenticated,
         isLoading,
         isInitialized,
-        user: userProfile?.user_id,
-        userRole: userProfile ? isAdmin() ? 'Admin' : isManager() ? 'Manager' : 'Employee' : 'None'
+        user: user?.id || 'No user',
+        userProfile: userProfile?.id || 'No profile',
+        userRole: user && userProfile ? (safeIsAdmin() ? 'Admin' : safeIsManager() ? 'Manager' : 'Employee') : 'None'
       });
     }
-  }, [isAuthenticated, isLoading, isInitialized, userProfile, isAdmin, isManager, debugMode]);
+  }, [isAuthenticated, isLoading, isInitialized, user, userProfile, debugMode]);
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -135,8 +155,8 @@ const TopNavigation = () => {
   }];
 
 
-  // Add admin section if user is admin
-  if (isAuthenticated && isAdmin()) {
+  // Add admin section if user is admin (with safety check)
+  if (isAuthenticated && user && userProfile && safeIsAdmin()) {
     secondaryNavItems.push({
       name: 'Admin Panel',
       href: '/admin',
@@ -158,19 +178,19 @@ const TopNavigation = () => {
     return location.pathname.startsWith(href);
   };
 
-  // Enhanced role checking with better fallbacks
+  // Enhanced role checking with better fallbacks and safety checks
   const canAccessRoute = (requiredRole: string | null) => {
     // Allow access if no role is required
     if (!requiredRole) return true;
 
-    // Ensure user is authenticated
-    if (!isAuthenticated) return false;
+    // Ensure user is authenticated and has valid data
+    if (!isAuthenticated || !user || !userProfile) return false;
 
-    // Check specific roles
-    if (requiredRole === 'admin') return isAdmin();
-    if (requiredRole === 'manager') return isManager();
+    // Check specific roles with safety wrapper
+    if (requiredRole === 'admin') return safeIsAdmin();
+    if (requiredRole === 'manager') return safeIsManager();
 
-    // Default to allowing access for authenticated users
+    // Default to allowing access for authenticated users with valid profiles
     return true;
   };
 
@@ -332,14 +352,14 @@ const TopNavigation = () => {
                   <Button variant="ghost" className="flex items-center space-x-2 px-2 py-1.5 h-auto min-w-0 max-w-fit">
                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                       <span className="text-sm font-medium text-blue-700">
-                        {userProfile?.user_id?.charAt(0)?.toUpperCase() || 'U'}
+                        {user?.email?.charAt(0)?.toUpperCase() || userProfile?.role?.charAt(0)?.toUpperCase() || 'U'}
                       </span>
                     </div>
                     <div className="hidden xl:block text-left min-w-0 max-w-32">
                       <p className="text-sm font-medium text-gray-900 leading-none truncate">
                         {userProfile?.role || 'User'}
                       </p>
-                      <p className="text-xs text-gray-500 leading-none mt-0.5 truncate">{userProfile?.user_id}</p>
+                      <p className="text-xs text-gray-500 leading-none mt-0.5 truncate">{user?.email || 'No email'}</p>
                     </div>
                     <ChevronDown className="h-3 w-3 text-gray-500 flex-shrink-0" />
                   </Button>
@@ -378,8 +398,8 @@ const TopNavigation = () => {
             <div className="text-xs text-yellow-800">
               <strong>Debug:</strong> Auth: {isAuthenticated ? 'Yes' : 'No'} | 
               Primary: {accessiblePrimaryItems.length} | Secondary: {accessibleSecondaryItems.length} | 
-              Role: {isAdmin() ? 'Admin' : isManager() ? 'Manager' : 'Employee'} | 
-              User: {userProfile?.role || 'None'}
+              Role: {safeIsAdmin() ? 'Admin' : safeIsManager() ? 'Manager' : 'Employee'} | 
+              User: {userProfile?.role || 'None'} | Email: {user?.email || 'None'}
             </div>
           </div>
         }
@@ -442,14 +462,14 @@ const TopNavigation = () => {
                 <div className="flex items-center space-x-3 mb-4 min-w-0">
                   <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                     <span className="text-sm font-medium text-blue-700">
-                      {userProfile?.role?.charAt(0)?.toUpperCase() || 'U'}
+                      {user?.email?.charAt(0)?.toUpperCase() || userProfile?.role?.charAt(0)?.toUpperCase() || 'U'}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate">
                       {userProfile?.role || 'User'}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">{userProfile?.user_id}</p>
+                    <p className="text-xs text-gray-500 truncate">{user?.email || 'No email'}</p>
                   </div>
                 </div>
                 <Button

@@ -52,27 +52,27 @@ export const useAuth = (): AuthContextType => {
   // Direct delegation to consolidated auth with conversion
   const consolidatedAuth = useConsolidatedAuth();
 
-  // Convert consolidated auth user to legacy format
+  // Convert consolidated auth user to legacy format with null safety
   const legacyUser = consolidatedAuth.user ? {
-    ID: parseInt(consolidatedAuth.user.id.replace(/\D/g, '').substring(0, 10) || '1'),
+    ID: parseInt((consolidatedAuth.user.id || '').replace(/\D/g, '').substring(0, 10) || '1'),
     Name: consolidatedAuth.user.user_metadata?.full_name ||
     consolidatedAuth.user.user_metadata?.display_name ||
-    consolidatedAuth.user.email?.split('@')[0] ||
+    (consolidatedAuth.user.email || '').split('@')[0] ||
     'User',
     Email: consolidatedAuth.user.email || '',
     CreateTime: consolidatedAuth.user.created_at || new Date().toISOString()
   } : null;
 
-  // Convert consolidated auth user profile to legacy format
+  // Convert consolidated auth user profile to legacy format with null safety
   const legacyUserProfile = consolidatedAuth.userProfile ? {
-    id: parseInt(consolidatedAuth.userProfile.id.replace(/\D/g, '').substring(0, 10) || '1'),
-    user_id: parseInt(consolidatedAuth.user?.id.replace(/\D/g, '').substring(0, 10) || '1'),
-    role: consolidatedAuth.userProfile.role,
+    id: parseInt((consolidatedAuth.userProfile.id || '').replace(/\D/g, '').substring(0, 10) || '1'),
+    user_id: parseInt((consolidatedAuth.user?.id || '').replace(/\D/g, '').substring(0, 10) || '1'),
+    role: consolidatedAuth.userProfile.role || 'Employee',
     station: consolidatedAuth.userProfile.stations?.name || 'Default Station',
     employee_id: consolidatedAuth.userProfile.employee_id || '',
     phone: consolidatedAuth.userProfile.phone || '',
     hire_date: consolidatedAuth.userProfile.hire_date || new Date().toISOString().split('T')[0],
-    is_active: consolidatedAuth.userProfile.is_active,
+    is_active: consolidatedAuth.userProfile.is_active || true,
     detailed_permissions: consolidatedAuth.userProfile.detailed_permissions || {},
     profile_image_id: null
   } : null;

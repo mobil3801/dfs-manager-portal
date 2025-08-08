@@ -331,7 +331,7 @@ export const EnhancedAuthProvider: React.FC<{children: React.ReactNode;}> = ({ c
   };
 
   const hasPermission = (permission: string): boolean => {
-    if (!userProfile || !userProfile.roles) {
+    if (!user || !userProfile || !userProfile.roles) {
       return false;
     }
 
@@ -351,14 +351,17 @@ export const EnhancedAuthProvider: React.FC<{children: React.ReactNode;}> = ({ c
   };
 
   const isAdmin = (): boolean => {
+    if (!user || !userProfile) return false;
     return userProfile?.roles?.role_code === 'Administrator';
   };
 
   const isManager = (): boolean => {
+    if (!user || !userProfile) return false;
     return userProfile?.roles?.role_code === 'Manager' || isAdmin();
   };
 
   const isEmployee = (): boolean => {
+    if (!user || !userProfile) return false;
     return userProfile?.roles?.role_code === 'Employee';
   };
 
