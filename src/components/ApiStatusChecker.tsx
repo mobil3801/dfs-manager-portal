@@ -38,13 +38,13 @@ const ApiStatusChecker: React.FC<ApiStatusCheckerProps> = ({
     try {
       const checkDetails = {
         windowExists: typeof window !== 'undefined',
-        ezsiteExists: !!window.ezsite,
-        apisExists: !!window.ezsite?.apis,
+        ezsiteExists: !!globalThis.ezsite,
+        apisExists: !!globalThis.ezsite?.apis,
         specificApis: {}
       };
 
       // Check for specific API methods
-      if (window.ezsite?.apis) {
+      if (globalThis.ezsite?.apis) {
         const requiredMethods = [
         'getUserInfo',
         'login',
@@ -60,16 +60,16 @@ const ApiStatusChecker: React.FC<ApiStatusCheckerProps> = ({
 
 
         requiredMethods.forEach((method) => {
-          checkDetails.specificApis[method] = typeof window.ezsite?.apis?.[method] === 'function';
+          checkDetails.specificApis[method] = typeof globalThis.ezsite?.apis?.[method] === 'function';
         });
       }
 
       setDetails(checkDetails);
 
       // Test basic API functionality
-      if (window.ezsite?.apis?.getUserInfo) {
+      if (globalThis.ezsite?.apis?.getUserInfo) {
         try {
-          const testResponse = await window.ezsite.apis.getUserInfo();
+          const testResponse = await globalThis.ezsite.apis.getUserInfo();
           console.log('API test response:', testResponse);
 
           setStatus('available');
@@ -304,7 +304,7 @@ const ApiStatusChecker: React.FC<ApiStatusCheckerProps> = ({
               </AlertDescription>
             </Alert>
             <Button
-            onClick={() => window.location.reload()}
+            onClick={() => globalThis.location.reload()}
             variant="outline"
             className="w-full">
 

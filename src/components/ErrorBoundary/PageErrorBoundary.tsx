@@ -1,6 +1,7 @@
 import React, { Component, ReactNode } from 'react';
 import { ErrorLogger } from '@/services/errorLogger';
 import ErrorFallback from './ErrorFallback';
+import process from "node:process";
 
 interface Props {
   children: ReactNode;
@@ -47,8 +48,8 @@ class PageErrorBoundary extends Component<Props, State> {
       errorInfo,
       {
         page: pageName,
-        url: window.location.href,
-        pathname: window.location.pathname,
+        url: globalThis.location.href,
+        pathname: globalThis.location.pathname,
         timestamp: new Date().toISOString()
       }
     );

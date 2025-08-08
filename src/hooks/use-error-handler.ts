@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { useToast } from './use-toast';
 import { ErrorLogger } from '@/services/errorLogger';
+import process from "node:process";
 
 interface UseErrorHandlerOptions {
   component?: string;
@@ -23,7 +24,7 @@ export const useErrorHandler = (options: UseErrorHandlerOptions = {}) => {
   const handleError = useCallback((
   error: Error | string,
   customMessage?: string,
-  context?: Record<string, any>) => {
+  context?: Record<string, unknown>) => {
     const errorObj = typeof error === 'string' ? new Error(error) : error;
 
     // Log the error
@@ -59,7 +60,7 @@ export const useErrorHandler = (options: UseErrorHandlerOptions = {}) => {
   const handleAsync = useCallback(async <T,>(
   asyncFn: () => Promise<T>,
   errorMessage?: string,
-  context?: Record<string, any>)
+  context?: Record<string, unknown>)
   : Promise<T | null> => {
     try {
       return await asyncFn();
@@ -77,7 +78,7 @@ export const useErrorHandler = (options: UseErrorHandlerOptions = {}) => {
   const handleApiCall = useCallback(async <T,>(
   apiCall: () => Promise<{data?: T;error?: string;}>,
   errorMessage?: string,
-  context?: Record<string, any>)
+  context?: Record<string, unknown>)
   : Promise<T | null> => {
     try {
       const result = await apiCall();
@@ -108,7 +109,7 @@ export const useErrorHandler = (options: UseErrorHandlerOptions = {}) => {
 export const withErrorHandler = <P extends object,>(
 Component: React.ComponentType<P>,
 errorHandlerOptions?: UseErrorHandlerOptions) => {
-  return React.forwardRef<any, P & {errorHandler?: ReturnType<typeof useErrorHandler>;}>((props, ref) => {
+  return React.forwardRef<unknown, P & {errorHandler?: ReturnType<typeof useErrorHandler>;}>((props, ref) => {
     const errorHandler = useErrorHandler(errorHandlerOptions);
 
     return React.createElement(Component, {

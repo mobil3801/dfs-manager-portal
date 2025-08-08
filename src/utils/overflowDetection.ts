@@ -95,7 +95,7 @@ export class OverflowDetector {
   }
 
   private setupResizeObserver(): void {
-    if (!window.ResizeObserver) return;
+    if (!globalThis.ResizeObserver) return;
 
     this.observer = new ResizeObserver((entries) => {
       // Debounce the check to avoid too many calls
@@ -179,7 +179,7 @@ export class OverflowDetector {
   }
 
   private detectOverflow(element: HTMLElement): OverflowIssue | null {
-    const computedStyle = window.getComputedStyle(element);
+    const computedStyle = globalThis.getComputedStyle(element);
     const overflow = computedStyle.overflow;
     const overflowX = computedStyle.overflowX;
     const overflowY = computedStyle.overflowY;
@@ -219,8 +219,8 @@ export class OverflowDetector {
       selector: this.getElementSelector(element),
       timestamp: Date.now(),
       viewport: {
-        width: window.innerWidth,
-        height: window.innerHeight
+        width: globalThis.innerWidth,
+        height: globalThis.innerHeight
       }
     };
   }
@@ -247,8 +247,8 @@ export class OverflowDetector {
       timestamp: Date.now(),
       userAgent: navigator.userAgent,
       viewport: {
-        width: window.innerWidth,
-        height: window.innerHeight
+        width: globalThis.innerWidth,
+        height: globalThis.innerHeight
       },
       issues: issues.map((issue) => ({
         selector: issue.selector,
@@ -297,8 +297,8 @@ export class OverflowDetector {
         both: this.issues.filter((i) => i.type === 'both').length
       },
       viewport: {
-        width: window.innerWidth,
-        height: window.innerHeight
+        width: globalThis.innerWidth,
+        height: globalThis.innerHeight
       },
       issues: this.issues
     };
@@ -336,7 +336,7 @@ export const runAutomatedOverflowTests = async (viewports: Array<{width: number;
 
   for (const viewport of viewports) {
     // Set viewport size
-    if (window.innerWidth !== viewport.width || window.innerHeight !== viewport.height) {
+    if (globalThis.innerWidth !== viewport.width || globalThis.innerHeight !== viewport.height) {
       // In a real test environment, you'd use a testing framework to set viewport size
       console.log(`Testing viewport: ${viewport.width}x${viewport.height}`);
     }

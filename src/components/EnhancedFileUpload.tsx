@@ -102,7 +102,7 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
   const uploadToDatabase = async (file: File): Promise<FileUploadResult> => {
     try {
       // Upload file to storage
-      const { data: storeFileId, error: uploadError } = await window.ezsite.apis.upload({
+      const { data: storeFileId, error: uploadError } = await globalThis.ezsite.apis.upload({
         filename: file.name,
         file: file
       });
@@ -122,10 +122,10 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
         file_category: fileCategory,
         is_active: true,
         description: "",
-        file_url: `${window.location.origin}/api/files/${storeFileId}`
+        file_url: `${globalThis.location.origin}/api/files/${storeFileId}`
       };
 
-      const { data: insertResult, error: insertError } = await window.ezsite.apis.tableCreate(26928, fileData);
+      const { data: insertResult, error: insertError } = await globalThis.ezsite.apis.tableCreate(26928, fileData);
 
       if (insertError) throw insertError;
 
@@ -283,7 +283,7 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
 
   const handlePreview = () => {
     if (uploadResult?.fileUrl) {
-      window.open(uploadResult.fileUrl, '_blank');
+      globalThis.open(uploadResult.fileUrl, '_blank');
     }
   };
 

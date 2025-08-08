@@ -101,7 +101,7 @@ export class MemoryLeakMonitor {
 
     // Monitor for page unload to cleanup
     if (typeof window !== 'undefined') {
-      window.addEventListener('beforeunload', () => {
+      globalThis.addEventListener('beforeunload', () => {
         this.stopMonitoring();
       });
     }

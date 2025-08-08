@@ -67,7 +67,7 @@ const ProductPermissionManager: React.FC<ProductPermissionManagerProps> = ({
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const { data, error } = await window.ezsite.apis.tablePage('11725', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('11725', {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'ID',
@@ -224,7 +224,7 @@ const ProductPermissionManager: React.FC<ProductPermissionManagerProps> = ({
               userId={selectedUserId || undefined}
               module="products"
               onPermissionChange={handlePermissionChange}
-              showUserSelector={true} />
+              showUserSelector />
 
             </div>
 

@@ -113,7 +113,7 @@ const EmployeeProfilePicture: React.FC<EmployeeProfilePictureProps> = ({
         showFallbackIcon={showFallbackIcon}
         enableHover={enableHover}
         rounded={rounded}
-        disabled={true}
+        disabled
         allowEdit={false}
         showLoadingState={false} />);
   }

@@ -43,7 +43,7 @@ const IDFileDebugger: React.FC<IDFileDebuggerProps> = ({
     try {
       // Step 1: Check if file record exists in file_uploads table
       console.log(`[IDFileDebugger] Checking file_uploads table for file ${fileId}`);
-      const { data: fileData, error: fileError } = await window.ezsite.apis.tablePage('26928', {
+      const { data: fileData, error: fileError } = await globalThis.ezsite.apis.tablePage('26928', {
         PageNo: 1,
         PageSize: 10,
         Filters: [{ name: 'store_file_id', op: 'Equal', value: fileId }]
@@ -58,7 +58,7 @@ const IDFileDebugger: React.FC<IDFileDebuggerProps> = ({
 
       // Step 2: Try to get the upload URL
       console.log(`[IDFileDebugger] Attempting to get upload URL for file ${fileId}`);
-      const { data: fileUrl, error: urlError } = await window.ezsite.apis.getUploadUrl(fileId);
+      const { data: fileUrl, error: urlError } = await globalThis.ezsite.apis.getUploadUrl(fileId);
 
       if (urlError) {
         throw new Error(`URL retrieval failed: ${urlError}`);
@@ -136,7 +136,7 @@ const IDFileDebugger: React.FC<IDFileDebuggerProps> = ({
   const handleOpenUrl = (fileId: number) => {
     const result = debugResults[fileId];
     if (result?.url) {
-      window.open(result.url, '_blank', 'noopener,noreferrer');
+      globalThis.open(result.url, '_blank', 'noopener,noreferrer');
     }
   };
 

@@ -65,7 +65,7 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
         setCheckingFile(true);
         try {
           // Get the file URL directly
-          const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(existingFileId);
+          const { data: fileUrl, error } = await globalThis.ezsite.apis.getUploadUrl(existingFileId);
 
           if (error) {
             console.error('Error getting file URL:', error);
@@ -194,7 +194,7 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
       try {
         // For existing files, use the API to get a proper download URL
         if (existingFileId && !selectedFile) {
-          const { data: downloadUrl, error } = await window.ezsite.apis.getUploadUrl(existingFileId);
+          const { data: downloadUrl, error } = await globalThis.ezsite.apis.getUploadUrl(existingFileId);
           if (error) {
             throw new Error(error);
           }
@@ -309,13 +309,13 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
               )}
               onLoad={handleImageLoad}
               onError={handleImageError}
-              onClick={() => window.open(previewUrl, '_blank')} />
+              onClick={() => globalThis.open(previewUrl, '_blank')} />
             }
 
             {/* Non-image or error fallback - when file exists */}
             {hasContent && (!isImage || imageError) && !imageLoading && !checkingFile &&
             <div className="w-full h-full flex items-center justify-center cursor-pointer hover:bg-blue-100 transition-colors"
-            onClick={() => previewUrl && window.open(previewUrl, '_blank')}>
+            onClick={() => previewUrl && globalThis.open(previewUrl, '_blank')}>
                 <div className="text-center">
                   <FileText className="w-16 h-16 text-blue-500 mx-auto mb-3" />
                   <p className="text-sm font-medium text-blue-800">
@@ -375,7 +375,7 @@ const InstantIDDocumentUpload: React.FC<InstantIDDocumentUploadProps> = ({
                 type="button"
                 variant="secondary"
                 size="sm"
-                onClick={() => window.open(previewUrl, '_blank')}
+                onClick={() => globalThis.open(previewUrl, '_blank')}
                 className="bg-white/90 hover:bg-white text-blue-600 shadow-sm touch-manipulation min-h-[32px]">
                   <Eye className="w-4 h-4 mr-1" />
                   <span className="hidden sm:inline">View</span>

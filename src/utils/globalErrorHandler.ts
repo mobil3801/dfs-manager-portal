@@ -25,7 +25,7 @@ class GlobalErrorHandler {
 
   init() {
     // Handle unhandled promise rejections
-    window.addEventListener('unhandledrejection', (event) => {
+    globalThis.addEventListener('unhandledrejection', (event) => {
       this.handleError({
         type: 'unhandledrejection',
         message: event.reason?.message || String(event.reason),
@@ -34,7 +34,7 @@ class GlobalErrorHandler {
     });
 
     // Handle global errors
-    window.addEventListener('error', (event) => {
+    globalThis.addEventListener('error', (event) => {
       this.handleError({
         type: 'error',
         url: event.filename,
@@ -48,9 +48,9 @@ class GlobalErrorHandler {
   }
 
   private interceptFetch() {
-    const originalFetch = window.fetch;
+    const originalFetch = globalThis.fetch;
 
-    window.fetch = async (...args) => {
+    globalThis.fetch = async (...args) => {
       try {
         const response = await originalFetch(...args);
 
@@ -134,7 +134,7 @@ class GlobalErrorHandler {
 
   private emitImageFallback(originalUrl: string, fallbackUrl: string) {
     // Emit a custom event that components can listen to
-    window.dispatchEvent(new CustomEvent('imageFallback', {
+    globalThis.dispatchEvent(new CustomEvent('imageFallback', {
       detail: { originalUrl, fallbackUrl }
     }));
   }

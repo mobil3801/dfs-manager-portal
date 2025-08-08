@@ -23,7 +23,7 @@ const AccessDenied: React.FC<AccessDeniedProps> = ({
   const { user, userProfile, loading } = useAuth();
 
   const handleRefresh = () => {
-    window.location.reload();
+    globalThis.location.reload();
   };
 
   // Debug information for troubleshooting

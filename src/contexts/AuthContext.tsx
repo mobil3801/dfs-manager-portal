@@ -77,11 +77,11 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       console.log('🔄 Attempting to fetch user data...');
 
       // Check if APIs are available
-      if (!window.ezsite?.apis) {
+      if (!globalThis.ezsite?.apis) {
         throw new Error('EZSite APIs not available');
       }
 
-      const userResponse = await window.ezsite.apis.getUserInfo();
+      const userResponse = await globalThis.ezsite.apis.getUserInfo();
 
       // Handle response with no data (user not authenticated)
       if (!userResponse.data) {
@@ -110,7 +110,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
       try {
         console.log('🔄 Fetching user profile for user ID:', userResponse.data.ID);
 
-        const profileResponse = await window.ezsite.apis.tablePage(11725, {
+        const profileResponse = await globalThis.ezsite.apis.tablePage(11725, {
           PageNo: 1,
           PageSize: 1,
           Filters: [
@@ -202,13 +202,13 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
     try {
       // Wait for APIs to be available
       let attempts = 0;
-      while (!window.ezsite?.apis && attempts < 30) {
+      while (!globalThis.ezsite?.apis && attempts < 30) {
         console.log(`⏳ Waiting for EZSite APIs... (attempt ${attempts + 1})`);
         await new Promise((resolve) => setTimeout(resolve, 100));
         attempts++;
       }
 
-      if (!window.ezsite?.apis) {
+      if (!globalThis.ezsite?.apis) {
         throw new Error('EZSite APIs failed to load');
       }
 
@@ -245,14 +245,14 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
       console.log('🔑 Attempting login for:', email);
 
-      if (!window.ezsite?.apis) {
+      if (!globalThis.ezsite?.apis) {
         throw new Error('Authentication system not available');
       }
 
       // Small delay to prevent rapid successive calls
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const response = await window.ezsite.apis.login({ email, password });
+      const response = await globalThis.ezsite.apis.login({ email, password });
 
       if (response.error) {
         console.log('❌ Login API failed:', response.error);
@@ -312,8 +312,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
         await auditLogger.logLogout(user.Email, user.ID);
       }
 
-      if (window.ezsite?.apis) {
-        await window.ezsite.apis.logout();
+      if (globalThis.ezsite?.apis) {
+        await globalThis.ezsite.apis.logout();
       }
 
       setUser(null);
@@ -342,11 +342,11 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 
       console.log('📝 Attempting registration for:', email);
 
-      if (!window.ezsite?.apis) {
+      if (!globalThis.ezsite?.apis) {
         throw new Error('Registration system not available');
       }
 
-      const response = await window.ezsite.apis.register({ email, password });
+      const response = await globalThis.ezsite.apis.register({ email, password });
 
       if (response.error) {
         console.log('❌ Registration failed:', response.error);

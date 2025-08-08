@@ -131,7 +131,7 @@ class AnalyticsCalculations {
         });
       }
 
-      const { data, error } = await window.ezsite.apis.tablePage(this.tableIds.salesReports, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(this.tableIds.salesReports, {
         PageNo: 1,
         PageSize: 1000,
         OrderByField: 'report_date',
@@ -173,7 +173,7 @@ class AnalyticsCalculations {
         });
       }
 
-      const { data, error } = await window.ezsite.apis.tablePage(this.tableIds.deliveryRecords, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(this.tableIds.deliveryRecords, {
         PageNo: 1,
         PageSize: 1000,
         OrderByField: 'delivery_date',
@@ -210,7 +210,7 @@ class AnalyticsCalculations {
         value: true
       });
 
-      const { data, error } = await window.ezsite.apis.tablePage(this.tableIds.employees, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(this.tableIds.employees, {
         PageNo: 1,
         PageSize: 1000,
         OrderByField: 'hire_date',
@@ -229,7 +229,7 @@ class AnalyticsCalculations {
   // Fetch product data
   private async fetchProductData() {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(this.tableIds.products, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(this.tableIds.products, {
         PageNo: 1,
         PageSize: 1000,
         OrderByField: 'updated_at',

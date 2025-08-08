@@ -98,7 +98,7 @@ const LiveIDDocumentsDisplay: React.FC<LiveIDDocumentsDisplayProps> = ({
     setSystemStatus((prev) => ({ ...prev, api: 'checking' }));
     try {
       const apiResponse = (await Promise.race([
-      window.ezsite.apis.tablePage('11727', {
+      globalThis.ezsite.apis.tablePage('11727', {
         PageNo: 1,
         PageSize: 1,
         Filters: [{ name: 'ID', op: 'Equal', value: employee.ID }]
@@ -121,7 +121,7 @@ const LiveIDDocumentsDisplay: React.FC<LiveIDDocumentsDisplayProps> = ({
     setSystemStatus((prev) => ({ ...prev, database: 'checking' }));
     try {
       const dbResponse = (await Promise.race([
-      window.ezsite.apis.tablePage('26928', {
+      globalThis.ezsite.apis.tablePage('26928', {
         PageNo: 1,
         PageSize: 1,
         Filters: []
@@ -153,7 +153,7 @@ const LiveIDDocumentsDisplay: React.FC<LiveIDDocumentsDisplayProps> = ({
       try {
         const testFileId = fileIds[0];
         const storageResponse = (await Promise.race([
-        window.ezsite.apis.getUploadUrl(testFileId!),
+        globalThis.ezsite.apis.getUploadUrl(testFileId!),
         new Promise((_, reject) =>
         setTimeout(() => reject(new Error('Storage timeout')), 8000)
         )]
@@ -244,7 +244,7 @@ const LiveIDDocumentsDisplay: React.FC<LiveIDDocumentsDisplayProps> = ({
         [documentKey]: null
       };
 
-      const { error } = await window.ezsite.apis.tableUpdate('11727', updateData);
+      const { error } = await globalThis.ezsite.apis.tableUpdate('11727', updateData);
       if (error) throw new Error(error);
 
       // Update local state immediately
@@ -255,14 +255,14 @@ const LiveIDDocumentsDisplay: React.FC<LiveIDDocumentsDisplayProps> = ({
 
       // Clean up file storage
       try {
-        const { data: fileData, error: fetchError } = await window.ezsite.apis.tablePage('26928', {
+        const { data: fileData, error: fetchError } = await globalThis.ezsite.apis.tablePage('26928', {
           PageNo: 1,
           PageSize: 1,
           Filters: [{ name: 'store_file_id', op: 'Equal', value: fileId }]
         });
 
         if (!fetchError && fileData && fileData.List && fileData.List.length > 0) {
-          const { error: deleteError } = await window.ezsite.apis.tableDelete('26928', {
+          const { error: deleteError } = await globalThis.ezsite.apis.tableDelete('26928', {
             ID: fileData.List[0].id
           });
           if (deleteError) {

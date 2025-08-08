@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, RefreshCw, Shield, Zap } from 'lucide-react';
+import process from "node:process";
 
 interface State {
   hasError: boolean;
@@ -635,7 +636,7 @@ class InvariantErrorRecovery extends Component<Props, State> {
 
               // Empty batch to flush pending updates
             });}} catch (e) {console.warn('Could not flush React updates:', e);}} // Clear any orphaned event listeners that might cause issues
-      const elementsWithListeners = document.querySelectorAll('[onclick], [onchange], [onsubmit]');elementsWithListeners.forEach((element) => {element.removeAttribute('onclick');element.removeAttribute('onchange');element.removeAttribute('onsubmit');});console.log('Fixed render issues');resolve();});};private handleManualRetry = () => {this.setState({ hasError: false, error: null, errorInfo: null, isRecovering: false, retryCount: this.state.retryCount + 1 });};private handleForceReload = () => {window.location.reload();};render() {if (this.state.hasError) {const isInvariantError = this.state.error ? this.isInvariantError(this.state.error) : false;const canRetry = this.state.retryCount < this.maxRetries;return <Card className="w-full max-w-4xl mx-auto mt-8 border-red-200">
+      const elementsWithListeners = document.querySelectorAll('[onclick], [onchange], [onsubmit]');elementsWithListeners.forEach((element) => {element.removeAttribute('onclick');element.removeAttribute('onchange');element.removeAttribute('onsubmit');});console.log('Fixed render issues');resolve();});};private handleManualRetry = () => {this.setState({ hasError: false, error: null, errorInfo: null, isRecovering: false, retryCount: this.state.retryCount + 1 });};private handleForceReload = () => {globalThis.location.reload();};render() {if (this.state.hasError) {const isInvariantError = this.state.error ? this.isInvariantError(this.state.error) : false;const canRetry = this.state.retryCount < this.maxRetries;return <Card className="w-full max-w-4xl mx-auto mt-8 border-red-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-red-700">
               <AlertTriangle className="h-5 w-5" />

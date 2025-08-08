@@ -78,20 +78,20 @@ const AdminFirstTimeSetup: React.FC = () => {
   const checkSetupProgress = async () => {
     try {
       // Check if admin users exist
-      const { data: adminData, error: adminError } = await window.ezsite.apis.tablePage(11725, {
+      const { data: adminData, error: adminError } = await globalThis.ezsite.apis.tablePage(11725, {
         "PageNo": 1,
         "PageSize": 1,
         "Filters": [{ "name": "role", "op": "Equal", "value": "Administrator" }]
       });
 
       // Check if stations are configured
-      const { data: stationData, error: stationError } = await window.ezsite.apis.tablePage(12599, {
+      const { data: stationData, error: stationError } = await globalThis.ezsite.apis.tablePage(12599, {
         "PageNo": 1,
         "PageSize": 1
       });
 
       // Check if SMS is configured
-      const { data: smsData, error: smsError } = await window.ezsite.apis.tablePage(12640, {
+      const { data: smsData, error: smsError } = await globalThis.ezsite.apis.tablePage(12640, {
         "PageNo": 1,
         "PageSize": 1,
         "Filters": [{ "name": "is_active", "op": "Equal", "value": true }]
@@ -159,7 +159,7 @@ const AdminFirstTimeSetup: React.FC = () => {
       setLoading(true);
 
       // Create user profile record
-      const { error } = await window.ezsite.apis.tableCreate(11725, {
+      const { error } = await globalThis.ezsite.apis.tableCreate(11725, {
         user_id: 1, // Mock user ID - in real app this would come from auth system
         role: adminForm.role,
         station: adminForm.station,
@@ -242,7 +242,7 @@ const AdminFirstTimeSetup: React.FC = () => {
 
 
       for (const station of defaultStations) {
-        const { error } = await window.ezsite.apis.tableCreate(12599, {
+        const { error } = await globalThis.ezsite.apis.tableCreate(12599, {
           ...station,
           last_updated: new Date().toISOString(),
           created_by: 1
@@ -544,7 +544,7 @@ const AdminFirstTimeSetup: React.FC = () => {
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
                 <Button
-                onClick={() => window.open('/admin/sms-alert-management', '_blank')}
+                onClick={() => globalThis.open('/admin/sms-alert-management', '_blank')}
                 className="flex-1">
 
                   Configure SMS Now
@@ -610,14 +610,14 @@ const AdminFirstTimeSetup: React.FC = () => {
               </p>
               <div className="flex gap-2 justify-center">
                 <Button
-                onClick={() => window.location.href = '/dashboard'}
+                onClick={() => globalThis.location.href = '/dashboard'}
                 className="bg-green-600 hover:bg-green-700">
 
                   Go to Dashboard
                 </Button>
                 <Button
                 variant="outline"
-                onClick={() => window.open('/dashboard?tab=setup', '_blank')}>
+                onClick={() => globalThis.open('/dashboard?tab=setup', '_blank')}>
 
                   View Setup Guide
                 </Button>

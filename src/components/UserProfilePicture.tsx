@@ -48,7 +48,7 @@ const UserProfilePicture: React.FC<UserProfilePictureProps> = ({
 
       // Try to get the profile image ID from database
       if (userProfile.id) {
-        const { data, error } = await window.ezsite.apis.tablePage('11725', {
+        const { data, error } = await globalThis.ezsite.apis.tablePage('11725', {
           PageNo: 1,
           PageSize: 1,
           Filters: [{ name: 'ID', op: 'Equal', value: userProfile.id }]
@@ -115,7 +115,7 @@ const UserProfilePicture: React.FC<UserProfilePictureProps> = ({
         showFallbackIcon={showFallbackIcon}
         enableHover={enableHover}
         rounded={rounded}
-        disabled={true}
+        disabled
         allowEdit={false} />);
 
 

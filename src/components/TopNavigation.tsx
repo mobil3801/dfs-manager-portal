@@ -29,6 +29,7 @@ import {
   MoreHorizontal,
   ClipboardList } from
 'lucide-react';
+import process from "node:process";
 
 const TopNavigation = () => {
   const { userProfile, logout, isAdmin, isManager, isAuthenticated, isLoading, isInitialized } = useSupabaseAuth();
@@ -58,13 +59,13 @@ const TopNavigation = () => {
   // Close mobile menu on window resize to desktop
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 1024) {
+      if (globalThis.innerWidth >= 1024) {
         setMobileMenuOpen(false);
       }
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    globalThis.addEventListener('resize', handleResize);
+    return () => globalThis.removeEventListener('resize', handleResize);
   }, []);
 
   // Primary navigation items - always visible in main nav

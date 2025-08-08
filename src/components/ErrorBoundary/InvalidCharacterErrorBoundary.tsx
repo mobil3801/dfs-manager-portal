@@ -65,7 +65,7 @@ class InvalidCharacterErrorBoundary extends Component<Props, State> {
       componentStack: errorInfo.componentStack,
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
-      url: window.location.href
+      url: globalThis.location.href
     };
 
     console.error('Detailed InvalidCharacterError info:', errorDetails);
@@ -107,7 +107,7 @@ class InvalidCharacterErrorBoundary extends Component<Props, State> {
       }));
     } else {
       // Force a page reload if we've exceeded retry attempts
-      window.location.reload();
+      globalThis.location.reload();
     }
   };
 
@@ -134,7 +134,7 @@ class InvalidCharacterErrorBoundary extends Component<Props, State> {
   };
 
   private handleReload = () => {
-    window.location.reload();
+    globalThis.location.reload();
   };
 
   render() {

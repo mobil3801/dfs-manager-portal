@@ -98,7 +98,7 @@ const RealTimePermissionToggle: React.FC<RealTimePermissionToggleProps> = ({
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const { data, error } = await window.ezsite.apis.tablePage('11725', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('11725', {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'id',
@@ -125,7 +125,7 @@ const RealTimePermissionToggle: React.FC<RealTimePermissionToggleProps> = ({
   const loadUserPermissions = async (targetUserId: number) => {
     try {
       setLoading(true);
-      const { data, error } = await window.ezsite.apis.tablePage('11725', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('11725', {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'id',
@@ -201,7 +201,7 @@ const RealTimePermissionToggle: React.FC<RealTimePermissionToggleProps> = ({
       setSaving(true);
 
       // Get current user data
-      const { data, error } = await window.ezsite.apis.tablePage('11725', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('11725', {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'id',
@@ -235,7 +235,7 @@ const RealTimePermissionToggle: React.FC<RealTimePermissionToggleProps> = ({
       };
 
       // Save updated permissions using correct field name
-      const updateResult = await window.ezsite.apis.tableUpdate('11725', {
+      const updateResult = await globalThis.ezsite.apis.tableUpdate('11725', {
         id: user.id,
         detailed_permissions: JSON.stringify(updatedPermissions)
       });
@@ -275,7 +275,7 @@ const RealTimePermissionToggle: React.FC<RealTimePermissionToggleProps> = ({
       setSaving(true);
 
       // Get current user data
-      const { data, error } = await window.ezsite.apis.tablePage('11725', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('11725', {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'id',
@@ -309,7 +309,7 @@ const RealTimePermissionToggle: React.FC<RealTimePermissionToggleProps> = ({
       };
 
       // Save updated permissions using correct field name
-      const updateResult = await window.ezsite.apis.tableUpdate('11725', {
+      const updateResult = await globalThis.ezsite.apis.tableUpdate('11725', {
         id: user.id,
         detailed_permissions: JSON.stringify(updatedPermissions)
       });

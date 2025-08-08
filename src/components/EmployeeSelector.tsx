@@ -57,7 +57,7 @@ const EmployeeSelector: React.FC<EmployeeSelectorProps> = ({
         filters.push({ name: 'station', op: 'Equal', value: station });
       }
 
-      const { data, error } = await window.ezsite.apis.tablePage(11727, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(11727, {
         PageNo: 1,
         PageSize: 1000,
         OrderByField: 'first_name',

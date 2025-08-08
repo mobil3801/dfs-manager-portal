@@ -57,7 +57,7 @@ const AuthFallback: React.FC<AuthFallbackProps> = ({
         await onRetry();
       } else {
         // Default retry behavior
-        window.location.reload();
+        globalThis.location.reload();
       }
     } catch (error) {
       console.error('Retry failed:', error);
@@ -68,15 +68,15 @@ const AuthFallback: React.FC<AuthFallbackProps> = ({
   };
 
   const handleManualRefresh = () => {
-    window.location.reload();
+    globalThis.location.reload();
   };
 
   const handleGoToLogin = () => {
-    window.location.href = '/login';
+    globalThis.location.href = '/login';
   };
 
   const handleGoToDiagnostic = () => {
-    window.location.href = '/admin/auth-diagnostic';
+    globalThis.location.href = '/admin/auth-diagnostic';
   };
 
   const getErrorType = (errorMessage?: string) => {
@@ -253,10 +253,10 @@ const AuthFallback: React.FC<AuthFallbackProps> = ({
             if (onRetry) {
               onRetry();
             } else {
-              window.location.reload();
+              globalThis.location.reload();
             }
           }}
-          showFullDetails={true} />
+          showFullDetails />
 
         }
 

@@ -56,14 +56,14 @@ export const ModuleAccessProvider: React.FC<{children: React.ReactNode;}> = ({ c
     try {
       setLoading(true);
 
-      if (!window.ezsite?.apis) {
+      if (!globalThis.ezsite?.apis) {
         console.warn('Cannot create modules - EZSite APIs not available');
         return;
       }
 
       for (const module of defaultModules) {
         try {
-          const { error: createError } = await window.ezsite.apis.tableCreate("25712", {
+          const { error: createError } = await globalThis.ezsite.apis.tableCreate("25712", {
             module_name: module.module_name,
             display_name: module.display_name,
             create_enabled: module.create_enabled,
@@ -100,7 +100,7 @@ export const ModuleAccessProvider: React.FC<{children: React.ReactNode;}> = ({ c
       setError(null);
 
       // Check if EZSite APIs are available
-      if (!window.ezsite?.apis) {
+      if (!globalThis.ezsite?.apis) {
         console.warn('EZSite APIs not available, using default module permissions');
         setIsModuleAccessEnabled(false);
         setModuleAccess(defaultModules.map((module, index) => ({
@@ -112,7 +112,7 @@ export const ModuleAccessProvider: React.FC<{children: React.ReactNode;}> = ({ c
         return;
       }
 
-      const response = await window.ezsite.apis.tablePage("25712", {
+      const response = await globalThis.ezsite.apis.tablePage("25712", {
         PageNo: 1,
         PageSize: 100,
         OrderByField: "id",
@@ -155,11 +155,11 @@ export const ModuleAccessProvider: React.FC<{children: React.ReactNode;}> = ({ c
 
   const updateModuleAccess = async (id: number, updates: Partial<ModuleAccess>) => {
     try {
-      if (!window.ezsite?.apis) {
+      if (!globalThis.ezsite?.apis) {
         throw new Error('EZSite APIs not available');
       }
 
-      const response = await window.ezsite.apis.tableUpdate("25712", {
+      const response = await globalThis.ezsite.apis.tableUpdate("25712", {
         ID: id,
         ...updates,
         updated_at: new Date().toISOString()

@@ -89,7 +89,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
   };
 
   const handleRefreshPage = () => {
-    window.location.reload();
+    globalThis.location.reload();
   };
 
   const formatErrorForDisplay = (error: Error) => {

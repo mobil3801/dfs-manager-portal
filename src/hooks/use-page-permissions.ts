@@ -64,7 +64,7 @@ export const usePagePermissions = (pageKey: string) => {
       console.log('Fetching permissions for user:', user?.ID, 'Page:', pageKey);
 
       // Fetch user profile from database
-      const { data, error } = await window.ezsite.apis.tablePage(11725, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(11725, {
         PageNo: 1,
         PageSize: 1,
         OrderByField: "id",

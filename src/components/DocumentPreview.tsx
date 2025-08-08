@@ -63,7 +63,7 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
         URL.revokeObjectURL(url);
       };
     } else if (fileId) {
-      const url = `${window.location.origin}/api/files/${fileId}`;
+      const url = `${globalThis.location.origin}/api/files/${fileId}`;
       setPreviewUrl(url);
       setIsImage(true); // Assume existing files are images for preview
       setImageError(false);
@@ -121,7 +121,7 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
   // Handle full screen view
   const handleFullScreenView = () => {
     if (previewUrl) {
-      window.open(previewUrl, '_blank');
+      globalThis.open(previewUrl, '_blank');
     }
   };
 

@@ -350,7 +350,7 @@ const EmailTemplateManager: React.FC = () => {
         processedContent = processedContent.replace(new RegExp(placeholder, 'g'), value as string);
       });
 
-      const { error } = await window.ezsite.apis.sendEmail({
+      const { error } = await globalThis.ezsite.apis.sendEmail({
         from: 'DFS Manager <support@ezsite.ai>',
         to: ['support@ezsite.ai'], // Send to configured email
         subject: `TEST: ${processedSubject}`,

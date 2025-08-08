@@ -24,6 +24,7 @@ import ReactKeyValidator from '@/components/ErrorBoundary/ReactKeyValidator';
 import InvariantQuickFix from '@/components/ErrorBoundary/InvariantQuickFix';
 import ErrorAnalyticsDashboard from '@/components/ErrorAnalyticsDashboard';
 import ErrorMonitoringWidget from '@/components/ErrorMonitoringWidget';
+import process from "node:process";
 
 const ErrorMonitoringPage: React.FC = () => {
   const { hasAdminAccess } = useAdminAccess();

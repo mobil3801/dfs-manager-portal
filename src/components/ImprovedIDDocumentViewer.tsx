@@ -63,7 +63,7 @@ const ImprovedIDDocumentViewer: React.FC<ImprovedIDDocumentViewerProps> = ({
         console.log(`[ImprovedIDDocumentViewer] Loading document URL for file ID: ${fileId}`);
 
         // Get the file URL from the API
-        const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(fileId);
+        const { data: fileUrl, error } = await globalThis.ezsite.apis.getUploadUrl(fileId);
 
         if (error) {
           console.error(`[ImprovedIDDocumentViewer] API error for file ${fileId}:`, error);
@@ -140,7 +140,7 @@ const ImprovedIDDocumentViewer: React.FC<ImprovedIDDocumentViewerProps> = ({
 
   const handleViewFullScreen = () => {
     if (documentUrl) {
-      window.open(documentUrl, '_blank');
+      globalThis.open(documentUrl, '_blank');
     }
   };
 
@@ -151,7 +151,7 @@ const ImprovedIDDocumentViewer: React.FC<ImprovedIDDocumentViewerProps> = ({
       // Create a proper download link
       const response = await fetch(documentUrl);
       const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      const url = globalThis.URL.createObjectURL(blob);
 
       const link = document.createElement('a');
       link.href = url;
@@ -161,7 +161,7 @@ const ImprovedIDDocumentViewer: React.FC<ImprovedIDDocumentViewerProps> = ({
       document.body.removeChild(link);
 
       // Clean up the blob URL
-      window.URL.revokeObjectURL(url);
+      globalThis.URL.revokeObjectURL(url);
 
       toast({
         title: "Success",

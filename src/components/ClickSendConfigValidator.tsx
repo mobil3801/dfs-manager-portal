@@ -61,7 +61,7 @@ const ClickSendConfigValidator: React.FC = () => {
 
   const loadExistingConfiguration = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(24060, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(24060, {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'id',
@@ -305,12 +305,12 @@ const ClickSendConfigValidator: React.FC = () => {
       };
 
       if (existingConfig?.id) {
-        await window.ezsite.apis.tableUpdate(24060, {
+        await globalThis.ezsite.apis.tableUpdate(24060, {
           ID: existingConfig.id,
           ...configData
         });
       } else {
-        await window.ezsite.apis.tableCreate(24060, configData);
+        await globalThis.ezsite.apis.tableCreate(24060, configData);
       }
 
       toast({

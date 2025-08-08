@@ -40,7 +40,7 @@ const GasTankReportSection: React.FC<GasTankReportSectionProps> = ({
                 id="regular"
                 value={values.regularGallons}
                 onChange={(value) => onChange('regularGallons', value || 0)}
-                allowNegative={true}
+                allowNegative
                 step={0.01}
                 precision={2}
                 required />
@@ -52,7 +52,7 @@ const GasTankReportSection: React.FC<GasTankReportSectionProps> = ({
                 id="super"
                 value={values.superGallons}
                 onChange={(value) => onChange('superGallons', value || 0)}
-                allowNegative={true}
+                allowNegative
                 step={0.01}
                 precision={2}
                 required />
@@ -64,7 +64,7 @@ const GasTankReportSection: React.FC<GasTankReportSectionProps> = ({
                 id="diesel"
                 value={values.dieselGallons}
                 onChange={(value) => onChange('dieselGallons', value || 0)}
-                allowNegative={true}
+                allowNegative
                 step={0.01}
                 precision={2}
                 required />

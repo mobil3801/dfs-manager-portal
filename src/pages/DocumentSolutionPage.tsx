@@ -34,7 +34,7 @@ const DocumentSolutionPage: React.FC = () => {
     try {
       console.log('[DocumentSolutionPage] Loading real files from database...');
 
-      const response = await window.ezsite.apis.tablePage('26928', {
+      const response = await globalThis.ezsite.apis.tablePage('26928', {
         PageNo: 1,
         PageSize: 10,
         OrderByField: 'id',
@@ -76,7 +76,7 @@ const DocumentSolutionPage: React.FC = () => {
     try {
       console.log(`[DocumentSolutionPage] Testing URL for file ${fileId}`);
 
-      const response = await window.ezsite.apis.getUploadUrl(fileId);
+      const response = await globalThis.ezsite.apis.getUploadUrl(fileId);
 
       if (response.error) {
         throw new Error(response.error);
@@ -279,9 +279,9 @@ const DocumentSolutionPage: React.FC = () => {
                 <FixedDocumentViewer
                 fileId={selectedFileId}
                 label={`Document ${selectedFileId}`}
-                isAdminUser={true}
+                isAdminUser
                 size="lg"
-                showRetryButton={true} />
+                showRetryButton />
 
               </div>
               

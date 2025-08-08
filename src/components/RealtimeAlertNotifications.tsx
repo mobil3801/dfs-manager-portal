@@ -160,7 +160,7 @@ const RealtimeAlertNotifications = () => {
 
   const playNotificationSound = (type: string) => {
     // Create audio context for different alert sounds
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const audioContext = new (globalThis.AudioContext || (window as any).webkitAudioContext)();
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
 

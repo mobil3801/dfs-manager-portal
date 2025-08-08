@@ -49,7 +49,7 @@ const EasyRoleManagement: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const { data, error } = await window.ezsite.apis.tablePage(11725, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(11725, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: "employee_id",

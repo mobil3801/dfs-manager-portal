@@ -84,7 +84,7 @@ export default function StationEditDialog({
         created_by: station.created_by
       };
 
-      const { error } = await window.ezsite.apis.tableUpdate(12599, updateData);
+      const { error } = await globalThis.ezsite.apis.tableUpdate(12599, updateData);
 
       if (error) throw error;
 

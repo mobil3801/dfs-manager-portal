@@ -8,6 +8,7 @@
  * detect overflow issues before deployment.
  */
 
+import process from "node:process";
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
@@ -109,7 +110,7 @@ class OverflowCITester {
 
         elements.forEach((element) => {
           // Skip elements that are intentionally scrollable
-          const computedStyle = window.getComputedStyle(element);
+          const computedStyle = globalThis.getComputedStyle(element);
           const overflow = computedStyle.overflow;
           const overflowX = computedStyle.overflowX;
           const overflowY = computedStyle.overflowY;

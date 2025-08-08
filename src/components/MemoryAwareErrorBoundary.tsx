@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle, RefreshCw, Trash2, Activity, Info } from 'lucide-react';
 import { motion } from 'motion/react';
+import process from "node:process";
 
 interface MemoryAwareErrorBoundaryState {
   hasError: boolean;
@@ -191,7 +192,7 @@ class MemoryAwareErrorBoundary extends Component<
         retryCount: this.state.retryCount,
         timestamp: new Date().toISOString(),
         userAgent: navigator.userAgent,
-        url: window.location.href,
+        url: globalThis.location.href,
         isolationLevel: this.props.isolationLevel || 'component'
       },
       performance: this.getPerformanceMetrics()
@@ -200,8 +201,8 @@ class MemoryAwareErrorBoundary extends Component<
     console.error('[MemoryAwareErrorBoundary] Enhanced Error Report:', enhancedErrorData);
 
     // Send to error reporting service if available
-    if (window.ezsite?.errorReporter) {
-      window.ezsite.errorReporter.report(enhancedErrorData);
+    if (globalThis.ezsite?.errorReporter) {
+      globalThis.ezsite.errorReporter.report(enhancedErrorData);
     }
   }
 
@@ -275,8 +276,8 @@ class MemoryAwareErrorBoundary extends Component<
    */
   private performMemoryCleanup() {
     // Clear caches if available
-    if (window.ezsite?.cache?.clear) {
-      window.ezsite.cache.clear();
+    if (globalThis.ezsite?.cache?.clear) {
+      globalThis.ezsite.cache.clear();
     }
 
     // Force garbage collection if available
@@ -482,7 +483,7 @@ class MemoryAwareErrorBoundary extends Component<
                 </Button>
                 
                 <Button
-                  onClick={() => window.location.reload()}
+                  onClick={() => globalThis.location.reload()}
                   variant="secondary"
                   size="sm">
 

@@ -149,7 +149,7 @@ const VendorDocumentUpload: React.FC<VendorDocumentUploadProps> = ({
 
   const handleViewDocument = (doc: any) => {
     if (doc.url) {
-      window.open(doc.url, '_blank');
+      globalThis.open(doc.url, '_blank');
     } else {
       toast({
         title: "Error",

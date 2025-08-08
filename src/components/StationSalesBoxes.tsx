@@ -51,7 +51,7 @@ const StationSalesBoxes: React.FC = () => {
       const todayStr = today.toISOString().split('T')[0];
 
       // Fetch recent sales reports from the enhanced table
-      const { data, error: apiError } = await window.ezsite.apis.tablePage(12356, {
+      const { data, error: apiError } = await globalThis.ezsite.apis.tablePage(12356, {
         PageNo: 1,
         PageSize: 50,
         OrderByField: "report_date",

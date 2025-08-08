@@ -5,7 +5,7 @@
 export interface FixResult {
   fixed: boolean;
   message: string;
-  details?: any;
+  details?: Record<string, unknown>;
 }
 
 export class InvariantErrorFixer {
@@ -200,18 +200,18 @@ export class InvariantErrorFixer {
   async flushReactUpdates(): Promise<FixResult> {
     try {
       // Try to access React internals to flush updates
-      const reactInternals = (window as any).React?.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+      const reactInternals = (globalThis as unknown as { React?: { __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED?: unknown } }).React?.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
 
       if (reactInternals) {
         // Force flush of pending updates
-        if (reactInternals.ReactCurrentBatchConfig) {
-          reactInternals.ReactCurrentBatchConfig.transition = null;
+        if ((reactInternals as { ReactCurrentBatchConfig?: { transition: unknown } }).ReactCurrentBatchConfig) {
+          (reactInternals as { ReactCurrentBatchConfig: { transition: unknown } }).ReactCurrentBatchConfig.transition = null;
         }
       }
 
       // Try alternative React flushing methods
-      if ((window as any).React?.unstable_batchedUpdates) {
-        (window as any).React.unstable_batchedUpdates(() => {
+      if ((globalThis as unknown as { React?: { unstable_batchedUpdates?: (fn: () => void) => void } }).React?.unstable_batchedUpdates) {
+        (globalThis as unknown as { React: { unstable_batchedUpdates: (fn: () => void) => void } }).React.unstable_batchedUpdates(() => {
 
 
 

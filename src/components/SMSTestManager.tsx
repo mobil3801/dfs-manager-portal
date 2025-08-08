@@ -63,7 +63,7 @@ const SMSTestManager: React.FC = () => {
 
   const loadConfiguration = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(12640, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(12640, {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'ID',
@@ -92,7 +92,7 @@ const SMSTestManager: React.FC = () => {
 
   const loadTemplates = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(12641, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(12641, {
         PageNo: 1,
         PageSize: 10,
         OrderByField: 'ID',
@@ -109,7 +109,7 @@ const SMSTestManager: React.FC = () => {
 
   const loadTestContacts = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(12612, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(12612, {
         PageNo: 1,
         PageSize: 50,
         OrderByField: 'ID',
@@ -195,7 +195,7 @@ const SMSTestManager: React.FC = () => {
       setTestResults((prev) => [testResult, ...prev.slice(0, 9)]); // Keep last 10 results
 
       // Log to SMS history
-      await window.ezsite.apis.tableCreate(12613, {
+      await globalThis.ezsite.apis.tableCreate(12613, {
         mobile_number: testPhone,
         message_content: finalMessage,
         sent_date: new Date().toISOString(),
@@ -205,7 +205,7 @@ const SMSTestManager: React.FC = () => {
 
       if (result.success) {
         // Update monthly count
-        await window.ezsite.apis.tableUpdate(12640, {
+        await globalThis.ezsite.apis.tableUpdate(12640, {
           ID: config!.id,
           current_month_count: config!.current_month_count + 1
         });
@@ -288,7 +288,7 @@ const SMSTestManager: React.FC = () => {
         setTestResults((prev) => [testResult, ...prev]);
 
         // Log to SMS history
-        await window.ezsite.apis.tableCreate(12613, {
+        await globalThis.ezsite.apis.tableCreate(12613, {
           license_id: 0,
           contact_id: contact.id,
           mobile_number: contact.mobile_number,
@@ -310,7 +310,7 @@ const SMSTestManager: React.FC = () => {
       }
 
       // Update monthly count
-      await window.ezsite.apis.tableUpdate(12640, {
+      await globalThis.ezsite.apis.tableUpdate(12640, {
         ID: config!.id,
         current_month_count: config!.current_month_count + successCount
       });

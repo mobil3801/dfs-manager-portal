@@ -76,7 +76,7 @@ const ExpenseFormDialog: React.FC<ExpenseFormDialogProps> = ({
   const loadVendors = async () => {
     try {
       setLoadingVendors(true);
-      const { data, error } = await window.ezsite.apis.tablePage(11729, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(11729, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'vendor_name',
@@ -148,7 +148,7 @@ const ExpenseFormDialog: React.FC<ExpenseFormDialogProps> = ({
         });
       }, 100);
 
-      const { data: fileId, error } = await window.ezsite.apis.upload({
+      const { data: fileId, error } = await globalThis.ezsite.apis.upload({
         filename: file.name,
         file: file
       });

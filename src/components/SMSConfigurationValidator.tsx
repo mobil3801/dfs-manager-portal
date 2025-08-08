@@ -61,7 +61,7 @@ const SMSConfigurationValidator: React.FC = () => {
 
   const loadExistingConfiguration = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(12640, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(12640, {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'ID',
@@ -316,13 +316,13 @@ const SMSConfigurationValidator: React.FC = () => {
 
       if (existingConfig?.ID) {
         // Update existing configuration
-        await window.ezsite.apis.tableUpdate(12640, {
+        await globalThis.ezsite.apis.tableUpdate(12640, {
           ID: existingConfig.ID,
           ...configData
         });
       } else {
         // Create new configuration
-        await window.ezsite.apis.tableCreate(12640, configData);
+        await globalThis.ezsite.apis.tableCreate(12640, configData);
       }
 
       toast({

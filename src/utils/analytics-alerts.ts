@@ -102,7 +102,7 @@ class AnalyticsAlerts {
       const metricValue = this.extractMetricValue(metrics, alert.metric);
       const emailContent = this.generateEmailAlertContent(alert, metricValue, metrics);
 
-      const { error } = await window.ezsite.apis.sendEmail({
+      const { error } = await globalThis.ezsite.apis.sendEmail({
         from: 'support@ezsite.ai',
         to: alert.recipients,
         subject: `Analytics Alert: ${alert.metric}`,
@@ -139,7 +139,7 @@ class AnalyticsAlerts {
         created_by: 1 // System user
       };
 
-      const { error } = await window.ezsite.apis.tableCreate(this.smsTableId, smsData);
+      const { error } = await globalThis.ezsite.apis.tableCreate(this.smsTableId, smsData);
 
       if (error) {
         console.warn('Failed to log SMS alert:', error);

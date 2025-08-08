@@ -171,9 +171,9 @@ export function useSafeAsync(componentName: string, options: SafeAsyncOptions = 
 
 // Higher-order component for automatic safe async handling
 export function withSafeAsync<P extends object>(
-WrappedComponent: React.ComponentType<P>,
-componentName?: string)
-{
+  WrappedComponent: React.ComponentType<P>,
+  componentName?: string
+): React.ComponentType<P> {
   return function SafeAsyncComponent(props: P) {
     const displayName = componentName || WrappedComponent.displayName || WrappedComponent.name || 'Component';
     const safeAsync = useSafeAsync(displayName);

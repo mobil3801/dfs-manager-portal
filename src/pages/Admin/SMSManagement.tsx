@@ -119,7 +119,7 @@ const SMSManagement: React.FC = () => {
 
   const loadConfiguration = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(24201, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(24201, {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'id',
@@ -162,13 +162,13 @@ const SMSManagement: React.FC = () => {
       };
 
       if (config.id) {
-        const { error } = await window.ezsite.apis.tableUpdate(24201, {
+        const { error } = await globalThis.ezsite.apis.tableUpdate(24201, {
           ID: config.id,
           ...configData
         });
         if (error) throw new Error(error);
       } else {
-        const { error } = await window.ezsite.apis.tableCreate(24201, {
+        const { error } = await globalThis.ezsite.apis.tableCreate(24201, {
           ...configData,
           created_at: new Date().toISOString()
         });
@@ -314,7 +314,7 @@ const SMSManagement: React.FC = () => {
 
         // Log the test SMS
         try {
-          await window.ezsite.apis.tableCreate(24202, {
+          await globalThis.ezsite.apis.tableCreate(24202, {
             recipient_phone: testPhone,
             message_content: testMessage,
             sender_name: config.from_number,
@@ -374,7 +374,7 @@ const SMSManagement: React.FC = () => {
 
       // Log failed attempt
       try {
-        await window.ezsite.apis.tableCreate(24202, {
+        await globalThis.ezsite.apis.tableCreate(24202, {
           recipient_phone: testPhone,
           message_content: testMessage,
           sender_name: config.from_number,
@@ -403,7 +403,7 @@ const SMSManagement: React.FC = () => {
 
   const loadSMSLogs = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(24202, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(24202, {
         PageNo: 1,
         PageSize: 50,
         OrderByField: 'sent_at',
@@ -422,7 +422,7 @@ const SMSManagement: React.FC = () => {
     try {
       const today = new Date().toISOString().split('T')[0];
 
-      const { data, error } = await window.ezsite.apis.tablePage(24202, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(24202, {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'id',

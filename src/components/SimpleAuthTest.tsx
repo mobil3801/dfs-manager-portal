@@ -299,7 +299,7 @@ const SimpleAuthTest: React.FC = () => {
             <div className="text-sm space-y-1">
               <p><strong>URL:</strong> {supabase.supabaseUrl}</p>
               <p><strong>Status:</strong> Using custom client implementation</p>
-              <p><strong>Auth Redirect:</strong> {window.location.origin}/onauthsuccess</p>
+              <p><strong>Auth Redirect:</strong> {globalThis.location.origin}/onauthsuccess</p>
             </div>
           </div>
         </CardContent>

@@ -241,7 +241,7 @@ class EnhancedClickSendSMSService {
       }
 
       // Get SMS history data
-      const { data, error } = await window.ezsite.apis.tablePage(24062, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(24062, {
         PageNo: 1,
         PageSize: 1000,
         OrderByField: 'sent_at',
@@ -339,7 +339,7 @@ class EnhancedClickSendSMSService {
   : Promise<SMSResponse[]> {
     try {
       // Get emergency contacts from settings
-      const { data, error } = await window.ezsite.apis.tablePage(24061, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(24061, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'id',
@@ -419,7 +419,7 @@ class EnhancedClickSendSMSService {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
 
-      const { data: recentMessages } = await window.ezsite.apis.tablePage(24062, {
+      const { data: recentMessages } = await globalThis.ezsite.apis.tablePage(24062, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'sent_at',
@@ -468,7 +468,7 @@ class EnhancedClickSendSMSService {
   type: string = 'custom')
   : Promise<void> {
     try {
-      await window.ezsite.apis.tableCreate('sms_templates', {
+      await globalThis.ezsite.apis.tableCreate('sms_templates', {
         template_name: name,
         message_content: content,
         template_type: type,
@@ -484,7 +484,7 @@ class EnhancedClickSendSMSService {
 
   async getMessageTemplates(): Promise<any[]> {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage('sms_templates', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('sms_templates', {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'template_name',

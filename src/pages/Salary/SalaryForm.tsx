@@ -143,7 +143,7 @@ const SalaryForm: React.FC = () => {
 
   const fetchEmployees = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(EMPLOYEES_TABLE_ID, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(EMPLOYEES_TABLE_ID, {
         PageNo: 1,
         PageSize: 1000,
         OrderByField: 'first_name',
@@ -168,7 +168,7 @@ const SalaryForm: React.FC = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(SALARY_TABLE_ID, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(SALARY_TABLE_ID, {
         PageNo: 1,
         PageSize: 1,
         Filters: [{ name: 'id', op: 'Equal', value: parseInt(id) }]
@@ -275,13 +275,13 @@ const SalaryForm: React.FC = () => {
       };
 
       if (isEditing) {
-        const { error } = await window.ezsite.apis.tableUpdate(SALARY_TABLE_ID, {
+        const { error } = await globalThis.ezsite.apis.tableUpdate(SALARY_TABLE_ID, {
           ID: parseInt(id!),
           ...submitData
         });
         if (error) throw error;
       } else {
-        const { error } = await window.ezsite.apis.tableCreate(SALARY_TABLE_ID, submitData);
+        const { error } = await globalThis.ezsite.apis.tableCreate(SALARY_TABLE_ID, submitData);
         if (error) throw error;
       }
 

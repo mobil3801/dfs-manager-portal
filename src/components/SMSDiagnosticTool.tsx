@@ -67,7 +67,7 @@ const SMSDiagnosticTool: React.FC = () => {
   const testDatabaseTables = async (): Promise<DiagnosticResult> => {
     try {
       // Test SMS config table (24201)
-      const configResponse = await window.ezsite.apis.tablePage(24201, {
+      const configResponse = await globalThis.ezsite.apis.tablePage(24201, {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'id',
@@ -76,7 +76,7 @@ const SMSDiagnosticTool: React.FC = () => {
       });
 
       // Test SMS logs table (24202)
-      const logsResponse = await window.ezsite.apis.tablePage(24202, {
+      const logsResponse = await globalThis.ezsite.apis.tablePage(24202, {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'id',
@@ -238,7 +238,7 @@ const SMSDiagnosticTool: React.FC = () => {
     try {
       const today = new Date().toISOString().split('T')[0];
 
-      const { data, error } = await window.ezsite.apis.tablePage(24202, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(24202, {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'id',
@@ -322,7 +322,7 @@ const SMSDiagnosticTool: React.FC = () => {
         const messageResult = result.data.messages[0];
 
         // Log the test SMS
-        await window.ezsite.apis.tableCreate(24202, {
+        await globalThis.ezsite.apis.tableCreate(24202, {
           recipient_phone: testPhone,
           message_content: smsData.messages[0].body,
           sender_name: 'DFS',

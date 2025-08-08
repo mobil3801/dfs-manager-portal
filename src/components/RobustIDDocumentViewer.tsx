@@ -75,7 +75,7 @@ const RobustIDDocumentViewer: React.FC<RobustIDDocumentViewerProps> = ({
     try {
       // Simple test to check if APIs are accessible
       const testResponse = (await Promise.race([
-      window.ezsite.apis.tablePage('26928', {
+      globalThis.ezsite.apis.tablePage('26928', {
         PageNo: 1,
         PageSize: 1,
         Filters: []
@@ -125,7 +125,7 @@ const RobustIDDocumentViewer: React.FC<RobustIDDocumentViewerProps> = ({
       let response;
       try {
         response = (await Promise.race([
-        window.ezsite.apis.getUploadUrl(fileId),
+        globalThis.ezsite.apis.getUploadUrl(fileId),
         new Promise((_, reject) =>
         setTimeout(() => reject(new Error('API request timeout')), 10000)
         )]
@@ -145,7 +145,7 @@ const RobustIDDocumentViewer: React.FC<RobustIDDocumentViewerProps> = ({
           console.log(`[RobustIDDocumentViewer] Trying alternative strategy for file ${fileId}`);
 
           try {
-            const fileResponse = await window.ezsite.apis.tablePage('26928', {
+            const fileResponse = await globalThis.ezsite.apis.tablePage('26928', {
               PageNo: 1,
               PageSize: 1,
               Filters: [{ name: 'store_file_id', op: 'Equal', value: fileId }]
@@ -257,7 +257,7 @@ const RobustIDDocumentViewer: React.FC<RobustIDDocumentViewerProps> = ({
 
   const handleViewFullScreen = () => {
     if (documentUrl) {
-      window.open(documentUrl, '_blank', 'noopener,noreferrer');
+      globalThis.open(documentUrl, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -279,7 +279,7 @@ const RobustIDDocumentViewer: React.FC<RobustIDDocumentViewerProps> = ({
       }
 
       const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      const url = globalThis.URL.createObjectURL(blob);
 
       const link = document.createElement('a');
       link.href = url;
@@ -288,7 +288,7 @@ const RobustIDDocumentViewer: React.FC<RobustIDDocumentViewerProps> = ({
       link.click();
       document.body.removeChild(link);
 
-      window.URL.revokeObjectURL(url);
+      globalThis.URL.revokeObjectURL(url);
 
       toast({
         title: 'Success',

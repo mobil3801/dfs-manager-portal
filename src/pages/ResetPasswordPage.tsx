@@ -59,7 +59,7 @@ const ResetPasswordPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const { error } = await window.ezsite.apis.resetPassword({
+      const { error } = await globalThis.ezsite.apis.resetPassword({
         token,
         password
       });

@@ -41,7 +41,7 @@ const CashCollectionSection: React.FC<CashCollectionSectionProps> = ({
               id="cashOnHand"
               value={values.cashCollectionOnHand}
               onChange={(value) => onChange('cashCollectionOnHand', value || 0)}
-              allowNegative={true}
+              allowNegative
               step={0.01}
               precision={2}
               required />

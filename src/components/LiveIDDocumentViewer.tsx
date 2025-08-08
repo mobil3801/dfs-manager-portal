@@ -78,7 +78,7 @@ const LiveIDDocumentViewer: React.FC<LiveIDDocumentViewerProps> = ({
       console.log(`[LiveIDDocumentViewer] Testing connection for file ${fileId}...`);
 
       const response = (await Promise.race([
-      window.ezsite.apis.getUploadUrl(fileId),
+      globalThis.ezsite.apis.getUploadUrl(fileId),
       new Promise((_, reject) =>
       setTimeout(() => reject(new Error('Connection timeout')), 8000)
       )]
@@ -126,7 +126,7 @@ const LiveIDDocumentViewer: React.FC<LiveIDDocumentViewerProps> = ({
 
       // Get the file URL from the API
       const response = (await Promise.race([
-      window.ezsite.apis.getUploadUrl(fileId),
+      globalThis.ezsite.apis.getUploadUrl(fileId),
       new Promise((_, reject) =>
       setTimeout(() => reject(new Error('Request timeout after 10 seconds')), 10000)
       )]
@@ -236,7 +236,7 @@ const LiveIDDocumentViewer: React.FC<LiveIDDocumentViewerProps> = ({
 
   const handleViewFullScreen = () => {
     if (documentUrl) {
-      window.open(documentUrl, '_blank', 'noopener,noreferrer');
+      globalThis.open(documentUrl, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -252,7 +252,7 @@ const LiveIDDocumentViewer: React.FC<LiveIDDocumentViewerProps> = ({
       }
 
       const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      const url = globalThis.URL.createObjectURL(blob);
       const link = document.createElement('a');
 
       link.href = url;
@@ -260,7 +260,7 @@ const LiveIDDocumentViewer: React.FC<LiveIDDocumentViewerProps> = ({
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      globalThis.URL.revokeObjectURL(url);
 
       toast({
         title: "Success",

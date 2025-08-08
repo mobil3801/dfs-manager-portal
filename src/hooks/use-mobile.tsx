@@ -18,12 +18,12 @@ export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined);
 
   React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+    const mql = globalThis.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
     const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+      setIsMobile(globalThis.innerWidth < MOBILE_BREAKPOINT);
     };
     mql.addEventListener("change", onChange);
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    setIsMobile(globalThis.innerWidth < MOBILE_BREAKPOINT);
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
@@ -32,7 +32,7 @@ export function useIsMobile() {
 
 export function useDeviceDetection(): DeviceInfo {
   const [deviceInfo, setDeviceInfo] = React.useState<DeviceInfo>(() => {
-    if (typeof window === 'undefined') {
+    if (typeof globalThis === 'undefined') {
       return {
         isMobile: false,
         isTablet: false,
@@ -43,21 +43,21 @@ export function useDeviceDetection(): DeviceInfo {
       };
     }
 
-    const width = window.innerWidth;
+    const width = globalThis.innerWidth;
     return {
       isMobile: width < MOBILE_BREAKPOINT,
       isTablet: width >= MOBILE_BREAKPOINT && width < TABLET_BREAKPOINT,
       isDesktop: width >= TABLET_BREAKPOINT,
       screenWidth: width,
-      orientation: window.innerHeight > window.innerWidth ? 'portrait' : 'landscape',
-      touchDevice: 'ontouchstart' in window || navigator.maxTouchPoints > 0
+      orientation: globalThis.innerHeight > globalThis.innerWidth ? 'portrait' : 'landscape',
+      touchDevice: 'ontouchstart' in globalThis || navigator.maxTouchPoints > 0
     };
   });
 
   React.useEffect(() => {
     const updateDeviceInfo = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
+      const width = globalThis.innerWidth;
+      const height = globalThis.innerHeight;
 
       setDeviceInfo({
         isMobile: width < MOBILE_BREAKPOINT,
@@ -65,20 +65,20 @@ export function useDeviceDetection(): DeviceInfo {
         isDesktop: width >= TABLET_BREAKPOINT,
         screenWidth: width,
         orientation: height > width ? 'portrait' : 'landscape',
-        touchDevice: 'ontouchstart' in window || navigator.maxTouchPoints > 0
+        touchDevice: 'ontouchstart' in globalThis || navigator.maxTouchPoints > 0
       });
     };
 
     // Create media queries for different breakpoints
-    const mobileQuery = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
-    const tabletQuery = window.matchMedia(`(min-width: ${MOBILE_BREAKPOINT}px) and (max-width: ${TABLET_BREAKPOINT - 1}px)`);
-    const orientationQuery = window.matchMedia('(orientation: portrait)');
+    const mobileQuery = globalThis.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+    const tabletQuery = globalThis.matchMedia(`(min-width: ${MOBILE_BREAKPOINT}px) and (max-width: ${TABLET_BREAKPOINT - 1}px)`);
+    const orientationQuery = globalThis.matchMedia('(orientation: portrait)');
 
     // Listen for changes
     mobileQuery.addEventListener('change', updateDeviceInfo);
     tabletQuery.addEventListener('change', updateDeviceInfo);
     orientationQuery.addEventListener('change', updateDeviceInfo);
-    window.addEventListener('resize', updateDeviceInfo);
+    globalThis.addEventListener('resize', updateDeviceInfo);
 
     // Initial call
     updateDeviceInfo();
@@ -87,7 +87,7 @@ export function useDeviceDetection(): DeviceInfo {
       mobileQuery.removeEventListener('change', updateDeviceInfo);
       tabletQuery.removeEventListener('change', updateDeviceInfo);
       orientationQuery.removeEventListener('change', updateDeviceInfo);
-      window.removeEventListener('resize', updateDeviceInfo);
+      globalThis.removeEventListener('resize', updateDeviceInfo);
     };
   }, []);
 

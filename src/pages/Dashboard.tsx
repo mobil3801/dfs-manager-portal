@@ -50,28 +50,28 @@ const Dashboard = () => {
       setLoading(true);
 
       // Fetch employees count
-      const employeesResponse = await window.ezsite.apis.tablePage(11727, {
+      const employeesResponse = await globalThis.ezsite.apis.tablePage(11727, {
         PageNo: 1,
         PageSize: 1,
         Filters: [{ name: "is_active", op: "Equal", value: true }]
       });
 
       // Fetch active products count
-      const productsResponse = await window.ezsite.apis.tablePage(11726, {
+      const productsResponse = await globalThis.ezsite.apis.tablePage(11726, {
         PageNo: 1,
         PageSize: 1
       });
 
       // Fetch today's sales reports
       const today = new Date().toISOString().split('T')[0];
-      const salesResponse = await window.ezsite.apis.tablePage(12356, {
+      const salesResponse = await globalThis.ezsite.apis.tablePage(12356, {
         PageNo: 1,
         PageSize: 10,
         Filters: [{ name: "report_date", op: "StringStartsWith", value: today }]
       });
 
       // Fetch pending deliveries
-      const deliveriesResponse = await window.ezsite.apis.tablePage(12196, {
+      const deliveriesResponse = await globalThis.ezsite.apis.tablePage(12196, {
         PageNo: 1,
         PageSize: 1
       });
@@ -79,7 +79,7 @@ const Dashboard = () => {
       // Fetch expiring licenses (next 30 days)
       const thirtyDaysFromNow = new Date();
       thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
-      const licensesResponse = await window.ezsite.apis.tablePage(11731, {
+      const licensesResponse = await globalThis.ezsite.apis.tablePage(11731, {
         PageNo: 1,
         PageSize: 1,
         Filters: [

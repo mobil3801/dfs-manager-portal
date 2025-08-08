@@ -94,7 +94,7 @@ const SalesReportList: React.FC = () => {
         filters.push({ name: 'station', op: 'StringContains', value: searchTerm });
       }
 
-      const { data, error } = await window.ezsite.apis.tablePage('12356', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('12356', {
         PageNo: currentPage,
         PageSize: pageSize,
         OrderByField: 'report_date',
@@ -134,7 +134,7 @@ const SalesReportList: React.FC = () => {
     }
 
     try {
-      const { error } = await window.ezsite.apis.tableDelete('12356', { ID: reportId });
+      const { error } = await globalThis.ezsite.apis.tableDelete('12356', { ID: reportId });
       if (error) throw error;
 
       toast({
@@ -381,8 +381,8 @@ const SalesReportList: React.FC = () => {
                 value={selectedStation}
                 onValueChange={setSelectedStation}
                 placeholder="Filter by station"
-                includeAll={true}
-                showBadge={true}
+                includeAll
+                showBadge
                 className="min-w-[200px]" />
 
             </div>

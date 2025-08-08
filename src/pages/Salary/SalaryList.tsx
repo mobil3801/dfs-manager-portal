@@ -134,7 +134,7 @@ const SalaryList: React.FC = () => {
   const fetchEmployees = useCallback(async () => {
     try {
       console.log('🔄 Fetching employees data...');
-      const { data, error } = await window.ezsite.apis.tablePage(EMPLOYEES_TABLE_ID, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(EMPLOYEES_TABLE_ID, {
         PageNo: 1,
         PageSize: 1000,
         OrderByField: 'first_name',
@@ -280,7 +280,7 @@ const SalaryList: React.FC = () => {
         pay_date: new Date(form.pay_date).toISOString()
       };
 
-      const { error } = await window.ezsite.apis.tableCreate(SALARY_TABLE_ID, submitData);
+      const { error } = await globalThis.ezsite.apis.tableCreate(SALARY_TABLE_ID, submitData);
       if (error) throw error;
 
       toast({

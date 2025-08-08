@@ -33,7 +33,7 @@ export const migrateProductsToSupabase = async (): Promise<{
 }> => {
   try {
     // First, get all products from the legacy API
-    const legacyResponse = await window.ezsite.apis.tablePage('11726', {
+    const legacyResponse = await globalThis.ezsite.apis.tablePage('11726', {
       PageNo: 1,
       PageSize: 1000,
       OrderByField: 'ID',

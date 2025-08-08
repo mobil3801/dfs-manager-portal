@@ -101,7 +101,7 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
       setIsLoading(true);
 
       // Load users
-      const usersResponse = await window.ezsite.apis.tablePage('User', {
+      const usersResponse = await globalThis.ezsite.apis.tablePage('User', {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'CreateTime',
@@ -112,7 +112,7 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
       setUsers(usersResponse.data?.List || []);
 
       // Load user profiles
-      const profilesResponse = await window.ezsite.apis.tablePage(11725, {
+      const profilesResponse = await globalThis.ezsite.apis.tablePage(11725, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'id',
@@ -175,7 +175,7 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
           is_active: formData.is_active
         };
 
-        const response = await window.ezsite.apis.tableUpdate(11725, updateData);
+        const response = await globalThis.ezsite.apis.tableUpdate(11725, updateData);
         if (response.error) throw new Error(response.error);
 
         toast({
@@ -258,7 +258,7 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
     try {
       const profile = getUserProfile(user.ID);
       if (profile) {
-        const response = await window.ezsite.apis.tableDelete(11725, { ID: profile.id });
+        const response = await globalThis.ezsite.apis.tableDelete(11725, { ID: profile.id });
         if (response.error) throw new Error(response.error);
 
         toast({
@@ -419,7 +419,7 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
         <TabsContent value="protection" className="space-y-4">
           <AdminProtectionAlert
             userEmail="admin@dfs-portal.com"
-            showDetails={true} />
+            showDetails />
 
         </TabsContent>
       </Tabs>
@@ -439,7 +439,7 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
             {selectedUser?.Email === 'admin@dfs-portal.com' &&
             <AdminProtectionAlert
               userEmail={selectedUser.Email}
-              showDetails={true} />
+              showDetails />
 
             }
 
@@ -556,7 +556,7 @@ const EnhancedUserManagementWithValidation: React.FC = () => {
               selectedRole={formData.role}
               selectedStation={formData.station}
               excludeUserId={selectedUser?.ID}
-              autoCheck={true} />
+              autoCheck />
 
             }
 

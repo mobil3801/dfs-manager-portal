@@ -60,12 +60,12 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
     'Sample Product,1.5,lb,Convenience Store,123456789012,987654321098,24.99,12,2.99,3.49,Snacks,Sample Supplier,100,10,Sample product description';
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+    const url = globalThis.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'product_template.csv';
     a.click();
-    window.URL.revokeObjectURL(url);
+    globalThis.URL.revokeObjectURL(url);
   };
 
   // Field mapping for header names - now includes exact matches and variations
@@ -261,7 +261,7 @@ const ProductFileUpload: React.FC<ProductFileUploadProps> = ({ onDataImport, dis
 
   const fetchExistingProducts = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(11726, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(11726, {
         PageNo: 1,
         PageSize: 1000, // Get all products to check for duplicates
         OrderByField: 'product_name',

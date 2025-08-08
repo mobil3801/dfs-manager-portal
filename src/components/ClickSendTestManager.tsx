@@ -61,7 +61,7 @@ const ClickSendTestManager: React.FC = () => {
 
   const loadConfiguration = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(24060, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(24060, {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'id',
@@ -96,7 +96,7 @@ const ClickSendTestManager: React.FC = () => {
 
   const loadTemplates = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage('sms_templates', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('sms_templates', {
         PageNo: 1,
         PageSize: 10,
         OrderByField: 'id',
@@ -113,7 +113,7 @@ const ClickSendTestManager: React.FC = () => {
 
   const loadTestContacts = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(24061, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(24061, {
         PageNo: 1,
         PageSize: 50,
         OrderByField: 'id',

@@ -32,7 +32,7 @@ class FileService {
       try {
         console.log(`Attempting to get URL for file ${fileId} (attempt ${retryCount + 1}/${this.MAX_RETRIES})`);
 
-        const response = await window.ezsite.apis.getUploadUrl(fileId);
+        const response = await globalThis.ezsite.apis.getUploadUrl(fileId);
 
         if (response.error) {
           throw new Error(response.error);
@@ -189,7 +189,7 @@ class FileService {
   // Get file info with enhanced error handling
   async getFileInfo(fileId: number): Promise<FileServiceResponse<any>> {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(26928, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(26928, {
         PageNo: 1,
         PageSize: 1,
         Filters: [

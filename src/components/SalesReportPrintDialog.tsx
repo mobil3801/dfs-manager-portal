@@ -61,7 +61,7 @@ const SalesReportPrintDialog: React.FC<SalesReportPrintDialogProps> = ({
   };
 
   const handlePrint = () => {
-    window.print();
+    globalThis.print();
   };
 
   if (!report) return null;

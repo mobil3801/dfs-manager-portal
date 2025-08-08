@@ -98,7 +98,7 @@ const IDDocumentUpload: React.FC<IDDocumentUploadProps> = ({
 
     // Show confirmation for existing files
     if (existingFileId && !selectedFile) {
-      const confirmDelete = window.confirm(
+      const confirmDelete = globalThis.confirm(
         `Are you sure you want to remove this ${label}? This action cannot be undone and the file will be permanently deleted when you save the employee.`
       );
       if (!confirmDelete) {
@@ -236,7 +236,7 @@ const IDDocumentUpload: React.FC<IDDocumentUploadProps> = ({
           aspectRatio="landscape"
           showRemoveButton={false}
           showDownload={false}
-          showFullscreen={true}
+          showFullscreen
           className="border border-blue-200 bg-blue-50" />
 
         </div>
@@ -258,8 +258,8 @@ const IDDocumentUpload: React.FC<IDDocumentUploadProps> = ({
           size="lg"
           aspectRatio="landscape"
           showRemoveButton={false}
-          showDownload={true}
-          showFullscreen={true}
+          showDownload
+          showFullscreen
           className="border border-gray-200" />
 
         </div>

@@ -39,7 +39,7 @@ const LotterySalesSection: React.FC<LotterySalesSectionProps> = ({
                 id="lotteryNet"
                 value={values.lotteryNetSales}
                 onChange={(value) => onChange('lotteryNetSales', value || 0)}
-                allowNegative={true}
+                allowNegative
                 step={0.01}
                 precision={2}
                 required />
@@ -51,7 +51,7 @@ const LotterySalesSection: React.FC<LotterySalesSectionProps> = ({
                 id="scratchOff"
                 value={values.scratchOffSales}
                 onChange={(value) => onChange('scratchOffSales', value || 0)}
-                allowNegative={true}
+                allowNegative
                 step={0.01}
                 precision={2}
                 required />

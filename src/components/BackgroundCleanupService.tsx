@@ -233,7 +233,7 @@ const BackgroundCleanupService: React.FC = () => {
 
     try {
       // Clear WeakMaps and WeakSets if possible
-      if (window.WeakRef) {
+      if (globalThis.WeakRef) {
         // Modern browsers with WeakRef support
         cleaned += 10;
         freed += 1000;
@@ -320,8 +320,8 @@ const BackgroundCleanupService: React.FC = () => {
       }
 
       // Clear in-memory caches
-      if (window.ezsite?.cache?.clear) {
-        window.ezsite.cache.clear();
+      if (globalThis.ezsite?.cache?.clear) {
+        globalThis.ezsite.cache.clear();
         cleaned += 10;
         freed += 5000;
       }
@@ -400,8 +400,8 @@ const BackgroundCleanupService: React.FC = () => {
 
     try {
       // Cancel pending fetch requests (if tracked)
-      if (window.ezsite?.pendingRequests) {
-        const pendingRequests = window.ezsite.pendingRequests;
+      if (globalThis.ezsite?.pendingRequests) {
+        const pendingRequests = globalThis.ezsite.pendingRequests;
         pendingRequests.forEach((controller: AbortController, url: string) => {
           try {
             controller.abort();
@@ -415,8 +415,8 @@ const BackgroundCleanupService: React.FC = () => {
       }
 
       // Close idle connections (WebSocket, EventSource)
-      if (window.ezsite?.connections) {
-        const connections = window.ezsite.connections;
+      if (globalThis.ezsite?.connections) {
+        const connections = globalThis.ezsite.connections;
         connections.forEach((connection: any, id: string) => {
           if (connection.readyState === WebSocket.OPEN) {
             const lastActivity = connection.lastActivity || 0;
@@ -458,8 +458,8 @@ const BackgroundCleanupService: React.FC = () => {
 
     try {
       // Clean up React DevTools data if available
-      if (window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
-        const devTools = window.__REACT_DEVTOOLS_GLOBAL_HOOK__;
+      if (globalThis.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
+        const devTools = globalThis.__REACT_DEVTOOLS_GLOBAL_HOOK__;
         if (devTools.getFiberRoots) {
           devTools.getFiberRoots(1).forEach((root: any) => {
             // Traverse and cleanup unused fibers
@@ -473,8 +473,8 @@ const BackgroundCleanupService: React.FC = () => {
       }
 
       // Clear component refs and callbacks
-      if (window.ezsite?.componentRegistry) {
-        const registry = window.ezsite.componentRegistry;
+      if (globalThis.ezsite?.componentRegistry) {
+        const registry = globalThis.ezsite.componentRegistry;
         const now = Date.now();
 
         registry.forEach((component: any, id: string) => {

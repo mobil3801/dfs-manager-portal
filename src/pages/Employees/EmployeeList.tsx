@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from '@/hooks/use-toast';
-import { Search, Edit, Trash2, Users, Mail, Phone, Plus, Eye, Download, User } from 'lucide-react';
+import { Search, Edit, Trash2, Users, Mail, Phone, Plus, Eye, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useModuleAccess } from '@/contexts/ModuleAccessContext';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
@@ -35,7 +35,7 @@ interface Employee {
   salary?: number;
   hourly_rate?: number;
   is_active?: boolean;
-  emergency_contact?: any;
+  emergency_contact?: Record<string, unknown>;
   notes?: string;
   created_at?: string;
   updated_at?: string;
@@ -316,12 +316,12 @@ const EmployeeList: React.FC = () => {
     join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+    const url = globalThis.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `employee_${selectedEmployee.employee_id}_details.csv`;
     a.click();
-    window.URL.revokeObjectURL(url);
+    globalThis.URL.revokeObjectURL(url);
 
     toast({
       title: "Success",
@@ -624,7 +624,7 @@ const EmployeeList: React.FC = () => {
           onExport={handleExport}
           canEdit={canEditEmployee}
           canDelete={canDeleteEmployee}
-          canExport={true} />
+          canExport />
         }
       </div>);
 
@@ -861,7 +861,7 @@ const EmployeeList: React.FC = () => {
         onExport={handleExport}
         canEdit={canEditEmployee}
         canDelete={canDeleteEmployee}
-        canExport={true} />
+        canExport />
       }
 
       {/* Employee Edit Dialog */}

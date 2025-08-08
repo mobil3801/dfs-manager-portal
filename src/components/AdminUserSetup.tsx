@@ -25,7 +25,7 @@ const AdminUserSetup: React.FC = () => {
   const checkAdminExists = async () => {
     setCheckingAdmin(true);
     try {
-      const profileResponse = await window.ezsite.apis.tablePage(11725, {
+      const profileResponse = await globalThis.ezsite.apis.tablePage(11725, {
         PageNo: 1,
         PageSize: 1,
         Filters: [
@@ -39,7 +39,7 @@ const AdminUserSetup: React.FC = () => {
         setMessageType('success');
       } else {
         // Also check for "Administrator" role
-        const adminResponse = await window.ezsite.apis.tablePage(11725, {
+        const adminResponse = await globalThis.ezsite.apis.tablePage(11725, {
           PageNo: 1,
           PageSize: 1,
           Filters: [
@@ -77,7 +77,7 @@ const AdminUserSetup: React.FC = () => {
 
     try {
       // First register the user
-      const registerResponse = await window.ezsite.apis.register({
+      const registerResponse = await globalThis.ezsite.apis.register({
         email: adminEmail,
         password: adminPassword
       });
@@ -90,7 +90,7 @@ const AdminUserSetup: React.FC = () => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Get the user info to find the user ID
-      const loginResponse = await window.ezsite.apis.login({
+      const loginResponse = await globalThis.ezsite.apis.login({
         email: adminEmail,
         password: adminPassword
       });
@@ -100,7 +100,7 @@ const AdminUserSetup: React.FC = () => {
       }
 
       // Get user info to get the ID
-      const userInfoResponse = await window.ezsite.apis.getUserInfo();
+      const userInfoResponse = await globalThis.ezsite.apis.getUserInfo();
 
       if (userInfoResponse.error || !userInfoResponse.data) {
         throw new Error('Failed to get user info after login');
@@ -109,7 +109,7 @@ const AdminUserSetup: React.FC = () => {
       const userId = userInfoResponse.data.ID;
 
       // Create admin profile
-      const profileResponse = await window.ezsite.apis.tableCreate(11725, {
+      const profileResponse = await globalThis.ezsite.apis.tableCreate(11725, {
         user_id: userId,
         role: 'Admin',
         station: 'ALL',
@@ -146,7 +146,7 @@ const AdminUserSetup: React.FC = () => {
       });
 
       // Logout after creating admin to allow login with new credentials
-      await window.ezsite.apis.logout();
+      await globalThis.ezsite.apis.logout();
 
     } catch (error) {
       console.error('Error creating admin user:', error);

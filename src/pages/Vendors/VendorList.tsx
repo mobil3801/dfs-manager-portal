@@ -293,12 +293,12 @@ const VendorListContent: React.FC = () => {
     join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+    const url = globalThis.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `vendor_${selectedVendor.vendor_name.replace(/\s+/g, '_')}_details.csv`;
     a.click();
-    window.URL.revokeObjectURL(url);
+    globalThis.URL.revokeObjectURL(url);
 
     toast({
       title: "Success",
@@ -754,7 +754,7 @@ const VendorListContent: React.FC = () => {
         onExport={handleExport}
         canEdit={isAdmin() && canEditVendor}
         canDelete={isAdmin() && canDeleteVendor}
-        canExport={true} />
+        canExport />
 
       }
     </div>);

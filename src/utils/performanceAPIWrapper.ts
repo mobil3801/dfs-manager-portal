@@ -26,15 +26,15 @@ class PerformanceAPIWrapper {
 
   private checkPerformanceSupport(): boolean {
     return typeof window !== 'undefined' &&
-    typeof window.performance !== 'undefined' &&
-    window.performance !== null;
+    typeof globalThis.performance !== 'undefined' &&
+    globalThis.performance !== null;
   }
 
   private checkMemorySupport(): boolean {
     if (!this.isPerformanceSupported) return false;
 
     try {
-      const performance = window.performance as any;
+      const performance = globalThis.performance as any;
       return performance.memory &&
       typeof performance.memory.usedJSHeapSize === 'number';
     } catch (error) {
@@ -47,7 +47,7 @@ class PerformanceAPIWrapper {
 
     try {
       // More comprehensive check for getEntriesByType support
-      const performance = window.performance;
+      const performance = globalThis.performance;
       if (!performance || typeof performance !== 'object') return false;
 
       // Check if the method exists and is callable
@@ -76,7 +76,7 @@ class PerformanceAPIWrapper {
     }
 
     try {
-      const memory = (window.performance as any).memory;
+      const memory = (globalThis.performance as any).memory;
       return {
         usedJSHeapSize: memory.usedJSHeapSize || 0,
         totalJSHeapSize: memory.totalJSHeapSize || 0,
@@ -98,12 +98,12 @@ class PerformanceAPIWrapper {
 
     try {
       // Double-check that the method is still available
-      if (typeof window.performance.getEntriesByType !== 'function') {
+      if (typeof globalThis.performance.getEntriesByType !== 'function') {
         console.warn('getEntriesByType method not available');
         return null;
       }
 
-      const navigationEntries = window.performance.getEntriesByType('navigation');
+      const navigationEntries = globalThis.performance.getEntriesByType('navigation');
       return navigationEntries.length > 0 ? navigationEntries[0] as PerformanceNavigationTiming : null;
     } catch (error) {
       console.warn('Error accessing navigation timing:', error);
@@ -121,12 +121,12 @@ class PerformanceAPIWrapper {
 
     try {
       // Double-check that the method is still available
-      if (typeof window.performance.getEntriesByType !== 'function') {
+      if (typeof globalThis.performance.getEntriesByType !== 'function') {
         console.warn('getEntriesByType method not available for resource timing');
         return [];
       }
 
-      return window.performance.getEntriesByType('resource') as PerformanceResourceTiming[];
+      return globalThis.performance.getEntriesByType('resource') as PerformanceResourceTiming[];
     } catch (error) {
       console.warn('Error accessing resource timing:', error);
       return [];
@@ -143,12 +143,12 @@ class PerformanceAPIWrapper {
 
     try {
       // Double-check that the method is still available
-      if (typeof window.performance.getEntriesByType !== 'function') {
+      if (typeof globalThis.performance.getEntriesByType !== 'function') {
         console.warn('getEntriesByType method not available for marks');
         return [];
       }
 
-      return window.performance.getEntriesByType('mark') as PerformanceMark[];
+      return globalThis.performance.getEntriesByType('mark') as PerformanceMark[];
     } catch (error) {
       console.warn('Error accessing performance marks:', error);
       return [];
@@ -165,12 +165,12 @@ class PerformanceAPIWrapper {
 
     try {
       // Double-check that the method is still available
-      if (typeof window.performance.getEntriesByType !== 'function') {
+      if (typeof globalThis.performance.getEntriesByType !== 'function') {
         console.warn('getEntriesByType method not available for measures');
         return [];
       }
 
-      return window.performance.getEntriesByType('measure') as PerformanceMeasure[];
+      return globalThis.performance.getEntriesByType('measure') as PerformanceMeasure[];
     } catch (error) {
       console.warn('Error accessing performance measures:', error);
       return [];
@@ -186,8 +186,8 @@ class PerformanceAPIWrapper {
     }
 
     try {
-      if (typeof window.performance.mark === 'function') {
-        window.performance.mark(name);
+      if (typeof globalThis.performance.mark === 'function') {
+        globalThis.performance.mark(name);
       }
     } catch (error) {
       console.warn('Error creating performance mark:', error);
@@ -203,8 +203,8 @@ class PerformanceAPIWrapper {
     }
 
     try {
-      if (typeof window.performance.measure === 'function') {
-        window.performance.measure(name, startMark, endMark);
+      if (typeof globalThis.performance.measure === 'function') {
+        globalThis.performance.measure(name, startMark, endMark);
       }
     } catch (error) {
       console.warn('Error creating performance measure:', error);
@@ -220,7 +220,7 @@ class PerformanceAPIWrapper {
     }
 
     try {
-      return window.performance.now();
+      return globalThis.performance.now();
     } catch (error) {
       console.warn('Error getting performance.now():', error);
       return Date.now();
@@ -242,9 +242,9 @@ class PerformanceAPIWrapper {
       performance: this.isPerformanceSupported,
       memory: this.isMemorySupported,
       navigationTiming: this.isNavigationTimingSupported,
-      marks: this.isPerformanceSupported && typeof window.performance.mark === 'function',
-      measures: this.isPerformanceSupported && typeof window.performance.measure === 'function',
-      now: this.isPerformanceSupported && typeof window.performance.now === 'function'
+      marks: this.isPerformanceSupported && typeof globalThis.performance.mark === 'function',
+      measures: this.isPerformanceSupported && typeof globalThis.performance.measure === 'function',
+      now: this.isPerformanceSupported && typeof globalThis.performance.now === 'function'
     };
   }
 

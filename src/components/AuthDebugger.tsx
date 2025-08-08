@@ -23,7 +23,7 @@ const AuthDebugger: React.FC = () => {
       setTestResult('Testing authentication...');
 
       // Test getUserInfo API
-      const userInfoResponse = await window.ezsite.apis.getUserInfo();
+      const userInfoResponse = await globalThis.ezsite.apis.getUserInfo();
       console.log('Auth Test - getUserInfo:', userInfoResponse);
 
       if (userInfoResponse.error) {
@@ -37,7 +37,7 @@ const AuthDebugger: React.FC = () => {
       }
 
       // Test profile fetch
-      const profileResponse = await window.ezsite.apis.tablePage(11725, {
+      const profileResponse = await globalThis.ezsite.apis.tablePage(11725, {
         PageNo: 1,
         PageSize: 1,
         Filters: [{ name: "user_id", op: "Equal", value: userInfoResponse.data.ID }]

@@ -134,7 +134,7 @@ const UserPermissionManager: React.FC = () => {
 
   const fetchUserProfiles = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(11725, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(11725, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: "id",
@@ -243,7 +243,7 @@ const UserPermissionManager: React.FC = () => {
 
     setSaving(true);
     try {
-      const { error } = await window.ezsite.apis.tableUpdate(11725, {
+      const { error } = await globalThis.ezsite.apis.tableUpdate(11725, {
         id: selectedUser.id,
         detailed_permissions: JSON.stringify(permissions)
       });

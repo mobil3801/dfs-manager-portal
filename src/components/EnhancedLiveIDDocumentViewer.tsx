@@ -92,7 +92,7 @@ const EnhancedLiveIDDocumentViewer: React.FC<EnhancedLiveIDDocumentViewerProps> 
 
         // Get the file URL from the API with enhanced error handling
         const response = (await Promise.race([
-        window.ezsite.apis.getUploadUrl(fileId),
+        globalThis.ezsite.apis.getUploadUrl(fileId),
         new Promise((_, reject) =>
         setTimeout(() => reject(new Error('Request timeout')), 15000)
         )]
@@ -186,7 +186,7 @@ const EnhancedLiveIDDocumentViewer: React.FC<EnhancedLiveIDDocumentViewerProps> 
 
   const handleViewFullScreen = () => {
     if (documentUrl) {
-      window.open(documentUrl, '_blank', 'noopener,noreferrer');
+      globalThis.open(documentUrl, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -208,7 +208,7 @@ const EnhancedLiveIDDocumentViewer: React.FC<EnhancedLiveIDDocumentViewerProps> 
       }
 
       const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      const url = globalThis.URL.createObjectURL(blob);
 
       const link = document.createElement('a');
       link.href = url;
@@ -217,7 +217,7 @@ const EnhancedLiveIDDocumentViewer: React.FC<EnhancedLiveIDDocumentViewerProps> 
       link.click();
       document.body.removeChild(link);
 
-      window.URL.revokeObjectURL(url);
+      globalThis.URL.revokeObjectURL(url);
 
       toast({
         title: "Success",
