@@ -9,18 +9,18 @@ import { globalErrorHandler } from './utils/globalErrorHandler';
 globalErrorHandler.init();
 
 // Performance API Polyfill for environments that don't support it
-if (typeof window !== 'undefined' && !globalThis.performance) {
+if (typeof globalThis !== 'undefined' && !globalThis.performance) {
   console.warn('Performance API not available, providing minimal polyfill');
-  (window as any).performance = {
+  (globalThis as unknown as { performance: unknown }).performance = {
     now: () => Date.now(),
     mark: () => {},
     measure: () => {},
     getEntriesByType: () => [],
     memory: null
   };
-} else if (typeof window !== 'undefined' && globalThis.performance && !(globalThis.performance as any).getEntriesByType) {
+} else if (typeof globalThis !== 'undefined' && globalThis.performance && !('getEntriesByType' in globalThis.performance)) {
   console.warn('Performance.getEntriesByType not available, providing polyfill');
-  (globalThis.performance as any).getEntriesByType = () => [];
+  (globalThis.performance as unknown as { getEntriesByType: () => unknown[] }).getEntriesByType = () => [];
 }
 
 // Enhanced global error handler for Performance API errors

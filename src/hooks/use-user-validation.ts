@@ -80,7 +80,7 @@ export function useUserValidation(options: UseUserValidationOptions = {}) {
         return false;
       }
       return true;
-    } catch (error) {
+    } catch (_error) {
       if (showToasts) {
         toast({
           title: "Email Validation Error",
