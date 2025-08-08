@@ -49,13 +49,13 @@ interface AuthContextType {
   user: User | null;
   userProfile: UserProfile | null;
   session: Session | null;
-  
+
   // State flags
   isAuthenticated: boolean;
   isLoading: boolean;
   authError: string | null;
   isInitialized: boolean;
-  
+
   // Auth methods
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
@@ -63,12 +63,12 @@ interface AuthContextType {
   resetPassword: (email: string) => Promise<boolean>;
   updatePassword: (password: string) => Promise<boolean>;
   refreshUserData: () => Promise<void>;
-  
+
   // Permission methods
   hasPermission: (action: string, resource?: string) => boolean;
   isAdmin: () => boolean;
   isManager: () => boolean;
-  
+
   // Utility methods
   clearError: () => void;
 }
@@ -78,11 +78,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Create timeout wrapper for promises
 function withTimeout<T>(promise: Promise<T>, timeout: number, errorMessage: string): Promise<T> {
   return Promise.race([
-    promise,
-    new Promise<T>((_, reject) => 
-      setTimeout(() => reject(new Error(errorMessage)), timeout)
-    )
-  ]);
+  promise,
+  new Promise<T>((_, reject) =>
+  setTimeout(() => reject(new Error(errorMessage)), timeout)
+  )]
+  );
 }
 
 // Default profile for new users
@@ -97,7 +97,7 @@ const createDefaultProfile = (userId: string): Partial<UserProfile> => ({
   detailed_permissions: {}
 });
 
-export const ConsolidatedAuthProvider: React.FC<{children: ReactNode}> = ({ children }) => {
+export const ConsolidatedAuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -130,7 +130,7 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode}> = ({ chil
       return profile as UserProfile;
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);
-      
+
       // Return minimal fallback profile to prevent blocking
       return {
         id: 'temp-' + Date.now(),
@@ -155,7 +155,7 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode}> = ({ chil
         SESSION_REFRESH_TIMEOUT,
         'User data refresh timeout'
       );
-      
+
       setUserProfile(profile);
     } catch (error: any) {
       console.error('Error refreshing user data:', error);
@@ -170,7 +170,7 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode}> = ({ chil
       setIsLoading(true);
       setAuthError(null);
 
-      const data = await withTimeout(
+      const { data, error } = await withTimeout(
         authService.signIn(email, password),
         AUTH_OPERATION_TIMEOUT,
         'Login timeout - please try again'
@@ -244,7 +244,7 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode}> = ({ chil
       setIsLoading(true);
       setAuthError(null);
 
-      const data = await withTimeout(
+      const { data, error } = await withTimeout(
         authService.signUp(email, password, {
           full_name: fullName,
           display_name: fullName
@@ -252,6 +252,16 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode}> = ({ chil
         AUTH_OPERATION_TIMEOUT,
         'Registration timeout - please try again'
       );
+
+      if (error) {
+        setAuthError(error.message);
+        toast({
+          title: 'Registration Failed',
+          description: error.message,
+          variant: 'destructive'
+        });
+        return false;
+      }
 
       toast({
         title: 'Registration Successful',
@@ -379,9 +389,9 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode}> = ({ chil
 
   const isManager = useCallback((): boolean => {
     return userProfile?.role === 'Management' ||
-           userProfile?.role === 'Manager' ||
-           userProfile?.role === 'Administrator' ||
-           userProfile?.role === 'Admin';
+    userProfile?.role === 'Manager' ||
+    userProfile?.role === 'Administrator' ||
+    userProfile?.role === 'Admin';
   }, [userProfile]);
 
   // Initialize authentication state with timeout protection
@@ -434,7 +444,7 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode}> = ({ chil
             setUserProfile(null);
             setSession(null);
           }
-          
+
           clearTimeout(initializationTimeout);
           setIsInitialized(true);
           setIsLoading(false);
@@ -465,14 +475,14 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode}> = ({ chil
           if (event === 'SIGNED_IN' && session?.user) {
             setUser(session.user);
             setSession(session);
-            
+
             try {
               const profile = await fetchUserProfile(session.user.id);
               setUserProfile(profile);
             } catch (profileError) {
               console.error('Profile fetch error on sign in:', profileError);
             }
-            
+
             setAuthError(null);
           } else if (event === 'SIGNED_OUT') {
             setUser(null);

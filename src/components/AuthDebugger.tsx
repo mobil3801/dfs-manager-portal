@@ -17,25 +17,25 @@ const AuthDebugger: React.FC = () => {
   // Disabled in production
   return (
     <DebugWrapper>
-      <AuthDebuggerContent 
+      <AuthDebuggerContent
         auth={auth}
         adminAccess={adminAccess}
         isExpanded={isExpanded}
         setIsExpanded={setIsExpanded}
         testResult={testResult}
-        setTestResult={setTestResult}
-      />
-    </DebugWrapper>
-  );
+        setTestResult={setTestResult} />
+
+    </DebugWrapper>);
+
 };
 
-const AuthDebuggerContent: React.FC<any> = ({ 
-  auth, 
-  adminAccess, 
-  isExpanded, 
-  setIsExpanded, 
-  testResult, 
-  setTestResult 
+const AuthDebuggerContent: React.FC<any> = ({
+  auth,
+  adminAccess,
+  isExpanded,
+  setIsExpanded,
+  testResult,
+  setTestResult
 }) => {
   // Only render for authenticated admin users
   if (!auth.isAuthenticated || !auth.user || !adminAccess.isAdmin) {

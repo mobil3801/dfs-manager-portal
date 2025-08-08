@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Eye, EyeOff, Lock, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { useToast } from '@/hooks/use-toast';
-import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+import { useConsolidatedAuth } from '@/contexts/ConsolidatedAuthContext';
 import { supabase } from '@/lib/supabase';
 
 const ResetPasswordPage: React.FC = () => {
@@ -24,7 +24,7 @@ const ResetPasswordPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const { updatePassword } = useSupabaseAuth();
+  const { updatePassword } = useConsolidatedAuth();
 
   useEffect(() => {
     // Check if this is a password reset callback

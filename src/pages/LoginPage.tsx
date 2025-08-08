@@ -2,12 +2,12 @@ import React from 'react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SupabaseLoginPage from './SupabaseLoginPage';
-import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+import { useConsolidatedAuth } from '@/contexts/ConsolidatedAuthContext';
 
 // Legacy login page that redirects to Supabase login
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useSupabaseAuth();
+  const { isAuthenticated } = useConsolidatedAuth();
 
   useEffect(() => {
     // Redirect authenticated users to dashboard

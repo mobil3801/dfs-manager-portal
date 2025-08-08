@@ -15,6 +15,7 @@ import DashboardLayout from '@/components/Layout/DashboardLayout';
 import Dashboard from '@/pages/Dashboard';
 import LoginPage from '@/pages/LoginPage';
 import SupabaseLoginPage from '@/pages/SupabaseLoginPage';
+import CleanLoginPage from '@/pages/CleanLoginPage';
 import OnAuthSuccessPage from '@/pages/OnAuthSuccessPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import NotFound from '@/pages/NotFound';
@@ -144,7 +145,7 @@ const ProtectedRoute: React.FC<{children: React.ReactNode;}> = ({ children }) =>
     if (authError.includes('timeout') || authError.includes('initialization timed out')) {
       return <AuthError error="Authentication service is taking too long. Please refresh the page." onRetry={() => window.location.reload()} />;
     }
-    
+
     // Handle other authentication errors
     return <AuthError error={authError} onRetry={refreshUserData} />;
   }
@@ -171,7 +172,7 @@ const AppRouter = () => {
       <div className="App">
         <Routes>
           {/* Public Routes */}
-          <Route path="/login" element={<SupabaseLoginPage />} />
+          <Route path="/login" element={<CleanLoginPage />} />
           <Route path="/legacy-login" element={<LoginPage />} />
           <Route path="/supabase-login" element={<SupabaseLoginPage />} />
           <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />

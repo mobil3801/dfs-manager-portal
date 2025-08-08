@@ -39,13 +39,13 @@ interface PerformanceMetrics {
 const DevelopmentMonitor: React.FC = () => {
   return (
     <DebugWrapper fallback={
-      <div className="p-4 text-center text-gray-500">
+    <div className="p-4 text-center text-gray-500">
         Development monitoring is disabled in production.
       </div>
     }>
       <DevelopmentMonitorContent />
-    </DebugWrapper>
-  );
+    </DebugWrapper>);
+
 };
 
 const DevelopmentMonitorContent: React.FC = () => {

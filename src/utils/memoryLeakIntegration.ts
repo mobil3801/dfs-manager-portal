@@ -8,13 +8,13 @@ import performanceAPI from './performanceAPIWrapper';
 
 // Global flag to enable/disable automatic memory leak detection
 // Only enable in development or when explicitly requested
-export const MEMORY_LEAK_DETECTION_ENABLED = (
-  (process.env.NODE_ENV === 'development' ||
-   import.meta.env.VITE_ENABLE_MEMORY_LEAK_DETECTION === 'true' ||
-   (typeof window !== 'undefined' && window.location.search.includes('memory-debug=true'))
-  ) &&
-  typeof window !== 'undefined' && performanceAPI.getSupportInfo().performance
-);
+export const MEMORY_LEAK_DETECTION_ENABLED =
+(process.env.NODE_ENV === 'development' ||
+import.meta.env.VITE_ENABLE_MEMORY_LEAK_DETECTION === 'true' ||
+typeof window !== 'undefined' && window.location.search.includes('memory-debug=true')) &&
+
+typeof window !== 'undefined' && performanceAPI.getSupportInfo().performance;
+
 
 /**
  * Monkey patch common browser APIs to include memory leak warnings

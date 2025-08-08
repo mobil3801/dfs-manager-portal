@@ -10,10 +10,10 @@ interface DebugWrapperProps {
   condition?: boolean;
 }
 
-export const DebugWrapper: React.FC<DebugWrapperProps> = ({ 
-  children, 
+export const DebugWrapper: React.FC<DebugWrapperProps> = ({
+  children,
   fallback = null,
-  condition = process.env.NODE_ENV === 'development' 
+  condition = process.env.NODE_ENV === 'development'
 }) => {
   // Only render debug components in development or when condition is true
   if (!condition) {
@@ -27,9 +27,9 @@ export const DebugWrapper: React.FC<DebugWrapperProps> = ({
  * Disable numbered debug overlays and development scripts
  */
 export const isProductionEnvironment = () => {
-  return process.env.NODE_ENV === 'production' || 
-         import.meta.env.PROD === true ||
-         window.location.hostname !== 'localhost';
+  return process.env.NODE_ENV === 'production' ||
+  import.meta.env.PROD === true ||
+  window.location.hostname !== 'localhost';
 };
 
 /**
@@ -71,8 +71,8 @@ interface ProductionSafeErrorBoundaryState {
 
 export class ProductionSafeErrorBoundary extends React.Component<
   React.PropsWithChildren<{}>,
-  ProductionSafeErrorBoundaryState
-> {
+  ProductionSafeErrorBoundaryState>
+{
   constructor(props: React.PropsWithChildren<{}>) {
     super(props);
     this.state = { hasError: false };
@@ -112,21 +112,21 @@ export class ProductionSafeErrorBoundary extends React.Component<
                 <div className="space-y-2">
                   <button
                     onClick={() => window.location.reload()}
-                    className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                  >
+                    className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+
                     Refresh Page
                   </button>
                   <button
                     onClick={() => this.setState({ hasError: false })}
-                    className="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
-                  >
+                    className="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors">
+
                     Try Again
                   </button>
                 </div>
               </div>
             </div>
-          </div>
-        );
+          </div>);
+
       } else {
         // Development: Show detailed error information
         return (
@@ -140,24 +140,24 @@ export class ProductionSafeErrorBoundary extends React.Component<
                     {this.state.error?.message || 'Unknown error'}
                   </p>
                 </div>
-                {this.state.error?.stack && (
-                  <div className="bg-gray-50 border border-gray-200 rounded p-4 mb-4">
+                {this.state.error?.stack &&
+                <div className="bg-gray-50 border border-gray-200 rounded p-4 mb-4">
                     <h4 className="font-medium text-gray-800 mb-2">Stack Trace:</h4>
                     <pre className="text-xs text-gray-600 overflow-auto max-h-64">
                       {this.state.error.stack}
                     </pre>
                   </div>
-                )}
+                }
                 <button
                   onClick={() => this.setState({ hasError: false })}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                >
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+
                   Try Again
                 </button>
               </div>
             </div>
-          </div>
-        );
+          </div>);
+
       }
     }
 

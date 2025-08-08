@@ -30,8 +30,8 @@ const NavigationDebugger: React.FC = () => {
   return (
     <DebugWrapper fallback={null}>
       <NavigationDebuggerContent />
-    </DebugWrapper>
-  );
+    </DebugWrapper>);
+
 };
 
 const NavigationDebuggerContent: React.FC = () => {
