@@ -31,7 +31,7 @@ interface Product {
 
 const ProductDetail: React.FC = () => {
   const navigate = useNavigate();
-  const { slug } = useParams<{ slug: string }>();
+  const { slug } = useParams<{slug: string;}>();
   const { userProfile } = useSupabaseAuth();
   const responsive = useResponsiveLayout();
 
@@ -50,16 +50,16 @@ const ProductDetail: React.FC = () => {
 
       try {
         setLoading(true);
-        
+
         // Try to find by slug first, then by ID as fallback
-        let query = supabase
-          .from('products')
-          .select('*')
-          .eq('is_published', true);
+        let query = supabase.
+        from('products').
+        select('*').
+        eq('is_published', true);
 
         // Check if slug is a UUID (ID) or actual slug
         const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(slug);
-        
+
         if (isUUID) {
           query = query.eq('id', slug);
         } else {
@@ -99,7 +99,7 @@ const ProductDetail: React.FC = () => {
 
   const updateSEOTags = (product: Product) => {
     const head = document.head;
-    
+
     // Update title
     const existingTitle = head.querySelector('title');
     const newTitle = `${product.name} - DFS Manager Portal`;
@@ -109,10 +109,10 @@ const ProductDetail: React.FC = () => {
 
     // Update description
     const existingDescription = head.querySelector('meta[name="description"]');
-    const newDescription = product.description 
-      ? `${product.description} - Price: $${product.price?.toFixed(2) || 'N/A'} - Category: ${product.category || 'Uncategorized'}`
-      : `View details for ${product.name} in our product catalog.`;
-    
+    const newDescription = product.description ?
+    `${product.description} - Price: $${product.price?.toFixed(2) || 'N/A'} - Category: ${product.category || 'Uncategorized'}` :
+    `View details for ${product.name} in our product catalog.`;
+
     if (existingDescription) {
       existingDescription.setAttribute('content', newDescription);
     } else {
@@ -162,7 +162,7 @@ const ProductDetail: React.FC = () => {
 
   const calculateProfitMargin = (price?: number, cost?: number) => {
     if (!price || !cost) return null;
-    const margin = ((price - cost) / price) * 100;
+    const margin = (price - cost) / price * 100;
     return margin.toFixed(1);
   };
 
@@ -189,8 +189,8 @@ const ProductDetail: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-      </ResponsiveStack>
-    );
+      </ResponsiveStack>);
+
   }
 
   if (error || !product) {
@@ -209,8 +209,8 @@ const ProductDetail: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-      </ResponsiveStack>
-    );
+      </ResponsiveStack>);
+
   }
 
   const stockStatus = getStockStatus(product);
@@ -236,8 +236,8 @@ const ProductDetail: React.FC = () => {
             <div className={`flex items-center space-x-2 ${responsive.isMobile ? 'w-full' : ''}`}>
               <Button
                 onClick={() => navigate(`/products/${product.id}/edit`)}
-                className={responsive.isMobile ? 'flex-1' : ''}
-              >
+                className={responsive.isMobile ? 'flex-1' : ''}>
+
                 <Edit className="w-4 h-4 mr-2" />
                 Edit Product
               </Button>
@@ -249,20 +249,20 @@ const ProductDetail: React.FC = () => {
             {/* Product Image */}
             <div className="lg:col-span-1">
               <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                {product.image_url ? (
-                  <img 
-                    src={product.image_url} 
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/placeholder-product.png';
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                {product.image_url ?
+                <img
+                  src={product.image_url}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/placeholder-product.png';
+                  }} /> :
+
+
+                <div className="w-full h-full flex items-center justify-center text-gray-400">
                     <Package className="w-16 h-16" />
                   </div>
-                )}
+                }
               </div>
             </div>
 
@@ -283,19 +283,19 @@ const ProductDetail: React.FC = () => {
                           {formatPrice(product.price)}
                         </div>
                       </div>
-                      {product.cost && (
-                        <div>
+                      {product.cost &&
+                      <div>
                           <span className="text-sm text-gray-500">Cost:</span>
                           <div className="text-lg">{formatPrice(product.cost)}</div>
                         </div>
-                      )}
-                      {profitMargin && (
-                        <div className="flex items-center space-x-2">
+                      }
+                      {profitMargin &&
+                      <div className="flex items-center space-x-2">
                           <TrendingUp className="w-4 h-4 text-blue-500" />
                           <span className="text-sm text-gray-500">Profit Margin:</span>
                           <span className="font-medium text-blue-600">{profitMargin}%</span>
                         </div>
-                      )}
+                      }
                     </div>
                   </CardContent>
                 </Card>
@@ -313,12 +313,12 @@ const ProductDetail: React.FC = () => {
                           {product.stock_quantity || 0}
                         </div>
                       </div>
-                      {product.min_stock_level && (
-                        <div>
+                      {product.min_stock_level &&
+                      <div>
                           <span className="text-sm text-gray-500">Min Level:</span>
                           <div className="text-lg">{product.min_stock_level}</div>
                         </div>
-                      )}
+                      }
                       <Badge variant={stockStatus.variant as any} className="mt-2">
                         {stockStatus.text}
                       </Badge>
@@ -332,26 +332,26 @@ const ProductDetail: React.FC = () => {
                 <div>
                   <h3 className="font-semibold mb-3">Product Information</h3>
                   <div className="space-y-3">
-                    {product.category && (
-                      <div className="flex items-center space-x-2">
+                    {product.category &&
+                    <div className="flex items-center space-x-2">
                         <Tag className="w-4 h-4 text-gray-500" />
                         <span className="text-sm text-gray-500">Category:</span>
                         <Badge variant="outline">{product.category}</Badge>
                       </div>
-                    )}
-                    {product.sku && (
-                      <div className="flex items-center space-x-2">
+                    }
+                    {product.sku &&
+                    <div className="flex items-center space-x-2">
                         <span className="text-sm text-gray-500">SKU:</span>
                         <code className="text-sm bg-gray-100 px-2 py-1 rounded">{product.sku}</code>
                       </div>
-                    )}
-                    {product.barcode && (
-                      <div className="flex items-center space-x-2">
+                    }
+                    {product.barcode &&
+                    <div className="flex items-center space-x-2">
                         <Barcode className="w-4 h-4 text-gray-500" />
                         <span className="text-sm text-gray-500">Barcode:</span>
                         <code className="text-sm bg-gray-100 px-2 py-1 rounded">{product.barcode}</code>
                       </div>
-                    )}
+                    }
                   </div>
                 </div>
 
@@ -363,13 +363,13 @@ const ProductDetail: React.FC = () => {
                       <span className="text-sm text-gray-500">Created:</span>
                       <span className="text-sm">{formatDate(product.created_at)}</span>
                     </div>
-                    {product.updated_at && (
-                      <div className="flex items-center space-x-2">
+                    {product.updated_at &&
+                    <div className="flex items-center space-x-2">
                         <Calendar className="w-4 h-4 text-gray-500" />
                         <span className="text-sm text-gray-500">Last Updated:</span>
                         <span className="text-sm">{formatDate(product.updated_at)}</span>
                       </div>
-                    )}
+                    }
                   </div>
                 </div>
               </div>
@@ -377,8 +377,8 @@ const ProductDetail: React.FC = () => {
           </div>
         </CardContent>
       </Card>
-    </ResponsiveStack>
-  );
+    </ResponsiveStack>);
+
 };
 
 export default ProductDetail;

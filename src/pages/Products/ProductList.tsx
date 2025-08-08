@@ -15,14 +15,14 @@ import { ResponsiveTable, ResponsiveStack } from '@/components/ResponsiveWrapper
 import { useResponsiveLayout } from '@/hooks/use-mobile';
 
 // SEO Meta Tags
-const ProductListSEO = () => (
-  <>
+const ProductListSEO = () =>
+<>
     <title>Products - DFS Manager Portal</title>
     <meta name="description" content="Manage your product inventory with advanced search, filters, and pagination. View published products with images, prices, and detailed information." />
     <meta name="keywords" content="products, inventory, gas station, fuel, catalog, management" />
     <link rel="canonical" href={`${window.location.origin}/products`} />
-  </>
-);
+  </>;
+
 
 interface Product {
   id: string;
@@ -75,10 +75,10 @@ const ProductList: React.FC = () => {
       }
 
       // Start building the query
-      let query = supabase
-        .from('products')
-        .select('*', { count: 'exact' })
-        .eq('is_published', true); // Only published products
+      let query = supabase.
+      from('products').
+      select('*', { count: 'exact' }).
+      eq('is_published', true); // Only published products
 
       // Apply search filter
       if (searchTerm.trim()) {
@@ -107,7 +107,7 @@ const ProductList: React.FC = () => {
       if (resetList || page === 1) {
         setProducts(data || []);
       } else {
-        setProducts(prev => [...prev, ...(data || [])]);
+        setProducts((prev) => [...prev, ...(data || [])]);
       }
 
       setTotalCount(count || 0);
@@ -129,15 +129,15 @@ const ProductList: React.FC = () => {
   // Load categories for filter dropdown
   const loadCategories = useCallback(async () => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('category')
-        .eq('is_published', true)
-        .not('category', 'is', null);
+      const { data, error } = await supabase.
+      from('products').
+      select('category').
+      eq('is_published', true).
+      not('category', 'is', null);
 
       if (error) throw error;
 
-      const uniqueCategories = [...new Set(data?.map(item => item.category).filter(Boolean))] as string[];
+      const uniqueCategories = [...new Set(data?.map((item) => item.category).filter(Boolean))] as string[];
       setCategories(uniqueCategories.sort());
     } catch (error) {
       console.error('Error loading categories:', error);
@@ -192,14 +192,14 @@ const ProductList: React.FC = () => {
 
   const handleDelete = async (productId: string) => {
     const confirmed = confirm('Are you sure you want to delete this product? This action cannot be undone.');
-    
+
     if (!confirmed) return;
 
     try {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', productId);
+      const { error } = await supabase.
+      from('products').
+      delete().
+      eq('id', productId);
 
       if (error) throw error;
 
@@ -265,10 +265,10 @@ const ProductList: React.FC = () => {
   };
 
   // Render loading skeleton
-  const renderLoadingSkeleton = () => (
-    <div className="space-y-4">
-      {[...Array(6)].map((_, i) => (
-        <Card key={i} className="p-4">
+  const renderLoadingSkeleton = () =>
+  <div className="space-y-4">
+      {[...Array(6)].map((_, i) =>
+    <Card key={i} className="p-4">
           <div className="flex items-start space-x-4">
             <Skeleton className="w-20 h-20 rounded" />
             <div className="flex-1 space-y-2">
@@ -278,47 +278,47 @@ const ProductList: React.FC = () => {
             </div>
           </div>
         </Card>
-      ))}
-    </div>
-  );
+    )}
+    </div>;
+
 
   // Render product card for mobile
   const renderProductCard = (product: Product) => {
     const stockStatus = getStockStatus(product);
-    
+
     return (
       <Card key={product.id} className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={() => handleProductClick(product.slug, product.id)}>
         <div className="space-y-3">
           <div className="flex items-start justify-between">
             <div className="flex items-start space-x-3 flex-1">
-              {product.image_url && (
-                <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                  <img 
-                    src={product.image_url} 
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
+              {product.image_url &&
+              <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                  <img
+                  src={product.image_url}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }} />
+
                 </div>
-              )}
+              }
               <div className="flex-1 min-w-0">
                 <h3 className="font-medium truncate">{product.name}</h3>
-                {product.description && (
-                  <p className="text-sm text-gray-500 line-clamp-2 mt-1">
+                {product.description &&
+                <p className="text-sm text-gray-500 line-clamp-2 mt-1">
                     {product.description}
                   </p>
-                )}
+                }
                 <div className="flex items-center space-x-2 mt-2">
                   <span className="text-lg font-semibold text-green-600">
                     {formatPrice(product.price)}
                   </span>
-                  {product.category && (
-                    <Badge variant="outline" className="text-xs">
+                  {product.category &&
+                  <Badge variant="outline" className="text-xs">
                       {product.category}
                     </Badge>
-                  )}
+                  }
                 </div>
               </div>
             </div>
@@ -347,8 +347,8 @@ const ProductList: React.FC = () => {
                   e.stopPropagation();
                   handleEdit(product.id);
                 }}
-                title="Edit product"
-              >
+                title="Edit product">
+
                 <Edit className="w-4 h-4" />
               </Button>
               <Button
@@ -359,15 +359,15 @@ const ProductList: React.FC = () => {
                   handleDelete(product.id);
                 }}
                 className="text-red-600 hover:text-red-700"
-                title="Delete product"
-              >
+                title="Delete product">
+
                 <Trash2 className="w-4 h-4" />
               </Button>
             </div>
           </div>
         </div>
-      </Card>
-    );
+      </Card>);
+
   };
 
   // Insert SEO meta tags
@@ -431,8 +431,8 @@ const ProductList: React.FC = () => {
             </Button>
           </CardContent>
         </Card>
-      </ResponsiveStack>
-    );
+      </ResponsiveStack>);
+
   }
 
   return (
@@ -440,8 +440,8 @@ const ProductList: React.FC = () => {
       <Card>
         <CardHeader>
           <div className={`flex items-center ${
-            responsive.isMobile ? 'flex-col space-y-4' : 'justify-between'
-          }`}>
+          responsive.isMobile ? 'flex-col space-y-4' : 'justify-between'}`
+          }>
             <div className={responsive.isMobile ? 'text-center' : ''}>
               <CardTitle className="flex items-center space-x-2">
                 <Package className="w-6 h-6" />
@@ -456,9 +456,9 @@ const ProductList: React.FC = () => {
               <Button
                 onClick={() => navigate('/products/new')}
                 className={`bg-brand-600 hover:bg-brand-700 text-white ${
-                  responsive.isMobile ? 'w-full' : ''
-                }`}
-              >
+                responsive.isMobile ? 'w-full' : ''}`
+                }>
+
                 <Plus className="w-4 h-4 mr-2" />
                 Add Product
               </Button>
@@ -468,35 +468,35 @@ const ProductList: React.FC = () => {
         <CardContent>
           {/* Search and Filters */}
           <div className={`flex items-center mb-6 ${
-            responsive.isMobile ? 'flex-col space-y-3' : 'space-x-2'
-          }`}>
+          responsive.isMobile ? 'flex-col space-y-3' : 'space-x-2'}`
+          }>
             <div className={`relative ${
-              responsive.isMobile ? 'w-full' : 'flex-1 max-w-md'
-            }`}>
+            responsive.isMobile ? 'w-full' : 'flex-1 max-w-md'}`
+            }>
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm('')}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 w-4 h-4 flex items-center justify-center"
-                  title="Clear search"
-                >
+              {searchTerm &&
+              <button
+                onClick={() => setSearchTerm('')}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 w-4 h-4 flex items-center justify-center"
+                title="Clear search">
+
                   <X className="w-4 h-4" />
                 </button>
-              )}
+              }
               <Input
-                placeholder={responsive.isMobile ? 
-                  "Search products..." : 
-                  "Search by name, description, SKU, barcode..."
+                placeholder={responsive.isMobile ?
+                "Search products..." :
+                "Search by name, description, SKU, barcode..."
                 }
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`pl-10 ${searchTerm ? 'pr-10' : 'pr-3'}`}
-              />
+                className={`pl-10 ${searchTerm ? 'pr-10' : 'pr-3'}`} />
+
             </div>
             
             <div className={`flex items-center space-x-2 ${
-              responsive.isMobile ? 'w-full grid grid-cols-2 gap-2' : ''
-            }`}>
+            responsive.isMobile ? 'w-full grid grid-cols-2 gap-2' : ''}`
+            }>
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                 <SelectTrigger className={responsive.isMobile ? 'w-full' : 'w-[180px]'}>
                   <Filter className="w-4 h-4 mr-2" />
@@ -504,11 +504,11 @@ const ProductList: React.FC = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
+                  {categories.map((category) =>
+                  <SelectItem key={category} value={category}>
                       {category}
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
 
@@ -532,56 +532,56 @@ const ProductList: React.FC = () => {
               </Select>
             </div>
 
-            {(searchTerm || categoryFilter !== 'all') && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleClearFilters}
-                className={responsive.isMobile ? 'w-full' : ''}
-              >
+            {(searchTerm || categoryFilter !== 'all') &&
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleClearFilters}
+              className={responsive.isMobile ? 'w-full' : ''}>
+
                 Clear Filters
               </Button>
-            )}
+            }
           </div>
 
           {/* Results Count */}
-          {!loading && (
-            <div className="mb-4 text-sm text-gray-600">
+          {!loading &&
+          <div className="mb-4 text-sm text-gray-600">
               Showing {products.length} of {totalCount} products
               {searchTerm && ` matching "${searchTerm}"`}
               {categoryFilter !== 'all' && ` in ${categoryFilter}`}
             </div>
-          )}
+          }
 
           {/* Products Display */}
-          {loading ? (
-            renderLoadingSkeleton()
-          ) : products.length === 0 ? (
-            <div className="text-center py-8">
+          {loading ?
+          renderLoadingSkeleton() :
+          products.length === 0 ?
+          <div className="text-center py-8">
               <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500 mb-4">
-                {searchTerm || categoryFilter !== 'all' 
-                  ? `No products found matching your criteria`
-                  : 'No published products found'
-                }
+                {searchTerm || categoryFilter !== 'all' ?
+              `No products found matching your criteria` :
+              'No published products found'
+              }
               </p>
               <div className="space-x-2">
-                {(searchTerm || categoryFilter !== 'all') && (
-                  <Button variant="outline" onClick={handleClearFilters}>
+                {(searchTerm || categoryFilter !== 'all') &&
+              <Button variant="outline" onClick={handleClearFilters}>
                     Clear Filters
                   </Button>
-                )}
+              }
                 <Button onClick={() => navigate('/products/new')}>
                   Add Your First Product
                 </Button>
               </div>
-            </div>
-          ) : responsive.isMobile ? (
-            <div className="space-y-4">
+            </div> :
+          responsive.isMobile ?
+          <div className="space-y-4">
               {products.map(renderProductCard)}
-            </div>
-          ) : (
-            <ResponsiveTable className="border rounded-lg overflow-hidden">
+            </div> :
+
+          <ResponsiveTable className="border rounded-lg overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -596,35 +596,35 @@ const ProductList: React.FC = () => {
                 </TableHeader>
                 <TableBody>
                   {products.map((product) => {
-                    const stockStatus = getStockStatus(product);
-                    
-                    return (
-                      <TableRow 
-                        key={product.id} 
-                        className="hover:bg-gray-50 cursor-pointer"
-                        onClick={() => handleProductClick(product.slug, product.id)}
-                      >
+                  const stockStatus = getStockStatus(product);
+
+                  return (
+                    <TableRow
+                      key={product.id}
+                      className="hover:bg-gray-50 cursor-pointer"
+                      onClick={() => handleProductClick(product.slug, product.id)}>
+
                         <TableCell>
                           <div className="flex items-center space-x-3">
-                            {product.image_url && (
-                              <div className="w-10 h-10 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                                <img 
-                                  src={product.image_url} 
-                                  alt={product.name}
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).style.display = 'none';
-                                  }}
-                                />
+                            {product.image_url &&
+                          <div className="w-10 h-10 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                                <img
+                              src={product.image_url}
+                              alt={product.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                              }} />
+
                               </div>
-                            )}
+                          }
                             <div className="min-w-0 flex-1">
                               <p className="font-medium truncate">{product.name}</p>
-                              {product.description && (
-                                <p className="text-sm text-gray-500 truncate max-w-xs">
+                              {product.description &&
+                            <p className="text-sm text-gray-500 truncate max-w-xs">
                                   {product.description}
                                 </p>
-                              )}
+                            }
                             </div>
                           </div>
                         </TableCell>
@@ -632,9 +632,9 @@ const ProductList: React.FC = () => {
                           {product.sku || '-'}
                         </TableCell>
                         <TableCell>
-                          {product.category ? (
-                            <Badge variant="outline">{product.category}</Badge>
-                          ) : '-'}
+                          {product.category ?
+                        <Badge variant="outline">{product.category}</Badge> :
+                        '-'}
                         </TableCell>
                         <TableCell className="font-semibold text-green-600">
                           {formatPrice(product.price)}
@@ -642,11 +642,11 @@ const ProductList: React.FC = () => {
                         <TableCell>
                           <div className="text-sm">
                             <div>{product.stock_quantity || 0}</div>
-                            {product.min_stock_level && (
-                              <div className="text-gray-500">
+                            {product.min_stock_level &&
+                          <div className="text-gray-500">
                                 Min: {product.min_stock_level}
                               </div>
-                            )}
+                          }
                           </div>
                         </TableCell>
                         <TableCell>
@@ -657,67 +657,67 @@ const ProductList: React.FC = () => {
                         <TableCell>
                           <div className="flex items-center space-x-1">
                             <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEdit(product.id);
-                              }}
-                              title="Edit product"
-                              className="text-blue-600 hover:text-blue-700"
-                            >
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEdit(product.id);
+                            }}
+                            title="Edit product"
+                            className="text-blue-600 hover:text-blue-700">
+
                               <Edit className="w-4 h-4" />
                             </Button>
                             <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDelete(product.id);
-                              }}
-                              className="text-red-600 hover:text-red-700"
-                              title="Delete product"
-                            >
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(product.id);
+                            }}
+                            className="text-red-600 hover:text-red-700"
+                            title="Delete product">
+
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                         </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                      </TableRow>);
+
+                })}
                 </TableBody>
               </Table>
             </ResponsiveTable>
-          )}
+          }
 
           {/* Infinite Scroll Loading Trigger */}
-          {products.length > 0 && products.length < totalCount && (
-            <div
-              ref={loadingTriggerRef}
-              className="flex items-center justify-center py-8"
-            >
-              {isLoadingMore ? (
-                <div className="flex items-center space-x-2 text-gray-500">
+          {products.length > 0 && products.length < totalCount &&
+          <div
+            ref={loadingTriggerRef}
+            className="flex items-center justify-center py-8">
+
+              {isLoadingMore ?
+            <div className="flex items-center space-x-2 text-gray-500">
                   <Loader2 className="w-5 h-5 animate-spin" />
                   <span>Loading more products...</span>
-                </div>
-              ) : (
-                <div className="text-gray-400 text-sm">
+                </div> :
+
+            <div className="text-gray-400 text-sm">
                   Scroll down to load more products
                 </div>
-              )}
+            }
             </div>
-          )}
+          }
 
-          {products.length >= totalCount && totalCount > pageSize && (
-            <div className="text-center py-4 text-sm text-gray-500">
+          {products.length >= totalCount && totalCount > pageSize &&
+          <div className="text-center py-4 text-sm text-gray-500">
               You've reached the end - all {totalCount} products loaded
             </div>
-          )}
+          }
         </CardContent>
       </Card>
-    </ResponsiveStack>
-  );
+    </ResponsiveStack>);
+
 };
 
 export default ProductList;

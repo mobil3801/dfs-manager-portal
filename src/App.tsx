@@ -172,6 +172,7 @@ const AppRouter = () => {
           <Route path="/supabase-login" element={<SupabaseLoginPage />} />
           <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
           <Route path="/resetpassword" element={<ResetPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           
           {/* Protected Routes */}
           <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
@@ -442,8 +443,8 @@ const AppRouter = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
         
-        {/* Auth Debugger - Only show in development or for debugging */}
-        <AuthDebugger />
+        {/* Auth Debugger - Only show in development */}
+        {process.env.NODE_ENV === 'development' && <AuthDebugger />}
       </div>
     </Router>);
 

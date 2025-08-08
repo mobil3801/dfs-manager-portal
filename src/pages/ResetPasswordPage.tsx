@@ -179,6 +179,7 @@ const ResetPasswordPage: React.FC = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       minLength={6}
+                      autoComplete="new-password"
                       className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
 
                       <button
@@ -204,6 +205,7 @@ const ResetPasswordPage: React.FC = () => {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
                       minLength={6}
+                      autoComplete="new-password"
                       className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
 
                       <button
