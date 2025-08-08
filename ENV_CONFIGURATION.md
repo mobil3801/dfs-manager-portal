@@ -18,7 +18,7 @@ Template file showing all available configuration options.
 
 ### Core Database Configuration
 ```env
-# Database uses Supabase
+# Database uses Easysite Built-in Database
 VITE_APP_NAME="DFS Manager Portal"
 VITE_APP_VERSION="1.0.0"
 VITE_APP_ENVIRONMENT="development"
@@ -172,7 +172,7 @@ VITE_ENABLE_SOURCE_MAPS=true
 - Enable MFA for production environments
 
 ### Database Security
-- Use Supabase security features
+- Use Easysite built-in security features
 - Monitor database connections
 - Set up backup strategies
 

@@ -3,23 +3,14 @@ import { createClient } from '@supabase/supabase-js';
 // Environment variable validation with fallbacks
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://nehhjsiuhthflfwkfequ.supabase.co';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5laGhqc2l1aHRoZmxmd2tmZXF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwMTMxNzUsImV4cCI6MjA2ODU4OTE3NX0.osjykkMo-WoYdRdh6quNu2F8DQHi5dN32JwSiaT5eLc';
-const supabaseServiceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5laGhqc2l1aHRoZmxmd2tmZXF1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzAxMzE3NSwiZXhwIjoyMDY4NTg5MTc1fQ.7naT6l_oNH8VI5MaEKgJ19PoYw1EErv6-ftkEin12wE';
 
-// Validate required environment variables
-if (!supabaseUrl || supabaseUrl === 'undefined') {
-  console.error('Warning: VITE_SUPABASE_URL environment variable not found. Using fallback value.');
-}
-
-if (!supabaseAnonKey || supabaseAnonKey === 'undefined') {
-  console.error('Warning: VITE_SUPABASE_ANON_KEY environment variable not found. Using fallback value.');
-}
-
-// Create Supabase client with anon key for public operations
+// Create Supabase client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: true,
+    flowType: 'pkce'
   },
   realtime: {
     params: {
@@ -28,215 +19,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   }
 });
 
-// Create Supabase admin client for service operations (server-side only)
-export const supabaseAdmin = supabaseServiceKey ?
-createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-}) :
-null;
-
-// Utility function to get the appropriate client
-export const getSupabaseClient = (useServiceRole = false) => {
-  if (useServiceRole) {
-    if (!supabaseAdmin) {
-      console.warn('Service role key not configured. Falling back to anon client.');
-      return supabase;
-    }
-    return supabaseAdmin;
-  }
-  return supabase;
-};
-
-// Database service functions
+// Database service functions with proper error handling
 export const databaseService = {
-  // Vendors
-  async getVendors() {
-    const { data, error } = await supabase.
-    from('vendors').
-    select('*').
-    order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data;
-  },
-
-  async createVendor(vendor: any) {
-    const { data, error } = await supabase.
-    from('vendors').
-    insert([vendor]).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async updateVendor(id: number, updates: any) {
-    const { data, error } = await supabase.
-    from('vendors').
-    update(updates).
-    eq('id', id).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async deleteVendor(id: number) {
-    const { error } = await supabase.
-    from('vendors').
-    delete().
-    eq('id', id);
-
-    if (error) throw error;
-  },
-
-  // Orders
-  async getOrders() {
-    const { data, error } = await supabase.
-    from('order_summary').
-    select('*').
-    order('order_date', { ascending: false });
-
-    if (error) throw error;
-    return data;
-  },
-
-  async createOrder(order: any) {
-    const { data, error } = await supabase.
-    from('orders').
-    insert([order]).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async updateOrder(id: number, updates: any) {
-    const { data, error } = await supabase.
-    from('orders').
-    update(updates).
-    eq('id', id).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async deleteOrder(id: number) {
-    const { error } = await supabase.
-    from('orders').
-    delete().
-    eq('id', id);
-
-    if (error) throw error;
-  },
-
-  // Salaries
-  async getSalaries(employeeId?: number) {
-    let query = supabase.
-    from('salaries').
-    select(`
-        *,
-        employee:employees(name, employee_id),
-        station:stations(name)
-      `).
-    order('pay_period_start', { ascending: false });
-
-    if (employeeId) {
-      query = query.eq('employee_id', employeeId);
-    }
-
-    const { data, error } = await query;
-
-    if (error) throw error;
-    return data;
-  },
-
-  async createSalary(salary: any) {
-    const { data, error } = await supabase.
-    from('salaries').
-    insert([salary]).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async updateSalary(id: number, updates: any) {
-    const { data, error } = await supabase.
-    from('salaries').
-    update(updates).
-    eq('id', id).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async deleteSalary(id: number) {
-    const { error } = await supabase.
-    from('salaries').
-    delete().
-    eq('id', id);
-
-    if (error) throw error;
-  },
-
-  // Employees
-  async getEmployees() {
-    const { data, error } = await supabase.
-    from('employees').
-    select(`
-        *,
-        station:stations(name)
-      `).
-    order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data;
-  },
-
-  async createEmployee(employee: any) {
-    const { data, error } = await supabase.
-    from('employees').
-    insert([employee]).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async updateEmployee(id: number, updates: any) {
-    const { data, error } = await supabase.
-    from('employees').
-    update(updates).
-    eq('id', id).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async deleteEmployee(id: number) {
-    const { error } = await supabase.
-    from('employees').
-    delete().
-    eq('id', id);
-
-    if (error) throw error;
-  },
-
   // Products
   async getProducts() {
     const { data, error } = await supabase.
@@ -245,7 +29,7 @@ export const databaseService = {
     order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data;
+    return data || [];
   },
 
   async createProduct(product: any) {
@@ -280,6 +64,52 @@ export const databaseService = {
     if (error) throw error;
   },
 
+  // Employees
+  async getEmployees() {
+    const { data, error } = await supabase.
+    from('employees').
+    select(`
+        *,
+        stations(name, address, phone)
+      `).
+    order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  async createEmployee(employee: any) {
+    const { data, error } = await supabase.
+    from('employees').
+    insert([employee]).
+    select().
+    single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async updateEmployee(id: number, updates: any) {
+    const { data, error } = await supabase.
+    from('employees').
+    update(updates).
+    eq('id', id).
+    select().
+    single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteEmployee(id: number) {
+    const { error } = await supabase.
+    from('employees').
+    delete().
+    eq('id', id);
+
+    if (error) throw error;
+  },
+
   // Stations
   async getStations() {
     const { data, error } = await supabase.
@@ -288,7 +118,7 @@ export const databaseService = {
     order('name');
 
     if (error) throw error;
-    return data;
+    return data || [];
   },
 
   // Licenses
@@ -299,7 +129,7 @@ export const databaseService = {
     order('expiration_date');
 
     if (error) throw error;
-    return data;
+    return data || [];
   },
 
   async createLicense(license: any) {
@@ -340,12 +170,12 @@ export const databaseService = {
     from('sales_reports').
     select(`
         *,
-        station:stations(name)
+        stations(name, address, phone)
       `).
     order('report_date', { ascending: false });
 
     if (error) throw error;
-    return data;
+    return data || [];
   },
 
   async createSalesReport(report: any) {
@@ -386,12 +216,12 @@ export const databaseService = {
     from('deliveries').
     select(`
         *,
-        station:stations(name)
+        stations(name, address, phone)
       `).
     order('delivery_date', { ascending: false });
 
     if (error) throw error;
-    return data;
+    return data || [];
   },
 
   async createDelivery(delivery: any) {
@@ -426,72 +256,58 @@ export const databaseService = {
     if (error) throw error;
   },
 
-  // File uploads
-  async uploadFile(file: File, path: string, bucket = 'documents') {
-    const { data, error } = await supabase.storage.
-    from(bucket).
-    upload(path, file, {
-      cacheControl: '3600',
-      upsert: false
-    });
-
-    if (error) throw error;
-
-    // Record file upload in database
-    const { data: fileRecord, error: dbError } = await supabase.
-    from('file_uploads').
-    insert([{
-      file_name: path.split('/').pop(),
-      original_name: file.name,
-      file_path: path,
-      file_size: file.size,
-      file_type: file.type,
-      mime_type: file.type,
-      bucket_name: bucket
-    }]).
-    select().
-    single();
-
-    if (dbError) throw dbError;
-
-    return { storage: data, record: fileRecord };
-  },
-
-  async getFileUrl(bucket: string, path: string) {
-    const { data } = supabase.storage.
-    from(bucket).
-    getPublicUrl(path);
-
-    return data.publicUrl;
-  },
-
-  // User management
-  async getUserProfile() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
+  // User Profile Management
+  async getUserProfile(userId?: string) {
+    if (!userId) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      userId = user.id;
+    }
 
     const { data, error } = await supabase.
     from('user_profiles').
-    select('*').
-    eq('user_id', user.id).
+    select(`
+        *,
+        stations(name, address, phone)
+      `).
+    eq('user_id', userId).
     single();
 
     if (error && error.code !== 'PGRST116') throw error;
     return data;
   },
 
-  async updateUserProfile(updates: any) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('No authenticated user');
-
+  async createUserProfile(userId: string, profileData: any) {
     const { data, error } = await supabase.
     from('user_profiles').
-    upsert([{
-      user_id: user.id,
-      ...updates,
+    insert([{
+      user_id: userId,
+      ...profileData,
+      created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }]).
-    select().
+    select(`
+        *,
+        stations(name, address, phone)
+      `).
+    single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async updateUserProfile(userId: string, updates: any) {
+    const { data, error } = await supabase.
+    from('user_profiles').
+    update({
+      ...updates,
+      updated_at: new Date().toISOString()
+    }).
+    eq('user_id', userId).
+    select(`
+        *,
+        stations(name, address, phone)
+      `).
     single();
 
     if (error) throw error;
@@ -527,7 +343,7 @@ export const storageService = {
   }
 };
 
-// Auth service
+// Comprehensive Auth service
 export const authService = {
   async signIn(email: string, password: string) {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -544,7 +360,8 @@ export const authService = {
       email,
       password,
       options: {
-        data: userData
+        data: userData,
+        emailRedirectTo: `${window.location.origin}/onauthsuccess`
       }
     });
 
@@ -558,7 +375,9 @@ export const authService = {
   },
 
   async resetPassword(email: string) {
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`
+    });
     if (error) throw error;
   },
 
@@ -581,5 +400,14 @@ export const authService = {
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error) throw error;
     return user;
+  },
+
+  async refreshSession() {
+    const { data: { session }, error } = await supabase.auth.refreshSession();
+    if (error) throw error;
+    return session;
   }
 };
+
+// Export default client
+export default supabase;

@@ -45,11 +45,11 @@ export const productService = {
   // Get all products
   getAll: async () => {
     try {
-      const { data, error } = await supabase.
-      from('products').
-      select('*').
-      eq('is_active', true).
-      order('product_name');
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('is_active', true)
+        .order('product_name');
 
       if (error) throw error;
 
@@ -63,12 +63,12 @@ export const productService = {
   // Get products by station
   getByStation: async (stationId: string) => {
     try {
-      const { data, error } = await supabase.
-      from('products').
-      select('*').
-      eq('station_id', stationId).
-      eq('is_active', true).
-      order('product_name');
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('station_id', stationId)
+        .eq('is_active', true)
+        .order('product_name');
 
       if (error) throw error;
 
@@ -82,11 +82,11 @@ export const productService = {
   // Get product by ID
   getById: async (id: string) => {
     try {
-      const { data, error } = await supabase.
-      from('products').
-      select('*').
-      eq('id', id).
-      single();
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', id)
+        .single();
 
       if (error) throw error;
 
@@ -100,10 +100,10 @@ export const productService = {
   // Search products
   search: async (searchTerm: string, stationId?: string) => {
     try {
-      let query = supabase.
-      from('products').
-      select('*').
-      eq('is_active', true);
+      let query = supabase
+        .from('products')
+        .select('*')
+        .eq('is_active', true);
 
       if (stationId) {
         query = query.eq('station_id', stationId);
@@ -126,16 +126,16 @@ export const productService = {
   // Create product
   create: async (productData: CreateProductData) => {
     try {
-      const { data, error } = await supabase.
-      from('products').
-      insert({
-        ...productData,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }).
-      select().
-      single();
+      const { data, error } = await supabase
+        .from('products')
+        .insert({
+          ...productData,
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
@@ -149,15 +149,15 @@ export const productService = {
   // Update product
   update: async (id: string, productData: Partial<CreateProductData>) => {
     try {
-      const { data, error } = await supabase.
-      from('products').
-      update({
-        ...productData,
-        updated_at: new Date().toISOString()
-      }).
-      eq('id', id).
-      select().
-      single();
+      const { data, error } = await supabase
+        .from('products')
+        .update({
+          ...productData,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select()
+        .single();
 
       if (error) throw error;
 
@@ -171,15 +171,15 @@ export const productService = {
   // Delete product (soft delete)
   delete: async (id: string) => {
     try {
-      const { data, error } = await supabase.
-      from('products').
-      update({
-        is_active: false,
-        updated_at: new Date().toISOString()
-      }).
-      eq('id', id).
-      select().
-      single();
+      const { data, error } = await supabase
+        .from('products')
+        .update({
+          is_active: false,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select()
+        .single();
 
       if (error) throw error;
 
@@ -193,10 +193,10 @@ export const productService = {
   // Hard delete product
   hardDelete: async (id: string) => {
     try {
-      const { error } = await supabase.
-      from('products').
-      delete().
-      eq('id', id);
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id);
 
       if (error) throw error;
 
@@ -210,11 +210,11 @@ export const productService = {
   // Get low stock products
   getLowStock: async (stationId?: string) => {
     try {
-      let query = supabase.
-      from('products').
-      select('*').
-      eq('is_active', true).
-      lt('stock_quantity', supabase.from('products').select('min_stock_level'));
+      let query = supabase
+        .from('products')
+        .select('*')
+        .eq('is_active', true)
+        .filter('stock_quantity', 'lt', 'min_stock_level');
 
       if (stationId) {
         query = query.eq('station_id', stationId);
@@ -234,15 +234,15 @@ export const productService = {
   // Update stock quantity
   updateStock: async (id: string, quantity: number) => {
     try {
-      const { data, error } = await supabase.
-      from('products').
-      update({
-        stock_quantity: quantity,
-        updated_at: new Date().toISOString()
-      }).
-      eq('id', id).
-      select().
-      single();
+      const { data, error } = await supabase
+        .from('products')
+        .update({
+          stock_quantity: quantity,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select()
+        .single();
 
       if (error) throw error;
 
@@ -256,11 +256,11 @@ export const productService = {
   // Get products by category
   getByCategory: async (category: string, stationId?: string) => {
     try {
-      let query = supabase.
-      from('products').
-      select('*').
-      eq('category', category).
-      eq('is_active', true);
+      let query = supabase
+        .from('products')
+        .select('*')
+        .eq('category', category)
+        .eq('is_active', true);
 
       if (stationId) {
         query = query.eq('station_id', stationId);
@@ -280,11 +280,11 @@ export const productService = {
   // Get product categories
   getCategories: async () => {
     try {
-      const { data, error } = await supabase.
-      from('products').
-      select('category').
-      eq('is_active', true).
-      not('category', 'is', null);
+      const { data, error } = await supabase
+        .from('products')
+        .select('category')
+        .eq('is_active', true)
+        .not('category', 'is', null);
 
       if (error) throw error;
 
@@ -295,6 +295,120 @@ export const productService = {
     } catch (error: any) {
       console.error('Error fetching product categories:', error);
       return { data: null, error };
+    }
+  },
+
+  // Legacy API compatibility methods for gradual migration
+  legacy: {
+    // Get all products with legacy format
+    getAllLegacyFormat: async () => {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('is_active', true)
+          .order('product_name');
+
+        if (error) throw error;
+
+        // Convert to legacy format expected by old components
+        const legacyData = data?.map((product) => ({
+          ID: product.id,
+          product_name: product.product_name,
+          description: product.description,
+          sku: product.sku,
+          barcode: product.barcode,
+          category: product.category,
+          price: product.price,
+          cost: product.cost,
+          stock_quantity: product.stock_quantity,
+          minimum_stock: product.min_stock_level,
+          weight: product.weight,
+          weight_unit: product.unit_of_measure,
+          station_id: product.station_id,
+          supplier_id: product.supplier_id,
+          created_at: product.created_at,
+          updated_at: product.updated_at
+        }));
+
+        return { data: legacyData, error: null };
+      } catch (error: any) {
+        console.error('Error fetching products (legacy format):', error);
+        return { data: null, error };
+      }
+    },
+
+    // Create product with legacy format
+    createLegacyFormat: async (productData: any) => {
+      try {
+        // Convert legacy format to new format
+        const supabaseData = {
+          product_name: productData.product_name,
+          description: productData.description,
+          sku: productData.sku,
+          barcode: productData.barcode,
+          category: productData.category,
+          price: productData.price,
+          cost: productData.cost,
+          stock_quantity: productData.stock_quantity,
+          min_stock_level: productData.minimum_stock,
+          weight: productData.weight,
+          unit_of_measure: productData.weight_unit,
+          station_id: productData.station_id,
+          supplier_id: productData.supplier_id,
+          is_active: true
+        };
+
+        const { data, error } = await supabase
+          .from('products')
+          .insert(supabaseData)
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        return { data, error: null };
+      } catch (error: any) {
+        console.error('Error creating product (legacy format):', error);
+        return { data: null, error };
+      }
+    },
+
+    // Update product with legacy format
+    updateLegacyFormat: async (id: string, productData: any) => {
+      try {
+        // Convert legacy format to new format
+        const supabaseData = {
+          product_name: productData.product_name,
+          description: productData.description,
+          sku: productData.sku,
+          barcode: productData.barcode,
+          category: productData.category,
+          price: productData.price,
+          cost: productData.cost,
+          stock_quantity: productData.stock_quantity,
+          min_stock_level: productData.minimum_stock,
+          weight: productData.weight,
+          unit_of_measure: productData.weight_unit,
+          station_id: productData.station_id,
+          supplier_id: productData.supplier_id,
+          updated_at: new Date().toISOString()
+        };
+
+        const { data, error } = await supabase
+          .from('products')
+          .update(supabaseData)
+          .eq('id', id)
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        return { data, error: null };
+      } catch (error: any) {
+        console.error('Error updating product (legacy format):', error);
+        return { data: null, error };
+      }
     }
   }
 };
