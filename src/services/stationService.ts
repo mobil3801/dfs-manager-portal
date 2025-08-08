@@ -1,4 +1,5 @@
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabase';
 
 export interface Station {
   id: number;
@@ -62,15 +63,11 @@ class StationService {
     this.isLoading = true;
 
     try {
-      const { data, error } = await window.ezsite.apis.tablePage(12599, {
-        PageNo: 1,
-        PageSize: 100,
-        OrderByField: 'station_name',
-        IsAsc: true,
-        Filters: [
-        { name: 'status', op: 'Equal', value: 'Active' }]
-
-      });
+      const { data, error } = await supabase
+        .from('gas_stations')
+        .select('*')
+        .eq('status', 'Active')
+        .order('station_name');
 
       if (error) {
         console.error('Error loading stations from database:', error);
@@ -78,7 +75,7 @@ class StationService {
         return this.getFallbackStations();
       }
 
-      this.stationsCache = data?.List || [];
+      this.stationsCache = data || [];
       this.cacheTimestamp = Date.now();
 
       return this.stationsCache;
