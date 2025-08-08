@@ -19,7 +19,8 @@ import {
   Zap,
   RefreshCw } from
 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+import { supabase } from '@/lib/supabase';
 import AccessDenied from '@/components/AccessDenied';
 import AdminDiagnostics from '@/components/AdminDiagnostics';
 import AdminFeatureTester from '@/components/AdminFeatureTester';
@@ -65,7 +66,7 @@ interface DatabaseStats {
 }
 
 const AdminDashboard: React.FC = () => {
-  const { isAdmin } = useAuth();
+  const { isAdmin } = useSupabaseAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
   const [dbStats, setDbStats] = useState<DatabaseStats>({
@@ -153,15 +154,12 @@ const AdminDashboard: React.FC = () => {
     try {
       console.log('Fetching real-time database statistics...');
 
-      // Fetch user profiles count (table ID: 11725)
-      const { data: userProfilesData, error: userProfilesError } = await window.ezsite.apis.tablePage(11725, {
-        PageNo: 1,
-        PageSize: 1,
-        OrderByField: "id",
-        IsAsc: false,
-        Filters: []
-      });
-      const totalUsers = userProfilesError ? 0 : userProfilesData?.VirtualCount || 0;
+      // Fetch user profiles count
+      const { data: userProfilesData, error: userProfilesError } = await supabase
+        .from('user_profiles')
+        .select('*', { count: 'exact', head: true });
+      
+      const totalUsers = userProfilesError ? 0 : userProfilesData?.length || 0;
 
       // Fetch employees count (table ID: 11727)
       const { data: employeesData, error: employeesError } = await window.ezsite.apis.tablePage(11727, {

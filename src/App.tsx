@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { SupabaseAuthProvider, useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { ModuleAccessProvider } from '@/contexts/ModuleAccessContext';
 import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
@@ -448,13 +447,11 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <GlobalErrorBoundary>
-          <AuthProvider>
-            <SupabaseAuthProvider>
-              <ModuleAccessProvider>
-                <AppRouter />
-              </ModuleAccessProvider>
-            </SupabaseAuthProvider>
-          </AuthProvider>
+          <SupabaseAuthProvider>
+            <ModuleAccessProvider>
+              <AppRouter />
+            </ModuleAccessProvider>
+          </SupabaseAuthProvider>
         </GlobalErrorBoundary>
       </TooltipProvider>
       <Toaster />

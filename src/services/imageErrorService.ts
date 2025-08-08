@@ -1,4 +1,6 @@
 
+import { supabase } from '@/lib/supabase';
+
 /**
  * Service for handling image loading errors with fallbacks and retry mechanisms
  */
@@ -126,18 +128,16 @@ class ImageErrorService {
   }
 
   /**
-   * Get a safe image URL that handles API proxy issues
+   * Get safe image URL, handling Supabase Storage and legacy URLs
    */
   getSafeImageUrl(imageId: number | string | null, baseUrl?: string): string | null {
     if (!imageId) return null;
-
-    const origin = baseUrl || window.location.origin;
 
     // Handle different imageId formats
     if (typeof imageId === 'string') {
       // If it's already a complete URL, check if it's problematic
       if (imageId.startsWith('http')) {
-        // Check if it's a problematic API proxy URL
+        // Check if it's a legacy EZSite proxy URL that needs conversion
         if (imageId.includes('api.ezsite.ai/file/')) {
           // Extract the actual file URL from the proxy
           const match = imageId.match(/api\.ezsite\.ai\/file\/(https?:\/\/.+)/);
@@ -148,18 +148,92 @@ class ImageErrorService {
         return imageId;
       }
 
-      // If it's a file ID string, treat it as a number
+      // If it's a Supabase Storage path, get public URL
+      if (imageId.includes('/')) {
+        const { data } = supabase.storage.from('documents').getPublicUrl(imageId);
+        return data.publicUrl;
+      }
+
+      // If it's a file ID string, treat it as a number for legacy support
       const numericId = parseInt(imageId, 10);
       if (!isNaN(numericId)) {
-        return `${origin}/api/files/${numericId}?t=${Date.now()}`;
+        // Return placeholder for now - would need async call to get from Supabase
+        return `/api/files/${numericId}?t=${Date.now()}`;
       }
     }
 
     if (typeof imageId === 'number' && imageId > 0) {
-      return `${origin}/api/files/${imageId}?t=${Date.now()}`;
+      // Return placeholder for now - would need async call to get from Supabase
+      return `/api/files/${imageId}?t=${Date.now()}`;
     }
 
     return null;
+  }
+
+  /**
+   * Get image URL from Supabase file record (async version)
+   */
+  async getImageUrlFromFileRecord(fileId: number): Promise<string | null> {
+    try {
+      const { data, error } = await supabase
+        .from('file_uploads')
+        .select('file_path, bucket_name')
+        .eq('id', fileId)
+        .single();
+
+      if (error || !data) {
+        return null;
+      }
+
+      const bucket = data.bucket_name || 'documents';
+      const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(data.file_path);
+      return urlData.publicUrl;
+    } catch (error) {
+      console.error('Error getting file URL from record:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Upload file to Supabase Storage
+   */
+  async uploadFile(file: File, path: string, bucket: string = 'documents'): Promise<{ url: string | null; error: string | null }> {
+    try {
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .upload(path, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (error) {
+        return { url: null, error: error.message };
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(path);
+      
+      // Record file upload in database
+      const { error: dbError } = await supabase
+        .from('file_uploads')
+        .insert({
+          file_name: path.split('/').pop(),
+          original_name: file.name,
+          file_path: path,
+          file_size: file.size,
+          file_type: file.type,
+          mime_type: file.type,
+          bucket_name: bucket
+        });
+
+      if (dbError) {
+        console.warn('Failed to record file upload in database:', dbError);
+      }
+
+      return { url: urlData.publicUrl, error: null };
+    } catch (error) {
+      return { url: null, error: error instanceof Error ? error.message : 'Upload failed' };
+    }
   }
 
   /**

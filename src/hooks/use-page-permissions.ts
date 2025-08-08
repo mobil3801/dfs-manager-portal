@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabase';
 
 interface PagePermission {
   view: boolean;
@@ -43,7 +44,7 @@ const defaultPagePermission: PagePermission = {
 };
 
 export const usePagePermissions = (pageKey: string) => {
-  const { user } = useAuth();
+  const { user } = useSupabaseAuth();
   const { toast } = useToast();
   const [permissions, setPermissions] = useState<PagePermission>(defaultPagePermission);
   const [loading, setLoading] = useState(true);
@@ -61,29 +62,21 @@ export const usePagePermissions = (pageKey: string) => {
   const fetchUserPermissions = async () => {
     try {
       setLoading(true);
-      console.log('Fetching permissions for user:', user?.ID, 'Page:', pageKey);
+      console.log('Fetching permissions for user:', user?.id, 'Page:', pageKey);
 
       // Fetch user profile from database
-      const { data, error } = await window.ezsite.apis.tablePage(11725, {
-        PageNo: 1,
-        PageSize: 1,
-        OrderByField: "id",
-        IsAsc: false,
-        Filters: [
-        {
-          name: "user_id",
-          op: "Equal",
-          value: user?.ID
-        }]
-
-      });
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('user_id', user?.id)
+        .single();
 
       if (error) {
         console.error('Error fetching user profile:', error);
         throw error;
       }
 
-      const profile = data?.List?.[0];
+      const profile = data;
       if (!profile) {
         console.log('No profile found for user, using default permissions');
         setPermissions(defaultPagePermission);
