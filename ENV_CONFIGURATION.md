@@ -172,7 +172,7 @@ VITE_ENABLE_SOURCE_MAPS=true
 - Enable MFA for production environments
 
 ### Database Security
-- Use Easysite built-in security features
+- Use Supabase security features
 - Monitor database connections
 - Set up backup strategies
 
