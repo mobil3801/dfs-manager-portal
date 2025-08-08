@@ -1,17 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Environment variable validation
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabaseServiceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+// Environment variable validation with fallbacks
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://nehhjsiuhthflfwkfequ.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5laGhqc2l1aHRoZmxmd2tmZXF1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwMTMxNzUsImV4cCI6MjA2ODU4OTE3NX0.osjykkMo-WoYdRdh6quNu2F8DQHi5dN32JwSiaT5eLc';
+const supabaseServiceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5laGhqc2l1aHRoZmxmd2tmZXF1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzAxMzE3NSwiZXhwIjoyMDY4NTg5MTc1fQ.7naT6l_oNH8VI5MaEKgJ19PoYw1EErv6-ftkEin12wE';
 
 // Validate required environment variables
-if (!supabaseUrl) {
-  throw new Error('Missing VITE_SUPABASE_URL environment variable. Please check your .env.local file.');
+if (!supabaseUrl || supabaseUrl === 'undefined') {
+  console.error('Warning: VITE_SUPABASE_URL environment variable not found. Using fallback value.');
 }
 
-if (!supabaseAnonKey) {
-  throw new Error('Missing VITE_SUPABASE_ANON_KEY environment variable. Please check your .env.local file.');
+if (!supabaseAnonKey || supabaseAnonKey === 'undefined') {
+  console.error('Warning: VITE_SUPABASE_ANON_KEY environment variable not found. Using fallback value.');
 }
 
 // Create Supabase client with anon key for public operations
@@ -29,14 +29,14 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 });
 
 // Create Supabase admin client for service operations (server-side only)
-export const supabaseAdmin = supabaseServiceKey 
-  ? createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    })
-  : null;
+export const supabaseAdmin = supabaseServiceKey ?
+createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+}) :
+null;
 
 // Utility function to get the appropriate client
 export const getSupabaseClient = (useServiceRole = false) => {

@@ -459,9 +459,9 @@ const VendorListContent: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Database Test Panel - Only show for admins */}
-      {isAdmin() && (
-        <VendorDatabaseTestPanel />
-      )}
+      {isAdmin() &&
+      <VendorDatabaseTestPanel />
+      }
       
       {/* Supabase Connection Status */}
       <Card className={`border ${supabaseConnected ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50'}`}>
