@@ -8,18 +8,6 @@ import { globalErrorHandler } from './utils/globalErrorHandler';
 // Initialize global error handling
 globalErrorHandler.init();
 
-// Add ClickSend-specific error handling
-const handleGlobalError = (error: ErrorEvent) => {
-  console.error('Global error caught:', error);
-  // Prevent ClickSend initialization errors from breaking the app
-  if (error.message?.includes('ClickSend')) {
-    error.preventDefault();
-    return false;
-  }
-};
-
-window.addEventListener('error', handleGlobalError);
-
 // Performance API Polyfill for environments that don't support it
 if (typeof window !== 'undefined' && !window.performance) {
   console.warn('Performance API not available, providing minimal polyfill');

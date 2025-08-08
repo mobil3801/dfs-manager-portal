@@ -1,42 +1,58 @@
+import { Button } from "@/components/ui/button";
+import { motion } from "motion/react";
+import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
-import React from 'react'
-import { Link } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Home, ArrowLeft } from 'lucide-react'
+const NotFound = () => {
+  const location = useLocation();
 
-const NotFound: React.FC = () => {
+  useEffect(() => {
+    console.error(
+      "404 Error: User attempted to access non-existent route:",
+      location.pathname
+    );
+  }, [location.pathname]);
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md text-center">
-        <CardHeader>
-          <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-            <span className="text-4xl">404</span>
-          </div>
-          <CardTitle>Page Not Found</CardTitle>
-          <CardDescription>
-            The page you're looking for doesn't exist or has been moved.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button asChild variant="outline" className="flex-1">
-              <Link to="/" className="gap-2">
-                <Home className="h-4 w-4" />
-                Go Home
-              </Link>
-            </Button>
-            <Button asChild className="flex-1">
-              <Link to="/dashboard" className="gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Dashboard
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="text-center space-y-6 p-8">
 
-export default NotFound
+        <motion.div
+          initial={{ scale: 0.5 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}>
+
+          <h1 className="text-8xl font-bold text-primary">404</h1>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="space-y-4">
+
+          <h2 className="text-2xl font-semibold tracking-tight">Page Not Found</h2>
+          <p className="text-muted-foreground">
+            Sorry, the page you are looking for does not exist or has been removed.
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.6 }}>
+
+          <Button asChild variant="default" size="lg">
+            <a href="/">Back to Home</a>
+          </Button>
+        </motion.div>
+      </motion.div>
+    </div>);
+
+};
+
+export default NotFound;

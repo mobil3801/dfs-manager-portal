@@ -1,220 +1,415 @@
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useNavigate } from 'react-router-dom';
+import { Loader2, Eye, EyeOff, Mail, Lock, UserPlus, LogIn, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Logo } from '@/components/Logo';
+import { useToast } from '@/hooks/use-toast';
 
-import React, { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { useAuth } from '@/contexts/AuthContext'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
-import { Loader2, Eye, EyeOff } from 'lucide-react'
-import { toast } from '@/hooks/use-toast'
+type AuthMode = 'login' | 'register' | 'forgot-password';
 
 const LoginPage: React.FC = () => {
-  const navigate = useNavigate()
-  const { signIn, signUp, resetPassword, user } = useAuth()
-  const [loading, setLoading] = useState(false)
-  const [isSignUp, setIsSignUp] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    fullName: ''
-  })
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [authMode, setAuthMode] = useState<AuthMode>('login');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState<'error' | 'success'>('error');
+  const [lastSubmitTime, setLastSubmitTime] = useState(0); // Debounce rapid submissions
 
-  // Redirect if already authenticated
-  React.useEffect(() => {
-    if (user) {
-      navigate('/dashboard')
+  const { login, register, clearError, authError } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  // Clear error when switching auth modes or on component mount
+  useEffect(() => {
+    clearError();
+    setMessage('');
+  }, [authMode, clearError]);
+
+  // Display auth errors from context
+  useEffect(() => {
+    if (authError) {
+      setMessage(authError);
+      setMessageType('error');
     }
-  }, [user, navigate])
+  }, [authError]);
+
+  const clearForm = () => {
+    setEmail('');
+    setPassword('');
+    setConfirmPassword('');
+    setMessage('');
+    clearError();
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      setMessage('Please enter your email address');
+      setMessageType('error');
+      return;
+    }
+
+    setIsLoading(true);
+    setMessage(''); // Clear previous messages
+
+    try {
+      const { error } = await window.ezsite.apis.sendResetPwdEmail({ email });
+      if (error) {
+        setMessage(error);
+        setMessageType('error');
+        toast({
+          title: "Error",
+          description: error,
+          variant: "destructive"
+        });
+      } else {
+        setMessage('Password reset link has been sent to your email address');
+        setMessageType('success');
+        toast({
+          title: "Success",
+          description: "Password reset link sent to your email"
+        });
+        setTimeout(() => {
+          setAuthMode('login');
+          clearForm();
+        }, 3000);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to send reset email';
+      setMessage(errorMessage);
+      setMessageType('error');
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+
+    // Prevent rapid successive submissions (debounce)
+    const now = Date.now();
+    if (now - lastSubmitTime < 1000) {
+      console.log('⏳ Ignoring rapid submission attempt');
+      return;
+    }
+    setLastSubmitTime(now);
+
+    // Clear previous messages and errors
+    setMessage('');
+    clearError();
+
+    if (authMode === 'forgot-password') {
+      return handleForgotPassword(e);
+    }
+
+    if (authMode === 'register' && password !== confirmPassword) {
+      setMessage('Passwords do not match');
+      setMessageType('error');
+      return;
+    }
+
+    setIsLoading(true);
 
     try {
-      if (isSignUp) {
-        // Validate passwords match
-        if (formData.password !== formData.confirmPassword) {
+      if (authMode === 'login') {
+        console.log('🔑 Initiating login attempt for:', email);
+        const success = await login(email, password);
+        if (success) {
+          console.log('✅ Login successful, navigating to dashboard');
           toast({
-            title: "Password mismatch",
-            description: "Passwords do not match",
-            variant: "destructive"
-          })
-          return
+            title: "Welcome back!",
+            description: "Successfully logged in"
+          });
+          navigate('/dashboard');
+        } else {
+          console.log('❌ Login failed - check authError state');
+          // Error will be handled by useEffect watching authError
         }
-
-        await signUp(formData.email, formData.password, {
-          full_name: formData.fullName
-        })
-      } else {
-        await signIn(formData.email, formData.password)
+      } else if (authMode === 'register') {
+        const success = await register(email, password, email.split('@')[0]);
+        if (success) {
+          setMessage('Account created successfully! Please check your email for verification.');
+          setMessageType('success');
+          toast({
+            title: "Account Created",
+            description: "Please check your email for verification"
+          });
+          setTimeout(() => {
+            setAuthMode('login');
+            clearForm();
+          }, 3000);
+        }
       }
-    } catch (error: any) {
-      console.error('Auth error:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleResetPassword = async () => {
-    if (!formData.email) {
+    } catch (error) {
+      console.error('❌ Form submission error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
+      setMessage(errorMessage);
+      setMessageType('error');
       toast({
-        title: "Email required",
-        description: "Please enter your email address first",
+        title: "Error",
+        description: errorMessage,
         variant: "destructive"
-      })
-      return
-    }
-
-    setLoading(true)
-    try {
-      await resetPassword(formData.email)
-    } catch (error: any) {
-      console.error('Reset password error:', error)
+      });
     } finally {
-      setLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
-  }
+  const getFormTitle = () => {
+    switch (authMode) {
+      case 'login':return 'Welcome Back';
+      case 'register':return 'Create Account';
+      case 'forgot-password':return 'Reset Password';
+      default:return 'Sign In';
+    }
+  };
+
+  const getFormDescription = () => {
+    switch (authMode) {
+      case 'login':return 'Enter your credentials to access the portal';
+      case 'register':return 'Create a new account to get started';
+      case 'forgot-password':return 'Enter your email to receive a password reset link';
+      default:return '';
+    }
+  };
+
+  const getSubmitButtonText = () => {
+    if (isLoading) return 'Please wait...';
+    switch (authMode) {
+      case 'login':return 'Sign In';
+      case 'register':return 'Create Account';
+      case 'forgot-password':return 'Send Reset Link';
+      default:return 'Submit';
+    }
+  };
+
+  const getSubmitButtonIcon = () => {
+    if (isLoading) return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
+    switch (authMode) {
+      case 'login':return <LogIn className="mr-2 h-4 w-4" />;
+      case 'register':return <UserPlus className="mr-2 h-4 w-4" />;
+      case 'forgot-password':return <Mail className="mr-2 h-4 w-4" />;
+      default:return null;
+    }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center space-y-4">
-          <div className="mx-auto w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center">
-            <span className="text-white font-bold text-xl">DFS</span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <div className="flex items-center justify-center p-4 min-h-screen">
+        <div className="w-full max-w-md">
+          {/* Logo and Company Name */}
+          <div className="text-center mb-8">
+            <div className="flex flex-col items-center">
+              <div className="mb-4 transform hover:scale-105 transition-transform duration-200">
+                <Logo className="mb-4" />
+              </div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-800 to-indigo-800 bg-clip-text text-transparent mb-2">
+                DFS Manager Portal
+              </h1>
+              <p className="text-slate-600 font-medium">Gas Station Management System</p>
+            </div>
           </div>
-          <div>
-            <CardTitle className="text-2xl">
-              {isSignUp ? 'Create Account' : 'Welcome Back'}
-            </CardTitle>
-            <CardDescription>
-              {isSignUp 
-                ? 'Sign up for DFS Manager Portal' 
-                : 'Sign in to your DFS Manager account'
+
+          <Card className="shadow-2xl border-0 backdrop-blur-sm bg-white/95">
+            <CardHeader className="space-y-1 pb-6">
+              <CardTitle className="text-2xl font-bold text-center text-slate-800">
+                {getFormTitle()}
+              </CardTitle>
+              <CardDescription className="text-center text-slate-600">
+                {getFormDescription()}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {message &&
+              <Alert className={`mb-4 ${messageType === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                  {messageType === 'success' ?
+                <CheckCircle2 className="h-4 w-4 text-green-600" /> :
+                <AlertCircle className="h-4 w-4 text-red-600" />
+                }
+                  <AlertDescription className={messageType === 'success' ? 'text-green-800' : 'text-red-800'}>
+                    {message}
+                  </AlertDescription>
+                </Alert>
               }
-            </CardDescription>
-          </div>
-        </CardHeader>
 
-        <CardContent className="space-y-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {isSignUp && (
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input
-                  id="fullName"
-                  type="text"
-                  placeholder="Enter your full name"
-                  value={formData.fullName}
-                  onChange={(e) => handleInputChange('fullName', e.target.value)}
-                  required={isSignUp}
-                />
-              </div>
-            )}
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Email Field */}
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-slate-700 font-medium">Email Address</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      disabled={isLoading}
+                      className="h-11 pl-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
+                  </div>
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                required
-              />
-            </div>
+                {/* Password Field */}
+                {authMode !== 'forgot-password' &&
+                <div className="space-y-2">
+                    <Label htmlFor="password" className="text-slate-700 font-medium">Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                      <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      disabled={isLoading}
+                      className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
+                      <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      disabled={isLoading}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:opacity-50">
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                }
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password"
-                  value={formData.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
-                  required
-                  minLength={6}
-                />
+                {/* Confirm Password Field */}
+                {authMode === 'register' &&
+                <div className="space-y-2">
+                    <Label htmlFor="confirmPassword" className="text-slate-700 font-medium">Confirm Password</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                      <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      placeholder="Confirm your password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      disabled={isLoading}
+                      className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
+                      <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      disabled={isLoading}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:opacity-50">
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+                }
+
+                {/* Forgot Password Link */}
+                {authMode === 'login' &&
+                <div className="text-right">
+                    <Button
+                    type="button"
+                    variant="link"
+                    className="p-0 h-auto text-blue-600 hover:text-blue-800 text-sm"
+                    disabled={isLoading}
+                    onClick={() => {
+                      setAuthMode('forgot-password');
+                      setPassword('');
+                      setMessage('');
+                      clearError();
+                    }}>
+                      Forgot password?
+                    </Button>
+                  </div>
+                }
+
+                {/* Submit Button */}
                 <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-400" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-gray-400" />
-                  )}
+                  type="submit"
+                  className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  disabled={isLoading}>
+                  {getSubmitButtonIcon()}
+                  {getSubmitButtonText()}
                 </Button>
+              </form>
+
+              {/* Auth Mode Switcher */}
+              <div className="mt-6">
+                <Separator className="my-4" />
+                <div className="text-center space-y-2">
+                  {authMode === 'login'
+
+
+
+
+
+
+
+
+
+
+
+
+
+                  }
+
+                  {authMode === 'register' &&
+                  <div>
+                      <span className="text-sm text-slate-600">Already have an account? </span>
+                      <Button
+                      variant="link"
+                      className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
+                      disabled={isLoading}
+                      onClick={() => {
+                        setAuthMode('login');
+                        clearForm();
+                      }}>
+                        Sign in
+                      </Button>
+                    </div>
+                  }
+
+                  {authMode === 'forgot-password' &&
+                  <div>
+                      <span className="text-sm text-slate-600">Remember your password? </span>
+                      <Button
+                      variant="link"
+                      className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
+                      disabled={isLoading}
+                      onClick={() => {
+                        setAuthMode('login');
+                        clearForm();
+                      }}>
+                        Sign in
+                      </Button>
+                    </div>
+                  }
+                </div>
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            {isSignUp && (
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="Confirm your password"
-                  value={formData.confirmPassword}
-                  onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                  required={isSignUp}
-                />
-              </div>
-            )}
-
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isSignUp ? 'Create Account' : 'Sign In'}
-            </Button>
-          </form>
-
-          {!isSignUp && (
-            <div className="text-center">
-              <Button
-                type="button"
-                variant="link"
-                onClick={handleResetPassword}
-                disabled={loading}
-                className="text-sm"
-              >
-                Forgot your password?
-              </Button>
-            </div>
-          )}
-
-          <Separator />
-
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              {isSignUp ? 'Already have an account?' : "Don't have an account?"}
-            </p>
-            <Button
-              type="button"
-              variant="link"
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="p-0 h-auto font-semibold"
-            >
-              {isSignUp ? 'Sign in' : 'Sign up'}
-            </Button>
+          {/* Footer */}
+          <div className="text-center mt-6 text-sm text-slate-500">
+            <p>&copy; 2024 DFS Management Systems. All rights reserved.</p>
           </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
+        </div>
+      </div>
+    </div>);
 
-export default LoginPage
+};
+
+export default LoginPage;

@@ -13,7 +13,7 @@ interface Session {
   expires_at?: number;
   user: User;
 }
-import { supabase } from '@/lib/supabase';
+import { supabase, authService as auth } from '@/lib/supabase';
 import { userProfileService, auditLogService } from '@/services/databaseService';
 import { useToast } from '@/hooks/use-toast';
 
@@ -144,7 +144,7 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
       setIsLoading(true);
       setAuthError(null);
 
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await auth.signIn(email, password);
 
       if (error) {
         setAuthError(error.message);
@@ -195,7 +195,7 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
         await auditLogService.logActivity(user.id, 'logout', 'users', user.id);
       }
 
-      const { error } = await supabase.auth.signOut();
+      const { error } = await auth.signOut();
 
       if (error) {
         console.error('Logout error:', error);
@@ -225,7 +225,7 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
       setIsLoading(true);
       setAuthError(null);
 
-      const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName } } });
+      const { data, error } = await auth.signUp(email, password, { full_name: fullName });
 
       if (error) {
         setAuthError(error.message);
@@ -269,7 +269,7 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
       setIsLoading(true);
       setAuthError(null);
 
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      const { error } = await auth.resetPassword(email);
 
       if (error) {
         setAuthError(error.message);
@@ -306,7 +306,7 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
       setIsLoading(true);
       setAuthError(null);
 
-      const { error } = await supabase.auth.updateUser({ password });
+      const { error } = await auth.updatePassword(password);
 
       if (error) {
         setAuthError(error.message);
