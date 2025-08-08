@@ -1,7 +1,7 @@
 // Legacy AuthContext - kept for backward compatibility
-// This now directly uses Supabase instead of wrapping the SupabaseAuthContext
+// This now directly uses the consolidated auth context
 import React, { createContext, useContext } from 'react';
-import { useSupabaseAuth } from './SupabaseAuthContext';
+import { useConsolidatedAuth } from './ConsolidatedAuthContext';
 
 // Legacy interface for backward compatibility
 interface User {
@@ -49,48 +49,48 @@ export const AuthProvider: React.FC<{children: React.ReactNode;}> = ({ children 
 };
 
 export const useAuth = (): AuthContextType => {
-  // Direct delegation to Supabase auth with conversion
-  const supabaseAuth = useSupabaseAuth();
+  // Direct delegation to consolidated auth with conversion
+  const consolidatedAuth = useConsolidatedAuth();
 
-  // Convert Supabase user to legacy format
-  const legacyUser = supabaseAuth.user ? {
-    ID: parseInt(supabaseAuth.user.id.replace(/\D/g, '').substring(0, 10) || '1'),
-    Name: supabaseAuth.user.user_metadata?.full_name ||
-    supabaseAuth.user.user_metadata?.display_name ||
-    supabaseAuth.user.email?.split('@')[0] ||
+  // Convert consolidated auth user to legacy format
+  const legacyUser = consolidatedAuth.user ? {
+    ID: parseInt(consolidatedAuth.user.id.replace(/\D/g, '').substring(0, 10) || '1'),
+    Name: consolidatedAuth.user.user_metadata?.full_name ||
+    consolidatedAuth.user.user_metadata?.display_name ||
+    consolidatedAuth.user.email?.split('@')[0] ||
     'User',
-    Email: supabaseAuth.user.email || '',
-    CreateTime: supabaseAuth.user.created_at || new Date().toISOString()
+    Email: consolidatedAuth.user.email || '',
+    CreateTime: consolidatedAuth.user.created_at || new Date().toISOString()
   } : null;
 
-  // Convert Supabase user profile to legacy format
-  const legacyUserProfile = supabaseAuth.userProfile ? {
-    id: parseInt(supabaseAuth.userProfile.id.replace(/\D/g, '').substring(0, 10) || '1'),
-    user_id: parseInt(supabaseAuth.user?.id.replace(/\D/g, '').substring(0, 10) || '1'),
-    role: supabaseAuth.userProfile.role,
-    station: supabaseAuth.userProfile.stations?.name || 'Default Station',
-    employee_id: supabaseAuth.userProfile.employee_id || '',
-    phone: supabaseAuth.userProfile.phone || '',
-    hire_date: supabaseAuth.userProfile.hire_date || new Date().toISOString().split('T')[0],
-    is_active: supabaseAuth.userProfile.is_active,
-    detailed_permissions: supabaseAuth.userProfile.detailed_permissions || {},
+  // Convert consolidated auth user profile to legacy format
+  const legacyUserProfile = consolidatedAuth.userProfile ? {
+    id: parseInt(consolidatedAuth.userProfile.id.replace(/\D/g, '').substring(0, 10) || '1'),
+    user_id: parseInt(consolidatedAuth.user?.id.replace(/\D/g, '').substring(0, 10) || '1'),
+    role: consolidatedAuth.userProfile.role,
+    station: consolidatedAuth.userProfile.stations?.name || 'Default Station',
+    employee_id: consolidatedAuth.userProfile.employee_id || '',
+    phone: consolidatedAuth.userProfile.phone || '',
+    hire_date: consolidatedAuth.userProfile.hire_date || new Date().toISOString().split('T')[0],
+    is_active: consolidatedAuth.userProfile.is_active,
+    detailed_permissions: consolidatedAuth.userProfile.detailed_permissions || {},
     profile_image_id: null
   } : null;
 
   return {
     user: legacyUser,
     userProfile: legacyUserProfile,
-    isAuthenticated: supabaseAuth.isAuthenticated,
-    isLoading: supabaseAuth.isLoading,
-    authError: supabaseAuth.authError,
-    isInitialized: supabaseAuth.isInitialized,
-    login: supabaseAuth.login,
-    logout: supabaseAuth.logout,
-    register: supabaseAuth.register,
-    refreshUserData: supabaseAuth.refreshUserData,
-    hasPermission: supabaseAuth.hasPermission,
-    isAdmin: supabaseAuth.isAdmin,
-    isManager: supabaseAuth.isManager,
-    clearError: supabaseAuth.clearError
+    isAuthenticated: consolidatedAuth.isAuthenticated,
+    isLoading: consolidatedAuth.isLoading,
+    authError: consolidatedAuth.authError,
+    isInitialized: consolidatedAuth.isInitialized,
+    login: consolidatedAuth.login,
+    logout: consolidatedAuth.logout,
+    register: consolidatedAuth.register,
+    refreshUserData: consolidatedAuth.refreshUserData,
+    hasPermission: consolidatedAuth.hasPermission,
+    isAdmin: consolidatedAuth.isAdmin,
+    isManager: consolidatedAuth.isManager,
+    clearError: consolidatedAuth.clearError
   };
 };

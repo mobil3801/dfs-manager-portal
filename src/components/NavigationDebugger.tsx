@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { DebugWrapper } from '@/utils/productionSafetyWrapper';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,14 @@ import {
 'lucide-react';
 
 const NavigationDebugger: React.FC = () => {
+  return (
+    <DebugWrapper fallback={null}>
+      <NavigationDebuggerContent />
+    </DebugWrapper>
+  );
+};
+
+const NavigationDebuggerContent: React.FC = () => {
   const {
     user,
     userProfile,

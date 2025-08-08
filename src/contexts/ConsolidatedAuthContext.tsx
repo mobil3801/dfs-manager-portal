@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, databaseService, authService } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 
 // Timeout constants
@@ -114,43 +114,20 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode}> = ({ chil
 
   const fetchUserProfile = useCallback(async (userId: string): Promise<UserProfile | null> => {
     try {
-      const { data, error } = await withTimeout(
-        supabase
-          .from('user_profiles')
-          .select(`
-            *,
-            stations (
-              name,
-              address,
-              phone
-            )
-          `)
-          .eq('user_id', userId)
-          .single(),
+      const profile = await withTimeout(
+        databaseService.getUserProfile(userId),
         5000,
         'Profile fetch timeout'
       );
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching user profile:', error);
-        
+      if (!profile) {
         // Try to create a default profile
         const defaultProfile = createDefaultProfile(userId);
-        const { data: newProfile, error: createError } = await supabase
-          .from('user_profiles')
-          .insert([{ id: crypto.randomUUID(), ...defaultProfile }])
-          .select()
-          .single();
-
-        if (createError) {
-          console.error('Error creating default profile:', createError);
-          return null;
-        }
-
+        const newProfile = await databaseService.createUserProfile(userId, defaultProfile);
         return newProfile as UserProfile;
       }
 
-      return data as UserProfile;
+      return profile as UserProfile;
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);
       
@@ -193,8 +170,8 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode}> = ({ chil
       setIsLoading(true);
       setAuthError(null);
 
-      const { data, error } = await withTimeout(
-        supabase.auth.signInWithPassword({ email, password }),
+      const data = await withTimeout(
+        authService.signIn(email, password),
         AUTH_OPERATION_TIMEOUT,
         'Login timeout - please try again'
       );
@@ -242,7 +219,7 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode}> = ({ chil
   const logout = useCallback(async (): Promise<void> => {
     try {
       await withTimeout(
-        supabase.auth.signOut(),
+        authService.signOut(),
         AUTH_OPERATION_TIMEOUT,
         'Logout timeout'
       );
@@ -267,30 +244,14 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode}> = ({ chil
       setIsLoading(true);
       setAuthError(null);
 
-      const { data, error } = await withTimeout(
-        supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              full_name: fullName,
-              display_name: fullName
-            }
-          }
+      const data = await withTimeout(
+        authService.signUp(email, password, {
+          full_name: fullName,
+          display_name: fullName
         }),
         AUTH_OPERATION_TIMEOUT,
         'Registration timeout - please try again'
       );
-
-      if (error) {
-        setAuthError(error.message);
-        toast({
-          title: 'Registration Failed',
-          description: error.message,
-          variant: 'destructive'
-        });
-        return false;
-      }
 
       toast({
         title: 'Registration Successful',
@@ -318,7 +279,7 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode}> = ({ chil
       setAuthError(null);
 
       await withTimeout(
-        supabase.auth.resetPasswordForEmail(email),
+        authService.resetPassword(email),
         AUTH_OPERATION_TIMEOUT,
         'Password reset timeout'
       );
@@ -349,7 +310,7 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode}> = ({ chil
       setAuthError(null);
 
       await withTimeout(
-        supabase.auth.updateUser({ password }),
+        authService.updatePassword(password),
         AUTH_OPERATION_TIMEOUT,
         'Password update timeout'
       );
