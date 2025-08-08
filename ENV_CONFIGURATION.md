@@ -18,7 +18,7 @@ Template file showing all available configuration options.
 
 ### Core Database Configuration
 ```env
-# Database uses Easysite Built-in Database
+# Database uses Supabase
 VITE_APP_NAME="DFS Manager Portal"
 VITE_APP_VERSION="1.0.0"
 VITE_APP_ENVIRONMENT="development"
