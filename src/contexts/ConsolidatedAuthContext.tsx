@@ -57,7 +57,7 @@ interface AuthContextType {
   isInitialized: boolean;
 
   // Auth methods
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{ user: User | null; session: Session | null; access_token?: string } | null>;
   logout: () => Promise<void>;
   register: (email: string, password: string, fullName: string) => Promise<boolean>;
   resetPassword: (email: string) => Promise<boolean>;
@@ -78,11 +78,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Create timeout wrapper for promises
 function withTimeout<T>(promise: Promise<T>, timeout: number, errorMessage: string): Promise<T> {
   return Promise.race([
-  promise,
-  new Promise<T>((_, reject) =>
-  setTimeout(() => reject(new Error(errorMessage)), timeout)
-  )]
-  );
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(errorMessage)), timeout)
+    )
+  ]);
 }
 
 // Default profile for new users
@@ -97,7 +97,7 @@ const createDefaultProfile = (userId: string): Partial<UserProfile> => ({
   detailed_permissions: {}
 });
 
-export const ConsolidatedAuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => {
+export const ConsolidatedAuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -106,7 +106,8 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode;}> = ({ chi
   const [isInitialized, setIsInitialized] = useState(false);
   const { toast } = useToast();
 
-  const isAuthenticated = !!user && !!session && !authError;
+  // Safe authentication check - only return true if we have both user and session
+  const isAuthenticated = !!(user && session && !authError);
 
   const clearError = useCallback(() => {
     setAuthError(null);
@@ -165,43 +166,65 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode;}> = ({ chi
     }
   }, [user, fetchUserProfile]);
 
-  const login = useCallback(async (email: string, password: string): Promise<boolean> => {
+  // Standardized login using signInWithPassword
+  const login = useCallback(async (email: string, password: string): Promise<{ user: User | null; session: Session | null; access_token?: string } | null> => {
     try {
       setIsLoading(true);
       setAuthError(null);
 
+      // Use Supabase signInWithPassword directly
       const { data, error } = await withTimeout(
-        authService.signIn(email, password),
+        supabase.auth.signInWithPassword({ email, password }),
         AUTH_OPERATION_TIMEOUT,
         'Login timeout - please try again'
       );
 
       if (error) {
+        // Show Supabase's error message
         setAuthError(error.message);
         toast({
           title: 'Login Failed',
           description: error.message,
           variant: 'destructive'
         });
-        return false;
+        return null;
       }
 
-      if (data.user && data.session) {
-        setUser(data.user);
-        setSession(data.session);
+      if (!data.user) {
+        const errorMsg = 'Login failed - no user returned';
+        setAuthError(errorMsg);
+        toast({
+          title: 'Login Failed',
+          description: errorMsg,
+          variant: 'destructive'
+        });
+        return null;
+      }
 
+      // Set user and session immediately
+      setUser(data.user);
+      setSession(data.session);
+
+      // Fetch user profile in the background
+      try {
         const profile = await fetchUserProfile(data.user.id);
         setUserProfile(profile);
-
-        toast({
-          title: 'Login Successful',
-          description: 'Welcome back!'
-        });
-
-        return true;
+      } catch (profileError) {
+        console.warn('Profile fetch failed during login, but login succeeded:', profileError);
       }
 
-      return false;
+      toast({
+        title: 'Login Successful',
+        description: 'Welcome back!'
+      });
+
+      // Return standardized format
+      return {
+        user: data.user,
+        session: data.session,
+        access_token: data.session?.access_token
+      };
+
     } catch (error: any) {
       const errorMessage = error?.message || 'An unexpected error occurred';
       setAuthError(errorMessage);
@@ -210,7 +233,7 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode;}> = ({ chi
         description: errorMessage,
         variant: 'destructive'
       });
-      return false;
+      return null;
     } finally {
       setIsLoading(false);
     }
@@ -219,7 +242,7 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode;}> = ({ chi
   const logout = useCallback(async (): Promise<void> => {
     try {
       await withTimeout(
-        authService.signOut(),
+        supabase.auth.signOut(),
         AUTH_OPERATION_TIMEOUT,
         'Logout timeout'
       );
@@ -245,9 +268,15 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode;}> = ({ chi
       setAuthError(null);
 
       const { data, error } = await withTimeout(
-        authService.signUp(email, password, {
-          full_name: fullName,
-          display_name: fullName
+        supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+              display_name: fullName
+            }
+          }
         }),
         AUTH_OPERATION_TIMEOUT,
         'Registration timeout - please try again'
@@ -288,11 +317,23 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode;}> = ({ chi
       setIsLoading(true);
       setAuthError(null);
 
-      await withTimeout(
-        authService.resetPassword(email),
+      const { error } = await withTimeout(
+        supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`
+        }),
         AUTH_OPERATION_TIMEOUT,
         'Password reset timeout'
       );
+
+      if (error) {
+        setAuthError(error.message);
+        toast({
+          title: 'Reset Failed',
+          description: error.message,
+          variant: 'destructive'
+        });
+        return false;
+      }
 
       toast({
         title: 'Reset Email Sent',
@@ -319,11 +360,21 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode;}> = ({ chi
       setIsLoading(true);
       setAuthError(null);
 
-      await withTimeout(
-        authService.updatePassword(password),
+      const { error } = await withTimeout(
+        supabase.auth.updateUser({ password }),
         AUTH_OPERATION_TIMEOUT,
         'Password update timeout'
       );
+
+      if (error) {
+        setAuthError(error.message);
+        toast({
+          title: 'Update Failed',
+          description: error.message,
+          variant: 'destructive'
+        });
+        return false;
+      }
 
       toast({
         title: 'Password Updated',
@@ -346,8 +397,8 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode;}> = ({ chi
   }, [toast]);
 
   const hasPermission = useCallback((action: string, resource?: string): boolean => {
-    // Ensure user and userProfile exist
-    if (!user || !userProfile) return false;
+    // Gate access until we have a valid session
+    if (!isAuthenticated || !user || !userProfile) return false;
 
     // Admins have all permissions
     if (userProfile.role === 'Administrator' || userProfile.role === 'Admin') {
@@ -382,22 +433,24 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode;}> = ({ chi
     }
 
     return false;
-  }, [user, userProfile]);
+  }, [isAuthenticated, user, userProfile]);
 
   const isAdmin = useCallback((): boolean => {
-    if (!user || !userProfile) return false;
+    // Safe access with session validation
+    if (!isAuthenticated || !user || !userProfile) return false;
     return userProfile?.role === 'Administrator' || userProfile?.role === 'Admin';
-  }, [user, userProfile]);
+  }, [isAuthenticated, user, userProfile]);
 
   const isManager = useCallback((): boolean => {
-    if (!user || !userProfile) return false;
+    // Safe access with session validation
+    if (!isAuthenticated || !user || !userProfile) return false;
     return userProfile?.role === 'Management' ||
-    userProfile?.role === 'Manager' ||
-    userProfile?.role === 'Administrator' ||
-    userProfile?.role === 'Admin';
-  }, [user, userProfile]);
+           userProfile?.role === 'Manager' ||
+           userProfile?.role === 'Administrator' ||
+           userProfile?.role === 'Admin';
+  }, [isAuthenticated, user, userProfile]);
 
-  // Initialize authentication state with timeout protection
+  // Initialize authentication state with Supabase auth as single source
   useEffect(() => {
     let mounted = true;
     let initializationTimeout: NodeJS.Timeout;
@@ -416,7 +469,7 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode;}> = ({ chi
           }
         }, AUTH_INITIALIZATION_TIMEOUT);
 
-        // Get initial session with timeout
+        // Get initial session from Supabase
         const { data: { session }, error } = await withTimeout(
           supabase.auth.getSession(),
           AUTH_INITIALIZATION_TIMEOUT / 2,
@@ -435,6 +488,7 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode;}> = ({ chi
             setUser(session.user);
             setSession(session);
 
+            // Fetch user profile from public.user_profiles
             try {
               const profile = await fetchUserProfile(session.user.id);
               setUserProfile(profile);
@@ -467,7 +521,7 @@ export const ConsolidatedAuthProvider: React.FC<{children: ReactNode;}> = ({ chi
 
     initializeAuth();
 
-    // Listen for auth changes with error handling
+    // Listen for auth state changes with Supabase as single source
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return;

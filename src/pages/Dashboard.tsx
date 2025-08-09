@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,10 +12,9 @@ import {
   Calendar,
   AlertTriangle,
   TrendingUp,
-  Activity } from
-'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+  Activity
+} from 'lucide-react';
+import { useConsolidatedAuth } from '@/contexts/ConsolidatedAuthContext';
 import AuthStatusCard from '@/components/AuthStatusCard';
 import ProductDashboard from '@/components/ProductDashboard';
 import { useNavigate } from 'react-router-dom';
@@ -32,7 +30,7 @@ interface DashboardStats {
 }
 
 const Dashboard = () => {
-  const { user, userProfile, isAdmin, isManager } = useAuth();
+  const { user, userProfile, session, isAdmin, isManager, isAuthenticated } = useConsolidatedAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [stats, setStats] = useState<DashboardStats>({
@@ -45,7 +43,66 @@ const Dashboard = () => {
   });
   const [loading, setLoading] = useState(true);
 
+  // Safe user field access - gate UI until session exists
+  const getUserDisplayName = () => {
+    if (!user || !session) return 'User';
+    
+    // Never access user fields without checking
+    if (user.user_metadata?.full_name) {
+      return user.user_metadata.full_name;
+    }
+    
+    if (user.email) {
+      return user.email.split('@')[0];
+    }
+    
+    return 'User';
+  };
+
+  const getUserStation = () => {
+    if (!user || !session || !userProfile) return 'All Stations';
+    
+    // Load profile data safely from public.user_profiles
+    if (userProfile.stations?.name) {
+      return userProfile.stations.name;
+    }
+    
+    return 'All Stations';
+  };
+
+  const getUserRole = () => {
+    if (!user || !session || !userProfile) return 'User';
+    return userProfile.role || 'User';
+  };
+
+  // Safe permission checks with session validation
+  const safeIsAdmin = () => {
+    try {
+      // Gate access until we have valid session
+      return !!(user && session && userProfile && isAdmin());
+    } catch (error) {
+      console.warn('Error checking admin status:', error);
+      return false;
+    }
+  };
+
+  const safeIsManager = () => {
+    try {
+      // Gate access until we have valid session
+      return !!(user && session && userProfile && isManager());
+    } catch (error) {
+      console.warn('Error checking manager status:', error);
+      return false;
+    }
+  };
+
   const fetchDashboardData = async () => {
+    // Don't fetch data until we have a valid session
+    if (!isAuthenticated || !user || !session) {
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -83,16 +140,16 @@ const Dashboard = () => {
         PageNo: 1,
         PageSize: 1,
         Filters: [
-        { name: "expiry_date", op: "LessThanOrEqual", value: thirtyDaysFromNow.toISOString() },
-        { name: "status", op: "Equal", value: "Active" }]
-
+          { name: "expiry_date", op: "LessThanOrEqual", value: thirtyDaysFromNow.toISOString() },
+          { name: "status", op: "Equal", value: "Active" }
+        ]
       });
 
       // Calculate total sales from today's reports
       let totalSales = 0;
       if (salesResponse.data?.List) {
         totalSales = salesResponse.data.List.reduce((sum: number, report: any) =>
-        sum + (report.total_sales || 0), 0
+          sum + (report.total_sales || 0), 0
         );
       }
 
@@ -122,7 +179,7 @@ const Dashboard = () => {
     // Refresh data every 5 minutes
     const interval = setInterval(fetchDashboardData, 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isAuthenticated, user, session]); // Re-fetch when auth state changes
 
   const QuickStatCard = ({
     title,
@@ -130,17 +187,17 @@ const Dashboard = () => {
     icon: Icon,
     color,
     onClick
-
-
-
-
-
-
-  }: {title: string;value: number | string;icon: any;color: string;onClick?: () => void;}) =>
-  <Card
-    className={`p-6 cursor-pointer hover:shadow-lg transition-shadow ${onClick ? 'hover:bg-gray-50' : ''}`}
-    onClick={onClick}>
-
+  }: {
+    title: string;
+    value: number | string;
+    icon: any;
+    color: string;
+    onClick?: () => void;
+  }) => (
+    <Card
+      className={`p-6 cursor-pointer hover:shadow-lg transition-shadow ${onClick ? 'hover:bg-gray-50' : ''}`}
+      onClick={onClick}
+    >
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-600">{title}</p>
@@ -148,8 +205,8 @@ const Dashboard = () => {
         </div>
         <Icon className={`h-8 w-8 ${color}`} />
       </div>
-    </Card>;
-
+    </Card>
+  );
 
   const QuickAction = ({
     title,
@@ -157,14 +214,14 @@ const Dashboard = () => {
     icon: Icon,
     onClick,
     color = "text-blue-600"
-
-
-
-
-
-
-  }: {title: string;description: string;icon: any;onClick: () => void;color?: string;}) =>
-  <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={onClick}>
+  }: {
+    title: string;
+    description: string;
+    icon: any;
+    onClick: () => void;
+    color?: string;
+  }) => (
+    <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer" onClick={onClick}>
       <div className="flex items-start space-x-3">
         <Icon className={`h-6 w-6 ${color} mt-1`} />
         <div>
@@ -172,16 +229,28 @@ const Dashboard = () => {
           <p className="text-sm text-gray-600">{description}</p>
         </div>
       </div>
-    </Card>;
+    </Card>
+  );
 
+  // Don't render dashboard content until we have valid session
+  if (!isAuthenticated || !user || !session) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-gradient-to-r from-red-600 to-orange-600 rounded-lg p-6 text-white">
+          <h1 className="text-2xl font-bold">Authentication Required</h1>
+          <p className="opacity-90">Please log in to access the dashboard</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Welcome Header */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 text-white">
-        <h1 className="text-2xl font-bold">Welcome back, {user?.Name || 'User'}!</h1>
+        <h1 className="text-2xl font-bold">Welcome back, {getUserDisplayName()}!</h1>
         <p className="opacity-90">
-          {userProfile?.station || 'All Stations'} • {userProfile?.role || 'User'}
+          {getUserStation()} • {getUserRole()}
         </p>
       </div>
 
@@ -192,42 +261,47 @@ const Dashboard = () => {
           value={stats.totalEmployees}
           icon={Users}
           color="text-blue-600"
-          onClick={() => navigate('/employees')} />
+          onClick={() => navigate('/employees')}
+        />
 
         <QuickStatCard
           title="Products"
           value={stats.activeProducts}
           icon={Package}
           color="text-green-600"
-          onClick={() => navigate('/products')} />
+          onClick={() => navigate('/products')}
+        />
 
         <QuickStatCard
           title="Today's Reports"
           value={stats.todayReports}
           icon={FileText}
           color="text-purple-600"
-          onClick={() => navigate('/sales')} />
+          onClick={() => navigate('/sales')}
+        />
 
         <QuickStatCard
           title="Deliveries"
           value={stats.pendingDeliveries}
           icon={Truck}
           color="text-orange-600"
-          onClick={() => navigate('/delivery')} />
+          onClick={() => navigate('/delivery')}
+        />
 
         <QuickStatCard
           title="Expiring Licenses"
           value={stats.expiringLicenses}
           icon={AlertTriangle}
           color="text-red-600"
-          onClick={() => navigate('/licenses')} />
+          onClick={() => navigate('/licenses')}
+        />
 
         <QuickStatCard
           title="Today's Sales"
           value={`$${stats.totalSales.toLocaleString()}`}
           icon={TrendingUp}
-          color="text-emerald-600" />
-
+          color="text-emerald-600"
+        />
       </div>
 
       {/* Main Content Tabs */}
@@ -244,7 +318,7 @@ const Dashboard = () => {
           
           {/* Alerts and Notifications */}
           {stats.expiringLicenses > 0 &&
-          <Card className="p-4 border-orange-200 bg-orange-50">
+            <Card className="p-4 border-orange-200 bg-orange-50">
               <div className="flex items-center space-x-2">
                 <AlertTriangle className="h-5 w-5 text-orange-600" />
                 <div>
@@ -254,11 +328,11 @@ const Dashboard = () => {
                   </p>
                 </div>
                 <Button
-                variant="outline"
-                size="sm"
-                className="ml-auto"
-                onClick={() => navigate('/licenses')}>
-
+                  variant="outline"
+                  size="sm"
+                  className="ml-auto"
+                  onClick={() => navigate('/licenses')}
+                >
                   View Licenses
                 </Button>
               </div>
@@ -300,50 +374,55 @@ const Dashboard = () => {
               title="New Sales Report"
               description="Create a daily sales report"
               icon={FileText}
-              onClick={() => navigate('/sales/new')} />
+              onClick={() => navigate('/sales/new')}
+            />
 
             <QuickAction
               title="Record Delivery"
               description="Log a new fuel delivery"
               icon={Truck}
-              onClick={() => navigate('/delivery/new')} />
+              onClick={() => navigate('/delivery/new')}
+            />
 
             <QuickAction
               title="Add Product"
               description="Register a new product"
               icon={Package}
-              onClick={() => navigate('/products/new')} />
+              onClick={() => navigate('/products/new')}
+            />
 
-            {isManager() &&
-            <>
+            {safeIsManager() &&
+              <>
                 <QuickAction
-                title="Manage Employees"
-                description="View and edit employee records"
-                icon={Users}
-                onClick={() => navigate('/employees')} />
+                  title="Manage Employees"
+                  description="View and edit employee records"
+                  icon={Users}
+                  onClick={() => navigate('/employees')}
+                />
 
                 <QuickAction
-                title="Check Licenses"
-                description="Review license status and renewals"
-                icon={Calendar}
-                onClick={() => navigate('/licenses')} />
-
+                  title="Check Licenses"
+                  description="Review license status and renewals"
+                  icon={Calendar}
+                  onClick={() => navigate('/licenses')}
+                />
               </>
             }
-            {isAdmin() &&
-            <QuickAction
-              title="Admin Panel"
-              description="System administration and settings"
-              icon={BarChart3}
-              onClick={() => navigate('/admin')}
-              color="text-red-600" />
-
+            
+            {safeIsAdmin() &&
+              <QuickAction
+                title="Admin Panel"
+                description="System administration and settings"
+                icon={BarChart3}
+                onClick={() => navigate('/admin')}
+                color="text-red-600"
+              />
             }
           </div>
         </TabsContent>
       </Tabs>
-    </div>);
-
+    </div>
+  );
 };
 
 export default Dashboard;

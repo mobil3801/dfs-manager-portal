@@ -47,7 +47,7 @@ const CleanLoginPage: React.FC = () => {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'error' | 'success'>('error');
 
-  const { login, register, resetPassword, clearError, authError, isAuthenticated, isLoading } = useConsolidatedAuth();
+  const { login, register, resetPassword, clearError, authError, isAuthenticated, isLoading, isInitialized } = useConsolidatedAuth();
   const navigate = useNavigate();
 
   // Form configurations
@@ -72,25 +72,21 @@ const CleanLoginPage: React.FC = () => {
   // Get current form based on auth mode
   const getCurrentForm = () => {
     switch (authMode) {
-      case 'login':
-        return loginForm;
-      case 'register':
-        return registerForm;
-      case 'forgot-password':
-        return forgotPasswordForm;
-      default:
-        return loginForm;
+      case 'login': return loginForm;
+      case 'register': return registerForm;
+      case 'forgot-password': return forgotPasswordForm;
+      default: return loginForm;
     }
   };
 
   const form = getCurrentForm();
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated and initialized
   useEffect(() => {
-    if (isAuthenticated && !isLoading) {
+    if (isAuthenticated && isInitialized && !isLoading) {
       navigate('/dashboard', { replace: true });
     }
-  }, [isAuthenticated, isLoading, navigate]);
+  }, [isAuthenticated, isInitialized, isLoading, navigate]);
 
   // Clear messages and reset forms when switching modes
   useEffect(() => {
@@ -107,7 +103,7 @@ const CleanLoginPage: React.FC = () => {
     setShowConfirmPassword(false);
   }, [authMode, clearError, loginForm, registerForm, forgotPasswordForm]);
 
-  // Display auth errors from context
+  // Display auth errors from context - show Supabase's error messages
   useEffect(() => {
     if (authError) {
       setMessage(authError);
@@ -152,11 +148,15 @@ const CleanLoginPage: React.FC = () => {
     try {
       if (authMode === 'login') {
         const loginData = data as LoginFormData;
-        const success = await login(loginData.email, loginData.password);
-        if (success) {
+        // Use standardized login that returns { user, session, access_token }
+        const result = await login(loginData.email, loginData.password);
+        
+        // Check if login succeeded - result will be null on error
+        if (result && result.user && result.session) {
           // Navigation handled by useEffect above
           return;
         }
+        // Error handling is done in the auth context
       } else if (authMode === 'register') {
         const registerData = data as RegisterFormData;
         const success = await register(registerData.email, registerData.password, registerData.fullName);
@@ -167,6 +167,7 @@ const CleanLoginPage: React.FC = () => {
             setAuthMode('login');
           }, 3000);
         }
+        // Error handling is done in the auth context
       }
     } catch (error) {
       console.error('Form submission error:', error);
@@ -184,59 +185,55 @@ const CleanLoginPage: React.FC = () => {
 
   const getFormTitle = () => {
     switch (authMode) {
-      case 'login':
-        return 'Welcome Back';
-      case 'register':
-        return 'Create Account';
-      case 'forgot-password':
-        return 'Reset Password';
-      default:
-        return 'Sign In';
+      case 'login': return 'Welcome Back';
+      case 'register': return 'Create Account';
+      case 'forgot-password': return 'Reset Password';
+      default: return 'Sign In';
     }
   };
 
   const getFormDescription = () => {
     switch (authMode) {
-      case 'login':
-        return 'Enter your credentials to access the portal';
-      case 'register':
-        return 'Create a new account to get started';
-      case 'forgot-password':
-        return 'Enter your email to receive a password reset link';
-      default:
-        return '';
+      case 'login': return 'Enter your credentials to access the portal';
+      case 'register': return 'Create a new account to get started';
+      case 'forgot-password': return 'Enter your email to receive a password reset link';
+      default: return '';
     }
   };
 
   const getSubmitButtonText = () => {
     if (isSubmitting || isLoading) return 'Please wait...';
     switch (authMode) {
-      case 'login':
-        return 'Sign In';
-      case 'register':
-        return 'Create Account';
-      case 'forgot-password':
-        return 'Send Reset Link';
-      default:
-        return 'Submit';
+      case 'login': return 'Sign In';
+      case 'register': return 'Create Account';
+      case 'forgot-password': return 'Send Reset Link';
+      default: return 'Submit';
     }
   };
 
   const getSubmitButtonIcon = () => {
     if (isSubmitting || isLoading) return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
     switch (authMode) {
-      case 'login':
-        return <LogIn className="mr-2 h-4 w-4" />;
-      case 'register':
-        return <UserPlus className="mr-2 h-4 w-4" />;
-      case 'forgot-password':
-        return <Mail className="mr-2 h-4 w-4" />;
-      default:
-        return null;
+      case 'login': return <LogIn className="mr-2 h-4 w-4" />;
+      case 'register': return <UserPlus className="mr-2 h-4 w-4" />;
+      case 'forgot-password': return <Mail className="mr-2 h-4 w-4" />;
+      default: return null;
     }
   };
 
   const isFormDisabled = isSubmitting || isLoading;
+
+  // Don't render until initialized to prevent flicker
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-blue-600" />
+          <p className="mt-2 text-sm text-slate-600">Initializing...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -266,11 +263,11 @@ const CleanLoginPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               {message &&
-              <Alert className={`mb-4 ${messageType === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+                <Alert className={`mb-4 ${messageType === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
                   {messageType === 'success' ?
-                <CheckCircle2 className="h-4 w-4 text-green-600" /> :
-                <AlertCircle className="h-4 w-4 text-red-600" />
-                }
+                    <CheckCircle2 className="h-4 w-4 text-green-600" /> :
+                    <AlertCircle className="h-4 w-4 text-red-600" />
+                  }
                   <AlertDescription className={messageType === 'success' ? 'text-green-800' : 'text-red-800'}>
                     {message}
                   </AlertDescription>
@@ -280,23 +277,23 @@ const CleanLoginPage: React.FC = () => {
               <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4" noValidate>
                 {/* Full Name Field (Register only) */}
                 {authMode === 'register' &&
-                <div className="space-y-2">
+                  <div className="space-y-2">
                     <Label htmlFor="fullName" className="text-slate-700 font-medium">Full Name</Label>
                     <Input
-                    id="fullName"
-                    type="text"
-                    placeholder="Enter your full name"
-                    autoComplete="name"
-                    {...form.register('fullName')}
-                    disabled={isFormDisabled}
-                    className="h-11 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                    aria-describedby={form.formState.errors.fullName ? "fullName-error" : undefined} />
-
+                      id="fullName"
+                      type="text"
+                      placeholder="Enter your full name"
+                      autoComplete="name"
+                      {...form.register('fullName')}
+                      disabled={isFormDisabled}
+                      className="h-11 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                      aria-describedby={form.formState.errors.fullName ? "fullName-error" : undefined}
+                    />
                     {form.formState.errors.fullName &&
-                  <p id="fullName-error" className="text-sm text-red-600" role="alert">
+                      <p id="fullName-error" className="text-sm text-red-600" role="alert">
                         {form.formState.errors.fullName.message}
                       </p>
-                  }
+                    }
                   </div>
                 }
 
@@ -313,11 +310,11 @@ const CleanLoginPage: React.FC = () => {
                       {...form.register('email')}
                       disabled={isFormDisabled}
                       className="h-11 pl-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                      aria-describedby={form.formState.errors.email ? "email-error" : undefined} />
-
+                      aria-describedby={form.formState.errors.email ? "email-error" : undefined}
+                    />
                   </div>
                   {form.formState.errors.email &&
-                  <p id="email-error" className="text-sm text-red-600" role="alert">
+                    <p id="email-error" className="text-sm text-red-600" role="alert">
                       {form.formState.errors.email.message}
                     </p>
                   }
@@ -325,82 +322,82 @@ const CleanLoginPage: React.FC = () => {
 
                 {/* Password Field */}
                 {authMode !== 'forgot-password' &&
-                <div className="space-y-2">
+                  <div className="space-y-2">
                     <Label htmlFor="password" className="text-slate-700 font-medium">Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                       <Input
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter your password"
-                      autoComplete={authMode === 'login' ? 'current-password' : 'new-password'}
-                      {...form.register('password')}
-                      disabled={isFormDisabled}
-                      className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                      aria-describedby={form.formState.errors.password ? "password-error" : undefined} />
-
+                        id="password"
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Enter your password"
+                        autoComplete={authMode === 'login' ? 'current-password' : 'new-password'}
+                        {...form.register('password')}
+                        disabled={isFormDisabled}
+                        className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                        aria-describedby={form.formState.errors.password ? "password-error" : undefined}
+                      />
                       <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      disabled={isFormDisabled}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:opacity-50"
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}>
-
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        disabled={isFormDisabled}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:opacity-50"
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                     {form.formState.errors.password &&
-                  <p id="password-error" className="text-sm text-red-600" role="alert">
+                      <p id="password-error" className="text-sm text-red-600" role="alert">
                         {form.formState.errors.password.message}
                       </p>
-                  }
+                    }
                   </div>
                 }
 
                 {/* Confirm Password Field */}
                 {authMode === 'register' &&
-                <div className="space-y-2">
+                  <div className="space-y-2">
                     <Label htmlFor="confirmPassword" className="text-slate-700 font-medium">Confirm Password</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                       <Input
-                      id="confirmPassword"
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      placeholder="Confirm your password"
-                      autoComplete="new-password"
-                      {...form.register('confirmPassword')}
-                      disabled={isFormDisabled}
-                      className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                      aria-describedby={form.formState.errors.confirmPassword ? "confirmPassword-error" : undefined} />
-
+                        id="confirmPassword"
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        placeholder="Confirm your password"
+                        autoComplete="new-password"
+                        {...form.register('confirmPassword')}
+                        disabled={isFormDisabled}
+                        className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                        aria-describedby={form.formState.errors.confirmPassword ? "confirmPassword-error" : undefined}
+                      />
                       <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      disabled={isFormDisabled}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:opacity-50"
-                      aria-label={showConfirmPassword ? 'Hide password confirmation' : 'Show password confirmation'}>
-
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        disabled={isFormDisabled}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 disabled:opacity-50"
+                        aria-label={showConfirmPassword ? 'Hide password confirmation' : 'Show password confirmation'}
+                      >
                         {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                     {form.formState.errors.confirmPassword &&
-                  <p id="confirmPassword-error" className="text-sm text-red-600" role="alert">
+                      <p id="confirmPassword-error" className="text-sm text-red-600" role="alert">
                         {form.formState.errors.confirmPassword.message}
                       </p>
-                  }
+                    }
                   </div>
                 }
 
                 {/* Forgot Password Link */}
                 {authMode === 'login' &&
-                <div className="text-right">
+                  <div className="text-right">
                     <Button
-                    type="button"
-                    variant="link"
-                    className="p-0 h-auto text-blue-600 hover:text-blue-800 text-sm"
-                    disabled={isFormDisabled}
-                    onClick={() => handleModeSwitch('forgot-password')}>
-
+                      type="button"
+                      variant="link"
+                      className="p-0 h-auto text-blue-600 hover:text-blue-800 text-sm"
+                      disabled={isFormDisabled}
+                      onClick={() => handleModeSwitch('forgot-password')}
+                    >
                       Forgot password?
                     </Button>
                   </div>
@@ -410,8 +407,8 @@ const CleanLoginPage: React.FC = () => {
                 <Button
                   type="submit"
                   className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                  disabled={isFormDisabled || !form.formState.isValid}>
-
+                  disabled={isFormDisabled || !form.formState.isValid}
+                >
                   {getSubmitButtonIcon()}
                   {getSubmitButtonText()}
                 </Button>
@@ -422,42 +419,42 @@ const CleanLoginPage: React.FC = () => {
                 <Separator className="my-4" />
                 <div className="text-center space-y-2">
                   {authMode === 'login' &&
-                  <div>
+                    <div>
                       <span className="text-sm text-slate-600">Don't have an account? </span>
                       <Button
-                      variant="link"
-                      className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
-                      disabled={isFormDisabled}
-                      onClick={() => handleModeSwitch('register')}>
-
+                        variant="link"
+                        className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
+                        disabled={isFormDisabled}
+                        onClick={() => handleModeSwitch('register')}
+                      >
                         Sign up
                       </Button>
                     </div>
                   }
 
                   {authMode === 'register' &&
-                  <div>
+                    <div>
                       <span className="text-sm text-slate-600">Already have an account? </span>
                       <Button
-                      variant="link"
-                      className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
-                      disabled={isFormDisabled}
-                      onClick={() => handleModeSwitch('login')}>
-
+                        variant="link"
+                        className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
+                        disabled={isFormDisabled}
+                        onClick={() => handleModeSwitch('login')}
+                      >
                         Sign in
                       </Button>
                     </div>
                   }
 
                   {authMode === 'forgot-password' &&
-                  <div>
+                    <div>
                       <span className="text-sm text-slate-600">Remember your password? </span>
                       <Button
-                      variant="link"
-                      className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
-                      disabled={isFormDisabled}
-                      onClick={() => handleModeSwitch('login')}>
-
+                        variant="link"
+                        className="p-0 h-auto font-semibold text-blue-600 hover:text-blue-800"
+                        disabled={isFormDisabled}
+                        onClick={() => handleModeSwitch('login')}
+                      >
                         Sign in
                       </Button>
                     </div>
@@ -474,8 +471,8 @@ const CleanLoginPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>);
-
+    </div>
+  );
 };
 
 export default CleanLoginPage;

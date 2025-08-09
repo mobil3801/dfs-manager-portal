@@ -49,13 +49,13 @@ export const useSafeAuth = () => {
   // Safe user display information
   const getUserDisplayName = (): string => {
     if (!safeUser) return 'User';
-    
+
     return (
       safeUser.user_metadata?.full_name ||
       safeUser.user_metadata?.display_name ||
       safeUser.email?.split('@')[0] ||
-      'User'
-    );
+      'User');
+
   };
 
   const getUserInitial = (): string => {
@@ -118,29 +118,29 @@ export const useSafeAuth = () => {
   return {
     // Raw auth context (for advanced usage)
     rawAuth: auth,
-    
+
     // Safe data accessors
     user: safeUser,
     userProfile: safeUserProfile,
     session: safeSession,
     authError: auth.authError,
-    
+
     // Safe state flags
     isAuthenticated: safeIsAuthenticated,
     isLoading: safeIsLoading,
     isInitialized: safeIsInitialized,
-    
+
     // Safe role checks
     isAdmin: safeIsAdmin,
     isManager: safeIsManager,
     hasPermission: safeHasPermission,
-    
+
     // Safe user information
     getUserDisplayName,
     getUserInitial,
     getUserEmail,
     getUserRole,
-    
+
     // Safe auth methods
     login: safeLogin,
     logout: safeLogout,
@@ -148,7 +148,7 @@ export const useSafeAuth = () => {
     resetPassword: safeResetPassword,
     updatePassword: auth.updatePassword,
     refreshUserData: safeRefreshUserData,
-    clearError: auth.clearError,
+    clearError: auth.clearError
   };
 };
 
