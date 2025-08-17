@@ -1,0 +1,28 @@
+🎯 **Important Requirement Update**
+
+@mobil3801 has specified that **everything in this project should be connected by Supabase database & storage**. This means:
+
+## Complete Supabase Integration Required:
+
+### 🗄️ Database
+- All data operations must use Supabase Database
+- No remnants of EZSite APIs should remain
+- All tables must be properly migrated to Supabase
+
+### 📁 Storage  
+- All file uploads, images, and documents must use **Supabase Storage**
+- Replace any existing file handling with Supabase Storage buckets
+- Update the `imageErrorService.ts` to use Supabase Storage URLs
+- Logo images, product images, license documents - everything goes through Supabase Storage
+
+### 🔐 Authentication
+- Complete migration to Supabase Auth
+- No EZSite authentication remnants
+
+### 🔗 API Integration
+- All external API calls should go through Supabase (Edge Functions if needed)
+- SMS services, external integrations - configure through Supabase
+
+Please ensure this is a **complete migration** where Supabase becomes the single source of truth for all data persistence and file storage needs.
+
+Current Date: 2025-08-08 02:47:36 UTC

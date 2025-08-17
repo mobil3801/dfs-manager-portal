@@ -214,7 +214,7 @@ export const productService = {
       from('products').
       select('*').
       eq('is_active', true).
-      filter('stock_quantity', 'lt', 'min_stock_level');
+      lt('stock_quantity', supabase.from('products').select('min_stock_level'));
 
       if (stationId) {
         query = query.eq('station_id', stationId);
@@ -295,120 +295,6 @@ export const productService = {
     } catch (error: any) {
       console.error('Error fetching product categories:', error);
       return { data: null, error };
-    }
-  },
-
-  // Legacy API compatibility methods for gradual migration
-  legacy: {
-    // Get all products with legacy format
-    getAllLegacyFormat: async () => {
-      try {
-        const { data, error } = await supabase.
-        from('products').
-        select('*').
-        eq('is_active', true).
-        order('product_name');
-
-        if (error) throw error;
-
-        // Convert to legacy format expected by old components
-        const legacyData = data?.map((product) => ({
-          ID: product.id,
-          product_name: product.product_name,
-          description: product.description,
-          sku: product.sku,
-          barcode: product.barcode,
-          category: product.category,
-          price: product.price,
-          cost: product.cost,
-          stock_quantity: product.stock_quantity,
-          minimum_stock: product.min_stock_level,
-          weight: product.weight,
-          weight_unit: product.unit_of_measure,
-          station_id: product.station_id,
-          supplier_id: product.supplier_id,
-          created_at: product.created_at,
-          updated_at: product.updated_at
-        }));
-
-        return { data: legacyData, error: null };
-      } catch (error: any) {
-        console.error('Error fetching products (legacy format):', error);
-        return { data: null, error };
-      }
-    },
-
-    // Create product with legacy format
-    createLegacyFormat: async (productData: any) => {
-      try {
-        // Convert legacy format to new format
-        const supabaseData = {
-          product_name: productData.product_name,
-          description: productData.description,
-          sku: productData.sku,
-          barcode: productData.barcode,
-          category: productData.category,
-          price: productData.price,
-          cost: productData.cost,
-          stock_quantity: productData.stock_quantity,
-          min_stock_level: productData.minimum_stock,
-          weight: productData.weight,
-          unit_of_measure: productData.weight_unit,
-          station_id: productData.station_id,
-          supplier_id: productData.supplier_id,
-          is_active: true
-        };
-
-        const { data, error } = await supabase.
-        from('products').
-        insert(supabaseData).
-        select().
-        single();
-
-        if (error) throw error;
-
-        return { data, error: null };
-      } catch (error: any) {
-        console.error('Error creating product (legacy format):', error);
-        return { data: null, error };
-      }
-    },
-
-    // Update product with legacy format
-    updateLegacyFormat: async (id: string, productData: any) => {
-      try {
-        // Convert legacy format to new format
-        const supabaseData = {
-          product_name: productData.product_name,
-          description: productData.description,
-          sku: productData.sku,
-          barcode: productData.barcode,
-          category: productData.category,
-          price: productData.price,
-          cost: productData.cost,
-          stock_quantity: productData.stock_quantity,
-          min_stock_level: productData.minimum_stock,
-          weight: productData.weight,
-          unit_of_measure: productData.weight_unit,
-          station_id: productData.station_id,
-          supplier_id: productData.supplier_id,
-          updated_at: new Date().toISOString()
-        };
-
-        const { data, error } = await supabase.
-        from('products').
-        update(supabaseData).
-        eq('id', id).
-        select().
-        single();
-
-        if (error) throw error;
-
-        return { data, error: null };
-      } catch (error: any) {
-        console.error('Error updating product (legacy format):', error);
-        return { data: null, error };
-      }
     }
   }
 };

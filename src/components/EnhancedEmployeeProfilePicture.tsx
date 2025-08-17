@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,7 +8,6 @@ import { Upload, User, Loader2, Edit3, Trash2, Eye, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { useConsolidatedAuth } from '@/contexts/ConsolidatedAuthContext';
 
 interface EnhancedEmployeeProfilePictureProps {
   employeeId: string;
@@ -39,9 +38,6 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
   const [showPreview, setShowPreview] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Gate UI until session exists - use Supabase Auth as single source
-  const { user, session, isAuthenticated } = useConsolidatedAuth();
-
   // Use empty bucket name as configured in the system
   const BUCKET_NAME = '';
   const FOLDER_PATH = 'employee-profiles';
@@ -53,33 +49,30 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
     xl: 'w-24 h-24 text-lg'
   };
 
-  const initials = employeeName
-    .split(' ')
-    .map((name) => name.charAt(0))
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
+  const initials = employeeName.
+  split(' ').
+  map((name) => name.charAt(0)).
+  join('').
+  toUpperCase().
+  slice(0, 2);
 
-  // Load current profile picture - only after valid session exists
-  useEffect(() => {
-    if (isAuthenticated && user && session && employeeId && employeeId !== 'new') {
+  // Load current profile picture
+  React.useEffect(() => {
+    if (employeeId && employeeId !== 'new') {
       loadCurrentProfilePicture();
     }
-  }, [employeeId, isAuthenticated, user, session]);
+  }, [employeeId]);
 
   const loadCurrentProfilePicture = async () => {
-    // Gate access until valid session
-    if (!isAuthenticated || !user || !session || !employeeId || employeeId === 'new') {
-      return;
-    }
+    if (!employeeId || employeeId === 'new') return;
 
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('employees')
-        .select('profile_image_url')
-        .eq('id', employeeId)
-        .single();
+      const { data, error } = await supabase.
+      from('employees').
+      select('profile_image_url').
+      eq('id', employeeId).
+      single();
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error loading profile picture:', error);
@@ -87,37 +80,7 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
       }
 
       if (data?.profile_image_url) {
-        // Use signed URLs when needed for private storage access
-        try {
-          // For public URLs, use as-is. For private storage, create signed URL
-          if (data.profile_image_url.includes('storage')) {
-            // Extract path from URL for signed URL generation
-            const urlParts = data.profile_image_url.split('/');
-            const fileIndex = urlParts.findIndex((part) => part === FOLDER_PATH);
-            
-            if (fileIndex !== -1 && fileIndex < urlParts.length - 1) {
-              const filePath = urlParts.slice(fileIndex).join('/');
-              
-              // Create signed URL for secure access
-              const { data: signedUrlData, error: signedUrlError } = await supabase.storage
-                .from(BUCKET_NAME)
-                .createSignedUrl(filePath, 3600); // 1 hour expiry
-              
-              if (!signedUrlError && signedUrlData.signedUrl) {
-                setImageUrl(signedUrlData.signedUrl);
-              } else {
-                setImageUrl(data.profile_image_url);
-              }
-            } else {
-              setImageUrl(data.profile_image_url);
-            }
-          } else {
-            setImageUrl(data.profile_image_url);
-          }
-        } catch (urlError) {
-          console.warn('Error creating signed URL:', urlError);
-          setImageUrl(data.profile_image_url);
-        }
+        setImageUrl(data.profile_image_url);
       }
     } catch (error) {
       console.error('Error loading profile picture:', error);
@@ -127,16 +90,6 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
   };
 
   const handleFileSelect = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    // Gate access until valid session
-    if (!isAuthenticated || !user || !session) {
-      toast({
-        title: "Authentication Required",
-        description: "Please log in to upload files",
-        variant: "destructive"
-      });
-      return;
-    }
-
     const file = event.target.files?.[0];
     if (!file || !employeeId || employeeId === 'new') return;
 
@@ -161,19 +114,9 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
     }
 
     await uploadProfilePicture(file);
-  }, [employeeId, isAuthenticated, user, session]);
+  }, [employeeId]);
 
   const uploadProfilePicture = async (file: File) => {
-    // Gate access until valid session
-    if (!isAuthenticated || !user || !session) {
-      toast({
-        title: "Authentication Required",
-        description: "Please log in to upload files",
-        variant: "destructive"
-      });
-      return;
-    }
-
     if (!employeeId || employeeId === 'new') {
       toast({
         title: "Cannot upload",
@@ -199,9 +142,9 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
           const fileIndex = urlParts.findIndex((part) => part === FOLDER_PATH);
           if (fileIndex !== -1 && fileIndex < urlParts.length - 1) {
             const oldPath = urlParts.slice(fileIndex).join('/');
-            await supabase.storage
-              .from(BUCKET_NAME)
-              .remove([oldPath]);
+            await supabase.storage.
+            from(BUCKET_NAME).
+            remove([oldPath]);
           }
         } catch (deleteError) {
           console.warn('Could not delete old profile picture:', deleteError);
@@ -209,12 +152,12 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
       }
 
       // Upload new file
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from(BUCKET_NAME)
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: true
-        });
+      const { data: uploadData, error: uploadError } = await supabase.storage.
+      from(BUCKET_NAME).
+      upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true
+      });
 
       if (uploadError) {
         console.error('Upload error:', uploadError);
@@ -222,18 +165,18 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
       }
 
       // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from(BUCKET_NAME)
-        .getPublicUrl(filePath);
+      const { data: { publicUrl } } = supabase.storage.
+      from(BUCKET_NAME).
+      getPublicUrl(filePath);
 
       // Update employee record
-      const { error: updateError } = await supabase
-        .from('employees')
-        .update({
-          profile_image_url: publicUrl,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', employeeId);
+      const { error: updateError } = await supabase.
+      from('employees').
+      update({
+        profile_image_url: publicUrl,
+        updated_at: new Date().toISOString()
+      }).
+      eq('id', employeeId);
 
       if (updateError) {
         console.error('Database update error:', updateError);
@@ -264,16 +207,6 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
   };
 
   const handleRemoveProfilePicture = async () => {
-    // Gate access until valid session
-    if (!isAuthenticated || !user || !session) {
-      toast({
-        title: "Authentication Required",
-        description: "Please log in to manage files",
-        variant: "destructive"
-      });
-      return;
-    }
-
     if (!employeeId || employeeId === 'new' || !imageUrl) return;
 
     try {
@@ -285,22 +218,22 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
         const fileIndex = urlParts.findIndex((part) => part === FOLDER_PATH);
         if (fileIndex !== -1 && fileIndex < urlParts.length - 1) {
           const oldPath = urlParts.slice(fileIndex).join('/');
-          await supabase.storage
-            .from(BUCKET_NAME)
-            .remove([oldPath]);
+          await supabase.storage.
+          from(BUCKET_NAME).
+          remove([oldPath]);
         }
       } catch (deleteError) {
         console.warn('Could not delete file from storage:', deleteError);
       }
 
       // Update employee record
-      const { error: updateError } = await supabase
-        .from('employees')
-        .update({
-          profile_image_url: null,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', employeeId);
+      const { error: updateError } = await supabase.
+      from('employees').
+      update({
+        profile_image_url: null,
+        updated_at: new Date().toISOString()
+      }).
+      eq('id', employeeId);
 
       if (updateError) {
         console.error('Database update error:', updateError);
@@ -328,22 +261,9 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
   };
 
   const triggerFileInput = () => {
-    if (disabled || !allowEdit || !isAuthenticated || !user || !session) return;
+    if (disabled || !allowEdit) return;
     fileInputRef.current?.click();
   };
-
-  // Show loading state if no session yet
-  if (!isAuthenticated || !user || !session) {
-    return (
-      <div className={cn("flex items-center", className)}>
-        <Avatar className={sizeClasses[size]}>
-          <AvatarFallback className="bg-gray-200 text-gray-400">
-            <Loader2 className="w-4 h-4 animate-spin" />
-          </AvatarFallback>
-        </Avatar>
-      </div>
-    );
-  }
 
   // Basic avatar display (for table view)
   if (!allowEdit && !showUploadButton) {
@@ -353,14 +273,14 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
           <AvatarImage
             src={imageUrl || undefined}
             alt={employeeName}
-            className="object-cover"
-          />
+            className="object-cover" />
+
           <AvatarFallback className="bg-gray-100 text-gray-600">
             {initials}
           </AvatarFallback>
         </Avatar>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -369,58 +289,58 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
         {/* Profile Picture Display */}
         <div className="relative">
           <Avatar className={cn(sizeClasses[size], "border-2 border-gray-200")}>
-            {isLoading ? (
-              <div className="flex items-center justify-center w-full h-full bg-gray-100">
+            {isLoading ?
+            <div className="flex items-center justify-center w-full h-full bg-gray-100">
                 <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
-              </div>
-            ) : (
-              <>
+              </div> :
+
+            <>
                 <AvatarImage
-                  src={imageUrl || undefined}
-                  alt={employeeName}
-                  className="object-cover"
-                />
+                src={imageUrl || undefined}
+                alt={employeeName}
+                className="object-cover" />
+
                 <AvatarFallback className="bg-gray-100 text-gray-600">
                   {initials}
                 </AvatarFallback>
               </>
-            )}
+            }
           </Avatar>
 
           {/* Loading overlay */}
-          {isUploading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full">
+          {isUploading &&
+          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full">
               <Loader2 className="w-4 h-4 animate-spin text-white" />
             </div>
-          )}
+          }
         </div>
 
         {/* Action Buttons */}
-        {allowEdit && (
-          <div className="flex items-center space-x-2">
+        {allowEdit &&
+        <div className="flex items-center space-x-2">
             {/* Upload Button */}
             <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={triggerFileInput}
-              disabled={disabled || isUploading}
-              className="flex items-center space-x-1"
-            >
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={triggerFileInput}
+            disabled={disabled || isUploading}
+            className="flex items-center space-x-1">
+
               <Upload className="w-4 h-4" />
               <span>{imageUrl ? 'Change' : 'Upload'}</span>
             </Button>
 
             {/* Preview Button */}
-            {imageUrl && (
-              <Dialog open={showPreview} onOpenChange={setShowPreview}>
+            {imageUrl &&
+          <Dialog open={showPreview} onOpenChange={setShowPreview}>
                 <DialogTrigger asChild>
                   <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={isUploading}
-                  >
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={isUploading}>
+
                     <Eye className="w-4 h-4" />
                   </Button>
                 </DialogTrigger>
@@ -430,67 +350,67 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
                   </DialogHeader>
                   <div className="flex items-center justify-center p-4">
                     <img
-                      src={imageUrl}
-                      alt={employeeName}
-                      className="max-w-full max-h-96 object-contain rounded-lg shadow-lg"
-                    />
+                  src={imageUrl}
+                  alt={employeeName}
+                  className="max-w-full max-h-96 object-contain rounded-lg shadow-lg" />
+
                   </div>
                 </DialogContent>
               </Dialog>
-            )}
+          }
 
             {/* Remove Button */}
-            {imageUrl && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleRemoveProfilePicture}
-                disabled={disabled || isUploading}
-                className="text-red-600 hover:text-red-700"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            )}
-          </div>
-        )}
-
-        {/* Upload button for table view */}
-        {showUploadButton && !allowEdit && (
+            {imageUrl &&
           <Button
             type="button"
             variant="outline"
             size="sm"
-            onClick={triggerFileInput}
+            onClick={handleRemoveProfilePicture}
             disabled={disabled || isUploading}
-            className="flex items-center space-x-1"
-          >
+            className="text-red-600 hover:text-red-700">
+
+                <Trash2 className="w-4 h-4" />
+              </Button>
+          }
+          </div>
+        }
+
+        {/* Upload button for table view */}
+        {showUploadButton && !allowEdit &&
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={triggerFileInput}
+          disabled={disabled || isUploading}
+          className="flex items-center space-x-1">
+
             <Upload className="w-4 h-4" />
             <span>Upload</span>
           </Button>
-        )}
+        }
       </div>
 
       {/* Status Indicators */}
-      {allowEdit && (
-        <div className="flex items-center space-x-2">
-          {disabled && (
-            <Badge variant="secondary" className="text-xs">
+      {allowEdit &&
+      <div className="flex items-center space-x-2">
+          {disabled &&
+        <Badge variant="secondary" className="text-xs">
               Save employee first to enable upload
             </Badge>
-          )}
-          {isUploading && (
-            <Badge className="text-xs bg-blue-500">
+        }
+          {isUploading &&
+        <Badge className="text-xs bg-blue-500">
               Uploading...
             </Badge>
-          )}
-          {imageUrl && !isUploading && (
-            <Badge variant="outline" className="text-xs text-green-600">
+        }
+          {imageUrl && !isUploading &&
+        <Badge variant="outline" className="text-xs text-green-600">
               Picture uploaded
             </Badge>
-          )}
+        }
         </div>
-      )}
+      }
 
       {/* Hidden file input */}
       <input
@@ -499,10 +419,10 @@ const EnhancedEmployeeProfilePicture: React.FC<EnhancedEmployeeProfilePicturePro
         accept="image/*"
         onChange={handleFileSelect}
         className="hidden"
-        disabled={disabled || isUploading}
-      />
-    </div>
-  );
+        disabled={disabled || isUploading} />
+
+    </div>);
+
 };
 
 export default EnhancedEmployeeProfilePicture;

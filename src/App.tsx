@@ -3,9 +3,11 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ConsolidatedAuthProvider, useConsolidatedAuth } from '@/contexts/ConsolidatedAuthContext';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { SupabaseAuthProvider, useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { ModuleAccessProvider } from '@/contexts/ModuleAccessContext';
 import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
+import AuthDebugger from '@/components/AuthDebugger';
 import ImageErrorNotification from '@/components/ImageErrorNotification';
 
 // Layout
@@ -15,15 +17,13 @@ import DashboardLayout from '@/components/Layout/DashboardLayout';
 import Dashboard from '@/pages/Dashboard';
 import LoginPage from '@/pages/LoginPage';
 import SupabaseLoginPage from '@/pages/SupabaseLoginPage';
-import CleanLoginPage from '@/pages/CleanLoginPage';
 import OnAuthSuccessPage from '@/pages/OnAuthSuccessPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import NotFound from '@/pages/NotFound';
 
 // Lazy load feature pages - Updated to use Supabase
-const ProductList = lazy(() => import('@/pages/Products/ProductList'));
+const ProductList = lazy(() => import('@/pages/Products/SupabaseProductList'));
 const ProductForm = lazy(() => import('@/pages/Products/SupabaseProductForm'));
-const ProductDetail = lazy(() => import('@/pages/Products/ProductDetail'));
 const EmployeeList = lazy(() => import('@/pages/Employees/EmployeeList'));
 const EmployeeForm = lazy(() => import('@/pages/Employees/EmployeeForm'));
 const SalesReportList = lazy(() => import('@/pages/Sales/SalesReportList'));
@@ -130,23 +130,17 @@ const AuthError = ({ error, onRetry }: {error: string;onRetry: () => void;}) =>
     </div>
   </div>;
 
-// Protected Route Component with improved error handling and timeouts
+// Protected Route Component with improved error handling
 const ProtectedRoute: React.FC<{children: React.ReactNode;}> = ({ children }) => {
-  const { isAuthenticated, isLoading, authError, isInitialized, refreshUserData } = useConsolidatedAuth();
+  const { isAuthenticated, isLoading, authError, isInitialized, refreshUserData } = useSupabaseAuth();
 
-  // Show loading while initializing with timeout protection
+  // Show loading while initializing
   if (!isInitialized || isLoading) {
     return <LoadingSpinner />;
   }
 
   // Show error if there's a critical authentication error
-  if (authError) {
-    // Handle specific timeout errors
-    if (authError.includes('timeout') || authError.includes('initialization timed out')) {
-      return <AuthError error="Authentication service is taking too long. Please refresh the page." onRetry={() => window.location.reload()} />;
-    }
-
-    // Handle other authentication errors
+  if (authError && authError.includes('Failed to load user data')) {
     return <AuthError error={authError} onRetry={refreshUserData} />;
   }
 
@@ -160,7 +154,7 @@ const ProtectedRoute: React.FC<{children: React.ReactNode;}> = ({ children }) =>
 
 // Main App Router Component
 const AppRouter = () => {
-  const { isInitialized } = useConsolidatedAuth();
+  const { isInitialized } = useSupabaseAuth();
 
   // Show loading during initial authentication setup
   if (!isInitialized) {
@@ -172,12 +166,11 @@ const AppRouter = () => {
       <div className="App">
         <Routes>
           {/* Public Routes */}
-          <Route path="/login" element={<CleanLoginPage />} />
+          <Route path="/login" element={<SupabaseLoginPage />} />
           <Route path="/legacy-login" element={<LoginPage />} />
           <Route path="/supabase-login" element={<SupabaseLoginPage />} />
           <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
           <Route path="/resetpassword" element={<ResetPasswordPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
           
           {/* Protected Routes */}
           <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
@@ -198,11 +191,6 @@ const AppRouter = () => {
             <Route path="products/:id/edit" element={
             <Suspense fallback={<PageLoader />}>
                 <ProductForm />
-              </Suspense>
-            } />
-            <Route path="products/:slug" element={
-            <Suspense fallback={<PageLoader />}>
-                <ProductDetail />
               </Suspense>
             } />
             
@@ -448,7 +436,8 @@ const AppRouter = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
         
-        {/* Debug components disabled in production */}
+        {/* Auth Debugger - Only show in development or for debugging */}
+        <AuthDebugger />
       </div>
     </Router>);
 
@@ -459,11 +448,13 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <GlobalErrorBoundary>
-          <ConsolidatedAuthProvider>
-            <ModuleAccessProvider>
-              <AppRouter />
-            </ModuleAccessProvider>
-          </ConsolidatedAuthProvider>
+          <AuthProvider>
+            <SupabaseAuthProvider>
+              <ModuleAccessProvider>
+                <AppRouter />
+              </ModuleAccessProvider>
+            </SupabaseAuthProvider>
+          </AuthProvider>
         </GlobalErrorBoundary>
       </TooltipProvider>
       <Toaster />

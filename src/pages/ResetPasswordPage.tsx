@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,8 +9,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Eye, EyeOff, Lock, CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import { useToast } from '@/hooks/use-toast';
-import { useConsolidatedAuth } from '@/contexts/ConsolidatedAuthContext';
-import { supabase } from '@/lib/supabase';
 
 const ResetPasswordPage: React.FC = () => {
   const [password, setPassword] = useState('');
@@ -19,36 +18,19 @@ const ResetPasswordPage: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'error' | 'success'>('error');
-  const [isValidSession, setIsValidSession] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const { updatePassword } = useConsolidatedAuth();
 
   useEffect(() => {
-    // Check if this is a password reset callback
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const accessToken = hashParams.get('access_token');
-    const refreshToken = hashParams.get('refresh_token');
-    const type = hashParams.get('type');
-
-    if (type === 'recovery' && accessToken) {
-      // Valid password reset session
-      setIsValidSession(true);
-      setMessage('Please enter your new password below');
-      setMessageType('success');
+    const tokenFromUrl = searchParams.get('token');
+    if (tokenFromUrl) {
+      setToken(tokenFromUrl);
     } else {
-      // Check URL parameters as fallback
-      const token = searchParams.get('token');
-      if (token) {
-        setIsValidSession(true);
-        setMessage('Please enter your new password below');
-        setMessageType('success');
-      } else {
-        setMessage('Invalid or expired reset link. Please request a new password reset.');
-        setMessageType('error');
-      }
+      setMessage('Invalid or missing reset token');
+      setMessageType('error');
     }
   }, [searchParams]);
 
@@ -56,8 +38,8 @@ const ResetPasswordPage: React.FC = () => {
     e.preventDefault();
     setMessage('');
 
-    if (!isValidSession) {
-      setMessage('Invalid reset session');
+    if (!token) {
+      setMessage('Invalid reset token');
       setMessageType('error');
       return;
     }
@@ -77,48 +59,40 @@ const ResetPasswordPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Check if we have a valid session from the URL hash
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const accessToken = hashParams.get('access_token');
-      const refreshToken = hashParams.get('refresh_token');
+      const { error } = await window.ezsite.apis.resetPassword({
+        token,
+        password
+      });
 
-      if (accessToken && refreshToken) {
-        // Set the session using the tokens from the URL
-        const { error: sessionError } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken
+      if (error) {
+        setMessage(error);
+        setMessageType('error');
+        toast({
+          title: "Error",
+          description: error,
+          variant: "destructive"
         });
-
-        if (sessionError) {
-          throw sessionError;
-        }
-      }
-
-      // Update the password
-      const success = await updatePassword(password);
-
-      if (success) {
+      } else {
         setMessage('Password has been reset successfully! Redirecting to login...');
         setMessageType('success');
         toast({
-          title: 'Success',
-          description: 'Password reset successfully'
+          title: "Success",
+          description: "Password reset successfully"
         });
 
-        // Sign out after password update and redirect to login
-        setTimeout(async () => {
-          await supabase.auth.signOut();
+        // Redirect to login page after 3 seconds
+        setTimeout(() => {
           navigate('/login');
         }, 3000);
       }
-    } catch (error: any) {
-      const errorMessage = error?.message || 'Failed to reset password';
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to reset password';
       setMessage(errorMessage);
       setMessageType('error');
       toast({
-        title: 'Error',
+        title: "Error",
         description: errorMessage,
-        variant: 'destructive'
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
@@ -156,6 +130,7 @@ const ResetPasswordPage: React.FC = () => {
               <Alert className={`mb-4 ${messageType === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
                   {messageType === 'success' ?
                 <CheckCircle2 className="h-4 w-4 text-green-600" /> :
+
                 <AlertCircle className="h-4 w-4 text-red-600" />
                 }
                   <AlertDescription className={messageType === 'success' ? 'text-green-800' : 'text-red-800'}>
@@ -164,7 +139,7 @@ const ResetPasswordPage: React.FC = () => {
                 </Alert>
               }
 
-              {isValidSession ?
+              {token ?
               <form onSubmit={handleSubmit} className="space-y-4">
                   {/* New Password Field */}
                   <div className="space-y-2">
@@ -179,7 +154,6 @@ const ResetPasswordPage: React.FC = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       minLength={6}
-                      autoComplete="new-password"
                       className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
 
                       <button
@@ -205,7 +179,6 @@ const ResetPasswordPage: React.FC = () => {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
                       minLength={6}
-                      autoComplete="new-password"
                       className="h-11 pl-10 pr-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500" />
 
                       <button
@@ -226,17 +199,16 @@ const ResetPasswordPage: React.FC = () => {
 
                     {isLoading ?
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> :
+
                   <Lock className="mr-2 h-4 w-4" />
                   }
                     {isLoading ? 'Resetting Password...' : 'Reset Password'}
                   </Button>
                 </form> :
+
               <div className="text-center">
                   <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-                  <p className="text-slate-600 mb-4">Invalid or expired reset link</p>
-                  <p className="text-sm text-slate-500 mb-4">
-                    This password reset link has expired or is invalid. Please request a new one.
-                  </p>
+                  <p className="text-slate-600 mb-4">Invalid or missing reset token</p>
                 </div>
               }
 

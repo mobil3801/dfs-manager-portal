@@ -1,24 +1,21 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { supabase, authService, databaseService } from '@/lib/supabase';
-import { useToast } from '@/hooks/use-toast';
-
-// Define types
+// Define types locally since we're using a custom Supabase client
 interface User {
   id: string;
   email: string;
   created_at: string;
   last_sign_in_at?: string;
-  user_metadata?: any;
-  app_metadata?: any;
 }
 
 interface Session {
   access_token: string;
   token_type: string;
   expires_at?: number;
-  refresh_token?: string;
   user: User;
 }
+import { supabase, authService as auth } from '@/lib/supabase';
+import { userProfileService, auditLogService } from '@/services/databaseService';
+import { useToast } from '@/hooks/use-toast';
 
 interface UserProfile {
   id: string;
@@ -29,10 +26,8 @@ interface UserProfile {
   phone?: string;
   hire_date?: string;
   is_active: boolean;
-  detailed_permissions?: any;
+  detailed_permissions: any;
   profile_image_url?: string;
-  created_at: string;
-  updated_at: string;
   stations?: {
     name: string;
     address: string;
@@ -62,17 +57,18 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Default profile for new users
-const createDefaultProfile = (userId: string): Partial<UserProfile> => ({
-  user_id: userId,
-  role: 'Employee',
-  station_id: null,
+// Default guest user profile for non-authenticated users
+const GUEST_PROFILE: UserProfile = {
+  id: '0',
+  user_id: '0',
+  role: 'Guest',
+  station_id: undefined,
   employee_id: '',
   phone: '',
-  hire_date: new Date().toISOString().split('T')[0],
-  is_active: true,
+  hire_date: '',
+  is_active: false,
   detailed_permissions: {}
-});
+};
 
 export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -83,7 +79,7 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
   const [isInitialized, setIsInitialized] = useState(false);
   const { toast } = useToast();
 
-  const isAuthenticated = !!user && !!session;
+  const isAuthenticated = !!user && !!userProfile && userProfile.role !== 'Guest';
 
   const clearError = () => {
     setAuthError(null);
@@ -91,26 +87,39 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
 
   const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
     try {
-      let profile = await databaseService.getUserProfile(userId);
+      const { data, error } = await userProfileService.getUserProfileByUserId(userId);
 
-      // Create default profile if none exists
-      if (!profile) {
-        const defaultProfile = createDefaultProfile(userId);
-        profile = await databaseService.createUserProfile(userId, defaultProfile);
+      if (error) {
+        if (error.message.includes('No rows')) {
+          // Create default profile for new user
+          const defaultProfile = {
+            role: 'Employee',
+            station_id: null,
+            employee_id: '',
+            phone: '',
+            hire_date: new Date().toISOString().split('T')[0],
+            is_active: true,
+            detailed_permissions: {}
+          };
+
+          const { data: newProfile, error: createError } = await userProfileService.createUserProfile(userId, defaultProfile);
+
+          if (createError) {
+            console.error('Failed to create user profile:', createError);
+            return GUEST_PROFILE;
+          }
+
+          return newProfile;
+        }
+
+        console.error('Failed to fetch user profile:', error);
+        return GUEST_PROFILE;
       }
 
-      return profile;
+      return data;
     } catch (error) {
-      console.error('Error fetching/creating user profile:', error);
-      // Return a minimal profile to prevent blocking
-      return {
-        id: 'temp',
-        user_id: userId,
-        role: 'Employee',
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      } as UserProfile;
+      console.error('Error fetching user profile:', error);
+      return GUEST_PROFILE;
     }
   };
 
@@ -135,10 +144,11 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
       setIsLoading(true);
       setAuthError(null);
 
-      const { data, error } = await authService.signIn(email, password);
+      const { data, error } = await auth.signIn(email, password);
 
       if (error) {
         setAuthError(error.message);
+        await auditLogService.logActivity('unknown', 'login_failed', 'users', undefined, undefined, { email, error: error.message });
         toast({
           title: 'Login Failed',
           description: error.message,
@@ -147,12 +157,14 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
         return false;
       }
 
-      if (data.user && data.session) {
+      if (data.user) {
         setUser(data.user);
         setSession(data.session);
 
         const profile = await fetchUserProfile(data.user.id);
         setUserProfile(profile);
+
+        await auditLogService.logActivity(data.user.id, 'login_success', 'users', data.user.id);
 
         toast({
           title: 'Login Successful',
@@ -179,15 +191,18 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
 
   const logout = async (): Promise<void> => {
     try {
-      const { error } = await authService.signOut();
+      if (user) {
+        await auditLogService.logActivity(user.id, 'logout', 'users', user.id);
+      }
+
+      const { error } = await auth.signOut();
 
       if (error) {
         console.error('Logout error:', error);
       }
 
-      // Clear state regardless of API response
       setUser(null);
-      setUserProfile(null);
+      setUserProfile(GUEST_PROFILE);
       setSession(null);
       setAuthError(null);
 
@@ -197,9 +212,9 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
       });
     } catch (error: any) {
       console.error('Logout error:', error);
-      // Still clear local state
+      // Still clear local state even if API call fails
       setUser(null);
-      setUserProfile(null);
+      setUserProfile(GUEST_PROFILE);
       setSession(null);
       setAuthError(null);
     }
@@ -210,13 +225,11 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
       setIsLoading(true);
       setAuthError(null);
 
-      const { data, error } = await authService.signUp(email, password, {
-        full_name: fullName,
-        display_name: fullName
-      });
+      const { data, error } = await auth.signUp(email, password, { full_name: fullName });
 
       if (error) {
         setAuthError(error.message);
+        await auditLogService.logActivity('unknown', 'registration_failed', 'users', undefined, undefined, { email, error: error.message });
         toast({
           title: 'Registration Failed',
           description: error.message,
@@ -225,12 +238,18 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
         return false;
       }
 
-      toast({
-        title: 'Registration Successful',
-        description: 'Please check your email to verify your account'
-      });
+      if (data.user) {
+        await auditLogService.logActivity(data.user.id, 'registration_success', 'users', data.user.id);
 
-      return true;
+        toast({
+          title: 'Registration Successful',
+          description: 'Please check your email to verify your account'
+        });
+
+        return true;
+      }
+
+      return false;
     } catch (error: any) {
       const errorMessage = error?.message || 'An unexpected error occurred';
       setAuthError(errorMessage);
@@ -250,7 +269,17 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
       setIsLoading(true);
       setAuthError(null);
 
-      await authService.resetPassword(email);
+      const { error } = await auth.resetPassword(email);
+
+      if (error) {
+        setAuthError(error.message);
+        toast({
+          title: 'Reset Failed',
+          description: error.message,
+          variant: 'destructive'
+        });
+        return false;
+      }
 
       toast({
         title: 'Reset Email Sent',
@@ -277,7 +306,21 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
       setIsLoading(true);
       setAuthError(null);
 
-      await authService.updatePassword(password);
+      const { error } = await auth.updatePassword(password);
+
+      if (error) {
+        setAuthError(error.message);
+        toast({
+          title: 'Update Failed',
+          description: error.message,
+          variant: 'destructive'
+        });
+        return false;
+      }
+
+      if (user) {
+        await auditLogService.logActivity(user.id, 'password_update', 'users', user.id);
+      }
 
       toast({
         title: 'Password Updated',
@@ -300,7 +343,9 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
   };
 
   const hasPermission = (action: string, resource?: string): boolean => {
-    if (!userProfile) return false;
+    if (!userProfile || userProfile.role === 'Guest') {
+      return false;
+    }
 
     // Admins have all permissions
     if (userProfile.role === 'Administrator' || userProfile.role === 'Admin') {
@@ -371,7 +416,7 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
             setUserProfile(profile);
           } else {
             setUser(null);
-            setUserProfile(null);
+            setUserProfile(GUEST_PROFILE);
             setSession(null);
           }
           setIsInitialized(true);
@@ -382,7 +427,7 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
         if (mounted) {
           setAuthError(error?.message || 'Failed to initialize authentication');
           setUser(null);
-          setUserProfile(null);
+          setUserProfile(GUEST_PROFILE);
           setSession(null);
           setIsInitialized(true);
           setIsLoading(false);
@@ -393,30 +438,28 @@ export const SupabaseAuthProvider: React.FC<{children: ReactNode;}> = ({ childre
     initializeAuth();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
 
-        console.log('Auth state changed:', event, session?.user?.id);
+      console.log('Auth state changed:', event, session?.user?.id);
 
-        if (event === 'SIGNED_IN' && session?.user) {
-          setUser(session.user);
-          setSession(session);
-          const profile = await fetchUserProfile(session.user.id);
-          setUserProfile(profile);
-          setAuthError(null);
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null);
-          setUserProfile(null);
-          setSession(null);
-          setAuthError(null);
-        } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-          setSession(session);
-        }
-
-        setIsLoading(false);
+      if (event === 'SIGNED_IN' && session?.user) {
+        setUser(session.user);
+        setSession(session);
+        const profile = await fetchUserProfile(session.user.id);
+        setUserProfile(profile);
+        setAuthError(null);
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setUserProfile(GUEST_PROFILE);
+        setSession(null);
+        setAuthError(null);
+      } else if (event === 'TOKEN_REFRESHED' && session?.user) {
+        setSession(session);
       }
-    );
+
+      setIsLoading(false);
+    });
 
     return () => {
       mounted = false;

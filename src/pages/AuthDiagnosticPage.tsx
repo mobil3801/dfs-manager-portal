@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
-import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+import ApiStatusChecker from '@/components/ApiStatusChecker';
 import {
   CheckCircle,
   XCircle,
@@ -20,7 +20,7 @@ import {
 'lucide-react';
 
 const AuthDiagnosticPage: React.FC = () => {
-  const auth = useSupabaseAuth();
+  const auth = useAuth();
   const [diagnosticResults, setDiagnosticResults] = useState<any>(null);
   const [isRunningDiagnostic, setIsRunningDiagnostic] = useState(false);
   const [testResults, setTestResults] = useState<any[]>([]);
@@ -32,7 +32,7 @@ const AuthDiagnosticPage: React.FC = () => {
     const results = {
       timestamp: new Date().toISOString(),
       authContextStatus: {},
-      supabaseConnection: {},
+      apiAvailability: {},
       userDataIntegrity: {},
       permissionSystem: {},
       databaseConnectivity: {}
@@ -67,40 +67,46 @@ const AuthDiagnosticPage: React.FC = () => {
         errorMessage: auth.authError
       };
 
-      // Test 2: Supabase Connection
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
-          addTestResult('Supabase Connection', 'Session Check', 'fail', `Session error: ${error.message}`);
-        } else {
-          addTestResult('Supabase Connection', 'Session Check', 'pass', 'Supabase connection working');
-        }
+      // Test 2: API Availability
+      if (window.ezsite?.apis) {
+        addTestResult('API Availability', 'EZSite APIs', 'pass', 'EZSite APIs are available');
 
-        results.supabaseConnection = {
-          connectionWorking: !error,
-          hasSession: !!session,
-          error: error?.message || null
+        const requiredMethods = ['getUserInfo', 'login', 'logout', 'register', 'tablePage'];
+        const availableMethods = requiredMethods.filter((method) =>
+        typeof window.ezsite?.apis?.[method] === 'function'
+        );
+
+        addTestResult('API Availability', 'Required Methods',
+        availableMethods.length === requiredMethods.length ? 'pass' : 'fail',
+        `${availableMethods.length}/${requiredMethods.length} required methods available`);
+
+        results.apiAvailability = {
+          ezsiteAvailable: true,
+          requiredMethods: requiredMethods.length,
+          availableMethods: availableMethods.length,
+          methods: requiredMethods.map((method) => ({
+            name: method,
+            available: typeof window.ezsite?.apis?.[method] === 'function'
+          }))
         };
-      } catch (error: any) {
-        addTestResult('Supabase Connection', 'Connection Test', 'fail', `Connection failed: ${error.message}`);
-        results.supabaseConnection = {
-          connectionWorking: false,
-          error: error.message
-        };
+      } else {
+        addTestResult('API Availability', 'EZSite APIs', 'fail', 'EZSite APIs are not available');
+        results.apiAvailability = { ezsiteAvailable: false };
       }
 
       // Test 3: User Data Integrity (if authenticated)
       if (auth.user) {
-        addTestResult('User Data', 'User Object', 'pass', `User ID: ${auth.user.id}, Email: ${auth.user.email}`);
+        addTestResult('User Data', 'User Object', 'pass', `User ID: ${auth.user.ID}, Email: ${auth.user.Email}`);
 
-        const hasRequiredFields = auth.user.id && auth.user.email;
+        const hasRequiredFields = auth.user.ID && auth.user.Email && auth.user.Name;
         addTestResult('User Data', 'Required Fields', hasRequiredFields ? 'pass' : 'fail',
         `Required user fields are ${hasRequiredFields ? 'present' : 'missing'}`);
 
         results.userDataIntegrity = {
           userExists: true,
-          userID: auth.user.id,
-          email: auth.user.email,
+          userID: auth.user.ID,
+          email: auth.user.Email,
+          name: auth.user.Name,
           hasRequiredFields
         };
       } else {
@@ -110,13 +116,12 @@ const AuthDiagnosticPage: React.FC = () => {
 
       // Test 4: User Profile
       if (auth.userProfile) {
-        addTestResult('User Profile', 'Profile Object', 'pass',
-        `Role: ${auth.userProfile.role}, Station: ${auth.userProfile.stations?.name || 'N/A'}`);
+        addTestResult('User Profile', 'Profile Object', 'pass', `Role: ${auth.userProfile.role}, Station: ${auth.userProfile.station}`);
 
         results.userDataIntegrity.profile = {
           exists: true,
           role: auth.userProfile.role,
-          station: auth.userProfile.stations?.name,
+          station: auth.userProfile.station,
           isActive: auth.userProfile.is_active
         };
       } else {
@@ -154,34 +159,39 @@ const AuthDiagnosticPage: React.FC = () => {
         results.permissionSystem = { roleDetectionWorking: false };
       }
 
-      // Test 6: Database Connectivity
-      try {
-        const { data, error } = await supabase.
-        from('user_profiles').
-        select('id').
-        limit(1);
+      // Test 6: Database Connectivity (if APIs available)
+      if (window.ezsite?.apis?.tablePage) {
+        try {
+          const testResponse = await window.ezsite.apis.tablePage(11725, {
+            PageNo: 1,
+            PageSize: 1,
+            Filters: []
+          });
 
-        if (error) {
-          addTestResult('Database', 'Table Access', 'warning', `Database query error: ${error.message}`);
-        } else {
-          addTestResult('Database', 'Table Access', 'pass', 'Database connection and table access working');
+          if (testResponse.error) {
+            addTestResult('Database', 'Table Access', 'warning', `Database query returned error: ${testResponse.error}`);
+          } else {
+            addTestResult('Database', 'Table Access', 'pass', 'Database connection and table access working');
+          }
+
+          results.databaseConnectivity = {
+            connectionWorking: !testResponse.error,
+            error: testResponse.error || null
+          };
+        } catch (error) {
+          addTestResult('Database', 'Table Access', 'fail', `Database test failed: ${error instanceof Error ? error.message : String(error)}`);
+          results.databaseConnectivity = {
+            connectionWorking: false,
+            error: error instanceof Error ? error.message : String(error)
+          };
         }
-
-        results.databaseConnectivity = {
-          connectionWorking: !error,
-          error: error?.message || null
-        };
-      } catch (error: any) {
-        addTestResult('Database', 'Table Access', 'fail', `Database test failed: ${error.message}`);
-        results.databaseConnectivity = {
-          connectionWorking: false,
-          error: error.message
-        };
+      } else {
+        addTestResult('Database', 'Table Access', 'fail', 'Database APIs not available for testing');
+        results.databaseConnectivity = { connectionWorking: false, error: 'APIs not available' };
       }
 
     } catch (error) {
-      addTestResult('System', 'Diagnostic Run', 'fail',
-      `Diagnostic failed: ${error instanceof Error ? error.message : String(error)}`);
+      addTestResult('System', 'Diagnostic Run', 'fail', `Diagnostic failed: ${error instanceof Error ? error.message : String(error)}`);
     }
 
     setDiagnosticResults(results);
@@ -229,10 +239,10 @@ const AuthDiagnosticPage: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <Shield className="h-8 w-8" />
-            Supabase Authentication Diagnostic
+            Authentication Diagnostic
           </h1>
           <p className="text-gray-600 mt-1">
-            Comprehensive Supabase authentication system analysis and troubleshooting
+            Comprehensive authentication system analysis and troubleshooting
           </p>
         </div>
         <Button
@@ -242,6 +252,7 @@ const AuthDiagnosticPage: React.FC = () => {
 
           {isRunningDiagnostic ?
           <Loader2 className="h-4 w-4 animate-spin" /> :
+
           <RefreshCw className="h-4 w-4" />
           }
           {isRunningDiagnostic ? 'Running...' : 'Run Diagnostic'}
@@ -249,9 +260,10 @@ const AuthDiagnosticPage: React.FC = () => {
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="tests">Test Results</TabsTrigger>
+          <TabsTrigger value="api">API Status</TabsTrigger>
           <TabsTrigger value="details">Raw Details</TabsTrigger>
         </TabsList>
 
@@ -296,15 +308,16 @@ const AuthDiagnosticPage: React.FC = () => {
                   {auth.user ?
                   <>
                       <div className="text-sm">
-                        <strong>Email:</strong> {auth.user.email}
+                        <strong>Name:</strong> {auth.user.Name}
                       </div>
                       <div className="text-sm">
-                        <strong>ID:</strong> {auth.user.id.substring(0, 8)}...
+                        <strong>Email:</strong> {auth.user.Email}
                       </div>
                       <div className="text-sm">
-                        <strong>Role:</strong> {auth.userProfile?.role || 'N/A'}
+                        <strong>ID:</strong> {auth.user.ID}
                       </div>
                     </> :
+
                   <div className="text-sm text-gray-500">No user data available</div>
                   }
                 </div>
@@ -322,8 +335,8 @@ const AuthDiagnosticPage: React.FC = () => {
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">Supabase</span>
-                    {getStatusBadge(diagnosticResults?.supabaseConnection?.connectionWorking ? 'pass' : 'fail')}
+                    <span className="text-sm">APIs</span>
+                    {getStatusBadge(!!window.ezsite?.apis ? 'pass' : 'fail')}
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Database</span>
@@ -367,6 +380,10 @@ const AuthDiagnosticPage: React.FC = () => {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        <TabsContent value="api">
+          <ApiStatusChecker showFullDetails={true} />
         </TabsContent>
 
         <TabsContent value="details" className="space-y-4">

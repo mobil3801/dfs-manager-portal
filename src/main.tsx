@@ -75,22 +75,18 @@ window.addEventListener('unhandledrejection', (event) => {
   }
 });
 
-// Initialize debug features only in development
-if (process.env.NODE_ENV === 'development') {
-  try {
-    initializeMemoryLeakDetection();
-  } catch (error) {
-    console.warn('Memory leak detection initialization failed:', error);
-  }
+// Initialize memory leak detection with error handling
+try {
+  initializeMemoryLeakDetection();
+} catch (error) {
+  console.warn('Memory leak detection initialization failed:', error);
+}
 
-  try {
-    setupInvalidCharacterErrorMonitor();
-  } catch (error) {
-    console.warn('Invalid character error monitoring initialization failed:', error);
-  }
-} else {
-  // Production: disable debug features
-  console.log('Debug features disabled in production');
+// Initialize InvalidCharacterError monitoring
+try {
+  setupInvalidCharacterErrorMonitor();
+} catch (error) {
+  console.warn('Invalid character error monitoring initialization failed:', error);
 }
 
 createRoot(document.getElementById("root")!).render(<App />);

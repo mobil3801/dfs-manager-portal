@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { DebugWrapper } from '@/utils/productionSafetyWrapper';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -37,18 +36,6 @@ interface PerformanceMetrics {
 }
 
 const DevelopmentMonitor: React.FC = () => {
-  return (
-    <DebugWrapper fallback={
-    <div className="p-4 text-center text-gray-500">
-        Development monitoring is disabled in production.
-      </div>
-    }>
-      <DevelopmentMonitorContent />
-    </DebugWrapper>);
-
-};
-
-const DevelopmentMonitorContent: React.FC = () => {
   const [codeQuality, setCodeQuality] = useState<CodeQualityMetrics>({
     totalFiles: 0,
     scannedFiles: 0,
