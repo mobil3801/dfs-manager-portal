@@ -131,12 +131,12 @@ const CriticalErrorFixPage: React.FC = () => {
 
 
 
+
         // Auth test failed
       }setSystemStatus({ supabaseConnection: !connectionError, adminProfileExists: !!adminProfile && !adminError, moduleAccessCount: moduleCount, authenticationWorks: authTest, errors: { connectionError: connectionError?.message, adminError: adminError?.message } });toast({ title: "System Status Updated", description: "Check the results below", variant: "default" });} catch (error: any) {setSystemStatus({ supabaseConnection: false, adminProfileExists: false, moduleAccessCount: 0, authenticationWorks: false, errors: { criticalError: error.message } });toast({ title: "System Test Failed", description: error.message, variant: "destructive" });}setIsTesting(false);};const fixCriticalErrors = async () => {setIsFixing(true);setFixResults([]);try {addResult('init', 'success', '🚀 Starting critical error fix process...'); // Step 1: Test Supabase Connection
       addResult('connection', 'success', '🔗 Testing Supabase connection...');const { data: connectionTest, error: connectionError } = await supabase.from('user_profiles').select('count').limit(1);if (connectionError) {addResult('connection', 'error', `❌ Supabase connection failed: ${connectionError.message}`);throw new Error('Cannot connect to Supabase');}addResult('connection', 'success', '✅ Supabase connection successful'); // Step 2: Generate/Use Admin User ID
       const adminUserId = '00000000-0000-0000-0000-000000000001';addResult('admin-id', 'success', `📝 Using admin user ID: ${adminUserId}`); // Step 3: Create/Update Admin Profile
-      addResult('profile', 'success', '👤 Creating/updating admin profile...');
-      const profileData = {
+      addResult('profile', 'success', '👤 Creating/updating admin profile...');const profileData = {
         id: adminUserId,
         user_id: adminUserId,
         email: 'admin@dfs-portal.com',
