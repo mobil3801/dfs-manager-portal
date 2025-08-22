@@ -6,13 +6,13 @@ export const userProfileService = {
   getUserProfileByUserId: async (userId: string) => {
     try {
       console.log('🔍 Fetching user profile for user ID:', userId);
-      
+
       const response = await EasySiteDatabase.tablePage(TABLE_IDS.USER_PROFILES, {
         PageNo: 1,
         PageSize: 1,
         Filters: [
-          { name: 'user_id', op: 'Equal', value: parseInt(userId) }
-        ]
+        { name: 'user_id', op: 'Equal', value: parseInt(userId) }]
+
       });
 
       if (response.error) {
@@ -21,7 +21,7 @@ export const userProfileService = {
       }
 
       const profile = response.data?.List?.[0] || null;
-      
+
       if (!profile) {
         return { data: null, error: { message: 'No rows found' } };
       }
@@ -34,10 +34,10 @@ export const userProfileService = {
             PageNo: 1,
             PageSize: 1,
             Filters: [
-              { name: 'name', op: 'Equal', value: profile.station }
-            ]
+            { name: 'name', op: 'Equal', value: profile.station }]
+
           });
-          
+
           if (stationResponse.data?.List?.[0]) {
             stationData = {
               name: stationResponse.data.List[0].name || '',
@@ -69,7 +69,7 @@ export const userProfileService = {
   createUserProfile: async (userId: string, profileData: any) => {
     try {
       console.log('📝 Creating user profile for user ID:', userId, profileData);
-      
+
       const response = await EasySiteDatabase.tableCreate(TABLE_IDS.USER_PROFILES, {
         user_id: parseInt(userId),
         ...profileData
@@ -98,10 +98,10 @@ export const userProfileService = {
   updateUserProfile: async (userId: string, profileData: any) => {
     try {
       console.log('📝 Updating user profile for user ID:', userId, profileData);
-      
+
       // First get the profile ID
       const existingProfile = await userProfileService.getUserProfileByUserId(userId);
-      
+
       if (!existingProfile.data) {
         return { data: null, error: { message: 'Profile not found' } };
       }
@@ -135,16 +135,16 @@ export const userProfileService = {
 // Audit Log Service for EasySite
 export const auditLogService = {
   logActivity: async (
-    userId: string,
-    action: string,
-    resourceType: string,
-    resourceId?: string,
-    oldValues?: any,
-    newValues?: any
-  ) => {
+  userId: string,
+  action: string,
+  resourceType: string,
+  resourceId?: string,
+  oldValues?: any,
+  newValues?: any) =>
+  {
     try {
       console.log('📊 Logging audit activity:', { userId, action, resourceType, resourceId });
-      
+
       const response = await EasySiteDatabase.tableCreate(TABLE_IDS.AUDIT_LOGS, {
         user_id: parseInt(userId) || 0,
         action,
@@ -176,15 +176,15 @@ export const stationService = {
   getAll: async () => {
     try {
       console.log('🏪 Fetching all active stations');
-      
+
       const response = await EasySiteDatabase.tablePage(TABLE_IDS.STATIONS, {
         PageNo: 1,
         PageSize: 1000,
         OrderByField: 'name',
         IsAsc: true,
         Filters: [
-          { name: 'is_active', op: 'Equal', value: true }
-        ]
+        { name: 'is_active', op: 'Equal', value: true }]
+
       });
 
       if (response.error) {
@@ -209,13 +209,13 @@ export const stationService = {
   getStationById: async (stationId: string) => {
     try {
       console.log('🏪 Fetching station by ID:', stationId);
-      
+
       const response = await EasySiteDatabase.tablePage(TABLE_IDS.STATIONS, {
         PageNo: 1,
         PageSize: 1,
         Filters: [
-          { name: 'id', op: 'Equal', value: parseInt(stationId) }
-        ]
+        { name: 'id', op: 'Equal', value: parseInt(stationId) }]
+
       });
 
       if (response.error) {
@@ -240,7 +240,7 @@ export const databaseService = {
   select: async (tableName: string, columns = '*', filters?: any) => {
     try {
       console.log(`🔍 Generic select from ${tableName}`, filters);
-      
+
       // Map table names to table IDs
       const tableMapping: Record<string, number> = {
         'products': TABLE_IDS.PRODUCTS,
@@ -297,7 +297,7 @@ export const databaseService = {
   insert: async (tableName: string, data: any) => {
     try {
       console.log(`📝 Generic insert into ${tableName}`, data);
-      
+
       // Map table names to table IDs
       const tableMapping: Record<string, number> = {
         'products': TABLE_IDS.PRODUCTS,
@@ -343,7 +343,7 @@ export const databaseService = {
   update: async (tableName: string, id: string, data: any) => {
     try {
       console.log(`📝 Generic update ${tableName} ID ${id}`, data);
-      
+
       // Map table names to table IDs
       const tableMapping: Record<string, number> = {
         'products': TABLE_IDS.PRODUCTS,
@@ -392,7 +392,7 @@ export const databaseService = {
   delete: async (tableName: string, id: string) => {
     try {
       console.log(`🗑️ Generic delete from ${tableName} ID ${id}`);
-      
+
       // Map table names to table IDs
       const tableMapping: Record<string, number> = {
         'products': TABLE_IDS.PRODUCTS,

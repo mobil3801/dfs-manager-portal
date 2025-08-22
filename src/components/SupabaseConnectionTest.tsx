@@ -53,7 +53,7 @@ const SupabaseConnectionTest: React.FC = () => {
       updateTest(0, {
         status: 'success',
         message: 'Client initialized successfully',
-        details: `Connected to: ${supabase.supabaseUrl}`
+        details: `Connected to: EasySite Built-in Database`
       });
 
       // Test 2: Database Connection

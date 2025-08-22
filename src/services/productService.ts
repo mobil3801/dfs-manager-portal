@@ -47,15 +47,15 @@ export const productService = {
   getAll: async () => {
     try {
       console.log('🛍️ Fetching all active products');
-      
+
       const response = await EasySiteDatabase.tablePage(TABLE_IDS.PRODUCTS, {
         PageNo: 1,
         PageSize: 1000,
         OrderByField: 'product_name',
         IsAsc: true,
         Filters: [
-          { name: 'is_active', op: 'Equal', value: true }
-        ]
+        { name: 'is_active', op: 'Equal', value: true }]
+
       });
 
       if (response.error) {
@@ -81,16 +81,16 @@ export const productService = {
   getByStation: async (stationId: string) => {
     try {
       console.log('🛍️ Fetching products by station:', stationId);
-      
+
       const response = await EasySiteDatabase.tablePage(TABLE_IDS.PRODUCTS, {
         PageNo: 1,
         PageSize: 1000,
         OrderByField: 'product_name',
         IsAsc: true,
         Filters: [
-          { name: 'station_id', op: 'Equal', value: stationId },
-          { name: 'is_active', op: 'Equal', value: true }
-        ]
+        { name: 'station_id', op: 'Equal', value: stationId },
+        { name: 'is_active', op: 'Equal', value: true }]
+
       });
 
       if (response.error) {
@@ -116,13 +116,13 @@ export const productService = {
   getById: async (id: string) => {
     try {
       console.log('🛍️ Fetching product by ID:', id);
-      
+
       const response = await EasySiteDatabase.tablePage(TABLE_IDS.PRODUCTS, {
         PageNo: 1,
         PageSize: 1,
         Filters: [
-          { name: 'id', op: 'Equal', value: parseInt(id) }
-        ]
+        { name: 'id', op: 'Equal', value: parseInt(id) }]
+
       });
 
       if (response.error) {
@@ -153,10 +153,10 @@ export const productService = {
   search: async (searchTerm: string, stationId?: string) => {
     try {
       console.log('🔍 Searching products:', searchTerm, 'Station:', stationId);
-      
+
       const filters: any[] = [
-        { name: 'is_active', op: 'Equal', value: true }
-      ];
+      { name: 'is_active', op: 'Equal', value: true }];
+
 
       if (stationId) {
         filters.push({ name: 'station_id', op: 'Equal', value: stationId });
@@ -197,7 +197,7 @@ export const productService = {
   create: async (productData: CreateProductData) => {
     try {
       console.log('📝 Creating product:', productData.product_name);
-      
+
       const response = await EasySiteDatabase.tableCreate(TABLE_IDS.PRODUCTS, {
         ...productData,
         is_active: true,
@@ -228,7 +228,7 @@ export const productService = {
   update: async (id: string, productData: Partial<CreateProductData>) => {
     try {
       console.log('📝 Updating product:', id);
-      
+
       const response = await EasySiteDatabase.tableUpdate(TABLE_IDS.PRODUCTS, {
         id: parseInt(id),
         ...productData,
@@ -258,7 +258,7 @@ export const productService = {
   delete: async (id: string) => {
     try {
       console.log('🗑️ Soft deleting product:', id);
-      
+
       const response = await EasySiteDatabase.tableUpdate(TABLE_IDS.PRODUCTS, {
         id: parseInt(id),
         is_active: false,
@@ -288,9 +288,9 @@ export const productService = {
   hardDelete: async (id: string) => {
     try {
       console.log('🗑️ Hard deleting product:', id);
-      
-      const response = await EasySiteDatabase.tableDelete(TABLE_IDS.PRODUCTS, { 
-        id: parseInt(id) 
+
+      const response = await EasySiteDatabase.tableDelete(TABLE_IDS.PRODUCTS, {
+        id: parseInt(id)
       });
 
       if (response.error) {
@@ -311,12 +311,12 @@ export const productService = {
   getLowStock: async (stationId?: string) => {
     try {
       console.log('📉 Fetching low stock products');
-      
+
       // EasySite doesn't support complex queries like comparing columns
       // We'll fetch all products and filter client-side
       const filters: any[] = [
-        { name: 'is_active', op: 'Equal', value: true }
-      ];
+      { name: 'is_active', op: 'Equal', value: true }];
+
 
       if (stationId) {
         filters.push({ name: 'station_id', op: 'Equal', value: stationId });
@@ -336,16 +336,16 @@ export const productService = {
       }
 
       // Filter low stock products client-side
-      const lowStockProducts = (response.data?.List || [])
-        .filter((product: any) => {
-          const stockQuantity = product.stock_quantity || 0;
-          const minStockLevel = product.min_stock_level || 0;
-          return minStockLevel > 0 && stockQuantity < minStockLevel;
-        })
-        .map((product: any) => ({
-          ...product,
-          id: product.id?.toString() || '0'
-        }));
+      const lowStockProducts = (response.data?.List || []).
+      filter((product: any) => {
+        const stockQuantity = product.stock_quantity || 0;
+        const minStockLevel = product.min_stock_level || 0;
+        return minStockLevel > 0 && stockQuantity < minStockLevel;
+      }).
+      map((product: any) => ({
+        ...product,
+        id: product.id?.toString() || '0'
+      }));
 
       console.log('✅ Low stock products fetched:', lowStockProducts.length);
       return { data: lowStockProducts, error: null };
@@ -360,7 +360,7 @@ export const productService = {
   updateStock: async (id: string, quantity: number) => {
     try {
       console.log('📦 Updating product stock:', id, 'to', quantity);
-      
+
       const response = await EasySiteDatabase.tableUpdate(TABLE_IDS.PRODUCTS, {
         id: parseInt(id),
         stock_quantity: quantity,
@@ -390,11 +390,11 @@ export const productService = {
   getByCategory: async (category: string, stationId?: string) => {
     try {
       console.log('🏷️ Fetching products by category:', category);
-      
+
       const filters: any[] = [
-        { name: 'category', op: 'Equal', value: category },
-        { name: 'is_active', op: 'Equal', value: true }
-      ];
+      { name: 'category', op: 'Equal', value: category },
+      { name: 'is_active', op: 'Equal', value: true }];
+
 
       if (stationId) {
         filters.push({ name: 'station_id', op: 'Equal', value: stationId });
@@ -431,13 +431,13 @@ export const productService = {
   getCategories: async () => {
     try {
       console.log('🏷️ Fetching product categories');
-      
+
       const response = await EasySiteDatabase.tablePage(TABLE_IDS.PRODUCTS, {
         PageNo: 1,
         PageSize: 1000,
         Filters: [
-          { name: 'is_active', op: 'Equal', value: true }
-        ]
+        { name: 'is_active', op: 'Equal', value: true }]
+
       });
 
       if (response.error) {
@@ -447,9 +447,9 @@ export const productService = {
 
       // Extract unique categories client-side
       const categories = [...new Set(
-        (response.data?.List || [])
-          .map((product: any) => product.category)
-          .filter((category: any) => category && category.trim() !== '')
+        (response.data?.List || []).
+        map((product: any) => product.category).
+        filter((category: any) => category && category.trim() !== '')
       )];
 
       console.log('✅ Product categories fetched:', categories.length);

@@ -11,7 +11,7 @@ const checkEasySiteAvailability = async (maxAttempts = 50): Promise<boolean> => 
     if ((window as any).ezsite?.apis) {
       return true;
     }
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
     attempts++;
   }
   return false;
@@ -37,47 +37,47 @@ export const TABLE_IDS = {
 // Mock Supabase client using EasySite APIs
 export const supabase = {
   auth: {
-    async signInWithPassword({ email, password }: { email: string; password: string }) {
+    async signInWithPassword({ email, password }: {email: string;password: string;}) {
       try {
         await checkEasySiteAvailability();
         const response = await (window as any).ezsite.apis.login({ email, password });
-        
+
         if (response.error) {
           return { data: null, error: new Error(response.error) };
         }
-        
+
         const userInfo = await (window as any).ezsite.apis.getUserInfo();
-        return { 
-          data: { 
+        return {
+          data: {
             user: userInfo.data ? {
               id: userInfo.data.ID.toString(),
               email: userInfo.data.Email,
               created_at: userInfo.data.CreateTime
             } : null,
             session: userInfo.data ? { user: userInfo.data } : null
-          }, 
-          error: null 
+          },
+          error: null
         };
       } catch (error) {
         return { data: null, error };
       }
     },
 
-    async signUp({ email, password }: { email: string; password: string }) {
+    async signUp({ email, password }: {email: string;password: string;}) {
       try {
         await checkEasySiteAvailability();
         const response = await (window as any).ezsite.apis.register({ email, password });
-        
+
         if (response.error) {
           return { data: null, error: new Error(response.error) };
         }
-        
-        return { 
-          data: { 
+
+        return {
+          data: {
             user: { email, id: 'pending-verification' },
-            session: null 
-          }, 
-          error: null 
+            session: null
+          },
+          error: null
         };
       } catch (error) {
         return { data: null, error };
@@ -98,18 +98,18 @@ export const supabase = {
       try {
         await checkEasySiteAvailability();
         const userInfo = await (window as any).ezsite.apis.getUserInfo();
-        
-        return { 
-          data: { 
-            session: userInfo.data ? { 
+
+        return {
+          data: {
+            session: userInfo.data ? {
               user: {
                 id: userInfo.data.ID.toString(),
                 email: userInfo.data.Email,
                 created_at: userInfo.data.CreateTime
-              } 
-            } : null 
-          }, 
-          error: null 
+              }
+            } : null
+          },
+          error: null
         };
       } catch (error) {
         return { data: { session: null }, error: null };
@@ -120,16 +120,16 @@ export const supabase = {
       try {
         await checkEasySiteAvailability();
         const userInfo = await (window as any).ezsite.apis.getUserInfo();
-        
-        return { 
-          data: { 
+
+        return {
+          data: {
             user: userInfo.data ? {
               id: userInfo.data.ID.toString(),
               email: userInfo.data.Email,
               created_at: userInfo.data.CreateTime
-            } : null 
-          }, 
-          error: null 
+            } : null
+          },
+          error: null
         };
       } catch (error) {
         return { data: { user: null }, error: null };
@@ -163,7 +163,7 @@ export const supabase = {
         'users': TABLE_IDS.USERS,
         'module_access': TABLE_IDS.MODULE_ACCESS
       };
-      
+
       return mapping[name] || 0;
     };
 
@@ -180,10 +180,10 @@ export const supabase = {
                 PageSize: 1000,
                 Filters: [{ name: column, op: 'Equal', value }]
               });
-              
-              return { 
-                data: response.data?.List || [], 
-                error: response.error ? new Error(response.error) : null 
+
+              return {
+                data: response.data?.List || [],
+                error: response.error ? new Error(response.error) : null
               };
             } catch (error) {
               return { data: [], error };
@@ -197,10 +197,10 @@ export const supabase = {
                 PageNo: 1,
                 PageSize: 1
               });
-              
-              return { 
-                data: response.data?.List?.[0] || null, 
-                error: response.error ? new Error(response.error) : null 
+
+              return {
+                data: response.data?.List?.[0] || null,
+                error: response.error ? new Error(response.error) : null
               };
             } catch (error) {
               return { data: null, error };
@@ -217,9 +217,9 @@ export const supabase = {
                 try {
                   await checkEasySiteAvailability();
                   const response = await (window as any).ezsite.apis.tableCreate(tableId, data[0]);
-                  return { 
-                    data: response.data || null, 
-                    error: response.error ? new Error(response.error) : null 
+                  return {
+                    data: response.data || null,
+                    error: response.error ? new Error(response.error) : null
                   };
                 } catch (error) {
                   return { data: null, error };
@@ -241,9 +241,9 @@ export const supabase = {
                       await checkEasySiteAvailability();
                       const updateData = { [column]: value, ...data };
                       const response = await (window as any).ezsite.apis.tableUpdate(tableId, updateData);
-                      return { 
-                        data: response.data || null, 
-                        error: response.error ? new Error(response.error) : null 
+                      return {
+                        data: response.data || null,
+                        error: response.error ? new Error(response.error) : null
                       };
                     } catch (error) {
                       return { data: null, error };
@@ -282,11 +282,11 @@ export const supabase = {
               filename: file.name,
               file: file
             });
-            
+
             if (response.error) {
               return { data: null, error: new Error(response.error) };
             }
-            
+
             return { data: { path }, error: null };
           } catch (error) {
             return { data: null, error };

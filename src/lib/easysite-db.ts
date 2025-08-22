@@ -39,14 +39,14 @@ export class EasySiteDB {
       if ((window as any).ezsite?.apis) {
         return true;
       }
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       attempts++;
     }
     return false;
   }
 
   static async tablePage(tableId: number, params: any) {
-    if (!await this.waitForAPI()) {
+    if (!(await this.waitForAPI())) {
       throw new Error('EasySite APIs not available');
     }
 
@@ -64,7 +64,7 @@ export class EasySiteDB {
   }
 
   static async tableCreate(tableId: number, data: any) {
-    if (!await this.waitForAPI()) {
+    if (!(await this.waitForAPI())) {
       throw new Error('EasySite APIs not available');
     }
 
@@ -82,7 +82,7 @@ export class EasySiteDB {
   }
 
   static async tableUpdate(tableId: number, data: any) {
-    if (!await this.waitForAPI()) {
+    if (!(await this.waitForAPI())) {
       throw new Error('EasySite APIs not available');
     }
 
@@ -100,7 +100,7 @@ export class EasySiteDB {
   }
 
   static async tableDelete(tableId: number, params: any) {
-    if (!await this.waitForAPI()) {
+    if (!(await this.waitForAPI())) {
       throw new Error('EasySite APIs not available');
     }
 
@@ -118,7 +118,7 @@ export class EasySiteDB {
   }
 
   static async upload(filename: string, file: File) {
-    if (!await this.waitForAPI()) {
+    if (!(await this.waitForAPI())) {
       throw new Error('EasySite APIs not available');
     }
 
@@ -127,7 +127,7 @@ export class EasySiteDB {
         filename,
         file
       });
-      
+
       if (response.error) {
         console.error('File upload error:', response.error);
         throw new Error(response.error);
@@ -141,13 +141,13 @@ export class EasySiteDB {
   }
 
   static async getUploadUrl(storeFileId: number) {
-    if (!await this.waitForAPI()) {
+    if (!(await this.waitForAPI())) {
       throw new Error('EasySite APIs not available');
     }
 
     try {
       const response = await (window as any).ezsite.apis.getUploadUrl(storeFileId);
-      
+
       if (response.error) {
         console.error('Get upload URL error:', response.error);
         throw new Error(response.error);
@@ -164,7 +164,7 @@ export class EasySiteDB {
 // Authentication service
 export class EasySiteAuth {
   static async login(email: string, password: string) {
-    if (!await EasySiteDB.waitForAPI()) {
+    if (!(await EasySiteDB.waitForAPI())) {
       throw new Error('Authentication system not available');
     }
 
@@ -178,7 +178,7 @@ export class EasySiteAuth {
   }
 
   static async register(email: string, password: string) {
-    if (!await EasySiteDB.waitForAPI()) {
+    if (!(await EasySiteDB.waitForAPI())) {
       throw new Error('Registration system not available');
     }
 
@@ -192,7 +192,7 @@ export class EasySiteAuth {
   }
 
   static async logout() {
-    if (!await EasySiteDB.waitForAPI()) {
+    if (!(await EasySiteDB.waitForAPI())) {
       throw new Error('Authentication system not available');
     }
 
@@ -206,7 +206,7 @@ export class EasySiteAuth {
   }
 
   static async getUserInfo() {
-    if (!await EasySiteDB.waitForAPI()) {
+    if (!(await EasySiteDB.waitForAPI())) {
       throw new Error('Authentication system not available');
     }
 
@@ -220,7 +220,7 @@ export class EasySiteAuth {
   }
 
   static async sendResetPwdEmail(email: string) {
-    if (!await EasySiteDB.waitForAPI()) {
+    if (!(await EasySiteDB.waitForAPI())) {
       throw new Error('Authentication system not available');
     }
 
@@ -234,7 +234,7 @@ export class EasySiteAuth {
   }
 
   static async resetPassword(token: string, password: string) {
-    if (!await EasySiteDB.waitForAPI()) {
+    if (!(await EasySiteDB.waitForAPI())) {
       throw new Error('Authentication system not available');
     }
 
