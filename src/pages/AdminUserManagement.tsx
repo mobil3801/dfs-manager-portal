@@ -46,10 +46,10 @@ const AdminUserManagement = () => {
 
   if (!isAdmin()) {
     return (
-      <div className="container mx-auto py-8" data-id="x2c5kxxy4" data-path="src/pages/AdminUserManagement.tsx">
-        <Alert variant="destructive" data-id="25bn6dyvu" data-path="src/pages/AdminUserManagement.tsx">
-          <AlertTriangle className="h-4 w-4" data-id="nr2wr7dv4" data-path="src/pages/AdminUserManagement.tsx" />
-          <AlertDescription data-id="b4qvd3v5o" data-path="src/pages/AdminUserManagement.tsx">
+      <div className="container mx-auto py-8">
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
             Access Denied. You need administrator privileges to access user management.
           </AlertDescription>
         </Alert>
@@ -133,66 +133,66 @@ const AdminUserManagement = () => {
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-8" data-id="esdd3diqd" data-path="src/pages/AdminUserManagement.tsx">
+    <div className="container mx-auto py-8 space-y-8">
       {/* Header */}
-      <div className="flex justify-between items-center" data-id="0oeywzt36" data-path="src/pages/AdminUserManagement.tsx">
-        <div data-id="okmvul5h5" data-path="src/pages/AdminUserManagement.tsx">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2" data-id="gz9no8265" data-path="src/pages/AdminUserManagement.tsx">User Management</h1>
-          <p className="text-gray-600" data-id="km91tncdi" data-path="src/pages/AdminUserManagement.tsx">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">User Management</h1>
+          <p className="text-gray-600">
             Manage users, roles, and permissions for DFS Manager Portal
           </p>
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen} data-id="041coo85b" data-path="src/pages/AdminUserManagement.tsx">
-          <DialogTrigger asChild data-id="kv30oo79n" data-path="src/pages/AdminUserManagement.tsx">
-            <Button data-id="rhrlfrhx9" data-path="src/pages/AdminUserManagement.tsx">
-              <UserPlus className="h-4 w-4 mr-2" data-id="9wx2bxiz2" data-path="src/pages/AdminUserManagement.tsx" />
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <UserPlus className="h-4 w-4 mr-2" />
               Add User
             </Button>
           </DialogTrigger>
-          <DialogContent data-id="s25m0x313" data-path="src/pages/AdminUserManagement.tsx">
-            <DialogHeader data-id="bblpkgzzg" data-path="src/pages/AdminUserManagement.tsx">
-              <DialogTitle data-id="onnwd8alw" data-path="src/pages/AdminUserManagement.tsx">Create New User</DialogTitle>
-              <DialogDescription data-id="srd99me53" data-path="src/pages/AdminUserManagement.tsx">
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create New User</DialogTitle>
+              <DialogDescription>
                 Add a new user to the DFS Manager Portal and assign their role.
               </DialogDescription>
             </DialogHeader>
             
-            <div className="space-y-4 py-4" data-id="69q57n9cj" data-path="src/pages/AdminUserManagement.tsx">
-              <div className="space-y-2" data-id="b490zt5nr" data-path="src/pages/AdminUserManagement.tsx">
-                <Label htmlFor="email" data-id="lqig0jkf9" data-path="src/pages/AdminUserManagement.tsx">Email Address</Label>
-                <div className="relative" data-id="9xijpdnka" data-path="src/pages/AdminUserManagement.tsx">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" data-id="7fr1k7q8c" data-path="src/pages/AdminUserManagement.tsx" />
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <Input
                     id="email"
                     type="email"
                     placeholder="user@example.com"
                     value={newUserEmail}
                     onChange={(e) => setNewUserEmail(e.target.value)}
-                    className="pl-10" data-id="zxql06lgx" data-path="src/pages/AdminUserManagement.tsx" />
+                    className="pl-10" />
 
                 </div>
               </div>
 
-              <div className="space-y-2" data-id="vynmz8jj4" data-path="src/pages/AdminUserManagement.tsx">
-                <Label htmlFor="role" data-id="rus8yww76" data-path="src/pages/AdminUserManagement.tsx">Role</Label>
-                <Select value={newUserRole} onValueChange={handleRoleChange} data-id="cwjuy3nn7" data-path="src/pages/AdminUserManagement.tsx">
-                  <SelectTrigger data-id="1tysc602k" data-path="src/pages/AdminUserManagement.tsx">
-                    <SelectValue placeholder="Select a role" data-id="94gxcnj7q" data-path="src/pages/AdminUserManagement.tsx" />
+              <div className="space-y-2">
+                <Label htmlFor="role">Role</Label>
+                <Select value={newUserRole} onValueChange={handleRoleChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
-                  <SelectContent data-id="m8jjxwzh4" data-path="src/pages/AdminUserManagement.tsx">
-                    <SelectItem value="Employee" data-id="zon6ttc7h" data-path="src/pages/AdminUserManagement.tsx">Employee</SelectItem>
-                    <SelectItem value="Management" data-id="xdhlk86pc" data-path="src/pages/AdminUserManagement.tsx">Management</SelectItem>
-                    <SelectItem value="Administrator" data-id="dhieqx731" data-path="src/pages/AdminUserManagement.tsx">Administrator</SelectItem>
+                  <SelectContent>
+                    <SelectItem value="Employee">Employee</SelectItem>
+                    <SelectItem value="Management">Management</SelectItem>
+                    <SelectItem value="Administrator">Administrator</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="flex justify-end space-x-2" data-id="jwf72au4d" data-path="src/pages/AdminUserManagement.tsx">
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)} data-id="zwhf3fz4j" data-path="src/pages/AdminUserManagement.tsx">
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleCreateUser} disabled={isLoading} data-id="ryts1r2kk" data-path="src/pages/AdminUserManagement.tsx">
+                <Button onClick={handleCreateUser} disabled={isLoading}>
                   {isLoading ? 'Creating...' : 'Create User'}
                 </Button>
               </div>
@@ -202,72 +202,72 @@ const AdminUserManagement = () => {
       </div>
 
       {/* Current Admin Info */}
-      <Alert data-id="qgh9kjs7i" data-path="src/pages/AdminUserManagement.tsx">
-        <Shield className="h-4 w-4" data-id="259vn992g" data-path="src/pages/AdminUserManagement.tsx" />
-        <AlertDescription data-id="p9jfwfvs4" data-path="src/pages/AdminUserManagement.tsx">
-          <strong data-id="rod5wr9ap" data-path="src/pages/AdminUserManagement.tsx">Admin Access Granted:</strong> You are logged in as {userProfile?.email} with {userProfile?.role} privileges. 
+      <Alert>
+        <Shield className="h-4 w-4" />
+        <AlertDescription>
+          <strong>Admin Access Granted:</strong> You are logged in as {userProfile?.email} with {userProfile?.role} privileges. 
           You can assign administrative roles to other users through this interface.
         </AlertDescription>
       </Alert>
 
       {/* Users Table */}
-      <Card data-id="oivfw2cbv" data-path="src/pages/AdminUserManagement.tsx">
-        <CardHeader data-id="ivxwh3xxm" data-path="src/pages/AdminUserManagement.tsx">
-          <CardTitle className="flex items-center" data-id="vpm7w3tai" data-path="src/pages/AdminUserManagement.tsx">
-            <Users className="h-5 w-5 mr-2" data-id="zmg4pm6q3" data-path="src/pages/AdminUserManagement.tsx" />
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Users className="h-5 w-5 mr-2" />
             System Users
           </CardTitle>
-          <CardDescription data-id="mgoe63x5j" data-path="src/pages/AdminUserManagement.tsx">
+          <CardDescription>
             Manage user accounts and their access levels
           </CardDescription>
         </CardHeader>
-        <CardContent data-id="2pcdz9k4w" data-path="src/pages/AdminUserManagement.tsx">
-          <Table data-id="xi1ddky9k" data-path="src/pages/AdminUserManagement.tsx">
-            <TableHeader data-id="ezz5tfu96" data-path="src/pages/AdminUserManagement.tsx">
-              <TableRow data-id="t3b6cap2o" data-path="src/pages/AdminUserManagement.tsx">
-                <TableHead data-id="0hkxfgzla" data-path="src/pages/AdminUserManagement.tsx">Email</TableHead>
-                <TableHead data-id="o9r22a35f" data-path="src/pages/AdminUserManagement.tsx">Role</TableHead>
-                <TableHead data-id="ko2h2o229" data-path="src/pages/AdminUserManagement.tsx">Role Code</TableHead>
-                <TableHead data-id="i1ayusxou" data-path="src/pages/AdminUserManagement.tsx">Status</TableHead>
-                <TableHead data-id="jgxui4mrq" data-path="src/pages/AdminUserManagement.tsx">Station Access</TableHead>
-                <TableHead data-id="wnznjzxtp" data-path="src/pages/AdminUserManagement.tsx">Created</TableHead>
-                <TableHead data-id="mtp51szkm" data-path="src/pages/AdminUserManagement.tsx">Actions</TableHead>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Email</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Role Code</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Station Access</TableHead>
+                <TableHead>Created</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody data-id="o3eyauzsj" data-path="src/pages/AdminUserManagement.tsx">
+            <TableBody>
               {users.map((user) =>
-              <TableRow key={user.id} data-id="edzlugsdv" data-path="src/pages/AdminUserManagement.tsx">
-                  <TableCell className="font-medium" data-id="gpblbdpcx" data-path="src/pages/AdminUserManagement.tsx">{user.email}</TableCell>
-                  <TableCell data-id="1ceqkwzar" data-path="src/pages/AdminUserManagement.tsx">
-                    <Badge className={getRoleBadgeColor(user.role)} data-id="y5qt2d02o" data-path="src/pages/AdminUserManagement.tsx">
+              <TableRow key={user.id}>
+                  <TableCell className="font-medium">{user.email}</TableCell>
+                  <TableCell>
+                    <Badge className={getRoleBadgeColor(user.role)}>
                       {user.role}
                     </Badge>
                   </TableCell>
-                  <TableCell data-id="69eh32n7g" data-path="src/pages/AdminUserManagement.tsx">
-                    <code className="text-xs bg-gray-100 px-2 py-1 rounded" data-id="4tewa415f" data-path="src/pages/AdminUserManagement.tsx">
+                  <TableCell>
+                    <code className="text-xs bg-gray-100 px-2 py-1 rounded">
                       {user.role_code}
                     </code>
                   </TableCell>
-                  <TableCell data-id="pxdeogtuk" data-path="src/pages/AdminUserManagement.tsx">
+                  <TableCell>
                     {user.is_active ?
-                  <Badge className="bg-green-100 text-green-800" data-id="5qdu7u5hv" data-path="src/pages/AdminUserManagement.tsx">
-                        <Check className="h-3 w-3 mr-1" data-id="0in3ypy6z" data-path="src/pages/AdminUserManagement.tsx" />
+                  <Badge className="bg-green-100 text-green-800">
+                        <Check className="h-3 w-3 mr-1" />
                         Active
                       </Badge> :
 
-                  <Badge className="bg-red-100 text-red-800" data-id="7j6h0jywo" data-path="src/pages/AdminUserManagement.tsx">
-                        <X className="h-3 w-3 mr-1" data-id="qe7q2druq" data-path="src/pages/AdminUserManagement.tsx" />
+                  <Badge className="bg-red-100 text-red-800">
+                        <X className="h-3 w-3 mr-1" />
                         Inactive
                       </Badge>
                   }
                   </TableCell>
-                  <TableCell data-id="fz9gvlrzh" data-path="src/pages/AdminUserManagement.tsx">{user.station}</TableCell>
-                  <TableCell data-id="104p68n34" data-path="src/pages/AdminUserManagement.tsx">
+                  <TableCell>{user.station}</TableCell>
+                  <TableCell>
                     {new Date(user.created_at).toLocaleDateString()}
                   </TableCell>
-                  <TableCell data-id="4l59gs53n" data-path="src/pages/AdminUserManagement.tsx">
-                    <Button variant="ghost" size="sm" data-id="51zl0r9l8" data-path="src/pages/AdminUserManagement.tsx">
-                      <Edit className="h-4 w-4" data-id="17g1wyh80" data-path="src/pages/AdminUserManagement.tsx" />
+                  <TableCell>
+                    <Button variant="ghost" size="sm">
+                      <Edit className="h-4 w-4" />
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -278,42 +278,42 @@ const AdminUserManagement = () => {
       </Card>
 
       {/* Instructions */}
-      <Card data-id="9k9cp8yhs" data-path="src/pages/AdminUserManagement.tsx">
-        <CardHeader data-id="luys3ktz8" data-path="src/pages/AdminUserManagement.tsx">
-          <CardTitle data-id="v4jiqa636" data-path="src/pages/AdminUserManagement.tsx">How to Give Admin Access to Other Employees</CardTitle>
+      <Card>
+        <CardHeader>
+          <CardTitle>How to Give Admin Access to Other Employees</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4" data-id="pok88v845" data-path="src/pages/AdminUserManagement.tsx">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-id="pgoubqjlk" data-path="src/pages/AdminUserManagement.tsx">
-            <div className="space-y-2" data-id="t5khjmbuk" data-path="src/pages/AdminUserManagement.tsx">
-              <h4 className="font-semibold text-gray-900" data-id="rxpmfat1d" data-path="src/pages/AdminUserManagement.tsx">Step 1: Add New User</h4>
-              <p className="text-sm text-gray-600" data-id="0gbva09is" data-path="src/pages/AdminUserManagement.tsx">
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <h4 className="font-semibold text-gray-900">Step 1: Add New User</h4>
+              <p className="text-sm text-gray-600">
                 Click the "Add User" button above and enter the employee's email address.
               </p>
             </div>
-            <div className="space-y-2" data-id="k8ps8rci0" data-path="src/pages/AdminUserManagement.tsx">
-              <h4 className="font-semibold text-gray-900" data-id="ua8zx5el6" data-path="src/pages/AdminUserManagement.tsx">Step 2: Assign Role</h4>
-              <p className="text-sm text-gray-600" data-id="u4cvjpyz1" data-path="src/pages/AdminUserManagement.tsx">
+            <div className="space-y-2">
+              <h4 className="font-semibold text-gray-900">Step 2: Assign Role</h4>
+              <p className="text-sm text-gray-600">
                 Select "Administrator" role to grant full admin access, or "Management" for limited access.
               </p>
             </div>
-            <div className="space-y-2" data-id="93wkcwz5b" data-path="src/pages/AdminUserManagement.tsx">
-              <h4 className="font-semibold text-gray-900" data-id="8jf5p63e0" data-path="src/pages/AdminUserManagement.tsx">Step 3: User Login</h4>
-              <p className="text-sm text-gray-600" data-id="fea6mh48l" data-path="src/pages/AdminUserManagement.tsx">
+            <div className="space-y-2">
+              <h4 className="font-semibold text-gray-900">Step 3: User Login</h4>
+              <p className="text-sm text-gray-600">
                 The user can now log in with their email and any password. Admin users will see the Admin Panel.
               </p>
             </div>
-            <div className="space-y-2" data-id="j75pnm6vm" data-path="src/pages/AdminUserManagement.tsx">
-              <h4 className="font-semibold text-gray-900" data-id="dfr4nu00o" data-path="src/pages/AdminUserManagement.tsx">Step 4: Verify Access</h4>
-              <p className="text-sm text-gray-600" data-id="qymv34c2i" data-path="src/pages/AdminUserManagement.tsx">
+            <div className="space-y-2">
+              <h4 className="font-semibold text-gray-900">Step 4: Verify Access</h4>
+              <p className="text-sm text-gray-600">
                 Admin users will see an "Admin Panel" option in the navigation menu after logging in.
               </p>
             </div>
           </div>
           
-          <Alert data-id="cf4sxjhfs" data-path="src/pages/AdminUserManagement.tsx">
-            <AlertTriangle className="h-4 w-4" data-id="l19rtbs2b" data-path="src/pages/AdminUserManagement.tsx" />
-            <AlertDescription data-id="36b120usy" data-path="src/pages/AdminUserManagement.tsx">
-              <strong data-id="kd5o3c04k" data-path="src/pages/AdminUserManagement.tsx">Demo Mode:</strong> This is a demonstration system. In production, users would need to be properly registered and authenticated through your database system.
+          <Alert>
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Demo Mode:</strong> This is a demonstration system. In production, users would need to be properly registered and authenticated through your database system.
             </AlertDescription>
           </Alert>
         </CardContent>
