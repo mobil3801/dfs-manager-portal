@@ -1,4 +1,5 @@
-import { supabase } from '@/lib/supabase';
+// Product Service using EasySite built-in database
+import { EasySiteDB as EasySiteDatabase, TABLE_IDS } from '@/lib/easysite-db';
 
 export interface Product {
   id: string;
@@ -45,15 +46,31 @@ export const productService = {
   // Get all products
   getAll: async () => {
     try {
-      const { data, error } = await supabase.
-      from('products').
-      select('*').
-      eq('is_active', true).
-      order('product_name');
+      console.log('🛍️ Fetching all active products');
+      
+      const response = await EasySiteDatabase.tablePage(TABLE_IDS.PRODUCTS, {
+        PageNo: 1,
+        PageSize: 1000,
+        OrderByField: 'product_name',
+        IsAsc: true,
+        Filters: [
+          { name: 'is_active', op: 'Equal', value: true }
+        ]
+      });
 
-      if (error) throw error;
+      if (response.error) {
+        console.error('Products fetch error:', response.error);
+        return { data: null, error: new Error(response.error) };
+      }
 
-      return { data, error: null };
+      const products = (response.data?.List || []).map((product: any) => ({
+        ...product,
+        id: product.id?.toString() || '0'
+      }));
+
+      console.log('✅ Products fetched successfully:', products.length);
+      return { data: products, error: null };
+
     } catch (error: any) {
       console.error('Error fetching products:', error);
       return { data: null, error };
@@ -63,16 +80,32 @@ export const productService = {
   // Get products by station
   getByStation: async (stationId: string) => {
     try {
-      const { data, error } = await supabase.
-      from('products').
-      select('*').
-      eq('station_id', stationId).
-      eq('is_active', true).
-      order('product_name');
+      console.log('🛍️ Fetching products by station:', stationId);
+      
+      const response = await EasySiteDatabase.tablePage(TABLE_IDS.PRODUCTS, {
+        PageNo: 1,
+        PageSize: 1000,
+        OrderByField: 'product_name',
+        IsAsc: true,
+        Filters: [
+          { name: 'station_id', op: 'Equal', value: stationId },
+          { name: 'is_active', op: 'Equal', value: true }
+        ]
+      });
 
-      if (error) throw error;
+      if (response.error) {
+        console.error('Products by station fetch error:', response.error);
+        return { data: null, error: new Error(response.error) };
+      }
 
-      return { data, error: null };
+      const products = (response.data?.List || []).map((product: any) => ({
+        ...product,
+        id: product.id?.toString() || '0'
+      }));
+
+      console.log('✅ Products by station fetched successfully:', products.length);
+      return { data: products, error: null };
+
     } catch (error: any) {
       console.error('Error fetching products by station:', error);
       return { data: null, error };
@@ -82,15 +115,34 @@ export const productService = {
   // Get product by ID
   getById: async (id: string) => {
     try {
-      const { data, error } = await supabase.
-      from('products').
-      select('*').
-      eq('id', id).
-      single();
+      console.log('🛍️ Fetching product by ID:', id);
+      
+      const response = await EasySiteDatabase.tablePage(TABLE_IDS.PRODUCTS, {
+        PageNo: 1,
+        PageSize: 1,
+        Filters: [
+          { name: 'id', op: 'Equal', value: parseInt(id) }
+        ]
+      });
 
-      if (error) throw error;
+      if (response.error) {
+        console.error('Product by ID fetch error:', response.error);
+        return { data: null, error: new Error(response.error) };
+      }
 
-      return { data, error: null };
+      const product = response.data?.List?.[0];
+      if (!product) {
+        return { data: null, error: new Error('Product not found') };
+      }
+
+      const productWithStringId = {
+        ...product,
+        id: product.id?.toString() || '0'
+      };
+
+      console.log('✅ Product by ID fetched successfully:', productWithStringId);
+      return { data: productWithStringId, error: null };
+
     } catch (error: any) {
       console.error('Error fetching product by ID:', error);
       return { data: null, error };
@@ -100,23 +152,41 @@ export const productService = {
   // Search products
   search: async (searchTerm: string, stationId?: string) => {
     try {
-      let query = supabase.
-      from('products').
-      select('*').
-      eq('is_active', true);
+      console.log('🔍 Searching products:', searchTerm, 'Station:', stationId);
+      
+      const filters: any[] = [
+        { name: 'is_active', op: 'Equal', value: true }
+      ];
 
       if (stationId) {
-        query = query.eq('station_id', stationId);
+        filters.push({ name: 'station_id', op: 'Equal', value: stationId });
       }
 
-      // Search in multiple fields
-      query = query.or(`product_name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,sku.ilike.%${searchTerm}%,barcode.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%`);
+      // For search, we'll use StringContains on product_name as primary search
+      // EasySite doesn't support OR queries like Supabase, so we'll search by name primarily
+      filters.push({ name: 'product_name', op: 'StringContains', value: searchTerm });
 
-      const { data, error } = await query.order('product_name');
+      const response = await EasySiteDatabase.tablePage(TABLE_IDS.PRODUCTS, {
+        PageNo: 1,
+        PageSize: 1000,
+        OrderByField: 'product_name',
+        IsAsc: true,
+        Filters: filters
+      });
 
-      if (error) throw error;
+      if (response.error) {
+        console.error('Product search error:', response.error);
+        return { data: null, error: new Error(response.error) };
+      }
 
-      return { data, error: null };
+      const products = (response.data?.List || []).map((product: any) => ({
+        ...product,
+        id: product.id?.toString() || '0'
+      }));
+
+      console.log('✅ Product search completed:', products.length);
+      return { data: products, error: null };
+
     } catch (error: any) {
       console.error('Error searching products:', error);
       return { data: null, error };
@@ -126,20 +196,28 @@ export const productService = {
   // Create product
   create: async (productData: CreateProductData) => {
     try {
-      const { data, error } = await supabase.
-      from('products').
-      insert({
+      console.log('📝 Creating product:', productData.product_name);
+      
+      const response = await EasySiteDatabase.tableCreate(TABLE_IDS.PRODUCTS, {
         ...productData,
         is_active: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
-      }).
-      select().
-      single();
+      });
 
-      if (error) throw error;
+      if (response.error) {
+        console.error('Product creation error:', response.error);
+        return { data: null, error: new Error(response.error) };
+      }
 
-      return { data, error: null };
+      const product = {
+        ...response.data,
+        id: response.data?.id?.toString() || '0'
+      };
+
+      console.log('✅ Product created successfully:', product);
+      return { data: product, error: null };
+
     } catch (error: any) {
       console.error('Error creating product:', error);
       return { data: null, error };
@@ -149,19 +227,27 @@ export const productService = {
   // Update product
   update: async (id: string, productData: Partial<CreateProductData>) => {
     try {
-      const { data, error } = await supabase.
-      from('products').
-      update({
+      console.log('📝 Updating product:', id);
+      
+      const response = await EasySiteDatabase.tableUpdate(TABLE_IDS.PRODUCTS, {
+        id: parseInt(id),
         ...productData,
         updated_at: new Date().toISOString()
-      }).
-      eq('id', id).
-      select().
-      single();
+      });
 
-      if (error) throw error;
+      if (response.error) {
+        console.error('Product update error:', response.error);
+        return { data: null, error: new Error(response.error) };
+      }
 
-      return { data, error: null };
+      const product = {
+        ...response.data,
+        id: response.data?.id?.toString() || id
+      };
+
+      console.log('✅ Product updated successfully:', product);
+      return { data: product, error: null };
+
     } catch (error: any) {
       console.error('Error updating product:', error);
       return { data: null, error };
@@ -171,21 +257,29 @@ export const productService = {
   // Delete product (soft delete)
   delete: async (id: string) => {
     try {
-      const { data, error } = await supabase.
-      from('products').
-      update({
+      console.log('🗑️ Soft deleting product:', id);
+      
+      const response = await EasySiteDatabase.tableUpdate(TABLE_IDS.PRODUCTS, {
+        id: parseInt(id),
         is_active: false,
         updated_at: new Date().toISOString()
-      }).
-      eq('id', id).
-      select().
-      single();
+      });
 
-      if (error) throw error;
+      if (response.error) {
+        console.error('Product soft delete error:', response.error);
+        return { data: null, error: new Error(response.error) };
+      }
 
-      return { data, error: null };
+      const product = {
+        ...response.data,
+        id: response.data?.id?.toString() || id
+      };
+
+      console.log('✅ Product soft deleted successfully');
+      return { data: product, error: null };
+
     } catch (error: any) {
-      console.error('Error deleting product:', error);
+      console.error('Error soft deleting product:', error);
       return { data: null, error };
     }
   },
@@ -193,14 +287,20 @@ export const productService = {
   // Hard delete product
   hardDelete: async (id: string) => {
     try {
-      const { error } = await supabase.
-      from('products').
-      delete().
-      eq('id', id);
+      console.log('🗑️ Hard deleting product:', id);
+      
+      const response = await EasySiteDatabase.tableDelete(TABLE_IDS.PRODUCTS, { 
+        id: parseInt(id) 
+      });
 
-      if (error) throw error;
+      if (response.error) {
+        console.error('Product hard delete error:', response.error);
+        return { error: new Error(response.error) };
+      }
 
+      console.log('✅ Product hard deleted successfully');
       return { error: null };
+
     } catch (error: any) {
       console.error('Error hard deleting product:', error);
       return { error };
@@ -210,21 +310,46 @@ export const productService = {
   // Get low stock products
   getLowStock: async (stationId?: string) => {
     try {
-      let query = supabase.
-      from('products').
-      select('*').
-      eq('is_active', true).
-      lt('stock_quantity', supabase.from('products').select('min_stock_level'));
+      console.log('📉 Fetching low stock products');
+      
+      // EasySite doesn't support complex queries like comparing columns
+      // We'll fetch all products and filter client-side
+      const filters: any[] = [
+        { name: 'is_active', op: 'Equal', value: true }
+      ];
 
       if (stationId) {
-        query = query.eq('station_id', stationId);
+        filters.push({ name: 'station_id', op: 'Equal', value: stationId });
       }
 
-      const { data, error } = await query.order('product_name');
+      const response = await EasySiteDatabase.tablePage(TABLE_IDS.PRODUCTS, {
+        PageNo: 1,
+        PageSize: 1000,
+        OrderByField: 'product_name',
+        IsAsc: true,
+        Filters: filters
+      });
 
-      if (error) throw error;
+      if (response.error) {
+        console.error('Low stock products fetch error:', response.error);
+        return { data: null, error: new Error(response.error) };
+      }
 
-      return { data, error: null };
+      // Filter low stock products client-side
+      const lowStockProducts = (response.data?.List || [])
+        .filter((product: any) => {
+          const stockQuantity = product.stock_quantity || 0;
+          const minStockLevel = product.min_stock_level || 0;
+          return minStockLevel > 0 && stockQuantity < minStockLevel;
+        })
+        .map((product: any) => ({
+          ...product,
+          id: product.id?.toString() || '0'
+        }));
+
+      console.log('✅ Low stock products fetched:', lowStockProducts.length);
+      return { data: lowStockProducts, error: null };
+
     } catch (error: any) {
       console.error('Error fetching low stock products:', error);
       return { data: null, error };
@@ -234,19 +359,27 @@ export const productService = {
   // Update stock quantity
   updateStock: async (id: string, quantity: number) => {
     try {
-      const { data, error } = await supabase.
-      from('products').
-      update({
+      console.log('📦 Updating product stock:', id, 'to', quantity);
+      
+      const response = await EasySiteDatabase.tableUpdate(TABLE_IDS.PRODUCTS, {
+        id: parseInt(id),
         stock_quantity: quantity,
         updated_at: new Date().toISOString()
-      }).
-      eq('id', id).
-      select().
-      single();
+      });
 
-      if (error) throw error;
+      if (response.error) {
+        console.error('Product stock update error:', response.error);
+        return { data: null, error: new Error(response.error) };
+      }
 
-      return { data, error: null };
+      const product = {
+        ...response.data,
+        id: response.data?.id?.toString() || id
+      };
+
+      console.log('✅ Product stock updated successfully');
+      return { data: product, error: null };
+
     } catch (error: any) {
       console.error('Error updating product stock:', error);
       return { data: null, error };
@@ -256,21 +389,38 @@ export const productService = {
   // Get products by category
   getByCategory: async (category: string, stationId?: string) => {
     try {
-      let query = supabase.
-      from('products').
-      select('*').
-      eq('category', category).
-      eq('is_active', true);
+      console.log('🏷️ Fetching products by category:', category);
+      
+      const filters: any[] = [
+        { name: 'category', op: 'Equal', value: category },
+        { name: 'is_active', op: 'Equal', value: true }
+      ];
 
       if (stationId) {
-        query = query.eq('station_id', stationId);
+        filters.push({ name: 'station_id', op: 'Equal', value: stationId });
       }
 
-      const { data, error } = await query.order('product_name');
+      const response = await EasySiteDatabase.tablePage(TABLE_IDS.PRODUCTS, {
+        PageNo: 1,
+        PageSize: 1000,
+        OrderByField: 'product_name',
+        IsAsc: true,
+        Filters: filters
+      });
 
-      if (error) throw error;
+      if (response.error) {
+        console.error('Products by category fetch error:', response.error);
+        return { data: null, error: new Error(response.error) };
+      }
 
-      return { data, error: null };
+      const products = (response.data?.List || []).map((product: any) => ({
+        ...product,
+        id: product.id?.toString() || '0'
+      }));
+
+      console.log('✅ Products by category fetched:', products.length);
+      return { data: products, error: null };
+
     } catch (error: any) {
       console.error('Error fetching products by category:', error);
       return { data: null, error };
@@ -280,18 +430,31 @@ export const productService = {
   // Get product categories
   getCategories: async () => {
     try {
-      const { data, error } = await supabase.
-      from('products').
-      select('category').
-      eq('is_active', true).
-      not('category', 'is', null);
+      console.log('🏷️ Fetching product categories');
+      
+      const response = await EasySiteDatabase.tablePage(TABLE_IDS.PRODUCTS, {
+        PageNo: 1,
+        PageSize: 1000,
+        Filters: [
+          { name: 'is_active', op: 'Equal', value: true }
+        ]
+      });
 
-      if (error) throw error;
+      if (response.error) {
+        console.error('Product categories fetch error:', response.error);
+        return { data: null, error: new Error(response.error) };
+      }
 
-      // Extract unique categories
-      const categories = [...new Set(data?.map((item) => item.category) || [])];
+      // Extract unique categories client-side
+      const categories = [...new Set(
+        (response.data?.List || [])
+          .map((product: any) => product.category)
+          .filter((category: any) => category && category.trim() !== '')
+      )];
 
+      console.log('✅ Product categories fetched:', categories.length);
       return { data: categories, error: null };
+
     } catch (error: any) {
       console.error('Error fetching product categories:', error);
       return { data: null, error };

@@ -1,585 +1,308 @@
-import { createClient } from '@supabase/supabase-js';
+// EasySite Database Integration - Replaces Supabase
+// This file provides a Supabase-compatible API using EasySite's built-in database
 
-// Environment variable validation
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabaseServiceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+// EasySite database configuration
+console.log('🔄 Loading EasySite database system...');
 
-// Validate required environment variables
-if (!supabaseUrl) {
-  throw new Error('Missing VITE_SUPABASE_URL environment variable. Please check your .env.local file.');
-}
+// Check if EasySite APIs are available
+const checkEasySiteAvailability = async (maxAttempts = 50): Promise<boolean> => {
+  let attempts = 0;
+  while (attempts < maxAttempts) {
+    if ((window as any).ezsite?.apis) {
+      return true;
+    }
+    await new Promise(resolve => setTimeout(resolve, 100));
+    attempts++;
+  }
+  return false;
+};
 
-if (!supabaseAnonKey) {
-  throw new Error('Missing VITE_SUPABASE_ANON_KEY environment variable. Please check your .env.local file.');
-}
+// Table IDs for EasySite database
+export const TABLE_IDS = {
+  PRODUCTS: 11726,
+  EMPLOYEES: 11727,
+  VENDORS: 11729,
+  ORDERS: 11730,
+  LICENSES_CERTIFICATES: 11731,
+  DAILY_SALES_REPORTS: 11728,
+  SALARY_RECORDS: 11788,
+  DELIVERY_RECORDS: 12196,
+  STATIONS: 12599,
+  USER_PROFILES: 11725,
+  FILE_UPLOADS: 26928,
+  USERS: 24015,
+  MODULE_ACCESS: 25712
+} as const;
 
-// Create Supabase client with anon key for public operations
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+// Mock Supabase client using EasySite APIs
+export const supabase = {
   auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
-  },
-  realtime: {
-    params: {
-      eventsPerSecond: 10
-    }
-  }
-});
-
-// Create Supabase admin client for service operations (server-side only)
-export const supabaseAdmin = supabaseServiceKey ?
-createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-}) :
-null;
-
-// Utility function to get the appropriate client
-export const getSupabaseClient = (useServiceRole = false) => {
-  if (useServiceRole) {
-    if (!supabaseAdmin) {
-      console.warn('Service role key not configured. Falling back to anon client.');
-      return supabase;
-    }
-    return supabaseAdmin;
-  }
-  return supabase;
-};
-
-// Database service functions
-export const databaseService = {
-  // Vendors
-  async getVendors() {
-    const { data, error } = await supabase.
-    from('vendors').
-    select('*').
-    order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data;
-  },
-
-  async createVendor(vendor: any) {
-    const { data, error } = await supabase.
-    from('vendors').
-    insert([vendor]).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async updateVendor(id: number, updates: any) {
-    const { data, error } = await supabase.
-    from('vendors').
-    update(updates).
-    eq('id', id).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async deleteVendor(id: number) {
-    const { error } = await supabase.
-    from('vendors').
-    delete().
-    eq('id', id);
-
-    if (error) throw error;
-  },
-
-  // Orders
-  async getOrders() {
-    const { data, error } = await supabase.
-    from('order_summary').
-    select('*').
-    order('order_date', { ascending: false });
-
-    if (error) throw error;
-    return data;
-  },
-
-  async createOrder(order: any) {
-    const { data, error } = await supabase.
-    from('orders').
-    insert([order]).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async updateOrder(id: number, updates: any) {
-    const { data, error } = await supabase.
-    from('orders').
-    update(updates).
-    eq('id', id).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async deleteOrder(id: number) {
-    const { error } = await supabase.
-    from('orders').
-    delete().
-    eq('id', id);
-
-    if (error) throw error;
-  },
-
-  // Salaries
-  async getSalaries(employeeId?: number) {
-    let query = supabase.
-    from('salaries').
-    select(`
-        *,
-        employee:employees(name, employee_id),
-        station:stations(name)
-      `).
-    order('pay_period_start', { ascending: false });
-
-    if (employeeId) {
-      query = query.eq('employee_id', employeeId);
-    }
-
-    const { data, error } = await query;
-
-    if (error) throw error;
-    return data;
-  },
-
-  async createSalary(salary: any) {
-    const { data, error } = await supabase.
-    from('salaries').
-    insert([salary]).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async updateSalary(id: number, updates: any) {
-    const { data, error } = await supabase.
-    from('salaries').
-    update(updates).
-    eq('id', id).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async deleteSalary(id: number) {
-    const { error } = await supabase.
-    from('salaries').
-    delete().
-    eq('id', id);
-
-    if (error) throw error;
-  },
-
-  // Employees
-  async getEmployees() {
-    const { data, error } = await supabase.
-    from('employees').
-    select(`
-        *,
-        station:stations(name)
-      `).
-    order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data;
-  },
-
-  async createEmployee(employee: any) {
-    const { data, error } = await supabase.
-    from('employees').
-    insert([employee]).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async updateEmployee(id: number, updates: any) {
-    const { data, error } = await supabase.
-    from('employees').
-    update(updates).
-    eq('id', id).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async deleteEmployee(id: number) {
-    const { error } = await supabase.
-    from('employees').
-    delete().
-    eq('id', id);
-
-    if (error) throw error;
-  },
-
-  // Products
-  async getProducts() {
-    const { data, error } = await supabase.
-    from('products').
-    select('*').
-    order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data;
-  },
-
-  async createProduct(product: any) {
-    const { data, error } = await supabase.
-    from('products').
-    insert([product]).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async updateProduct(id: number, updates: any) {
-    const { data, error } = await supabase.
-    from('products').
-    update(updates).
-    eq('id', id).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async deleteProduct(id: number) {
-    const { error } = await supabase.
-    from('products').
-    delete().
-    eq('id', id);
-
-    if (error) throw error;
-  },
-
-  // Stations
-  async getStations() {
-    const { data, error } = await supabase.
-    from('stations').
-    select('*').
-    order('name');
-
-    if (error) throw error;
-    return data;
-  },
-
-  // Licenses
-  async getLicenses() {
-    const { data, error } = await supabase.
-    from('licenses').
-    select('*').
-    order('expiration_date');
-
-    if (error) throw error;
-    return data;
-  },
-
-  async createLicense(license: any) {
-    const { data, error } = await supabase.
-    from('licenses').
-    insert([license]).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async updateLicense(id: number, updates: any) {
-    const { data, error } = await supabase.
-    from('licenses').
-    update(updates).
-    eq('id', id).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async deleteLicense(id: number) {
-    const { error } = await supabase.
-    from('licenses').
-    delete().
-    eq('id', id);
-
-    if (error) throw error;
-  },
-
-  // Sales Reports
-  async getSalesReports() {
-    const { data, error } = await supabase.
-    from('sales_reports').
-    select(`
-        *,
-        station:stations(name)
-      `).
-    order('report_date', { ascending: false });
-
-    if (error) throw error;
-    return data;
-  },
-
-  async createSalesReport(report: any) {
-    const { data, error } = await supabase.
-    from('sales_reports').
-    insert([report]).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async updateSalesReport(id: number, updates: any) {
-    const { data, error } = await supabase.
-    from('sales_reports').
-    update(updates).
-    eq('id', id).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async deleteSalesReport(id: number) {
-    const { error } = await supabase.
-    from('sales_reports').
-    delete().
-    eq('id', id);
-
-    if (error) throw error;
-  },
-
-  // Deliveries
-  async getDeliveries() {
-    const { data, error } = await supabase.
-    from('deliveries').
-    select(`
-        *,
-        station:stations(name)
-      `).
-    order('delivery_date', { ascending: false });
-
-    if (error) throw error;
-    return data;
-  },
-
-  async createDelivery(delivery: any) {
-    const { data, error } = await supabase.
-    from('deliveries').
-    insert([delivery]).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async updateDelivery(id: number, updates: any) {
-    const { data, error } = await supabase.
-    from('deliveries').
-    update(updates).
-    eq('id', id).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async deleteDelivery(id: number) {
-    const { error } = await supabase.
-    from('deliveries').
-    delete().
-    eq('id', id);
-
-    if (error) throw error;
-  },
-
-  // File uploads
-  async uploadFile(file: File, path: string, bucket = 'documents') {
-    const { data, error } = await supabase.storage.
-    from(bucket).
-    upload(path, file, {
-      cacheControl: '3600',
-      upsert: false
-    });
-
-    if (error) throw error;
-
-    // Record file upload in database
-    const { data: fileRecord, error: dbError } = await supabase.
-    from('file_uploads').
-    insert([{
-      file_name: path.split('/').pop(),
-      original_name: file.name,
-      file_path: path,
-      file_size: file.size,
-      file_type: file.type,
-      mime_type: file.type,
-      bucket_name: bucket
-    }]).
-    select().
-    single();
-
-    if (dbError) throw dbError;
-
-    return { storage: data, record: fileRecord };
-  },
-
-  async getFileUrl(bucket: string, path: string) {
-    const { data } = supabase.storage.
-    from(bucket).
-    getPublicUrl(path);
-
-    return data.publicUrl;
-  },
-
-  // User management
-  async getUserProfile() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
-
-    const { data, error } = await supabase.
-    from('user_profiles').
-    select('*').
-    eq('user_id', user.id).
-    single();
-
-    if (error && error.code !== 'PGRST116') throw error;
-    return data;
-  },
-
-  async updateUserProfile(updates: any) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('No authenticated user');
-
-    const { data, error } = await supabase.
-    from('user_profiles').
-    upsert([{
-      user_id: user.id,
-      ...updates,
-      updated_at: new Date().toISOString()
-    }]).
-    select().
-    single();
-
-    if (error) throw error;
-    return data;
-  }
-};
-
-// Storage service
-export const storageService = {
-  async uploadFile(file: File, bucket: string, path: string) {
-    const { data, error } = await supabase.storage.
-    from(bucket).
-    upload(path, file);
-
-    if (error) throw error;
-    return data;
-  },
-
-  async deleteFile(bucket: string, path: string) {
-    const { error } = await supabase.storage.
-    from(bucket).
-    remove([path]);
-
-    if (error) throw error;
-  },
-
-  getPublicUrl(bucket: string, path: string) {
-    const { data } = supabase.storage.
-    from(bucket).
-    getPublicUrl(path);
-
-    return data.publicUrl;
-  }
-};
-
-// Auth service
-export const authService = {
-  async signIn(email: string, password: string) {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if (error) throw error;
-    return data;
-  },
-
-  async signUp(email: string, password: string, userData?: any) {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: userData
+    async signInWithPassword({ email, password }: { email: string; password: string }) {
+      try {
+        await checkEasySiteAvailability();
+        const response = await (window as any).ezsite.apis.login({ email, password });
+        
+        if (response.error) {
+          return { data: null, error: new Error(response.error) };
+        }
+        
+        const userInfo = await (window as any).ezsite.apis.getUserInfo();
+        return { 
+          data: { 
+            user: userInfo.data ? {
+              id: userInfo.data.ID.toString(),
+              email: userInfo.data.Email,
+              created_at: userInfo.data.CreateTime
+            } : null,
+            session: userInfo.data ? { user: userInfo.data } : null
+          }, 
+          error: null 
+        };
+      } catch (error) {
+        return { data: null, error };
       }
-    });
+    },
 
-    if (error) throw error;
-    return data;
+    async signUp({ email, password }: { email: string; password: string }) {
+      try {
+        await checkEasySiteAvailability();
+        const response = await (window as any).ezsite.apis.register({ email, password });
+        
+        if (response.error) {
+          return { data: null, error: new Error(response.error) };
+        }
+        
+        return { 
+          data: { 
+            user: { email, id: 'pending-verification' },
+            session: null 
+          }, 
+          error: null 
+        };
+      } catch (error) {
+        return { data: null, error };
+      }
+    },
+
+    async signOut() {
+      try {
+        await checkEasySiteAvailability();
+        await (window as any).ezsite.apis.logout();
+        return { error: null };
+      } catch (error) {
+        return { error };
+      }
+    },
+
+    async getSession() {
+      try {
+        await checkEasySiteAvailability();
+        const userInfo = await (window as any).ezsite.apis.getUserInfo();
+        
+        return { 
+          data: { 
+            session: userInfo.data ? { 
+              user: {
+                id: userInfo.data.ID.toString(),
+                email: userInfo.data.Email,
+                created_at: userInfo.data.CreateTime
+              } 
+            } : null 
+          }, 
+          error: null 
+        };
+      } catch (error) {
+        return { data: { session: null }, error: null };
+      }
+    },
+
+    async getUser() {
+      try {
+        await checkEasySiteAvailability();
+        const userInfo = await (window as any).ezsite.apis.getUserInfo();
+        
+        return { 
+          data: { 
+            user: userInfo.data ? {
+              id: userInfo.data.ID.toString(),
+              email: userInfo.data.Email,
+              created_at: userInfo.data.CreateTime
+            } : null 
+          }, 
+          error: null 
+        };
+      } catch (error) {
+        return { data: { user: null }, error: null };
+      }
+    },
+
+    onAuthStateChange() {
+      // EasySite handles auth state internally
+      return { data: { subscription: { unsubscribe: () => {} } } };
+    }
   },
 
-  async signOut() {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+  from(tableName: string) {
+    const getTableId = (name: string): number => {
+      const mapping: Record<string, number> = {
+        'products': TABLE_IDS.PRODUCTS,
+        'employees': TABLE_IDS.EMPLOYEES,
+        'vendors': TABLE_IDS.VENDORS,
+        'orders': TABLE_IDS.ORDERS,
+        'licenses': TABLE_IDS.LICENSES_CERTIFICATES,
+        'licenses_certificates': TABLE_IDS.LICENSES_CERTIFICATES,
+        'daily_sales_reports': TABLE_IDS.DAILY_SALES_REPORTS,
+        'sales_reports': TABLE_IDS.DAILY_SALES_REPORTS,
+        'salary_records': TABLE_IDS.SALARY_RECORDS,
+        'salaries': TABLE_IDS.SALARY_RECORDS,
+        'delivery_records': TABLE_IDS.DELIVERY_RECORDS,
+        'deliveries': TABLE_IDS.DELIVERY_RECORDS,
+        'stations': TABLE_IDS.STATIONS,
+        'user_profiles': TABLE_IDS.USER_PROFILES,
+        'file_uploads': TABLE_IDS.FILE_UPLOADS,
+        'users': TABLE_IDS.USERS,
+        'module_access': TABLE_IDS.MODULE_ACCESS
+      };
+      
+      return mapping[name] || 0;
+    };
+
+    const tableId = getTableId(tableName);
+
+    return {
+      select() {
+        return {
+          async eq(column: string, value: any) {
+            try {
+              await checkEasySiteAvailability();
+              const response = await (window as any).ezsite.apis.tablePage(tableId, {
+                PageNo: 1,
+                PageSize: 1000,
+                Filters: [{ name: column, op: 'Equal', value }]
+              });
+              
+              return { 
+                data: response.data?.List || [], 
+                error: response.error ? new Error(response.error) : null 
+              };
+            } catch (error) {
+              return { data: [], error };
+            }
+          },
+
+          async single() {
+            try {
+              await checkEasySiteAvailability();
+              const response = await (window as any).ezsite.apis.tablePage(tableId, {
+                PageNo: 1,
+                PageSize: 1
+              });
+              
+              return { 
+                data: response.data?.List?.[0] || null, 
+                error: response.error ? new Error(response.error) : null 
+              };
+            } catch (error) {
+              return { data: null, error };
+            }
+          }
+        };
+      },
+
+      async insert(data: any[]) {
+        return {
+          select() {
+            return {
+              async single() {
+                try {
+                  await checkEasySiteAvailability();
+                  const response = await (window as any).ezsite.apis.tableCreate(tableId, data[0]);
+                  return { 
+                    data: response.data || null, 
+                    error: response.error ? new Error(response.error) : null 
+                  };
+                } catch (error) {
+                  return { data: null, error };
+                }
+              }
+            };
+          }
+        };
+      },
+
+      update(data: any) {
+        return {
+          eq(column: string, value: any) {
+            return {
+              select() {
+                return {
+                  async single() {
+                    try {
+                      await checkEasySiteAvailability();
+                      const updateData = { [column]: value, ...data };
+                      const response = await (window as any).ezsite.apis.tableUpdate(tableId, updateData);
+                      return { 
+                        data: response.data || null, 
+                        error: response.error ? new Error(response.error) : null 
+                      };
+                    } catch (error) {
+                      return { data: null, error };
+                    }
+                  }
+                };
+              }
+            };
+          }
+        };
+      },
+
+      delete() {
+        return {
+          async eq(column: string, value: any) {
+            try {
+              await checkEasySiteAvailability();
+              await (window as any).ezsite.apis.tableDelete(tableId, { [column]: value });
+              return { error: null };
+            } catch (error) {
+              return { error };
+            }
+          }
+        };
+      }
+    };
   },
 
-  async resetPassword(email: string) {
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
-    if (error) throw error;
-  },
+  storage: {
+    from() {
+      return {
+        async upload(path: string, file: File) {
+          try {
+            await checkEasySiteAvailability();
+            const response = await (window as any).ezsite.apis.upload({
+              filename: file.name,
+              file: file
+            });
+            
+            if (response.error) {
+              return { data: null, error: new Error(response.error) };
+            }
+            
+            return { data: { path }, error: null };
+          } catch (error) {
+            return { data: null, error };
+          }
+        },
 
-  async updatePassword(password: string) {
-    const { error } = await supabase.auth.updateUser({ password });
-    if (error) throw error;
-  },
-
-  onAuthStateChange(callback: (event: any, session: any) => void) {
-    return supabase.auth.onAuthStateChange(callback);
-  },
-
-  async getSession() {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    if (error) throw error;
-    return session;
-  },
-
-  async getUser() {
-    const { data: { user }, error } = await supabase.auth.getUser();
-    if (error) throw error;
-    return user;
+        getPublicUrl(path: string) {
+          return { data: { publicUrl: `/api/files/${path}` } };
+        }
+      };
+    }
   }
 };
+
+// Legacy compatibility exports
+export const supabaseUrl = 'https://easysite.local';
+export const supabaseAnonKey = 'easysite-builtin-key';
+
+console.log('✅ EasySite database integration loaded successfully');

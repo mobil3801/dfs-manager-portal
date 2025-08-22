@@ -4,7 +4,6 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
-import { SupabaseAuthProvider, useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { ModuleAccessProvider } from '@/contexts/ModuleAccessContext';
 import { GlobalErrorBoundary } from '@/components/ErrorBoundary';
 import AuthDebugger from '@/components/AuthDebugger';
@@ -14,16 +13,16 @@ import ImageErrorNotification from '@/components/ImageErrorNotification';
 import DashboardLayout from '@/components/Layout/DashboardLayout';
 
 // Core pages (loaded immediately)
+import HomePage from '@/pages/HomePage';
 import Dashboard from '@/pages/Dashboard';
 import LoginPage from '@/pages/LoginPage';
-import SupabaseLoginPage from '@/pages/SupabaseLoginPage';
 import OnAuthSuccessPage from '@/pages/OnAuthSuccessPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import NotFound from '@/pages/NotFound';
 
-// Lazy load feature pages - Updated to use Supabase
-const ProductList = lazy(() => import('@/pages/Products/SupabaseProductList'));
-const ProductForm = lazy(() => import('@/pages/Products/SupabaseProductForm'));
+// Lazy load feature pages - Using EasySite database system
+const ProductList = lazy(() => import('@/pages/Products/ProductList'));
+const ProductForm = lazy(() => import('@/pages/Products/ProductForm'));
 const EmployeeList = lazy(() => import('@/pages/Employees/EmployeeList'));
 const EmployeeForm = lazy(() => import('@/pages/Employees/EmployeeForm'));
 const SalesReportList = lazy(() => import('@/pages/Sales/SalesReportList'));
@@ -87,7 +86,7 @@ const LoadingSpinner = () =>
     <div className="text-center">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
       <p className="text-gray-600">Loading DFS Manager Portal...</p>
-      <p className="text-sm text-gray-500 mt-2">Initializing authentication system...</p>
+      <p className="text-sm text-gray-500 mt-2">Initializing EasySite database system...</p>
     </div>
   </div>;
 
@@ -132,7 +131,7 @@ const AuthError = ({ error, onRetry }: {error: string;onRetry: () => void;}) =>
 
 // Protected Route Component with improved error handling
 const ProtectedRoute: React.FC<{children: React.ReactNode;}> = ({ children }) => {
-  const { isAuthenticated, isLoading, authError, isInitialized, refreshUserData } = useSupabaseAuth();
+  const { isAuthenticated, isLoading, authError, isInitialized, refreshUserData } = useAuth();
 
   // Show loading while initializing
   if (!isInitialized || isLoading) {
@@ -154,7 +153,7 @@ const ProtectedRoute: React.FC<{children: React.ReactNode;}> = ({ children }) =>
 
 // Main App Router Component
 const AppRouter = () => {
-  const { isInitialized } = useSupabaseAuth();
+  const { isInitialized } = useAuth();
 
   // Show loading during initial authentication setup
   if (!isInitialized) {
@@ -166,14 +165,15 @@ const AppRouter = () => {
       <div className="App">
         <Routes>
           {/* Public Routes */}
-          <Route path="/login" element={<SupabaseLoginPage />} />
-          <Route path="/legacy-login" element={<LoginPage />} />
-          <Route path="/supabase-login" element={<SupabaseLoginPage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/onauthsuccess" element={<OnAuthSuccessPage />} />
           <Route path="/resetpassword" element={<ResetPasswordPage />} />
           
+          {/* Home Route - Available to all users */}
+          <Route path="/" element={<HomePage />} />
+          
           {/* Protected Routes */}
-          <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+          <Route path="/app" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             
@@ -449,11 +449,9 @@ function App() {
       <TooltipProvider>
         <GlobalErrorBoundary>
           <AuthProvider>
-            <SupabaseAuthProvider>
-              <ModuleAccessProvider>
-                <AppRouter />
-              </ModuleAccessProvider>
-            </SupabaseAuthProvider>
+            <ModuleAccessProvider>
+              <AppRouter />
+            </ModuleAccessProvider>
           </AuthProvider>
         </GlobalErrorBoundary>
       </TooltipProvider>

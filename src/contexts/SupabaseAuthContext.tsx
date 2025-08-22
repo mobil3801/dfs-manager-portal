@@ -13,7 +13,28 @@ interface Session {
   expires_at?: number;
   user: User;
 }
-import { supabase, authService as auth } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
+
+// Create authService from supabase.auth for compatibility
+const authService = {
+  signIn: async (email: string, password: string) => {
+    return await supabase.auth.signInWithPassword({ email, password });
+  },
+  signOut: async () => {
+    return await supabase.auth.signOut();
+  },
+  signUp: async (email: string, password: string, metadata?: any) => {
+    return await supabase.auth.signUp({ email, password, options: { data: metadata } });
+  },
+  resetPassword: async (email: string) => {
+    return await supabase.auth.resetPasswordForEmail(email);
+  },
+  updatePassword: async (password: string) => {
+    return await supabase.auth.updateUser({ password });
+  }
+};
+
+const auth = authService;
 import { userProfileService, auditLogService } from '@/services/databaseService';
 import { useToast } from '@/hooks/use-toast';
 
