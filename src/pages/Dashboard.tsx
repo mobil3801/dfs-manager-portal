@@ -192,35 +192,35 @@ const Dashboard = () => {
           value={stats.totalEmployees}
           icon={Users}
           color="text-blue-600"
-          onClick={() => navigate('/employees')} />
+          onClick={() => navigate('/app/employees')} />
 
         <QuickStatCard
           title="Products"
           value={stats.activeProducts}
           icon={Package}
           color="text-green-600"
-          onClick={() => navigate('/products')} />
+          onClick={() => navigate('/app/products')} />
 
         <QuickStatCard
           title="Today's Reports"
           value={stats.todayReports}
           icon={FileText}
           color="text-purple-600"
-          onClick={() => navigate('/sales')} />
+          onClick={() => navigate('/app/sales')} />
 
         <QuickStatCard
           title="Deliveries"
           value={stats.pendingDeliveries}
           icon={Truck}
           color="text-orange-600"
-          onClick={() => navigate('/delivery')} />
+          onClick={() => navigate('/app/delivery')} />
 
         <QuickStatCard
           title="Expiring Licenses"
           value={stats.expiringLicenses}
           icon={AlertTriangle}
           color="text-red-600"
-          onClick={() => navigate('/licenses')} />
+          onClick={() => navigate('/app/licenses')} />
 
         <QuickStatCard
           title="Today's Sales"
@@ -257,7 +257,7 @@ const Dashboard = () => {
                 variant="outline"
                 size="sm"
                 className="ml-auto"
-                onClick={() => navigate('/licenses')}>
+                onClick={() => navigate('/app/licenses')}>
 
                   View Licenses
                 </Button>
@@ -300,19 +300,19 @@ const Dashboard = () => {
               title="New Sales Report"
               description="Create a daily sales report"
               icon={FileText}
-              onClick={() => navigate('/sales/new')} />
+              onClick={() => navigate('/app/sales/new')} />
 
             <QuickAction
               title="Record Delivery"
               description="Log a new fuel delivery"
               icon={Truck}
-              onClick={() => navigate('/delivery/new')} />
+              onClick={() => navigate('/app/delivery/new')} />
 
             <QuickAction
               title="Add Product"
               description="Register a new product"
               icon={Package}
-              onClick={() => navigate('/products/new')} />
+              onClick={() => navigate('/app/products/new')} />
 
             {isManager() &&
             <>
@@ -320,13 +320,13 @@ const Dashboard = () => {
                 title="Manage Employees"
                 description="View and edit employee records"
                 icon={Users}
-                onClick={() => navigate('/employees')} />
+                onClick={() => navigate('/app/employees')} />
 
                 <QuickAction
                 title="Check Licenses"
                 description="Review license status and renewals"
                 icon={Calendar}
-                onClick={() => navigate('/licenses')} />
+                onClick={() => navigate('/app/licenses')} />
 
               </>
             }
