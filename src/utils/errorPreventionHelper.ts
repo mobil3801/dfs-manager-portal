@@ -211,7 +211,7 @@ export const setupInvalidCharacterErrorMonitor = (): void => {
       console.group('InvalidCharacterError Debug Info');
       console.error('Original error:', ...args);
       console.error('Stack trace:', new Error().stack);
-      console.error('Current URL:', window.location.href);
+      console.error('Current URL:', globalThis.location.href);
       console.error('User agent:', navigator.userAgent);
       console.error('Form elements count:', document.forms.length);
 

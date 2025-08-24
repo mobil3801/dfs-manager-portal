@@ -63,7 +63,7 @@ const LoginPage: React.FC = () => {
     setMessage(''); // Clear previous messages
 
     try {
-      const { error } = await window.ezsite.apis.sendResetPwdEmail({ email });
+      const { error } = await globalThis.ezsite.apis.sendResetPwdEmail({ email });
       if (error) {
         setMessage(error);
         setMessageType('error');

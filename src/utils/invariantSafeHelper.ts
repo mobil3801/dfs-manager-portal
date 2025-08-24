@@ -2,6 +2,7 @@
  * Utility functions to prevent common React invariant violations
  */
 import React from 'react';
+import process from "node:process";
 
 // Safe key generation for React lists
 export const generateSafeKey = (item: any, index: number, prefix = 'item'): string => {

@@ -80,7 +80,7 @@ const EnhancedInstantIDDocumentUpload: React.FC<EnhancedInstantIDDocumentUploadP
           console.log(`Loading existing file ${existingFileId}...`);
 
           // Get the file URL directly with retry logic
-          const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(existingFileId);
+          const { data: fileUrl, error } = await globalThis.ezsite.apis.getUploadUrl(existingFileId);
 
           if (error) {
             console.error(`Error getting file URL for ${existingFileId}:`, error);
@@ -236,7 +236,7 @@ const EnhancedInstantIDDocumentUpload: React.FC<EnhancedInstantIDDocumentUploadP
 
   const handleViewFullScreen = () => {
     if (previewUrl) {
-      window.open(previewUrl, '_blank');
+      globalThis.open(previewUrl, '_blank');
     }
   };
 

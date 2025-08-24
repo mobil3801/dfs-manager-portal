@@ -52,7 +52,7 @@ const OrderList: React.FC = () => {
         filters.push({ name: 'order_number', op: 'StringContains', value: searchTerm });
       }
 
-      const { data, error } = await window.ezsite.apis.tablePage('11730', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('11730', {
         PageNo: currentPage,
         PageSize: pageSize,
         OrderByField: 'order_date',
@@ -150,7 +150,7 @@ const OrderList: React.FC = () => {
     }
 
     try {
-      const { error } = await window.ezsite.apis.tableDelete('11730', { ID: orderId });
+      const { error } = await globalThis.ezsite.apis.tableDelete('11730', { ID: orderId });
       if (error) throw error;
 
       toast({
@@ -186,12 +186,12 @@ const OrderList: React.FC = () => {
     join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+    const url = globalThis.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `order_${selectedOrder.order_number}_details.csv`;
     a.click();
-    window.URL.revokeObjectURL(url);
+    globalThis.URL.revokeObjectURL(url);
 
     toast({
       title: "Success",
@@ -577,7 +577,7 @@ const OrderList: React.FC = () => {
         onExport={handleExport}
         canEdit={isAdmin()}
         canDelete={isAdmin()}
-        canExport={true} />
+        canExport />
 
       }
     </div>);

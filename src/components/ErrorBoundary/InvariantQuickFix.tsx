@@ -91,7 +91,7 @@ const InvariantQuickFix: React.FC = () => {
   };
 
   const forceReload = () => {
-    window.location.reload();
+    globalThis.location.reload();
   };
 
   const clearResults = () => {

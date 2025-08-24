@@ -64,7 +64,7 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
   const loadExpenses = async () => {
     try {
       setLoading(true);
-      const { data, error } = await window.ezsite.apis.tablePage(18494, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(18494, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: "expense_date",
@@ -113,7 +113,7 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
         created_by: 1 // TODO: Get from auth context
       };
 
-      const { error } = await window.ezsite.apis.tableCreate(18494, expenseData);
+      const { error } = await globalThis.ezsite.apis.tableCreate(18494, expenseData);
 
       if (error) throw error;
 
@@ -141,7 +141,7 @@ const ExpensesSection: React.FC<ExpensesSectionProps> = ({
     try {
       setLoading(true);
 
-      const { error } = await window.ezsite.apis.tableDelete(18494, { ID: expenseId });
+      const { error } = await globalThis.ezsite.apis.tableDelete(18494, { ID: expenseId });
 
       if (error) throw error;
 

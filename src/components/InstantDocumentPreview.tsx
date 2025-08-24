@@ -69,7 +69,7 @@ const InstantDocumentPreview: React.FC<InstantDocumentPreviewProps> = ({
       // Use EasySite's file API to get the file URL
       const loadFileUrl = async () => {
         try {
-          const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(fileId);
+          const { data: fileUrl, error } = await globalThis.ezsite.apis.getUploadUrl(fileId);
           if (error) throw error;
 
           setPreviewUrl(fileUrl);
@@ -142,12 +142,12 @@ const InstantDocumentPreview: React.FC<InstantDocumentPreviewProps> = ({
   // Handle full screen view
   const handleFullScreenView = async () => {
     if (previewUrl) {
-      window.open(previewUrl, '_blank');
+      globalThis.open(previewUrl, '_blank');
     } else if (fileId) {
       try {
-        const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(fileId);
+        const { data: fileUrl, error } = await globalThis.ezsite.apis.getUploadUrl(fileId);
         if (error) throw error;
-        window.open(fileUrl, '_blank');
+        globalThis.open(fileUrl, '_blank');
       } catch (err) {
         console.error('Error loading file URL for full screen:', err);
         toast({
@@ -165,7 +165,7 @@ const InstantDocumentPreview: React.FC<InstantDocumentPreviewProps> = ({
 
     if (!urlToDownload && fileId) {
       try {
-        const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(fileId);
+        const { data: fileUrl, error } = await globalThis.ezsite.apis.getUploadUrl(fileId);
         if (error) throw error;
         urlToDownload = fileUrl;
       } catch (err) {

@@ -1,5 +1,6 @@
 // Error logging service for the DFS Manager Portal
 // Compatible with React Error Boundaries and async error handling
+import process from "node:process";
 export interface ErrorLogEntry {
   id: string;
   timestamp: Date;
@@ -42,7 +43,7 @@ export class ErrorLogger {
       component,
       userId: this.getCurrentUserId(),
       userAgent: navigator.userAgent,
-      url: window.location.href,
+      url: globalThis.location.href,
       severity,
       context
     };

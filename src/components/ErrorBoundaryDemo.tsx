@@ -92,7 +92,7 @@ const ErrorBoundaryDemo: React.FC = () => {
               <ComponentErrorBoundary
                 componentName="Demo Component"
                 severity="medium"
-                showErrorDetails={true}>
+                showErrorDetails>
 
                 <ErrorProneComponent shouldError={componentError} />
               </ComponentErrorBoundary>
@@ -118,7 +118,7 @@ const ErrorBoundaryDemo: React.FC = () => {
               
               <FormErrorBoundary
                 formName="Demo Form"
-                showDataRecovery={true}
+                showDataRecovery
                 onFormReset={() => {
                   setFormError(false);
                 }}>

@@ -156,7 +156,7 @@ const EnhancedOverflowNavigation: React.FC<EnhancedOverflowNavigationProps> = ({
               <NavigationButton
                 key={item.href}
                 item={item}
-                isOverflow={true} />
+                isOverflow />
 
               )}
                 </DropdownMenuContent>
@@ -178,7 +178,7 @@ const EnhancedOverflowNavigation: React.FC<EnhancedOverflowNavigationProps> = ({
           <NavigationButton
             key={`hidden-${item.href}`}
             item={item}
-            isHidden={true} />
+            isHidden />
 
           )}
         </div>

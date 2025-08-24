@@ -75,7 +75,7 @@ const EnhancedLiveIDDocumentsDisplay: React.FC<EnhancedLiveIDDocumentsDisplayPro
 
       // Test connection with a simple API call
       const { error } = (await Promise.race([
-      window.ezsite.apis.tablePage('11727', {
+      globalThis.ezsite.apis.tablePage('11727', {
         PageNo: 1,
         PageSize: 1,
         Filters: [{ name: 'ID', op: 'Equal', value: employee.ID }]
@@ -167,7 +167,7 @@ const EnhancedLiveIDDocumentsDisplay: React.FC<EnhancedLiveIDDocumentsDisplayPro
         [documentKey]: null
       };
 
-      const { error } = await window.ezsite.apis.tableUpdate('11727', updateData);
+      const { error } = await globalThis.ezsite.apis.tableUpdate('11727', updateData);
       if (error) throw new Error(error);
 
       // Update local state immediately
@@ -178,14 +178,14 @@ const EnhancedLiveIDDocumentsDisplay: React.FC<EnhancedLiveIDDocumentsDisplayPro
 
       // Clean up file storage
       try {
-        const { data: fileData, error: fetchError } = await window.ezsite.apis.tablePage('26928', {
+        const { data: fileData, error: fetchError } = await globalThis.ezsite.apis.tablePage('26928', {
           PageNo: 1,
           PageSize: 1,
           Filters: [{ name: 'store_file_id', op: 'Equal', value: fileId }]
         });
 
         if (!fetchError && fileData && fileData.List && fileData.List.length > 0) {
-          const { error: deleteError } = await window.ezsite.apis.tableDelete('26928', {
+          const { error: deleteError } = await globalThis.ezsite.apis.tableDelete('26928', {
             ID: fileData.List[0].id
           });
           if (deleteError) {

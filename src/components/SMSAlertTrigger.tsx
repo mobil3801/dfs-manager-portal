@@ -96,7 +96,7 @@ const SMSAlertTrigger: React.FC = () => {
   const loadLicenses = async () => {
     try {
       setLoading(true);
-      const { data, error } = await window.ezsite.apis.tablePage('11731', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('11731', {
         PageNo: 1,
         PageSize: 1000,
         OrderByField: 'expiry_date',
@@ -258,7 +258,7 @@ const SMSAlertTrigger: React.FC = () => {
       const daysUntilExpiry = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
       // Get active SMS template
-      const { data: templateData, error: templateError } = await window.ezsite.apis.tablePage('12641', {
+      const { data: templateData, error: templateError } = await globalThis.ezsite.apis.tablePage('12641', {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'ID',
@@ -274,7 +274,7 @@ const SMSAlertTrigger: React.FC = () => {
       }
 
       // Get contacts for this station
-      const { data: contactData, error: contactError } = await window.ezsite.apis.tablePage('12612', {
+      const { data: contactData, error: contactError } = await globalThis.ezsite.apis.tablePage('12612', {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'ID',

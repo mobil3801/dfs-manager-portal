@@ -102,7 +102,7 @@ class AnalyticsForecast {
         });
       }
 
-      const { data, error } = await window.ezsite.apis.tablePage(this.tableIds.salesReports, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(this.tableIds.salesReports, {
         PageNo: 1,
         PageSize: 1000,
         OrderByField: 'report_date',

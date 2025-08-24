@@ -244,7 +244,7 @@ const ResponsiveNavigationTester: React.FC = () => {
                       canAccessRoute={canAccessRoute}
                       moreButtonWidth={100}
                       padding={32}
-                      showLoadingIndicator={true} /> :
+                      showLoadingIndicator /> :
 
 
                     <OverflowNavigation

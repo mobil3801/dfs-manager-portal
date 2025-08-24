@@ -353,7 +353,7 @@ const VendorFormContent: React.FC = () => {
                 onValueChange={handleStationSelect}
                 placeholder="Select a station"
                 required
-                includeAll={true} // Vendors can be associated with ALL stations or specific ones
+                includeAll // Vendors can be associated with ALL stations or specific ones
               />
               </div>
             </div> :

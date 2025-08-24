@@ -119,7 +119,7 @@ const AuthError = ({ error, onRetry }: {error: string;onRetry: () => void;}) =>
             Try Again
           </button>
           <button
-          onClick={() => window.location.href = '/login'}
+          onClick={() => globalThis.location.href = '/login'}
           className="w-full bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors">
 
             Go to Login

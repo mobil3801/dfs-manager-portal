@@ -44,7 +44,7 @@ const IDDocumentViewer: React.FC<IDDocumentViewerProps> = ({
       setImageLoaded(false);
 
       try {
-        const { data: fileUrl, error } = await window.ezsite.apis.getUploadUrl(fileId);
+        const { data: fileUrl, error } = await globalThis.ezsite.apis.getUploadUrl(fileId);
         if (error) throw error;
 
         setDocumentUrl(fileUrl);
@@ -75,7 +75,7 @@ const IDDocumentViewer: React.FC<IDDocumentViewerProps> = ({
 
   const handleViewFullScreen = () => {
     if (documentUrl) {
-      window.open(documentUrl, '_blank');
+      globalThis.open(documentUrl, '_blank');
     }
   };
 

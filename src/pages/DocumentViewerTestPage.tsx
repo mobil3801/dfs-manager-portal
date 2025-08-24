@@ -57,7 +57,7 @@ const DocumentViewerTestPage: React.FC = () => {
     {
       name: 'API Connection Test',
       test: async () => {
-        const response = await window.ezsite.apis.tablePage('11727', {
+        const response = await globalThis.ezsite.apis.tablePage('11727', {
           PageNo: 1,
           PageSize: 1,
           Filters: []
@@ -69,7 +69,7 @@ const DocumentViewerTestPage: React.FC = () => {
     {
       name: 'File Storage Test',
       test: async () => {
-        const response = await window.ezsite.apis.tablePage('26928', {
+        const response = await globalThis.ezsite.apis.tablePage('26928', {
           PageNo: 1,
           PageSize: 1,
           Filters: []
@@ -82,7 +82,7 @@ const DocumentViewerTestPage: React.FC = () => {
       name: 'File URL Test (Sample)',
       test: async () => {
         // Get a real file ID from the database if available
-        const filesResponse = await window.ezsite.apis.tablePage('26928', {
+        const filesResponse = await globalThis.ezsite.apis.tablePage('26928', {
           PageNo: 1,
           PageSize: 1,
           Filters: []
@@ -99,7 +99,7 @@ const DocumentViewerTestPage: React.FC = () => {
           return 'No valid file ID found for testing';
         }
 
-        const urlResponse = await window.ezsite.apis.getUploadUrl(testFileId);
+        const urlResponse = await globalThis.ezsite.apis.getUploadUrl(testFileId);
         if (urlResponse.error) throw new Error(urlResponse.error);
         if (!urlResponse.data) throw new Error('No URL returned');
 
@@ -202,14 +202,14 @@ const DocumentViewerTestPage: React.FC = () => {
             <EnhancedDocumentViewer
               fileId={123}
               label="Test Document 1"
-              isAdminUser={true}
+              isAdminUser
               size="md"
               className="border border-gray-200 rounded-lg" />
 
             <EnhancedDocumentViewer
               fileId={124}
               label="Test Document 2"
-              isAdminUser={true}
+              isAdminUser
               size="md"
               className="border border-gray-200 rounded-lg" />
 
@@ -229,9 +229,9 @@ const DocumentViewerTestPage: React.FC = () => {
           <RobustFileViewer
             fileIds={[mockEmployee.id_document_file_id, mockEmployee.id_document_2_file_id]}
             labels={['Driving License', 'Secondary ID']}
-            isAdminUser={true}
+            isAdminUser
             title="Employee Documents"
-            showPreviewDialog={true} />
+            showPreviewDialog />
 
         </CardContent>
       </Card>

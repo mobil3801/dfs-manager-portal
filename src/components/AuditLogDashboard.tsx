@@ -45,7 +45,7 @@ const AuditLogDashboard: React.FC = () => {
       console.log('Fetching real-time audit log data...');
 
       // Fetch recent audit logs (table ID: 12706)
-      const { data: auditData, error: auditError } = await window.ezsite.apis.tablePage(12706, {
+      const { data: auditData, error: auditError } = await globalThis.ezsite.apis.tablePage(12706, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: "event_timestamp",

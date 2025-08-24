@@ -126,59 +126,59 @@ const AdminRealTimeDashboard: React.FC = () => {
       deliveryData] =
       await Promise.all([
       // Users
-      window.ezsite.apis.tablePage(11725, { PageNo: 1, PageSize: 1 }),
+      globalThis.ezsite.apis.tablePage(11725, { PageNo: 1, PageSize: 1 }),
       // All employees
-      window.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 1 }),
+      globalThis.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 1 }),
       // Active employees
-      window.ezsite.apis.tablePage(11727, {
+      globalThis.ezsite.apis.tablePage(11727, {
         PageNo: 1, PageSize: 1,
         Filters: [{ name: 'is_active', op: 'Equal', value: true }]
       }),
       // Stations
-      window.ezsite.apis.tablePage(12599, { PageNo: 1, PageSize: 10 }),
+      globalThis.ezsite.apis.tablePage(12599, { PageNo: 1, PageSize: 10 }),
       // All sales reports
-      window.ezsite.apis.tablePage(12356, { PageNo: 1, PageSize: 1 }),
+      globalThis.ezsite.apis.tablePage(12356, { PageNo: 1, PageSize: 1 }),
       // Today's sales
-      window.ezsite.apis.tablePage(12356, {
+      globalThis.ezsite.apis.tablePage(12356, {
         PageNo: 1, PageSize: 100,
         Filters: [{ name: 'report_date', op: 'StringContains', value: today }]
       }),
       // This month's sales
-      window.ezsite.apis.tablePage(12356, {
+      globalThis.ezsite.apis.tablePage(12356, {
         PageNo: 1, PageSize: 500,
         Filters: [{ name: 'report_date', op: 'StringContains', value: thisMonth }]
       }),
       // Products
-      window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 500 }),
+      globalThis.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 500 }),
       // All orders
-      window.ezsite.apis.tablePage(11730, { PageNo: 1, PageSize: 1 }),
+      globalThis.ezsite.apis.tablePage(11730, { PageNo: 1, PageSize: 1 }),
       // Pending orders
-      window.ezsite.apis.tablePage(11730, {
+      globalThis.ezsite.apis.tablePage(11730, {
         PageNo: 1, PageSize: 1,
         Filters: [{ name: 'status', op: 'Equal', value: 'Pending' }]
       }),
       // All licenses
-      window.ezsite.apis.tablePage(11731, { PageNo: 1, PageSize: 100 }),
+      globalThis.ezsite.apis.tablePage(11731, { PageNo: 1, PageSize: 100 }),
       // Active licenses
-      window.ezsite.apis.tablePage(11731, {
+      globalThis.ezsite.apis.tablePage(11731, {
         PageNo: 1, PageSize: 100,
         Filters: [{ name: 'status', op: 'Equal', value: 'Active' }]
       }),
       // SMS configuration
-      window.ezsite.apis.tablePage(12640, {
+      globalThis.ezsite.apis.tablePage(12640, {
         PageNo: 1, PageSize: 1,
         Filters: [{ name: 'is_active', op: 'Equal', value: true }]
       }),
       // Recent audit logs for activity
-      window.ezsite.apis.tablePage(12706, {
+      globalThis.ezsite.apis.tablePage(12706, {
         PageNo: 1, PageSize: 100,
         OrderByField: 'event_timestamp', IsAsc: false,
         Filters: [{ name: 'event_timestamp', op: 'GreaterThan', value: thirtyDaysAgo }]
       }),
       // Salary records
-      window.ezsite.apis.tablePage(11788, { PageNo: 1, PageSize: 1 }),
+      globalThis.ezsite.apis.tablePage(11788, { PageNo: 1, PageSize: 1 }),
       // Delivery records
-      window.ezsite.apis.tablePage(12196, { PageNo: 1, PageSize: 1 })]
+      globalThis.ezsite.apis.tablePage(12196, { PageNo: 1, PageSize: 1 })]
       );
 
       // Process metrics

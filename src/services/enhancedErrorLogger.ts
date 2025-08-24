@@ -342,7 +342,7 @@ export class EnhancedErrorLogger extends ErrorLogger {
       detailedLogs: logs.slice(0, 50), // Last 50 errors
       systemInfo: {
         userAgent: navigator.userAgent,
-        url: window.location.href,
+        url: globalThis.location.href,
         timestamp: new Date().toISOString()
       }
     };

@@ -398,10 +398,10 @@ const AdminDiagnostics: React.FC = () => {
         case 'database':
           // Test database connectivity with multiple tables for comprehensive check
           const dbTests = await Promise.all([
-          window.ezsite.apis.tablePage(11725, { PageNo: 1, PageSize: 1, Filters: [] }), // user_profiles
-          window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 1, Filters: [] }), // products  
-          window.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 1, Filters: [] }), // employees
-          window.ezsite.apis.tablePage(12599, { PageNo: 1, PageSize: 1, Filters: [] }) // stations
+          globalThis.ezsite.apis.tablePage(11725, { PageNo: 1, PageSize: 1, Filters: [] }), // user_profiles
+          globalThis.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 1, Filters: [] }), // products  
+          globalThis.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 1, Filters: [] }), // employees
+          globalThis.ezsite.apis.tablePage(12599, { PageNo: 1, PageSize: 1, Filters: [] }) // stations
           ]);
           const dbDuration = Date.now() - startTime;
           const failedDbTests = dbTests.filter((result) => result.error).length;
@@ -425,9 +425,9 @@ const AdminDiagnostics: React.FC = () => {
         case 'api':
           // Test multiple API endpoints
           const apiTests = await Promise.all([
-          window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 1, Filters: [] }),
-          window.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 1, Filters: [] }),
-          window.ezsite.apis.tablePage(12599, { PageNo: 1, PageSize: 1, Filters: [] })]
+          globalThis.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 1, Filters: [] }),
+          globalThis.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 1, Filters: [] }),
+          globalThis.ezsite.apis.tablePage(12599, { PageNo: 1, PageSize: 1, Filters: [] })]
           );
           const apiDuration = Date.now() - startTime;
           const failedApis = apiTests.filter((result) => result.error).length;
@@ -439,7 +439,7 @@ const AdminDiagnostics: React.FC = () => {
 
         case 'sms':
           // Test SMS configuration
-          const { error: smsError } = await window.ezsite.apis.tablePage(12640, {
+          const { error: smsError } = await globalThis.ezsite.apis.tablePage(12640, {
             PageNo: 1,
             PageSize: 1,
             Filters: [{ name: 'is_active', op: 'Equal', value: true }]
@@ -453,7 +453,7 @@ const AdminDiagnostics: React.FC = () => {
 
         case 'auth':
           // Test authentication by checking current user
-          const { error: authError } = await window.ezsite.apis.getUserInfo();
+          const { error: authError } = await globalThis.ezsite.apis.getUserInfo();
           const authDuration = Date.now() - startTime;
           return {
             passed: !authError,
@@ -463,7 +463,7 @@ const AdminDiagnostics: React.FC = () => {
 
         case 'permissions':
           // Test permissions by checking user profiles
-          const { data: permData, error: permError } = await window.ezsite.apis.tablePage(11725, {
+          const { data: permData, error: permError } = await globalThis.ezsite.apis.tablePage(11725, {
             PageNo: 1,
             PageSize: 10,
             Filters: []
@@ -479,7 +479,7 @@ const AdminDiagnostics: React.FC = () => {
 
         case 'backup':
           // Test backup by checking audit logs exist
-          const { data: auditData, error: auditError } = await window.ezsite.apis.tablePage(12706, {
+          const { data: auditData, error: auditError } = await globalThis.ezsite.apis.tablePage(12706, {
             PageNo: 1,
             PageSize: 1,
             Filters: []
@@ -495,8 +495,8 @@ const AdminDiagnostics: React.FC = () => {
           // Test real-time data synchronization
           const testStartTime = Date.now();
           const syncTests = await Promise.all([
-          window.ezsite.apis.tablePage(12356, { PageNo: 1, PageSize: 1, OrderByField: 'id', IsAsc: false, Filters: [] }), // Latest sales report
-          window.ezsite.apis.tablePage(12613, { PageNo: 1, PageSize: 1, OrderByField: 'sent_date', IsAsc: false, Filters: [] }) // Latest SMS alert
+          globalThis.ezsite.apis.tablePage(12356, { PageNo: 1, PageSize: 1, OrderByField: 'id', IsAsc: false, Filters: [] }), // Latest sales report
+          globalThis.ezsite.apis.tablePage(12613, { PageNo: 1, PageSize: 1, OrderByField: 'sent_date', IsAsc: false, Filters: [] }) // Latest SMS alert
           ]);
           const realtimeDuration = Date.now() - testStartTime;
           const syncSuccess = syncTests.every((result) => !result.error);
@@ -510,9 +510,9 @@ const AdminDiagnostics: React.FC = () => {
           // Test system performance metrics
           const perfStartTime = Date.now();
           const performanceTests = await Promise.all([
-          window.ezsite.apis.getUserInfo(),
-          window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 10, Filters: [] }),
-          window.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 10, Filters: [] })]
+          globalThis.ezsite.apis.getUserInfo(),
+          globalThis.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 10, Filters: [] }),
+          globalThis.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 10, Filters: [] })]
           );
           const perfDuration = Date.now() - perfStartTime;
           const perfSuccess = performanceTests.every((result) => !result.error);
@@ -535,8 +535,8 @@ const AdminDiagnostics: React.FC = () => {
         case 'cache':
           // Test cache system by checking data retrieval patterns
           const cacheStartTime = Date.now();
-          const cacheTest1 = await window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 5, Filters: [] });
-          const cacheTest2 = await window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 5, Filters: [] }); // Same query
+          const cacheTest1 = await globalThis.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 5, Filters: [] });
+          const cacheTest2 = await globalThis.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 5, Filters: [] }); // Same query
           const cacheDuration = Date.now() - cacheStartTime;
 
           // Update cache stats with simulated data based on real performance
@@ -602,13 +602,13 @@ const AdminDiagnostics: React.FC = () => {
 
       // Get comprehensive real data from multiple tables
       const [userData, productsData, employeesData, salesData, smsData, licensesData, auditData] = await Promise.all([
-      window.ezsite.apis.tablePage(11725, { PageNo: 1, PageSize: 1, Filters: [{ name: 'is_active', op: 'Equal', value: true }] }),
-      window.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 1, Filters: [] }),
-      window.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 1, Filters: [] }),
-      window.ezsite.apis.tablePage(12356, { PageNo: 1, PageSize: 1, Filters: [] }),
-      window.ezsite.apis.tablePage(12613, { PageNo: 1, PageSize: 1, Filters: [] }),
-      window.ezsite.apis.tablePage(11731, { PageNo: 1, PageSize: 1, Filters: [] }),
-      window.ezsite.apis.tablePage(12706, { PageNo: 1, PageSize: 1, Filters: [] })]
+      globalThis.ezsite.apis.tablePage(11725, { PageNo: 1, PageSize: 1, Filters: [{ name: 'is_active', op: 'Equal', value: true }] }),
+      globalThis.ezsite.apis.tablePage(11726, { PageNo: 1, PageSize: 1, Filters: [] }),
+      globalThis.ezsite.apis.tablePage(11727, { PageNo: 1, PageSize: 1, Filters: [] }),
+      globalThis.ezsite.apis.tablePage(12356, { PageNo: 1, PageSize: 1, Filters: [] }),
+      globalThis.ezsite.apis.tablePage(12613, { PageNo: 1, PageSize: 1, Filters: [] }),
+      globalThis.ezsite.apis.tablePage(11731, { PageNo: 1, PageSize: 1, Filters: [] }),
+      globalThis.ezsite.apis.tablePage(12706, { PageNo: 1, PageSize: 1, Filters: [] })]
       );
 
       const responseTime = Date.now() - startTime;

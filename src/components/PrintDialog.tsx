@@ -27,7 +27,7 @@ interface PrintDialogProps {
 
 const PrintDialog: React.FC<PrintDialogProps> = ({ license, isOpen, onClose }) => {
   const handlePrint = () => {
-    window.print();
+    globalThis.print();
   };
 
   const formatDate = (dateString: string) => {

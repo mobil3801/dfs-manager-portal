@@ -154,7 +154,7 @@ const AdminDashboard: React.FC = () => {
       console.log('Fetching real-time database statistics...');
 
       // Fetch user profiles count (table ID: 11725)
-      const { data: userProfilesData, error: userProfilesError } = await window.ezsite.apis.tablePage(11725, {
+      const { data: userProfilesData, error: userProfilesError } = await globalThis.ezsite.apis.tablePage(11725, {
         PageNo: 1,
         PageSize: 1,
         OrderByField: "id",
@@ -164,7 +164,7 @@ const AdminDashboard: React.FC = () => {
       const totalUsers = userProfilesError ? 0 : userProfilesData?.VirtualCount || 0;
 
       // Fetch employees count (table ID: 11727)
-      const { data: employeesData, error: employeesError } = await window.ezsite.apis.tablePage(11727, {
+      const { data: employeesData, error: employeesError } = await globalThis.ezsite.apis.tablePage(11727, {
         PageNo: 1,
         PageSize: 1,
         OrderByField: "id",
@@ -174,7 +174,7 @@ const AdminDashboard: React.FC = () => {
       const totalEmployees = employeesError ? 0 : employeesData?.VirtualCount || 0;
 
       // Fetch products count (table ID: 11726)
-      const { data: productsData, error: productsError } = await window.ezsite.apis.tablePage(11726, {
+      const { data: productsData, error: productsError } = await globalThis.ezsite.apis.tablePage(11726, {
         PageNo: 1,
         PageSize: 1,
         OrderByField: "id",
@@ -184,7 +184,7 @@ const AdminDashboard: React.FC = () => {
       const totalProducts = productsError ? 0 : productsData?.VirtualCount || 0;
 
       // Fetch sales reports count (table ID: 12356)
-      const { data: salesData, error: salesError } = await window.ezsite.apis.tablePage(12356, {
+      const { data: salesData, error: salesError } = await globalThis.ezsite.apis.tablePage(12356, {
         PageNo: 1,
         PageSize: 1,
         OrderByField: "id",
@@ -194,7 +194,7 @@ const AdminDashboard: React.FC = () => {
       const totalSales = salesError ? 0 : salesData?.VirtualCount || 0;
 
       // Fetch licenses count (table ID: 11731)
-      const { data: licensesData, error: licensesError } = await window.ezsite.apis.tablePage(11731, {
+      const { data: licensesData, error: licensesError } = await globalThis.ezsite.apis.tablePage(11731, {
         PageNo: 1,
         PageSize: 1,
         OrderByField: "id",
@@ -204,7 +204,7 @@ const AdminDashboard: React.FC = () => {
       const totalLicenses = licensesError ? 0 : licensesData?.VirtualCount || 0;
 
       // Fetch SMS alert history count (table ID: 12613)
-      const { data: smsData, error: smsError } = await window.ezsite.apis.tablePage(12613, {
+      const { data: smsData, error: smsError } = await globalThis.ezsite.apis.tablePage(12613, {
         PageNo: 1,
         PageSize: 1,
         OrderByField: "id",
@@ -214,7 +214,7 @@ const AdminDashboard: React.FC = () => {
       const smsAlertsSent = smsError ? 0 : smsData?.VirtualCount || 0;
 
       // Active sessions count (active user profiles)
-      const { data: activeUsersData, error: activeUsersError } = await window.ezsite.apis.tablePage(11725, {
+      const { data: activeUsersData, error: activeUsersError } = await globalThis.ezsite.apis.tablePage(11725, {
         PageNo: 1,
         PageSize: 1,
         OrderByField: "id",
@@ -257,7 +257,7 @@ const AdminDashboard: React.FC = () => {
       console.log('Fetching real-time audit activities...');
 
       // Fetch recent audit logs (table ID: 12706)
-      const { data: auditData, error: auditError } = await window.ezsite.apis.tablePage(12706, {
+      const { data: auditData, error: auditError } = await globalThis.ezsite.apis.tablePage(12706, {
         PageNo: 1,
         PageSize: 10,
         OrderByField: "event_timestamp",
@@ -311,7 +311,7 @@ const AdminDashboard: React.FC = () => {
       const thirtyDaysFromNow = new Date();
       thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
 
-      const { data: licensesData, error: licensesError } = await window.ezsite.apis.tablePage(11731, {
+      const { data: licensesData, error: licensesError } = await globalThis.ezsite.apis.tablePage(11731, {
         PageNo: 1,
         PageSize: 100,
         OrderByField: "expiry_date",
@@ -342,7 +342,7 @@ const AdminDashboard: React.FC = () => {
       }
 
       // Check for low stock products
-      const { data: productsData, error: productsError } = await window.ezsite.apis.tablePage(11726, {
+      const { data: productsData, error: productsError } = await globalThis.ezsite.apis.tablePage(11726, {
         PageNo: 1,
         PageSize: 50,
         OrderByField: "quantity_in_stock",

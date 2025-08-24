@@ -3,6 +3,7 @@ import { ErrorLogger } from '@/services/errorLogger';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import process from "node:process";
 
 interface Props {
   children: ReactNode;
@@ -52,7 +53,7 @@ class ComponentErrorBoundary extends Component<Props, State> {
       errorInfo,
       {
         component: componentName,
-        url: window.location.href,
+        url: globalThis.location.href,
         timestamp: new Date().toISOString()
       }
     );

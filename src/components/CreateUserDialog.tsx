@@ -110,7 +110,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
 
       // Step 1: Register user with Supabase Auth
       console.log('Registering user with email:', formData.email);
-      const { error: authError } = await window.ezsite.apis.register({
+      const { error: authError } = await globalThis.ezsite.apis.register({
         email: formData.email,
         password: formData.password
       });
@@ -130,7 +130,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
       // Retry logic to get user info after registration
       while (retryCount < maxRetries) {
         try {
-          const { data, error: userInfoError } = await window.ezsite.apis.getUserInfo();
+          const { data, error: userInfoError } = await globalThis.ezsite.apis.getUserInfo();
           if (!userInfoError && data) {
             userInfo = data;
             break;
@@ -184,7 +184,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
       };
 
       console.log('Creating user profile with data:', profileData);
-      const { error: profileError } = await window.ezsite.apis.tableCreate(11725, profileData);
+      const { error: profileError } = await globalThis.ezsite.apis.tableCreate(11725, profileData);
 
       if (profileError) {
         console.error('Profile creation failed:', profileError);
@@ -225,7 +225,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
             </div>
             ` : ''}
             
-            <p>You can access the portal at: <a href="${window.location.origin}" style="color: #2563eb;">${window.location.origin}</a></p>
+            <p>You can access the portal at: <a href="${globalThis.location.origin}" style="color: #2563eb;">${globalThis.location.origin}</a></p>
             
             <p>If you have any questions or need assistance, please contact your administrator.</p>
             
@@ -233,7 +233,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, onClose, on
           </div>
         `;
 
-        await window.ezsite.apis.sendEmail({
+        await globalThis.ezsite.apis.sendEmail({
           from: 'support@ezsite.ai',
           to: [formData.email],
           subject: 'Welcome to DFS Manager Portal - Account Created',

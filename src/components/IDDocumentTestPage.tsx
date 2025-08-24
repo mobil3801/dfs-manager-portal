@@ -46,13 +46,13 @@ const IDDocumentTestPage: React.FC = () => {
               <FixedIDDocumentViewer
                 fileId={123}
                 label="Test Document 1"
-                isAdminUser={true}
+                isAdminUser
                 size="lg" />
 
               <FixedIDDocumentViewer
                 fileId={999}
                 label="Non-existent Document"
-                isAdminUser={true}
+                isAdminUser
                 size="lg" />
 
             </div>
@@ -63,8 +63,8 @@ const IDDocumentTestPage: React.FC = () => {
             <h3 className="text-lg font-semibold mb-4">Fixed ID Documents Display</h3>
             <FixedIDDocumentsDisplay
               employee={mockEmployee}
-              isAdminUser={true}
-              allowDelete={true} />
+              isAdminUser
+              allowDelete />
 
           </div>
 

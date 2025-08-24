@@ -107,7 +107,7 @@ class OptimizedDataService {
           // Optimize query based on viewport and fields
           const optimizedParams = this.optimizeQuery(params, options);
 
-          const { data, error } = await window.ezsite.apis.tablePage(
+          const { data, error } = await globalThis.ezsite.apis.tablePage(
             tableId,
             optimizedParams
           );

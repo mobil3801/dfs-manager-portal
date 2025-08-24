@@ -140,11 +140,11 @@ const FileUploadDemo: React.FC = () => {
                 accept="image/*,application/pdf,.doc,.docx"
                 label="Upload to Database"
                 maxSize={10}
-                useDatabaseStorage={true}
+                useDatabaseStorage
                 associatedTable="demo_files"
                 associatedRecordId={1}
                 fileCategory="document"
-                showPreview={true} />
+                showPreview />
 
 
               {uploadedFiles.length > 0 &&
@@ -166,7 +166,7 @@ const FileUploadDemo: React.FC = () => {
                           <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => window.open(file.fileUrl, '_blank')}>
+                        onClick={() => globalThis.open(file.fileUrl, '_blank')}>
 
                             <Eye className="h-4 w-4" />
                           </Button>
@@ -195,7 +195,7 @@ const FileUploadDemo: React.FC = () => {
                 accept="*/*"
                 label="Upload Multiple Files"
                 maxSize={20}
-                allowMultiple={true}
+                allowMultiple
                 fileCategory="mixed"
                 associatedTable="demo_files"
                 associatedRecordId={2}
@@ -218,9 +218,9 @@ const FileUploadDemo: React.FC = () => {
               <FileDisplay
                 associatedTable="demo_files"
                 associatedRecordId={1}
-                allowDelete={true}
-                allowEdit={true}
-                showDescription={true}
+                allowDelete
+                allowEdit
+                showDescription
                 viewMode="grid"
                 key={refreshKey} />
 
@@ -231,7 +231,7 @@ const FileUploadDemo: React.FC = () => {
                 associatedTable="demo_files"
                 associatedRecordId={2}
                 fileCategory="mixed"
-                allowDelete={true}
+                allowDelete
                 viewMode="list"
                 key={refreshKey + 1000} />
 

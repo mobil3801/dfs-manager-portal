@@ -73,7 +73,7 @@ const SMSAlertScheduler: React.FC = () => {
   const loadSchedules = async () => {
     try {
       setLoading(true);
-      const { data, error } = await window.ezsite.apis.tablePage('12642', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('12642', {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'ID',
@@ -97,7 +97,7 @@ const SMSAlertScheduler: React.FC = () => {
 
   const loadTemplates = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage('12641', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('12641', {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'ID',
@@ -125,7 +125,7 @@ const SMSAlertScheduler: React.FC = () => {
       const now = new Date();
       const nextRun = new Date(now.getTime() + newSchedule.frequency_days * 24 * 60 * 60 * 1000);
 
-      const { error } = await window.ezsite.apis.tableCreate('12642', {
+      const { error } = await globalThis.ezsite.apis.tableCreate('12642', {
         ...newSchedule,
         last_run: '',
         next_run: nextRun.toISOString(),
@@ -164,7 +164,7 @@ const SMSAlertScheduler: React.FC = () => {
 
   const toggleSchedule = async (schedule: AlertSchedule) => {
     try {
-      const { error } = await window.ezsite.apis.tableUpdate('12642', {
+      const { error } = await globalThis.ezsite.apis.tableUpdate('12642', {
         ID: schedule.id,
         is_active: !schedule.is_active
       });
@@ -193,7 +193,7 @@ const SMSAlertScheduler: React.FC = () => {
     }
 
     try {
-      const { error } = await window.ezsite.apis.tableDelete('12642', {
+      const { error } = await globalThis.ezsite.apis.tableDelete('12642', {
         ID: schedule.id
       });
 
@@ -222,7 +222,7 @@ const SMSAlertScheduler: React.FC = () => {
       const now = new Date();
       const nextRun = new Date(now.getTime() + schedule.frequency_days * 24 * 60 * 60 * 1000);
 
-      const { error } = await window.ezsite.apis.tableUpdate('12642', {
+      const { error } = await globalThis.ezsite.apis.tableUpdate('12642', {
         ID: schedule.id,
         last_run: now.toISOString(),
         next_run: nextRun.toISOString()

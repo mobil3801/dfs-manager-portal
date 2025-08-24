@@ -22,7 +22,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
     if (resetErrorBoundary) {
       resetErrorBoundary();
     } else {
-      window.location.reload();
+      globalThis.location.reload();
     }
   };
 

@@ -60,7 +60,7 @@ const DocumentsUploadSection: React.FC<DocumentsUploadSectionProps> = ({
 
   const uploadDocument = async (field: string, file: File) => {
     try {
-      const { data: fileId, error } = await window.ezsite.apis.upload({
+      const { data: fileId, error } = await globalThis.ezsite.apis.upload({
         filename: file.name,
         file: file
       });

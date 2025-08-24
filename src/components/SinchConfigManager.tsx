@@ -57,7 +57,7 @@ const SinchConfigManager: React.FC = () => {
   const loadConfiguration = async () => {
     try {
       setLoading(true);
-      const { data, error } = await window.ezsite.apis.tablePage(24060, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(24060, {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'id',
@@ -109,13 +109,13 @@ const SinchConfigManager: React.FC = () => {
       };
 
       if (config.id) {
-        const { error } = await window.ezsite.apis.tableUpdate(24060, {
+        const { error } = await globalThis.ezsite.apis.tableUpdate(24060, {
           ID: config.id,
           ...configData
         });
         if (error) throw new Error(error);
       } else {
-        const { error } = await window.ezsite.apis.tableCreate(24060, configData);
+        const { error } = await globalThis.ezsite.apis.tableCreate(24060, configData);
         if (error) throw new Error(error);
       }
 
@@ -242,7 +242,7 @@ const SinchConfigManager: React.FC = () => {
         });
 
         // Log to SMS history
-        await window.ezsite.apis.tableCreate(24062, {
+        await globalThis.ezsite.apis.tableCreate(24062, {
           recipient_phone: testPhone,
           message_content: smsData.messages[0].body,
           message_type: 'test',

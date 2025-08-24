@@ -55,7 +55,7 @@ const LicenseForm: React.FC = () => {
   const loadLicense = async (licenseId: number) => {
     try {
       setLoading(true);
-      const { data, error } = await window.ezsite.apis.tablePage('11731', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('11731', {
         PageNo: 1,
         PageSize: 1,
         Filters: [{ name: 'ID', op: 'Equal', value: licenseId }]
@@ -92,7 +92,7 @@ const LicenseForm: React.FC = () => {
   const handleFileUpload = async (file: File) => {
     try {
       setUploadLoading(true);
-      const { data, error } = await window.ezsite.apis.upload({
+      const { data, error } = await globalThis.ezsite.apis.upload({
         filename: file.name,
         file: file
       });
@@ -132,7 +132,7 @@ const LicenseForm: React.FC = () => {
       };
 
       if (isEditing && id) {
-        const { error } = await window.ezsite.apis.tableUpdate('11731', {
+        const { error } = await globalThis.ezsite.apis.tableUpdate('11731', {
           ID: parseInt(id),
           ...dataToSubmit
         });
@@ -143,7 +143,7 @@ const LicenseForm: React.FC = () => {
           description: "License updated successfully"
         });
       } else {
-        const { error } = await window.ezsite.apis.tableCreate('11731', dataToSubmit);
+        const { error } = await globalThis.ezsite.apis.tableCreate('11731', dataToSubmit);
         if (error) throw error;
 
         toast({
@@ -328,7 +328,7 @@ const LicenseForm: React.FC = () => {
                 label="Upload License Document or Take Photo"
                 currentFile={uploadedFile?.name || (formData.document_file_id > 0 ? `Document ID: ${formData.document_file_id}` : undefined)}
                 maxSize={10}
-                allowCamera={true}
+                allowCamera
                 disabled={uploadLoading} />
 
               

@@ -45,9 +45,9 @@ const ImageLoadingFallback: React.FC<ImageLoadingFallbackProps> = ({
       }
     };
 
-    window.addEventListener('imageFallback', handleImageFallback as EventListener);
+    globalThis.addEventListener('imageFallback', handleImageFallback as EventListener);
     return () => {
-      window.removeEventListener('imageFallback', handleImageFallback as EventListener);
+      globalThis.removeEventListener('imageFallback', handleImageFallback as EventListener);
     };
   }, [src, onRetrySuccess]);
 

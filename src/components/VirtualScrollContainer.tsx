@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { motion } from 'motion/react';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import process from "node:process";
 
 interface VirtualScrollItem {
   id: string | number;
@@ -303,7 +304,7 @@ export const useVirtualScrollData = <T,>({
     setError(null);
 
     try {
-      const { data, error: apiError } = await window.ezsite.apis.tablePage(
+      const { data, error: apiError } = await globalThis.ezsite.apis.tablePage(
         tableId,
         {
           PageNo: pageRef.current,

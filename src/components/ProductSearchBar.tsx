@@ -87,7 +87,7 @@ const ProductSearchBar: React.FC<ProductSearchBarProps> = ({
       setIsLoading(true);
       console.log('Loading all products from products table...');
 
-      const { data, error } = await window.ezsite.apis.tablePage('11726', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('11726', {
         PageNo: 1,
         PageSize: 1000, // Load a large number to get all products
         OrderByField: 'product_name',

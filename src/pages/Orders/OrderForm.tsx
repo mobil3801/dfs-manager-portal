@@ -99,7 +99,7 @@ const OrderForm: React.FC = () => {
       setLoading(true);
 
       // Search for products matching the barcode
-      const { data, error } = await window.ezsite.apis.tablePage('11726', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('11726', {
         PageNo: 1,
         PageSize: 10,
         Filters: [
@@ -302,7 +302,7 @@ const OrderForm: React.FC = () => {
         created_by: 1
       };
 
-      const { error } = await window.ezsite.apis.tableCreate('11730', orderData);
+      const { error } = await globalThis.ezsite.apis.tableCreate('11730', orderData);
       if (error) throw error;
 
       toast({

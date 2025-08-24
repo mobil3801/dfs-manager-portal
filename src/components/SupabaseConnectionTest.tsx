@@ -351,8 +351,8 @@ const SupabaseConnectionTest: React.FC = () => {
             <div className="text-sm space-y-1">
               <p><strong>Supabase URL:</strong> {supabase.supabaseUrl}</p>
               <p><strong>Auth Flow:</strong> PKCE</p>
-              <p><strong>Redirect URL:</strong> {window.location.origin}/onauthsuccess</p>
-              <p><strong>Reset URL:</strong> {window.location.origin}/resetpassword</p>
+              <p><strong>Redirect URL:</strong> {globalThis.location.origin}/onauthsuccess</p>
+              <p><strong>Reset URL:</strong> {globalThis.location.origin}/resetpassword</p>
             </div>
           </div>
         </CardContent>

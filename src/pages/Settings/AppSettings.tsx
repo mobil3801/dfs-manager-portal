@@ -65,7 +65,7 @@ const AppSettings = () => {
     try {
       setLoading(true);
 
-      const { error } = await window.ezsite.apis.tableUpdate(11725, {
+      const { error } = await globalThis.ezsite.apis.tableUpdate(11725, {
         id: userProfile.id,
         phone: profileData.phone,
         station: profileData.station

@@ -43,7 +43,7 @@ const ProfilePictureDemo: React.FC = () => {
   const loadSampleEmployees = async () => {
     try {
       setIsLoading(true);
-      const response = await window.ezsite.apis.tablePage('11727', {
+      const response = await globalThis.ezsite.apis.tablePage('11727', {
         PageNo: 1,
         PageSize: 10,
         OrderByField: 'first_name',
@@ -85,7 +85,7 @@ const ProfilePictureDemo: React.FC = () => {
 
     try {
       setIsLoading(true);
-      const response = await window.ezsite.apis.upload({
+      const response = await globalThis.ezsite.apis.upload({
         filename: selectedFile.name,
         file: selectedFile
       });
@@ -252,8 +252,8 @@ const ProfilePictureDemo: React.FC = () => {
                 <div className="flex flex-col items-center space-y-4">
                     <UserProfilePicture
                     size="2xl"
-                    allowEdit={true}
-                    enableHover={true}
+                    allowEdit
+                    enableHover
                     className="ring-4 ring-blue-100" />
 
                     <div className="text-center">
@@ -297,7 +297,7 @@ const ProfilePictureDemo: React.FC = () => {
                           <UserProfilePicture
                           size={size as any}
                           allowEdit={false}
-                          enableHover={true}
+                          enableHover
                           className="ring-2 ring-gray-100" />
 
                           <p className="text-xs text-gray-500">{size}</p>
@@ -317,7 +317,7 @@ const ProfilePictureDemo: React.FC = () => {
                           size="lg"
                           rounded={rounded as any}
                           allowEdit={false}
-                          enableHover={true}
+                          enableHover
                           className="ring-2 ring-gray-100" />
 
                           <p className="text-xs text-gray-500">
@@ -377,8 +377,8 @@ const ProfilePictureDemo: React.FC = () => {
                     lastName={lastName}
                     previewFile={selectedFile}
                     size="2xl"
-                    allowEdit={true}
-                    enableHover={true}
+                    allowEdit
+                    enableHover
                     className="ring-4 ring-blue-100"
                     onImageUpdate={(newImageId) => {
                       setDemoImageId(newImageId);
@@ -423,7 +423,7 @@ const ProfilePictureDemo: React.FC = () => {
                       previewFile={selectedFile}
                       size="2xl"
                       allowEdit={false}
-                      enableHover={true}
+                      enableHover
                       className="ring-4 ring-blue-100" />
 
                     <p className="text-sm text-gray-600 mt-2">
@@ -487,8 +487,8 @@ const ProfilePictureDemo: React.FC = () => {
                       <EmployeeProfilePicture
                     employeeId={employee.id}
                     size="lg"
-                    allowEdit={true}
-                    enableHover={true}
+                    allowEdit
+                    enableHover
                     className="ring-2 ring-gray-100 hover:ring-blue-200" />
 
                       <div>
@@ -545,8 +545,8 @@ const ProfilePictureDemo: React.FC = () => {
                       lastName={lastName}
                       previewFile={selectedFile}
                       size={sizeOption.size}
-                      allowEdit={true}
-                      enableHover={true}
+                      allowEdit
+                      enableHover
                       className="ring-2 ring-blue-100" />
 
                       <div>
@@ -580,8 +580,8 @@ const ProfilePictureDemo: React.FC = () => {
                       previewFile={selectedFile}
                       size="xl"
                       rounded={roundedOption as any}
-                      allowEdit={true}
-                      enableHover={true}
+                      allowEdit
+                      enableHover
                       className="ring-2 ring-blue-100" />
 
                       <div>

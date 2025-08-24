@@ -60,7 +60,7 @@ const EmployeeFileDebugger: React.FC<EmployeeFileDebuggerProps> = ({
       setLoading(true);
 
       // Load employee data
-      const { data: empData, error: empError } = await window.ezsite.apis.tablePage('11727', {
+      const { data: empData, error: empError } = await globalThis.ezsite.apis.tablePage('11727', {
         PageNo: 1,
         PageSize: 1,
         Filters: [{ name: 'ID', op: 'Equal', value: employeeId }]
@@ -81,7 +81,7 @@ const EmployeeFileDebugger: React.FC<EmployeeFileDebuggerProps> = ({
       }
 
       // Load all file records associated with this employee
-      const { data: fileData, error: fileError } = await window.ezsite.apis.tablePage('26928', {
+      const { data: fileData, error: fileError } = await globalThis.ezsite.apis.tablePage('26928', {
         PageNo: 1,
         PageSize: 100,
         Filters: [
@@ -137,14 +137,14 @@ const EmployeeFileDebugger: React.FC<EmployeeFileDebuggerProps> = ({
 
   const cleanupOrphanedFile = async (fileRecord: FileRecord) => {
     try {
-      const confirmDelete = window.confirm(
+      const confirmDelete = globalThis.confirm(
         `Are you sure you want to permanently delete this orphaned file?\n\nFile: ${fileRecord.file_name}\nThis action cannot be undone.`
       );
 
       if (!confirmDelete) return;
 
       // Mark file as inactive
-      const { error } = await window.ezsite.apis.tableUpdate('26928', {
+      const { error } = await globalThis.ezsite.apis.tableUpdate('26928', {
         ID: fileRecord.id,
         is_active: false,
         description: `${fileRecord.description} - Cleaned up as orphaned file on ${new Date().toISOString()}`

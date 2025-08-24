@@ -171,7 +171,7 @@ const ProductForm = () => {
 
   const fetchVendors = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage('11729', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('11729', {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'vendor_name',
@@ -188,7 +188,7 @@ const ProductForm = () => {
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage('14389', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('14389', {
         PageNo: 1,
         PageSize: 100,
         OrderByField: 'category_name',
@@ -205,7 +205,7 @@ const ProductForm = () => {
 
   const generateSerialNumber = async () => {
     try {
-      const { data, error } = await window.ezsite.apis.tablePage('11726', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('11726', {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'serial_number',
@@ -227,7 +227,7 @@ const ProductForm = () => {
 
     setIsLoading(true);
     try {
-      const { data, error } = await window.ezsite.apis.tablePage('11726', {
+      const { data, error } = await globalThis.ezsite.apis.tablePage('11726', {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'ID',
@@ -427,7 +427,7 @@ const ProductForm = () => {
       const errors: string[] = [];
 
       // Get the latest serial number
-      const serialResponse = await window.ezsite.apis.tablePage('11726', {
+      const serialResponse = await globalThis.ezsite.apis.tablePage('11726', {
         PageNo: 1,
         PageSize: 1,
         OrderByField: 'serial_number',
@@ -475,7 +475,7 @@ const ProductForm = () => {
             productPayload.last_shopping_date = new Date(productData.last_shopping_date).toISOString();
           }
 
-          const { error } = await window.ezsite.apis.tableCreate('11726', productPayload);
+          const { error } = await globalThis.ezsite.apis.tableCreate('11726', productPayload);
 
           if (error) {
             errors.push(`${productData.product_name}: ${error}`);
@@ -527,7 +527,7 @@ const ProductForm = () => {
   const logFieldChange = async (productId: number, fieldName: string, oldValue: any, newValue: any, userId: number) => {
     try {
       // Log to product_logs table (legacy)
-      const { error: legacyError } = await window.ezsite.apis.tableCreate('11756', {
+      const { error: legacyError } = await globalThis.ezsite.apis.tableCreate('11756', {
         product_id: productId,
         field_name: fieldName,
         old_value: oldValue?.toString() || '',
@@ -540,7 +540,7 @@ const ProductForm = () => {
       }
 
       // Log to product_changelog table (enhanced)
-      const { error: changelogError } = await window.ezsite.apis.tableCreate('24010', {
+      const { error: changelogError } = await globalThis.ezsite.apis.tableCreate('24010', {
         product_id: productId,
         field_name: fieldName,
         old_value: oldValue?.toString() || '',
@@ -593,16 +593,16 @@ const ProductForm = () => {
       let createdProductId = null;
 
       if (isEdit) {
-        const { error } = await window.ezsite.apis.tableUpdate('11726', { ID: parseInt(id!), ...payload });
+        const { error } = await globalThis.ezsite.apis.tableUpdate('11726', { ID: parseInt(id!), ...payload });
         resultError = error;
       } else {
-        const { error } = await window.ezsite.apis.tableCreate('11726', payload);
+        const { error } = await globalThis.ezsite.apis.tableCreate('11726', payload);
         resultError = error;
 
         // For new products, get the newly created product ID
         if (!error) {
           try {
-            const { data: newProductData } = await window.ezsite.apis.tablePage('11726', {
+            const { data: newProductData } = await globalThis.ezsite.apis.tablePage('11726', {
               PageNo: 1,
               PageSize: 1,
               OrderByField: 'serial_number',
@@ -675,14 +675,14 @@ const ProductForm = () => {
     join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+    const url = globalThis.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.style.display = 'none';
     a.href = url;
     a.download = 'product_import_template.csv';
     document.body.appendChild(a);
     a.click();
-    window.URL.revokeObjectURL(url);
+    globalThis.URL.revokeObjectURL(url);
     document.body.removeChild(a);
   };
 
@@ -830,7 +830,7 @@ const ProductForm = () => {
         <CardContent>
           <FormErrorBoundary
             formName="Product Form"
-            showDataRecovery={true}
+            showDataRecovery
             onFormReset={() => {
               if (isEdit) {
                 fetchProduct();
@@ -1194,11 +1194,11 @@ const ProductForm = () => {
                         accept="image/*"
                         label="Upload Product Image"
                         maxSize={5}
-                        useDatabaseStorage={true}
+                        useDatabaseStorage
                         associatedTable="products"
                         associatedRecordId={parseInt(id || '0')}
                         fileCategory="product_image"
-                        showPreview={true}
+                        showPreview
                         onFileUpload={(result) => {
                           toast({
                             title: "Image uploaded",
@@ -1213,11 +1213,11 @@ const ProductForm = () => {
                         accept=".pdf,.doc,.docx,.txt"
                         label="Upload Documents"
                         maxSize={10}
-                        useDatabaseStorage={true}
+                        useDatabaseStorage
                         associatedTable="products"
                         associatedRecordId={parseInt(id || '0')}
                         fileCategory="product_document"
-                        showPreview={true}
+                        showPreview
                         onFileUpload={(result) => {
                           toast({
                             title: "Document uploaded",
@@ -1236,9 +1236,9 @@ const ProductForm = () => {
                     <FileDisplay
                     associatedTable="products"
                     associatedRecordId={parseInt(id || '0')}
-                    allowDelete={true}
+                    allowDelete
                     allowEdit={false}
-                    showDescription={true}
+                    showDescription
                     viewMode="grid" />
 
                   </div>

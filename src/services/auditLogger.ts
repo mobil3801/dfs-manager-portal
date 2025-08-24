@@ -99,7 +99,7 @@ class AuditLoggerService {
         additional_data: JSON.stringify(details.additional_data || {})
       };
 
-      const { error } = await window.ezsite.apis.tableCreate(this.tableId, logEntry);
+      const { error } = await globalThis.ezsite.apis.tableCreate(this.tableId, logEntry);
       if (error) {
         console.error('Failed to create audit log:', error);
         // Don't throw error to avoid breaking main functionality
@@ -320,7 +320,7 @@ class AuditLoggerService {
         });
       }
 
-      const { data, error } = await window.ezsite.apis.tablePage(this.tableId, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(this.tableId, {
         PageNo: pageNo,
         PageSize: pageSize,
         OrderByField: 'event_timestamp',

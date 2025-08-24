@@ -226,7 +226,7 @@ const EmailAutomationManager: React.FC = () => {
       const automation = automations.find((a) => a.id === automationId);
       if (!automation) return;
 
-      const { error } = await window.ezsite.apis.sendEmail({
+      const { error } = await globalThis.ezsite.apis.sendEmail({
         from: `${automation.from_name} <${automation.from_email}>`,
         to: [automation.from_email], // Send to self for testing
         subject: `TEST: ${automation.automation_name} - ${new Date().toLocaleString()}`,

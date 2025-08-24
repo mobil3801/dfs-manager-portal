@@ -67,7 +67,7 @@ const InitialStationSetup: React.FC = () => {
   const loadStations = async () => {
     try {
       setLoading(true);
-      const { data, error } = await window.ezsite.apis.tablePage(12599, {
+      const { data, error } = await globalThis.ezsite.apis.tablePage(12599, {
         "PageNo": 1,
         "PageSize": 10,
         "OrderByField": "station_name",
@@ -98,7 +98,7 @@ const InitialStationSetup: React.FC = () => {
       setLoading(true);
 
       for (const station of defaultStations) {
-        const { error } = await window.ezsite.apis.tableCreate(12599, {
+        const { error } = await globalThis.ezsite.apis.tableCreate(12599, {
           ...station,
           last_updated: new Date().toISOString(),
           created_by: 1 // Default to system user
@@ -140,10 +140,10 @@ const InitialStationSetup: React.FC = () => {
       let error;
       if (station.id) {
         // Update existing station
-        ({ error } = await window.ezsite.apis.tableUpdate(12599, stationData));
+        ({ error } = await globalThis.ezsite.apis.tableUpdate(12599, stationData));
       } else {
         // Create new station
-        ({ error } = await window.ezsite.apis.tableCreate(12599, stationData));
+        ({ error } = await globalThis.ezsite.apis.tableCreate(12599, stationData));
       }
 
       if (error) {
@@ -173,7 +173,7 @@ const InitialStationSetup: React.FC = () => {
   const deleteStation = async (stationId: number) => {
     try {
       setLoading(true);
-      const { error } = await window.ezsite.apis.tableDelete(12599, { "ID": stationId });
+      const { error } = await globalThis.ezsite.apis.tableDelete(12599, { "ID": stationId });
 
       if (error) {
         throw new Error(error);

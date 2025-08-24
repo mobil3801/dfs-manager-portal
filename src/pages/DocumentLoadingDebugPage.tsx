@@ -46,7 +46,7 @@ const DocumentLoadingDebugPage: React.FC = () => {
   const checkSystemStatus = async () => {
     try {
       // Test database connection
-      const dbResponse = await window.ezsite.apis.tablePage('11727', {
+      const dbResponse = await globalThis.ezsite.apis.tablePage('11727', {
         PageNo: 1,
         PageSize: 1,
         Filters: []
@@ -59,7 +59,7 @@ const DocumentLoadingDebugPage: React.FC = () => {
       }));
 
       // Test file storage
-      const storageResponse = await window.ezsite.apis.tablePage('26928', {
+      const storageResponse = await globalThis.ezsite.apis.tablePage('26928', {
         PageNo: 1,
         PageSize: 1,
         Filters: []
@@ -80,7 +80,7 @@ const DocumentLoadingDebugPage: React.FC = () => {
 
   const loadAvailableFiles = async () => {
     try {
-      const response = await window.ezsite.apis.tablePage('26928', {
+      const response = await globalThis.ezsite.apis.tablePage('26928', {
         PageNo: 1,
         PageSize: 10,
         OrderByField: 'id',
@@ -118,7 +118,7 @@ const DocumentLoadingDebugPage: React.FC = () => {
     {
       name: 'Database Connection',
       test: async () => {
-        const response = await window.ezsite.apis.tablePage('11727', {
+        const response = await globalThis.ezsite.apis.tablePage('11727', {
           PageNo: 1,
           PageSize: 1,
           Filters: []
@@ -130,7 +130,7 @@ const DocumentLoadingDebugPage: React.FC = () => {
     {
       name: 'File Storage Access',
       test: async () => {
-        const response = await window.ezsite.apis.tablePage('26928', {
+        const response = await globalThis.ezsite.apis.tablePage('26928', {
           PageNo: 1,
           PageSize: 5,
           Filters: []
@@ -433,10 +433,10 @@ const DocumentLoadingDebugPage: React.FC = () => {
               <EnhancedDocumentViewer
               fileId={selectedFileId}
               label={`Test Document ${selectedFileId}`}
-              isAdminUser={true}
+              isAdminUser
               size="lg"
-              showLabel={true}
-              autoRetry={true} />
+              showLabel
+              autoRetry />
 
               
               <div className="space-y-4">
@@ -500,9 +500,9 @@ const DocumentLoadingDebugPage: React.FC = () => {
             <RobustFileViewer
             fileIds={availableFiles.slice(0, 3).map((f) => f.store_file_id)}
             labels={availableFiles.slice(0, 3).map((f) => f.file_name || `File ${f.store_file_id}`)}
-            isAdminUser={true}
+            isAdminUser
             title="Test Documents"
-            showPreviewDialog={true} />
+            showPreviewDialog />
 
           </CardContent>
         </Card>
